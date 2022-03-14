@@ -35,7 +35,9 @@ ohos_shared_library("pasteboard_napi") {
   deps = [
     "//base/miscservices/pasteboard/services:pasteboard_service",
     "//base/miscservices/pasteboard/framework/innerkits:pasteboard_client",
-    "//base/notification/ans_standard/frameworks/wantagent:wantagent_innerkits",
+    "//foundation/aafwk/standard/interfaces/innerkits/base:base",
+    "//foundation/aafwk/standard/interfaces/innerkits/intent:intent",
+    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/ace/napi/:ace_napi",
@@ -43,7 +45,6 @@ ohos_shared_library("pasteboard_napi") {
   ]
 
   external_deps = [
-    "ability_runtime:want",
     "appexecfwk_standard:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

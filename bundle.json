@@ -25,7 +25,6 @@
       "deps": {
         "components": [
           "ability_manager",
-          "ability_runtime",
           "appexecfwk_standard",
           "ans_standard",
           "ces_standard",
