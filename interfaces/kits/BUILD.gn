@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
 import("//base/miscservices/pasteboard/pasteboard.gni")
+import("//build/ohos.gni")
 
 ohos_shared_library("pasteboard_napi") {
   include_dirs = [
@@ -33,19 +33,18 @@ ohos_shared_library("pasteboard_napi") {
   ]
 
   deps = [
-    "//base/miscservices/pasteboard/services:pasteboard_service",
     "//base/miscservices/pasteboard/framework/innerkits:pasteboard_client",
+    "//base/miscservices/pasteboard/services:pasteboard_service",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/interfaces/innerkits/intent:intent",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/ace/napi/:ace_napi",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "appexecfwk_standard:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

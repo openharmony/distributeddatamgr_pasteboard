@@ -121,7 +121,7 @@ PasteData PasteboardServiceProxy::GetPasteData()
 {
     MessageParcel data, reply;
     MessageOption option;
-    PasteData value;
+    PasteData value {};
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");

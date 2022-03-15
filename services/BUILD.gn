@@ -34,10 +34,10 @@ ohos_shared_library("pasteboard_service") {
     "${pasteboard_utils_path}/mock/src/mock_permission.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_permission.cpp",
     "core/src/pasteboard_service.cpp",
-    "zidl/src/pasteboard_service_proxy.cpp",
-    "zidl/src/pasteboard_service_stub.cpp",
     "zidl/src/pasteboard_observer_proxy.cpp",
     "zidl/src/pasteboard_observer_stub.cpp",
+    "zidl/src/pasteboard_service_proxy.cpp",
+    "zidl/src/pasteboard_service_stub.cpp",
   ]
   public_configs = [
     "//utils/native/base:utils_config",
@@ -45,17 +45,16 @@ ohos_shared_library("pasteboard_service") {
   ]
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/interfaces/innerkits/intent:intent",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
-  
+
   external_deps = [
-    "appexecfwk_standard:appexecfwk_base",
-    "appexecfwk_standard:libeventhandler",
+    "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
