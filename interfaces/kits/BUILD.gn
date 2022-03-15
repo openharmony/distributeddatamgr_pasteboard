@@ -45,7 +45,6 @@ ohos_shared_library("pasteboard_napi") {
   ]
 
   external_deps = [
-    "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

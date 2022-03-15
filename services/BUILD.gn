@@ -54,7 +54,6 @@ ohos_shared_library("pasteboard_service") {
   ]
 
   external_deps = [
-    "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
