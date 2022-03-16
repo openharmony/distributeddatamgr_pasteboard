@@ -20,18 +20,15 @@ config("module_private_config") {
   include_dirs = [
     "${pasteboard_innerkits_path}/include",
     "unittest/include",
-    ]
+  ]
 }
 
 module_output_path = "pasteboard_native/pasteboard_service"
 
 ohos_unittest("PasteboardServiceTest") {
-
   module_out_path = module_output_path
 
-  sources = [ 
-    "unittest/src/paste_service_test.cpp",
-  ]
+  sources = [ "unittest/src/paste_service_test.cpp" ]
   configs = [
     "//utils/native/base:utils_config",
     ":module_private_config",
@@ -43,9 +40,9 @@ ohos_unittest("PasteboardServiceTest") {
 
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/interfaces/innerkits/intent:intent",
+    "//foundation/aafwk/standard/interfaces/innerkits/uri:zuri",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
