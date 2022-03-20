@@ -119,25 +119,21 @@ napi_value JScreateHtmlData(napi_env env, napi_callback_info info)
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[1] = { 0 };
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "aaa");
+
     napi_value instance = nullptr;
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, &instance));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "bbb");
 
     napi_value func = nullptr;
     napi_status status = napi_get_named_property(env, instance, "AddHtmlRecord", &func);
     NAPI_ASSERT(env, status == napi_ok, "napi get func failed!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ccc");
 
-    // napi_valuetype valueType = napi_undefined;
-    // napi_typeof(env, func, &valueType);
-    // NAPI_ASSERT(env, valueType == napi_function, "func is not napi_function!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ddd");
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, func, &valueType);
+    NAPI_ASSERT(env, valueType == napi_function, "func is not napi_function!");
 
     napi_value callbackResult = nullptr;
     status = napi_call_function(env, instance, func, 1, argv, &callbackResult);
     NAPI_ASSERT(env, status == napi_ok, "napi call func failed!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "eee");
 
     return instance;
 }
@@ -148,26 +144,21 @@ napi_value JScreatePlainTextData(napi_env env, napi_callback_info info)
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[1] = { 0 };
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "111");
 
     napi_value instance = nullptr;
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, &instance));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "aaa");
 
     napi_value func = nullptr;
     napi_status status = napi_get_named_property(env, instance, "AddTextRecord", &func);
     NAPI_ASSERT(env, status == napi_ok, "napi get func failed!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "bbb");
 
-    // napi_valuetype valueType = napi_undefined;
-    // napi_typeof(env, func, &valueType);
-    // NAPI_ASSERT(env, valueType == napi_function, "func is not napi_function!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ccc");
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, func, &valueType);
+    NAPI_ASSERT(env, valueType == napi_function, "func is not napi_function!");
 
     napi_value callbackResult = nullptr;
     status = napi_call_function(env, instance, func, 1, argv, &callbackResult);
     NAPI_ASSERT(env, status == napi_ok, "napi call func failed!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ddd");
 
     return instance;
 }
@@ -178,7 +169,6 @@ napi_value JScreateUriData(napi_env env, napi_callback_info info)
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[1] = { 0 };
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "aaa");
 
     napi_value instance = nullptr;
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, &instance));
@@ -186,17 +176,14 @@ napi_value JScreateUriData(napi_env env, napi_callback_info info)
     napi_value func = nullptr;
     napi_status status = napi_get_named_property(env, instance, "AddUriRecord", &func);
     NAPI_ASSERT(env, status == napi_ok, "napi get func failed!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "bbb");
 
-    // napi_valuetype valueType = napi_undefined;
-    // napi_typeof(env, func, &valueType);
-    // NAPI_ASSERT(env, valueType == napi_function, "func is not napi_function!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ccc");
+    napi_valuetype valueType = napi_undefined;
+    napi_typeof(env, func, &valueType);
+    NAPI_ASSERT(env, valueType == napi_function, "func is not napi_function!");
 
     napi_value callbackResult = nullptr;
     status = napi_call_function(env, instance, func, 1, argv, &callbackResult);
     NAPI_ASSERT(env, status == napi_ok, "napi call func failed!");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ddd");
 
     return instance;
 }
