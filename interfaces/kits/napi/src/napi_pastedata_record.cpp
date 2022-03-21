@@ -21,13 +21,15 @@ using namespace OHOS::MiscServices;
 namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
+std::shared_ptr<MiscServices::PasteDataRecord> PasteDataRecordNapi::value_ = nullptr;
+
 const size_t ARGC_TYPE_SET1 = 1;
 const size_t ARGC_TYPE_SET4 = 4;
 
 PasteDataRecordNapi::PasteDataRecordNapi(std::string mimeType,
-                                 std::shared_ptr<std::string> htmlText,
-                                 std::shared_ptr<std::string> plainText,
-                                 std::shared_ptr<std::string> uri) : env_(nullptr), wrapper_(nullptr)
+                                         std::shared_ptr<std::string> htmlText,
+                                         std::shared_ptr<std::string> plainText,
+                                         std::shared_ptr<std::string> uri) : env_(nullptr), wrapper_(nullptr)
 {
     std::string cstring = *uri;
     std::shared_ptr<OHOS::Uri> uuri = std::make_shared<OHOS::Uri>(cstring);//std::make_shared<OHOS::Uri>(*uri);

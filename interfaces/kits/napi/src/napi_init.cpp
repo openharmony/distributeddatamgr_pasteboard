@@ -28,9 +28,9 @@ static napi_value NapiInit(napi_env env, napi_value exports)
     /*
      * Propertise define
      */
-    PasteBoardInit(env, exports);
-    PasteDataNapi::PasteDataInit(env, exports);
     PasteDataRecordNapi::PasteDataRecordInit(env, exports);
+    PasteDataNapi::PasteDataInit(env, exports);
+    PasteBoardInit(env, exports);
     SystemPasteboardNapi::SystemPasteboardInit(env, exports);
     return exports;
 }

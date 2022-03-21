@@ -48,7 +48,7 @@ class PasteboardService final : public SystemAbility,
 
 public:
     virtual void Clear() override;
-    virtual PasteData GetPasteData() override;
+    virtual bool GetPasteData(PasteData& data) override;
     virtual bool HasPasteData() override;
     virtual void SetPasteData(PasteData& pasteData) override;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;

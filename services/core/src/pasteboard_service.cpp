@@ -115,20 +115,20 @@ void PasteboardService::Clear()
     }
 }
 
-PasteData PasteboardService::GetPasteData()
+bool PasteboardService::GetPasteData(PasteData& data)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
-    PasteData pasteData;
     std::lock_guard<std::mutex> lock(clipMutex_);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "find end.");
-        return *(it->second);
+        data = *(it->second);
+        return true;
     } else {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not found end.");
-        return pasteData;
+        return false;
     }
 }
 

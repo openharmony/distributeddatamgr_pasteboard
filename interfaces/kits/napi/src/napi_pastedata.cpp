@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cstddef>
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 #include "pasteboard_common.h"
@@ -21,6 +22,7 @@ using namespace OHOS::MiscServices;
 namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteData = nullptr;
+std::shared_ptr<MiscServices::PasteData> PasteDataNapi::value_ = nullptr;
 
 PasteDataNapi::PasteDataNapi() : env_(nullptr), wrapper_(nullptr)
 {
@@ -650,21 +652,31 @@ void PasteDataNapi::Destructor(napi_env env, void *nativeObject, void *finalize_
     delete obj;
 }
 
+napi_value NapiGetNull(napi_env env)
+{
+    napi_value result = nullptr;
+    napi_get_null(env, &result);
+    return result;
+}
+
 napi_value PasteDataNapi::New(napi_env env, napi_callback_info info)
 {
-    napi_status status;
-    napi_value constructor;
-    napi_value instance;
-    napi_get_reference_value(env, g_pasteData, &constructor);
-    
-    status = napi_new_instance(env, constructor, 0, nullptr, &instance);
-    NAPI_ASSERT(env, status == napi_ok, "napi_new_instance error");
-
-    return instance;
+    napi_value thisVar = nullptr;
+    size_t argc = 1;
+    napi_value argv[1] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    if (value_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "value_ is null");
+        return NapiGetNull(env);
+    }
+    napi_wrap(env, thisVar, value_.get(), nullptr, nullptr, nullptr);
+  
+    return thisVar;
 }
 
 napi_status PasteDataNapi::NewInstance(napi_env env, napi_value *instance)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "enter");
     napi_status status;
     napi_value constructor;
     status = napi_get_reference_value(env, g_pasteData, &constructor);
@@ -678,7 +690,7 @@ napi_status PasteDataNapi::NewInstance(napi_env env, napi_value *instance)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "new instance failed");
         return status;
     }
-
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "new instance ok");
     return napi_ok;
 }
 

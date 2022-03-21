@@ -33,7 +33,7 @@ public:
     static napi_status NewInstance(napi_env env, napi_value *instance);
     static void Destructor(napi_env env, void *nativeObject, void *finalize_hint);
     static napi_value GetSystemPasteboard(napi_env env, napi_callback_info info);
-    std::shared_ptr<MiscServices::PasteData> value_;
+    static std::shared_ptr<MiscServices::PasteData> value_;
 
 private:
     static napi_value AddHtmlRecord(napi_env env, napi_callback_info info);

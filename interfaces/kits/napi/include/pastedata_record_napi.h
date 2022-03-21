@@ -39,7 +39,7 @@ public:
 
     static napi_value ConvertToText(napi_env env, napi_callback_info info);
 
-    std::shared_ptr<MiscServices::PasteDataRecord> value_;
+    static std::shared_ptr<MiscServices::PasteDataRecord> value_;
 
 private:
     napi_env env_;
