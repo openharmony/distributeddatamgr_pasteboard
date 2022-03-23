@@ -30,8 +30,8 @@ static napi_value NapiInit(napi_env env, napi_value exports)
      */
     PasteDataRecordNapi::PasteDataRecordInit(env, exports);
     PasteDataNapi::PasteDataInit(env, exports);
-    PasteBoardInit(env, exports);
     SystemPasteboardNapi::SystemPasteboardInit(env, exports);
+    PasteBoardInit(env, exports);
     return exports;
 }
 EXTERN_C_END
@@ -40,7 +40,6 @@ EXTERN_C_END
  * Module define
  */
 static napi_module _module = {
-
     .nm_version = 1,
     .nm_flags = 0,
     .nm_filename = nullptr,

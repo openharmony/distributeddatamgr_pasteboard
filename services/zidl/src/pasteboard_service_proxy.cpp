@@ -117,27 +117,27 @@ void PasteboardServiceProxy::SetPasteData(PasteData& pasteData)
     }
 }
 
-bool PasteboardServiceProxy::GetPasteData(PasteData& pasteData)
+PasteData PasteboardServiceProxy::GetPasteData()
 {
     MessageParcel data, reply;
     MessageOption option;
+    PasteData value {};
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return false;
+        return value;
     }
     int32_t result = Remote()->SendRequest(GET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-        return false;
+        return value;
     }
     std::unique_ptr<PasteData> pasteInfo(reply.ReadParcelable<PasteData>());
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     if (pasteInfo == nullptr) {
-        return false;
+        return value;
     }
-    pasteData = *pasteInfo;
-    return true;
+    return *pasteInfo;
 }
 } // namespace MiscServices
 } // namespace OHOS

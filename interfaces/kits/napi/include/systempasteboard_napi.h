@@ -28,14 +28,13 @@ class SystemPasteboardNapi {
 public:
     static napi_value SystemPasteboardInit(napi_env env, napi_value exports);
     static napi_value New(napi_env env, napi_callback_info info);
-    static napi_status NewInstance(napi_env env, napi_value *instance);
+    static napi_status NewInstance(napi_env env, napi_value &instance);
     static void Destructor(napi_env env, void *nativeObject, void *finalize_hint);
 
     SystemPasteboardNapi();
     ~SystemPasteboardNapi();
-    static napi_value GetCallback();
-    static napi_value callback_;
-    static napi_env callbackEnv;
+    static napi_ref callback_;
+    static napi_env callbackEnv_;
 
 private:
     static napi_value On(napi_env env, napi_callback_info info);

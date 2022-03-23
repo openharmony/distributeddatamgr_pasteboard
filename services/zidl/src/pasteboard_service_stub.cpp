@@ -68,11 +68,7 @@ int32_t PasteboardServiceStub::OnClear(MessageParcel &data, MessageParcel &reply
 int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
-    PasteData pasteData {};
-    auto hasPasteData = GetPasteData(pasteData);
-    if (!hasPasteData) {
-        return ERR_INVALID_VALUE;
-    }
+    auto pasteData = GetPasteData();
     if (!reply.WriteParcelable(&pasteData)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write parcelable pasteData");
         return ERR_INVALID_VALUE;

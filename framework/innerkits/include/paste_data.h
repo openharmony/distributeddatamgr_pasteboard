@@ -27,7 +27,7 @@
 namespace OHOS {
 namespace MiscServices {
 struct PasteDataProperty {
-    std::map<std::string, void*> additions;
+    AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;
     std::string tag;
     std::int64_t timestamp;

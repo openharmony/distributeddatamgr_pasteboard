@@ -28,7 +28,7 @@ public:
     ~PasteboardServiceProxy() = default;
     DISALLOW_COPY_AND_MOVE(PasteboardServiceProxy);
     virtual void Clear() override;
-    virtual bool GetPasteData(PasteData& data) override;
+    virtual PasteData GetPasteData() override;
     virtual bool HasPasteData() override;
     virtual void SetPasteData(PasteData& pasteData) override;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;

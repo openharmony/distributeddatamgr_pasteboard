@@ -114,9 +114,9 @@ bool PasteboardClient::GetPasteData(PasteData& pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
         return false;
     }
-
+    pasteData = pasteboardServiceProxy_->GetPasteData();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
-    return pasteboardServiceProxy_->GetPasteData(pasteData);
+    return true;
 }
 
 bool PasteboardClient::HasPasteData()
