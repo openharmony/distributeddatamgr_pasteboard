@@ -106,7 +106,8 @@ bool PasteDataRecordNapi::NewWantRecordInstance(
     return true;
 }
 
-void PasteDataRecordNapi::SetNamedPropertyByStr(napi_env env, napi_value &dstObj, const std::string &objName, const char *propName)
+void PasteDataRecordNapi::SetNamedPropertyByStr(napi_env env, napi_value &dstObj,
+    const std::string &objName, const char *propName)
 {
     napi_value prop = nullptr;
     if (napi_create_string_utf8(env, objName.c_str(), NAPI_AUTO_LENGTH, &prop) == napi_ok) {
@@ -168,7 +169,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
         return nullptr;
     }
 
-    AsyncText *asyncText = new (std::nothrow) AsyncText{.env = env, .work = nullptr, .text = str, .obj = obj};
+    AsyncText *asyncText = new (std::nothrow) AsyncText {.env = env, .work = nullptr, .text = str, .obj = obj};
     if (!asyncText) {
         return NapiGetNull(env);
     }
@@ -294,5 +295,5 @@ napi_status PasteDataRecordNapi::NewInstance(napi_env env, napi_value &instance)
 
     return napi_ok;
 }
-}  // namespace MiscServicesNapi
-}  // namespace OHOS
+} // namespace MiscServicesNapi
+} // namespace OHOS

@@ -485,7 +485,7 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
 
-    AsyncContext *asyncContext = new (std::nothrow) AsyncContext {.env = env, .work = nullptr,};
+    AsyncContext *asyncContext = new (std::nothrow) AsyncContext {.env = env, .work = nullptr, };
     if (!asyncContext) {
         return NapiGetNull(env);
     }

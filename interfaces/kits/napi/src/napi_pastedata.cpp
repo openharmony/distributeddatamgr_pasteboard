@@ -512,11 +512,11 @@ bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &prope
     napi_value arr = nullptr;
     int count = 0;
 
-    //additions : {[key: string]: object}
+    // additions : {[key: string]: object}
     value = OHOS::AppExecFwk::WrapWantParams(env, property.additions);
     napi_set_named_property(env, NProperty, "additions", value);
 
-    //mimeTypes: Array<string>
+    // mimeTypes: Array<string>
     napi_create_array(env, &arr);
     for (auto vec : property.mimeTypes) {
         napi_create_string_utf8(env, vec.c_str(), NAPI_AUTO_LENGTH, &value);
@@ -527,11 +527,11 @@ bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &prope
         napi_set_named_property(env, NProperty, "mimeTypes", arr);
     }
 
-    //tag: string
+    // tag: string
     napi_create_string_utf8(env, property.tag.c_str(), NAPI_AUTO_LENGTH, &value);
     napi_set_named_property(env, NProperty, "tag", value);
 
-    //timestamp: number
+    // timestamp: number
     napi_create_int64(env, property.timestamp, &value);
     napi_set_named_property(env, NProperty, "timestamp", value);
 
@@ -674,6 +674,5 @@ napi_status PasteDataNapi::NewInstance(napi_env env, napi_value &instance)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "new instance ok");
     return napi_ok;
 }
-
-}  // namespace MiscServicesNapi
-}  // namespace OHOS
+} // namespace MiscServicesNapi
+} // namespace OHOS

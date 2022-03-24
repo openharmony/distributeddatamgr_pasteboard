@@ -61,5 +61,5 @@ napi_value CreateNapiString(napi_env env, std::string str)
     napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &value);
     return value;
 }
-}  // namespace MiscServicesNapi
-}  // namespace OHOS
+} // namespace MiscServicesNapi
+} // namespace OHOS
