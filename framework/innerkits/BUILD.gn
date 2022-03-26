@@ -39,7 +39,6 @@ ohos_shared_library("pasteboard_client") {
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
-    "//foundation/aafwk/standard/interfaces/innerkits/intent:intent",
     "//foundation/aafwk/standard/interfaces/innerkits/uri:zuri",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//third_party/jsoncpp:jsoncpp",
