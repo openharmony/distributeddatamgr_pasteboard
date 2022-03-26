@@ -13,7 +13,7 @@
       "name": "pasteboard_native",
       "subsystem": "miscservices",
       "syscap": [
-        "SystemCapability.Miscservices.Pasteboard"
+        "SystemCapability.MiscServices.Pasteboard"
       ],
       "features": [
       ],
