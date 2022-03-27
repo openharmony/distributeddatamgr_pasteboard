@@ -54,6 +54,7 @@ void PasteboardObserverCallback::OnPasteboardChanged()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback.");
 }
 
+namespace {
 /**
 * @tc.name: PasteboardTest001
 * @tc.desc: Create paste board test.
@@ -231,4 +232,5 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
     EXPECT_TRUE(ok == true);
     auto record = pasteData.GetPrimaryHtml();
     EXPECT_TRUE(record != nullptr);
+}
 }
