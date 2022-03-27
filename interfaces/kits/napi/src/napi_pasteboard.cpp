@@ -122,7 +122,7 @@ napi_value JScreateHtmlTextRecord(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_TYPE_SET1] = {0};
     napi_value thisVar = nullptr;
 
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, &argv[1], &thisVar, NULL));
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
@@ -154,7 +154,7 @@ napi_value JScreateWantRecord(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_TYPE_SET1] = {0};
     napi_value thisVar = nullptr;
 
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, &argv[1], &thisVar, NULL));
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
 
     napi_valuetype valueType = napi_undefined;
@@ -180,7 +180,7 @@ napi_value JScreatePlainTextRecord(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_TYPE_SET1] = {0};
     napi_value thisVar = nullptr;
 
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, &argv[1], &thisVar, NULL));
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
@@ -192,6 +192,7 @@ napi_value JScreatePlainTextRecord(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get length failed");
         return nullptr;
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ddd.");
     std::vector<char> buf(len + 1);
     status = napi_get_value_string_utf8(env, argv[0], buf.data(), len + 1, &len);
     if (status != napi_ok) {
@@ -200,8 +201,9 @@ napi_value JScreatePlainTextRecord(napi_env env, napi_callback_info info)
     }
     std::string str(buf.data());
     napi_value instance = nullptr;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "eee.");
     PasteDataRecordNapi::NewPlainTextRecordInstance(env, str, instance);
-
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return instance;
 }
 
@@ -212,12 +214,16 @@ napi_value JScreateUriRecord(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_TYPE_SET1] = {0};
     napi_value thisVar = nullptr;
 
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, &argv[1], &thisVar, NULL));
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "aaa.");
+    //size_t strLen = 0;
+    //char str[STR_DATA_SIZE_MAX] = {0};
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. String expected.");
-
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "bbb.");
+    //NAPI_CALL(env, napi_get_value_string_utf8(env, argv[0], str, STR_DATA_SIZE_MAX, &strLen));
     size_t len = 0;
     napi_status status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &len);
     if (status != napi_ok) {
@@ -231,7 +237,6 @@ napi_value JScreateUriRecord(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::string str(buf.data());
-
     napi_value instance = nullptr;
     PasteDataRecordNapi::NewUriRecordInstance(env, str, instance);
 
