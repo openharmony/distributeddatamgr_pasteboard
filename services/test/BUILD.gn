@@ -19,6 +19,7 @@ config("module_private_config") {
 
   include_dirs = [
     "${pasteboard_innerkits_path}/include",
+    "include",
     "unittest/include",
   ]
 }
@@ -34,6 +35,7 @@ ohos_unittest("PasteboardServiceTest") {
     ":module_private_config",
   ]
   external_deps = [
+    "ability_base:zuri",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -42,7 +44,6 @@ ohos_unittest("PasteboardServiceTest") {
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/aafwk/standard/interfaces/innerkits/intent:intent",
-    "//foundation/aafwk/standard/interfaces/innerkits/uri:zuri",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",

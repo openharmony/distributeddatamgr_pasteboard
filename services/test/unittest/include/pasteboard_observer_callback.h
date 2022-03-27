@@ -12,19 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PASTE_BOARD_OBSERVER_H
-#define PASTE_BOARD_OBSERVER_H
+#ifndef PASTE_SERVICE_TEST_H
+#define PASTE_SERVICE_TEST_H
 
 #include "pasteboard_observer_stub.h"
+#include "pasteboard_observer.h"
+#include "pasteboard_common.h"
 
 namespace OHOS {
 namespace MiscServices {
-class PasteboardObserver : public PasteboardObserverStub {
+class PasteboardObserverCallback : public PasteboardObserver {
 public:
-    PasteboardObserver();
-    ~PasteboardObserver();
+    PasteboardObserverCallback() {};
+    ~PasteboardObserverCallback()
+    {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deconstructor.");
+    };
     void OnPasteboardChanged() override;
 };
 } // MiscServices
 } // OHOS
-#endif // PASTE_BOARD_OBSERVER_H
+#endif // PASTE_SERVICE_TEST_H

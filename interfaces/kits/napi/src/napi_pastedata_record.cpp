@@ -15,25 +15,18 @@
 #include "pastedata_record_napi.h"
 #include "pastedata_napi.h"
 #include "pasteboard_common.h"
+#include "napi_common.h"
+#include "pasteboard_hilog_wreapper.h"
 
 using namespace OHOS::MiscServices;
 
 namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
-std::shared_ptr<MiscServices::PasteDataRecord> PasteDataRecordNapi::value_ = nullptr;
-
 const size_t ARGC_TYPE_SET1 = 1;
-const size_t ARGC_TYPE_SET4 = 4;
 
-PasteDataRecordNapi::PasteDataRecordNapi(std::string mimeType,
-                                         std::shared_ptr<std::string> htmlText,
-                                         std::shared_ptr<std::string> plainText,
-                                         std::shared_ptr<std::string> uri) : env_(nullptr), wrapper_(nullptr)
+PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
 {
-    std::string cstring = *uri;
-    std::shared_ptr<OHOS::Uri> uuri = std::make_shared<OHOS::Uri>(cstring);//std::make_shared<OHOS::Uri>(*uri);
-    value_ = std::make_shared<PasteDataRecord>(mimeType, htmlText, nullptr, plainText, uuri);
 }
 
 PasteDataRecordNapi::~PasteDataRecordNapi()
@@ -41,13 +34,111 @@ PasteDataRecordNapi::~PasteDataRecordNapi()
     napi_delete_reference(env_, wrapper_);
 }
 
-void SetNamedPropertyByStr(napi_env env, napi_value dstObj, const std::string &objName, const char *propName)
+bool PasteDataRecordNapi::NewInstanceByRecord(
+    napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record)
+{
+    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        return false;
+    }
+    obj->value_ = record;
+    obj->JSFillInstance(env, instance);
+    return true;
+}
+
+bool PasteDataRecordNapi::NewHtmlTextRecordInstance(napi_env env, const std::string &text, napi_value &instance)
+{
+    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        return false;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreateHtmlTextRecord(text);
+    obj->JSFillInstance(env, instance);
+    return true;
+}
+
+bool PasteDataRecordNapi::NewPlainTextRecordInstance(napi_env env, const std::string &text, napi_value &instance)
+{
+    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        return false;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreatePlainTextRecord(text);
+    obj->JSFillInstance(env, instance);
+    return true;
+}
+
+bool PasteDataRecordNapi::NewUriRecordInstance(napi_env env, const std::string &text, napi_value &instance)
+{
+    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        return false;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreateUriRecord(OHOS::Uri(text));
+    obj->JSFillInstance(env, instance);
+    return true;
+}
+
+bool PasteDataRecordNapi::NewWantRecordInstance(
+    napi_env env, const std::shared_ptr<OHOS::AAFwk::Want> want, napi_value &instance)
+{
+    if (!want) {
+        return false;
+    }
+
+    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        return false;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreateWantRecord(want);
+    obj->JSFillInstance(env, instance);
+    return true;
+}
+
+void PasteDataRecordNapi::SetNamedPropertyByStr(napi_env env, napi_value &dstObj,
+    const std::string &objName, const char *propName)
 {
     napi_value prop = nullptr;
     if (napi_create_string_utf8(env, objName.c_str(), NAPI_AUTO_LENGTH, &prop) == napi_ok) {
         napi_set_named_property(env, dstObj, propName, prop);
     }
 }
+
+bool PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
+{
+    if (!instance || !value_) {
+        return false;
+    }
+
+    SetNamedPropertyByStr(env, instance, "mimeType", value_->GetMimeType().c_str());
+    SetNamedPropertyByStr(env, instance, "htmlText", value_->GetHtmlText()->c_str());
+    SetNamedPropertyByStr(env, instance, "plainText", value_->GetPlainText()->c_str());
+    SetNamedPropertyByStr(env, instance, "uri", value_->GetUri()->ToString().c_str());
+    napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, *value_->GetWant());
+    napi_set_named_property(env, instance, "want", jsWant);
+
+    return true;
+}
+
+using AsyncText = struct AsyncText {
+    napi_env env = nullptr;
+    napi_async_work work = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_ref callbackRef = nullptr;
+    PasteDataRecordNapi *obj = nullptr;
+    int32_t status = 0;
+    std::string text;
+};
 
 napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info info)
 {
@@ -65,46 +156,97 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
     size_t len = 0;
     napi_status status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &len);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ConvertToText length failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get length failed");
         return nullptr;
     }
     std::vector<char> buf(len + 1);
     status = napi_get_value_string_utf8(env, argv[0], buf.data(), len + 1, &len);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ConvertToText failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get data failed");
         return nullptr;
     }
-    std::string text(buf.data());
+    std::string str(buf.data());
 
-    PasteDataNapi *obj = nullptr;
+    PasteDataRecordNapi *obj = nullptr;
     status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ConvertToText object failed");
         return nullptr;
     }
-    return nullptr;
+
+    AsyncText *asyncText = new (std::nothrow) AsyncText {.env = env, .work = nullptr, .text = str, .obj = obj};
+    if (!asyncText) {
+        return NapiGetNull(env);
+    }
+
+    if (argc >= ARGC_TYPE_SET1) {
+        napi_valuetype valueType = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "Wrong argument type. Function expected.");
+        napi_create_reference(env, argv[0], 1, &asyncText->callbackRef);
+    }
+
+    napi_value promise = nullptr;
+    if (asyncText->callbackRef == nullptr) {
+        napi_create_promise(env, &asyncText->deferred, &promise);
+    } else {
+        napi_get_undefined(env, &promise);
+    }
+
+    napi_value resource = nullptr;
+    napi_create_string_utf8(env, "ConvertToText", NAPI_AUTO_LENGTH, &resource);
+    napi_create_async_work(env,
+        nullptr,
+        resource,
+        [](napi_env env, void *data) {
+            AsyncText* asyncText = (AsyncText*)data;
+            if (!asyncText->obj->value_) {
+                asyncText->status = -1;
+            }
+            asyncText->text = asyncText->obj->value_->ConvertToText();
+        },
+        [](napi_env env, napi_status status, void *data) {
+            AsyncText* asyncText = (AsyncText*)data;
+            napi_value result = nullptr;
+            napi_create_string_utf8(env, asyncText->text.c_str(), NAPI_AUTO_LENGTH, &result);
+            if (asyncText->deferred) {
+                if (!asyncText->status) {
+                    napi_resolve_deferred(env, asyncText->deferred, result);
+                } else {
+                    napi_reject_deferred(env, asyncText->deferred, result);
+                }
+            } else {
+                SetCallback(env, asyncText->callbackRef, asyncText->status, result);
+                napi_delete_reference(env, asyncText->callbackRef);
+            }
+            napi_delete_async_work(env, asyncText->work);
+            delete asyncText;
+            asyncText = nullptr;
+        },
+        (void *)asyncText,
+        &asyncText->work);
+    napi_queue_async_work(env, asyncText->work);
+
+    return promise;
 }
 
 napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exports)
 {
-    napi_value obj = nullptr;
-    napi_create_object(env, &obj);
-    SetNamedPropertyByStr(env, obj, "htmlText", "");
-    SetNamedPropertyByStr(env, obj, "want", "");
-    SetNamedPropertyByStr(env, obj, "mimeType", "");
-    SetNamedPropertyByStr(env, obj, "plainText", "");
-    SetNamedPropertyByStr(env, obj, "uri", "");
-    
     napi_property_descriptor properties[] = {
-        DECLARE_NAPI_PROPERTY("pasteDataRecord", obj),
         DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
     };
-    
+
     napi_status status = napi_ok;
-    
+
     napi_value constructor;
-    status = napi_define_class(env, "PasteDataRecord", NAPI_AUTO_LENGTH, New, nullptr,
-        sizeof(properties) / sizeof(napi_property_descriptor), properties, &constructor);
+    status = napi_define_class(env,
+        "PasteDataRecord",
+        NAPI_AUTO_LENGTH,
+        New,
+        nullptr,
+        sizeof(properties) / sizeof(napi_property_descriptor),
+        properties,
+        &constructor);
     if (status != napi_ok) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to define class at PasteDataRecordInit");
         return nullptr;
@@ -127,82 +269,22 @@ void PasteDataRecordNapi::Destructor(napi_env env, void *nativeObject, void *fin
 
 napi_value PasteDataRecordNapi::New(napi_env env, napi_callback_info info)
 {
-    size_t argc = ARGC_TYPE_SET4;
-    napi_value argv[4] = {0};
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[1] = {0};
     napi_value thisVar = nullptr;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
 
-    size_t len = 0;
-    napi_status status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get record new length failed");
-        return nullptr;
-    }
-    std::vector<char> buf(len + 1);
-    status = napi_get_value_string_utf8(env, argv[0], buf.data(), len + 1, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get record new failed");
-        return nullptr;
-    }
-    std::string mimeType(buf.data());
-
-    status = napi_get_value_string_utf8(env, argv[1], nullptr, 0, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get record new1 length failed");
-        return nullptr;
-    }
-    std::vector<char> buf1(len + 1);
-    status = napi_get_value_string_utf8(env, argv[1], buf1.data(), len + 1, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get record new1 failed");
-        return nullptr;
-    }
-    std::string htmlText(buf1.data());
-
-    status = napi_get_value_string_utf8(env, argv[2], nullptr, 0, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get record new2 length failed");
-        return nullptr;
-    }
-    std::vector<char> buf2(len + 1);
-    status = napi_get_value_string_utf8(env, argv[2], buf2.data(), len + 1, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get record new2 failed");
-        return nullptr;
-    }
-    std::string plainText(buf2.data());
-
-    status = napi_get_value_string_utf8(env, argv[3], nullptr, 0, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get record new3 length failed");
-        return nullptr;
-    }
-    std::vector<char> buf3(len + 1);
-    status = napi_get_value_string_utf8(env, argv[3], buf3.data(), len + 1, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get record new3 failed");
-        return nullptr;
-    }
-    std::string uri(buf3.data());
-
     // get native object
-    PasteDataRecordNapi *obj = new PasteDataRecordNapi(mimeType,
-	                                                   std::make_shared<std::string>(htmlText),
-                                                       std::make_shared<std::string>(plainText),
-					                                   std::make_shared<std::string>(uri));
+    PasteDataRecordNapi *obj = new PasteDataRecordNapi();
     obj->env_ = env;
     NAPI_CALL(env, napi_wrap(env, thisVar, obj, PasteDataRecordNapi::Destructor, nullptr, &obj->wrapper_));
     return thisVar;
 }
 
-napi_status PasteDataRecordNapi::NewInstance(napi_env env, napi_value *argv, size_t &argc, napi_value *instance)
+napi_status PasteDataRecordNapi::NewInstance(napi_env env, napi_value &instance)
 {
     napi_status status = napi_invalid_arg;
 
-    if (argc != ARGC_TYPE_SET4) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong number of arguments");
-        return status;
-    }
     napi_value constructor;
     status = napi_get_reference_value(env, g_pasteDataRecord, &constructor);
     if (status != napi_ok) {
@@ -210,7 +292,7 @@ napi_status PasteDataRecordNapi::NewInstance(napi_env env, napi_value *argv, siz
         return status;
     }
 
-    status = napi_new_instance(env, constructor, argc, argv, instance);
+    status = napi_new_instance(env, constructor, 0, nullptr, &instance);
     if (status != napi_ok) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "new instance failed");
         return status;
@@ -218,5 +300,5 @@ napi_status PasteDataRecordNapi::NewInstance(napi_env env, napi_value *argv, siz
 
     return napi_ok;
 }
-}  // namespace MiscServicesNapi
-}  // namespace OHOS
+} // namespace MiscServicesNapi
+} // namespace OHOS

@@ -33,6 +33,8 @@ public:
     virtual void SetPasteData(PasteData& pasteData) override;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
+    virtual void RemoveAllChangedObserver() override;
+
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;
 };

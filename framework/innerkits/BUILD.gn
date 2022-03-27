@@ -42,6 +42,7 @@ ohos_shared_library("pasteboard_client") {
     "//foundation/aafwk/standard/interfaces/innerkits/intent:intent",
     "//foundation/aafwk/standard/interfaces/innerkits/uri:zuri",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
+    "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/inner/napi_common:napi_common",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]

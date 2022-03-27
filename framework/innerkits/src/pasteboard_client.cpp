@@ -39,26 +39,31 @@ PasteboardClient::~PasteboardClient()
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateHtmlTextRecord(const std::string &htmlText)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New text record: %{public}s", htmlText.c_str());
     return PasteDataRecord::NewHtmlRecord(htmlText);
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New want record");
     return PasteDataRecord::NewWantRecord(std::move(want));
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePlainTextRecord(const std::string &text)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New text record: %{public}s", text.c_str());
     return PasteDataRecord::NewPlaintTextRecord(text);
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateUriRecord(const OHOS::Uri &uri)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New uri record");
     return PasteDataRecord::NewUriRecord(uri);
 }
 
 std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &htmlText)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New htmlText data: %{public}s", htmlText.c_str());
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddHtmlRecord(htmlText);
     return pasteData;
@@ -66,6 +71,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &h
 
 std::shared_ptr<PasteData> PasteboardClient::CreateWantData(std::shared_ptr<OHOS::AAFwk::Want> want)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New want data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddWantRecord(std::move(want));
     return pasteData;
@@ -73,6 +79,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreateWantData(std::shared_ptr<OHOS
 
 std::shared_ptr<PasteData> PasteboardClient::CreatePlainTextData(const std::string &text)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New plain data: %{public}s", text.c_str());
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddTextRecord(text);
     return pasteData;
@@ -80,6 +87,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreatePlainTextData(const std::stri
 
 std::shared_ptr<PasteData> PasteboardClient::CreateUriData(const OHOS::Uri &uri)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New uri data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddUriRecord(uri);
     return pasteData;
@@ -114,7 +122,6 @@ bool PasteboardClient::GetPasteData(PasteData& pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
         return false;
     }
-
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return pasteboardServiceProxy_->GetPasteData(pasteData);
 }
@@ -150,9 +157,13 @@ void PasteboardClient::SetPasteData(PasteData& pasteData)
     pasteboardServiceProxy_->SetPasteData(pasteData);
 }
 
-void PasteboardClient::AddPasteboardChangedObserver(std::function<void ()> callback)
+void PasteboardClient::AddPasteboardChangedObserver(std::shared_ptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
+        return;
+    }
     if (pasteboardServiceProxy_ == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
         ConnectService();
@@ -162,12 +173,14 @@ void PasteboardClient::AddPasteboardChangedObserver(std::function<void ()> callb
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "AddPasteboardChangedObserver quit.");
         return;
     }
-    sptr<IPasteboardChangedObserver> observer = new PasteboardObserver(callback);
-    pasteboardServiceProxy_->AddPasteboardChangedObserver(observer);
+
+    auto remoteObject = callback->AsObject();
+    sptr<IPasteboardChangedObserver> observerPtr = iface_cast<IPasteboardChangedObserver>(remoteObject);
+    pasteboardServiceProxy_->AddPasteboardChangedObserver(observerPtr);
     return;
 }
 
-void PasteboardClient::RemovePasteboardChangedObserver(std::function<void ()> callback)
+void PasteboardClient::RemovePasteboardChangedObserver(std::shared_ptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
     if (pasteboardServiceProxy_ == nullptr) {
@@ -176,11 +189,19 @@ void PasteboardClient::RemovePasteboardChangedObserver(std::function<void ()> ca
     }
 
     if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "RemovePasteboardChangedObserver quit.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "quit.");
         return;
     }
-    sptr<IPasteboardChangedObserver> observer = new PasteboardObserver(callback);
-    pasteboardServiceProxy_->RemovePasteboardChangedObserver(observer);
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remove all.");
+        pasteboardServiceProxy_->RemoveAllChangedObserver();
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
+        return;
+    }
+    auto remoteObject = callback->AsObject();
+    sptr<IPasteboardChangedObserver> observerPtr = iface_cast<IPasteboardChangedObserver>(remoteObject);
+    pasteboardServiceProxy_->RemovePasteboardChangedObserver(observerPtr);
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
     return;
 }
 

@@ -21,7 +21,6 @@
 namespace OHOS {
 namespace MiscServices {
 namespace {
-const std::int32_t USER_ID_CHANGE_VALUE = 1000000;
 const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const bool G_REGISTER_RESULT =
@@ -157,8 +156,8 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
 int32_t PasteboardService::GetUserId()
 {
     int32_t uid = IPCSkeleton::GetCallingUid();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "userId: %{public}d.", uid);
-    return uid / USER_ID_CHANGE_VALUE;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uid: %{public}d.", uid);
+    return uid ;
 }
 
 void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
@@ -203,20 +202,32 @@ void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardCh
     auto eraseNum = observers->erase(observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         " callback = %{public}p, listeners.size = %{public}d,"
-        " eraseNum = %zu",
+        " eraseNum = %{public}zu",
         observer.GetRefPtr(),
         static_cast<unsigned int>(observers->size()),
         eraseNum);
 }
 
-void PasteboardService::NotifyObservers()
+void PasteboardService::RemoveAllChangedObserver()
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
     std::lock_guard<std::mutex> lock(observerMutex_);
     auto it = observerMap_.find(userId);
-    if (it != observerMap_.end()) {
-        auto observers = it->second;
-        for (const auto &observer: *observers) {
+    if (it == observerMap_.end()) {
+        return;
+    }
+    observerMap_.erase(userId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
+}
+
+void PasteboardService::NotifyObservers()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    std::lock_guard<std::mutex> lock(observerMutex_);
+    for (auto &observers : observerMap_) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d.", observers.first);
+        for (const auto &observer: *(observers.second)) {
             observer->OnPasteboardChanged();
         }
     }

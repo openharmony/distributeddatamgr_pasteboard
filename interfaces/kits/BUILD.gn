@@ -16,7 +16,8 @@ import("//build/ohos.gni")
 
 ohos_shared_library("pasteboard_napi") {
   include_dirs = [
-    "//base/miscservices/pasteboard/framework/innerkits/include",
+    "${pasteboard_innerkits_path}/include",
+    "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/inner/napi_common",
     "napi/include",
   ]
 
@@ -30,6 +31,7 @@ ohos_shared_library("pasteboard_napi") {
     "napi/src/napi_pasteboard.cpp",
     "napi/src/napi_pastedata.cpp",
     "napi/src/napi_pastedata_record.cpp",
+    "napi/src/pasteboard_common.cpp",
   ]
 
   deps = [
@@ -41,6 +43,7 @@ ohos_shared_library("pasteboard_napi") {
     "//foundation/aafwk/standard/interfaces/innerkits/uri:zuri",
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//foundation/ace/napi/:ace_napi",
+    "//third_party/libuv:uv_static",
     "//utils/native/base:utils",
   ]
 

@@ -29,7 +29,8 @@ public:
         SET_PASTE_DATA = 2,
         CLEAR_ALL = 3,
         ADD_OBSERVER = 4,
-        DELETE_OBSERVER = 5
+        DELETE_OBSERVER = 5,
+        DELETE_ALL_OBSERVER
     };
     virtual void Clear() = 0;
     virtual bool GetPasteData(PasteData& data) = 0;
@@ -37,6 +38,7 @@ public:
     virtual void SetPasteData(PasteData& pasteData) = 0;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) = 0;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) = 0;
+    virtual void RemoveAllChangedObserver() = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.miscservices.pasteboard.IPasteboardService");
 };
 } // namespace MiscServices

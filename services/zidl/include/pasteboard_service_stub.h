@@ -38,6 +38,8 @@ private:
     int32_t OnSetPasteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnAddPasteboardChangedObserver(MessageParcel &data, MessageParcel &reply);
     int32_t OnRemovePasteboardChangedObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRemoveAllChangedObserver(MessageParcel &data, MessageParcel &reply);
+
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
 };
 } // namespace MiscServices

@@ -12,19 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PASTE_BOARD_OBSERVER_H
-#define PASTE_BOARD_OBSERVER_H
+#ifndef N_NAPI_PASTEBOARD_COMMON_H
+#define N_NAPI_PASTEBOARD_COMMON_H
 
-#include "pasteboard_observer_stub.h"
+#include "napi/native_api.h"
+#include "napi/native_node_api.h"
 
 namespace OHOS {
-namespace MiscServices {
-class PasteboardObserver : public PasteboardObserverStub {
-public:
-    PasteboardObserver();
-    ~PasteboardObserver();
-    void OnPasteboardChanged() override;
-};
-} // MiscServices
-} // OHOS
-#endif // PASTE_BOARD_OBSERVER_H
+namespace MiscServicesNapi {
+napi_value GetCallbackErrorValue(napi_env env, int32_t errorCode);
+void SetCallback(const napi_env &env, const napi_ref &callbackIn, const int32_t errorCode, const napi_value &result);
+napi_value NapiGetNull(napi_env env);
+napi_value CreateNapiNumber(napi_env env, int32_t num);
+napi_value CreateNapiString(napi_env env, std::string str);
+}  // namespace MiscServicesNapi
+}  // namespace OHOS
+#endif
