@@ -25,6 +25,7 @@ namespace OHOS {
 namespace MiscServicesNapi {
 namespace {
 constexpr int ARGC_TYPE_SET1 = 1;
+constexpr int ARGC_TYPE_SET2 = 2;
 const int32_t STR_MAX_SIZE = 256;
 }  // namespace
 static thread_local napi_ref g_pasteData = nullptr;
