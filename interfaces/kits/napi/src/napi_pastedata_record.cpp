@@ -119,14 +119,39 @@ bool PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
     if (!instance || !value_) {
         return false;
     }
-
-    SetNamedPropertyByStr(env, instance, "mimeType", value_->GetMimeType().c_str());
-    SetNamedPropertyByStr(env, instance, "htmlText", value_->GetHtmlText()->c_str());
-    SetNamedPropertyByStr(env, instance, "plainText", value_->GetPlainText()->c_str());
-    SetNamedPropertyByStr(env, instance, "uri", value_->GetUri()->ToString().c_str());
-    napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, *value_->GetWant());
-    napi_set_named_property(env, instance, "want", jsWant);
-
+    auto mimeType = value_->GetMimeType();
+    SetNamedPropertyByStr(env, instance, "mimeType", mimeType.c_str());
+    if (mimeType == MIMETYPE_TEXT_PLAIN) {
+        auto plainText = value_->GetPlainText();
+        if (plainText != nullptr) {
+            SetNamedPropertyByStr(env, instance, "plainText", plainText->c_str());
+        }
+    } else if (mimeType == MIMETYPE_TEXT_HTML) {
+        auto htmlText = value_->GetHtmlText();
+        if (htmlText != nullptr) {
+            SetNamedPropertyByStr(env, instance, "htmlText", htmlText->c_str());
+        }
+    } else if (mimeType == MIMETYPE_TEXT_URI) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ggg.");
+        auto uri = value_->GetUri();
+        if (uri != nullptr) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "hhh.");
+            SetNamedPropertyByStr(env, instance, "uri", uri->ToString().c_str());
+        }
+    } else if (mimeType == MIMETYPE_TEXT_WANT) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "iii.");
+        auto want = value_->GetWant();
+        if (want != nullptr) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "jjj.");
+            napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, *want);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "kkk.");
+            napi_set_named_property(env, instance, "want", jsWant);
+        }
+    } else {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Unkonw MimeType: %{public}s.", mimeType.c_str());
+        return false;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return true;
 }
 

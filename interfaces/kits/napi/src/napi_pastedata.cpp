@@ -415,13 +415,12 @@ napi_value PasteDataNapi::AddRecord(napi_env env, napi_callback_info info)
 napi_value PasteDataNapi::ReplaceRecordAt(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ReplaceRecordAt is called!");
-    size_t argc = 1;
-    napi_value argv[2] = {0};
+    size_t argc = ARGC_TYPE_SET2;
+    napi_value argv[ARGC_TYPE_SET2] = {0};
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc == 2, "Wrong number of arguments");
-
+    NAPI_ASSERT(env, argc == ARGC_TYPE_SET2, "Wrong number of arguments");
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     NAPI_ASSERT(env, valueType == napi_number, "Wrong argument type. number expected.");
@@ -441,7 +440,8 @@ napi_value PasteDataNapi::ReplaceRecordAt(napi_env env, napi_callback_info info)
     napi_get_value_int64(env, argv[0], &number);
 
     PasteDataRecordNapi *record = nullptr;
-    status = napi_unwrap(env, argv[0], reinterpret_cast<void **>(&record));
+    status = napi_unwrap(env, argv[1], reinterpret_cast<void **>(&record));
+
     if ((status != napi_ok) || (record == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get PasteDataRecord object failed");
         return nullptr;
