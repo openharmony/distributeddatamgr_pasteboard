@@ -165,64 +165,62 @@ using AsyncText = struct AsyncText {
     std::string text;
 };
 
+void AsyncCompleteCallbackConvertToText(napi_env env, napi_status status, void *data)
+{
+    if (!data) {
+        return;
+    }
+    AsyncText* asyncText = (AsyncText*)data;
+    napi_value result = nullptr;
+    napi_create_string_utf8(env, asyncText->text.c_str(), NAPI_AUTO_LENGTH, &result);
+    if (asyncText->deferred) {
+        if (!asyncText->status) {
+            napi_resolve_deferred(env, asyncText->deferred, result);
+        } else {
+            napi_reject_deferred(env, asyncText->deferred, result);
+        }
+    } else {
+        SetCallback(env, asyncText->callbackRef, asyncText->status, result);
+        napi_delete_reference(env, asyncText->callbackRef);
+    }
+    napi_delete_async_work(env, asyncText->work);
+    delete asyncText;
+    asyncText = nullptr;
+}
+
 napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[1] = {0};
     napi_value thisVar = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
-
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. string expected.");
-
-    size_t len = 0;
-    napi_status status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get length failed");
-        return nullptr;
-    }
-    std::vector<char> buf(len + 1);
-    status = napi_get_value_string_utf8(env, argv[0], buf.data(), len + 1, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get data failed");
-        return nullptr;
-    }
-    std::string str(buf.data());
-
+   
     PasteDataRecordNapi *obj = nullptr;
-    status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    auto status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ConvertToText object failed");
         return nullptr;
     }
-
-    AsyncText *asyncText = new (std::nothrow) AsyncText {.env = env, .work = nullptr, .text = str, .obj = obj};
+    AsyncText *asyncText = new (std::nothrow) AsyncText {.env = env, .work = nullptr, .obj = obj};
     if (!asyncText) {
         return NapiGetNull(env);
     }
-
     if (argc >= ARGC_TYPE_SET1) {
         napi_valuetype valueType = napi_undefined;
         NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
         NAPI_ASSERT(env, valueType == napi_function, "Wrong argument type. Function expected.");
         napi_create_reference(env, argv[0], 1, &asyncText->callbackRef);
     }
-
     napi_value promise = nullptr;
     if (asyncText->callbackRef == nullptr) {
         napi_create_promise(env, &asyncText->deferred, &promise);
     } else {
         napi_get_undefined(env, &promise);
     }
-
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "ConvertToText", NAPI_AUTO_LENGTH, &resource);
     napi_create_async_work(env,
-        nullptr,
-        resource,
+        nullptr,resource,
         [](napi_env env, void *data) {
             AsyncText* asyncText = (AsyncText*)data;
             if (!asyncText->obj->value_) {
@@ -230,28 +228,9 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
             }
             asyncText->text = asyncText->obj->value_->ConvertToText();
         },
-        [](napi_env env, napi_status status, void *data) {
-            AsyncText* asyncText = (AsyncText*)data;
-            napi_value result = nullptr;
-            napi_create_string_utf8(env, asyncText->text.c_str(), NAPI_AUTO_LENGTH, &result);
-            if (asyncText->deferred) {
-                if (!asyncText->status) {
-                    napi_resolve_deferred(env, asyncText->deferred, result);
-                } else {
-                    napi_reject_deferred(env, asyncText->deferred, result);
-                }
-            } else {
-                SetCallback(env, asyncText->callbackRef, asyncText->status, result);
-                napi_delete_reference(env, asyncText->callbackRef);
-            }
-            napi_delete_async_work(env, asyncText->work);
-            delete asyncText;
-            asyncText = nullptr;
-        },
-        (void *)asyncText,
-        &asyncText->work);
+        AsyncCompleteCallbackConvertToText,
+        (void *)asyncText,&asyncText->work);
     napi_queue_async_work(env, asyncText->work);
-
     return promise;
 }
 
