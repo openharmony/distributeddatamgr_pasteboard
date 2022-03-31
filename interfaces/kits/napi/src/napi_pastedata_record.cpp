@@ -220,7 +220,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "ConvertToText", NAPI_AUTO_LENGTH, &resource);
     napi_create_async_work(env,
-        nullptr,resource,
+        nullptr, resource,
         [](napi_env env, void *data) {
             AsyncText* asyncText = (AsyncText*)data;
             if (!asyncText->obj->value_) {
@@ -229,7 +229,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
             asyncText->text = asyncText->obj->value_->ConvertToText();
         },
         AsyncCompleteCallbackConvertToText,
-        (void *)asyncText,&asyncText->work);
+        (void *)asyncText, &asyncText->work);
     napi_queue_async_work(env, asyncText->work);
     return promise;
 }
