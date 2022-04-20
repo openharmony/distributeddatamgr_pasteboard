@@ -27,7 +27,7 @@
           "ability_manager",
           "appexecfwk_standard",
           "ans_standard",
-          "ces_standard",
+          "common_event_service",
           "googletest",
           "hisysevent_native",
           "hiviewdfx_hilog_native",
