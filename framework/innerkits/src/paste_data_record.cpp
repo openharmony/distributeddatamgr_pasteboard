@@ -20,7 +20,7 @@ namespace MiscServices {
 namespace {
 constexpr int MAX_TEXT_LEN = 500 * 1024;
 }
-std::shared_ptr<PasteDataRecord> PasteDataRecord::NewHtmlRecord(const std::string &htmlText) 
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewHtmlRecord(const std::string &htmlText)
 {
     if (htmlText.length() >= MAX_TEXT_LEN) {
         return nullptr;

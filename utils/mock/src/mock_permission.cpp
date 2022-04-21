@@ -18,7 +18,8 @@
 namespace OHOS {
 namespace MiscServices {
 namespace MockPermission {
-bool VerifyPermission(const std::string &bundleName, const std::string &permissionName, int userId) {
+bool VerifyPermission(const std::string &bundleName, const std::string &permissionName, int userId)
+{
     return true;
 }
 } // OHOS
