@@ -86,7 +86,8 @@ std::shared_ptr<PasteboardStorage> PasteboardStorage::Create(const std::string &
     return std::shared_ptr<PasteboardStorage>(std::make_shared PasteboardStorage(file));
 }
 
-PasteboardStorage::PasteboardStorage(std::string file) : file{std::move(file)} {
+PasteboardStorage::PasteboardStorage(std::string file) : file { std::move(file) }
+{
 }
 
 void PasteboardStorage::SaveData(std::map<int32_t, std::shared_ptr<PasteData>> data)
