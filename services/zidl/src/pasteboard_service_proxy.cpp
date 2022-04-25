@@ -26,9 +26,9 @@ PasteboardServiceProxy::PasteboardServiceProxy(const sptr<IRemoteObject> &object
 
 void PasteboardServiceProxy::Clear()
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
     MessageOption option;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
@@ -42,9 +42,9 @@ void PasteboardServiceProxy::Clear()
 
 void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
     MessageOption option;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
@@ -57,13 +57,14 @@ void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboard
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
 void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
     MessageOption option;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
@@ -76,8 +77,23 @@ void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPastebo
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
-
+void PasteboardServiceProxy::RemoveAllChangedObserver()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    MessageParcel data, reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    int32_t result = Remote()->SendRequest(DELETE_ALL_OBSERVER, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
 bool PasteboardServiceProxy::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
@@ -95,14 +111,15 @@ bool PasteboardServiceProxy::HasPasteData()
         return false;
     }
     auto has = reply.ReadBool();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return has;
 }
 
 void PasteboardServiceProxy::SetPasteData(PasteData& pasteData)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
     MessageOption option;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
@@ -115,13 +132,14 @@ void PasteboardServiceProxy::SetPasteData(PasteData& pasteData)
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
 bool PasteboardServiceProxy::GetPasteData(PasteData& pasteData)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
     MessageOption option;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return false;
@@ -132,11 +150,12 @@ bool PasteboardServiceProxy::GetPasteData(PasteData& pasteData)
         return false;
     }
     std::unique_ptr<PasteData> pasteInfo(reply.ReadParcelable<PasteData>());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     if (pasteInfo == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "nullptr end.");
         return false;
     }
     pasteData = *pasteInfo;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return true;
 }
 } // namespace MiscServices

@@ -53,6 +53,7 @@ public:
     virtual void SetPasteData(PasteData& pasteData) override;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
+    virtual void RemoveAllChangedObserver() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
 private:

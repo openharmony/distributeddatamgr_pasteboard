@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-PasteboardObserver::PasteboardObserver(std::function<void ()> callback) : callback_ {callback}
+PasteboardObserver::PasteboardObserver()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "New Pasteboard Observer.");
 }
@@ -28,8 +28,7 @@ PasteboardObserver::~PasteboardObserver()
 
 void PasteboardObserver::OnPasteboardChanged()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "called.");
-    callback_();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "call back.");
 }
 } // MiscServices
 } // OHOS

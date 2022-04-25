@@ -28,20 +28,26 @@ class PasteDataRecordNapi {
 public:
     static napi_value PasteDataRecordInit(napi_env env, napi_value exports);
     static napi_value New(napi_env env, napi_callback_info info);
-    static napi_status NewInstance(napi_env env, napi_value *argv, size_t &argc, napi_value *instance);
+    static napi_status NewInstance(napi_env env, napi_value &instance);
     static void Destructor(napi_env env, void *nativeObject, void *finalize_hint);
+    static bool NewInstanceByRecord(
+        napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record);
+    static bool NewHtmlTextRecordInstance(napi_env env, const std::string &text, napi_value &instance);
+    static bool NewPlainTextRecordInstance(napi_env env, const std::string &text, napi_value &instance);
+    static bool NewUriRecordInstance(napi_env env, const std::string &text, napi_value &instance);
+    static bool NewWantRecordInstance(
+        napi_env env, const std::shared_ptr<OHOS::AAFwk::Want> want, napi_value &instance);
 
-    PasteDataRecordNapi(std::string mimeType,
-                    std::shared_ptr<std::string> htmlText,
-                    std::shared_ptr<std::string> plainText,
-                    std::shared_ptr<std::string> uri);
+    PasteDataRecordNapi();
     ~PasteDataRecordNapi();
 
     static napi_value ConvertToText(napi_env env, napi_callback_info info);
 
-    static std::shared_ptr<MiscServices::PasteDataRecord> value_;
+    std::shared_ptr<MiscServices::PasteDataRecord> value_;
 
 private:
+    bool JSFillInstance(napi_env env, napi_value &instance);
+    void SetNamedPropertyByStr(napi_env env, napi_value &dstObj, const std::string &objName, const char *propName);
     napi_env env_;
     napi_ref wrapper_;
 };

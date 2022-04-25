@@ -29,6 +29,8 @@ PasteboardServiceStub::PasteboardServiceStub()
         &PasteboardServiceStub::OnAddPasteboardChangedObserver;
     memberFuncMap_[static_cast<uint32_t>(DELETE_OBSERVER)] =
         &PasteboardServiceStub::OnRemovePasteboardChangedObserver;
+    memberFuncMap_[static_cast<uint32_t>(DELETE_ALL_OBSERVER)] =
+        &PasteboardServiceStub::OnRemoveAllChangedObserver;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -71,6 +73,7 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
     PasteData pasteData {};
     auto hasPasteData = GetPasteData(pasteData);
     if (!hasPasteData) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteParcelable(&pasteData)) {
@@ -136,6 +139,15 @@ int32_t PasteboardServiceStub::OnRemovePasteboardChangedObserver(MessageParcel &
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }
+
+int32_t PasteboardServiceStub::OnRemoveAllChangedObserver(MessageParcel &data, MessageParcel &reply)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
+    RemoveAllChangedObserver();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    return ERR_OK;
+}
+
 PasteboardServiceStub::~PasteboardServiceStub()
 {
     memberFuncMap_.clear();

@@ -30,10 +30,10 @@ public:
     ~PasteDataNapi();
     static napi_value PasteDataInit(napi_env env, napi_value exports);
     static napi_value New(napi_env env, napi_callback_info info);
-    static napi_status NewInstance(napi_env env, napi_value *instance);
+    static napi_status NewInstance(napi_env env, napi_value &instance);
     static void Destructor(napi_env env, void *nativeObject, void *finalize_hint);
     static napi_value GetSystemPasteboard(napi_env env, napi_callback_info info);
-    static std::shared_ptr<MiscServices::PasteData> value_;
+    std::shared_ptr<MiscServices::PasteData> value_ = nullptr;
 
 private:
     static napi_value AddHtmlRecord(napi_env env, napi_callback_info info);
@@ -53,6 +53,10 @@ private:
     static napi_value ReplaceRecordAt(napi_env env, napi_callback_info info);
     static napi_value AddWantRecord(napi_env env, napi_callback_info info);
     static napi_value GetPrimaryWant(napi_env env, napi_callback_info info);
+    static napi_value GetProperty(napi_env env, napi_callback_info info);
+    static napi_value GetRecordAt(napi_env env, napi_callback_info info);
+    static bool SetNapiProperty(
+        napi_env env, const MiscServices::PasteDataProperty &property, napi_value &NProperty);
     napi_env env_;
     napi_ref wrapper_;
 };

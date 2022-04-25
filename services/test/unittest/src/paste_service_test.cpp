@@ -17,8 +17,8 @@
 #include <vector>
 #include <ohos/aafwk/content/want.h>
 #include "pasteboard_client.h"
-#include "pasteboard_common.h"
 #include "uri.h"
+#include "pasteboard_observer_callback.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -49,12 +49,12 @@ void PasteboardServiceTest::SetUp(void)
 void PasteboardServiceTest::TearDown(void)
 {}
 
-namespace {
-void CallbackFunc()
+void PasteboardObserverCallback::OnPasteboardChanged()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback.");
 }
 
+namespace {
 /**
 * @tc.name: PasteboardTest001
 * @tc.desc: Create paste board test.
@@ -85,16 +85,15 @@ HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
 */
 HWTEST_F(PasteboardServiceTest, PasteboardTest002, TestSize.Level0)
 {
-    auto callback = []() {
-        CallbackFunc();
-    };
-    PasteboardClient::GetInstance()->AddPasteboardChangedObserver(callback);
+    auto observer = std::make_shared<PasteboardObserverCallback>();
+    PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer);
 
     auto data = PasteboardClient::GetInstance()->CreatePlainTextData("call back");
     EXPECT_TRUE(data != nullptr);
     PasteboardClient::GetInstance()->SetPasteData(*data);
     PasteboardClient::GetInstance()->Clear();
-    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(callback);
+    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(observer);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
 }
 
 /**
@@ -234,5 +233,4 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
     auto record = pasteData.GetPrimaryHtml();
     EXPECT_TRUE(record != nullptr);
 }
-} // namepace test
-
+}
