@@ -35,9 +35,9 @@ ohos_shared_library("pasteboard_napi") {
   ]
 
   deps = [
+    "${aafwk_kits_path}/ability/native:abilitykit_native",
     "//base/miscservices/pasteboard/framework/innerkits:pasteboard_client",
     "//base/miscservices/pasteboard/services:pasteboard_service",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/arkui/napi/:ace_napi",
     "//third_party/libuv:uv_static",
     "//utils/native/base:utils",

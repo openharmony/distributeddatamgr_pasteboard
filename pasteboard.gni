@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+aafwk_kits_path = "//foundation/aafwk/standard/frameworks/kits"
+
 pasteboard_root_path = "//base/miscservices/pasteboard"
 
 pasteboard_kits_path = "${pasteboard_root_path}/kits"

@@ -19,11 +19,11 @@ group("pasteboard_native_packages") {
   if (is_standard_system) {
     deps = [
       "etc/init:pasteboardservice.cfg",
-      "profile:miscservices_pasteboard_sa_profiles",
-      "services:pasteboard_service",
       "framework/innerkits:pasteboard_client",
       "interfaces/declaration:pasteboard_js",
       "interfaces/kits:pasteboard_napi",
+      "profile:miscservices_pasteboard_sa_profiles",
+      "services:pasteboard_service",
     ]
   }
 }

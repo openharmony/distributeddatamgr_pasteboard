@@ -44,8 +44,8 @@ ohos_shared_library("pasteboard_service") {
     ":pasteboard_service_config",
   ]
   deps = [
+    "${aafwk_kits_path}/ability/native:abilitykit_native",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
