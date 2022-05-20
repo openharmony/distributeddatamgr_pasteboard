@@ -19,7 +19,7 @@
 namespace OHOS {
 namespace MiscServices {
 namespace nlohmann {
-template<typename T>
+template <typename T>
     struct adl_serializer<std::shared_ptr<T>> {
         static void to_json(json &j, const std::shared_ptr<T> &ptr)
         {
