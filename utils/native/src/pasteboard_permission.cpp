@@ -68,7 +68,7 @@ bool PasteboardPermission::CheckCallingPermission(int32_t uid, std::string permN
     }
     auto userId = uid / USER_ID_CHANGE_VALUE;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "VerifyPermission bundleName %{public}s, permission %{public}s",
-        bundleName.c_str(), permName.c_str());
+                                                                bundleName.c_str(), permName.c_str());
     return MockPermission::VerifyPermission(bundleName, permName, userId);
 }
 
