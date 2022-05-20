@@ -7,7 +7,7 @@
 **picture 1**  Subsystem Architecture Diagram
 ![](figures/subsystem_architecture.png "Subsystem architecture")
 
-​		The clipboard service provides functions that support application developers to use clipboard-related services conveniently and efficiently. Its main components include clipboard management client and clipboard service. The clipboard management client is responsible for clipboard interface management, providing clipboard northbound JS API to applications; creating clipboard data on the application framework side, requesting clipboard SA to perform clipboard creation, deletion, query, text conversion, configuration, etc. The clipboard service is responsible for clipboard event management, manages the life cycle of clipboard SA (startup, destruction, multi-user, etc.); executes application requests, notifies clipboard data management, and returns the results to the clipboard management client.
+​    The clipboard service provides functions that support application developers to use clipboard-related services conveniently and efficiently. Its main components include clipboard management client and clipboard service. The clipboard management client is responsible for clipboard interface management, providing clipboard northbound JS API to applications; creating clipboard data on the application framework side, requesting clipboard SA to perform clipboard creation, deletion, query, text conversion, configuration, etc. The clipboard service is responsible for clipboard event management, manages the life cycle of clipboard SA (startup, destruction, multi-user, etc.); executes application requests, notifies clipboard data management, and returns the results to the clipboard management client.
 
 
 
@@ -325,7 +325,7 @@
 
 Clipboard module usage example：
 
-```
+```js
 // import module
 import pasteboard from '@ohos.pasteboard'
 //text copy
