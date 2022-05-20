@@ -60,11 +60,16 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD_MODULE_LABEL[PASTEBOARD_
 
 // In order to improve performance, do not check the module range.
 // Besides, make sure module is less than PASTEBOARD_MODULE_BUTT.
-#define PASTEBOARD_HILOGF(module, ...) (void)OHOS::HiviewDFX::HiLog::Fatal(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
-#define PASTEBOARD_HILOGE(module, ...) (void)OHOS::HiviewDFX::HiLog::Error(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
-#define PASTEBOARD_HILOGW(module, ...) (void)OHOS::HiviewDFX::HiLog::Warn(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
-#define PASTEBOARD_HILOGI(module, ...) (void)OHOS::HiviewDFX::HiLog::Info(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
-#define PASTEBOARD_HILOGD(module, ...) (void)OHOS::HiviewDFX::HiLog::Debug(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+#define PASTEBOARD_HILOGF(module, ...) \
+    (void)OHOS::HiviewDFX::HiLog::Fatal(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+#define PASTEBOARD_HILOGE(module, ...) \
+    (void)OHOS::HiviewDFX::HiLog::Error(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+#define PASTEBOARD_HILOGW(module, ...) \
+    (void)OHOS::HiviewDFX::HiLog::Warn(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+#define PASTEBOARD_HILOGI(module, ...) \
+    (void)OHOS::HiviewDFX::HiLog::Info(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+#define PASTEBOARD_HILOGD(module, ...) \
+    (void)OHOS::HiviewDFX::HiLog::Debug(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
 } // namespace MiscServices
 } // namespace OHOS
 

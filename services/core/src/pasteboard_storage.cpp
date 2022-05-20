@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <nlohmann/json.hpp>
 #include "pasteboard_storage.h"
+#include <nlohmann/json.hpp>
 #include "paste_data.h"
 
 namespace OHOS {
@@ -21,15 +21,17 @@ namespace MiscServices {
 namespace nlohmann {
 template <typename T>
     struct adl_serializer<std::shared_ptr<T>> {
-        static void to_json(json& j, const std::shared_ptr<T>& ptr) {
-            if (ptr.get()) {
+    static void to_json(json &j, const std::shared_ptr<T> &ptr)
+    {
+        if (ptr.get()) {
                 j = *ptr;
             } else {
                 j = nullptr;
             }
         }
-        static void from_json(const json& j, std::shared_ptr<T>& ptr) {
-            if (j.is_null()) {
+    static void from_json(const json &j, std::shared_ptr<T> &ptr)
+    {
+        if (j.is_null()) {
                 ptr = nullptr;
             } else {
                 ptr = std::make_shared<T>(j.get<T>());
@@ -38,7 +40,8 @@ template <typename T>
     };
 }
 
-void to_json(nlohmann::json& j, const PasteDataRecord& r) {
+void to_json(nlohmann::json &j, const PasteDataRecord &r)
+{
     j["mime_type"]= r.GetMimeType();
     j["html_text"]= r.GetHtmlText();
     j["plain_text"]= r.GetPlainText();
@@ -51,7 +54,8 @@ void to_json(nlohmann::json& j, const PasteDataRecord& r) {
     }
 }
 
-void from_json(const nlohmann::json& j, PasteDataRecord& r) {
+void from_json(const nlohmann::json &j, PasteDataRecord &r)
+{
     std::string mimeType = j.at("mime_type");
     std::shared_ptr<std::string> htmlText = j.at("html_text");
     std::shared_ptr<std::string> plainText = j.at("plain_text");
@@ -65,24 +69,28 @@ void from_json(const nlohmann::json& j, PasteDataRecord& r) {
     r = PasteDataRecord(mimeType, htmlText, want, plainText, uri);
 }
 
-void to_json(nlohmann::json& j, const PasteData& p) {
+void to_json(nlohmann::json &j, const PasteData &p)
+{
     j = p.AllRecords();
 }
 
-void from_json(const nlohmann::json& j, PasteData& p) {
+void from_json(const nlohmann::json &j, PasteData &p)
+{
     auto records = j.get<std::vector<std::shared_ptr<PasteDataRecord>>>();
     p = PasteData(records);
 }
 
-
-std::shared_ptr<PasteboardStorage> PasteboardStorage::Create(const std::string &file) {
+std::shared_ptr<PasteboardStorage> PasteboardStorage::Create(const std::string &file)
+{
     return std::shared_ptr<PasteboardStorage>(std::make_shared PasteboardStorage(file));
 }
 
-PasteboardStorage::PasteboardStorage(std::string file) : file{std::move(file)} {
+PasteboardStorage::PasteboardStorage(std::string file) : file{ std::move(file) }
+{
 }
 
-void PasteboardStorage::SaveData(std::map<int32_t, std::shared_ptr<PasteData>> data) {
+void PasteboardStorage::SaveData(std::map<int32_t, std::shared_ptr<PasteData>> data)
+{
     try {
         nlohmann::json jsonData = data;
         auto str = jsonData.dump();
@@ -95,7 +103,8 @@ void PasteboardStorage::SaveData(std::map<int32_t, std::shared_ptr<PasteData>> d
     }
 }
 
-std::map<int32_t, std::shared_ptr<PasteData>> PasteboardStorage::LoadData() {
+std::map<int32_t, std::shared_ptr<PasteData>> PasteboardStorage::LoadData()
+{
     std::map<int32_t, std::shared_ptr<PasteData>> data;
     try {
         std::ifstream instream(this->file);
