@@ -157,6 +157,11 @@ napi_value PasteDataNapi::GetPrimaryHtml(napi_env env, napi_callback_info info)
     }
 
     std::shared_ptr<std::string> p = obj->value_->GetPrimaryHtml();
+    if (p == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get GetPrimaryHtml failed");
+        return nullptr;
+    }
+
     napi_value result = nullptr;
     napi_create_string_utf8(env, p->c_str(), NAPI_AUTO_LENGTH, &result);
     return result;
@@ -180,6 +185,11 @@ napi_value PasteDataNapi::GetPrimaryText(napi_env env, napi_callback_info info)
     }
 
     std::shared_ptr<std::string> p = obj->value_->GetPrimaryText();
+    if (p == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get GetPrimaryText failed");
+        return nullptr;
+    }
+
     napi_value result = nullptr;
     napi_create_string_utf8(env, p->c_str(), NAPI_AUTO_LENGTH, &result);
     return result;
@@ -203,6 +213,11 @@ napi_value PasteDataNapi::GetPrimaryUri(napi_env env, napi_callback_info info)
     }
 
     std::shared_ptr<OHOS::Uri> p = obj->value_->GetPrimaryUri();
+    if (p == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get GetPrimaryUri failed");
+        return nullptr;
+    }
+
     std::string text = p->ToString();
     napi_value result = nullptr;
     napi_create_string_utf8(env, text.c_str(), NAPI_AUTO_LENGTH, &result);
