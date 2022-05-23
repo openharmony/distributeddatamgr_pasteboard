@@ -20,7 +20,6 @@
 
 namespace OHOS {
 namespace MiscServices {
-
 enum PasteboardModule {
     PASTEBOARD_MODULE_SERVICE_ID = 0x06,
 };

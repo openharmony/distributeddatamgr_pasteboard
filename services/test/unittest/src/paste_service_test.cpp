@@ -33,18 +33,13 @@ public:
 };
 
 void PasteboardServiceTest::SetUpTestCase(void)
-{
-    
-}
+{}
 
 void PasteboardServiceTest::TearDownTestCase(void)
-{
-
-}
+{}
 
 void PasteboardServiceTest::SetUp(void)
-{
-}
+{}
 
 void PasteboardServiceTest::TearDown(void)
 {}
@@ -154,7 +149,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest001, TestSize.Level0)
     auto data = PasteboardClient::GetInstance()->CreateWantData(want);
     EXPECT_TRUE(data != nullptr);
     auto has = PasteboardClient::GetInstance()->HasPasteData();
-    EXPECT_TRUE(has != true); 
+    EXPECT_TRUE(has != true);
     PasteboardClient::GetInstance()->SetPasteData(*data);
     has = PasteboardClient::GetInstance()->HasPasteData();
     EXPECT_TRUE(has == true);
@@ -180,7 +175,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest002, TestSize.Level0)
     EXPECT_TRUE(has != true);
     PasteboardClient::GetInstance()->SetPasteData(*data);
     has = PasteboardClient::GetInstance()->HasPasteData();
-    EXPECT_TRUE(has == true); 
+    EXPECT_TRUE(has == true);
     PasteData pasteData;
     auto ok = PasteboardClient::GetInstance()->GetPasteData(pasteData);
     EXPECT_TRUE(ok == true);
@@ -200,7 +195,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest003, TestSize.Level0)
     EXPECT_TRUE(data != nullptr);
     PasteboardClient::GetInstance()->Clear();
     auto has = PasteboardClient::GetInstance()->HasPasteData();
-    EXPECT_TRUE(has != true); 
+    EXPECT_TRUE(has != true);
     PasteboardClient::GetInstance()->SetPasteData(*data);
     has = PasteboardClient::GetInstance()->HasPasteData();
     EXPECT_TRUE(has == true);
@@ -226,7 +221,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
     EXPECT_TRUE(has != true);
     PasteboardClient::GetInstance()->SetPasteData(*data);
     has = PasteboardClient::GetInstance()->HasPasteData();
-    EXPECT_TRUE(has == true); 
+    EXPECT_TRUE(has == true);
     PasteData pasteData;
     auto ok = PasteboardClient::GetInstance()->GetPasteData(pasteData);
     EXPECT_TRUE(ok == true);

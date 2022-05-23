@@ -206,7 +206,7 @@ bool PasteData::Marshalling(Parcel &parcel) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     auto length = records_.size();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length: %{public}d.",static_cast<uint32_t>(length));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length: %{public}zu.", length);
     // write length
     if (!parcel.WriteUint32(static_cast<uint32_t>(length))) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
@@ -229,7 +229,7 @@ bool PasteData::ReadFromParcel(Parcel &parcel)
     records_.clear();
     // read vector length
     auto length = parcel.ReadUint32();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length: %{public}d.",static_cast<uint32_t>(length));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length: %{public}u.", length);
     for (uint32_t i = 0; i < length; i++) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
         std::unique_ptr<PasteDataRecord> record(parcel.ReadParcelable<PasteDataRecord>());
