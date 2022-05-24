@@ -1,0 +1,76 @@
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#####################hydra-fuzz###################
+import("//build/config/features.gni")
+import("//build/test.gni")
+import("//build/ohos.gni")
+import("//base/miscservices/pasteboard/pasteboard.gni")
+import("//foundation/aafwk/standard/aafwk.gni")
+
+##############################fuzztest##########################################
+ohos_fuzztest("PasteboardServiceFuzzTest") {
+
+module_out_path = "miscservices/pasteboard"
+
+fuzz_config_file = "//base/miscservices/pasteboard/test/fuzztest/pasteboardservice_fuzzer"
+
+configs = [ "//base/miscservices/pasteboard/services:pasteboard_service_config" ]
+
+include_dirs = [    "//base/miscservices/pasteboard/services/zidl/include",
+                           "//base/miscservices/pasteboard/services/zidl/src",
+                           "//base/miscservices/pasteboard/services/core/include",
+                           "${pasteboard_innerkits_path}/include",
+                           "//utils/system/safwk/native/include",
+                           "//third_party/json/include",
+                           "${pasteboard_utils_path}/mock/include",
+                           "${pasteboard_utils_path}/native/include",
+                           "//foundation/aafwk/standard/ability_base/interfaces/inner_api/uri/include",
+                           "//foundation/aafwk/standard/ability_base/interfaces/inner_api/want/include",
+                           "//foundation/aafwk/standard/ability_base/interfaces/inner_api/base/include", 
+                           ]
+
+cflags = ["-g","-O0","-Wno-unused-variable","-fno-omit-frame-pointer"]
+  
+sources = [ "pasteboardservice_fuzzer.cpp",]
+
+deps = [
+                    "${pasteboard_innerkits_path}:pasteboard_client",
+                    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+                    "//third_party/jsoncpp:jsoncpp",
+                    "//utils/native/base:utils",
+                    "//base/miscservices/pasteboard/services:pasteboard_service",
+                    "${base_path}:base",
+                    "${base_path}:want",
+           ]
+
+external_deps = [ "hiviewdfx_hilog_native:libhilog",
+                           "ability_base:want",
+                           "eventhandler:libeventhandler",
+                           "hisysevent_native:libhisysevent",
+                           "hiviewdfx_hilog_native:libhilog",
+                           "ipc:ipc_core",
+                           "safwk:system_ability_fwk",
+                           "samgr_standard:samgr_proxy",
+                           "common_event_service:cesfwk_innerkits",]
+}
+###############################################################################
+group("fuzztest") {
+  testonly = true
+  deps = []
+  deps += [
+    # deps file
+    ":PasteboardServiceFuzzTest",
+  ]
+}
+###############################################################################
