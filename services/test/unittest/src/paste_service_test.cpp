@@ -15,10 +15,10 @@
 #include <gtest/gtest.h>
 #include <cstdint>
 #include <vector>
-#include <ohos/aafwk/content/want.h>
 #include "pasteboard_client.h"
 #include "uri.h"
 #include "pasteboard_observer_callback.h"
+#include "want.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -42,7 +42,7 @@ void PasteboardServiceTest::SetUp(void)
 {}
 
 void PasteboardServiceTest::TearDown(void)
-{}
+{PasteboardClient::GetInstance()->Clear();}
 
 void PasteboardObserverCallback::OnPasteboardChanged()
 {
@@ -116,6 +116,29 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest004, TestSize.Level0)
 {
     OHOS::Uri uri("uri");
     auto record = PasteboardClient::GetInstance()->CreateUriRecord(uri);
+    EXPECT_TRUE(record != nullptr);
+}
+
+
+/**
+* @tc.name: PasteDataTest001
+* @tc.desc: Create paste board data test.
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest001, TestSize.Level0)
+{
+    std::shared_ptr<OHOS::AAFwk::Want> want = std::make_shared<OHOS::AAFwk::Want>();
+    auto data = PasteboardClient::GetInstance()->CreateWantData(want);
+    EXPECT_TRUE(data != nullptr);
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    EXPECT_TRUE(has != true);
+    PasteboardClient::GetInstance()->SetPasteData(*data);
+    has = PasteboardClient::GetInstance()->HasPasteData();
+    EXPECT_TRUE(has == true);
+    PasteData pasteData;
+    auto ok = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    EXPECT_TRUE(ok == true);
+    auto record = pasteData.GetPrimaryWant();
     EXPECT_TRUE(record != nullptr);
 }
 
