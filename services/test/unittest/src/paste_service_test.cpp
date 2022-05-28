@@ -15,10 +15,10 @@
 #include <gtest/gtest.h>
 #include <cstdint>
 #include <vector>
+#include <ohos/aafwk/content/want.h>
 #include "pasteboard_client.h"
 #include "uri.h"
 #include "pasteboard_observer_callback.h"
-#include "want.h"
 
 using namespace testing::ext;
 using namespace OHOS;
