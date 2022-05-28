@@ -42,7 +42,9 @@ void PasteboardServiceTest::SetUp(void)
 {}
 
 void PasteboardServiceTest::TearDown(void)
-{}
+{
+    PasteboardClient::GetInstance()->Clear();
+}
 
 void PasteboardObserverCallback::OnPasteboardChanged()
 {
@@ -74,25 +76,7 @@ HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardTest002
-* @tc.desc: Create paste board test.
-* @tc.type: FUNC
-*/
-HWTEST_F(PasteboardServiceTest, PasteboardTest002, TestSize.Level0)
-{
-    auto observer = std::make_shared<PasteboardObserverCallback>();
-    PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer);
-
-    auto data = PasteboardClient::GetInstance()->CreatePlainTextData("call back");
-    EXPECT_TRUE(data != nullptr);
-    PasteboardClient::GetInstance()->SetPasteData(*data);
-    PasteboardClient::GetInstance()->Clear();
-    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(observer);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
-}
-
-/**
-* @tc.name: PasteboardTest001
+* @tc.name: PasteRecordTest001
 * @tc.desc: Create paste board record test.
 * @tc.type: FUNC
 */
