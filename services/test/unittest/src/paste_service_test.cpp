@@ -43,7 +43,7 @@ void PasteboardServiceTest::SetUp(void)
 
 void PasteboardServiceTest::TearDown(void)
 {
-	PasteboardClient::GetInstance()->Clear();
+    PasteboardClient::GetInstance()->Clear();
 }
 
 void PasteboardObserverCallback::OnPasteboardChanged()
