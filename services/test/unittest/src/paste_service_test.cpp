@@ -76,7 +76,7 @@ HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardTest001
+* @tc.name: PasteRecordTest001
 * @tc.desc: Create paste board record test.
 * @tc.type: FUNC
 */
