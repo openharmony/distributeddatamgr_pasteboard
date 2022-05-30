@@ -308,6 +308,10 @@ napi_value PasteDataNapi::GetPrimaryMimeType(napi_env env, napi_callback_info in
         return nullptr;
     }
     std::shared_ptr<std::string> mimeType = obj->value_->GetPrimaryMimeType();
+    if (mimeType == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get GetPrimaryMimeType failed");
+        return nullptr;
+    }
     napi_value result = nullptr;
     status = napi_create_string_utf8(env, mimeType->c_str(), NAPI_AUTO_LENGTH, &result);
 

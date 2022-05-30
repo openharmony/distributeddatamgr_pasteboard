@@ -74,7 +74,6 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
     delete pasteboardDataWorker;
     pasteboardDataWorker = nullptr;
     delete work;
-    work = nullptr;
 }
 
 void PasteboardObserverInstance::OnPasteboardChanged()
@@ -482,10 +481,10 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "Wrong argument type. Function expected.");
         napi_create_reference(env, argv[ARGC_TYPE_SET1], 1, &ref);
         observer = GetPasteboardObserverIns(ref);
-        if (!observer) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Callback is invalid");
-            return nullptr;
-        }
+    }
+    if (!observer) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Callback is invalid");
+        return nullptr;
     }
     observer->setOff();
     PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(observer);
