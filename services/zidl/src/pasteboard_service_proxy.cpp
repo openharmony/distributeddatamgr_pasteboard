@@ -43,7 +43,7 @@ void PasteboardServiceProxy::Clear()
 void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    if(observer == nullptr){
+    if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer nullptr");
         return;
     }
@@ -67,7 +67,7 @@ void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboard
 void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    if(observer == nullptr){
+    if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer nullptr");
         return;
     }
