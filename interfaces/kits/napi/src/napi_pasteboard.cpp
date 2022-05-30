@@ -74,7 +74,6 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
     delete pasteboardDataWorker;
     pasteboardDataWorker = nullptr;
     delete work;
-    work = nullptr;
 }
 
 void PasteboardObserverInstance::OnPasteboardChanged()
