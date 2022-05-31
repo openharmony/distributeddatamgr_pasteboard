@@ -37,7 +37,7 @@ PasteDataRecordNapi::~PasteDataRecordNapi()
 bool PasteDataRecordNapi::NewInstanceByRecord(
     napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record)
 {
-    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
@@ -50,7 +50,7 @@ bool PasteDataRecordNapi::NewInstanceByRecord(
 
 bool PasteDataRecordNapi::NewHtmlTextRecordInstance(napi_env env, const std::string &text, napi_value &instance)
 {
-    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
@@ -63,7 +63,7 @@ bool PasteDataRecordNapi::NewHtmlTextRecordInstance(napi_env env, const std::str
 
 bool PasteDataRecordNapi::NewPlainTextRecordInstance(napi_env env, const std::string &text, napi_value &instance)
 {
-    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
@@ -76,7 +76,7 @@ bool PasteDataRecordNapi::NewPlainTextRecordInstance(napi_env env, const std::st
 
 bool PasteDataRecordNapi::NewUriRecordInstance(napi_env env, const std::string &text, napi_value &instance)
 {
-    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
@@ -94,7 +94,7 @@ bool PasteDataRecordNapi::NewWantRecordInstance(
         return false;
     }
 
-    NAPI_CALL(env, PasteDataRecordNapi::NewInstance(env, instance));
+    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
