@@ -313,7 +313,7 @@ napi_value PasteDataNapi::GetPrimaryMimeType(napi_env env, napi_callback_info in
         return nullptr;
     }
     napi_value result = nullptr;
-    status = napi_create_string_utf8(env, mimeType->c_str(), NAPI_AUTO_LENGTH, &result);
+    napi_create_string_utf8(env, mimeType->c_str(), NAPI_AUTO_LENGTH, &result);
 
     return result;
 }
@@ -337,7 +337,7 @@ napi_value PasteDataNapi::GetRecordCount(napi_env env, napi_callback_info info)
 
     size_t count = obj->value_->GetRecordCount();
     napi_value result = nullptr;
-    status = napi_create_int64(env, count, &result);
+    napi_create_int64(env, count, &result);
 
     return result;
 }
@@ -360,7 +360,7 @@ napi_value PasteDataNapi::GetTag(napi_env env, napi_callback_info info)
     }
     std::string tag = obj->value_->GetTag();
     napi_value result = nullptr;
-    status = napi_create_string_utf8(env, tag.c_str(), NAPI_AUTO_LENGTH, &result);
+    napi_create_string_utf8(env, tag.c_str(), NAPI_AUTO_LENGTH, &result);
 
     return result;
 }

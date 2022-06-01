@@ -231,6 +231,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
         AsyncCompleteCallbackConvertToText,
         (void *)asyncText, &asyncText->work);
     napi_queue_async_work(env, asyncText->work);
+    delete asyncText;
     return promise;
 }
 
