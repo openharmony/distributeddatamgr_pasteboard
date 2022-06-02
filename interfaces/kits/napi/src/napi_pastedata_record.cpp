@@ -219,7 +219,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
     }
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "ConvertToText", NAPI_AUTO_LENGTH, &resource);
-    napi_create_async_work(env,
+    napi_status syncWork = napi_create_async_work(env,
         nullptr, resource,
         [](napi_env env, void *data) {
             AsyncText* asyncText = (AsyncText*)data;
@@ -227,11 +227,14 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
                 asyncText->status = -1;
             }
             asyncText->text = asyncText->obj->value_->ConvertToText();
+            delete asyncText;
+            asyncText = nullptr;
         },
         AsyncCompleteCallbackConvertToText,
         (void *)asyncText, &asyncText->work);
     napi_queue_async_work(env, asyncText->work);
-    delete asyncText;
+    if (!syncWork && asyncText != nullptr)
+        delete asyncText;
     return promise;
 }
 
