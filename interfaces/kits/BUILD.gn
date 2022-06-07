@@ -17,7 +17,7 @@ import("//build/ohos.gni")
 ohos_shared_library("pasteboard_napi") {
   include_dirs = [
     "${pasteboard_innerkits_path}/include",
-    "//foundation/ability/ability_runtime/interfaces/kits/napi/aafwk/inner/napi_common",
+    "//foundation/ability/ability_runtime/frameworks/js/napi/aafwk/inner/napi_common",
     "napi/include",
   ]
 
