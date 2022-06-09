@@ -553,6 +553,7 @@ napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
     napi_queue_async_work(env, asyncContext->work);
     if (asyncWork != napi_ok) {
         delete asyncContext;
+        asyncContext = nullptr;
     }
 
     return promise;
@@ -620,6 +621,7 @@ napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info i
     napi_queue_async_work(env, asyncContext->work);
     if (asyncWork != napi_ok) {
         delete asyncContext;
+        asyncContext = nullptr;
     }
 
     return promise;
@@ -696,6 +698,7 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
     napi_queue_async_work(env, asyncContext->work);
     if (asyncWork != napi_ok) {
         delete asyncContext;
+        asyncContext = nullptr;
     }
 
     return promise;
@@ -770,6 +773,7 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
     napi_queue_async_work(env, asyncContext->work);
     if (asyncWork != napi_ok) {
         delete asyncContext;
+        asyncContext = nullptr;
     }
 
     return promise;
