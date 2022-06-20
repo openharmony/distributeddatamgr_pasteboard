@@ -30,6 +30,7 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
     : records_ {std::move(records)}
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
+    localOnly = false;
 }
 
 PasteDataProperty PasteData::GetProperty()
