@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ability_runtime_napi_path = "//foundation/ability/ability_runtime/frameworks/js/napi/aafwk"
+
 pasteboard_root_path = "//base/miscservices/pasteboard"
 
 pasteboard_kits_path = "${pasteboard_root_path}/kits"
