@@ -24,6 +24,7 @@ namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
 const size_t ARGC_TYPE_SET1 = 1;
+const size_t CALLBACK_RESULT_NUM = 2;
 
 PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
 {
@@ -171,7 +172,7 @@ void AsyncCompleteCallbackConvertToText(napi_env env, napi_status status, void *
         return;
     }
     AsyncText *asyncText = (AsyncText *)data;
-    napi_value results[2] = { 0 };
+    napi_value results[CALLBACK_RESULT_NUM] = { 0 };
     if (asyncText->status == 0) {
         napi_get_undefined(env, &results[0]);
         napi_create_string_utf8(env, asyncText->text.c_str(), NAPI_AUTO_LENGTH, &results[1]);
@@ -191,7 +192,7 @@ void AsyncCompleteCallbackConvertToText(napi_env env, napi_status status, void *
         napi_value callback = nullptr;
         napi_value resultOut = nullptr;
         napi_get_reference_value(env, asyncText->callbackRef, &callback);
-        napi_call_function(env, nullptr, callback, 2, results, &resultOut);
+        napi_call_function(env, nullptr, callback, CALLBACK_RESULT_NUM, results, &resultOut);
         napi_delete_reference(env, asyncText->callbackRef);
     }
     napi_delete_async_work(env, asyncText->work);
