@@ -24,6 +24,7 @@ namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
 const size_t ARGC_TYPE_SET1 = 1;
+const size_t CALLBACK_RESULT_NUM = 2;
 
 PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
 {
@@ -170,17 +171,28 @@ void AsyncCompleteCallbackConvertToText(napi_env env, napi_status status, void *
     if (!data) {
         return;
     }
-    AsyncText* asyncText = (AsyncText*)data;
-    napi_value result = nullptr;
-    napi_create_string_utf8(env, asyncText->text.c_str(), NAPI_AUTO_LENGTH, &result);
-    if (asyncText->deferred) {
-        if (!asyncText->status) {
-            napi_resolve_deferred(env, asyncText->deferred, result);
+    AsyncText *asyncText = (AsyncText *)data;
+    napi_value results[CALLBACK_RESULT_NUM] = { 0 };
+    if (asyncText->status == 0) {
+        napi_get_undefined(env, &results[0]);
+        napi_create_string_utf8(env, asyncText->text.c_str(), NAPI_AUTO_LENGTH, &results[1]);
+    } else {
+        napi_value message = nullptr;
+        napi_create_string_utf8(env, "ConvertToText Failed", NAPI_AUTO_LENGTH, &message);
+        napi_create_error(env, nullptr, message, &results[0]);
+        napi_get_undefined(env, &results[1]);
+    }
+    if (asyncText->deferred != nullptr) {
+        if (asyncText->status == 0) {
+            napi_resolve_deferred(env, asyncText->deferred, results[1]);
         } else {
-            napi_reject_deferred(env, asyncText->deferred, result);
+            napi_reject_deferred(env, asyncText->deferred, results[0]);
         }
     } else {
-        SetCallback(env, asyncText->callbackRef, asyncText->status, result);
+        napi_value callback = nullptr;
+        napi_value resultOut = nullptr;
+        napi_get_reference_value(env, asyncText->callbackRef, &callback);
+        napi_call_function(env, nullptr, callback, CALLBACK_RESULT_NUM, results, &resultOut);
         napi_delete_reference(env, asyncText->callbackRef);
     }
     napi_delete_async_work(env, asyncText->work);
@@ -202,7 +214,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
         return nullptr;
     }
     AsyncText *asyncText = new (std::nothrow) AsyncText {.env = env, .work = nullptr, .obj = obj};
-    if (!asyncText) {
+    if (asyncText == nullptr) {
         return NapiGetNull(env);
     }
     if (argc >= ARGC_TYPE_SET1) {
@@ -222,13 +234,13 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
     napi_status syncWork = napi_create_async_work(env,
         nullptr, resource,
         [](napi_env env, void *data) {
-            AsyncText* asyncText = (AsyncText*)data;
-            if (!asyncText->obj->value_) {
+            AsyncText *asyncText = (AsyncText *)data;
+            if (asyncText->obj == nullptr || asyncText->obj->value_ == nullptr) {
                 asyncText->status = -1;
+            } else {
+                asyncText->text = asyncText->obj->value_->ConvertToText();
+                asyncText->status = 0;
             }
-            asyncText->text = asyncText->obj->value_->ConvertToText();
-            delete asyncText;
-            asyncText = nullptr;
         },
         AsyncCompleteCallbackConvertToText,
         (void *)asyncText, &asyncText->work);
