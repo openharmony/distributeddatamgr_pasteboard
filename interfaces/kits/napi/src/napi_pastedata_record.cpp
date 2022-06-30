@@ -178,7 +178,7 @@ void AsyncCompleteCallbackConvertToText(napi_env env, napi_status status, void *
         napi_create_string_utf8(env, asyncText->text.c_str(), NAPI_AUTO_LENGTH, &results[1]);
     } else {
         napi_value message = nullptr;
-        napi_create_string_utf8(env, "value_ is nullptr", NAPI_AUTO_LENGTH, &message);
+        napi_create_string_utf8(env, "ConvertToText Failed", NAPI_AUTO_LENGTH, &message);
         napi_create_error(env, nullptr, message, &results[0]);
         napi_get_undefined(env, &results[1]);
     }
@@ -235,7 +235,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
         nullptr, resource,
         [](napi_env env, void *data) {
             AsyncText *asyncText = (AsyncText *)data;
-            if (asyncText->obj->value_ == nullptr) {
+            if (asyncText->obj == nullptr || asyncText->obj->value_ == nullptr) {
                 asyncText->status = -1;
             } else {
                 asyncText->text = asyncText->obj->value_->ConvertToText();
