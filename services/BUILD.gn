@@ -64,7 +64,7 @@ ohos_shared_library("pasteboard_service") {
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utils",
+    "//utils/native/base:utils"
   ]
 
   external_deps = [
@@ -79,7 +79,7 @@ ohos_shared_library("pasteboard_service") {
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr_standard:samgr_proxy"
   ]
   subsystem_name = "miscservices"
   part_name = "pasteboard_native"
