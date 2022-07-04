@@ -54,7 +54,7 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "appexecfwk_standard:appexecfwk_core",
+    "appexecfwk_standard:appexecfwk_core"
   ]
 }
 

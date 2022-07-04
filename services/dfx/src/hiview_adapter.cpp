@@ -272,8 +272,7 @@ void HiViewAdapter::ReportPasteboardBehaviour(int dfxCode, const PasteboardBehav
         }
     } else if (msg.pasteboardState == static_cast<int>(Fault::PB_PASTE_STATE)) {
         auto it = pastePasteboardBehaviour_.find(msg.appId);
-        if (it != pastePasteboardBehaviour_.end())
-        {
+        if (it != pastePasteboardBehaviour_.end()) {
             (it->second)++;
         } else {
             pastePasteboardBehaviour_.insert(std::pair<std::string, int>(msg.appId, 1));
