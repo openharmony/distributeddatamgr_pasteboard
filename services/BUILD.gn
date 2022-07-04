@@ -42,20 +42,20 @@ ohos_shared_library("pasteboard_service") {
   sources = [
     "${pasteboard_utils_path}/mock/src/mock_permission.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_permission.cpp",
+    "//base/miscservices/pasteboard/services/dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
     "//base/miscservices/pasteboard/services/dfx/src/command.cpp",
+    "//base/miscservices/pasteboard/services/dfx/src/fault/initialization_fault_impl.cpp",
+    "//base/miscservices/pasteboard/services/dfx/src/hiview_adapter.cpp",
     "//base/miscservices/pasteboard/services/dfx/src/pasteboard_dump_helper.cpp",
     "//base/miscservices/pasteboard/services/dfx/src/pasteboard_trace.cpp",
+    "//base/miscservices/pasteboard/services/dfx/src/reporter.cpp",
+    "//base/miscservices/pasteboard/services/dfx/src/statistic/time_consuming_statistic_impl.cpp",
+    "//base/miscservices/pasteboard/services/dfx/src/time_consuming.cpp",
     "core/src/pasteboard_service.cpp",
     "zidl/src/pasteboard_observer_proxy.cpp",
     "zidl/src/pasteboard_observer_stub.cpp",
     "zidl/src/pasteboard_service_proxy.cpp",
     "zidl/src/pasteboard_service_stub.cpp",
-    "//base/miscservices/pasteboard/services/dfx/src/hiview_adapter.cpp",
-    "//base/miscservices/pasteboard/services/dfx/src/time_consuming.cpp",
-    "//base/miscservices/pasteboard/services/dfx/src/reporter.cpp",
-    "//base/miscservices/pasteboard/services/dfx/src/statistic/time_consuming_statistic_impl.cpp",
-    "//base/miscservices/pasteboard/services/dfx/src/fault/initialization_fault_impl.cpp",
-    "//base/miscservices/pasteboard/services/dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
   ]
   public_configs = [
     "//utils/native/base:utils_config",
@@ -63,7 +63,6 @@ ohos_shared_library("pasteboard_service") {
   ]
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
@@ -71,6 +70,7 @@ ohos_shared_library("pasteboard_service") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:abilitykit_native",
+    "appexecfwk_standard:appexecfwk_core",
     "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
