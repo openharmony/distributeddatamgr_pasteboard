@@ -59,7 +59,8 @@
           }
         ],
         "test": [
-          "//base/miscservices/pasteboard/services/test:PasteboardServiceTest"
+          "//base/miscservices/pasteboard/services/test:PasteboardServiceTest",
+          "//base/miscservices/pasteboard/test/fuzztest:fuzztest"
         ]
       }
     }
