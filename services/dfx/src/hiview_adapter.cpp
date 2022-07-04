@@ -29,7 +29,7 @@ constexpr const char *USER_ID = "USER_ID";
 constexpr const char *ERROR_TYPE = "ERROR_TYPE";
 // Time Consuming Statistic
 constexpr const char *PASTEBOARD_STATE = "PASTEBOARD_STATE";
-constexpr const char *DATA_LEVLE = "DATA_LEVLE";
+constexpr const char *DATA_LEVEL = "DATA_LEVEL";
 constexpr const char *ZERO_TO_HUNDRED_KB = "ZERO_TO_HUNDRED_KB";
 constexpr const char *HUNDRED_TO_FIVE_HUNDREDS_KB = "HUNDRED_TO_FIVE_HUNDREDS_KB";
 constexpr const char *FIVE_HUNDREDS_TO_THOUSAND_KB = "FIVE_HUNDREDS_TO_THOUSAND_KB";
@@ -320,7 +320,7 @@ void HiViewAdapter::InvokeTimeConsuming()
         int i = 0;
         for (auto iter = copyTimeConsumingStat_.begin(); iter != copyTimeConsumingStat_.end(); ++iter) {
             int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
-                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, COPY_STATE, DATA_LEVLE, GetDataLevel(i),
+                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, COPY_STATE, DATA_LEVEL, GetDataLevel(i),
                 TIME_CONSUMING_LEVEL_ONE, (*iter)[static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ONE)],
                 TIME_CONSUMING_LEVEL_TWO, (*iter)[static_cast<int>(TimeConsumingLevel::TIME_LEVEL_TWO)],
                 TIME_CONSUMING_LEVEL_THREE, (*iter)[static_cast<int>(TimeConsumingLevel::TIME_LEVEL_THREE)],
@@ -342,7 +342,7 @@ void HiViewAdapter::InvokeTimeConsuming()
         int i = 0;
         for (auto iter = pasteTimeConsumingStat_.begin(); iter != pasteTimeConsumingStat_.end(); ++iter) {
             int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
-                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, PASTE_STATE, DATA_LEVLE, GetDataLevel(i),
+                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, PASTE_STATE, DATA_LEVEL, GetDataLevel(i),
                 TIME_CONSUMING_LEVEL_ONE, (*iter)[static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ONE)],
                 TIME_CONSUMING_LEVEL_TWO, (*iter)[static_cast<int>(TimeConsumingLevel::TIME_LEVEL_TWO)],
                 TIME_CONSUMING_LEVEL_THREE, (*iter)[static_cast<int>(TimeConsumingLevel::TIME_LEVEL_THREE)],
