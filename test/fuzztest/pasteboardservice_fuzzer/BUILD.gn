@@ -45,8 +45,8 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//base/miscservices/pasteboard/services:pasteboard_service",
-    "//utils/native/base:utils",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
