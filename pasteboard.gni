@@ -12,7 +12,7 @@
 # limitations under the License.
 
 ability_runtime_napi_path =
-    "//foundation/ability/ability_runtime/frameworks/js/napi/aafwk"
+    "//foundation/ability/ability_runtime/frameworks/js/napi"
 
 pasteboard_root_path = "//base/miscservices/pasteboard"
 
