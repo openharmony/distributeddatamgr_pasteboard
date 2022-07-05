@@ -158,26 +158,7 @@ bool PasteboardService::GetPasteData(PasteData& data)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
 
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    std::string bundleName;
-    std::string time = GetTime();
-    SetPasteboardHistory(uid, "Get", time);
-    if (GetBundleNameByUid(uid, bundleName)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
-    } else {
-        bundleName = "com.pasteboard.default";
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "defaulit bundlename");
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
-    Reporter::GetInstance().PasteboardBehaviour().Report({ static_cast<int>(Fault::PB_PASTE_STATE), bundleName });
-
-    if (!clips_.empty()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData GetDataSize");
-        int state = static_cast<int>(Fault::TCS_PASTE_STATE);
-        size_t dataSize = GetDataSize(*(clips_.rbegin()->second));
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData timeCalculate");
-        CalculateTimeConsuming timeCalculate(dataSize, state);
-    }
+    GetPasteDataDot();
 
     if (userId == ERROR_USERID) {
         return false;
@@ -212,26 +193,7 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
 
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    uIdForLastCopy_ = uid;
-    std::string time = GetTime();
-    timeForLastCopy_ = time;
-    SetPasteboardHistory(uid, "Set", time);
-    std::string bundleName;
-    if (GetBundleNameByUid(uid, bundleName)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
-    } else {
-        bundleName = "com.pasteboard.default";
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "default bundleName!");
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData Report!");
-    Reporter::GetInstance().PasteboardBehaviour().Report({ static_cast<int>(Fault::PB_COPY_STATE), bundleName });
-
-    int state = static_cast<int>(Fault::TCS_COPY_STATE);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData GetDataSize!");
-    size_t dataSize = GetDataSize(pasteData);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData timeCalculate!");
-    CalculateTimeConsuming timeCalculate(dataSize, state);
+    SetPasteDataDot(pasteData);
 
     if (userId == ERROR_USERID) {
         return;
@@ -474,6 +436,54 @@ std::string PasteboardService::DunmpData()
         result.append("No copy data.").append("\n");
     }
     return result;
+}
+
+void PasteboardService::SetPasteDataDot(PasteData& pasteData)
+{
+    int32_t uId = IPCSkeleton::GetCallingUid();
+    uIdForLastCopy_ = uId;
+    std::string time = GetTime();
+    timeForLastCopy_ = time;
+    SetPasteboardHistory(uId, "Set", time);
+    std::string bundleName;
+    if (GetBundleNameByUid(uId, bundleName)) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
+    } else {
+        bundleName = "com.pasteboard.default";
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "default bundleName!");
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData Report!");
+    Reporter::GetInstance().PasteboardBehaviour().Report({ static_cast<int>(Fault::PB_COPY_STATE), bundleName });
+
+    int state = static_cast<int>(Fault::TCS_COPY_STATE);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData GetDataSize!");
+    size_t dataSize = GetDataSize(pasteData);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData timeC!");
+    CalculateTimeConsuming timeC(dataSize, state);
+}
+
+void PasteboardService::GetPasteDataDot()
+{
+    int32_t uId = IPCSkeleton::GetCallingUid();
+    std::string bundleName;
+    std::string time = GetTime();
+    SetPasteboardHistory(uId, "Get", time);
+    if (GetBundleNameByUid(uId, bundleName)) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
+    } else {
+        bundleName = "com.pasteboard.default";
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "defaulit bundlename");
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
+    Reporter::GetInstance().PasteboardBehaviour().Report({ static_cast<int>(Fault::PB_PASTE_STATE), bundleName });
+
+    if (!clips_.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData GetDataSize");
+        int state = static_cast<int>(Fault::TCS_PASTE_STATE);
+        size_t dataSize = GetDataSize(*(clips_.rbegin()->second));
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData timeC");
+        CalculateTimeConsuming timeC(dataSize, state);
+    }
 }
 } // MiscServices
 } // OHOS

@@ -78,6 +78,8 @@ private:
     void NotifyObservers();
     void InitServiceHandler();
     void InitStorage();
+    void SetPasteDataDot(PasteData& pasteData);
+    void GetPasteDataDot();
     std::string GetTime();
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
