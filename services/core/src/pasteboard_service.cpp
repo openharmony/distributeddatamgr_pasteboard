@@ -451,26 +451,25 @@ std::string PasteboardService::DunmpData()
         mimeTypes = clips_.rbegin()->second->GetMimeTypes();
         if (GetBundleNameByUid(uIdForLastCopy_, bundleName)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
-            } else {
-                bundleName = "com.pasteboard.default";
+        } else {
+            bundleName = "com.pasteboard.default";
+        }
+        
+        result.append("|Owner       :  ")
+         .append(bundleName).append("\n")
+         .append("|Timestamp   :  ")
+         .append(timeForLastCopy_).append("\n")
+         .append("|Share Option: ")
+         .append(" CrossDevice").append("\n")
+         .append("|Record Count:  ")
+         .append(std::to_string(recordCounts)).append("\n")
+         .append("|Mime types  :  {");
+        if (!mimeTypes.empty()) {
+            for (size_t i = 0; i < mimeTypes.size(); ++i) {
+                result.append(mimeTypes[i]).append(",");
             }
-            result.append("|Owner       :  ")
-             .append(bundleName)
-             .append("\n")
-             .append("|Timestamp   :  ")
-             .append(timeForLastCopy_)
-             .append("\n")
-             .append("|Share Option: ")
-             .append(" CrossDevice").append("\n")
-             .append("|Record Count:  ")
-             .append(std::to_string(recordCounts)).append("\n")
-             .append("|Mime types  :  {");
-            if (!mimeTypes.empty()) {
-                for (size_t i = 0; i < mimeTypes.size(); ++i) {
-                    result.append(mimeTypes[i]).append(",");
-                }
-            }
-            result.append("}");
+        }
+        result.append("}");
     } else {
         result.append("No copy data.").append("\n");
     }
