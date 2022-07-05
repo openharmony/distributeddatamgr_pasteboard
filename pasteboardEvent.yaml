@@ -38,7 +38,7 @@
 #   Example of some hiviewdfx events definition     #
 #####################################################
 
-domain: MISC_PASTEBOARD
+domain: PASTEBOARD
 
 INITIALIZATION_FAULT:
   __BASE: {type: FAULT, level: CRITICAL, desc: The event is database fault }

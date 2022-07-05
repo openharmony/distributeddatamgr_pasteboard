@@ -76,7 +76,7 @@ const std::map<int, std::string> EVENT_COVERT_TABLE = {
     { DfxCodeConstant::PASTEBOARD_BEHAVIOUR, "PASTEBOARD_BEHAVIOUR" },
 };
 
-const std::string DOMAIN_STR = std::string(HiviewDFX::HiSysEvent::Domain::MISC_PASTEBOARD);
+const std::string DOMAIN_STR = std::string(HiviewDFX::HiSysEvent::Domain::PASTEBOARD);
 }
 
 bool HiViewAdapter::running_ = false;
