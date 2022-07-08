@@ -40,7 +40,7 @@ ohos_source_set("pasteboard_tools") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
-  external_deps = [ "startup_l2:syspara" ]
+  external_deps = [ "init:libbegetutil" ]
 
   part_name = "pasteboard_native"
 }
