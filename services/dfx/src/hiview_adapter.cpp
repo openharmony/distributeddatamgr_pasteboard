@@ -24,15 +24,13 @@ namespace OHOS {
 using namespace HiviewDFX;
 namespace MiscServices {
 namespace {
-
 const std::map<int, std::string> EVENT_COVERT_TABLE = {
     { DfxCodeConstant::INITIALIZATION_FAULT, "INITIALIZATION_FAULT" },
     { DfxCodeConstant::TIME_CONSUMING_STATISTIC, "TIME_CONSUMING_STATISTIC" },
     { DfxCodeConstant::PASTEBOARD_BEHAVIOUR, "PASTEBOARD_BEHAVIOUR" },
 };
-
 const std::string DOMAIN_STR = std::string(HiviewDFX::HiSysEvent::Domain::PASTEBOARD);
-}
+} // namespace
 
 bool HiViewAdapter::running_ = false;
 std::mutex HiViewAdapter::runMutex_;
