@@ -310,21 +310,24 @@ void HiViewAdapter::InvokeTimeConsuming()
     pasteTimeConsumingStat_.clear();
 }
 
-void HiViewAdapter::ReportStatisticEvent(std::vector<std::map<int, int>> &timeConsumingStat, std::string pasteboardState)
+void HiViewAdapter::ReportStatisticEvent(
+    std::vector<std::map<int, int>> &timeConsumingStat, std::string pasteboardState)
 {
-    if(timeConsumingStat.empty()) {
+    if (timeConsumingStat.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent timeConsumingStat is empty.");
         return;
     }
     int i = 0;
     for (auto iter = timeConsumingStat.begin(); iter != timeConsumingStat.end(); ++iter) {
         std::string buffMsg = ": [";
-        for (int j = static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ONE); j <= static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ELEVEN); ++j) {
+        for (int j = static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ONE);
+             j <= static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ELEVEN); ++j) {
             buffMsg = buffMsg + std::to_string((*iter)[j]) + ",";
         }
         buffMsg += "]";
         int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
-            HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, DATA_LEVEL, GetDataLevel(i), CONSUMING_DATA, buffMsg);
+            HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, DATA_LEVEL, GetDataLevel(i),
+            CONSUMING_DATA, buffMsg);
         if (ret != 0) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
         }
