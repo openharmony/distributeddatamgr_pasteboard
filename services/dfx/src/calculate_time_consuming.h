@@ -22,6 +22,19 @@
 
 namespace OHOS {
 namespace MiscServices {
+enum TimeLevelTen : std::int32_t {
+    PER_FIVE_HUNDRED_MS_ZERO = 0,
+    PER_FIVE_HUNDRED_MS_ONE,
+    PER_FIVE_HUNDRED_MS_TWO,
+    PER_FIVE_HUNDRED_MS_THREE,
+    PER_FIVE_HUNDRED_MS_FOUR,
+    PER_FIVE_HUNDRED_MS_FIVE,
+    PER_FIVE_HUNDRED_MS_SIX,
+    PER_FIVE_HUNDRED_MS_SEVEN,
+    PER_FIVE_HUNDRED_MS_EIGHT,
+    PER_FIVE_HUNDRED_MS_NINE,
+};
+
 class CalculateTimeConsuming : public Singleton<CalculateTimeConsuming> {
 public:
      CalculateTimeConsuming(const size_t calPasteboardData, const int calPasteboardState);

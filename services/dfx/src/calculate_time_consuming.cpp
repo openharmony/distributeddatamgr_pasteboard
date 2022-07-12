@@ -76,38 +76,27 @@ int CalculateTimeConsuming::CalculateData(size_t calPasteboardData) const
 int CalculateTimeConsuming::CalculateTime(uint64_t time)
 {
     constexpr int FIVE_HUNDRED_MS = 500;
-    constexpr int PER_FIVE_HUNDRED_MS_ZERO = 0;
-    constexpr int PER_FIVE_HUNDRED_MS_ONE = 1;
-    constexpr int PER_FIVE_HUNDRED_MS_TWO = 2;
-    constexpr int PER_FIVE_HUNDRED_MS_THREE = 3;
-    constexpr int PER_FIVE_HUNDRED_MS_FOUR = 4;
-    constexpr int PER_FIVE_HUNDRED_MS_FIVE = 5;
-    constexpr int PER_FIVE_HUNDRED_MS_SIX = 6;
-    constexpr int PER_FIVE_HUNDRED_MS_SEVEN = 7;
-    constexpr int PER_FIVE_HUNDRED_MS_EIGHT = 8;
-    constexpr int PER_FIVE_HUNDRED_MS_NINE = 9;
-
     uint64_t timeCosuming = time % FIVE_HUNDRED_MS;
     switch (timeCosuming) {
-        case PER_FIVE_HUNDRED_MS_ZERO:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_ZERO:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_ONE);
-        case PER_FIVE_HUNDRED_MS_ONE:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_ONE:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_TWO);
-        case PER_FIVE_HUNDRED_MS_TWO:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_TWO:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_THREE);
-        case PER_FIVE_HUNDRED_MS_THREE:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_THREE:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_FOUR);
-        case PER_FIVE_HUNDRED_MS_FOUR:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_FOUR:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_FIVE);
-        case PER_FIVE_HUNDRED_MS_FIVE:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_FIVE:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_SIX);
-        case PER_FIVE_HUNDRED_MS_SIX:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_SIX:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_SEVEN);
-        case PER_FIVE_HUNDRED_MS_SEVEN:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_SEVEN:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_EIGHT);
-        case PER_FIVE_HUNDRED_MS_EIGHT:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_EIGHT:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_NINE);
-        case PER_FIVE_HUNDRED_MS_NINE:
+        case TimeLevelTen::PER_FIVE_HUNDRED_MS_NINE:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_TEN);
         default:
             return static_cast<int>(Fault::TCS_TIME_CONSUMING_LEVEL_ELEVEN);

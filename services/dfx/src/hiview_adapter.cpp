@@ -16,49 +16,18 @@
 #define LOG_TAG "HiViewAdapter"
 
 #include "hiview_adapter.h"
-#include <thread>
+
 #include <unistd.h>
+
+#include <thread>
+
+#include "def.h"
 #include "pasteboard_hilog_wreapper.h"
 
 namespace OHOS {
 using namespace HiviewDFX;
 namespace MiscServices {
 namespace {
-// fault key
-constexpr const char *USER_ID = "USER_ID";
-constexpr const char *ERROR_TYPE = "ERROR_TYPE";
-// statistic key
-constexpr const char *PASTEBOARD_STATE = "PASTEBOARD_STATE";
-
-constexpr const char *ZERO_TO_HUNDRED_KB = "ZERO_TO_HUNDRED_KB";
-constexpr const char *HUNDRED_TO_FIVE_HUNDREDS_KB = "HUNDRED_TO_FIVE_HUNDREDS_KB";
-constexpr const char *FIVE_HUNDREDS_TO_THOUSAND_KB = "FIVE_HUNDREDS_TO_THOUSAND_KB";
-constexpr const char *ONE_TO_FIVE_MB = "ONE_TO_FIVE_MB";
-constexpr const char *FIVE_TO_TEN_MB = "FIVE_TO_TEN_MB";
-constexpr const char *TEN_TO_FIFTY_MB = "TEN_TO_FIFTY_MB";
-constexpr const char *OVER_FIFTY_MB = "OVER_FIFTY_MB";
-constexpr const char *CONSUMING_DATA = "CONSUMING_DATA";
-constexpr const char *DATA_LEVEL = "DATA_LEVEL";
-// behaviour key
-constexpr const char *TOP_ONE_APP = "TOP_ONE_APP";
-constexpr const char *TOP_TOW_APP = "TOP_TOW_APP";
-constexpr const char *TOP_THREE_APP = "TOP_THREE_APP";
-constexpr const char *TOP_FOUR_APP = "TOP_FOUR_APP";
-constexpr const char *TOP_FIVE_APP = "TOP_FIVE_APP";
-constexpr const char *TOP_SIX_APP = "TOP_SIX_APP";
-constexpr const char *TOP_SEVEN_APP = "TOP_SEVEN_APP";
-constexpr const char *TOP_EIGHT_APP = "TOP_EIGHT_APP";
-constexpr const char *TOP_NINE_APP = "TOP_NINE_APP";
-constexpr const char *TOP_TEN_APP = "TOP_TEN_APP";
-
-constexpr const char *WRONG_LEVEL = "WRONG_LEVEL";
-
-constexpr const char *COPY_STATE = "COPY_STATE";
-constexpr const char *PASTE_STATE = "PASTE_STATE";
-
-constexpr const int INIT_COPY_TIME_SONSUMING = 7;
-constexpr const int INIT_PASTE_TIME_SONSUMING = 8;
-
 const std::map<int, std::string> EVENT_COVERT_TABLE = {
     { DfxCodeConstant::INITIALIZATION_FAULT, "INITIALIZATION_FAULT" },
     { DfxCodeConstant::TIME_CONSUMING_STATISTIC, "TIME_CONSUMING_STATISTIC" },
@@ -130,6 +99,8 @@ std::map<int, int> HiViewAdapter::InitTimeMap()
 
 void HiViewAdapter::ReportInitializationFault(int dfxCode, const InitializationFaultMsg &msg)
 {
+    constexpr const char *USER_ID = "USER_ID";
+    constexpr const char *ERROR_TYPE = "ERROR_TYPE";
     int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(dfxCode), HiSysEvent::EventType::FAULT, USER_ID, msg.userId,
         ERROR_TYPE, msg.errorCode);
     if (ret != 0) {
@@ -273,6 +244,7 @@ void HiViewAdapter::ReportPasteboardBehaviour(const PasteboardBehaviourMsg &msg)
 
 const char *HiViewAdapter::GetDataLevel(int dataLevel)
 {
+    constexpr const char *WRONG_LEVEL = "WRONG_LEVEL";
     switch (dataLevel) {
         case static_cast<int>(DataConsumingLevel::DATA_LEVEL_ONE): {
             return ZERO_TO_HUNDRED_KB;
@@ -311,27 +283,24 @@ void HiViewAdapter::InvokeTimeConsuming()
 }
 
 void HiViewAdapter::ReportStatisticEvent(
-    std::vector<std::map<int, int>> &timeConsumingStat, std::string pasteboardState)
+    const std::vector<std::map<int, int>> &timeConsumingStat, const std::string &pasteboardState)
 {
     if (timeConsumingStat.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent timeConsumingStat is empty.");
         return;
     }
-    int i = 0;
-    for (auto iter = timeConsumingStat.begin(); iter != timeConsumingStat.end(); ++iter) {
+    for (std::int32_t i = 0; i < static_cast<int>(timeConsumingStat.size()); ++i) {
         std::string buffMsg = ": [";
-        for (int j = static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ONE);
-             j <= static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ELEVEN); ++j) {
-            buffMsg = buffMsg + std::to_string((*iter)[j]) + ",";
+        for (std::int32_t j = TimeConsumingLevel::TIME_LEVEL_ONE; j <= TimeConsumingLevel::TIME_LEVEL_ELEVEN; ++j) {
+            buffMsg = buffMsg + std::to_string(timeConsumingStat[i].at(j)) + ",";
         }
         buffMsg += "]";
         int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
             HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, DATA_LEVEL, GetDataLevel(i),
             CONSUMING_DATA, buffMsg);
-        if (ret != 0) {
+        if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
         }
-        ++i;
     }
 }
 
@@ -376,7 +345,7 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
             TOP_EIGHT_APP, appPackName[7],
             TOP_NINE_APP, appPackName[8],
             TOP_TEN_APP, appPackName[9]);
-        if (ret != 0) {
+        if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
         }
         behaviour.clear();

@@ -48,6 +48,7 @@ INITIALIZATION_FAULT:
 TIME_CONSUMING_STATISTIC: 
   __BASE: {type: STATISTIC, level: MINOR, desc: The event is api visit statistic } 
   PASTEBOARD_STATE: {type: STRING, desc: Pasteboard state }
+  DATA_LEVLE: {type: STRING, desc: Data level }
   CONSUMING_DATA: {type: STRING, desc: Consuming data }
 
 PASTEBOARD_BEHAVIOUR:

@@ -28,27 +28,27 @@
 
 namespace OHOS {
 namespace MiscServices {
-enum class DataConsumingLevel {
+enum DataConsumingLevel : std::int32_t {
     DATA_LEVEL_ONE = 0,
-    DATA_LEVEL_TWO = 1,
-    DATA_LEVEL_THREE = 2,
-    DATA_LEVEL_FOUR = 3,
-    DATA_LEVEL_FIVE = 4,
-    DATA_LEVEL_SIX = 5,
-    DATA_LEVEL_SEVEN = 6,
+    DATA_LEVEL_TWO,
+    DATA_LEVEL_THREE,
+    DATA_LEVEL_FOUR,
+    DATA_LEVEL_FIVE,
+    DATA_LEVEL_SIX,
+    DATA_LEVEL_SEVEN,
 };
-enum class TimeConsumingLevel {
-    TIME_LEVEL_ONE = 9,
-    TIME_LEVEL_TWO = 10,
-    TIME_LEVEL_THREE = 11,
-    TIME_LEVEL_FOUR = 12,
-    TIME_LEVEL_FIVE = 13,
-    TIME_LEVEL_SIX = 14,
-    TIME_LEVEL_SEVEN = 15,
-    TIME_LEVEL_EIGHT = 16,
-    TIME_LEVEL_NINE = 17,
-    TIME_LEVEL_TEN = 18,
-    TIME_LEVEL_ELEVEN = 19,
+enum TimeConsumingLevel : std::int32_t {
+    TIME_LEVEL_ONE = 0,
+    TIME_LEVEL_TWO,
+    TIME_LEVEL_THREE,
+    TIME_LEVEL_FOUR,
+    TIME_LEVEL_FIVE,
+    TIME_LEVEL_SIX,
+    TIME_LEVEL_SEVEN,
+    TIME_LEVEL_EIGHT,
+    TIME_LEVEL_NINE,
+    TIME_LEVEL_TEN,
+    TIME_LEVEL_ELEVEN,
 };
 
 class HiViewAdapter {
@@ -71,7 +71,7 @@ private:
     static const char *GetDataLevel(int dataLevel);
     static void InvokeTimeConsuming();
     static void ReportBehaviour(std::map<std::string, int> &behaviour, const char *statePasteboard);
-    static void ReportStatisticEvent(std::vector<std::map<int, int>> &timeConsumingStat, std::string pasteboardState);
+    static void ReportStatisticEvent(const std::vector<std::map<int, int>> &timeConsumingStat, const std::string &pasteboardState);
 
     static std::mutex timeConsumingMutex_;
     static std::vector<std::map<int, int>> copyTimeConsumingStat_;
@@ -94,6 +94,36 @@ private:
     static inline constexpr int EXEC_MIN_TIME = 60;
     static inline constexpr int ONE_MINUTE_IN_SECONDS  = 60;
     static inline constexpr int ONE_HOUR_IN_SECONDS = 1 * 60 * 60; // 1 hour
+
+// statistic key
+    static inline const char *PASTEBOARD_STATE = "PASTEBOARD_STATE";
+    
+    static inline const char *ZERO_TO_HUNDRED_KB = "ZERO_TO_HUNDRED_KB";
+    static inline const char *HUNDRED_TO_FIVE_HUNDREDS_KB = "HUNDRED_TO_FIVE_HUNDREDS_KB";
+    static inline const char *FIVE_HUNDREDS_TO_THOUSAND_KB = "FIVE_HUNDREDS_TO_THOUSAND_KB";
+    static inline const char *ONE_TO_FIVE_MB = "ONE_TO_FIVE_MB";
+    static inline const char *FIVE_TO_TEN_MB = "FIVE_TO_TEN_MB";
+    static inline const char *TEN_TO_FIFTY_MB = "TEN_TO_FIFTY_MB";
+    static inline const char *OVER_FIFTY_MB = "OVER_FIFTY_MB";
+    static inline const char *CONSUMING_DATA = "CONSUMING_DATA";
+    static inline const char *DATA_LEVEL = "DATA_LEVEL";
+// behaviour key
+    static inline const char *TOP_ONE_APP = "TOP_ONE_APP";
+    static inline const char *TOP_TOW_APP = "TOP_TOW_APP";
+    static inline const char *TOP_THREE_APP = "TOP_THREE_APP";
+    static inline const char *TOP_FOUR_APP = "TOP_FOUR_APP";
+    static inline const char *TOP_FIVE_APP = "TOP_FIVE_APP";
+    static inline const char *TOP_SIX_APP = "TOP_SIX_APP";
+    static inline const char *TOP_SEVEN_APP = "TOP_SEVEN_APP";
+    static inline const char *TOP_EIGHT_APP = "TOP_EIGHT_APP";
+    static inline const char *TOP_NINE_APP = "TOP_NINE_APP";
+    static inline const char *TOP_TEN_APP = "TOP_TEN_APP";
+    
+    static inline const char *COPY_STATE = "COPY_STATE";
+    static inline const char *PASTE_STATE = "PASTE_STATE";
+    
+    static inline const int INIT_COPY_TIME_SONSUMING = 7;
+    static inline const int INIT_PASTE_TIME_SONSUMING = 8;
 };
 }  // namespace MiscServices
 }  // namespace OHOS
