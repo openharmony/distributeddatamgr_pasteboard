@@ -22,7 +22,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-enum TimeLevelTen : std::uint64_t {
+enum TimeLevel : std::uint64_t {
     PER_FIVE_HUNDRED_MS_ZERO = 0,
     PER_FIVE_HUNDRED_MS_ONE,
     PER_FIVE_HUNDRED_MS_TWO,
