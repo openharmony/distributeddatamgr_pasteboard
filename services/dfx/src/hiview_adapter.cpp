@@ -72,26 +72,26 @@ std::map<int, int> HiViewAdapter::InitDataMap()
 std::map<int, int> HiViewAdapter::InitTimeMap()
 {
     std::map<int, int> timeMap;
-    timeMap.insert(std::pair<int, int>(
-        static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_ONE), static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ONE)));
-    timeMap.insert(std::pair<int, int>(
-        static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_TWO), static_cast<int>(TimeConsumingLevel::TIME_LEVEL_TWO)));
+    timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_ONE),
+        static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ONE)));
+    timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_TWO),
+        static_cast<int>(TimeConsumingLevel::TIME_LEVEL_TWO)));
     timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_THREE),
         static_cast<int>(TimeConsumingLevel::TIME_LEVEL_THREE)));
     timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_FOUR),
         static_cast<int>(TimeConsumingLevel::TIME_LEVEL_FOUR)));
     timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_FIVE),
         static_cast<int>(TimeConsumingLevel::TIME_LEVEL_FIVE)));
-    timeMap.insert(std::pair<int, int>(
-        static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_SIX), static_cast<int>(TimeConsumingLevel::TIME_LEVEL_SIX)));
+    timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_SIX),
+        static_cast<int>(TimeConsumingLevel::TIME_LEVEL_SIX)));
     timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_SEVEN),
         static_cast<int>(TimeConsumingLevel::TIME_LEVEL_SEVEN)));
     timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_EIGHT),
         static_cast<int>(TimeConsumingLevel::TIME_LEVEL_EIGHT)));
     timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_NINE),
         static_cast<int>(TimeConsumingLevel::TIME_LEVEL_NINE)));
-    timeMap.insert(std::pair<int, int>(
-        static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_TEN), static_cast<int>(TimeConsumingLevel::TIME_LEVEL_TEN)));
+    timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_TEN),
+        static_cast<int>(TimeConsumingLevel::TIME_LEVEL_TEN)));
     timeMap.insert(std::pair<int, int>(static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_ELEVEN),
         static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ELEVEN)));
     return timeMap;

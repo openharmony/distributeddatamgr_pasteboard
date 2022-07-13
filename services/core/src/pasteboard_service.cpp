@@ -453,7 +453,8 @@ void PasteboardService::SetPasteDataDot(PasteData& pasteData)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "default bundleName!");
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData Report!");
-    Reporter::GetInstance().PasteboardBehaviour().Report({ static_cast<int>(BehaviourPasteboardState::BPS_COPY_STATE), bundleName });
+    Reporter::GetInstance().PasteboardBehaviour().Report(
+        { static_cast<int>(BehaviourPasteboardState::BPS_COPY_STATE), bundleName });
 
     int state = static_cast<int>(StatisticPasteboardState::SPS_COPY_STATE);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData GetDataSize!");
@@ -475,7 +476,8 @@ void PasteboardService::GetPasteDataDot()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "defaulit bundlename");
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
-    Reporter::GetInstance().PasteboardBehaviour().Report({ static_cast<int>(BehaviourPasteboardState::BPS_PASTE_STATE), bundleName });
+    Reporter::GetInstance().PasteboardBehaviour().Report(
+        { static_cast<int>(BehaviourPasteboardState::BPS_PASTE_STATE), bundleName });
 
     if (!clips_.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData GetDataSize");
