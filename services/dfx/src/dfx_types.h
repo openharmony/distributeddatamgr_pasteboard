@@ -42,7 +42,7 @@ enum BehaviourPasteboardState : std::int32_t {
 };
 
 enum StatisticPasteboardState : std::int32_t {
-    SPS_COPY_STATE = 2,
+    SPS_COPY_STATE = 0,
     SPS_PASTE_STATE,
 };
 
