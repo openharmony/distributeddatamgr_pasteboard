@@ -57,6 +57,7 @@ ohos_shared_library("pasteboard_service") {
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]

@@ -14,6 +14,7 @@
  */
 #include "system_ability_definition.h"
 #include "iservice_registry.h"
+#include "os_account_manager.h"
 #include "pasteboard_common.h"
 #include "pasteboard_service.h"
 
@@ -23,6 +24,7 @@ namespace MiscServices {
 namespace {
 const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
+const std::int32_t ERROR_USERID = -1;
 const bool G_REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<PasteboardService>::GetInstance().get());
 }
@@ -106,6 +108,9 @@ void PasteboardService::Clear()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
+    if (userId == ERROR_USERID) {
+        return;
+    }
     std::lock_guard<std::mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
@@ -118,6 +123,9 @@ bool PasteboardService::GetPasteData(PasteData& data)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
+    if (userId == ERROR_USERID) {
+        return false;
+    }
     std::lock_guard<std::mutex> lock(clipMutex_);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     auto it = clips_.find(userId);
@@ -135,6 +143,9 @@ bool PasteboardService::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
+    if (userId == ERROR_USERID) {
+        return false;
+    }
     std::lock_guard<std::mutex> lock(clipMutex_);
     return clips_.find(userId) != clips_.end();
 }
@@ -143,6 +154,9 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
+    if (userId == ERROR_USERID) {
+        return;
+    }
     std::lock_guard<std::mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
@@ -155,9 +169,12 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
 
 int32_t PasteboardService::GetUserId()
 {
+    int32_t userId = ERROR_USERID;
     int32_t uid = IPCSkeleton::GetCallingUid();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uid: %{public}d.", uid);
-    return uid ;
+    auto result = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
+        "Get UserId, uid = %{public}d, userId = %{public}d, result = %{public}d.", uid, userId, result);
+    return userId;
 }
 
 void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
@@ -169,6 +186,9 @@ void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChang
     }
     std::lock_guard<std::mutex> lock(observerMutex_);
     auto userId = GetUserId();
+    if (userId == ERROR_USERID) {
+        return;
+    }
     auto it = observerMap_.find(userId);
     std::shared_ptr<std::set<const sptr<IPasteboardChangedObserver>, classcomp>> observers;
     if (it != observerMap_.end()) {
@@ -190,7 +210,9 @@ void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardCh
         return;
     }
     auto userId = GetUserId();
-
+    if (userId == ERROR_USERID) {
+        return;
+    }
     std::lock_guard<std::mutex> lock(observerMutex_);
     auto it = observerMap_.find(userId);
     if (it == observerMap_.end()) {
@@ -212,6 +234,9 @@ void PasteboardService::RemoveAllChangedObserver()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetUserId();
+    if (userId == ERROR_USERID) {
+        return;
+    }
     std::lock_guard<std::mutex> lock(observerMutex_);
     auto it = observerMap_.find(userId);
     if (it == observerMap_.end()) {
