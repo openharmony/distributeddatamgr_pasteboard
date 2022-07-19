@@ -49,17 +49,7 @@ TIME_CONSUMING_STATISTIC:
   __BASE: {type: STATISTIC, level: MINOR, desc: The event is api visit statistic } 
   PASTEBOARD_STATE: {type: STRING, desc: Pasteboard state }
   DATA_LEVLE: {type: STRING, desc: Data level }
-  TIME_CONSUMING_LEVEL_ONE: {type: INT32, desc: The counts of time consuming level one }
-  TIME_CONSUMING_LEVEL_TWO: {type: INT32, desc: The counts of time consuming level two }
-  TIME_CONSUMING_LEVEL_THREE: {type: INT32, desc: The counts of time consuming level three }
-  TIME_CONSUMING_LEVEL_FOUR: {type: INT32, desc: The counts of time consuming level four }
-  TIME_CONSUMING_LEVEL_FIVE: {type: INT32, desc: The counts of time consuming level five }
-  TIME_CONSUMING_LEVEL_SIX: {type: INT32, desc: The counts of time consuming level six }
-  TIME_CONSUMING_LEVEL_SEVEN: {type: INT32, desc: The counts of time consuming level seven }
-  TIME_CONSUMING_LEVEL_EIGHT: {type: INT32, desc: The counts of time consuming level eight }
-  TIME_CONSUMING_LEVEL_NINE: {type: INT32, desc: The counts of time consuming level nine }
-  TIME_CONSUMING_LEVEL_TEN: {type: INT32, desc: The counts of time consuming level ten }
-  TIME_CONSUMING_LEVEL_ELEVEN: {type: INT32, desc: The counts of time consuming level eleven }
+  CONSUMING_DATA: {type: STRING, desc: Consuming data }
 
 PASTEBOARD_BEHAVIOUR:
   __BASE: {type: BEHAVIOR, level: MINOR, desc: The event is behaviour record }
