@@ -27,7 +27,7 @@
           "jsoncpp",
           "hisysevent_native",
           "napi",
-          "samgr_standard",
+          "samgr",
           "os_account",
           "ipc",
           "eventhandler",
