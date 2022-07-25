@@ -14,6 +14,7 @@
  */
 import { AsyncCallback } from './basic';
 import { Want } from './ability/want';
+import { image } from './@ohos.multimedia.image';
 
 /**
  * systemPasteboard
@@ -47,6 +48,11 @@ declare namespace pasteboard {
    * @since 7
    */
   const MIMETYPE_TEXT_URI: string;
+  /**
+   * Indicates MIME types of PixelMap.
+   * @since 9
+   */
+  const MIMETYPE_PIXELMAP: string;
 
   /**
    * Creates a PasteData object for PasteData#MIMETYPE_TEXT_HTML.
@@ -81,6 +87,23 @@ declare namespace pasteboard {
   function createUriData(uri: string): PasteData;
 
   /**
+   * Creates a PasteData object for PasteData#MIMETYPE_PIXELMAP.
+   * @param pixelmap To save the pixelmap of content.
+   * @return Containing the contents of the clipboard content object.
+   * @since 9
+   */
+  function createPixelMapData(pixelmap: image.PixelMap): PasteData;
+
+  /**
+   * Creates a PasteData object with mimeType and value.
+   * @param key Mimetype indicates the type of value.
+   * @param value Content to be saved.
+   * @return The clipboard content object with mimeType and value.
+   * @since 9
+   */
+  function createKvData(key:String, value: ArraryBuffer): PasteData;
+
+  /**
    * Creates a Record object for PasteData#MIMETYPE_TEXT_HTML.
    * @param htmlText To save the Html text content.
    * @return The content of a new record
@@ -113,11 +136,41 @@ declare namespace pasteboard {
   function createUriRecord(uri: string): PasteDataRecord;
 
   /**
+   * Creates a Record object for PasteData#MIMETYPE_PIXELMAp.
+   * @param pixelMap To save the pixelMap of content.
+   * @return The content of a new record
+   * @since 9
+   */
+  function createPixelMapRecord(pixelMap:image.PixelMap):PasteDataRecord;
+
+  /**
+   * Creates a Record object with mimeType and value.
+   * @param key Mimetype indicates the type of value.
+   * @param value Content to be saved.
+   * @return The content of a new record with mimeType and value.
+   * @since 9
+   */
+  function createKvRecord(key:String, value: ArraryBuffer): PasteDataRecord;
+
+  /**
    * get SystemPasteboard
    * @return The system clipboard object
    * @since 6
    */
   function getSystemPasteboard(): SystemPasteboard;
+
+  /**
+   * Types of scope that PasteData can be pasted.
+   * InApp means that only in-app pasting is allowed.
+   * LocalDevice means that only paste in this device is allowed.
+   * CrossDevice means allow pasting in any app in across devices.
+   * @since 9
+   */
+  enum ShareOption {
+    InApp,
+    LocalDevice,
+    CrossDevice
+  }
 
   interface PasteDataProperty {
     /**
@@ -146,6 +199,13 @@ declare namespace pasteboard {
      * Checks whether PasteData is set for local access only.
      * @since 7
      */
+    /**
+     * Scope that PasteData can be pasted. value is one of ShareOption#InApp,ShareOption#LocalDevice,
+     * ShareOption#CrossDevice.
+     * If shareOption is not one of ShareOption or not be set, it will be set to default value(ShareOption#CrossDevice).
+     * @since 9
+     */
+    shareOption: ShareOption;
   }
 
   interface PasteDataRecord {
@@ -174,6 +234,18 @@ declare namespace pasteboard {
      * @since 7
      */
     uri: string;
+    /**
+     * PixelMap in a record.
+     * @since 9
+     */
+    pixelMap: image.PixelMap;
+    /**
+     * data array in a record.
+     * @since 9
+     */
+    data: {
+      [mimeType: string]: ArrayBuffer
+    }
 
     /**
      * Will a PasteData cast to the content of text content
@@ -221,6 +293,22 @@ declare namespace pasteboard {
     addUriRecord(uri: string): void;
 
     /**
+     * Adds a PixelMap Record to a PasteData object, and updates the MIME type to PasteData#MIMETYPE_PIXELMAP in DataProperty.
+     * @param pixelMap To save the pixelMap of content.
+     * @since 9
+     */
+    addPixmapRecord(pixelMap: image.PixelMap): void;
+
+    /**
+     * Adds a key-value Record to a PasteData object, and updates the MIME type to PasteData#MIMETYPE_PIXELMAP in DataProperty.
+     * @param key Mimetype indicates the type of value.
+     * @param value Content to be saved.
+     * @return The content of a new record with mimeType and value.
+     * @since 9
+     */
+    addKvRecord(key: String,value: ArrayBuffer): void;
+
+    /**
      * MIME types of all content on the pasteboard.
      * @return string type of array
      * @since 7
@@ -261,6 +349,13 @@ declare namespace pasteboard {
      * @since 7
      */
     getPrimaryUri(): string;
+
+    /**
+     * the PixelMap of the primary record in a PasteData object.
+     * @return string type of PixelMap
+     * @since 9
+     */
+    getPrimaryPixelMap(): image.PixelMap;
 
     /**
      * DataProperty of a PasteData object.

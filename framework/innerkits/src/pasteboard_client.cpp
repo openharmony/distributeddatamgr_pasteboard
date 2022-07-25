@@ -61,6 +61,12 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateUriRecord(const OHOS::U
     return PasteDataRecord::NewUriRecord(uri);
 }
 
+std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New pixelMap record");
+    return PasteDataRecord::NewPixelMapRecord(std::move(pixelMap));
+}
+
 std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &htmlText)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New htmlText data: %{public}s", htmlText.c_str());
@@ -90,6 +96,14 @@ std::shared_ptr<PasteData> PasteboardClient::CreateUriData(const OHOS::Uri &uri)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New uri data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddUriRecord(uri);
+    return pasteData;
+}
+
+std::shared_ptr<PasteData> PasteboardClient::CreatePixelMapData(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New pixelMap data");
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddPixelMapRecord(std::move(pixelMap));
     return pasteData;
 }
 

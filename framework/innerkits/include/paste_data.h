@@ -26,6 +26,7 @@
 #include "uri.h"
 #include "want.h"
 #include "want_params.h"
+#include "pixel_map.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -46,6 +47,7 @@ public:
     void AddTextRecord(const std::string &text);
     void AddUriRecord(const OHOS::Uri &uri);
     void AddWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
+    void AddPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     void AddRecord(std::shared_ptr<PasteDataRecord> record);
     void AddRecord(PasteDataRecord& record);
     std::vector<std::string> GetMimeTypes();
@@ -54,6 +56,7 @@ public:
     std::shared_ptr<OHOS::Uri> GetPrimaryUri();
     std::shared_ptr<std::string> GetPrimaryMimeType();
     std::shared_ptr<OHOS::AAFwk::Want> GetPrimaryWant();
+    std::shared_ptr<OHOS::Media::PixelMap> GetPrimaryPixelMap();
     std::shared_ptr<PasteDataRecord> GetRecordAt(std::size_t index);
     std::size_t GetRecordCount();
     std::string GetTag();

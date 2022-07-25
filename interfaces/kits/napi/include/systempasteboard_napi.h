@@ -21,6 +21,7 @@
 #include "pastedata_record_napi.h"
 #include "pasteboard_observer.h"
 #include "uri.h"
+#include "pixel_map_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {

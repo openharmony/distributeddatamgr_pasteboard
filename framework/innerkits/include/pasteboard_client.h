@@ -73,6 +73,14 @@ public:
     std::shared_ptr<PasteDataRecord> CreateWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
 
     /**
+     * CreatePixelMapRecord
+     * @descrition Create PixelMap Record.
+     * @param OHOS::Media::PixelMap pixelMap.
+     * @return PasteDataRecord.
+     */
+    std::shared_ptr<PasteDataRecord> CreatePixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
+
+    /**
      * CreateHtmlData
      * @descrition Create Html Paste Data.
      * @param std::string text  .
@@ -103,6 +111,15 @@ public:
      * @return PasteData.
      */
     std::shared_ptr<PasteData> CreateWantData(std::shared_ptr<OHOS::AAFwk::Want> want);
+
+    /**
+     * CreatePixelMapData
+     * @descrition Create PixelMap Paste Data.
+     * @param OHOS::Media::PixelMap pixelMap .
+     * @return PasteData.
+     */
+    std::shared_ptr<PasteData> CreatePixelMapData(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
+
     /**
      * GetPasteData
      * @descrition

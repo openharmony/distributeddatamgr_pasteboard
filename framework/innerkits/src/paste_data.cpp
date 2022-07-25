@@ -60,6 +60,11 @@ void PasteData::AddUriRecord(const OHOS::Uri &uri)
     this->AddRecord(PasteDataRecord::NewUriRecord(uri));
 }
 
+void PasteData::AddPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
+{
+    this->AddRecord(PasteDataRecord::NewPixelMapRecord(std::move(pixelMap)));
+}
+
 void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
 {
     if (record == nullptr) {
@@ -123,6 +128,16 @@ std::shared_ptr<OHOS::Uri> PasteData::GetPrimaryUri()
     for (const auto &item : records_) {
         if (item->GetMimeType() == MIMETYPE_TEXT_URI) {
             return item->GetUri();
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<OHOS::Media::PixelMap> PasteData::GetPrimaryPixelMap()
+{
+    for (const auto &item : records_) {
+        if (item->GetMimeType() == MIMETYPE_PIXELMAP) {
+            return item->GetPixelMap();
         }
     }
     return nullptr;

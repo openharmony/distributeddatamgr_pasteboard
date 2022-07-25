@@ -50,6 +50,7 @@ ohos_shared_library("pasteboard_client") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
+    "multimedia_image_standard:image_native",
   ]
 
   subsystem_name = "distributeddatamgr"
