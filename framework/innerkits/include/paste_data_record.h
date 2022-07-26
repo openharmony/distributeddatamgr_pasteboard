@@ -42,6 +42,12 @@ public:
                     std::shared_ptr<std::string> htmlText,
                     std::shared_ptr<OHOS::AAFwk::Want> want,
                     std::shared_ptr<std::string> plainText,
+                    std::shared_ptr<OHOS::Uri> uri);
+
+    PasteDataRecord(std::string mimeType,
+                    std::shared_ptr<std::string> htmlText,
+                    std::shared_ptr<OHOS::AAFwk::Want> want,
+                    std::shared_ptr<std::string> plainText,
                     std::shared_ptr<OHOS::Uri> uri,
                     std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
 

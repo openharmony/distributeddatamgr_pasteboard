@@ -80,6 +80,17 @@ PasteDataRecord::PasteDataRecord(std::string mimeType,
                                  std::shared_ptr<std::string> htmlText,
                                  std::shared_ptr<OHOS::AAFwk::Want> want,
                                  std::shared_ptr<std::string> plainText,
+                                 std::shared_ptr<OHOS::Uri> uri)
+    : mimeType_ {std::move(mimeType)},
+      htmlText_ {std::move(htmlText)},
+      want_ {std::move(want)},
+      plainText_ {std::move(plainText)},
+      uri_ {std::move(uri)} {}
+
+PasteDataRecord::PasteDataRecord(std::string mimeType,
+                                 std::shared_ptr<std::string> htmlText,
+                                 std::shared_ptr<OHOS::AAFwk::Want> want,
+                                 std::shared_ptr<std::string> plainText,
                                  std::shared_ptr<OHOS::Uri> uri,
                                  std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
     : mimeType_ {std::move(mimeType)},
@@ -88,6 +99,7 @@ PasteDataRecord::PasteDataRecord(std::string mimeType,
       plainText_ {std::move(plainText)},
       uri_ {std::move(uri)},
       pixelMap_ {std::move(pixelMap)} {}
+
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
 {
     return this->htmlText_;
