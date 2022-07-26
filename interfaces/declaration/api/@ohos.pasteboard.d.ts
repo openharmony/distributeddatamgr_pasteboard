@@ -101,7 +101,7 @@ declare namespace pasteboard {
    * @return The clipboard content object with mimeType and value.
    * @since 9
    */
-  function createKvData(key:String, value: ArraryBuffer): PasteData;
+  function createData(key:String, value: ArrayBuffer): PasteData;
 
   /**
    * Creates a Record object for PasteData#MIMETYPE_TEXT_HTML.
@@ -150,7 +150,7 @@ declare namespace pasteboard {
    * @return The content of a new record with mimeType and value.
    * @since 9
    */
-  function createKvRecord(key:String, value: ArraryBuffer): PasteDataRecord;
+  function createRecord(key:String, value: ArrayBuffer): PasteDataRecord;
 
   /**
    * get SystemPasteboard
@@ -306,7 +306,7 @@ declare namespace pasteboard {
      * @return The content of a new record with mimeType and value.
      * @since 9
      */
-    addKvRecord(key: String,value: ArrayBuffer): void;
+    addRecord(key: String,value: ArrayBuffer): void;
 
     /**
      * MIME types of all content on the pasteboard.
