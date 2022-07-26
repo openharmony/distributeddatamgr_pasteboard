@@ -44,11 +44,11 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
     "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
