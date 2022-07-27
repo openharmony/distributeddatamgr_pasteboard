@@ -31,12 +31,13 @@ ohos_unittest("PasteboardServiceTest") {
 
   sources = [ "unittest/src/paste_service_test.cpp" ]
   configs = [
-    "//utils/native/base:utils_config",
+    "//commonlibrary/c_utils/base:utils_config",
     ":module_private_config",
   ]
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -44,7 +45,6 @@ ohos_unittest("PasteboardServiceTest") {
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 }
 

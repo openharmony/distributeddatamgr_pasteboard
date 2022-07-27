@@ -19,7 +19,7 @@ config("pasteboard_client_config") {
     "${pasteboard_service_path}/core/include",
     "${pasteboard_service_path}/zidl/include",
     "include",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "${pasteboard_utils_path}/native/include",
   ]
 }
@@ -40,12 +40,12 @@ ohos_shared_library("pasteboard_client") {
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",

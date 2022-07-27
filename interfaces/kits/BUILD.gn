@@ -39,13 +39,13 @@ ohos_shared_library("pasteboard_napi") {
     "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
     "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service",
     "//third_party/libuv:uv_static",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:abilitykit_native",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

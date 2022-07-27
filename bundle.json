@@ -36,7 +36,7 @@
           "ability_runtime",
           "libuv",
           "safwk",
-          "utils_base"
+          "c_utils"
         ],
         "third_party": [
           "jsoncpp"
