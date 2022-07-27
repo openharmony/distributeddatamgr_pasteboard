@@ -10,8 +10,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import("//base/miscservices/pasteboard/pasteboard.gni")
 import("//build/ohos.gni")
+import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 config("pasteboard_client_config") {
   visibility = [ ":*" ]
@@ -19,7 +19,7 @@ config("pasteboard_client_config") {
     "${pasteboard_service_path}/core/include",
     "${pasteboard_service_path}/zidl/include",
     "include",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "${pasteboard_utils_path}/native/include",
   ]
 }
@@ -40,17 +40,17 @@ ohos_shared_library("pasteboard_client") {
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
 
-  subsystem_name = "miscservices"
-  part_name = "pasteboard_native"
+  subsystem_name = "distributeddatamgr"
+  part_name = "pasteboard"
 }

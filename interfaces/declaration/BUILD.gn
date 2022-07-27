@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//build/ohos/ace/ace.gni")
 
 js_declaration("pasteboard_js") {
-  part_name = "pasteboard_native"
+  part_name = "pasteboard"
   sources = [ "./api" ]
 }
 

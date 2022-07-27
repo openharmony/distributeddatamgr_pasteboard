@@ -14,7 +14,7 @@
 ability_runtime_napi_path =
     "//foundation/ability/ability_runtime/frameworks/js/napi"
 
-pasteboard_root_path = "//base/miscservices/pasteboard"
+pasteboard_root_path = "//foundation/distributeddatamgr/pasteboard"
 
 pasteboard_kits_path = "${pasteboard_root_path}/kits"
 

@@ -5,13 +5,13 @@
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-      "destPath": "base/miscservices/pasteboard"
+      "destPath": "foundation/distributeddatamgr/pasteboard"
     },
     "dirs": {},
     "scripts": {},
     "component": {
-      "name": "pasteboard_native",
-      "subsystem": "miscservices",
+      "name": "pasteboard",
+      "subsystem": "distributeddatamgr",
       "syscap": [
         "SystemCapability.MiscServices.Pasteboard"
       ],
@@ -36,7 +36,7 @@
           "ability_runtime",
           "libuv",
           "safwk",
-          "utils_base"
+          "c_utils"
         ],
         "third_party": [
           "jsoncpp"
@@ -44,28 +44,28 @@
         },
       "build": {
         "sub_component": [
-          "//base/miscservices/pasteboard:pasteboard_native_packages"
+          "//foundation/distributeddatamgr/pasteboard:pasteboard_packages"
         ],
         "inner_kits": [
           {
-            "name": "//base/miscservices/pasteboard/framework/innerkits:pasteboard_client",
+            "name": "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
             "header": {
               "header_files": [
                 "pasteboard_client.h",
                 "paste_data.h",
                 "paste_data_record.h"
               ],
-            "header_base":"//base/miscservices/pasteboard/framework/innerkits/include"
+            "header_base":"//foundation/distributeddatamgr/pasteboard/framework/innerkits/include"
             }
           }
         ],
         "test": [
-          "//base/miscservices/pasteboard/services/test:PasteboardServiceTest",
-          "//base/miscservices/pasteboard/test/fuzztest:fuzztest"
+          "//foundation/distributeddatamgr/pasteboard/services/test:PasteboardServiceTest",
+          "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest"
         ]
       },
         "hisysevent_config": [
-        "//base/miscservices/pasteboard/pasteboardEvent.yaml"
+        "//foundation/distributeddatamgr/pasteboard/pasteboardEvent.yaml"
       ]
     }
 }
