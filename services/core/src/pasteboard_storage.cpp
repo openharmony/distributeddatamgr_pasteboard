@@ -16,8 +16,6 @@
 
 #include <nlohmann/json.hpp>
 
-#include "paste_data.h"
-
 namespace OHOS {
 namespace MiscServices {
 namespace nlohmann {

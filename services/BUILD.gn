@@ -17,20 +17,19 @@ import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 config("pasteboard_service_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "dfx/src",
+    "dfx/src/behaviour",
+    "dfx/src/statistic",
+    "dfx/src/fault",
     "zidl/include",
     "core/include",
     "${pasteboard_innerkits_path}/include",
-    "//utils/system/safwk/native/include",
-    "//third_party/json/include",
     "${pasteboard_utils_path}/mock/include",
     "${pasteboard_utils_path}/native/include",
-
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src",
-    "//foundation/distributeddatamgr/pasteboard/utils/native/include",
+    "${pasteboard_utils_path}/system/safwk/native/include",
     "//commonlibrary/c_utils/base/include",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/behaviour",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/statistic",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/fault",
+    "//third_party/json/include",
+    "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include",
   ]
@@ -42,19 +41,19 @@ ohos_shared_library("pasteboard_service") {
   sources = [
     "${pasteboard_utils_path}/mock/src/mock_permission.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_permission.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/calculate_time_consuming.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/command.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/fault/initialization_fault_impl.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/hiview_adapter.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/pasteboard_dump_helper.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/pasteboard_trace.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/reporter.cpp",
-    "//foundation/distributeddatamgr/pasteboard/services/dfx/src/statistic/time_consuming_statistic_impl.cpp",
+    "${pasteboard_innerkits_path}/src/paste_data.cpp",
+    "${pasteboard_innerkits_path}/src/paste_data_record.cpp",
+    "dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
+    "dfx/src/calculate_time_consuming.cpp",
+    "dfx/src/command.cpp",
+    "dfx/src/fault/initialization_fault_impl.cpp",
+    "dfx/src/hiview_adapter.cpp",
+    "dfx/src/pasteboard_dump_helper.cpp",
+    "dfx/src/pasteboard_trace.cpp",
+    "dfx/src/reporter.cpp",
+    "dfx/src/statistic/time_consuming_statistic_impl.cpp",
     "core/src/pasteboard_service.cpp",
-    "zidl/src/pasteboard_observer_proxy.cpp",
     "zidl/src/pasteboard_observer_stub.cpp",
-    "zidl/src/pasteboard_service_proxy.cpp",
     "zidl/src/pasteboard_service_stub.cpp",
   ]
   public_configs = [
@@ -62,13 +61,13 @@ ohos_shared_library("pasteboard_service") {
     ":pasteboard_service_config",
   ]
   deps = [
-    "${pasteboard_innerkits_path}:pasteboard_client",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
     "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
     "ability_base:want",
+    "ability_base:zuri",
     "ability_runtime:abilitykit_native",
     "c_utils:utils",
     "eventhandler:libeventhandler",

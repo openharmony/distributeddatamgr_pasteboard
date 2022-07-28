@@ -10,30 +10,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import("//build/ohos.gni")
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 config("pasteboard_client_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "include",
     "${pasteboard_service_path}/core/include",
     "${pasteboard_service_path}/zidl/include",
-    "include",
-    "//commonlibrary/c_utils/base/include",
     "${pasteboard_utils_path}/native/include",
+    "//commonlibrary/c_utils/base/include",
   ]
 }
 
 ohos_shared_library("pasteboard_client") {
   sources = [
-    "${pasteboard_service_path}/zidl/src/pasteboard_observer_proxy.cpp",
-    "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
-    "${pasteboard_service_path}/zidl/src/pasteboard_service_proxy.cpp",
-    "${pasteboard_service_path}/zidl/src/pasteboard_service_stub.cpp",
     "src/paste_data.cpp",
     "src/paste_data_record.cpp",
     "src/pasteboard_client.cpp",
     "src/pasteboard_observer.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_observer_proxy.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_service_proxy.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_service_stub.cpp",
   ]
   configs = [ ":pasteboard_client_config" ]
   public_configs = [ ":pasteboard_client_config" ]
