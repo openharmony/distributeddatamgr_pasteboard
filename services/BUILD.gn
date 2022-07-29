@@ -39,10 +39,11 @@ config("pasteboard_service_config") {
 
 ohos_shared_library("pasteboard_service") {
   sources = [
-    "${pasteboard_utils_path}/mock/src/mock_permission.cpp",
-    "${pasteboard_utils_path}/native/src/pasteboard_permission.cpp",
     "${pasteboard_innerkits_path}/src/paste_data.cpp",
     "${pasteboard_innerkits_path}/src/paste_data_record.cpp",
+    "${pasteboard_utils_path}/mock/src/mock_permission.cpp",
+    "${pasteboard_utils_path}/native/src/pasteboard_permission.cpp",
+    "core/src/pasteboard_service.cpp",
     "dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
     "dfx/src/calculate_time_consuming.cpp",
     "dfx/src/command.cpp",
@@ -52,7 +53,6 @@ ohos_shared_library("pasteboard_service") {
     "dfx/src/pasteboard_trace.cpp",
     "dfx/src/reporter.cpp",
     "dfx/src/statistic/time_consuming_statistic_impl.cpp",
-    "core/src/pasteboard_service.cpp",
     "zidl/src/pasteboard_observer_stub.cpp",
     "zidl/src/pasteboard_service_stub.cpp",
   ]
