@@ -37,7 +37,6 @@ ohos_shared_library("pasteboard_napi") {
   deps = [
     "//foundation/arkui/napi/:ace_napi",
     "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
-    "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service",
     "//third_party/libuv:uv_static",
   ]
 

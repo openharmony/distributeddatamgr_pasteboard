@@ -20,7 +20,6 @@
 
 namespace OHOS {
 namespace MiscServices {
-//
 class FaultReporter {
 public:
     virtual ReportStatus Report(const InitializationFaultMsg &msg) = 0;
