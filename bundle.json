@@ -52,6 +52,7 @@
                 "//foundation/distributeddatamgr/pasteboard/interfaces/kits:pasteboard_napi"
             ],
             "service_group": [
+                "//foundation/distributeddatamgr/pasteboard/etc/init:pasteboardservice.cfg",
                 "//foundation/distributeddatamgr/pasteboard/profile:distributeddatamgr_pasteboard_sa_profiles",
                 "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service"
             ]
