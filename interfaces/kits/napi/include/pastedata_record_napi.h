@@ -20,8 +20,8 @@
 #include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_client.h"
-#include "uri.h"
 #include "pixel_map_napi.h"
+#include "uri.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -35,11 +35,11 @@ public:
         napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record);
     static bool NewHtmlTextRecordInstance(napi_env env, const std::string &text, napi_value &instance);
     static bool NewPlainTextRecordInstance(napi_env env, const std::string &text, napi_value &instance);
+    static bool NewPixelMapRecordInstance(
+        napi_env env, const std::shared_ptr<OHOS::Media::PixelMap> pixelMap, napi_value &instance);
     static bool NewUriRecordInstance(napi_env env, const std::string &text, napi_value &instance);
     static bool NewWantRecordInstance(
         napi_env env, const std::shared_ptr<OHOS::AAFwk::Want> want, napi_value &instance);
-    static bool NewPixelMapRecordInstance(
-        napi_env env, const std::shared_ptr<OHOS::Media::PixelMap> pixelMap, napi_value &instance);
     PasteDataRecordNapi();
     ~PasteDataRecordNapi();
 

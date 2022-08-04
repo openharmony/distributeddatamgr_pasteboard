@@ -19,6 +19,7 @@
 #include "pasteboard_hilog_wreapper.h"
 
 using namespace OHOS::MiscServices;
+using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -75,6 +76,26 @@ bool PasteDataRecordNapi::NewPlainTextRecordInstance(napi_env env, const std::st
     return true;
 }
 
+bool PasteDataRecordNapi::NewPixelMapRecordInstance(
+    napi_env env, const std::shared_ptr<PixelMap> pixelMap, napi_value &instance)
+{
+    if (pixelMap == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "pixelMap is nullptr.");
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed.");
+        return false;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMap);
+    obj->JSFillInstance(env, instance);
+    return true;
+}
+
 bool PasteDataRecordNapi::NewUriRecordInstance(napi_env env, const std::string &text, napi_value &instance)
 {
     NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
@@ -102,26 +123,6 @@ bool PasteDataRecordNapi::NewWantRecordInstance(
         return false;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateWantRecord(want);
-    obj->JSFillInstance(env, instance);
-    return true;
-}
-
-bool PasteDataRecordNapi::NewPixelMapRecordInstance(
-    napi_env env, const std::shared_ptr<OHOS::Media::PixelMap> pixelMap, napi_value &instance)
-{
-    if (pixelMap == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "pixelMap is nullptr.");
-        return false;
-    }
-
-    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
-    PasteDataRecordNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed.");
-        return false;
-    }
-    obj->value_ = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMap);
     obj->JSFillInstance(env, instance);
     return true;
 }
@@ -172,7 +173,7 @@ bool PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "pixelMap begin.");
         auto pixelMap = value_->GetPixelMap();
         if (pixelMap != nullptr) {
-            napi_value jsPixelMap = OHOS::Media::PixelMapNapi::CreatePixelMap(env, pixelMap);
+            napi_value jsPixelMap = PixelMapNapi::CreatePixelMap(env, pixelMap);
             napi_set_named_property(env, instance, "pixelMap", jsPixelMap);
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "pixelMap end.");
         }

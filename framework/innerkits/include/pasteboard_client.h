@@ -16,11 +16,13 @@
 #ifndef PASTE_BOARD_CLIENT_H
 #define PASTE_BOARD_CLIENT_H
 
-#include <functional>
 #include <singleton.h>
-#include "paste_data_record.h"
-#include "paste_data.h"
+
+#include <functional>
+
 #include "i_pasteboard_service.h"
+#include "paste_data.h"
+#include "paste_data_record.h"
 #include "pasteboard_observer.h"
 #include "want.h"
 
@@ -57,6 +59,14 @@ public:
     std::shared_ptr<PasteDataRecord> CreatePlainTextRecord(const std::string &text);
 
     /**
+     * CreatePixelMapRecord
+     * @descrition Create PixelMap Record.
+     * @param OHOS::Media::PixelMap pixelMap.
+     * @return PasteDataRecord.
+     */
+    std::shared_ptr<PasteDataRecord> CreatePixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
+
+    /**
      * CreateUriRecord
      * @descrition Create Uri Text Record.
      * @param OHOS::Uri uri.
@@ -71,14 +81,6 @@ public:
      * @return PasteDataRecord.
      */
     std::shared_ptr<PasteDataRecord> CreateWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
-
-    /**
-     * CreatePixelMapRecord
-     * @descrition Create PixelMap Record.
-     * @param OHOS::Media::PixelMap pixelMap.
-     * @return PasteDataRecord.
-     */
-    std::shared_ptr<PasteDataRecord> CreatePixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
 
     /**
      * CreateHtmlData
@@ -97,6 +99,14 @@ public:
     std::shared_ptr<PasteData> CreatePlainTextData(const std::string &text);
 
     /**
+     * CreatePixelMapData
+     * @descrition Create PixelMap Paste Data.
+     * @param OHOS::Media::PixelMap pixelMap .
+     * @return PasteData.
+     */
+    std::shared_ptr<PasteData> CreatePixelMapData(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
+
+    /**
      * CreateUriData
      * @descrition Create Uri Paste Data.
      * @param OHOS::Uri uri .
@@ -111,14 +121,6 @@ public:
      * @return PasteData.
      */
     std::shared_ptr<PasteData> CreateWantData(std::shared_ptr<OHOS::AAFwk::Want> want);
-
-    /**
-     * CreatePixelMapData
-     * @descrition Create PixelMap Paste Data.
-     * @param OHOS::Media::PixelMap pixelMap .
-     * @return PasteData.
-     */
-    std::shared_ptr<PasteData> CreatePixelMapData(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
 
     /**
      * GetPasteData

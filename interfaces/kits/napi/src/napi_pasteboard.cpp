@@ -207,6 +207,31 @@ napi_value JScreatePlainTextRecord(napi_env env, napi_callback_info info)
     return instance;
 }
 
+napi_value JScreatePixelMapRecord(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePixelMapRecord is called!");
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    NAPI_ASSERT(env, argc == ARGC_TYPE_SET1, "Wrong number of arguments");
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type. Object expected.");
+
+    std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, argv[0]);
+    if (pixelMap == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to get pixelMap!");
+        return nullptr;
+    }
+    napi_value instance = nullptr;
+    PasteDataRecordNapi::NewPixelMapRecordInstance(env, pixelMap, instance);
+
+    return instance;
+}
+
 napi_value JScreateUriRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateUriRecord is called!");
@@ -235,31 +260,6 @@ napi_value JScreateUriRecord(napi_env env, napi_callback_info info)
     std::string str(buf.data());
     napi_value instance = nullptr;
     PasteDataRecordNapi::NewUriRecordInstance(env, str, instance);
-
-    return instance;
-}
-
-napi_value JScreatePixelMapRecord(napi_env env, napi_callback_info info)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePixelMapRecord is called!");
-    size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = { 0 };
-    napi_value thisVar = nullptr;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc == ARGC_TYPE_SET1, "Wrong number of arguments");
-
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type. Object expected.");
-
-    std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, argv[0]);
-    if (pixelMap == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to get pixelMap!");
-        return nullptr;
-    }
-    napi_value instance = nullptr;
-    PasteDataRecordNapi::NewPixelMapRecordInstance(env, pixelMap, instance);
 
     return instance;
 }
@@ -364,6 +364,36 @@ napi_value JScreatePlainTextData(napi_env env, napi_callback_info info)
     return instance;
 }
 
+napi_value JScreatePixelMapData(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePixelMapData is called!");
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    NAPI_ASSERT(env, argc == ARGC_TYPE_SET1, "Wrong number of arguments");
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type. Object expected.");
+
+    std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, argv[0]);
+    if (pixelMap == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to get pixelMap!");
+        return nullptr;
+    }
+
+    napi_value instance = nullptr;
+    NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
+    PasteDataNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap Failed!");
+        return nullptr;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMap);
+    return instance;
+}
+
 napi_value JScreateUriData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateUriData is called!");
@@ -399,36 +429,6 @@ napi_value JScreateUriData(napi_env env, napi_callback_info info)
     return instance;
 }
 
-napi_value JScreatePixelMapData(napi_env env, napi_callback_info info)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePixelMapData is called!");
-    size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = { 0 };
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    NAPI_ASSERT(env, argc == ARGC_TYPE_SET1, "Wrong number of arguments");
-
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type. Object expected.");
-
-    std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, argv[0]);
-    if (pixelMap == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to get pixelMap!");
-        return nullptr;
-    }
-
-    napi_value instance = nullptr;
-    NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
-    PasteDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap Failed!");
-        return nullptr;
-    }
-    obj->value_ = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMap);
-    return instance;
-}
-
 napi_value JSgetSystemPasteboard(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSgetSystemPasteboard is called!");
@@ -453,20 +453,20 @@ napi_value PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createHtmlData", JScreateHtmlData),
         DECLARE_NAPI_FUNCTION("createWantData", JScreateWantData),
         DECLARE_NAPI_FUNCTION("createPlainTextData", JScreatePlainTextData),
-        DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData),
         DECLARE_NAPI_FUNCTION("createPixelMapData", JScreatePixelMapData),
+        DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData),
         DECLARE_NAPI_FUNCTION("createHtmlTextRecord", JScreateHtmlTextRecord),
         DECLARE_NAPI_FUNCTION("createWantRecord", JScreateWantRecord),
         DECLARE_NAPI_FUNCTION("createPlainTextRecord", JScreatePlainTextRecord),
-        DECLARE_NAPI_FUNCTION("createUriRecord", JScreateUriRecord),
         DECLARE_NAPI_FUNCTION("createPixelMapRecord", JScreatePixelMapRecord),
+        DECLARE_NAPI_FUNCTION("createUriRecord", JScreateUriRecord),
         DECLARE_NAPI_FUNCTION("getSystemPasteboard", JSgetSystemPasteboard),
         DECLARE_NAPI_PROPERTY("MAX_RECORD_NUM", CreateNapiNumber(env, 128)),
+        DECLARE_NAPI_PROPERTY("MIMETYPE_PIXELMAP", CreateNapiString(env, MIMETYPE_PIXELMAP)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_HTML", CreateNapiString(env, MIMETYPE_TEXT_HTML)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_WANT", CreateNapiString(env, MIMETYPE_TEXT_WANT)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_PLAIN", CreateNapiString(env, MIMETYPE_TEXT_PLAIN)),
-        DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_URI", CreateNapiString(env, MIMETYPE_TEXT_URI)),
-        DECLARE_NAPI_PROPERTY("MIMETYPE_PIXELMAP", CreateNapiString(env, MIMETYPE_PIXELMAP))
+        DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_URI", CreateNapiString(env, MIMETYPE_TEXT_URI))
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));

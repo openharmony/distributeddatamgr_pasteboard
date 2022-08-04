@@ -21,6 +21,7 @@
 #include "type_traits"
 
 using namespace std::chrono;
+using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServices {
@@ -45,6 +46,11 @@ void PasteData::AddHtmlRecord(const std::string &html)
     this->AddRecord(PasteDataRecord::NewHtmlRecord(html));
 }
 
+void PasteData::AddPixelMapRecord(std::shared_ptr<PixelMap> pixelMap)
+{
+    this->AddRecord(PasteDataRecord::NewPixelMapRecord(std::move(pixelMap)));
+}
+
 void PasteData::AddWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want)
 {
     this->AddRecord(PasteDataRecord::NewWantRecord(std::move(want)));
@@ -58,11 +64,6 @@ void PasteData::AddTextRecord(const std::string &text)
 void PasteData::AddUriRecord(const OHOS::Uri &uri)
 {
     this->AddRecord(PasteDataRecord::NewUriRecord(uri));
-}
-
-void PasteData::AddPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
-{
-    this->AddRecord(PasteDataRecord::NewPixelMapRecord(std::move(pixelMap)));
 }
 
 void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
@@ -103,6 +104,16 @@ std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
     return nullptr;
 }
 
+std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
+{
+    for (const auto &item : records_) {
+        if (item->GetMimeType() == MIMETYPE_PIXELMAP) {
+            return item->GetPixelMap();
+        }
+    }
+    return nullptr;
+}
+
 std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 {
     for (const auto &item: records_) {
@@ -128,16 +139,6 @@ std::shared_ptr<OHOS::Uri> PasteData::GetPrimaryUri()
     for (const auto &item : records_) {
         if (item->GetMimeType() == MIMETYPE_TEXT_URI) {
             return item->GetUri();
-        }
-    }
-    return nullptr;
-}
-
-std::shared_ptr<OHOS::Media::PixelMap> PasteData::GetPrimaryPixelMap()
-{
-    for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_PIXELMAP) {
-            return item->GetPixelMap();
         }
     }
     return nullptr;
