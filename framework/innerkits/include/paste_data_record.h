@@ -19,10 +19,10 @@
 #include <memory>
 #include <string>
 #include "parcel.h"
-#include "pixel_map.h"
 #include "string_ex.h"
 #include "uri.h"
 #include "want.h"
+#include "pixel_map.h"
 
 namespace OHOS {
 namespace MiscServices {
