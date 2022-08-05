@@ -22,7 +22,6 @@ config("pasteboard_client_config") {
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_utils_path}/native/include",
     "//commonlibrary/c_utils/base/include",
-    "//foundation/multimedia/image_standard/interfaces/innerkits/include",
   ]
 }
 
