@@ -14,7 +14,7 @@
 ## 目录
 
 ```
-/base/miscservices/time
+/foundation/distributeddatamgr/pasteboard
 ├── etc                      # 组件包含的进程的配置文件
 ├── figures                  # 构架图
 ├── framework                # innerKit接口
@@ -411,7 +411,7 @@ assert.equal(pasteData.getRecordAt(0).plainText, textDataNew)
 
 ## 相关仓
 
-**Misc软件服务子系统**
+**分布式数据管理子系统**
 
-[miscservices\_paste](https://gitee.com/openharmony/miscservices_pasteboard)
+[distributeddatamgr\_pasteboard](https://gitee.com/openharmony/distributeddatamgr_pasteboard)
 

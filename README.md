@@ -14,7 +14,7 @@
 ## Directory Structure
 
 ```
-/base/miscservices/time
+/foundation/distributeddatamgr/pasteboard
 ├── etc         # Configuration files for the processes contained in the component
 ├── figures     # Framework diagram
 ├── framework   # innerKit interface
@@ -413,7 +413,7 @@ assert.equal(pasteData.getRecordAt(0).plainText, textDataNew)
 
 ## Related warehouse
 
-**Miscsoftware service subsystem**
+**Distributed Data Management subsystem**
 
-[miscservices\_paste](https://gitee.com/openharmony/miscservices_pasteboard)
+[distributeddatamgr\_pasteboard](https://gitee.com/openharmony/distributeddatamgr_pasteboard)
 
