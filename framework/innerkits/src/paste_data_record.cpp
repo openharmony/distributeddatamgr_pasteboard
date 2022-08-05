@@ -252,6 +252,5 @@ PasteDataRecord *PasteDataRecord::Unmarshalling(Parcel &parcel)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return pasteDataRecord;
 }
-
 } // MiscServices
 } // OHOS
