@@ -22,20 +22,60 @@ namespace MiscServices {
 namespace {
 constexpr int MAX_TEXT_LEN = 500 * 1024;
 }
+
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<std::string> htmlText)
+{
+    record_->htmlText_ = std::move(htmlText);
+    return *this;
+}
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetWant(std::shared_ptr<OHOS::AAFwk::Want> want)
+{
+    record_->want_ = std::move(want);
+    return *this;
+}
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetPlainText(std::shared_ptr<std::string> plainText)
+{
+    record_->plainText_ = std::move(plainText);
+    return *this;
+}
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetUri(std::shared_ptr<OHOS::Uri> uri)
+{
+    record_->uri_ = std::move(uri);
+    return *this;
+}
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetPixelMap(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
+{
+    record_->pixelMap_ = std::move(pixelMap);
+    return *this;
+}
+std::shared_ptr<PasteDataRecord> PasteDataRecord::Builder::Build()
+{
+    return record_;
+}
+PasteDataRecord::Builder::Builder(const std::string &mimeType)
+{
+    record_ = std::make_shared<PasteDataRecord>();
+    if (record_ != nullptr) {
+        record_->mimeType_ = mimeType;
+        record_->htmlText_ = nullptr;
+        record_->want_ = nullptr;
+        record_->plainText_ = nullptr;
+        record_->uri_ = nullptr;
+        record_->pixelMap_ = nullptr;
+    }
+}
+
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewHtmlRecord(const std::string &htmlText)
 {
     if (htmlText.length() >= MAX_TEXT_LEN) {
         return nullptr;
     }
-    return PasteDataRecordBuilder()
-        .SetMimeType(MIMETYPE_TEXT_HTML)
-        ->SetHtmlText(std::make_shared<std::string>(htmlText))
-        ->build();
+    return Builder(MIMETYPE_TEXT_HTML).SetHtmlText(std::make_shared<std::string>(htmlText)).Build();
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want)
 {
-    return PasteDataRecordBuilder().SetMimeType(MIMETYPE_TEXT_WANT)->SetWant(std::move(want))->build();
+    return Builder(MIMETYPE_TEXT_WANT).SetWant(std::move(want)).Build();
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPlaintTextRecord(const std::string &text)
@@ -43,30 +83,17 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPlaintTextRecord(const std:
     if (text.length() >= MAX_TEXT_LEN) {
         return nullptr;
     }
-    return PasteDataRecordBuilder()
-        .SetMimeType(MIMETYPE_TEXT_PLAIN)
-        ->SetPlainText(std::make_shared<std::string>(text))
-        ->build();
+    return Builder(MIMETYPE_TEXT_PLAIN).SetPlainText(std::make_shared<std::string>(text)).Build();
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPixelMapRecord(std::shared_ptr<PixelMap> pixelMap)
 {
-    return PasteDataRecordBuilder().SetMimeType(MIMETYPE_PIXELMAP)->SetPixelMap(std::move(pixelMap))->build();
+    return Builder(MIMETYPE_PIXELMAP).SetPixelMap(std::move(pixelMap)).Build();
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &uri)
 {
-    return PasteDataRecordBuilder().SetMimeType(MIMETYPE_TEXT_URI)->SetUri(std::make_shared<OHOS::Uri>(uri))->build();
-}
-
-PasteDataRecord::PasteDataRecord(PasteDataRecordBuilder const &temp)
-{
-    this->mimeType_ = temp.mimeType_;
-    this->htmlText_ = temp.htmlText_;
-    this->want_ = temp.want_;
-    this->plainText_ = temp.plainText_;
-    this->uri_ = temp.uri_;
-    this->pixelMap_ = temp.pixelMap_;
+    return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
 }
 
 PasteDataRecord::PasteDataRecord(std::string mimeType,
@@ -226,51 +253,5 @@ PasteDataRecord *PasteDataRecord::Unmarshalling(Parcel &parcel)
     return pasteDataRecord;
 }
 
-PasteDataRecordBuilder::PasteDataRecordBuilder()
-{
-    mimeType_ = " ";
-    htmlText_ = nullptr;
-    want_ = nullptr;
-    plainText_ = nullptr;
-    uri_ = nullptr;
-    pixelMap_ = nullptr;
-}
-
-PasteDataRecordBuilder *PasteDataRecordBuilder::SetMimeType(const std::string &mimeType)
-{
-    this->mimeType_ = mimeType;
-    return this;
-}
-
-PasteDataRecordBuilder *PasteDataRecordBuilder::SetHtmlText(const std::shared_ptr<std::string> htmlText)
-{
-    this->htmlText_ = htmlText;
-    return this;
-}
-PasteDataRecordBuilder *PasteDataRecordBuilder::SetWant(const std::shared_ptr<OHOS::AAFwk::Want> want)
-{
-    this->want_ = want;
-    return this;
-}
-PasteDataRecordBuilder *PasteDataRecordBuilder::SetPlainText(const std::shared_ptr<std::string> plainText)
-{
-    this->plainText_ = plainText;
-    return this;
-}
-PasteDataRecordBuilder *PasteDataRecordBuilder::SetUri(const std::shared_ptr<OHOS::Uri> uri)
-{
-    this->uri_ = uri;
-    return this;
-}
-PasteDataRecordBuilder *PasteDataRecordBuilder::SetPixelMap(const std::shared_ptr<PixelMap> pixelMap)
-{
-    this->pixelMap_ = pixelMap;
-    return this;
-}
-
-std::shared_ptr<PasteDataRecord> PasteDataRecordBuilder::build()
-{
-    return std::make_shared<PasteDataRecord>(*this);
-}
 } // MiscServices
 } // OHOS

@@ -23,7 +23,6 @@
 #include <vector>
 #include "parcel.h"
 #include "paste_data_record.h"
-#include "pixel_map.h"
 #include "uri.h"
 #include "want.h"
 #include "want_params.h"
