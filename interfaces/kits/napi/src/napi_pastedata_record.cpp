@@ -19,6 +19,7 @@
 #include "pasteboard_hilog_wreapper.h"
 
 using namespace OHOS::MiscServices;
+using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -71,6 +72,26 @@ bool PasteDataRecordNapi::NewPlainTextRecordInstance(napi_env env, const std::st
         return false;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreatePlainTextRecord(text);
+    obj->JSFillInstance(env, instance);
+    return true;
+}
+
+bool PasteDataRecordNapi::NewPixelMapRecordInstance(
+    napi_env env, const std::shared_ptr<PixelMap> pixelMap, napi_value &instance)
+{
+    if (pixelMap == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "pixelMap is nullptr.");
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed.");
+        return false;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMap);
     obj->JSFillInstance(env, instance);
     return true;
 }
@@ -147,6 +168,14 @@ bool PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
             napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, *want);
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "kkk.");
             napi_set_named_property(env, instance, "want", jsWant);
+        }
+    } else if (mimeType == MIMETYPE_PIXELMAP) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "pixelMap begin.");
+        auto pixelMap = value_->GetPixelMap();
+        if (pixelMap != nullptr) {
+            napi_value jsPixelMap = PixelMapNapi::CreatePixelMap(env, pixelMap);
+            napi_set_named_property(env, instance, "pixelMap", jsPixelMap);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "pixelMap end.");
         }
     } else {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Unkonw MimeType: %{public}s.", mimeType.c_str());

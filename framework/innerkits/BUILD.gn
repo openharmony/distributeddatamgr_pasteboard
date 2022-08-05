@@ -49,6 +49,7 @@ ohos_shared_library("pasteboard_client") {
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "multimedia_image_standard:image_native",
     "samgr_standard:samgr_proxy",
   ]
 

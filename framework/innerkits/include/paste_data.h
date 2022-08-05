@@ -43,6 +43,7 @@ public:
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
 
     void AddHtmlRecord(const std::string &html);
+    void AddPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     void AddTextRecord(const std::string &text);
     void AddUriRecord(const OHOS::Uri &uri);
     void AddWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
@@ -50,6 +51,7 @@ public:
     void AddRecord(PasteDataRecord& record);
     std::vector<std::string> GetMimeTypes();
     std::shared_ptr<std::string> GetPrimaryHtml();
+    std::shared_ptr<OHOS::Media::PixelMap> GetPrimaryPixelMap();
     std::shared_ptr<std::string> GetPrimaryText();
     std::shared_ptr<OHOS::Uri> GetPrimaryUri();
     std::shared_ptr<std::string> GetPrimaryMimeType();

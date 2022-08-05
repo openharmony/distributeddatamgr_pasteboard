@@ -17,9 +17,10 @@
 
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "pasteboard_observer.h"
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
-#include "pasteboard_observer.h"
+#include "pixel_map_napi.h"
 #include "uri.h"
 
 namespace OHOS {
