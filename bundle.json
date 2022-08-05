@@ -43,9 +43,20 @@
         ]
         },
       "build": {
-        "sub_component": [
-          "//foundation/distributeddatamgr/pasteboard:pasteboard_packages"
-        ],
+        "group_type": {
+            "base_group": [
+            ],
+            "fwk_group": [
+                "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
+                "//foundation/distributeddatamgr/pasteboard/interfaces/declaration:pasteboard_js",
+                "//foundation/distributeddatamgr/pasteboard/interfaces/kits:pasteboard_napi"
+            ],
+            "service_group": [
+                "//foundation/distributeddatamgr/pasteboard/etc/init:pasteboardservice.cfg",
+                "//foundation/distributeddatamgr/pasteboard/profile:distributeddatamgr_pasteboard_sa_profiles",
+                "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service"
+            ]
+        },
         "inner_kits": [
           {
             "name": "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",

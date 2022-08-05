@@ -10,17 +10,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import("//build/ohos.gni")
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 config("pasteboard_client_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "include",
     "${pasteboard_service_path}/core/include",
     "${pasteboard_service_path}/zidl/include",
-    "include",
-    "//commonlibrary/c_utils/base/include",
     "${pasteboard_utils_path}/native/include",
+    "//commonlibrary/c_utils/base/include",
   ]
 }
 
@@ -48,6 +49,7 @@ ohos_shared_library("pasteboard_client") {
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "multimedia_image_standard:image_native",
     "samgr:samgr_proxy",
   ]
 

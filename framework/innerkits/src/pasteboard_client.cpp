@@ -21,6 +21,8 @@
 #include "pasteboard_common.h"
 #include "pasteboard_client.h"
 
+using namespace OHOS::Media;
+
 namespace OHOS {
 namespace MiscServices {
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
@@ -55,6 +57,12 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePlainTextRecord(const s
     return PasteDataRecord::NewPlaintTextRecord(text);
 }
 
+std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePixelMapRecord(std::shared_ptr<PixelMap> pixelMap)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New pixelMap record");
+    return PasteDataRecord::NewPixelMapRecord(std::move(pixelMap));
+}
+
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateUriRecord(const OHOS::Uri &uri)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New uri record");
@@ -82,6 +90,14 @@ std::shared_ptr<PasteData> PasteboardClient::CreatePlainTextData(const std::stri
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New plain data: %{public}s", text.c_str());
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddTextRecord(text);
+    return pasteData;
+}
+
+std::shared_ptr<PasteData> PasteboardClient::CreatePixelMapData(std::shared_ptr<PixelMap> pixelMap)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New pixelMap data");
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddPixelMapRecord(std::move(pixelMap));
     return pasteData;
 }
 

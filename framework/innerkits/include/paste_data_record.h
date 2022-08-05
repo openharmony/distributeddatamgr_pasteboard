@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 #include "parcel.h"
+#include "pixel_map.h"
 #include "string_ex.h"
 #include "uri.h"
 #include "want.h"
@@ -26,6 +27,7 @@
 namespace OHOS {
 namespace MiscServices {
 namespace {
+const std::string MIMETYPE_PIXELMAP = "pixelMap";
 const std::string MIMETYPE_TEXT_HTML = "text/html";
 const std::string MIMETYPE_TEXT_PLAIN = "text/plain";
 const std::string MIMETYPE_TEXT_URI = "text/uri";
@@ -35,7 +37,6 @@ const std::string MIMETYPE_TEXT_WANT = "text/want";
 class PasteDataRecord : public Parcelable {
 public:
     PasteDataRecord() = default;
-
     PasteDataRecord(std::string mimeType,
                     std::shared_ptr<std::string> htmlText,
                     std::shared_ptr<OHOS::AAFwk::Want> want,
@@ -45,11 +46,13 @@ public:
     static std::shared_ptr<PasteDataRecord> NewHtmlRecord(const std::string &htmlText);
     static std::shared_ptr<PasteDataRecord> NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
     static std::shared_ptr<PasteDataRecord> NewPlaintTextRecord(const std::string &text);
+    static std::shared_ptr<PasteDataRecord> NewPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     static std::shared_ptr<PasteDataRecord> NewUriRecord(const OHOS::Uri &uri);
 
     std::string GetMimeType() const;
     std::shared_ptr<std::string> GetHtmlText() const;
     std::shared_ptr<std::string> GetPlainText() const;
+    std::shared_ptr<OHOS::Media::PixelMap> GetPixelMap() const;
     std::shared_ptr<OHOS::Uri> GetUri() const;
     std::shared_ptr<OHOS::AAFwk::Want> GetWant() const;
 
@@ -58,6 +61,19 @@ public:
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteDataRecord *Unmarshalling(Parcel &parcel);
 
+    class Builder {
+    public:
+        explicit Builder(const std::string &mimeType);
+        Builder &SetHtmlText(std::shared_ptr<std::string> htmlText);
+        Builder &SetWant(std::shared_ptr<OHOS::AAFwk::Want> want);
+        Builder &SetPlainText(std::shared_ptr<std::string> plainText);
+        Builder &SetUri(std::shared_ptr<OHOS::Uri> uri);
+        Builder &SetPixelMap(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
+        std::shared_ptr<PasteDataRecord> Build();
+    private:
+        std::shared_ptr<PasteDataRecord> record_ = nullptr;
+    };
+
 private:
     bool ReadFromParcel(Parcel &parcel);
     std::string mimeType_;
@@ -65,6 +81,7 @@ private:
     std::shared_ptr<OHOS::AAFwk::Want> want_;
     std::shared_ptr<std::string> plainText_;
     std::shared_ptr<OHOS::Uri> uri_;
+    std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
 };
 } // MiscServices
 } // OHOS

@@ -20,6 +20,7 @@
 #include "napi_common.h"
 
 using namespace OHOS::MiscServices;
+using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -70,6 +71,36 @@ napi_value PasteDataNapi::AddHtmlRecord(napi_env env, napi_callback_info info)
         return nullptr;
     }
     obj->value_->AddHtmlRecord(text);
+    return nullptr;
+}
+
+napi_value PasteDataNapi::AddPixelMapRecord(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddPixelMapRecord is called begin!");
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    NAPI_ASSERT(env, argc == ARGC_TYPE_SET1, "Wrong number of arguments");
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type. Object expected.");
+
+    std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, argv[0]);
+    if (pixelMap == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetPixelMap!");
+        return nullptr;
+    }
+
+    PasteDataNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
+        return nullptr;
+    }
+    obj->value_->AddPixelMapRecord(pixelMap);
     return nullptr;
 }
 
@@ -165,6 +196,33 @@ napi_value PasteDataNapi::GetPrimaryHtml(napi_env env, napi_callback_info info)
     napi_value result = nullptr;
     napi_create_string_utf8(env, p->c_str(), NAPI_AUTO_LENGTH, &result);
     return result;
+}
+
+napi_value PasteDataNapi::GetPrimaryPixelMap(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryPixelMap is called!");
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    NAPI_ASSERT(env, argc == 0, "Wrong number of arguments");
+
+    PasteDataNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
+        return nullptr;
+    }
+
+    std::shared_ptr<PixelMap> pixelMap = obj->value_->GetPrimaryPixelMap();
+    if (!pixelMap) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "pixelMap is nullptr");
+        return nullptr;
+    }
+
+    napi_value jsPixelMap = PixelMapNapi::CreatePixelMap(env, pixelMap);
+    return jsPixelMap;
 }
 
 napi_value PasteDataNapi::GetPrimaryText(napi_env env, napi_callback_info info)
@@ -619,12 +677,14 @@ napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addRecord", AddRecord),
         DECLARE_NAPI_FUNCTION("addTextRecord", AddTextRecord),
         DECLARE_NAPI_FUNCTION("addUriRecord", AddUriRecord),
+        DECLARE_NAPI_FUNCTION("addPixmapRecord", AddPixelMapRecord),
         DECLARE_NAPI_FUNCTION("getMimeTypes", GetMimeTypes),
         DECLARE_NAPI_FUNCTION("getPrimaryHtml", GetPrimaryHtml),
         DECLARE_NAPI_FUNCTION("getPrimaryWant", GetPrimaryWant),
         DECLARE_NAPI_FUNCTION("getPrimaryMimeType", GetPrimaryMimeType),
         DECLARE_NAPI_FUNCTION("getPrimaryText", GetPrimaryText),
         DECLARE_NAPI_FUNCTION("getPrimaryUri", GetPrimaryUri),
+        DECLARE_NAPI_FUNCTION("getPrimaryPixelMap", GetPrimaryPixelMap),
         DECLARE_NAPI_FUNCTION("getProperty", GetProperty),
         DECLARE_NAPI_FUNCTION("getRecordAt", GetRecordAt),
         DECLARE_NAPI_FUNCTION("getRecordCount", GetRecordCount),

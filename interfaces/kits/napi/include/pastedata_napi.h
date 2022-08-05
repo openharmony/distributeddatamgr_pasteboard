@@ -20,6 +20,7 @@
 #include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_client.h"
+#include "pixel_map_napi.h"
 #include "uri.h"
 
 namespace OHOS {
@@ -37,12 +38,13 @@ public:
 
 private:
     static napi_value AddHtmlRecord(napi_env env, napi_callback_info info);
+    static napi_value AddPixelMapRecord(napi_env env, napi_callback_info info);
     static napi_value AddTextRecord(napi_env env, napi_callback_info info);
     static napi_value AddUriRecord(napi_env env, napi_callback_info info);
     static napi_value GetPrimaryHtml(napi_env env, napi_callback_info info);
+    static napi_value GetPrimaryPixelMap(napi_env env, napi_callback_info info);
     static napi_value GetPrimaryText(napi_env env, napi_callback_info info);
     static napi_value GetPrimaryUri(napi_env env, napi_callback_info info);
-
     static napi_value HasMimeType(napi_env env, napi_callback_info info);
     static napi_value RemoveRecordAt(napi_env env, napi_callback_info info);
     static napi_value GetPrimaryMimeType(napi_env env, napi_callback_info info);

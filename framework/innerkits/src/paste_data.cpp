@@ -21,6 +21,7 @@
 #include "type_traits"
 
 using namespace std::chrono;
+using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServices {
@@ -43,6 +44,11 @@ PasteDataProperty PasteData::GetProperty()
 void PasteData::AddHtmlRecord(const std::string &html)
 {
     this->AddRecord(PasteDataRecord::NewHtmlRecord(html));
+}
+
+void PasteData::AddPixelMapRecord(std::shared_ptr<PixelMap> pixelMap)
+{
+    this->AddRecord(PasteDataRecord::NewPixelMapRecord(std::move(pixelMap)));
 }
 
 void PasteData::AddWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want)
@@ -93,6 +99,16 @@ std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
     for (const auto &item: records_) {
         if (item->GetMimeType() == MIMETYPE_TEXT_HTML) {
             return item->GetHtmlText();
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
+{
+    for (const auto &item : records_) {
+        if (item->GetMimeType() == MIMETYPE_PIXELMAP) {
+            return item->GetPixelMap();
         }
     }
     return nullptr;
