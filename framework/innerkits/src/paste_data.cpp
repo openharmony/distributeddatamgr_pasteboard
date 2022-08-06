@@ -223,57 +223,73 @@ void PasteData::RefreshMimeProp()
 
 bool PasteData::Marshalling(Parcel &parcel) const
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     auto length = records_.size();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length: %{public}zu.", length);
-    // write length
-    if (!parcel.WriteUint32(static_cast<uint32_t>(length))) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    if (length == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length == 0.");
         return false;
     }
-    for (const auto item : records_) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start, length = %{public}zu.", length);
+    if (!parcel.WriteUint32(static_cast<uint32_t>(length))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write length failed.");
+        return false;
+    }
+    auto failedNum = 0;
+    for (const auto &item : records_) {
         if (!parcel.WriteParcelable(item.get())) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write failed end.");
-            return false;
+            failedNum++;
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteParcelable failed.");
+            continue;
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    if (failedNum == length) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "all failed.");
+        return false;
+    }
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return true;
 }
 
 bool PasteData::ReadFromParcel(Parcel &parcel)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    records_.clear();
-    // read vector length
     auto length = parcel.ReadUint32();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length: %{public}u.", length);
+    if (length == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length == 0.");
+        return false;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start0806, length = %{public}u.", length);
+
+    records_.clear();
+
+    auto failedNum = 0;
     for (uint32_t i = 0; i < length; i++) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
         std::unique_ptr<PasteDataRecord> record(parcel.ReadParcelable<PasteDataRecord>());
         if (!record) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "nullptr.");
+            failedNum++;
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadParcelable failed, i = %{public}d.", i);
             continue;
         }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "add.");
         AddRecord(*record);
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    if (failedNum == length) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "all failed.");
+        return false;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return true;
 }
 
 PasteData *PasteData::Unmarshalling(Parcel &parcel)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    PasteData *pasteData = new PasteData();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    auto *pasteData = new PasteData();
 
     if (pasteData && !pasteData->ReadFromParcel(parcel)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "delete end.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadFromParcel failed.");
         delete pasteData;
         pasteData = nullptr;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return pasteData;
 }
 } // MiscServices

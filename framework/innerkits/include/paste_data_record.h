@@ -32,6 +32,15 @@ const std::string MIMETYPE_TEXT_HTML = "text/html";
 const std::string MIMETYPE_TEXT_PLAIN = "text/plain";
 const std::string MIMETYPE_TEXT_URI = "text/uri";
 const std::string MIMETYPE_TEXT_WANT = "text/want";
+
+enum dataType {
+    MimeType_Html = 0,
+    MimeType_Want,
+    MimeType_Plain,
+    MimeType_Uri,
+    MimeType_PixelMap,
+    MimeType_Data,
+};
 }
 
 class PasteDataRecord : public Parcelable {
@@ -73,6 +82,10 @@ public:
     private:
         std::shared_ptr<PasteDataRecord> record_ = nullptr;
     };
+    static bool MarshallingString(Parcel &parcel, std::shared_ptr<std::string> item, uint32_t symbol);
+    static bool MarshallingParcelable(Parcel &parcel, std::shared_ptr<Parcelable> item, uint32_t symbol);
+    bool ParcelableReadFromParcel(Parcel &parcel, uint32_t symbol);
+    bool StringReadFromParcel(Parcel &parcel, uint32_t symbol);
 
 private:
     bool ReadFromParcel(Parcel &parcel);

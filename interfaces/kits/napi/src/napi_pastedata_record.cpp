@@ -127,12 +127,15 @@ bool PasteDataRecordNapi::NewWantRecordInstance(
     return true;
 }
 
-void PasteDataRecordNapi::SetNamedPropertyByStr(napi_env env, napi_value &dstObj,
-    const std::string &objName, const char *propName)
+void PasteDataRecordNapi::SetNamedPropertyByStr(
+    napi_env env, napi_value &instance, const char *propName, const char *propValue)
 {
+    if (propName == nullptr || propValue == nullptr) {
+        return;
+    }
     napi_value prop = nullptr;
-    if (napi_create_string_utf8(env, objName.c_str(), NAPI_AUTO_LENGTH, &prop) == napi_ok) {
-        napi_set_named_property(env, dstObj, propName, prop);
+    if (napi_create_string_utf8(env, propValue, NAPI_AUTO_LENGTH, &prop) == napi_ok) {
+        napi_set_named_property(env, instance, propName, prop);
     }
 }
 
