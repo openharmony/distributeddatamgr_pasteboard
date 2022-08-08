@@ -26,6 +26,9 @@
 #include "pasteboard_trace.h"
 #include "reporter.h"
 #include "system_ability_definition.h"
+#ifdef WITH_DLP
+#include "dlp_permission_kit.h"
+#endif // WITH_DLP
 
 namespace OHOS {
 namespace MiscServices {
@@ -191,6 +194,15 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+#ifdef WITH_DLP
+    auto callingToken = IPCSkeleton::GetCallingTokenID();
+    bool copyable = false;
+    auto ret = Security::DlpPermission::DlpPermissionKit::QueryDlpFileCopyableByTokenId(copyable, callingToken);
+    if (ret != 0 || !copyable) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret = %{public}d, copyable = %{public}d.", ret, copyable);
+        return;
+    }
+#endif
     auto userId = GetUserId();
 
     SetPasteDataDot(pasteData);
