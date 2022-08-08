@@ -13,16 +13,21 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+
 #include <cstdint>
 #include <vector>
+
 #include "pasteboard_client.h"
-#include "uri.h"
 #include "pasteboard_observer_callback.h"
+#include "pixel_map.h"
+#include "uri.h"
 #include "want.h"
 
 using namespace testing::ext;
 using namespace OHOS;
+using namespace OHOS::AAFwk;
 using namespace OHOS::MiscServices;
+using namespace OHOS::Media;
 
 class PasteboardServiceTest : public testing::Test {
 public:
@@ -191,7 +196,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest003
+* @tc.name: PasteDataTest004
 * @tc.desc: Create paste board data test.
 * @tc.type: FUNC
 */
@@ -211,5 +216,87 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
     EXPECT_TRUE(ok == true);
     auto record = pasteData.GetPrimaryHtml();
     EXPECT_TRUE(record != nullptr);
+}
+
+/**
+* @tc.name: PasteDataTest005
+* @tc.desc: marshalling test.
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
+{
+    std::string htmlText = "http//cn.com";
+    auto pasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    EXPECT_TRUE(pasteData != nullptr);
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    std::string plainText = "plain text";
+    OHOS::Uri uri("uri");
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = {};
+    opts.size.height = 4;
+    opts.size.width = 7;
+    opts.pixelFormat = static_cast<PixelFormat>(AlphaType::IMAGE_ALPHA_TYPE_OPAQUE);
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    std::string key = "id";
+    int32_t id = 456;
+    Want wantIn = want->SetParam(key, id);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetPlainText(std::make_shared<std::string>(plainText))
+                                                           .SetUri(std::make_shared<OHOS::Uri>(uri))
+                                                           .SetPixelMap(pixelMapIn)
+                                                           .SetHtmlText(std::make_shared<std::string>(htmlText))
+                                                           .SetWant(std::make_shared<Want>(wantIn))
+                                                           .Build();
+    pasteData->AddRecord(pasteDataRecord);
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    EXPECT_TRUE(hasPasteData != true);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    EXPECT_TRUE(hasPasteData == true);
+    PasteData getPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
+    EXPECT_TRUE(ret == true);
+    auto primaryHtml = getPasteData.GetPrimaryHtml();
+    EXPECT_TRUE(primaryHtml != nullptr);
+    if (primaryHtml != nullptr) {
+        EXPECT_TRUE(*primaryHtml == "http//cn.com");
+    }
+    auto firstRecord = getPasteData.GetRecordAt(0);
+    EXPECT_TRUE(firstRecord != nullptr);
+    if (firstRecord != nullptr) {
+        EXPECT_TRUE(firstRecord->GetMimeType() == MIMETYPE_TEXT_URI);
+        auto getPlainText = firstRecord->GetPlainText();
+        EXPECT_TRUE(getPlainText != nullptr);
+        if (getPlainText != nullptr) {
+            EXPECT_TRUE(*getPlainText == "plain text");
+        }
+        auto getUri = firstRecord->GetUri();
+        EXPECT_TRUE(getUri != nullptr);
+        if (getUri != nullptr) {
+            EXPECT_TRUE(getUri->ToString() == "uri");
+        }
+        auto getPixelMap = firstRecord->GetPixelMap();
+        EXPECT_TRUE(getPixelMap != nullptr);
+        if (getPixelMap != nullptr) {
+            ImageInfo imageInfo = {};
+            getPixelMap->GetImageInfo(imageInfo);
+            EXPECT_TRUE(imageInfo.size.height == 4);
+            EXPECT_TRUE(imageInfo.size.width == 7);
+            EXPECT_TRUE(imageInfo.pixelFormat == static_cast<PixelFormat>(AlphaType::IMAGE_ALPHA_TYPE_OPAQUE));
+        }
+        auto getHtmlText = firstRecord->GetHtmlText();
+        EXPECT_TRUE(getHtmlText != nullptr);
+        if (getHtmlText != nullptr) {
+            EXPECT_TRUE(*getHtmlText == "http//cn.com");
+        }
+        auto getWant = firstRecord->GetWant();
+        EXPECT_TRUE(getWant != nullptr);
+        if (getWant != nullptr) {
+            int32_t defaultValue = 333;
+            EXPECT_TRUE(getWant->GetIntParam(key, defaultValue) == id);
+        }
+    }
 }
 }

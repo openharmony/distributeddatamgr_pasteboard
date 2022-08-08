@@ -235,6 +235,7 @@ bool PasteData::Marshalling(Parcel &parcel) const
     }
     auto failedNum = 0;
     for (const auto &item : records_) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
         if (!parcel.WriteParcelable(item.get())) {
             failedNum++;
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteParcelable failed.");
@@ -250,42 +251,39 @@ bool PasteData::Marshalling(Parcel &parcel) const
     return true;
 }
 
-bool PasteData::ReadFromParcel(Parcel &parcel)
+PasteData *PasteData::Unmarshalling(Parcel &parcel)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    auto *pasteData = new (std::nothrow) PasteData();
+    if (pasteData == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "pasteData is nullptr.");
+        return pasteData;
+    }
+
+    pasteData->records_.clear();
+
     auto length = parcel.ReadUint32();
     if (length == 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length == 0.");
-        return false;
+        delete pasteData;
+        pasteData = nullptr;
+        return pasteData;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start0806, length = %{public}u.", length);
-
-    records_.clear();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length = %{public}u.", length);
 
     auto failedNum = 0;
     for (uint32_t i = 0; i < length; i++) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
         std::unique_ptr<PasteDataRecord> record(parcel.ReadParcelable<PasteDataRecord>());
         if (!record) {
             failedNum++;
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadParcelable failed, i = %{public}d.", i);
             continue;
         }
-        AddRecord(*record);
+        pasteData->AddRecord(*record);
     }
     if (failedNum == length) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "all failed.");
-        return false;
-    }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
-    return true;
-}
-
-PasteData *PasteData::Unmarshalling(Parcel &parcel)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
-    auto *pasteData = new PasteData();
-
-    if (pasteData && !pasteData->ReadFromParcel(parcel)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadFromParcel failed.");
         delete pasteData;
         pasteData = nullptr;
     }
