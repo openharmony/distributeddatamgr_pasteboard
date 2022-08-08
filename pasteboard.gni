@@ -23,3 +23,10 @@ pasteboard_innerkits_path = "${pasteboard_root_path}/framework/innerkits"
 pasteboard_utils_path = "${pasteboard_root_path}/utils"
 
 pasteboard_service_path = "${pasteboard_root_path}/services"
+
+if (!defined(global_parts_info) ||
+    defined(global_parts_info.security_dlp_permission_service)) {
+  os_dlp_part_enabled = true
+} else {
+  os_dlp_part_enabled = false
+}

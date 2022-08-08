@@ -35,6 +35,9 @@ config("pasteboard_service_config") {
   ]
 
   cflags_cc = [ "-fexceptions" ]
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+  }
 }
 
 ohos_shared_library("pasteboard_service") {
@@ -80,6 +83,9 @@ ohos_shared_library("pasteboard_service") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
+  if (os_dlp_part_enabled) {
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+  }
   subsystem_name = "distributeddatamgr"
   part_name = "pasteboard"
 }
