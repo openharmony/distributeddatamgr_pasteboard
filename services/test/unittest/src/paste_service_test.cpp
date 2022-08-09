@@ -214,7 +214,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest003, TestSize.Level0)
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
 {
-    std::string html = "plain text";
+    std::string html = "<div class='disabled item tip user-programs'>";
     auto data = PasteboardClient::GetInstance()->CreateHtmlData(html);
     EXPECT_TRUE(data != nullptr);
     PasteboardClient::GetInstance()->Clear();
@@ -238,12 +238,12 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
 * @tc.desc: marshalling test.
 * @tc.type: FUNC
 */
-void marshallingCheckPasteData(PasteData &pasteData, InitializationOptions &opts, std::string &key, int32_t id)
+void MarshallingCheckPasteData(PasteData &pasteData, InitializationOptions &opts, std::string &key, int32_t id)
 {
     auto primaryHtml = pasteData.GetPrimaryHtml();
     EXPECT_TRUE(primaryHtml != nullptr);
     if (primaryHtml != nullptr) {
-        EXPECT_TRUE(*primaryHtml == "http//cn.com");
+        EXPECT_TRUE(*primaryHtml == "<div class='disabled item tip user-programs'>");
     }
     auto firstRecord = pasteData.GetRecordAt(0);
     EXPECT_TRUE(firstRecord != nullptr);
@@ -271,7 +271,7 @@ void marshallingCheckPasteData(PasteData &pasteData, InitializationOptions &opts
         auto getHtmlText = firstRecord->GetHtmlText();
         EXPECT_TRUE(getHtmlText != nullptr);
         if (getHtmlText != nullptr) {
-            EXPECT_TRUE(*getHtmlText == "http//cn.com");
+            EXPECT_TRUE(*getHtmlText == "<div class='disabled item tip user-programs'>");
         }
         auto getWant = firstRecord->GetWant();
         EXPECT_TRUE(getWant != nullptr);
@@ -283,11 +283,10 @@ void marshallingCheckPasteData(PasteData &pasteData, InitializationOptions &opts
 }
 HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
 {
-    std::string htmlText = "http//cn.com";
+    std::string htmlText = "<div class='disabled item tip user-programs'>";
     auto pasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     EXPECT_TRUE(pasteData != nullptr);
     if (pasteData != nullptr) {
-        PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
         std::string plainText = "plain text";
         OHOS::Uri uri("uri");
         uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
@@ -301,6 +300,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
         std::string key = "id";
         int32_t id = 456;
         Want wantIn = want->SetParam(key, id);
+        PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
         std::shared_ptr<PasteDataRecord> pasteDataRecord =
             builder.SetPlainText(std::make_shared<std::string>(plainText))
                 .SetUri(std::make_shared<OHOS::Uri>(uri))
@@ -318,7 +318,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
         PasteData getPasteData;
         auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
         EXPECT_TRUE(ret == true);
-        marshallingCheckPasteData(getPasteData, opts, key, id);
+        MarshallingCheckPasteData(getPasteData, opts, key, id);
     }
 }
 }
