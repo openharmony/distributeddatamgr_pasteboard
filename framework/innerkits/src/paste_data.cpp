@@ -266,7 +266,7 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length = %{public}u.", length);
 
-    auto failedNum = 0;
+    uint32_t failedNum = 0;
     for (uint32_t i = 0; i < length; i++) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
         std::unique_ptr<PasteDataRecord> record(parcel.ReadParcelable<PasteDataRecord>());
