@@ -238,7 +238,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
 * @tc.desc: marshalling test.
 * @tc.type: FUNC
 */
-void marshallingCheckPasteData(PasteData &pasteData, std::string &key, int32_t id)
+void marshallingCheckPasteData(PasteData &pasteData, InitializationOptions &opts, std::string &key, int32_t id)
 {
     auto primaryHtml = pasteData.GetPrimaryHtml();
     EXPECT_TRUE(primaryHtml != nullptr);
@@ -264,9 +264,9 @@ void marshallingCheckPasteData(PasteData &pasteData, std::string &key, int32_t i
         if (getPixelMap != nullptr) {
             ImageInfo imageInfo = {};
             getPixelMap->GetImageInfo(imageInfo);
-            EXPECT_TRUE(imageInfo.size.height == 4);
-            EXPECT_TRUE(imageInfo.size.width == 7);
-            EXPECT_TRUE(imageInfo.pixelFormat == static_cast<PixelFormat>(AlphaType::IMAGE_ALPHA_TYPE_OPAQUE));
+            EXPECT_TRUE(imageInfo.size.height == opts.size.height);
+            EXPECT_TRUE(imageInfo.size.width == opts.size.width);
+            EXPECT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
         }
         auto getHtmlText = firstRecord->GetHtmlText();
         EXPECT_TRUE(getHtmlText != nullptr);
@@ -301,12 +301,13 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
         std::string key = "id";
         int32_t id = 456;
         Want wantIn = want->SetParam(key, id);
-        std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetPlainText(std::make_shared<std::string>(plainText))
-                                                               .SetUri(std::make_shared<OHOS::Uri>(uri))
-                                                                   .SetPixelMap(pixelMapIn)
-                                                                       .SetHtmlText(std::make_shared<std::string>(htmlText))
-                                                                           .SetWant(std::make_shared<Want>(wantIn))
-                                                                               .Build();
+        std::shared_ptr<PasteDataRecord> pasteDataRecord =
+            builder.SetPlainText(std::make_shared<std::string>(plainText))
+                .SetUri(std::make_shared<OHOS::Uri>(uri))
+                .SetPixelMap(pixelMapIn)
+                .SetHtmlText(std::make_shared<std::string>(htmlText))
+                .SetWant(std::make_shared<Want>(wantIn))
+                .Build();
         pasteData->AddRecord(pasteDataRecord);
         PasteboardClient::GetInstance()->Clear();
         auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
@@ -317,7 +318,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
         PasteData getPasteData;
         auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
         EXPECT_TRUE(ret == true);
-        marshallingCheckPasteData(getPasteData, key, id);
+        marshallingCheckPasteData(getPasteData, opts, key, id);
     }
 }
 }
