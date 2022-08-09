@@ -60,9 +60,9 @@ public:
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
-    template<class T> static bool Marshalling(Parcel &parcel, std::shared_ptr<T> item);
+    static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
     static PasteDataRecord *Unmarshalling(Parcel &parcel);
-    template<class T> static bool UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
+    template<typename T> static bool UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
     static bool UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
 
     class Builder {

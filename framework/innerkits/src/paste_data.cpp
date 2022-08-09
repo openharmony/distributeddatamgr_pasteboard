@@ -170,7 +170,7 @@ std::size_t PasteData::GetRecordCount()
 bool PasteData::RemoveRecordAt(std::size_t number)
 {
     if (records_.size() > number) {
-        records_.emplace(records_.begin() + static_cast<std::int64_t>(number));
+        records_.erase(records_.begin() + static_cast<std::int64_t>(number));
         RefreshMimeProp();
         return true;
     } else {
@@ -233,18 +233,13 @@ bool PasteData::Marshalling(Parcel &parcel) const
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write length failed.");
         return false;
     }
-    auto failedNum = 0;
+
     for (const auto &item : records_) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
         if (!parcel.WriteParcelable(item.get())) {
-            failedNum++;
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteParcelable failed.");
-            continue;
+            return false;
         }
-    }
-    if (failedNum == length) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "all failed.");
-        return false;
     }
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
