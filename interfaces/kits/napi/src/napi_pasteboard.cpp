@@ -481,6 +481,7 @@ using AsyncContext = struct AsyncContext {
     napi_ref callbackRef = nullptr;
     PasteDataNapi *obj = nullptr;
     int32_t status = 0;
+    bool result = false;
 };
 
 napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
@@ -592,16 +593,24 @@ napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
         },
         [](napi_env env, napi_status status, void* data) {
             AsyncContext* asyncContext = (AsyncContext*)data;
-            napi_value result = nullptr;
-            napi_get_undefined(env, &result);
+            napi_value results[2] = {0};
+            if (!asyncContext->status) {
+                napi_get_undefined(env, &results[0]);
+                napi_create_string_utf8(env, "Clear Success", NAPI_AUTO_LENGTH, &results[1]);
+            } else {
+                napi_value message = nullptr;
+                napi_create_string_utf8(env, "Clear Fail", NAPI_AUTO_LENGTH, &message);
+                napi_create_error(env, nullptr, message, &results[0]);
+                napi_get_undefined(env, &results[1]);
+            }
             if (asyncContext->deferred) {
                 if (!asyncContext->status) {
-                    napi_resolve_deferred(env, asyncContext->deferred, result);
+                    napi_resolve_deferred(env, asyncContext->deferred, results[1]);
                 } else {
-                    napi_reject_deferred(env, asyncContext->deferred, result);
+                    napi_reject_deferred(env, asyncContext->deferred, results[0]);
                 }
             } else {
-                SetCallback(env, asyncContext->callbackRef, asyncContext->status, result);
+                SetCallback(env, asyncContext->callbackRef, results);
                 napi_delete_reference(env, asyncContext->callbackRef);
             }
             napi_delete_async_work(env, asyncContext->work);
@@ -652,24 +661,31 @@ napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info i
         resource,
         [](napi_env env, void* data) {
             AsyncContext* asyncContext = (AsyncContext*)data;
-            asyncContext->status = PasteboardClient::GetInstance()->HasPasteData() ? 0 : -1;
+            asyncContext->result = PasteboardClient::GetInstance()->HasPasteData();
+            asyncContext->status = 0;
         },
         [](napi_env env, napi_status status, void* data) {
             AsyncContext* asyncContext = (AsyncContext*)data;
             napi_value result = nullptr;
+            napi_get_boolean(env, asyncContext->result, &result);
+            napi_value results[2] = {0};
             if (!asyncContext->status) {
-                napi_get_boolean(env, true, &result);
+                napi_get_undefined(env, &results[0]);
+                results[1] = result;
             } else {
-                napi_get_boolean(env, false, &result);
+                napi_value message = nullptr;
+                napi_create_string_utf8(env, "HasPasteData Fail", NAPI_AUTO_LENGTH, &message);
+                napi_create_error(env, nullptr, message, &results[0]);
+                napi_get_undefined(env, &results[1]);
             }
             if (asyncContext->deferred) {
                 if (!asyncContext->status) {
-                    napi_resolve_deferred(env, asyncContext->deferred, result);
+                    napi_resolve_deferred(env, asyncContext->deferred, results[1]);
                 } else {
-                    napi_reject_deferred(env, asyncContext->deferred, result);
+                    napi_reject_deferred(env, asyncContext->deferred, results[0]);
                 }
             } else {
-                SetCallback(env, asyncContext->callbackRef, asyncContext->status, result);
+                SetCallback(env, asyncContext->callbackRef, results);
                 napi_delete_reference(env, asyncContext->callbackRef);
             }
             napi_delete_async_work(env, asyncContext->work);
@@ -737,15 +753,24 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
             } else {
                 asyncContext->status = -1;
             }
-
+            napi_value results[2] = {0};
+            if (!asyncContext->status) {
+                napi_get_undefined(env, &results[0]);
+                results[1] = instance;
+            } else {
+                napi_value message = nullptr;
+                napi_create_string_utf8(env, "GetPasteData Fail", NAPI_AUTO_LENGTH, &message);
+                napi_create_error(env, nullptr, message, &results[0]);
+                napi_get_undefined(env, &results[1]);
+            }
             if (asyncContext->deferred) {
                 if (!asyncContext->status) {
-                    napi_resolve_deferred(env, asyncContext->deferred, instance);
+                    napi_resolve_deferred(env, asyncContext->deferred, results[1]);
                 } else {
-                    napi_reject_deferred(env, asyncContext->deferred, instance);
+                    napi_reject_deferred(env, asyncContext->deferred, results[0]);
                 }
             } else {
-                SetCallback(env, asyncContext->callbackRef, asyncContext->status, instance);
+                SetCallback(env, asyncContext->callbackRef, results);
                 napi_delete_reference(env, asyncContext->callbackRef);
             }
             napi_delete_async_work(env, asyncContext->work);
@@ -812,16 +837,24 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
         },
         [](napi_env env, napi_status status, void* data) {
             AsyncContext* asyncContext = (AsyncContext*)data;
-            napi_value result = nullptr;
-            napi_get_undefined(env, &result);
+            napi_value results[2] = {0};
+            if (!asyncContext->status) {
+                napi_get_undefined(env, &results[0]);
+                napi_create_string_utf8(env, "SetPasteData Success", NAPI_AUTO_LENGTH, &results[1]);
+            } else {
+                napi_value message = nullptr;
+                napi_create_string_utf8(env, "SetPasteData Fail", NAPI_AUTO_LENGTH, &message);
+                napi_create_error(env, nullptr, message, &results[0]);
+                napi_get_undefined(env, &results[1]);
+            }
             if (asyncContext->deferred) {
                 if (!asyncContext->status) {
-                    napi_resolve_deferred(env, asyncContext->deferred, result);
+                    napi_resolve_deferred(env, asyncContext->deferred, results[1]);
                 } else {
-                    napi_reject_deferred(env, asyncContext->deferred, result);
+                    napi_reject_deferred(env, asyncContext->deferred, results[0]);
                 }
             } else {
-                SetCallback(env, asyncContext->callbackRef, asyncContext->status, result);
+                SetCallback(env, asyncContext->callbackRef, results);
                 napi_delete_reference(env, asyncContext->callbackRef);
             }
             napi_delete_async_work(env, asyncContext->work);
