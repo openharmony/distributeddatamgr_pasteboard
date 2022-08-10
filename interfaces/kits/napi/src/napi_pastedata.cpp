@@ -677,7 +677,7 @@ napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addRecord", AddRecord),
         DECLARE_NAPI_FUNCTION("addTextRecord", AddTextRecord),
         DECLARE_NAPI_FUNCTION("addUriRecord", AddUriRecord),
-        DECLARE_NAPI_FUNCTION("addPixmapRecord", AddPixelMapRecord),
+        DECLARE_NAPI_FUNCTION("addPixelMapRecord", AddPixelMapRecord),
         DECLARE_NAPI_FUNCTION("getMimeTypes", GetMimeTypes),
         DECLARE_NAPI_FUNCTION("getPrimaryHtml", GetPrimaryHtml),
         DECLARE_NAPI_FUNCTION("getPrimaryWant", GetPrimaryWant),

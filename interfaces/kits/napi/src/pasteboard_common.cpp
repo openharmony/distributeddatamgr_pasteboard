@@ -36,7 +36,7 @@ void SetCallback(const napi_env &env, const napi_ref &callbackIn, const napi_val
     napi_value callback = nullptr;
     napi_value resultout = nullptr;
     napi_get_reference_value(env, callbackIn, &callback);
-    napi_call_function(env, nullptr, callback, 2, results, &resultout);
+    napi_call_function(env, nullptr, callback, ARGC_TYPE_SET2, results, &resultout);
 }
 
 napi_value NapiGetNull(napi_env env)
