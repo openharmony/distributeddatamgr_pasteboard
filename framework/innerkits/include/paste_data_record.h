@@ -34,6 +34,12 @@ const std::string MIMETYPE_TEXT_URI = "text/uri";
 const std::string MIMETYPE_TEXT_WANT = "text/want";
 }
 
+enum class ResultCode : std::uint32_t {
+    NoData = 0,
+    UnMarshallingFailed = 1,
+    UnMarshallingSuc = 2
+};
+
 class PasteDataRecord : public Parcelable {
 public:
     PasteDataRecord() = default;
@@ -62,8 +68,8 @@ public:
     static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
     static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
     static PasteDataRecord *Unmarshalling(Parcel &parcel);
-    template<typename T> static bool UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
-    static bool UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
+    template<typename T> static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
+    static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
 
     class Builder {
     public:
