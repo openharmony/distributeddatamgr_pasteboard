@@ -34,12 +34,7 @@ const std::string MIMETYPE_TEXT_URI = "text/uri";
 const std::string MIMETYPE_TEXT_WANT = "text/want";
 }
 
-enum class ResultCode : std::uint32_t {
-    NoData = 0,
-    UnMarshallingFailed = 1,
-    UnMarshallingSuc = 2
-};
-
+enum class ResultCode { NoData = 0, UnMarshallingFailed = 1, UnMarshallingSuc = 2 };
 class PasteDataRecord : public Parcelable {
 public:
     PasteDataRecord() = default;

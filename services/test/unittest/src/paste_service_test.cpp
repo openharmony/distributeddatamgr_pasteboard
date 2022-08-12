@@ -477,7 +477,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest010, TestSize.Level0)
     ASSERT_TRUE(hasPasteData != true);
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
+    ASSERT_TRUE(hasPasteData == false);
     PasteData getPasteData;
     auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
     ASSERT_TRUE(ret == false);
