@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 #include <uv.h>
-#include "systempasteboard_napi.h"
-#include "pasteboard_common.h"
+
 #include "napi_common.h"
+#include "pasteboard_common.h"
 #include "pasteboard_hilog_wreapper.h"
+#include "systempasteboard_napi.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
@@ -33,10 +34,12 @@ const std::string STRING_UPDATE = "update";
 
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref)
     : env_(env), ref_(ref), isOff_(false)
-{}
+{
+}
 
 PasteboardObserverInstance::~PasteboardObserverInstance()
-{}
+{
+}
 
 void PasteboardObserverInstance::setOff()
 {
@@ -69,8 +72,7 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker ref = %{public}p", pasteboardDataWorker->ref);
     napi_get_reference_value(pasteboardDataWorker->env, pasteboardDataWorker->ref, &callback);
     napi_value result = NapiGetNull(pasteboardDataWorker->env);
-    napi_call_function(
-        pasteboardDataWorker->env, undefined, callback, 0, &result, &resultout);
+    napi_call_function(pasteboardDataWorker->env, undefined, callback, 0, &result, &resultout);
 
     delete pasteboardDataWorker;
     pasteboardDataWorker = nullptr;
@@ -105,7 +107,8 @@ void PasteboardObserverInstance::OnPasteboardChanged()
 
     work->data = (void *)pasteboardDataWorker;
 
-    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, UvQueueWorkOnPasteboardChanged);
+    int ret = uv_queue_work(
+        loop, work, [](uv_work_t *work) {}, UvQueueWorkOnPasteboardChanged);
     if (ret != 0) {
         delete pasteboardDataWorker;
         pasteboardDataWorker = nullptr;
@@ -119,7 +122,7 @@ napi_value JScreateHtmlTextRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateHtmlTextRecord is called!");
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = {0};
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -127,7 +130,7 @@ napi_value JScreateHtmlTextRecord(napi_env env, napi_callback_info info)
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. String expected.");
-    
+
     size_t len = 0;
     napi_status status = napi_get_value_string_utf8(env, argv[0], nullptr, 0, &len);
     if (status != napi_ok) {
@@ -151,7 +154,7 @@ napi_value JScreateWantRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateWantRecord is called!");
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = {0};
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -177,7 +180,7 @@ napi_value JScreatePlainTextRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePlainTextRecord is called!");
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = {0};
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -236,7 +239,7 @@ napi_value JScreateUriRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateUriRecord is called!");
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = {0};
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -433,7 +436,7 @@ napi_value JSgetSystemPasteboard(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSgetSystemPasteboard is called!");
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -449,8 +452,7 @@ napi_value JSgetSystemPasteboard(napi_env env, napi_callback_info info)
 
 napi_value PasteBoardInit(napi_env env, napi_value exports)
 {
-    napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("createHtmlData", JScreateHtmlData),
+    napi_property_descriptor desc[] = { DECLARE_NAPI_FUNCTION("createHtmlData", JScreateHtmlData),
         DECLARE_NAPI_FUNCTION("createWantData", JScreateWantData),
         DECLARE_NAPI_FUNCTION("createPlainTextData", JScreatePlainTextData),
         DECLARE_NAPI_FUNCTION("createPixelMapData", JScreatePixelMapData),
@@ -466,8 +468,7 @@ napi_value PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_HTML", CreateNapiString(env, MIMETYPE_TEXT_HTML)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_WANT", CreateNapiString(env, MIMETYPE_TEXT_WANT)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_PLAIN", CreateNapiString(env, MIMETYPE_TEXT_PLAIN)),
-        DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_URI", CreateNapiString(env, MIMETYPE_TEXT_URI))
-    };
+        DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_URI", CreateNapiString(env, MIMETYPE_TEXT_URI)) };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
 
@@ -481,6 +482,7 @@ using AsyncContext = struct AsyncContext {
     napi_ref callbackRef = nullptr;
     PasteDataNapi *obj = nullptr;
     int32_t status = 0;
+    bool result = false;
 };
 
 napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
@@ -494,7 +496,7 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, argc >= ARGC_TYPE_SET2, "Wrong number of arguments");
 
     size_t strLen = 0;
-    char str[STR_DATA_SIZE] = {0};
+    char str[STR_DATA_SIZE] = { 0 };
     napi_valuetype valueType;
     napi_typeof(env, argv[0], &valueType);
     NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. String expected.");
@@ -527,7 +529,7 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
 
     size_t strLen = 0;
-    char str[STR_DATA_SIZE] = {0};
+    char str[STR_DATA_SIZE] = { 0 };
     napi_valuetype valueType;
     napi_typeof(env, argv[0], &valueType);
     NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. String expected.");
@@ -556,77 +558,29 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
 napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Clear is called!");
-    size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = {0};
-    napi_value thisVar = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-
-    AsyncContext *asyncContext = new (std::nothrow) AsyncContext {.env = env, .work = nullptr};
-    if (!asyncContext) {
-        return NapiGetNull(env);
-    }
-
-    if (argc >= ARGC_TYPE_SET1) {
-        napi_valuetype valueType = napi_undefined;
-        NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "Wrong argument type. Function expected.");
-        napi_create_reference(env, argv[0], 1, &asyncContext->callbackRef);
-    }
-
-    napi_value promise = nullptr;
-    if (asyncContext->callbackRef == nullptr) {
-        napi_create_promise(env, &asyncContext->deferred, &promise);
-    } else {
-        napi_get_undefined(env, &promise);
-    }
-
-    napi_value resource = nullptr;
-    napi_create_string_latin1(env, "Clear", NAPI_AUTO_LENGTH, &resource);
-    napi_status asyncWork = napi_create_async_work(env,
-        nullptr,
-        resource,
-        [](napi_env env, void* data) {
-            AsyncContext* asyncContext = (AsyncContext*)data;
-            PasteboardClient::GetInstance()->Clear();
-            asyncContext->status = 0;
-        },
-        [](napi_env env, napi_status status, void* data) {
-            AsyncContext* asyncContext = (AsyncContext*)data;
-            napi_value result = nullptr;
-            napi_get_undefined(env, &result);
-            if (asyncContext->deferred) {
-                if (!asyncContext->status) {
-                    napi_resolve_deferred(env, asyncContext->deferred, result);
-                } else {
-                    napi_reject_deferred(env, asyncContext->deferred, result);
-                }
-            } else {
-                SetCallback(env, asyncContext->callbackRef, asyncContext->status, result);
-                napi_delete_reference(env, asyncContext->callbackRef);
-            }
-            napi_delete_async_work(env, asyncContext->work);
-            delete asyncContext;
-            asyncContext = nullptr;
-        },
-        (void*)asyncContext, &asyncContext->work);
-    napi_queue_async_work(env, asyncContext->work);
-    if (asyncWork != napi_ok) {
-        delete asyncContext;
-        asyncContext = nullptr;
-    }
-
-    return promise;
+    auto context = std::make_shared<AsyncCall::Context>();
+    auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
+        NAPI_ASSERT_BASE(env, argc == 0 || argc == 1, " should 0 or 1 parameters!", napi_invalid_arg);
+        return napi_ok;
+    };
+    auto exec = [context](AsyncCall::Context *ctx) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec ---- Clear");
+        PasteboardClient::GetInstance()->Clear();
+    };
+    context->SetAction(std::move(input));
+    AsyncCall asyncCall(env, info, context, 0);
+    return asyncCall.Call(env, exec);
 }
 
 napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasPasteData is called!");
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = {0};
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
 
-    AsyncContext *asyncContext = new (std::nothrow) AsyncContext {.env = env, .work = nullptr};
+    AsyncContext *asyncContext = new (std::nothrow) AsyncContext{ .env = env, .work = nullptr };
     if (!asyncContext) {
         return NapiGetNull(env);
     }
@@ -647,36 +601,42 @@ napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info i
 
     napi_value resource = nullptr;
     napi_create_string_latin1(env, "HasPasteData", NAPI_AUTO_LENGTH, &resource);
-    napi_status asyncWork = napi_create_async_work(env,
-        nullptr,
-        resource,
-        [](napi_env env, void* data) {
-            AsyncContext* asyncContext = (AsyncContext*)data;
-            asyncContext->status = PasteboardClient::GetInstance()->HasPasteData() ? 0 : -1;
+    napi_status asyncWork = napi_create_async_work(
+        env, nullptr, resource,
+        [](napi_env env, void *data) {
+            AsyncContext *asyncContext = (AsyncContext *)data;
+            asyncContext->result = PasteboardClient::GetInstance()->HasPasteData();
+            asyncContext->status = 0;
         },
-        [](napi_env env, napi_status status, void* data) {
-            AsyncContext* asyncContext = (AsyncContext*)data;
+        [](napi_env env, napi_status status, void *data) {
+            AsyncContext *asyncContext = (AsyncContext *)data;
             napi_value result = nullptr;
+            napi_get_boolean(env, asyncContext->result, &result);
+            napi_value results[2] = { 0 };
             if (!asyncContext->status) {
-                napi_get_boolean(env, true, &result);
+                napi_get_undefined(env, &results[0]);
+                results[1] = result;
             } else {
-                napi_get_boolean(env, false, &result);
+                napi_value message = nullptr;
+                napi_create_string_utf8(env, "HasPasteData Fail", NAPI_AUTO_LENGTH, &message);
+                napi_create_error(env, nullptr, message, &results[0]);
+                napi_get_undefined(env, &results[1]);
             }
             if (asyncContext->deferred) {
                 if (!asyncContext->status) {
-                    napi_resolve_deferred(env, asyncContext->deferred, result);
+                    napi_resolve_deferred(env, asyncContext->deferred, results[1]);
                 } else {
-                    napi_reject_deferred(env, asyncContext->deferred, result);
+                    napi_reject_deferred(env, asyncContext->deferred, results[0]);
                 }
             } else {
-                SetCallback(env, asyncContext->callbackRef, asyncContext->status, result);
+                SetCallback(env, asyncContext->callbackRef, results);
                 napi_delete_reference(env, asyncContext->callbackRef);
             }
             napi_delete_async_work(env, asyncContext->work);
             delete asyncContext;
             asyncContext = nullptr;
         },
-        (void*)asyncContext, &asyncContext->work);
+        (void *)asyncContext, &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
     if (asyncWork != napi_ok) {
         delete asyncContext;
@@ -690,11 +650,14 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData is called!");
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[ARGC_TYPE_SET1] = {0};
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
 
-    AsyncContext *asyncContext = new (std::nothrow) AsyncContext {.env = env, .work = nullptr, };
+    AsyncContext *asyncContext = new (std::nothrow) AsyncContext{
+        .env = env,
+        .work = nullptr,
+    };
     if (!asyncContext) {
         return NapiGetNull(env);
     }
@@ -715,12 +678,10 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
 
     napi_value resource = nullptr;
     napi_create_string_latin1(env, "GetPasteData", NAPI_AUTO_LENGTH, &resource);
-    napi_status asyncWork = napi_create_async_work(env,
-        nullptr,
-        resource,
-        [](napi_env env, void *data) { },
+    napi_status asyncWork = napi_create_async_work(
+        env, nullptr, resource, [](napi_env env, void *data) {},
         [](napi_env env, napi_status status, void *data) {
-            AsyncContext* asyncContext = (AsyncContext*)data;
+            AsyncContext *asyncContext = (AsyncContext *)data;
             napi_value instance = nullptr;
             PasteDataNapi::NewInstance(env, instance);
 
@@ -737,23 +698,31 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
             } else {
                 asyncContext->status = -1;
             }
-
+            napi_value results[2] = { 0 };
+            if (!asyncContext->status) {
+                napi_get_undefined(env, &results[0]);
+                results[1] = instance;
+            } else {
+                napi_value message = nullptr;
+                napi_create_string_utf8(env, "GetPasteData Fail", NAPI_AUTO_LENGTH, &message);
+                napi_create_error(env, nullptr, message, &results[0]);
+                napi_get_undefined(env, &results[1]);
+            }
             if (asyncContext->deferred) {
                 if (!asyncContext->status) {
-                    napi_resolve_deferred(env, asyncContext->deferred, instance);
+                    napi_resolve_deferred(env, asyncContext->deferred, results[1]);
                 } else {
-                    napi_reject_deferred(env, asyncContext->deferred, instance);
+                    napi_reject_deferred(env, asyncContext->deferred, results[0]);
                 }
             } else {
-                SetCallback(env, asyncContext->callbackRef, asyncContext->status, instance);
+                SetCallback(env, asyncContext->callbackRef, results);
                 napi_delete_reference(env, asyncContext->callbackRef);
             }
             napi_delete_async_work(env, asyncContext->work);
             delete asyncContext;
             asyncContext = nullptr;
         },
-        (void *)asyncContext,
-        &asyncContext->work);
+        (void *)asyncContext, &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
     if (asyncWork != napi_ok) {
         delete asyncContext;
@@ -767,12 +736,12 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SetPasteData is called!");
     size_t argc = ARGC_TYPE_SET2;
-    napi_value argv[ARGC_TYPE_SET2] = {0};
+    napi_value argv[ARGC_TYPE_SET2] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     NAPI_ASSERT(env, argc >= 1, "Wrong number of arguments");
 
-    AsyncContext *asyncContext = new (std::nothrow) AsyncContext {.env = env, .work = nullptr};
+    AsyncContext *asyncContext = new (std::nothrow) AsyncContext{ .env = env, .work = nullptr };
     if (!asyncContext) {
         return NapiGetNull(env);
     }
@@ -802,33 +771,40 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
 
     napi_value resource = nullptr;
     napi_create_string_latin1(env, "SetPasteData", NAPI_AUTO_LENGTH, &resource);
-    napi_status asyncWork = napi_create_async_work(env,
-        nullptr,
-        resource,
-        [](napi_env env, void* data) {
-            AsyncContext* asyncContext = (AsyncContext*)data;
+    napi_status asyncWork = napi_create_async_work(
+        env, nullptr, resource,
+        [](napi_env env, void *data) {
+            AsyncContext *asyncContext = (AsyncContext *)data;
             PasteboardClient::GetInstance()->SetPasteData(*(asyncContext->obj->value_));
             asyncContext->status = 0;
         },
-        [](napi_env env, napi_status status, void* data) {
-            AsyncContext* asyncContext = (AsyncContext*)data;
-            napi_value result = nullptr;
-            napi_get_undefined(env, &result);
+        [](napi_env env, napi_status status, void *data) {
+            AsyncContext *asyncContext = (AsyncContext *)data;
+            napi_value results[2] = { 0 };
+            if (!asyncContext->status) {
+                napi_get_undefined(env, &results[0]);
+                napi_create_string_utf8(env, "SetPasteData Success", NAPI_AUTO_LENGTH, &results[1]);
+            } else {
+                napi_value message = nullptr;
+                napi_create_string_utf8(env, "SetPasteData Fail", NAPI_AUTO_LENGTH, &message);
+                napi_create_error(env, nullptr, message, &results[0]);
+                napi_get_undefined(env, &results[1]);
+            }
             if (asyncContext->deferred) {
                 if (!asyncContext->status) {
-                    napi_resolve_deferred(env, asyncContext->deferred, result);
+                    napi_resolve_deferred(env, asyncContext->deferred, results[1]);
                 } else {
-                    napi_reject_deferred(env, asyncContext->deferred, result);
+                    napi_reject_deferred(env, asyncContext->deferred, results[0]);
                 }
             } else {
-                SetCallback(env, asyncContext->callbackRef, asyncContext->status, result);
+                SetCallback(env, asyncContext->callbackRef, results);
                 napi_delete_reference(env, asyncContext->callbackRef);
             }
             napi_delete_async_work(env, asyncContext->work);
             delete asyncContext;
             asyncContext = nullptr;
         },
-        (void*)asyncContext, &asyncContext->work);
+        (void *)asyncContext, &asyncContext->work);
     napi_queue_async_work(env, asyncContext->work);
     if (asyncWork != napi_ok) {
         delete asyncContext;
@@ -884,7 +860,7 @@ void SystemPasteboardNapi::Destructor(napi_env env, void *nativeObject, void *fi
 napi_value SystemPasteboardNapi::New(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "proc.");
@@ -895,13 +871,9 @@ napi_value SystemPasteboardNapi::New(napi_env env, napi_callback_info info)
         return nullptr;
     }
     obj->env_ = env;
-    NAPI_CALL(env,
-        napi_wrap(env,
-            thisVar,
-            obj,
-            SystemPasteboardNapi::Destructor,
-            nullptr,  // finalize_hint
-            &obj->wrapper_));
+    NAPI_CALL(env, napi_wrap(env, thisVar, obj, SystemPasteboardNapi::Destructor,
+                       nullptr, // finalize_hint
+                       &obj->wrapper_));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return thisVar;
 }

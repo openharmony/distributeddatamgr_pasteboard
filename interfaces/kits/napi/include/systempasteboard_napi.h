@@ -15,6 +15,7 @@
 #ifndef N_NAPI_PASTE_H
 #define N_NAPI_PASTE_H
 
+#include "async_call.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "pasteboard_observer.h"
@@ -34,6 +35,7 @@ public:
 
     virtual void OnPasteboardChanged() override;
     void setOff();
+
 private:
     napi_env env_ = nullptr;
     napi_ref ref_ = nullptr;
@@ -72,6 +74,7 @@ private:
     static std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
     static std::mutex pasteboardObserverInsMutex_;
 };
-} // MiscServicesNapi
-} // OHOS
+
+} // namespace MiscServicesNapi
+} // namespace OHOS
 #endif

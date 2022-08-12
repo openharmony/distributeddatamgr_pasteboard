@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace MiscServicesNapi {
 napi_value GetCallbackErrorValue(napi_env env, int32_t errorCode);
-void SetCallback(const napi_env &env, const napi_ref &callbackIn, const int32_t errorCode, const napi_value &result);
+void SetCallback(const napi_env &env, const napi_ref &callbackIn, const napi_value *result);
 napi_value NapiGetNull(napi_env env);
 napi_value CreateNapiNumber(napi_env env, int32_t num);
 napi_value CreateNapiString(napi_env env, std::string str);
