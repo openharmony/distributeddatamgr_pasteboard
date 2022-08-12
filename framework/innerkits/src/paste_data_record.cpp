@@ -195,29 +195,29 @@ template<typename T> ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, s
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
-        return ResultCode::NoData;
+        return ResultCode::NO_DATA;
     }
     std::shared_ptr<T> parcelAble(parcel.ReadParcelable<T>());
     if (!parcelAble) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadParcelable failed.");
-        return ResultCode::UnMarshallingFailed;
+        return ResultCode::IPC_ERROR;
     }
     item = move(parcelAble);
-    return ResultCode::UnMarshallingSuc;
+    return ResultCode::OK;
 }
 
 ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item)
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
-        return ResultCode::NoData;
+        return ResultCode::NO_DATA;
     }
     item = std::make_shared<std::string>(Str16ToStr8(parcel.ReadString16()));
     if (!item) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadString16 failed.");
-        return ResultCode::UnMarshallingFailed;
+        return ResultCode::IPC_ERROR;
     }
-    return ResultCode::UnMarshallingSuc;
+    return ResultCode::OK;
 }
 
 PasteDataRecord *PasteDataRecord::Unmarshalling(Parcel &parcel)

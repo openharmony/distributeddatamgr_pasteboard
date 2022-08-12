@@ -35,9 +35,9 @@ const std::string MIMETYPE_TEXT_WANT = "text/want";
 }
 
 enum ResultCode : int32_t {
-    NoData = 0,
-    UnMarshallingFailed = 1,
-    UnMarshallingSuc = 2
+    OK = 0,
+    NO_DATA,
+    IPC_ERROR
 };
 
 class PasteDataRecord : public Parcelable {
@@ -65,14 +65,6 @@ public:
     std::string ConvertToText() const;
 
     virtual bool Marshalling(Parcel &parcel) const override;
-    static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
-    static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
-    static PasteDataRecord *Unmarshalling(Parcel &parcel);
-    template<typename T> static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
-    static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
-    inline static bool CheckResult(ResultCode resultCode) {
-        return resultCode == ResultCode::UnMarshallingSuc;
-    }
 
     class Builder {
     public:
@@ -88,6 +80,16 @@ public:
     };
 
 private:
+    static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
+    static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
+    static PasteDataRecord *Unmarshalling(Parcel &parcel);
+    template<typename T> static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
+    static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
+    inline static bool CheckResult(ResultCode resultCode)
+    {
+        return resultCode == ResultCode::OK;
+    }
+
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
     std::shared_ptr<OHOS::AAFwk::Want> want_;
