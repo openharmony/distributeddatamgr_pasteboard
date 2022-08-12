@@ -240,16 +240,17 @@ PasteDataRecord *PasteDataRecord::Unmarshalling(Parcel &parcel)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType = %{public}s,", pasteDataRecord->mimeType_.c_str());
 
     ResultCode resultCode = UnMarshalling(parcel, pasteDataRecord->htmlText_);
-    resultCode = static_cast<ResultCode>(
-        static_cast<uint32_t>(UnMarshalling(parcel, pasteDataRecord->want_)) | static_cast<uint32_t>(resultCode));
-    resultCode = static_cast<ResultCode>(
-        static_cast<uint32_t>(UnMarshalling(parcel, pasteDataRecord->plainText_)) | static_cast<uint32_t>(resultCode));
-    resultCode = static_cast<ResultCode>(
-        static_cast<uint32_t>(UnMarshalling(parcel, pasteDataRecord->uri_)) | static_cast<uint32_t>(resultCode));
-    resultCode = static_cast<ResultCode>(
-        static_cast<uint32_t>(UnMarshalling(parcel, pasteDataRecord->pixelMap_)) | static_cast<uint32_t>(resultCode));
-    if (resultCode < ResultCode::UnMarshallingSuc) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "UnMarshalling failed, resultCode =  %{public}d.", resultCode);
+    auto ret = CheckResult(resultCode);
+    resultCode = UnMarshalling(parcel, pasteDataRecord->want_);
+    ret = CheckResult(resultCode) || ret;
+    resultCode = UnMarshalling(parcel, pasteDataRecord->plainText_);
+    ret = CheckResult(resultCode) || ret;
+    resultCode = UnMarshalling(parcel, pasteDataRecord->uri_);
+    ret = CheckResult(resultCode) || ret;
+    resultCode = UnMarshalling(parcel, pasteDataRecord->pixelMap_);
+    ret = CheckResult(resultCode) || ret;
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "UnMarshalling failed.");
         delete pasteDataRecord;
         pasteDataRecord = nullptr;
     }
