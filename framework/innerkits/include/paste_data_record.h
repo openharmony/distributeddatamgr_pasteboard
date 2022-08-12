@@ -36,7 +36,7 @@ const std::string MIMETYPE_TEXT_WANT = "text/want";
 
 enum ResultCode : int32_t {
     OK = 0,
-    NO_DATA,
+    IPC_NO_DATA,
     IPC_ERROR
 };
 

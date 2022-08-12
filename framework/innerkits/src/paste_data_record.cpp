@@ -195,7 +195,7 @@ template<typename T> ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, s
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
-        return ResultCode::NO_DATA;
+        return ResultCode::IPC_NO_DATA;
     }
     std::shared_ptr<T> parcelAble(parcel.ReadParcelable<T>());
     if (!parcelAble) {
@@ -210,7 +210,7 @@ ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<std::s
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
-        return ResultCode::NO_DATA;
+        return ResultCode::IPC_NO_DATA;
     }
     item = std::make_shared<std::string>(Str16ToStr8(parcel.ReadString16()));
     if (!item) {
