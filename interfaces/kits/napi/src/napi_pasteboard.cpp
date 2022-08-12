@@ -558,7 +558,7 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
 napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Clear is called!");
-    auto context = std::make_shared<GetMinContextInfo>();
+    auto context = std::make_shared<AsyncCall::Context>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         NAPI_ASSERT_BASE(env, argc == 0 || argc == 1, " should 0 or 1 parameters!", napi_invalid_arg);
         return napi_ok;
@@ -566,11 +566,9 @@ napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
     auto exec = [context](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec ---- Clear");
         PasteboardClient::GetInstance()->Clear();
-        context->status = napi_ok;
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec ---- context->status[%{public}d]", context->status);
     };
     context->SetAction(std::move(input));
-    AsyncCall asyncCall(env, info, std::dynamic_pointer_cast<AsyncCall::Context>(context), 0);
+    AsyncCall asyncCall(env, info, context, 0);
     return asyncCall.Call(env, exec);
 }
 

@@ -27,12 +27,12 @@ ohos_shared_library("pasteboard_napi") {
   ]
 
   sources = [
+    "napi/src/async_call.cpp",
     "napi/src/napi_init.cpp",
     "napi/src/napi_pasteboard.cpp",
     "napi/src/napi_pastedata.cpp",
     "napi/src/napi_pastedata_record.cpp",
     "napi/src/pasteboard_common.cpp",
-    "napi/src/async_call.cpp",
   ]
 
   deps = [

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef WALLPAPER_ASYNC_CALL_H
-#define WALLPAPER_ASYNC_CALL_H
+#ifndef PASTEBOARD_ASYNC_CALL_H
+#define PASTEBOARD_ASYNC_CALL_H
 
 #include <functional>
 #include <memory>
@@ -30,6 +30,7 @@ public:
         using InputAction = std::function<napi_status(napi_env, size_t, napi_value *, napi_value)>;
         using OutputAction = std::function<napi_status(napi_env, napi_value *)>;
         using ExecAction = std::function<void(Context *)>;
+        Context(){};
         Context(InputAction input, OutputAction output) : input_(std::move(input)), output_(std::move(output)){};
         virtual ~Context(){};
         void SetAction(InputAction input, OutputAction output = nullptr)
@@ -108,4 +109,4 @@ private:
 };
 } // namespace OHOS::MiscServicesNapi
 
-#endif // WALLPAPER_ASYNC_CALL_H
+#endif // PASTEBOARD_ASYNC_CALL_H
