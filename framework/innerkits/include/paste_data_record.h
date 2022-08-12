@@ -65,6 +65,7 @@ public:
     std::string ConvertToText() const;
 
     virtual bool Marshalling(Parcel &parcel) const override;
+    static PasteDataRecord *Unmarshalling(Parcel &parcel);
 
     class Builder {
     public:
@@ -82,7 +83,6 @@ public:
 private:
     static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
     static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
-    static PasteDataRecord *Unmarshalling(Parcel &parcel);
     template<typename T> static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
     static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
     inline static bool CheckResult(ResultCode resultCode)
