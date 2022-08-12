@@ -170,7 +170,7 @@ std::size_t PasteData::GetRecordCount()
 bool PasteData::RemoveRecordAt(std::size_t number)
 {
     if (records_.size() > number) {
-        records_.emplace(records_.begin() + static_cast<std::int64_t>(number));
+        records_.erase(records_.begin() + static_cast<std::int64_t>(number));
         RefreshMimeProp();
         return true;
     } else {
@@ -223,57 +223,66 @@ void PasteData::RefreshMimeProp()
 
 bool PasteData::Marshalling(Parcel &parcel) const
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     auto length = records_.size();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length: %{public}zu.", length);
-    // write length
-    if (!parcel.WriteUint32(static_cast<uint32_t>(length))) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    if (length == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length == 0.");
         return false;
     }
-    for (const auto item : records_) {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start, length = %{public}zu.", length);
+    if (!parcel.WriteUint32(static_cast<uint32_t>(length))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write length failed.");
+        return false;
+    }
+
+    for (const auto &item : records_) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
         if (!parcel.WriteParcelable(item.get())) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write failed end.");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteParcelable failed.");
             return false;
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-    return true;
-}
 
-bool PasteData::ReadFromParcel(Parcel &parcel)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    records_.clear();
-    // read vector length
-    auto length = parcel.ReadUint32();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length: %{public}u.", length);
-    for (uint32_t i = 0; i < length; i++) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
-        std::unique_ptr<PasteDataRecord> record(parcel.ReadParcelable<PasteDataRecord>());
-        if (!record) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "nullptr.");
-            continue;
-        }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "add.");
-        AddRecord(*record);
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return true;
 }
 
 PasteData *PasteData::Unmarshalling(Parcel &parcel)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    PasteData *pasteData = new PasteData();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    auto *pasteData = new (std::nothrow) PasteData();
+    if (pasteData == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "pasteData is nullptr.");
+        return pasteData;
+    }
 
-    if (pasteData && !pasteData->ReadFromParcel(parcel)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "delete end.");
+    pasteData->records_.clear();
+
+    auto length = parcel.ReadUint32();
+    if (length == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length == 0.");
+        delete pasteData;
+        pasteData = nullptr;
+        return pasteData;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "length = %{public}u.", length);
+
+    uint32_t failedNum = 0;
+    for (uint32_t i = 0; i < length; i++) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
+        std::unique_ptr<PasteDataRecord> record(parcel.ReadParcelable<PasteDataRecord>());
+        if (!record) {
+            failedNum++;
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadParcelable failed, i = %{public}d.", i);
+            continue;
+        }
+        pasteData->AddRecord(*record);
+    }
+    if (failedNum == length) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "all failed.");
         delete pasteData;
         pasteData = nullptr;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return pasteData;
 }
 } // MiscServices

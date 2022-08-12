@@ -150,102 +150,107 @@ std::string PasteDataRecord::ConvertToText() const
     }
 }
 
-bool PasteDataRecord::Marshalling(Parcel &parcel) const
+bool PasteDataRecord::Marshalling(Parcel &parcel, std::shared_ptr<std::string> item)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start, mimeType: %{public}s,", mimeType_.c_str());
-    if (!parcel.WriteString16(Str8ToStr16(mimeType_))) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write mimeType failed.");
+    if (!parcel.WriteBool(item != nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteBool failed.");
         return false;
     }
-    if ((mimeType_ == MIMETYPE_TEXT_PLAIN) && (plainText_ != nullptr)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Write plainText.");
-        if (!parcel.WriteString16(Str8ToStr16(*plainText_))) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write plainText failed.");
-            return false;
-        }
-    } else if ((mimeType_ == MIMETYPE_TEXT_HTML) && (htmlText_ != nullptr)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Write htmlText.");
-        if (!parcel.WriteString16(Str8ToStr16(*htmlText_))) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write htmlText failed.");
-            return false;
-        }
-    } else if ((mimeType_ == MIMETYPE_TEXT_URI) && (uri_ != nullptr)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Write uri.");
-        if (!parcel.WriteParcelable(uri_.get())) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write uri failed.");
-            return false;
-        }
-    } else if ((mimeType_ == MIMETYPE_TEXT_WANT) && (want_ != nullptr)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Write want.");
-        if (!parcel.WriteParcelable(want_.get())) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write want failed.");
-            return false;
-        }
-    } else if ((mimeType_ == MIMETYPE_PIXELMAP) && (pixelMap_ != nullptr)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Write pixelMap.");
-        if (!parcel.WriteParcelable(pixelMap_.get())) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write pixelMap failed.");
-            return false;
-        }
-    } else {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write failed, mimeType: %{public}s.", mimeType_.c_str());
-        return false;
+    if (item == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
+        return true;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
-    return true;
+    return parcel.WriteString16(Str8ToStr16(*item));
 }
 
-bool PasteDataRecord::ReadFromParcel(Parcel &parcel)
+bool PasteDataRecord::Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    mimeType_ = Str16ToStr8(parcel.ReadString16());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType_: %{public}s,", mimeType_.c_str());
-
-    if (mimeType_ == MIMETYPE_TEXT_HTML) {
-        htmlText_ = std::make_shared<std::string>(Str16ToStr8(parcel.ReadString16()));
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read htmlText.");
-    } else if (mimeType_ == MIMETYPE_TEXT_PLAIN) {
-        plainText_ = std::make_shared<std::string>(Str16ToStr8(parcel.ReadString16()));
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read plainText.");
-    } else if (mimeType_ == MIMETYPE_TEXT_URI) {
-        std::unique_ptr<OHOS::Uri> uri(parcel.ReadParcelable<OHOS::Uri>());
-        if (!uri) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "uri nullptr.");
-            return false;
-        }
-        uri_ = std::make_shared<OHOS::Uri>(*uri);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read uri.");
-    } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
-        std::unique_ptr<OHOS::AAFwk::Want> want(parcel.ReadParcelable<OHOS::AAFwk::Want>());
-        if (!want) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "want nullptr.");
-            return false;
-        }
-        want_ = std::make_shared<OHOS::AAFwk::Want>(*want);
-    } else if (mimeType_ == MIMETYPE_PIXELMAP) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read pixelMap.");
-        std::shared_ptr<PixelMap> pixelMap(parcel.ReadParcelable<PixelMap>());
-        if (!pixelMap) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pixelMap nullptr.");
-            return false;
-        }
-        pixelMap_ = pixelMap;
-    } else {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Unkonw MimeType: %{public}s.", mimeType_.c_str());
+    if (!parcel.WriteBool(item != nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteBool failed.");
         return false;
     }
+    if (item == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
+        return true;
+    }
+    return parcel.WriteParcelable(item.get());
+}
 
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-    return true;
+bool PasteDataRecord::Marshalling(Parcel &parcel) const
+{
+    if (!parcel.WriteString16(Str8ToStr16(mimeType_))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write mimeType failed, mimeType = %{public}s.", mimeType_.c_str());
+        return false;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType = %{public}s,", mimeType_.c_str());
+    bool ret = Marshalling(parcel, htmlText_);
+    ret = Marshalling(parcel, want_) && ret;
+    ret = Marshalling(parcel, plainText_) && ret;
+    ret = Marshalling(parcel, uri_) && ret;
+    ret = Marshalling(parcel, pixelMap_) && ret;
+    return ret;
+}
+
+template<typename T> ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
+{
+    if (!parcel.ReadBool()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
+        return ResultCode::IPC_NO_DATA;
+    }
+    std::shared_ptr<T> parcelAble(parcel.ReadParcelable<T>());
+    if (!parcelAble) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadParcelable failed.");
+        return ResultCode::IPC_ERROR;
+    }
+    item = move(parcelAble);
+    return ResultCode::OK;
+}
+
+ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item)
+{
+    if (!parcel.ReadBool()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
+        return ResultCode::IPC_NO_DATA;
+    }
+    item = std::make_shared<std::string>(Str16ToStr8(parcel.ReadString16()));
+    if (!item) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadString16 failed.");
+        return ResultCode::IPC_ERROR;
+    }
+    return ResultCode::OK;
 }
 
 PasteDataRecord *PasteDataRecord::Unmarshalling(Parcel &parcel)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    PasteDataRecord *pasteDataRecord = new PasteDataRecord();
+    auto pasteDataRecord = new (std::nothrow) PasteDataRecord();
 
-    if (pasteDataRecord && !pasteDataRecord->ReadFromParcel(parcel)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "delete end.");
+    if (pasteDataRecord == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "pasteDataRecord is nullptr.");
+        return pasteDataRecord;
+    }
+
+    pasteDataRecord->mimeType_ = Str16ToStr8(parcel.ReadString16());
+    if (pasteDataRecord->mimeType_.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ReadString16 failed.");
+        delete pasteDataRecord;
+        pasteDataRecord = nullptr;
+        return pasteDataRecord;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType = %{public}s,", pasteDataRecord->mimeType_.c_str());
+
+    ResultCode resultCode = UnMarshalling(parcel, pasteDataRecord->htmlText_);
+    auto ret = CheckResult(resultCode);
+    resultCode = UnMarshalling(parcel, pasteDataRecord->want_);
+    ret = CheckResult(resultCode) || ret;
+    resultCode = UnMarshalling(parcel, pasteDataRecord->plainText_);
+    ret = CheckResult(resultCode) || ret;
+    resultCode = UnMarshalling(parcel, pasteDataRecord->uri_);
+    ret = CheckResult(resultCode) || ret;
+    resultCode = UnMarshalling(parcel, pasteDataRecord->pixelMap_);
+    ret = CheckResult(resultCode) || ret;
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "UnMarshalling failed.");
         delete pasteDataRecord;
         pasteDataRecord = nullptr;
     }

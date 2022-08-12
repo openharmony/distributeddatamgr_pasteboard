@@ -34,6 +34,12 @@ const std::string MIMETYPE_TEXT_URI = "text/uri";
 const std::string MIMETYPE_TEXT_WANT = "text/want";
 }
 
+enum ResultCode : int32_t {
+    OK = 0,
+    IPC_NO_DATA,
+    IPC_ERROR
+};
+
 class PasteDataRecord : public Parcelable {
 public:
     PasteDataRecord() = default;
@@ -75,7 +81,15 @@ public:
     };
 
 private:
-    bool ReadFromParcel(Parcel &parcel);
+    static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
+    static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
+    template<typename T> static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
+    static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
+    inline static bool CheckResult(ResultCode resultCode)
+    {
+        return resultCode == ResultCode::OK;
+    }
+
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
     std::shared_ptr<OHOS::AAFwk::Want> want_;

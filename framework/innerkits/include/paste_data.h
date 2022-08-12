@@ -70,7 +70,6 @@ public:
 
 private:
     void RefreshMimeProp();
-    bool ReadFromParcel(Parcel &parcel);
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
 };
