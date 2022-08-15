@@ -217,7 +217,7 @@ std::string PasteboardService::GetBundleNameByTokenId(int32_t tokenId)
 
 bool PasteboardService::IsFocusOrDefaultIme()
 {
-    //??????????
+    // 默认输入法校验待确认修改
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto bundleName = GetBundleNameByTokenId(tokenId);
     if (bundleName.empty()) {

@@ -332,6 +332,7 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "all failed.");
         delete pasteData;
         pasteData = nullptr;
+        return pasteData;
     }
 
     auto ret = UnMarshallingProps(parcel, pasteData->props_);
