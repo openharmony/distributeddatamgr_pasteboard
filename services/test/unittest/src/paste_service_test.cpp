@@ -427,7 +427,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.height == opts.size.height);
     ASSERT_TRUE(imageInfo.size.width == opts.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
-
 }
 
 /**
