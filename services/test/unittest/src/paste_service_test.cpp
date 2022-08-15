@@ -159,7 +159,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
     InitializationOptions opts = {};
     opts.size.height = 5;
     opts.size.width = 7;
-    opts.pixelFormat = static_cast<PixelFormat>(AlphaType::IMAGE_ALPHA_TYPE_OPAQUE);
+    opts.pixelFormat = PixelFormat::ARGB_8888;
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
@@ -365,7 +365,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
     InitializationOptions opts = {};
     opts.size.height = 4;
     opts.size.width = 7;
-    opts.pixelFormat = static_cast<PixelFormat>(AlphaType::IMAGE_ALPHA_TYPE_OPAQUE);
+    opts.pixelFormat = PixelFormat::ARGB_8888;
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
@@ -407,7 +407,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
     InitializationOptions opts = {};
     opts.size.height = 6;
     opts.size.width = 9;
-    opts.pixelFormat = static_cast<PixelFormat>(AlphaType::IMAGE_ALPHA_TYPE_OPAQUE);
+    opts.pixelFormat = PixelFormat::ARGB_8888;
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
@@ -443,7 +443,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
     InitializationOptions opts = {};
     opts.size.height = 3;
     opts.size.width = 7;
-    opts.pixelFormat = static_cast<PixelFormat>(AlphaType::IMAGE_ALPHA_TYPE_OPAQUE);
+    opts.pixelFormat = PixelFormat::ARGB_8888;
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     pasteData->AddPixelMapRecord(pixelMapIn);
