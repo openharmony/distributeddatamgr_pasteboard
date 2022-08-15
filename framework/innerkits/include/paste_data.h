@@ -79,7 +79,7 @@ public:
 
 private:
     bool MarshallingProps(Parcel &parcel) const;
-    static bool UnMarshallingProps(Parcel &parcel, PasteDataProperty &props);
+    static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);
     void RefreshMimeProp();
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;

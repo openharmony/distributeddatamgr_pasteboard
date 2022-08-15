@@ -34,7 +34,6 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.shareOption = ShareOption::CrossDevice;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "PasteData-CrossDevice.");
 }
 PasteData::PasteData()
 {
@@ -244,12 +243,12 @@ void PasteData::RefreshMimeProp()
 bool PasteData::MarshallingProps(Parcel &parcel) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props_.shareOption);
-    return !(!parcel.WriteParcelable(&props_.additions) || !parcel.WriteStringVector(props_.mimeTypes)
-             || !parcel.WriteString16(Str8ToStr16(props_.tag)) || !parcel.WriteInt64(props_.timestamp)
-             || !parcel.WriteInt32(static_cast<int32_t>(props_.shareOption)));
+    return parcel.WriteParcelable(&props_.additions) && parcel.WriteStringVector(props_.mimeTypes)
+           && parcel.WriteString16(Str8ToStr16(props_.tag)) && parcel.WriteInt64(props_.timestamp)
+           && parcel.WriteInt32(static_cast<int32_t>(props_.shareOption));
 }
 
-bool PasteData::UnMarshallingProps(Parcel &parcel, PasteDataProperty &props)
+bool PasteData::UnMarshalling(Parcel &parcel, PasteDataProperty &props)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
 
@@ -334,7 +333,7 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
         return pasteData;
     }
 
-    auto ret = UnMarshallingProps(parcel, pasteData->props_);
+    auto ret = UnMarshalling(parcel, pasteData->props_);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "UnMarshallingProps failed.");
         delete pasteData;

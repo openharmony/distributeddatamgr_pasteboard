@@ -51,7 +51,7 @@ using namespace Security::AccessToken;
 std::vector<std::shared_ptr<std::string>> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
-int32_t PasteboardService::focusAppUid_;
+int32_t PasteboardService::focusAppUid_ = 0;
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true),
