@@ -38,6 +38,7 @@
 #include "pasteboard_service_stub.h"
 #include "pasteboard_storage.h"
 #include "system_ability.h"
+#include "window_manager.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -69,6 +70,17 @@ public:
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     std::string DumpHistory() const;
     std::string  DunmpData();
+    bool CheckPastePermission(int32_t userId, std::string &appId, ShareOption shareOption);
+    std::string GetBundleNameByTokenId(int32_t tokenId);
+    std::string GetAppIdByTokenId();
+    bool IsFocusOrDefaultIme();
+
+    class PasteboardFocusChangedListener : public Rosen::IFocusChangedListener {
+    public:
+        void OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
+        void OnUnfocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
+    };
+
 private:
     struct classcomp {
         bool operator() (const sptr<IPasteboardChangedObserver>& l, const sptr<IPasteboardChangedObserver>& r) const
@@ -76,6 +88,12 @@ private:
             return l->AsObject() < r->AsObject();
         }
     };
+
+    struct PasteDataPackage {
+        std::shared_ptr<PasteData> pasteData;
+        std::string appId;
+    };
+
     int32_t Init();
     int32_t GetUserId();
     void NotifyObservers();
@@ -91,12 +109,12 @@ private:
     std::mutex observerMutex_;
     std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>> observerMap_;
     const std::string filePath_ = "";
-    std::map<int32_t, std::shared_ptr<PasteData>> clips_;
-
+    std::map<int32_t, PasteDataPackage> clips_;
+    sptr<Rosen::IFocusChangedListener> focusChangedListener_;
+    static int32_t focusAppUid_;
     int32_t uIdForLastCopy_ = 0;
     std::string timeForLastCopy_;
     static std::vector<std::shared_ptr<std::string>> dataHistory_;
-    
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
 };

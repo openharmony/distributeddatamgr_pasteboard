@@ -33,12 +33,18 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
     : records_ {std::move(records)}
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
-    props_.localOnly = false;
+    props_.shareOption = ShareOption::CrossDevice;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "PasteData-CrossDevice.");
+}
+PasteData::PasteData()
+{
+    props_.shareOption = ShareOption::CrossDevice;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props_.shareOption);
 }
 
 PasteDataProperty PasteData::GetProperty()
 {
-    return PasteDataProperty {};
+    return props_;
 }
 
 void PasteData::AddHtmlRecord(const std::string &html)
@@ -172,6 +178,16 @@ std::size_t PasteData::GetRecordCount()
     return records_.size();
 }
 
+ShareOption PasteData::GetShareOption()
+{
+    return props_.shareOption;
+}
+
+void PasteData::SetShareOption(ShareOption shareOption)
+{
+    props_.shareOption = shareOption;
+}
+
 bool PasteData::RemoveRecordAt(std::size_t number)
 {
     if (records_.size() > number) {
@@ -226,6 +242,32 @@ void PasteData::RefreshMimeProp()
     props_.mimeTypes = mimeTypes;
 }
 
+bool PasteData::MarshallingProps(Parcel &parcel) const
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props_.shareOption);
+    return !(!parcel.WriteParcelable(&props_.additions) || !parcel.WriteStringVector(props_.mimeTypes)
+             || !parcel.WriteString16(Str8ToStr16(props_.tag)) || !parcel.WriteInt64(props_.timestamp)
+             || !parcel.WriteInt32(static_cast<int32_t>(props_.shareOption)));
+}
+
+bool PasteData::UnMarshallingProps(Parcel &parcel, PasteDataProperty &props)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+
+    auto *wantParams = parcel.ReadParcelable<AAFwk::WantParams>();
+    if (wantParams != nullptr) {
+        props.additions = *wantParams;
+    }
+    if (!parcel.ReadStringVector(&props.mimeTypes)) {
+        return false;
+    }
+    props.tag = Str16ToStr8(parcel.ReadString16());
+    props.timestamp = parcel.ReadInt64();
+    props.shareOption = static_cast<ShareOption>(parcel.ReadInt32());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props.shareOption);
+    return true;
+}
+
 bool PasteData::Marshalling(Parcel &parcel) const
 {
     auto length = records_.size();
@@ -245,6 +287,12 @@ bool PasteData::Marshalling(Parcel &parcel) const
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteParcelable failed.");
             return false;
         }
+    }
+
+    auto ret = MarshallingProps(parcel);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "MarshallingProps failed.");
+        return false;
     }
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
@@ -285,6 +333,14 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
         delete pasteData;
         pasteData = nullptr;
     }
+
+    auto ret = UnMarshallingProps(parcel, pasteData->props_);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "UnMarshallingProps failed.");
+        delete pasteData;
+        pasteData = nullptr;
+    }
+
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return pasteData;
 }

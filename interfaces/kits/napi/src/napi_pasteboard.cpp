@@ -176,6 +176,25 @@ napi_value JScreateWantRecord(napi_env env, napi_callback_info info)
     return instance;
 }
 
+napi_value JScreateShareOption(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateShareOption is called!");
+
+    napi_value jsShareOption = nullptr;
+    napi_create_object(env, &jsShareOption);
+
+    napi_value jsInApp = CreateNapiNumber(env, static_cast<int32_t>(ShareOption::InApp));
+    NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "InApp", jsInApp));
+
+    napi_value jsLocalDevice = CreateNapiNumber(env, static_cast<int32_t>(ShareOption::LocalDevice));
+    NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "LocalDevice", jsLocalDevice));
+
+    napi_value jsCrossDevice = CreateNapiNumber(env, static_cast<int32_t>(ShareOption::CrossDevice));
+    NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "CrossDevice", jsCrossDevice));
+
+    return jsShareOption;
+}
+
 napi_value JScreatePlainTextRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePlainTextRecord is called!");
@@ -513,7 +532,7 @@ napi_value JSgetSystemPasteboard(napi_env env, napi_callback_info info)
     napi_value instance = nullptr;
     napi_status status = SystemPasteboardNapi::NewInstance(env, instance); // 0 arguments
     if (status != napi_ok) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "JSgetSystemPasteboard create instance failed");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JSgetSystemPasteboard create instance failed");
         return NapiGetNull(env);
     }
 
@@ -535,6 +554,7 @@ napi_value PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createUriRecord", JScreateUriRecord),
         DECLARE_NAPI_FUNCTION("createRecord", JSCreateKvRecord),
         DECLARE_NAPI_FUNCTION("getSystemPasteboard", JSgetSystemPasteboard),
+        DECLARE_NAPI_GETTER("ShareOption", JScreateShareOption),
         DECLARE_NAPI_PROPERTY("MAX_RECORD_NUM", CreateNapiNumber(env, 128)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_PIXELMAP", CreateNapiString(env, MIMETYPE_PIXELMAP)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_HTML", CreateNapiString(env, MIMETYPE_TEXT_HTML)),

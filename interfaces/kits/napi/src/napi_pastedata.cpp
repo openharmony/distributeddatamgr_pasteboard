@@ -722,6 +722,8 @@ bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &prope
     napi_create_int64(env, property.timestamp, &value);
     napi_set_named_property(env, NProperty, "timestamp", value);
 
+    napi_create_int32(env, static_cast<int32_t>(property.shareOption), &value);
+    napi_set_named_property(env, NProperty, "shareOption", value);
     return true;
 }
 
@@ -779,6 +781,56 @@ napi_value PasteDataNapi::GetRecordAt(napi_env env, napi_callback_info info)
     return instance;
 }
 
+napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SetProperty is called!");
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    NAPI_ASSERT(env, argc == ARGC_TYPE_SET1, "Wrong number of arguments");
+
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type. number expected.");
+
+    napi_value propertyNames = nullptr;
+    NAPI_CALL(env, napi_get_property_names(env, argv[0], &propertyNames));
+    uint32_t propertyNamesNum = 0;
+    NAPI_CALL(env, napi_get_array_length(env, propertyNames, &propertyNamesNum));
+
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "propertyNamesNum = %{public}d", propertyNamesNum);
+
+    for (uint32_t i = 0; i < propertyNamesNum; i++) {
+        napi_value propertyNameNapi = nullptr;
+        NAPI_CALL(env, napi_get_element(env, propertyNames, i, &propertyNameNapi));
+        size_t len = 0;
+        char str[STR_MAX_SIZE] = { 0 };
+        NAPI_CALL(env, napi_get_value_string_utf8(env, propertyNameNapi, str, STR_MAX_SIZE, &len));
+        std::string propertyName = str;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "shareOptionName = %{public}s,", propertyName.c_str());
+        if (propertyName == "shareOption") {
+            napi_value shareOptionValueNapi = nullptr;
+            NAPI_CALL(env, napi_get_named_property(env, argv[0], str, &shareOptionValueNapi));
+
+            int32_t shareOptionValue = 0;
+            NAPI_CALL(env, napi_get_value_int32(env, shareOptionValueNapi, &shareOptionValue));
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOptionValue = %{public}d,", shareOptionValue);
+
+            PasteDataNapi *obj = nullptr;
+            napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+            if ((status != napi_ok) || (obj == nullptr)) {
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
+                return nullptr;
+            }
+            obj->value_->SetShareOption(static_cast<ShareOption>(shareOptionValue));
+            break;
+        }
+    }
+    return nullptr;
+}
+
 napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
 {
     napi_status status = napi_ok;
@@ -803,6 +855,7 @@ napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("hasMimeType", HasMimeType),
         DECLARE_NAPI_FUNCTION("removeRecordAt", RemoveRecordAt),
         DECLARE_NAPI_FUNCTION("replaceRecordAt", ReplaceRecordAt),
+        DECLARE_NAPI_FUNCTION("setProperty", SetProperty)
     };
 
     napi_value constructor;
