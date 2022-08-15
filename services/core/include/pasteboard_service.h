@@ -70,10 +70,6 @@ public:
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     std::string DumpHistory() const;
     std::string  DunmpData();
-    bool CheckPastePermission(int32_t userId, std::string &appId, ShareOption shareOption);
-    std::string GetBundleNameByTokenId(int32_t tokenId);
-    std::string GetAppIdByTokenId();
-    bool IsFocusOrDefaultIme();
 
     class PasteboardFocusChangedListener : public Rosen::IFocusChangedListener {
     public:
@@ -102,6 +98,10 @@ private:
     void SetPasteDataDot(PasteData& pasteData);
     void GetPasteDataDot();
     std::string GetTime();
+    static bool CheckPastePermission(std::string &appId, ShareOption shareOption);
+    static std::string GetBundleNameByTokenId(int32_t tokenId);
+    static std::string GetAppIdByTokenId();
+    static bool IsFocusOrDefaultIme();
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;

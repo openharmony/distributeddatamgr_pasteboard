@@ -39,7 +39,6 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
 PasteData::PasteData()
 {
     props_.shareOption = ShareOption::CrossDevice;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props_.shareOption);
 }
 
 PasteDataProperty PasteData::GetProperty()

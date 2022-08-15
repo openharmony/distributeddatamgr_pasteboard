@@ -239,7 +239,7 @@ bool PasteboardService::IsFocusOrDefaultIme()
     return isFocusApp || isDefaultIme;
 }
 
-bool PasteboardService::CheckPastePermission(int32_t userId, std::string &appId, ShareOption shareOption)
+bool PasteboardService::CheckPastePermission(std::string &appId, ShareOption shareOption)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d.", static_cast<uint32_t>(shareOption));
     auto ret = IsFocusOrDefaultIme();
@@ -308,7 +308,7 @@ bool PasteboardService::GetPasteData(PasteData& data)
         return false;
     }
 
-    auto ret = CheckPastePermission(userId, it->second.appId, it->second.pasteData->GetShareOption());
+    auto ret = CheckPastePermission(it->second.appId, it->second.pasteData->GetShareOption());
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "CheckPastePermission failed, userId = %{public}d.", userId);
         return false;
@@ -329,7 +329,7 @@ bool PasteboardService::HasPasteData()
     if (it == clips_.end()) {
         return false;
     }
-    return CheckPastePermission(userId, it->second.appId, it->second.pasteData->GetShareOption());
+    return CheckPastePermission(it->second.appId, it->second.pasteData->GetShareOption());
 }
 
 void PasteboardService::SetPasteData(PasteData& pasteData)
