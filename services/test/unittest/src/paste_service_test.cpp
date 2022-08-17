@@ -152,6 +152,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest004, TestSize.Level0)
 * @tc.name: PasteRecordTest005
 * @tc.desc: Create paste board record test.
 * @tc.type: FUNC
+* @tc.require: AR000H5GKU
 */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
 {
@@ -354,6 +355,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest006, TestSize.Level0)
 * @tc.name: PasteDataTest007
 * @tc.desc: marshalling test.
 * @tc.type: FUNC
+* @tc.require: AR000H5GKU
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
 {
@@ -400,6 +402,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
 * @tc.name: PasteDataTest008
 * @tc.desc: Create paste board data test.
 * @tc.type: FUNC
+* @tc.require: AR000H5GKU
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
 {
@@ -433,6 +436,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
 * @tc.name: PasteDataTest009
 * @tc.desc: Create paste board data test.
 * @tc.type: FUNC
+* @tc.require: AR000H5GKU
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
 {
