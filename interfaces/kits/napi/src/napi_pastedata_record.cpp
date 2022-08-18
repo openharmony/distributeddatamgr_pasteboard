@@ -319,7 +319,7 @@ napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exp
 void PasteDataRecordNapi::Destructor(napi_env env, void *nativeObject, void *finalize_hint)
 {
     PasteDataRecordNapi *obj = static_cast<PasteDataRecordNapi *>(nativeObject);
-    obj->~PasteDataRecordNapi();
+    delete obj;
 }
 
 napi_value PasteDataRecordNapi::New(napi_env env, napi_callback_info info)
