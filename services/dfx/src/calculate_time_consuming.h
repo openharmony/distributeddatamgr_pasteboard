@@ -47,7 +47,7 @@ private:
     
     int pasteboardData_;
     int pasteboardState_;
-    uint64_t lastTime_{ 0 };
+    uint64_t lastTime_ { 0 };
 };
 } // namespace MiscServices
 } // namespace OHOS
