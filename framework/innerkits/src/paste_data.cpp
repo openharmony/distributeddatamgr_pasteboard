@@ -35,6 +35,7 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.shareOption = ShareOption::CrossDevice;
 }
+
 PasteData::PasteData()
 {
     props_.shareOption = ShareOption::CrossDevice;
@@ -186,6 +187,16 @@ void PasteData::SetShareOption(ShareOption shareOption)
     props_.shareOption = shareOption;
 }
 
+std::string PasteData::GetAppId()
+{
+    return props_.appId;
+}
+
+void PasteData::SetAppId(const std::string &appId)
+{
+    props_.appId = appId;
+}
+
 bool PasteData::RemoveRecordAt(std::size_t number)
 {
     if (records_.size() > number) {
@@ -255,6 +266,8 @@ bool PasteData::UnMarshalling(Parcel &parcel, PasteDataProperty &props)
     auto *wantParams = parcel.ReadParcelable<AAFwk::WantParams>();
     if (wantParams != nullptr) {
         props.additions = *wantParams;
+        delete wantParams;
+        wantParams = nullptr;
     }
     if (!parcel.ReadStringVector(&props.mimeTypes)) {
         return false;

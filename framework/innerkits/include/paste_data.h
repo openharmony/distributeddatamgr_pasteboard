@@ -41,6 +41,7 @@ struct PasteDataProperty {
     std::string tag;
     std::int64_t timestamp;
     ShareOption shareOption;
+    std::string appId = "";
 };
 
 class PasteData : public Parcelable, public TLVObject {
@@ -72,6 +73,8 @@ public:
     PasteDataProperty GetProperty();
     ShareOption GetShareOption();
     void SetShareOption(ShareOption shareOption);
+    std::string GetAppId();
+    void SetAppId(const std::string &appId);
     std::vector<std::shared_ptr<PasteDataRecord>> AllRecords() const;
 
     virtual bool Marshalling(Parcel &parcel) const override;

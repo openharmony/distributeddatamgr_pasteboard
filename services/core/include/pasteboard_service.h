@@ -69,7 +69,7 @@ public:
     bool SetPasteboardHistory(int32_t uId, std::string state, std::string timeStamp);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     std::string DumpHistory() const;
-    std::string  DunmpData();
+    std::string DunmpData();
 
     class PasteboardFocusChangedListener : public Rosen::IFocusChangedListener {
     public:
@@ -85,11 +85,6 @@ private:
         }
     };
 
-    struct PasteDataPackage {
-        std::shared_ptr<PasteData> pasteData;
-        std::string appId;
-    };
-
     int32_t Init();
     int32_t GetUserId();
     void NotifyObservers();
@@ -98,10 +93,10 @@ private:
     void SetPasteDataDot(PasteData& pasteData);
     void GetPasteDataDot();
     std::string GetTime();
-    static bool CheckPastePermission(std::string &appId, ShareOption shareOption);
+    static bool CheckPastePermission(const std::string &appId, ShareOption shareOption);
     static std::string GetBundleNameByTokenId(int32_t tokenId);
-    static std::string GetAppIdByTokenId();
-    static bool IsFocusOrDefaultIme();
+    static std::string GetAppIdByTokenId(int32_t &tokenType);
+    static bool IsFocusOrDefaultIme(const std::string &currentAppId);
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;
@@ -109,7 +104,7 @@ private:
     std::mutex observerMutex_;
     std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>> observerMap_;
     const std::string filePath_ = "";
-    std::map<int32_t, PasteDataPackage> clips_;
+    std::map<int32_t, std::shared_ptr<PasteData>> clips_;
     sptr<Rosen::IFocusChangedListener> focusChangedListener_;
     static int32_t focusAppUid_;
     int32_t uIdForLastCopy_ = 0;
