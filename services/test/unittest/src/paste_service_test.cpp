@@ -149,6 +149,60 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest004, TestSize.Level0)
 }
 
 /**
+* @tc.name: PasteRecordTest005
+* @tc.desc: Create paste board record test.
+* @tc.type: FUNC
+* @tc.require: AR000H5GKU
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = {};
+    opts.size.height = 5;
+    opts.size.width = 7;
+    opts.pixelFormat = PixelFormat::ARGB_8888;
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    auto getPixelMap = pasteDataRecord->GetPixelMap();
+    ASSERT_TRUE(getPixelMap != nullptr);
+    ImageInfo imageInfo = {};
+    getPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == opts.size.height);
+    ASSERT_TRUE(imageInfo.size.width ==  opts.size.width);
+    ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+}
+
+/**
+* @tc.name: PasteRecordTest006
+* @tc.desc: Create paste board record test.
+* @tc.type: FUNC
+* @tc.require: AR000H5GKU
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest006, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    InitializationOptions opts1 = { { 6, 9 }, PixelFormat::RGB_565 };
+    std::unique_ptr<PixelMap> pixelMap1 = PixelMap::Create(color, 100, opts1);
+    std::shared_ptr<PixelMap> pixelMapIn1 = move(pixelMap1);
+    pasteDataRecord = pasteDataRecord->NewPixelMapRecord(pixelMapIn1);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    auto getPixelMap = pasteDataRecord->GetPixelMap();
+    ASSERT_TRUE(getPixelMap != nullptr);
+    ImageInfo imageInfo = {};
+    getPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == opts1.size.height);
+    ASSERT_TRUE(imageInfo.size.width == opts1.size.width);
+    ASSERT_TRUE(imageInfo.pixelFormat == opts1.pixelFormat);
+}
+
+/**
 * @tc.name: PasteDataTest001
 * @tc.desc: Create paste board data test.
 * @tc.type: FUNC
@@ -329,6 +383,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest006, TestSize.Level0)
 * @tc.name: PasteDataTest007
 * @tc.desc: marshalling test.
 * @tc.type: FUNC
+* @tc.require: AR000H5GKU
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
 {
@@ -340,7 +395,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
     InitializationOptions opts = {};
     opts.size.height = 4;
     opts.size.width = 7;
-    opts.pixelFormat = static_cast<PixelFormat>(AlphaType::IMAGE_ALPHA_TYPE_OPAQUE);
+    opts.pixelFormat = PixelFormat::ARGB_8888;
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
@@ -366,6 +421,80 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
     ASSERT_TRUE(getPixelMap != nullptr);
     ImageInfo imageInfo = {};
     getPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == opts.size.height);
+    ASSERT_TRUE(imageInfo.size.width == opts.size.width);
+    ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+}
+
+/**
+* @tc.name: PasteDataTest008
+* @tc.desc: Create paste board data test.
+* @tc.type: FUNC
+* @tc.require: AR000H5GKU
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = {};
+    opts.size.height = 6;
+    opts.size.width = 9;
+    opts.pixelFormat = PixelFormat::ARGB_8888;
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
+    ASSERT_TRUE(pasteData != nullptr);
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData != true);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData == true);
+    PasteData getPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
+    ASSERT_TRUE(ret == true);
+    auto primaryPixelMap = getPasteData.GetPrimaryPixelMap();
+    ASSERT_TRUE(primaryPixelMap != nullptr);
+    ImageInfo imageInfo = {};
+    primaryPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == opts.size.height);
+    ASSERT_TRUE(imageInfo.size.width == opts.size.width);
+    ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+}
+
+/**
+* @tc.name: PasteDataTest009
+* @tc.desc: Create paste board data test.
+* @tc.type: FUNC
+* @tc.require: AR000H5GKU
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = {};
+    opts.size.height = 3;
+    opts.size.width = 7;
+    opts.pixelFormat = PixelFormat::ARGB_8888;
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    pasteData->AddPixelMapRecord(pixelMapIn);
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData != true);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData == true);
+    PasteData getPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
+    ASSERT_TRUE(ret == true);
+    auto primaryPlainText = getPasteData.GetPrimaryText();
+    ASSERT_TRUE(primaryPlainText != nullptr);
+    ASSERT_TRUE(*primaryPlainText == plainText);
+    auto primaryPixelMap = getPasteData.GetPrimaryPixelMap();
+    ASSERT_TRUE(primaryPixelMap != nullptr);
+    ImageInfo imageInfo = {};
+    primaryPixelMap->GetImageInfo(imageInfo);
     ASSERT_TRUE(imageInfo.size.height == opts.size.height);
     ASSERT_TRUE(imageInfo.size.width == opts.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
