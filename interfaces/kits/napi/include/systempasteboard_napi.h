@@ -28,24 +28,52 @@ namespace OHOS {
 namespace MiscServicesNapi {
 napi_value PasteBoardInit(napi_env env, napi_value exports);
 
-class PasteboardObserverInstance : public MiscServices::PasteboardObserver {
+class PasteboardObserverInstance : public std::enable_shared_from_this<PasteboardObserverInstance> {
 public:
+    class PasteboardObserverImpl : public MiscServices::PasteboardObserver {
+    public:
+        explicit PasteboardObserverImpl() = default;
+        explicit PasteboardObserverImpl(std::shared_ptr<PasteboardObserverInstance> outer) : outer_(outer) {}
+        void OnPasteboardChanged() override
+        {
+            std::shared_ptr<PasteboardObserverInstance> instance(outer_.lock());
+            if (instance == nullptr)
+            {
+                return;
+            }
+            instance->OnPasteboardChanged();
+        }
+
+        std::weak_ptr<PasteboardObserverInstance> outer_;
+    };
+
     explicit PasteboardObserverInstance(const napi_env &env, const napi_ref &ref);
     ~PasteboardObserverInstance();
 
-    virtual void OnPasteboardChanged() override;
+    void OnPasteboardChanged();
     void setOff();
+    napi_env GetEnv()
+    {
+        return env_;
+    }
+    napi_ref GetRef()
+    {
+        return ref_;
+    }
+    sptr<PasteboardObserverImpl> GetStub();
 
 private:
     napi_env env_ = nullptr;
     napi_ref ref_ = nullptr;
     bool isOff_;
+    sptr<PasteboardObserverImpl> stub_ = nullptr;
 };
 
 struct PasteboardDataWorker {
     napi_env env = nullptr;
     napi_ref ref = nullptr;
     bool isOff_;
+    std::shared_ptr<PasteboardObserverInstance> observer = nullptr;
 };
 
 class SystemPasteboardNapi {
@@ -54,7 +82,7 @@ public:
     static napi_value New(napi_env env, napi_callback_info info);
     static napi_status NewInstance(napi_env env, napi_value &instance);
     static void Destructor(napi_env env, void *nativeObject, void *finalize_hint);
-    static void DeletePasteboardObserverIns(const napi_env &env, const napi_ref &ref);
+    static void DeletePasteboardObserverIns(const std::shared_ptr<PasteboardObserverInstance> &observer);
     SystemPasteboardNapi();
     ~SystemPasteboardNapi();
 
@@ -65,13 +93,13 @@ private:
     static napi_value GetPasteData(napi_env env, napi_callback_info info);
     static napi_value SetPasteData(napi_env env, napi_callback_info info);
     static napi_value HasPasteData(napi_env env, napi_callback_info info);
-    static sptr<PasteboardObserverInstance> GetPasteboardObserverIns(const napi_ref &ref);
+    static std::shared_ptr<PasteboardObserverInstance> GetPasteboardObserverIns(const napi_env &env, const napi_value &currCallback);
 
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
     napi_ref wrapper_;
-    static std::map<napi_ref, sptr<PasteboardObserverInstance>> observers_;
+    static std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
     static std::mutex pasteboardObserverInsMutex_;
 };
 

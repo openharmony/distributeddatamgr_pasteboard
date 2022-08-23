@@ -26,7 +26,7 @@ namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_systemPasteboard = nullptr;
 std::mutex SystemPasteboardNapi::pasteboardObserverInsMutex_;
-std::map<napi_ref, sptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
+std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
 const size_t ARGC_TYPE_SET1 = 1;
 const size_t ARGC_TYPE_SET2 = 2;
 const int32_t STR_DATA_SIZE = 10;
@@ -35,15 +35,22 @@ const std::string STRING_UPDATE = "update";
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref)
     : env_(env), ref_(ref), isOff_(false)
 {
+    stub_ = new (std::nothrow) PasteboardObserverInstance::PasteboardObserverImpl();
 }
 
 PasteboardObserverInstance::~PasteboardObserverInstance()
 {
+    napi_delete_reference(env_, ref_);
 }
 
 void PasteboardObserverInstance::setOff()
 {
     isOff_ = true;
+}
+
+sptr<PasteboardObserverInstance::PasteboardObserverImpl> PasteboardObserverInstance::GetStub()
+{
+    return stub_;
 }
 
 void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
@@ -53,26 +60,25 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
         return;
     }
     PasteboardDataWorker *pasteboardDataWorker = (PasteboardDataWorker *)work->data;
-    if (pasteboardDataWorker == nullptr || pasteboardDataWorker->ref == nullptr) {
+    if (pasteboardDataWorker == nullptr || pasteboardDataWorker->observer == nullptr) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker or ref is null");
         delete work;
         work = nullptr;
         return;
     }
 
-    if (pasteboardDataWorker->isOff_) {
-        SystemPasteboardNapi::DeletePasteboardObserverIns(pasteboardDataWorker->env, pasteboardDataWorker->ref);
-    }
+    auto env = pasteboardDataWorker->observer->GetEnv();
+    auto ref = pasteboardDataWorker->observer->GetRef();
 
     napi_value undefined = nullptr;
-    napi_get_undefined(pasteboardDataWorker->env, &undefined);
+    napi_get_undefined(env, &undefined);
 
     napi_value callback = nullptr;
     napi_value resultout = nullptr;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker ref = %{public}p", pasteboardDataWorker->ref);
-    napi_get_reference_value(pasteboardDataWorker->env, pasteboardDataWorker->ref, &callback);
-    napi_value result = NapiGetNull(pasteboardDataWorker->env);
-    napi_call_function(pasteboardDataWorker->env, undefined, callback, 0, &result, &resultout);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker ref = %{public}p", ref);
+    napi_get_reference_value(env, ref, &callback);
+    napi_value result = NapiGetNull(env);
+    napi_call_function(env, undefined, callback, 0, &result, &resultout);
 
     delete pasteboardDataWorker;
     pasteboardDataWorker = nullptr;
@@ -101,9 +107,7 @@ void PasteboardObserverInstance::OnPasteboardChanged()
         work = nullptr;
         return;
     }
-    pasteboardDataWorker->env = env_;
-    pasteboardDataWorker->ref = ref_;
-    pasteboardDataWorker->isOff_ = isOff_;
+    pasteboardDataWorker->observer = shared_from_this();
 
     work->data = (void *)pasteboardDataWorker;
 
@@ -508,8 +512,12 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
 
     napi_ref ref = nullptr;
     napi_create_reference(env, argv[ARGC_TYPE_SET1], 1, &ref);
-    sptr<PasteboardObserverInstance> observer = new (std::nothrow) PasteboardObserverInstance(env, ref);
-    PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "byy1111");
+    auto observer = std::make_shared<PasteboardObserverInstance>(env, ref);
+    observer->GetStub()->outer_ = observer;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "byy2222");
+    PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer->GetStub());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "byy3333");
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
     observers_[ref] = observer;
     napi_value result = nullptr;
@@ -535,20 +543,19 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, valueType == napi_string, "Wrong argument type. String expected.");
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[0], str, STR_DATA_SIZE, &strLen));
     NAPI_ASSERT(env, strLen == STRING_UPDATE.length(), "error type");
-    napi_ref ref = nullptr;
-    sptr<PasteboardObserverInstance> observer = nullptr;
+    std::shared_ptr<PasteboardObserverInstance> observer = nullptr;
     if (argc > ARGC_TYPE_SET1) {
         napi_typeof(env, argv[ARGC_TYPE_SET1], &valueType);
         NAPI_ASSERT(env, valueType == napi_function, "Wrong argument type. Function expected.");
-        napi_create_reference(env, argv[ARGC_TYPE_SET1], 1, &ref);
-        observer = GetPasteboardObserverIns(ref);
+        observer = GetPasteboardObserverIns(env, argv[ARGC_TYPE_SET1]);
     }
     if (!observer) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Callback is invalid");
         return nullptr;
     }
     observer->setOff();
-    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(observer);
+    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(observer->GetStub());
+    DeletePasteboardObserverIns(observer);
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi off () is called!");
@@ -899,25 +906,32 @@ napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance
     return napi_ok;
 }
 
-sptr<PasteboardObserverInstance> SystemPasteboardNapi::GetPasteboardObserverIns(const napi_ref &ref)
+std::shared_ptr<PasteboardObserverInstance> SystemPasteboardNapi::GetPasteboardObserverIns(const napi_env &env, const napi_value &currCallback)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetPasteboardObserverIns start");
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
-    auto observer = observers_.find(ref);
-    if (observer != observers_.end()) {
-        return observer->second;
+    for (auto &[refKey, observerValue]: observers_) {
+        napi_value callback = nullptr;
+        napi_get_reference_value(env, refKey, &callback);
+        bool isEqual = false;
+        napi_strict_equals(env, currCallback, callback, &isEqual);
+        if (isEqual) {
+            return observerValue;
+        }
     }
     return nullptr;
 }
 
-void SystemPasteboardNapi::DeletePasteboardObserverIns(const napi_env &env, const napi_ref &ref)
+void SystemPasteboardNapi::DeletePasteboardObserverIns(const std::shared_ptr<PasteboardObserverInstance> &observer)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "DeletePasteboardObserverIns start");
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
-    auto observer = observers_.find(ref);
-    if (observer != observers_.end()) {
-        napi_delete_reference(env, observer->first);
-        observers_.erase(observer);
+    for (auto it = observers_.begin(); it != observers_.end(); ++it) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "DeletePasteboardObserverIns start111");
+        if(it->second == observer) {
+            observers_.erase(it);
+            break;
+        }
     }
 }
 } // namespace MiscServicesNapi
