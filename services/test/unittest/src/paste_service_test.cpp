@@ -713,7 +713,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0013, TestSize.Level0)
     Parcel parcel;
     auto ret = customData->Marshalling(parcel);
     ASSERT_TRUE(ret == true);
-    MineCustomData *customDataGet = customData->Unmarshalling(parcel);
+    std::shared_ptr<MineCustomData> customDataGet(customData->Unmarshalling(parcel));
     ASSERT_TRUE(customDataGet != nullptr);
     auto itemData = customDataGet->GetItemData();
     ASSERT_TRUE(itemData.size() == 2);
@@ -723,39 +723,5 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0013, TestSize.Level0)
     item = itemData.find(mimeType1);
     ASSERT_TRUE(item != itemData.end());
     ASSERT_TRUE(item->second == arrayBuffer1);
-    delete customDataGet;
-    customDataGet = nullptr;
-}
-
-/**
-* @tc.name: PasteDataTest0014
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-*/
-HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
-{
-    std::string plainText = "plain text";
-    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    ASSERT_TRUE(pasteData != nullptr);
-    auto shareOption = pasteData->GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::CrossDevice);
-    pasteData->SetShareOption(ShareOption::InApp);
-    std::string appId = pasteData->GetAppId();
-    ASSERT_TRUE(appId.empty() == true);
-    pasteData->SetAppId("abc");
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
-    PasteData getPasteData;
-    auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
-    ASSERT_TRUE(ret == true);
-    shareOption = getPasteData.GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::InApp);
-    appId =  getPasteData.GetAppId();
-    ASSERT_TRUE(appId.empty() == true);
 }
 } // namespace
