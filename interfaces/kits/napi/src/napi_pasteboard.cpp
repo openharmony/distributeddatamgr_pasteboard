@@ -276,7 +276,7 @@ napi_value JSCreateKvRecord(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc == 2, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc == ARGC_TYPE_SET2, "Wrong number of arguments");
 
     napi_valuetype valueType = napi_undefined;
     bool result = false;
@@ -294,9 +294,9 @@ napi_value JSCreateKvRecord(napi_env env, napi_callback_info info)
             }
         } else if ((i == 1) && (result == true)) {
             NAPI_CALL(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
-        }
-        else {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type, i = %{public}d.", static_cast<uint32_t>(i));
+        } else {
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type, i = %{public}d.", static_cast<uint32_t>(i));
             return nullptr;
         }
     }
@@ -479,7 +479,7 @@ napi_value JSCreateKvData(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc == 2, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc == ARGC_TYPE_SET2, "Wrong number of arguments");
 
     napi_valuetype valueType = napi_undefined;
     bool result = false;
@@ -497,9 +497,9 @@ napi_value JSCreateKvData(napi_env env, napi_callback_info info)
             }
         } else if ((i == 1) && (result == true)) {
             NAPI_CALL(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
-        }
-        else {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type, i = %{public}d.", static_cast<uint32_t>(i));
+        } else {
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type, i = %{public}d.", static_cast<uint32_t>(i));
             return nullptr;
         }
     }
@@ -542,13 +542,13 @@ napi_value PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createPlainTextData", JScreatePlainTextData),
         DECLARE_NAPI_FUNCTION("createPixelMapData", JScreatePixelMapData),
         DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData),
-		DECLARE_NAPI_FUNCTION("createData", JSCreateKvData),
+        DECLARE_NAPI_FUNCTION("createData", JSCreateKvData),
         DECLARE_NAPI_FUNCTION("createHtmlTextRecord", JScreateHtmlTextRecord),
         DECLARE_NAPI_FUNCTION("createWantRecord", JScreateWantRecord),
         DECLARE_NAPI_FUNCTION("createPlainTextRecord", JScreatePlainTextRecord),
         DECLARE_NAPI_FUNCTION("createPixelMapRecord", JScreatePixelMapRecord),
         DECLARE_NAPI_FUNCTION("createUriRecord", JScreateUriRecord),
-		DECLARE_NAPI_FUNCTION("createRecord", JSCreateKvRecord),
+        DECLARE_NAPI_FUNCTION("createRecord", JSCreateKvRecord),
         DECLARE_NAPI_FUNCTION("getSystemPasteboard", JSgetSystemPasteboard),
         DECLARE_NAPI_PROPERTY("MAX_RECORD_NUM", CreateNapiNumber(env, 128)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_PIXELMAP", CreateNapiString(env, MIMETYPE_PIXELMAP)),

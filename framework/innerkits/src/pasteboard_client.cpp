@@ -69,7 +69,8 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateUriRecord(const OHOS::U
     return PasteDataRecord::NewUriRecord(uri);
 }
 
-std::shared_ptr<PasteDataRecord> PasteboardClient::CreateKvRecord(const std::string &mimeType, void* data, const size_t dataLen)
+std::shared_ptr<PasteDataRecord> PasteboardClient::CreateKvRecord(
+    const std::string &mimeType, void *data, const size_t dataLen)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New kv record");
     return PasteDataRecord::NewKvRecord(mimeType, data, dataLen);

@@ -485,7 +485,8 @@ void PasteDataNapi::AddRecord(napi_env env, size_t argc, napi_value *argv, Paste
         } else if ((i == 1) && (result == true)) {
             NAPI_CALL_RETURN_VOID(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
         } else {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type, i = %{public}d.", static_cast<uint32_t>(i));
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type, i = %{public}d.", static_cast<uint32_t>(i));
             return;
         }
     }

@@ -81,6 +81,5 @@ bool GetValue(napi_env env, napi_value in, std::string& out)
 
     return true;
 }
-
 } // namespace MiscServicesNapi
 } // namespace OHOS

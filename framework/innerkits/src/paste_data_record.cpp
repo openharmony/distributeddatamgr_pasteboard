@@ -110,13 +110,15 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &
     return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
 }
 
-std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(const std::string &mimeType, void *data, const size_t dataLen)
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
+    const std::string &mimeType, void *data, const size_t dataLen)
 {
     if (data == nullptr) {
         return nullptr;
     }
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
-    std::vector<uint8_t> arrayBuffer = std::vector<uint8_t>(reinterpret_cast<uint8_t*>(data), reinterpret_cast<uint8_t*>(data) + dataLen);
+    std::vector<uint8_t> arrayBuffer =
+        std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
     customData->AddItemData(mimeType, arrayBuffer);
     return Builder(mimeType).SetCustomData(customData).Build();
 }
