@@ -157,7 +157,7 @@ public:
      * @param observer pasteboard change callback.
      * @return void.
      */
-    void AddPasteboardChangedObserver(std::shared_ptr<PasteboardObserver> callback);
+    void AddPasteboardChangedObserver(sptr<PasteboardObserver> callback);
 
     /**
      * RemovePasteboardChangedObserver
@@ -165,7 +165,7 @@ public:
      * @param observer pasteboard change callback.
      * @return void.
      */
-    void RemovePasteboardChangedObserver(std::shared_ptr<PasteboardObserver> callback);
+    void RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback);
 
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
 private:
