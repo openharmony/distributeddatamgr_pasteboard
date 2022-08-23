@@ -190,9 +190,7 @@ void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> cal
         return;
     }
 
-    auto remoteObject = callback->AsObject();
-    sptr<IPasteboardChangedObserver> observerPtr = iface_cast<IPasteboardChangedObserver>(remoteObject);
-    pasteboardServiceProxy_->AddPasteboardChangedObserver(observerPtr);
+    pasteboardServiceProxy_->AddPasteboardChangedObserver(callback);
     return;
 }
 
@@ -214,9 +212,7 @@ void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> 
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
         return;
     }
-    auto remoteObject = callback->AsObject();
-    sptr<IPasteboardChangedObserver> observerPtr = iface_cast<IPasteboardChangedObserver>(remoteObject);
-    pasteboardServiceProxy_->RemovePasteboardChangedObserver(observerPtr);
+    pasteboardServiceProxy_->RemovePasteboardChangedObserver(callback);
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
     return;
 }
