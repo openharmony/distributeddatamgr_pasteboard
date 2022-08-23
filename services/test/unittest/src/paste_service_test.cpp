@@ -175,6 +175,34 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
 }
 
 /**
+* @tc.name: PasteRecordTest006
+* @tc.desc: Create paste board record test.
+* @tc.type: FUNC
+* @tc.require: AR000H5GKU
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest006, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    InitializationOptions opts1 = { { 6, 9 }, PixelFormat::RGB_565 };
+    std::unique_ptr<PixelMap> pixelMap1 = PixelMap::Create(color, 100, opts1);
+    std::shared_ptr<PixelMap> pixelMapIn1 = move(pixelMap1);
+    pasteDataRecord = pasteDataRecord->NewPixelMapRecord(pixelMapIn1);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    auto getPixelMap = pasteDataRecord->GetPixelMap();
+    ASSERT_TRUE(getPixelMap != nullptr);
+    ImageInfo imageInfo = {};
+    getPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == opts1.size.height);
+    ASSERT_TRUE(imageInfo.size.width == opts1.size.width);
+    ASSERT_TRUE(imageInfo.pixelFormat == opts1.pixelFormat);
+}
+
+/**
 * @tc.name: PasteDataTest001
 * @tc.desc: Create paste board data test.
 * @tc.type: FUNC
