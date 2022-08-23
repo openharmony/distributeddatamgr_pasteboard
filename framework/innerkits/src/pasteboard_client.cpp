@@ -173,7 +173,7 @@ void PasteboardClient::SetPasteData(PasteData& pasteData)
     pasteboardServiceProxy_->SetPasteData(pasteData);
 }
 
-void PasteboardClient::AddPasteboardChangedObserver(std::shared_ptr<PasteboardObserver> callback)
+void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
     if (callback == nullptr) {
@@ -196,7 +196,7 @@ void PasteboardClient::AddPasteboardChangedObserver(std::shared_ptr<PasteboardOb
     return;
 }
 
-void PasteboardClient::RemovePasteboardChangedObserver(std::shared_ptr<PasteboardObserver> callback)
+void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
     if (pasteboardServiceProxy_ == nullptr) {
