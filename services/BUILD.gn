@@ -56,7 +56,7 @@ ohos_shared_library("pasteboard_service") {
     "dfx/src/pasteboard_trace.cpp",
     "dfx/src/reporter.cpp",
     "dfx/src/statistic/time_consuming_statistic_impl.cpp",
-    "zidl/src/pasteboard_observer_stub.cpp",
+    "zidl/src/pasteboard_observer_proxy.cpp",
     "zidl/src/pasteboard_service_stub.cpp",
   ]
   public_configs = [
