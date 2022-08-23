@@ -325,7 +325,7 @@ bool PasteboardService::GetPasteData(PasteData& data)
     }
     auto ret = CheckPastePermission(it->second->GetAppId(), it->second->GetShareOption());
     if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "CheckPastePermission failed, userId = %{public}d.", userId);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "CheckPastePermission failed.");
         return false;
     }
     data = *(it->second);
