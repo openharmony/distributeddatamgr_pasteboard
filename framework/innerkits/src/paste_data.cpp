@@ -263,11 +263,9 @@ bool PasteData::UnMarshalling(Parcel &parcel, PasteDataProperty &props)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
 
-    auto *wantParams = parcel.ReadParcelable<AAFwk::WantParams>();
+    std::shared_ptr<AAFwk::WantParams> wantParams(parcel.ReadParcelable<AAFwk::WantParams>());
     if (wantParams != nullptr) {
         props.additions = *wantParams;
-        delete wantParams;
-        wantParams = nullptr;
     }
     if (!parcel.ReadStringVector(&props.mimeTypes)) {
         return false;
