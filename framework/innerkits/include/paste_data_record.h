@@ -41,6 +41,17 @@ enum ResultCode : int32_t {
     IPC_ERROR
 };
 
+class MineCustomData : public Parcelable {
+public:
+    MineCustomData() = default;
+    std::map<std::string, std::vector<uint8_t>> GetItemData();
+    void AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static MineCustomData *Unmarshalling(Parcel &parcel);
+private:
+    std::map<std::string, std::vector<uint8_t>> itemData_;
+};
+
 class PasteDataRecord : public Parcelable, public TLVObject {
 public:
     PasteDataRecord() = default;
@@ -55,6 +66,7 @@ public:
     static std::shared_ptr<PasteDataRecord> NewPlaintTextRecord(const std::string &text);
     static std::shared_ptr<PasteDataRecord> NewPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     static std::shared_ptr<PasteDataRecord> NewUriRecord(const OHOS::Uri &uri);
+    static std::shared_ptr<PasteDataRecord> NewKvRecord(const std::string &mimeType, void *data, const size_t dataLen);
 
     std::string GetMimeType() const;
     std::shared_ptr<std::string> GetHtmlText() const;
@@ -62,6 +74,7 @@ public:
     std::shared_ptr<OHOS::Media::PixelMap> GetPixelMap() const;
     std::shared_ptr<OHOS::Uri> GetUri() const;
     std::shared_ptr<OHOS::AAFwk::Want> GetWant() const;
+    std::shared_ptr<MineCustomData> GetCustomData() const;
 
     std::string ConvertToText() const;
 
@@ -76,6 +89,8 @@ public:
         Builder &SetPlainText(std::shared_ptr<std::string> plainText);
         Builder &SetUri(std::shared_ptr<OHOS::Uri> uri);
         Builder &SetPixelMap(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
+        Builder &SetCustomData(std::shared_ptr<MineCustomData> customData);
+        Builder &SetMimeType(const std::string &mimeType);
         std::shared_ptr<PasteDataRecord> Build();
     private:
         std::shared_ptr<PasteDataRecord> record_ = nullptr;
@@ -97,6 +112,7 @@ private:
     std::shared_ptr<std::string> plainText_;
     std::shared_ptr<OHOS::Uri> uri_;
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
+    std::shared_ptr<MineCustomData> customData_;
 };
 } // MiscServices
 } // OHOS

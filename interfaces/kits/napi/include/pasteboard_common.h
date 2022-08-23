@@ -25,6 +25,7 @@ void SetCallback(const napi_env &env, const napi_ref &callbackIn, const napi_val
 napi_value NapiGetNull(napi_env env);
 napi_value CreateNapiNumber(napi_env env, int32_t num);
 napi_value CreateNapiString(napi_env env, std::string str);
+bool GetValue(napi_env env, napi_value in, std::string& out);
 }  // namespace MiscServicesNapi
 }  // namespace OHOS
 #endif

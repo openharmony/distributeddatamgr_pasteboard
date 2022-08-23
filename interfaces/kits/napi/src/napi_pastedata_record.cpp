@@ -17,6 +17,7 @@
 #include "pasteboard_common.h"
 #include "napi_common.h"
 #include "pasteboard_hilog_wreapper.h"
+#include "paste_data_record.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
@@ -26,6 +27,8 @@ namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
 const size_t ARGC_TYPE_SET1 = 1;
 const size_t CALLBACK_RESULT_NUM = 2;
+const std::string EMPTY_STRING = "";
+constexpr int32_t  MIMETYPE_MAX_SIZE = 1024;
 
 PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
 {
@@ -126,7 +129,24 @@ bool PasteDataRecordNapi::NewWantRecordInstance(
     obj->JSFillInstance(env, instance);
     return true;
 }
+bool PasteDataRecordNapi::NewKvRecordInstance(
+    napi_env env, const std::string &mimeType, void* data, const size_t dataLen, napi_value &instance)
+{
+    if (data == nullptr) {
+        return false;
+    }
 
+    NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
+        return false;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, data, dataLen);
+    obj->JSFillInstance(env, instance);
+    return true;
+}
 void PasteDataRecordNapi::SetNamedPropertyByStr(
     napi_env env, napi_value &instance, const char *propName, const char *propValue)
 {
@@ -139,53 +159,110 @@ void PasteDataRecordNapi::SetNamedPropertyByStr(
     }
 }
 
-bool PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
+napi_value PasteDataRecordNapi::SetNapiKvData(napi_env env, std::shared_ptr<MineCustomData> customData)
 {
-    if (!instance || !value_) {
-        return false;
+    if (customData == nullptr) {
+        return nullptr;
     }
+    napi_value jsCustomData = nullptr;
+    napi_create_object(env, &jsCustomData);
+    auto itemData = customData->GetItemData();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "size = %{public}d.", static_cast<uint32_t>(itemData.size()));
+    for (auto &item : itemData) {
+        void *data = nullptr;
+        napi_value arrayBuffer = nullptr;
+        NAPI_CALL(env, napi_create_arraybuffer(env, item.second.size(), &data, &arrayBuffer));
+        memcpy_s(data, item.second.size(), reinterpret_cast<const void *>(item.second.data()), item.second.size());
+        NAPI_CALL(env, napi_set_named_property(env, jsCustomData, item.first.c_str(), arrayBuffer));
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType111 = %{public}s, itemData_len = %{public}d, data = %{public}p, yuandata = %{public}p.",
+            item.first.c_str(), static_cast<uint32_t>(item.second.size()), data, reinterpret_cast<void *>(item.second.data()));
+    }
+    return jsCustomData;
+}
+
+std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env env, napi_value napiValue)
+{
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, napiValue, &valueType));
+    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type. Object expected.");
+
+    napi_value mimeTypes = nullptr;
+    NAPI_CALL(env, napi_get_property_names(env, napiValue, &mimeTypes));
+    uint32_t mimeTypesNum = 0;
+    NAPI_CALL(env, napi_get_array_length(env, mimeTypes, &mimeTypesNum));
+
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "mimeTypesNum = %{public}d", mimeTypesNum);
+    std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
+    for (uint32_t i = 0; i < mimeTypesNum; i++) {
+        napi_value mimeTypeNapi = nullptr;
+        NAPI_CALL(env, napi_get_element(env, mimeTypes, i, &mimeTypeNapi));
+
+        std::string mimeType = EMPTY_STRING;
+        if ((MiscServicesNapi::GetValue(env, mimeTypeNapi, mimeType) != true) || (mimeType.size() > MIMETYPE_MAX_SIZE)) {
+            return nullptr;
+        }
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType = %{public}s,", mimeType.c_str());
+
+        napi_value napiArrayBuffer = nullptr;
+        NAPI_CALL(env, napi_get_property(env, napiValue, mimeTypeNapi, &napiArrayBuffer));
+        void *data = nullptr;
+        size_t dataLen;
+        NAPI_CALL(env, napi_get_arraybuffer_info(env, napiArrayBuffer, &data, &dataLen));
+        std::vector<uint8_t> arrayBuffer =
+            std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
+        customData->AddItemData(mimeType, arrayBuffer);
+    }
+    return customData;
+}
+
+void PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
+{
+    if (value_ == nullptr) {
+        return;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSFillInstance, mimeType = %{public}s.", value_->GetMimeType().c_str());
+
     auto mimeType = value_->GetMimeType();
     SetNamedPropertyByStr(env, instance, "mimeType", mimeType.c_str());
-    if (mimeType == MIMETYPE_TEXT_PLAIN) {
-        auto plainText = value_->GetPlainText();
-        if (plainText != nullptr) {
-            SetNamedPropertyByStr(env, instance, "plainText", plainText->c_str());
-        }
-    } else if (mimeType == MIMETYPE_TEXT_HTML) {
-        auto htmlText = value_->GetHtmlText();
-        if (htmlText != nullptr) {
-            SetNamedPropertyByStr(env, instance, "htmlText", htmlText->c_str());
-        }
-    } else if (mimeType == MIMETYPE_TEXT_URI) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ggg.");
-        auto uri = value_->GetUri();
-        if (uri != nullptr) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "hhh.");
-            SetNamedPropertyByStr(env, instance, "uri", uri->ToString().c_str());
-        }
-    } else if (mimeType == MIMETYPE_TEXT_WANT) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "iii.");
-        auto want = value_->GetWant();
-        if (want != nullptr) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "jjj.");
-            napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, *want);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "kkk.");
-            napi_set_named_property(env, instance, "want", jsWant);
-        }
-    } else if (mimeType == MIMETYPE_PIXELMAP) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "pixelMap begin.");
-        auto pixelMap = value_->GetPixelMap();
-        if (pixelMap != nullptr) {
-            napi_value jsPixelMap = PixelMapNapi::CreatePixelMap(env, pixelMap);
-            napi_set_named_property(env, instance, "pixelMap", jsPixelMap);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "pixelMap end.");
-        }
-    } else {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Unkonw MimeType: %{public}s.", mimeType.c_str());
-        return false;
+
+    auto plainText = value_->GetPlainText();
+    if (plainText != nullptr) {
+        SetNamedPropertyByStr(env, instance, "plainText", plainText->c_str());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill plainText.");
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
-    return true;
+
+    auto htmlText = value_->GetHtmlText();
+    if (htmlText != nullptr) {
+        SetNamedPropertyByStr(env, instance, "htmlText", htmlText->c_str());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill htmlText.");
+    }
+
+    auto uri = value_->GetUri();
+    if (uri != nullptr) {
+        SetNamedPropertyByStr(env, instance, "uri", uri->ToString().c_str());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill uri.");
+    }
+
+    auto want = value_->GetWant();
+    if (want != nullptr) {
+        napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, *want);
+        napi_set_named_property(env, instance, "want", jsWant);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill want.");
+    }
+
+    auto pixelMap = value_->GetPixelMap();
+    if (pixelMap != nullptr) {
+        napi_value jsPixelMap = OHOS::Media::PixelMapNapi::CreatePixelMap(env, pixelMap);
+        napi_set_named_property(env, instance, "pixelMap", jsPixelMap);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill pixelMap.");
+    }
+
+    auto customData = value_->GetCustomData();
+    if (customData != nullptr) {
+        napi_value jsCustomData = PasteDataRecordNapi::SetNapiKvData(env, customData);
+        napi_set_named_property(env, instance, "data", jsCustomData);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill data.");
+    }
 }
 
 using AsyncText = struct AsyncText {
