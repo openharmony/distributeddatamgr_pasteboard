@@ -50,9 +50,10 @@ class PasteboardService final : public SystemAbility,
                                 public PasteboardServiceStub,
                                 public std::enable_shared_from_this<PasteboardService> {
     DECLARE_SYSTEM_ABILITY(PasteboardService)
-    DECLARE_DELAYED_SINGLETON(PasteboardService)
 
 public:
+    PasteboardService();
+    ~PasteboardService();
     virtual void Clear() override;
     virtual bool GetPasteData(PasteData& data) override;
     virtual bool HasPasteData() override;
@@ -88,7 +89,7 @@ private:
     std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;
     std::mutex clipMutex_;
     std::mutex observerMutex_;
-    std::map<int32_t, std::shared_ptr<std::set<const sptr<IPasteboardChangedObserver>, classcomp>>> observerMap_;
+    std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>> observerMap_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
 

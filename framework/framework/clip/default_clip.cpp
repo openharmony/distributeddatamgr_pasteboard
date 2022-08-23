@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,24 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "default_clip.h"
+namespace OHOS::MiscServices {
+int32_t DefaultClip::SetPasteData(const GlobalEvent &event, const std::vector<uint8_t> &data)
+{
+    return 0;
+}
 
-#ifndef MISCSERVICES_PASTEBOARD_TRACE_H
-#define MISCSERVICES_PASTEBOARD_TRACE_H
+int32_t DefaultClip::GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data)
+{
+    return 0;
+}
 
-#include <string>
-#include <atomic>
+std::vector<DefaultClip::GlobalEvent> DefaultClip::GetTopEvents(uint32_t topN)
+{
+    return std::vector<GlobalEvent>();
+}
 
-namespace OHOS {
-namespace MiscServices {
-class PasteboardTrace {
-public:
-    explicit PasteboardTrace(const std::string &value);
-    ~PasteboardTrace();
-
-private:
-    bool SetBytraceEnable() const;
-    static std::atomic_bool isSetBytraceEnabled_;
-};
-} // namespace MiscServices
-} // namespace OHOS
-#endif // MISCSERVICES_PASTEBOARD_TRACE_H
+void DefaultClip::Clear()
+{
+}
+}

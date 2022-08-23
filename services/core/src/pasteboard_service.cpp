@@ -21,6 +21,7 @@
 #include "dfx_types.h"
 #include "hiview_adapter.h"
 #include "iservice_registry.h"
+#include "loader.h"
 #include "os_account_manager.h"
 #include "pasteboard_common.h"
 #include "pasteboard_trace.h"
@@ -38,7 +39,7 @@ const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::int32_t ERROR_USERID = -1;
 const bool G_REGISTER_RESULT =
-    SystemAbility::MakeAndRegisterAbility(DelayedSingleton<PasteboardService>::GetInstance().get());
+    SystemAbility::MakeAndRegisterAbility(new PasteboardService());
     const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 }
 
@@ -57,7 +58,9 @@ PasteboardService::~PasteboardService() {}
 
 int32_t PasteboardService::Init()
 {
-    if (!Publish(DelayedSingleton<PasteboardService>::GetInstance().get())) {
+    Loader loader;
+    loader.LoadComponents();
+    if (!Publish(this)) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStart register to system ability manager failed.");
         auto userId = GetUserId();
         Reporter::GetInstance().InitializationFault().Report({ userId, "ERR_INVALID_OPTION" });
@@ -77,7 +80,7 @@ void PasteboardService::OnStart()
     }
     InitServiceHandler();
     if (Init() != ERR_OK) {
-        auto callback = [=]() { Init(); };
+        auto callback = [this]() { Init(); };
         serviceHandler_->PostTask(callback, INIT_INTERVAL);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Init failed. Try again 10s later.");
         return;
@@ -243,11 +246,11 @@ void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChang
         return;
     }
     auto it = observerMap_.find(userId);
-    std::shared_ptr<std::set<const sptr<IPasteboardChangedObserver>, classcomp>> observers;
+    std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>> observers;
     if (it != observerMap_.end()) {
         observers = it->second;
     } else {
-        observers = std::make_shared<std::set<const sptr<IPasteboardChangedObserver>, classcomp>>();
+        observers = std::make_shared<std::set<sptr<IPasteboardChangedObserver>, classcomp>>();
         observerMap_.insert(std::make_pair(userId, observers));
     }
     observers->insert(observer);

@@ -20,7 +20,7 @@
 #include <unistd.h>
 
 #include <thread>
-
+#include <algorithm>
 #include "def.h"
 #include "pasteboard_hilog_wreapper.h"
 

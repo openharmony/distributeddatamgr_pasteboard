@@ -17,7 +17,7 @@
 #define PASTE_BOARD_STORAGE_H
 
 #include <map>
-
+#include <memory>
 #include "i_pasteboard_storage.h"
 #include "paste_data.h"
 
@@ -29,9 +29,8 @@ public:
     void SaveData(std::map<int32_t, std::shared_ptr<PasteData>> data) override;
     std::map<int32_t, std::shared_ptr<PasteData>> LoadData() override;
     ~PasteboardStorage() override;
-private:
     explicit PasteboardStorage(std::string file);
-
+private:
     std::string file;
 };
 } // MiscServices
