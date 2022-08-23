@@ -260,6 +260,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest001, TestSize.Level0)
     Want wantIn = want->SetParam(key, id);
     auto data = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
     ASSERT_TRUE(data != nullptr);
+    PasteboardClient::GetInstance()->Clear();
     auto has = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(has != true);
     PasteboardClient::GetInstance()->SetPasteData(*data);
@@ -498,6 +499,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
     ASSERT_TRUE(pasteData != nullptr);
+    PasteboardClient::GetInstance()->Clear();
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData != true);
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
@@ -522,7 +524,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
 * @tc.require: AR000H5GKU
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
-{
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
@@ -583,6 +584,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0010, TestSize.Level0)
     ASSERT_TRUE(item != itemData.end());
     ASSERT_TRUE(item->second == arrayBuffer);
 }
+
 /**
 * @tc.name: PasteDataTest0011
 * @tc.desc: Create paste board data test.
@@ -709,5 +711,41 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0013, TestSize.Level0)
     item = itemData.find(mimeType1);
     ASSERT_TRUE(item != itemData.end());
     ASSERT_TRUE(item->second == arrayBuffer1);
+}
+
+/**
+* @tc.name: PasteDataTest0014
+* @tc.desc: Create paste board data test.
+* @tc.type: FUNC
+* @tc.require: AROOOH5R5G
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    auto shareOption = pasteData->GetShareOption();
+    ASSERT_TRUE(shareOption == ShareOption::CrossDevice);
+    pasteData->SetShareOption(ShareOption::InApp);
+    std::string appId = pasteData->GetAppId();
+    ASSERT_TRUE(appId.empty() == true);
+    pasteData->SetAppId("abc");
+    shareOption = getPasteData.GetShareOption();
+    ASSERT_TRUE(shareOption == ShareOption::InApp);
+    appId =  getPasteData.GetAppId();
+    ASSERT_TRUE(appId.empty() == true);
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData != true);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData == true);
+    PasteData getPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
+    ASSERT_TRUE(ret == true);
+    shareOption = getPasteData.GetShareOption();
+    ASSERT_TRUE(shareOption == ShareOption::InApp);
+    appId =  getPasteData.GetAppId();
+    ASSERT_TRUE(appId.empty() == true);
 }
 } // namespace
