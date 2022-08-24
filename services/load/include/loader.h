@@ -22,10 +22,11 @@ public:
     Loader();
     ~Loader();
     void LoadComponents();
+
 private:
-    using Constructor = void(*)(const char *);
+    using Constructor = void (*)(const char *);
     Config LoadConfig();
-    static constexpr const char *CONF_FILE ="/system/etc/pasteboard/conf/pasteboard.json";
+    static constexpr const char *CONF_FILE = "/system/etc/pasteboard/conf/pasteboard.json";
 };
 } // namespace OHOS::MiscServices
 #endif // OHOS_PASTEBOARD_SERVICES_LOAD_LOADER_H
