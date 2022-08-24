@@ -33,25 +33,17 @@ public:
     class PasteboardObserverImpl : public MiscServices::PasteboardObserver {
     public:
         explicit PasteboardObserverImpl() = default;
-        explicit PasteboardObserverImpl(std::shared_ptr<PasteboardObserverInstance> outer) : outer_(outer) {}
-        void OnPasteboardChanged() override
-        {
-            std::shared_ptr<PasteboardObserverInstance> instance(outer_.lock());
-            if (instance == nullptr)
-            {
-                return;
-            }
-            instance->OnPasteboardChanged();
-        }
+        void OnPasteboardChanged() override;
+        void SetObserverWrapper(const std::shared_ptr<PasteboardObserverInstance> &observerInstance);
 
-        std::weak_ptr<PasteboardObserverInstance> outer_;
+    private:
+        std::weak_ptr<PasteboardObserverInstance> wrapper_;
     };
 
     explicit PasteboardObserverInstance(const napi_env &env, const napi_ref &ref);
     ~PasteboardObserverInstance();
 
     void OnPasteboardChanged();
-    void setOff();
     napi_env GetEnv()
     {
         return env_;
@@ -65,14 +57,10 @@ public:
 private:
     napi_env env_ = nullptr;
     napi_ref ref_ = nullptr;
-    bool isOff_;
     sptr<PasteboardObserverImpl> stub_ = nullptr;
 };
 
 struct PasteboardDataWorker {
-    napi_env env = nullptr;
-    napi_ref ref = nullptr;
-    bool isOff_;
     std::shared_ptr<PasteboardObserverInstance> observer = nullptr;
 };
 

@@ -33,7 +33,7 @@ const int32_t STR_DATA_SIZE = 10;
 const std::string STRING_UPDATE = "update";
 
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref)
-    : env_(env), ref_(ref), isOff_(false)
+    : env_(env), ref_(ref)
 {
     stub_ = new (std::nothrow) PasteboardObserverInstance::PasteboardObserverImpl();
 }
@@ -41,11 +41,6 @@ PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, cons
 PasteboardObserverInstance::~PasteboardObserverInstance()
 {
     napi_delete_reference(env_, ref_);
-}
-
-void PasteboardObserverInstance::setOff()
-{
-    isOff_ = true;
 }
 
 sptr<PasteboardObserverInstance::PasteboardObserverImpl> PasteboardObserverInstance::GetStub()
@@ -512,12 +507,9 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
 
     napi_ref ref = nullptr;
     napi_create_reference(env, argv[ARGC_TYPE_SET1], 1, &ref);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "byy1111");
     auto observer = std::make_shared<PasteboardObserverInstance>(env, ref);
-    observer->GetStub()->outer_ = observer;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "byy2222");
+    observer->GetStub()->SetObserverWrapper(observer);
     PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer->GetStub());
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "byy3333");
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
     observers_[ref] = observer;
     napi_value result = nullptr;
@@ -553,7 +545,6 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Callback is invalid");
         return nullptr;
     }
-    observer->setOff();
     PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(observer->GetStub());
     DeletePasteboardObserverIns(observer);
     napi_value result = nullptr;
@@ -933,6 +924,22 @@ void SystemPasteboardNapi::DeletePasteboardObserverIns(const std::shared_ptr<Pas
             break;
         }
     }
+}
+
+void PasteboardObserverInstance::PasteboardObserverImpl::OnPasteboardChanged()
+{
+    std::shared_ptr<PasteboardObserverInstance> observerInstance(wrapper_.lock());
+    if (observerInstance == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "expired callback");
+        return;
+    }
+    observerInstance->OnPasteboardChanged();
+}
+
+void PasteboardObserverInstance::PasteboardObserverImpl::SetObserverWrapper(
+    const std::shared_ptr<PasteboardObserverInstance>& observerInstance)
+{
+    wrapper_ = observerInstance;
 }
 } // namespace MiscServicesNapi
 } // namespace OHOS
