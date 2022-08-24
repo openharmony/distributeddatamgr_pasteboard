@@ -41,7 +41,6 @@ const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const std::string DEFAULT_IME_BUNDLE_NAME = "com.example.kikakeyboard";
-const std::string EMPTY_STRING = "";
 const std::int32_t ERROR_USERID = -1;
 const bool G_REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(new PasteboardService());
@@ -183,38 +182,6 @@ void PasteboardService::PasteboardFocusChangedListener::OnUnfocused(const sptr<R
     focusAppUid_ = 0;
 }
 
-std::string PasteboardService::GetBundleNameByTokenId(int32_t tokenId)
-{
-    int32_t tokenType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    std::string bundleName;
-    switch (tokenType) {
-        case ATokenTypeEnum::TOKEN_HAP: {
-            HapTokenInfo hapInfo;
-            if (AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo) != 0) {
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get hap token info fail.");
-                return EMPTY_STRING;
-            }
-            bundleName = hapInfo.bundleName;
-            break;
-        }
-        case ATokenTypeEnum::TOKEN_NATIVE:
-        case ATokenTypeEnum::TOKEN_SHELL: {
-            NativeTokenInfo tokenInfo;
-            if (AccessTokenKit::GetNativeTokenInfo(tokenId, tokenInfo) != 0) {
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get native token info fail.");
-                return EMPTY_STRING;
-            }
-            bundleName = tokenInfo.processName;
-            break;
-        }
-        default: {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "token type not match.");
-            return EMPTY_STRING;
-        }
-    }
-    return bundleName;
-}
-
 bool PasteboardService::IsFocusOrDefaultIme(const std::string &currentAppId)
 {
     // 默认输入法校验待确认修改
@@ -237,11 +204,16 @@ bool PasteboardService::CheckPastePermission(const std::string &appId, ShareOpti
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d.", static_cast<uint32_t>(shareOption));
 
-    int32_t tokenType = ATokenTypeEnum::TOKEN_INVALID;
-    std::string currentAppId = GetAppIdByTokenId(tokenType);
-    if (tokenType == ATokenTypeEnum::TOKEN_HAP) {
-        auto ret = IsFocusOrDefaultIme(currentAppId);
-        if (!ret) {
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    AppInfo appInfo;
+    auto ret = GetAppInfoByTokenId(tokenId, appInfo);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetAppInfoByTokenId failed.");
+        return false;
+    }
+    if (appInfo.tokenType == ATokenTypeEnum::TOKEN_HAP) {
+        auto isFocusOrDefaultIme = IsFocusOrDefaultIme(appInfo.appId);
+        if (!isFocusOrDefaultIme) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme check failed.");
             return false;
         }
@@ -249,10 +221,10 @@ bool PasteboardService::CheckPastePermission(const std::string &appId, ShareOpti
 
     switch (shareOption) {
         case ShareOption::InApp: {
-            if (currentAppId != appId) {
+            if (appInfo.appId != appId) {
                 PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
                     "InApp check failed, appId = %{public}s, currentAppId = %{public}s.", appId.c_str(),
-                    currentAppId.c_str());
+                    appInfo.appId.c_str());
                 return false;
             }
             break;
@@ -271,19 +243,18 @@ bool PasteboardService::CheckPastePermission(const std::string &appId, ShareOpti
     return true;
 }
 
-std::string PasteboardService::GetAppIdByTokenId(int32_t &tokenType)
+bool PasteboardService::GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo)
 {
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
-    tokenType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    std::string appId = EMPTY_STRING;
-    switch (tokenType) {
+    appInfo.tokenType = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    switch (appInfo.tokenType) {
         case ATokenTypeEnum::TOKEN_HAP: {
             HapTokenInfo hapInfo;
             if (AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo) != 0) {
                 PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get hap token info fail.");
-                return EMPTY_STRING;
+                return false;
             }
-            appId = hapInfo.appID;
+            appInfo.appId = hapInfo.appID;
+            appInfo.bundleName = hapInfo.bundleName;
             break;
         }
         case ATokenTypeEnum::TOKEN_NATIVE:
@@ -291,18 +262,20 @@ std::string PasteboardService::GetAppIdByTokenId(int32_t &tokenType)
             NativeTokenInfo tokenInfo;
             if (AccessTokenKit::GetNativeTokenInfo(tokenId, tokenInfo) != 0) {
                 PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get native token info fail.");
-                return EMPTY_STRING;
+                return false;
             }
-            appId = tokenInfo.processName;
+            appInfo.appId = tokenInfo.processName;
+            appInfo.bundleName = tokenInfo.processName;
             break;
         }
         default: {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "token type not match.");
-            return EMPTY_STRING;
+            return false;
         }
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "appId = %{public}s.", appId.c_str());
-    return appId;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "tokenType = %{public}d, appId = %{public}s, bundleName = %{public}s.",
+        appInfo.tokenType, appInfo.appId.c_str(), appInfo.bundleName.c_str());
+    return true;
 }
 
 bool PasteboardService::GetPasteData(PasteData& data)
@@ -367,14 +340,16 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
     if (userId == ERROR_USERID) {
         return;
     }
-    int32_t tokenType = ATokenTypeEnum::TOKEN_INVALID;
-    auto appId = GetAppIdByTokenId(tokenType);
-    if (appId.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetAppId failed.");
+
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    AppInfo appInfo;
+    auto ret = GetAppInfoByTokenId(tokenId, appInfo);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetAppInfoByTokenId failed.");
         return;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "appId = %{public}s.", appId.c_str());
-    pasteData.SetAppId(appId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "appId = %{public}s.", appInfo.appId.c_str());
+    pasteData.SetAppId(appInfo.appId);
 
     std::lock_guard<std::mutex> lock(clipMutex_);
     auto it = clips_.find(userId);

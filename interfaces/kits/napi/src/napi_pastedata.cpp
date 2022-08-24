@@ -693,7 +693,7 @@ napi_value PasteDataNapi::GetPrimaryWant(napi_env env, napi_callback_info info)
     return OHOS::AppExecFwk::WrapWant(env, *want);
 }
 
-bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &property, napi_value &NProperty)
+bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &property, napi_value &nProperty)
 {
     napi_value value = nullptr;
     napi_value arr = nullptr;
@@ -701,7 +701,7 @@ bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &prope
 
     // additions : {[key: string]: object}
     value = OHOS::AppExecFwk::WrapWantParams(env, property.additions);
-    napi_set_named_property(env, NProperty, "additions", value);
+    napi_set_named_property(env, nProperty, "additions", value);
 
     // mimeTypes: Array<string>
     napi_create_array(env, &arr);
@@ -711,19 +711,19 @@ bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &prope
         count++;
     }
     if (count > 0) {
-        napi_set_named_property(env, NProperty, "mimeTypes", arr);
+        napi_set_named_property(env, nProperty, "mimeTypes", arr);
     }
 
     // tag: string
     napi_create_string_utf8(env, property.tag.c_str(), NAPI_AUTO_LENGTH, &value);
-    napi_set_named_property(env, NProperty, "tag", value);
+    napi_set_named_property(env, nProperty, "tag", value);
 
     // timestamp: number
     napi_create_int64(env, property.timestamp, &value);
-    napi_set_named_property(env, NProperty, "timestamp", value);
+    napi_set_named_property(env, nProperty, "timestamp", value);
 
     napi_create_int32(env, static_cast<int32_t>(property.shareOption), &value);
-    napi_set_named_property(env, NProperty, "shareOption", value);
+    napi_set_named_property(env, nProperty, "shareOption", value);
     return true;
 }
 
@@ -744,12 +744,12 @@ napi_value PasteDataNapi::GetProperty(napi_env env, napi_callback_info info)
         return nullptr;
     }
     PasteDataProperty property = obj->value_->GetProperty();
-    napi_value NProperty = nullptr;
-    napi_create_object(env, &NProperty);
-    if (!SetNapiProperty(env, property, NProperty)) {
+    napi_value nProperty = nullptr;
+    napi_create_object(env, &nProperty);
+    if (!SetNapiProperty(env, property, nProperty)) {
         return nullptr;
     }
-    return NProperty;
+    return nProperty;
 }
 
 napi_value PasteDataNapi::GetRecordAt(napi_env env, napi_callback_info info)

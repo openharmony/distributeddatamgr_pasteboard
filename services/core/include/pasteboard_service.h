@@ -46,7 +46,11 @@ enum class ServiceRunningState {
     STATE_NOT_START,
     STATE_RUNNING
 };
-
+struct AppInfo {
+    std::string appId;
+    std::string bundleName;
+    int32_t tokenType;
+};
 class PasteboardService final : public SystemAbility,
                                 public PasteboardServiceStub,
                                 public std::enable_shared_from_this<PasteboardService> {
@@ -84,7 +88,6 @@ private:
             return l->AsObject() < r->AsObject();
         }
     };
-
     int32_t Init();
     int32_t GetUserId();
     void NotifyObservers();
@@ -94,8 +97,7 @@ private:
     void GetPasteDataDot();
     std::string GetTime();
     static bool CheckPastePermission(const std::string &appId, ShareOption shareOption);
-    static std::string GetBundleNameByTokenId(int32_t tokenId);
-    static std::string GetAppIdByTokenId(int32_t &tokenType);
+    static bool GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo);
     static bool IsFocusOrDefaultIme(const std::string &currentAppId);
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
