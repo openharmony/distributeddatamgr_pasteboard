@@ -26,7 +26,7 @@ namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_systemPasteboard = nullptr;
 std::mutex SystemPasteboardNapi::pasteboardObserverInsMutex_;
-std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
+std::map<napi_ref, sptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
 const size_t ARGC_TYPE_SET1 = 1;
 const size_t ARGC_TYPE_SET2 = 2;
 const int32_t STR_DATA_SIZE = 10;
@@ -508,7 +508,7 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
 
     napi_ref ref = nullptr;
     napi_create_reference(env, argv[ARGC_TYPE_SET1], 1, &ref);
-    auto observer = std::make_shared<PasteboardObserverInstance>(env, ref);
+    sptr<PasteboardObserverInstance> observer = new (std::nothrow) PasteboardObserverInstance(env, ref);
     PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer);
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
     observers_[ref] = observer;
@@ -536,7 +536,7 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[0], str, STR_DATA_SIZE, &strLen));
     NAPI_ASSERT(env, strLen == STRING_UPDATE.length(), "error type");
     napi_ref ref = nullptr;
-    std::shared_ptr<PasteboardObserverInstance> observer = nullptr;
+    sptr<PasteboardObserverInstance> observer = nullptr;
     if (argc > ARGC_TYPE_SET1) {
         napi_typeof(env, argv[ARGC_TYPE_SET1], &valueType);
         NAPI_ASSERT(env, valueType == napi_function, "Wrong argument type. Function expected.");
@@ -899,7 +899,7 @@ napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance
     return napi_ok;
 }
 
-std::shared_ptr<PasteboardObserverInstance> SystemPasteboardNapi::GetPasteboardObserverIns(const napi_ref &ref)
+sptr<PasteboardObserverInstance> SystemPasteboardNapi::GetPasteboardObserverIns(const napi_ref &ref)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetPasteboardObserverIns start");
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
@@ -907,7 +907,6 @@ std::shared_ptr<PasteboardObserverInstance> SystemPasteboardNapi::GetPasteboardO
     if (observer != observers_.end()) {
         return observer->second;
     }
-
     return nullptr;
 }
 
