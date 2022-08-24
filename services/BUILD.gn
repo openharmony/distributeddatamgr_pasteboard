@@ -23,6 +23,7 @@ config("pasteboard_service_config") {
     "dfx/src/fault",
     "zidl/include",
     "core/include",
+    "load/include",
     "${pasteboard_innerkits_path}/include",
     "${pasteboard_utils_path}/mock/include",
     "${pasteboard_utils_path}/native/include",
@@ -32,6 +33,7 @@ config("pasteboard_service_config") {
     "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include",
+    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
   ]
 
   cflags_cc = [ "-fexceptions" ]
@@ -56,6 +58,8 @@ ohos_shared_library("pasteboard_service") {
     "dfx/src/pasteboard_trace.cpp",
     "dfx/src/reporter.cpp",
     "dfx/src/statistic/time_consuming_statistic_impl.cpp",
+    "load/src/config.cpp",
+    "load/src/loader.cpp",
     "zidl/src/pasteboard_observer_stub.cpp",
     "zidl/src/pasteboard_service_stub.cpp",
   ]
@@ -65,6 +69,7 @@ ohos_shared_library("pasteboard_service") {
   ]
   deps = [
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
+    "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

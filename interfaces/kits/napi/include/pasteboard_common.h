@@ -15,9 +15,9 @@
 #ifndef N_NAPI_PASTEBOARD_COMMON_H
 #define N_NAPI_PASTEBOARD_COMMON_H
 
+#include <string>
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-
 namespace OHOS {
 namespace MiscServicesNapi {
 napi_value GetCallbackErrorValue(napi_env env, int32_t errorCode);

@@ -14,10 +14,9 @@
  */
 #include "pasteboard_storage.h"
 
+#include <fstream>
 #include <nlohmann/json.hpp>
 
-namespace OHOS {
-namespace MiscServices {
 namespace nlohmann {
 template <typename T>
     struct adl_serializer<std::shared_ptr<T>> {
@@ -39,13 +38,14 @@ template <typename T>
         }
     };
 }
-
+namespace OHOS {
+namespace MiscServices {
 void to_json(nlohmann::json& j, const PasteDataRecord& r)
 {
     j["mime_type"]= r.GetMimeType();
     j["html_text"]= r.GetHtmlText();
     j["plain_text"]= r.GetPlainText();
-    j["uri"]= r.GetUri();
+    j["uri"]= r.GetUri()->ToString();
     auto want = r.GetWant();
     if (want) {
         j["want"] = want->ToUri();
@@ -59,14 +59,10 @@ void from_json(const nlohmann::json& j, PasteDataRecord& r)
     std::string mimeType = j.at("mime_type");
     std::shared_ptr<std::string> htmlText = j.at("html_text");
     std::shared_ptr<std::string> plainText = j.at("plain_text");
-    std::shared_ptr<OHOS::Uri> uri = j.at("uri");
+    std::shared_ptr<OHOS::Uri> uri = std::make_shared<OHOS::Uri>(j.at("uri"));
 
     auto wantJson = j.at("want");
     OHOS::AAFwk::Want want;
-    if (!wantJson.is_null()) {
-        want = OHOS::AAFwk::Want(OHOS::AAFwk::Want::ParseUri(wantJson.get<std::string>()));
-    }
-    r = PasteDataRecord(mimeType, htmlText, want, plainText, uri);
 }
 
 void to_json(nlohmann::json& j, const PasteData& p)
@@ -80,10 +76,9 @@ void from_json(const nlohmann::json& j, PasteData& p)
     p = PasteData(records);
 }
 
-
 std::shared_ptr<PasteboardStorage> PasteboardStorage::Create(const std::string &file)
 {
-    return std::shared_ptr<PasteboardStorage>(std::make_shared PasteboardStorage(file));
+    return std::make_shared<PasteboardStorage>(file);
 }
 
 PasteboardStorage::PasteboardStorage(std::string file) : file { std::move(file) }

@@ -17,6 +17,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"

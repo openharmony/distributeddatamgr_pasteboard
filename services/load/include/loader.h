@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,23 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef MISCSERVICES_PASTEBOARD_TRACE_H
-#define MISCSERVICES_PASTEBOARD_TRACE_H
-
-#include <string>
-#include <atomic>
-
-namespace OHOS {
-namespace MiscServices {
-class PasteboardTrace {
+#ifndef OHOS_PASTEBOARD_SERVICES_LOAD_LOADER_H
+#define OHOS_PASTEBOARD_SERVICES_LOAD_LOADER_H
+#include "config.h"
+namespace OHOS::MiscServices {
+class Loader {
 public:
-    explicit PasteboardTrace(const std::string &value);
-    ~PasteboardTrace();
+    Loader();
+    ~Loader();
+    void LoadComponents();
 
 private:
-    bool SetBytraceEnable() const;
-    static std::atomic_bool isSetBytraceEnabled_;
+    using Constructor = void (*)(const char *);
+    Config LoadConfig();
+    static constexpr const char *CONF_FILE = "/system/etc/pasteboard/conf/pasteboard.json";
 };
-} // namespace MiscServices
-} // namespace OHOS
-#endif // MISCSERVICES_PASTEBOARD_TRACE_H
+} // namespace OHOS::MiscServices
+#endif // OHOS_PASTEBOARD_SERVICES_LOAD_LOADER_H
