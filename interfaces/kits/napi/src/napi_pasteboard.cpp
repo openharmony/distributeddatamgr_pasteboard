@@ -918,8 +918,8 @@ void SystemPasteboardNapi::DeletePasteboardObserverIns(const std::shared_ptr<Pas
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "DeletePasteboardObserverIns start");
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
     for (auto it = observers_.begin(); it != observers_.end(); ++it) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "DeletePasteboardObserverIns start111");
         if(it->second == observer) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "DeletePasteboardObserverIns ok");
             observers_.erase(it);
             break;
         }
