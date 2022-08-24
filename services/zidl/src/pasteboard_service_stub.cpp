@@ -19,6 +19,7 @@
 #include "paste_data.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_observer_proxy.h"
 
 namespace OHOS {
 namespace MiscServices {
