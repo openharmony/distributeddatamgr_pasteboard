@@ -897,11 +897,12 @@ napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance
     return napi_ok;
 }
 
-std::shared_ptr<PasteboardObserverInstance> SystemPasteboardNapi::GetPasteboardObserverIns(const napi_env &env, const napi_value &currCallback)
+std::shared_ptr<PasteboardObserverInstance> SystemPasteboardNapi::GetPasteboardObserverIns(
+    const napi_env &env, const napi_value &currCallback)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetPasteboardObserverIns start");
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
-    for (auto &[refKey, observerValue]: observers_) {
+    for (auto &[refKey, observerValue] : observers_) {
         napi_value callback = nullptr;
         napi_get_reference_value(env, refKey, &callback);
         bool isEqual = false;
@@ -918,7 +919,7 @@ void SystemPasteboardNapi::DeletePasteboardObserverIns(const std::shared_ptr<Pas
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "DeletePasteboardObserverIns start");
     std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
     for (auto it = observers_.begin(); it != observers_.end(); ++it) {
-        if(it->second == observer) {
+        if (it->second == observer) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "DeletePasteboardObserverIns ok");
             observers_.erase(it);
             break;

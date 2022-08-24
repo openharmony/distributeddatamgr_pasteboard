@@ -81,7 +81,8 @@ private:
     static napi_value GetPasteData(napi_env env, napi_callback_info info);
     static napi_value SetPasteData(napi_env env, napi_callback_info info);
     static napi_value HasPasteData(napi_env env, napi_callback_info info);
-    static std::shared_ptr<PasteboardObserverInstance> GetPasteboardObserverIns(const napi_env &env, const napi_value &currCallback);
+    static std::shared_ptr<PasteboardObserverInstance> GetPasteboardObserverIns(
+        const napi_env &env, const napi_value &currCallback);
 
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
