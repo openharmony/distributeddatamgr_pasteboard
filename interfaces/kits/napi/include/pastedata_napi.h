@@ -41,7 +41,7 @@ private:
     static napi_value AddPixelMapRecord(napi_env env, napi_callback_info info);
     static napi_value AddTextRecord(napi_env env, napi_callback_info info);
     static napi_value AddUriRecord(napi_env env, napi_callback_info info);
-    static void AddRecord(napi_env env, size_t argc, napi_value *argv, PasteDataNapi *obj);
+    static void AddRecord(napi_env env, napi_value *argv, PasteDataNapi *obj);
     static void AddRecord(napi_env env, napi_value argv, PasteDataNapi *obj);
     static napi_value GetPrimaryHtml(napi_env env, napi_callback_info info);
     static napi_value GetPrimaryPixelMap(napi_env env, napi_callback_info info);
@@ -60,7 +60,7 @@ private:
     static napi_value GetProperty(napi_env env, napi_callback_info info);
     static napi_value GetRecordAt(napi_env env, napi_callback_info info);
     static bool SetNapiProperty(napi_env env, const MiscServices::PasteDataProperty &property, napi_value &NProperty);
-    static std::shared_ptr<MiscServices::PasteDataRecord> ConstructRecord(napi_env env, napi_value &recordNapi);
+    static std::shared_ptr<MiscServices::PasteDataRecord> ParseRecord(napi_env env, napi_value &recordNapi);
     static bool SetStringProp(napi_env env, const std::string &propName, napi_value &propValueNapi,
         MiscServices::PasteDataRecord::Builder &builder);
     napi_env env_;

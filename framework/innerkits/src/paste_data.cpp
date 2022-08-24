@@ -66,12 +66,9 @@ void PasteData::AddUriRecord(const OHOS::Uri &uri)
     this->AddRecord(PasteDataRecord::NewUriRecord(uri));
 }
 
-void PasteData::AddKvRecord(const std::string &mimeType, void *data, const size_t dataLen)
+void PasteData::AddKvRecord(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer)
 {
-    if (data == nullptr) {
-        return;
-    }
-    this->AddRecord(PasteDataRecord::NewKvRecord(mimeType, data, dataLen));
+    AddRecord(PasteDataRecord::NewKvRecord(mimeType, arrayBuffer));
 }
 
 void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
@@ -263,11 +260,9 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
         return pasteData;
     }
 
-    pasteData->records_.clear();
-
     auto length = parcel.ReadUint32();
-    if (length == 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length == 0.");
+    if (length <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length error.");
         delete pasteData;
         pasteData = nullptr;
         return pasteData;

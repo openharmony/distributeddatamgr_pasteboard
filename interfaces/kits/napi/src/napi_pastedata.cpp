@@ -31,7 +31,6 @@ const int32_t STR_MAX_SIZE = 256;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 constexpr int32_t MAX_TEXT_LEN = 500 * 1024;
 constexpr size_t STR_TAIL_LENGTH = 1;
-const std::string EMPTY_STRING = "";
 }  // namespace
 static thread_local napi_ref g_pasteData = nullptr;
 
@@ -462,7 +461,7 @@ napi_value PasteDataNapi::GetMimeTypes(napi_env env, napi_callback_info info)
     return nMimeTypes;
 }
 
-void PasteDataNapi::AddRecord(napi_env env, size_t argc, napi_value *argv, PasteDataNapi *obj)
+void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, PasteDataNapi *obj)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddKvRecord");
     if (obj == nullptr) {
@@ -471,59 +470,53 @@ void PasteDataNapi::AddRecord(napi_env env, size_t argc, napi_value *argv, Paste
     napi_valuetype valueType = napi_undefined;
     bool result = false;
     NAPI_CALL_RETURN_VOID(env, napi_typeof(env, argv[0], &valueType));
+    NAPI_ASSERT_RETURN_VOID(env, valueType == napi_string, "Wrong argument type");
     NAPI_CALL_RETURN_VOID(env, napi_is_arraybuffer(env, argv[1], &result));
+    NAPI_ASSERT_RETURN_VOID(env, result, "Wrong argument type");
 
     void *data = nullptr;
-    size_t dataLen;
-    std::string mimeType = EMPTY_STRING;
-    for (size_t i = 0; i < argc; i++) {
-        if ((i == 0) && (valueType == napi_string)) {
-            bool ret = MiscServicesNapi::GetValue(env, argv[0], mimeType);
-            if (ret != true || mimeType.size() > MIMETYPE_MAX_SIZE) {
-                return;
-            }
-        } else if ((i == 1) && (result == true)) {
-            NAPI_CALL_RETURN_VOID(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
-        } else {
-            PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type, i = %{public}d.", static_cast<uint32_t>(i));
-            return;
-        }
+    size_t dataLen = 0;
+    std::string mimeType;
+    bool ret = MiscServicesNapi::GetValue(env, argv[0], mimeType);
+    if (ret != true || mimeType.size() > MIMETYPE_MAX_SIZE) {
+        return;
     }
+    NAPI_CALL_RETURN_VOID(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
 
-    obj->value_->AddKvRecord(mimeType, data, dataLen);
+    obj->value_->AddKvRecord(mimeType,
+        std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
 }
 
 bool PasteDataNapi::SetStringProp(
     napi_env env, const std::string &propName, napi_value &propValueNapi, PasteDataRecord::Builder &builder)
 {
-    std::string nativeStr = EMPTY_STRING;
-    bool ret = MiscServicesNapi::GetValue(env, propValueNapi, nativeStr);
+    std::string propValue;
+    bool ret = MiscServicesNapi::GetValue(env, propValueNapi, propValue);
     if (!ret) {
         return false;
     }
-    if ((propName == "mimeType") && (nativeStr.size() <= MIMETYPE_MAX_SIZE)) {
-        builder.SetMimeType(nativeStr);
-    } else if ((propName == "htmlText") && (nativeStr.size() <= MAX_TEXT_LEN)) {
-        builder.SetHtmlText(std::make_shared<std::string>(nativeStr));
-    } else if ((propName == "plainText") && (nativeStr.size() <= MAX_TEXT_LEN)) {
-        builder.SetPlainText(std::make_shared<std::string>(nativeStr));
+    if ((propName == "mimeType") && (propValue.size() <= MIMETYPE_MAX_SIZE)) {
+        builder.SetMimeType(propValue);
+    } else if ((propName == "htmlText") && (propValue.size() <= MAX_TEXT_LEN)) {
+        builder.SetHtmlText(std::make_shared<std::string>(propValue));
+    } else if ((propName == "plainText") && (propValue.size() <= MAX_TEXT_LEN)) {
+        builder.SetPlainText(std::make_shared<std::string>(propValue));
     } else if (propName == "uri") {
-        builder.SetUri(std::make_shared<OHOS::Uri>(Uri(nativeStr)));
+        builder.SetUri(std::make_shared<OHOS::Uri>(Uri(propValue)));
     } else {
         return false;
     }
     return true;
 }
 
-std::shared_ptr<MiscServices::PasteDataRecord> PasteDataNapi::ConstructRecord(napi_env env, napi_value &recordNapi)
+std::shared_ptr<MiscServices::PasteDataRecord> PasteDataNapi::ParseRecord(napi_env env, napi_value &recordNapi)
 {
     napi_value propNames = nullptr;
     NAPI_CALL(env, napi_get_property_names(env, recordNapi, &propNames));
     uint32_t propNameNums = 0;
     NAPI_CALL(env, napi_get_array_length(env, propNames, &propNameNums));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "propNameNums = %{public}d", propNameNums);
-    PasteDataRecord::Builder builder(EMPTY_STRING);
+    PasteDataRecord::Builder builder((std::string()));
     for (uint32_t i = 0; i < propNameNums; i++) {
         napi_value propNameNapi = nullptr;
         NAPI_CALL(env, napi_get_element(env, propNames, i, &propNameNapi));
@@ -572,9 +565,9 @@ void PasteDataNapi::AddRecord(napi_env env, napi_value argv, PasteDataNapi *obj)
     NAPI_CALL_RETURN_VOID(env, napi_typeof(env, argv, &valueType));
     NAPI_ASSERT_RETURN_VOID(env, valueType == napi_object, "Wrong argument type. Object expected.");
 
-    std::shared_ptr<PasteDataRecord> pasteDataRecord = ConstructRecord(env, argv);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = ParseRecord(env, argv);
     if (pasteDataRecord == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "ConstructRecord failed!");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "ParseRecord failed!");
         return;
     }
     obj->value_->AddRecord(*pasteDataRecord);
@@ -596,7 +589,7 @@ napi_value PasteDataNapi::AddRecord(napi_env env, napi_callback_info info)
     }
 
     if (argc == ARGC_TYPE_SET2) {
-        AddRecord(env, argc, argv, obj);
+        AddRecord(env, argv, obj);
     } else if (argc == ARGC_TYPE_SET1) {
         AddRecord(env, argv[0], obj);
     } else {
@@ -630,9 +623,9 @@ napi_value PasteDataNapi::ReplaceRecordAt(napi_env env, napi_callback_info info)
         return result;
     }
 
-    std::shared_ptr<PasteDataRecord> pasteDataRecord = ConstructRecord(env, argv[1]);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = ParseRecord(env, argv[1]);
     if (pasteDataRecord == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "ConstructRecord failed!");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "ParseRecord failed!");
         return result;
     }
 

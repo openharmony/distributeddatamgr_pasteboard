@@ -27,7 +27,6 @@ namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
 const size_t ARGC_TYPE_SET1 = 1;
 const size_t CALLBACK_RESULT_NUM = 2;
-const std::string EMPTY_STRING = "";
 constexpr int32_t  MIMETYPE_MAX_SIZE = 1024;
 
 PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
@@ -130,12 +129,8 @@ bool PasteDataRecordNapi::NewWantRecordInstance(
     return true;
 }
 bool PasteDataRecordNapi::NewKvRecordInstance(
-    napi_env env, const std::string &mimeType, void* data, const size_t dataLen, napi_value &instance)
+    napi_env env, const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer, napi_value &instance)
 {
-    if (data == nullptr) {
-        return false;
-    }
-
     NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
@@ -143,7 +138,7 @@ bool PasteDataRecordNapi::NewKvRecordInstance(
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
         return false;
     }
-    obj->value_ = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, data, dataLen);
+    obj->value_ = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
     obj->JSFillInstance(env, instance);
     return true;
 }
@@ -171,8 +166,11 @@ napi_value PasteDataRecordNapi::SetNapiKvData(napi_env env, std::shared_ptr<Mine
     for (auto &item : itemData) {
         void *data = nullptr;
         napi_value arrayBuffer = nullptr;
-        NAPI_CALL(env, napi_create_arraybuffer(env, item.second.size(), &data, &arrayBuffer));
-        memcpy_s(data, item.second.size(), reinterpret_cast<const void *>(item.second.data()), item.second.size());
+        size_t len = item.second.size();
+        NAPI_CALL(env, napi_create_arraybuffer(env, len, &data, &arrayBuffer));
+        if (memcpy_s(data, len, reinterpret_cast<const void *>(item.second.data()), len) != 0) {
+            return nullptr;
+        }
         NAPI_CALL(env, napi_set_named_property(env, jsCustomData, item.first.c_str(), arrayBuffer));
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType = %{public}s.", item.first.c_str());
     }
@@ -196,7 +194,7 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
         napi_value mimeTypeNapi = nullptr;
         NAPI_CALL(env, napi_get_element(env, mimeTypes, i, &mimeTypeNapi));
 
-        std::string mimeType = EMPTY_STRING;
+        std::string mimeType;
         if (!(MiscServicesNapi::GetValue(env, mimeTypeNapi, mimeType)) || (mimeType.size() > MIMETYPE_MAX_SIZE)) {
             return nullptr;
         }
@@ -207,9 +205,8 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
         void *data = nullptr;
         size_t dataLen;
         NAPI_CALL(env, napi_get_arraybuffer_info(env, napiArrayBuffer, &data, &dataLen));
-        std::vector<uint8_t> arrayBuffer =
-            std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
-        customData->AddItemData(mimeType, arrayBuffer);
+        customData->AddItemData(mimeType,
+            std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
     }
     return customData;
 }

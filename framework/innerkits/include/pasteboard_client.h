@@ -84,10 +84,11 @@ public:
     /**
      * CreateKvRecord
      * @descrition Create Kv Record.
-     * @param std::map<std::string, uint8_t*> kvData.
+    * @param std::string mimeType
+    * @param std::vector<uint8_t> arrayBuffer
      * @return PasteDataRecord.
      */
-    std::shared_ptr<PasteDataRecord> CreateKvRecord(const std::string &mimeType, void* data, const size_t dataLen);
+    std::shared_ptr<PasteDataRecord> CreateKvRecord(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer);
 
     /**
      * CreateHtmlData
@@ -132,10 +133,11 @@ public:
     /**
     * CreateKvData
     * @descrition Create Kv Paste Data.
-    * @param std::map<std::string, uint8_t *> kvData .
+    * @param std::string mimeType
+    * @param std::vector<uint8_t> arrayBuffer
     * @return PasteData.
     */
-    std::shared_ptr<PasteData> CreateKvData(const std::string &mimeType, void *data, const size_t dataLen);
+    std::shared_ptr<PasteData> CreateKvData(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer);
 
     /**
      * GetPasteData

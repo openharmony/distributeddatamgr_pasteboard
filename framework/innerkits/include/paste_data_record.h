@@ -66,7 +66,7 @@ public:
     static std::shared_ptr<PasteDataRecord> NewPlaintTextRecord(const std::string &text);
     static std::shared_ptr<PasteDataRecord> NewPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     static std::shared_ptr<PasteDataRecord> NewUriRecord(const OHOS::Uri &uri);
-    static std::shared_ptr<PasteDataRecord> NewKvRecord(const std::string &mimeType, void *data, const size_t dataLen);
+    static std::shared_ptr<PasteDataRecord> NewKvRecord(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer);
 
     std::string GetMimeType() const;
     std::shared_ptr<std::string> GetHtmlText() const;
@@ -90,7 +90,7 @@ public:
         Builder &SetUri(std::shared_ptr<OHOS::Uri> uri);
         Builder &SetPixelMap(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
         Builder &SetCustomData(std::shared_ptr<MineCustomData> customData);
-        Builder &SetMimeType(const std::string &mimeType);
+        Builder &SetMimeType(std::string mimeType);
         std::shared_ptr<PasteDataRecord> Build();
     private:
         std::shared_ptr<PasteDataRecord> record_ = nullptr;

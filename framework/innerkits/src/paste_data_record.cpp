@@ -23,9 +23,9 @@ namespace {
 constexpr int MAX_TEXT_LEN = 500 * 1024;
 }
 
-PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(const std::string &mimeType)
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mimeType)
 {
-    record_->mimeType_ = mimeType;
+    record_->mimeType_ = std::move(mimeType);
     return *this;
 }
 
@@ -111,16 +111,11 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
-    const std::string &mimeType, void *data, const size_t dataLen)
+    const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer)
 {
-    if (data == nullptr) {
-        return nullptr;
-    }
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
-    std::vector<uint8_t> arrayBuffer =
-        std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
     customData->AddItemData(mimeType, arrayBuffer);
-    return Builder(mimeType).SetCustomData(customData).Build();
+    return Builder(mimeType).SetCustomData(std::move(customData)).Build();
 }
 
 PasteDataRecord::PasteDataRecord(std::string mimeType,
@@ -176,7 +171,7 @@ std::map<std::string, std::vector<uint8_t>> MineCustomData::GetItemData()
 
 void MineCustomData::AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
-    this->itemData_.insert(std::make_pair(mimeType, arrayBuffer));
+    itemData_.insert(std::make_pair(mimeType, arrayBuffer));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "itemData_.size = %{public}d", itemData_.size());
 }
 
@@ -333,14 +328,17 @@ MineCustomData *MineCustomData::Unmarshalling(Parcel &parcel)
 
     if (mineCustomData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "mineCustomData is nullptr.");
+        return mineCustomData;
+    }
+
+    uint32_t failedNums = 0;
+    auto len = parcel.ReadUint32();
+    if (len <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length error");
         delete mineCustomData;
         mineCustomData = nullptr;
         return mineCustomData;
     }
-    mineCustomData->itemData_.clear();
-
-    uint32_t failedNums = 0;
-    auto len = parcel.ReadUint32();
     for (uint32_t i = 0; i < len; i++) {
         std::string mimeType = parcel.ReadString();
         std::vector<uint8_t> arrayBuffer;
