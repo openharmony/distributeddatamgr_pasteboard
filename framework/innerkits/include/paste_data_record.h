@@ -20,6 +20,7 @@
 #include <string>
 #include "parcel.h"
 #include "pixel_map.h"
+#include "serializable/tlv_object.h"
 #include "string_ex.h"
 #include "uri.h"
 #include "want.h"
@@ -40,7 +41,7 @@ enum ResultCode : int32_t {
     IPC_ERROR
 };
 
-class PasteDataRecord : public Parcelable {
+class PasteDataRecord final : public Parcelable, public TLVObject {
 public:
     PasteDataRecord() = default;
     PasteDataRecord(std::string mimeType,
