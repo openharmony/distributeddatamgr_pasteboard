@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "pasteboard_module_config.h"
+#include "distributed_module_config.h"
 
 namespace OHOS {
 namespace MiscServices {
