@@ -39,8 +39,8 @@ ohos_shared_library("pasteboard_client") {
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "//third_party/jsoncpp:jsoncpp",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [

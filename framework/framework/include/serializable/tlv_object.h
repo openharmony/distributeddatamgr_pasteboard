@@ -29,4 +29,4 @@ public:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif //DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
+#endif // DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
