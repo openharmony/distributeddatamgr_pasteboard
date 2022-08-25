@@ -12,9 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <functional>
+
 #ifndef PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
 #define PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
+
+#include <functional>
+
 namespace OHOS {
 namespace MiscServices {
 class PasteboardModuleConfig {
@@ -30,3 +33,4 @@ private:
 } // namespace MiscServices
 } // namespace OHOS
 #endif //PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
+
