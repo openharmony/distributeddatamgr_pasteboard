@@ -127,7 +127,7 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 std::shared_ptr<std::string> PasteData::GetPrimaryText()
 {
     for (const auto &item: records_) {
-        if (item->GetMimeType() == MIMETYPE_TEXT_PLAIN) {
+        if ((item->GetPlainText() != nullptr) && (item->GetPlainText()->size() > 0)) {
             return item->GetPlainText();
         }
     }
