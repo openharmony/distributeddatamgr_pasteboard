@@ -22,6 +22,7 @@ config("pasteboard_client_config") {
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_utils_path}/native/include",
     "//commonlibrary/c_utils/base/include",
+    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
   ]
 }
 
@@ -39,6 +40,7 @@ ohos_shared_library("pasteboard_client") {
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "//third_party/jsoncpp:jsoncpp",
+    "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
   ]
 
   external_deps = [
