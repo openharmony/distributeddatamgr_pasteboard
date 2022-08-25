@@ -33,4 +33,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif //PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
+#endif // PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
