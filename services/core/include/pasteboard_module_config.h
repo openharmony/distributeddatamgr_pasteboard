@@ -22,15 +22,15 @@ namespace OHOS {
 namespace MiscServices {
 class PasteboardModuleConfig {
 public:
-    using SwitchObserver = std::function<void(bool IsSwitchOn)>;
+    using SwitchObserver = std::function<void(bool isSwitchOn)>;
     static bool IsDistributedModuleOn();
     static void WatchDistributedModuleSwitch(SwitchObserver observer);
+    static void NotifySwitchObserver(bool isSwitchOn);
 
 private:
-    static void NotifySwitchObserver();
     static SwitchObserver observer_;
+    static bool isSwitchOn_;
 };
 } // namespace MiscServices
 } // namespace OHOS
 #endif //PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
-
