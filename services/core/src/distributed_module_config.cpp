@@ -16,7 +16,6 @@
 
 namespace OHOS {
 namespace MiscServices {
-
 bool DistributedModuleConfig::IsOn()
 {
     return false;
