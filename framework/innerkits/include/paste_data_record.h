@@ -41,7 +41,7 @@ enum ResultCode : int32_t {
     IPC_ERROR
 };
 
-class PasteDataRecord final : public Parcelable, public TLVObject {
+class PasteDataRecord : public Parcelable, public TLVObject {
 public:
     PasteDataRecord() = default;
     PasteDataRecord(std::string mimeType,
