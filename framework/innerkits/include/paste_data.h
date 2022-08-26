@@ -38,7 +38,7 @@ struct PasteDataProperty {
     bool localOnly;
 };
 
-class PasteData final : public Parcelable, public TLVObject {
+class PasteData : public Parcelable, public TLVObject {
 public:
     PasteData() = default;
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
