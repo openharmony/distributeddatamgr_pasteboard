@@ -40,6 +40,11 @@ public:
     static bool NewUriRecordInstance(napi_env env, const std::string &text, napi_value &instance);
     static bool NewWantRecordInstance(
         napi_env env, const std::shared_ptr<OHOS::AAFwk::Want> want, napi_value &instance);
+    static bool NewKvRecordInstance(
+        napi_env env, const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer, napi_value &instance);
+    static napi_value CreatKvData(napi_env env, std::shared_ptr<MiscServices::MineCustomData> customData);
+    static std::shared_ptr<MiscServices::MineCustomData> GetNativeKvData(napi_env env, napi_value napiValue);
+    napi_value SetNapiKvData(napi_env env, std::shared_ptr<MiscServices::MineCustomData> customData);
     PasteDataRecordNapi();
     ~PasteDataRecordNapi();
 
@@ -48,7 +53,7 @@ public:
     std::shared_ptr<MiscServices::PasteDataRecord> value_;
 
 private:
-    bool JSFillInstance(napi_env env, napi_value &instance);
+    void JSFillInstance(napi_env env, napi_value &instance);
     void SetNamedPropertyByStr(
         napi_env env, napi_value &instance, const char *propName, const char *propValue);
     napi_env env_;

@@ -17,6 +17,7 @@
 namespace OHOS {
 namespace MiscServicesNapi {
 const size_t ARGC_TYPE_SET2 = 2;
+constexpr size_t STR_TAIL_LENGTH = 1;
 
 napi_value GetCallbackErrorValue(napi_env env, int32_t errorCode)
 {
@@ -58,6 +59,27 @@ napi_value CreateNapiString(napi_env env, std::string str)
     napi_value value = nullptr;
     napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &value);
     return value;
+}
+
+bool GetValue(napi_env env, napi_value in, std::string& out)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
+    NAPI_ASSERT_BASE(env, type == napi_string, "Wrong argument type. String expected.", false);
+
+    size_t len = 0;
+    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, in, nullptr, 0, &len), false);
+    if (len <= 0) {
+        return false;
+    }
+    std::vector<char> buf(len + STR_TAIL_LENGTH);
+    size_t length = 0;
+    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, in, buf.data(), len + STR_TAIL_LENGTH, &length), false);
+    buf[length] = 0;
+    std::string str(buf.data());
+    out = str;
+
+    return true;
 }
 } // namespace MiscServicesNapi
 } // namespace OHOS

@@ -69,6 +69,13 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateUriRecord(const OHOS::U
     return PasteDataRecord::NewUriRecord(uri);
 }
 
+std::shared_ptr<PasteDataRecord> PasteboardClient::CreateKvRecord(
+    const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New kv record");
+    return PasteDataRecord::NewKvRecord(mimeType, arrayBuffer);
+}
+
 std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &htmlText)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New htmlText data: %{public}s", htmlText.c_str());
@@ -106,6 +113,15 @@ std::shared_ptr<PasteData> PasteboardClient::CreateUriData(const OHOS::Uri &uri)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New uri data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddUriRecord(uri);
+    return pasteData;
+}
+
+std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
+    const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New KvData data");
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddKvRecord(mimeType, arrayBuffer);
     return pasteData;
 }
 

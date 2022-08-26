@@ -31,6 +31,7 @@ const size_t ARGC_TYPE_SET1 = 1;
 const size_t ARGC_TYPE_SET2 = 2;
 const int32_t STR_DATA_SIZE = 10;
 const std::string STRING_UPDATE = "update";
+constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref)
     : env_(env), ref_(ref)
@@ -266,6 +267,53 @@ napi_value JScreateUriRecord(napi_env env, napi_callback_info info)
     return instance;
 }
 
+bool ParseKvData(napi_env env, napi_callback_info info, std::string &mimeType, std::vector<uint8_t> &arrayBuffer)
+{
+    size_t argc = ARGC_TYPE_SET2;
+    napi_value argv[ARGC_TYPE_SET2] = {0};
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL_BASE(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL), false);
+    NAPI_ASSERT_BASE(env, argc == ARGC_TYPE_SET2, "Wrong number of arguments", false);
+
+    napi_valuetype valueType = napi_undefined;
+    bool result = false;
+    NAPI_CALL_BASE(env, napi_typeof(env, argv[0], &valueType), false);
+    NAPI_ASSERT_BASE(env, valueType == napi_string, "Wrong argument type", false);
+    NAPI_CALL_BASE(env, napi_is_arraybuffer(env, argv[1], &result), false);
+    NAPI_ASSERT_BASE(env, result, "Wrong argument type", false);
+
+    void *data = nullptr;
+    size_t dataLen = 0;
+    bool ret = MiscServicesNapi::GetValue(env, argv[0], mimeType);
+    if (ret != true || mimeType.size() > MIMETYPE_MAX_SIZE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed, ret = %{public}d!", ret);
+        return false;
+    }
+    NAPI_CALL_BASE(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen), false);
+    std::vector<uint8_t> arrayBuf(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
+    arrayBuffer = std::move(arrayBuf);
+    if (dataLen > 0 && data != nullptr) {
+        free(data);
+    }
+    return true;
+}
+
+napi_value JSCreateKvRecord(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSCreateKvData is called!");
+
+    std::string mimeType;
+    std::vector<uint8_t> arrayBuffer;
+    if (!ParseKvData(env, info, mimeType, arrayBuffer)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "parseKvData failed!");
+        return nullptr;
+    }
+    napi_value instance = nullptr;
+    PasteDataRecordNapi::NewKvRecordInstance(env, mimeType, arrayBuffer, instance);
+    return instance;
+}
+
 napi_value JScreateHtmlData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateHtmlData is called!");
@@ -431,6 +479,29 @@ napi_value JScreateUriData(napi_env env, napi_callback_info info)
     return instance;
 }
 
+napi_value JSCreateKvData(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSCreateKvData is called!");
+
+    std::string mimeType;
+    std::vector<uint8_t> arrayBuffer;
+    if (!ParseKvData(env, info, mimeType, arrayBuffer)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "parseKvData failed!");
+        return nullptr;
+    }
+
+    napi_value instance = nullptr;
+    NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
+    PasteDataNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed!");
+        return nullptr;
+    }
+
+    obj->value_ = PasteboardClient::GetInstance()->CreateKvData(mimeType, arrayBuffer);
+    return instance;
+}
 napi_value JSgetSystemPasteboard(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSgetSystemPasteboard is called!");
@@ -456,11 +527,13 @@ napi_value PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createPlainTextData", JScreatePlainTextData),
         DECLARE_NAPI_FUNCTION("createPixelMapData", JScreatePixelMapData),
         DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData),
+        DECLARE_NAPI_FUNCTION("createData", JSCreateKvData),
         DECLARE_NAPI_FUNCTION("createHtmlTextRecord", JScreateHtmlTextRecord),
         DECLARE_NAPI_FUNCTION("createWantRecord", JScreateWantRecord),
         DECLARE_NAPI_FUNCTION("createPlainTextRecord", JScreatePlainTextRecord),
         DECLARE_NAPI_FUNCTION("createPixelMapRecord", JScreatePixelMapRecord),
         DECLARE_NAPI_FUNCTION("createUriRecord", JScreateUriRecord),
+        DECLARE_NAPI_FUNCTION("createRecord", JSCreateKvRecord),
         DECLARE_NAPI_FUNCTION("getSystemPasteboard", JSgetSystemPasteboard),
         DECLARE_NAPI_PROPERTY("MAX_RECORD_NUM", CreateNapiNumber(env, 128)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_PIXELMAP", CreateNapiString(env, MIMETYPE_PIXELMAP)),

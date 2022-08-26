@@ -23,6 +23,12 @@ namespace {
 constexpr int MAX_TEXT_LEN = 500 * 1024;
 }
 
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mimeType)
+{
+    record_->mimeType_ = std::move(mimeType);
+    return *this;
+}
+
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<std::string> htmlText)
 {
     record_->htmlText_ = std::move(htmlText);
@@ -48,6 +54,13 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetPixelMap(std::shared_ptr<
     record_->pixelMap_ = std::move(pixelMap);
     return *this;
 }
+
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetCustomData(std::shared_ptr<MineCustomData> customData)
+{
+    record_->customData_ = std::move(customData);
+    return *this;
+}
+
 std::shared_ptr<PasteDataRecord> PasteDataRecord::Builder::Build()
 {
     return record_;
@@ -62,6 +75,7 @@ PasteDataRecord::Builder::Builder(const std::string &mimeType)
         record_->plainText_ = nullptr;
         record_->uri_ = nullptr;
         record_->pixelMap_ = nullptr;
+        record_->customData_ = nullptr;
     }
 }
 
@@ -94,6 +108,14 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPixelMapRecord(std::shared_
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &uri)
 {
     return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
+}
+
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
+    const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer)
+{
+    std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
+    customData->AddItemData(mimeType, arrayBuffer);
+    return Builder(mimeType).SetCustomData(std::move(customData)).Build();
 }
 
 PasteDataRecord::PasteDataRecord(std::string mimeType,
@@ -135,6 +157,22 @@ std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
 {
     return this->want_;
+}
+
+std::shared_ptr<MineCustomData> PasteDataRecord::GetCustomData() const
+{
+    return this->customData_;
+}
+
+std::map<std::string, std::vector<uint8_t>> MineCustomData::GetItemData()
+{
+    return this->itemData_;
+}
+
+void MineCustomData::AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
+{
+    itemData_.insert(std::make_pair(mimeType, arrayBuffer));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "itemData_.size = %{public}d", itemData_.size());
 }
 
 std::string PasteDataRecord::ConvertToText() const
@@ -188,6 +226,7 @@ bool PasteDataRecord::Marshalling(Parcel &parcel) const
     ret = Marshalling(parcel, plainText_) && ret;
     ret = Marshalling(parcel, uri_) && ret;
     ret = Marshalling(parcel, pixelMap_) && ret;
+    ret = Marshalling(parcel, customData_) && ret;
     return ret;
 }
 
@@ -249,6 +288,8 @@ PasteDataRecord *PasteDataRecord::Unmarshalling(Parcel &parcel)
     ret = CheckResult(resultCode) || ret;
     resultCode = UnMarshalling(parcel, pasteDataRecord->pixelMap_);
     ret = CheckResult(resultCode) || ret;
+    resultCode = UnMarshalling(parcel, pasteDataRecord->customData_);
+    ret = CheckResult(resultCode) || ret;
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "UnMarshalling failed.");
         delete pasteDataRecord;
@@ -256,6 +297,65 @@ PasteDataRecord *PasteDataRecord::Unmarshalling(Parcel &parcel)
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return pasteDataRecord;
+}
+
+bool MineCustomData::Marshalling(Parcel &parcel) const
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "begin.");
+    auto len = itemData_.size();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "itemData_len = %{public}zu,", len);
+    if (!parcel.WriteUint32(static_cast<uint32_t>(len))) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "len Marshalling failed.");
+        return false;
+    }
+    for (const auto &item : itemData_) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}d!", item.second.size());
+        if (!parcel.WriteString(item.first) || !parcel.WriteUInt8Vector(item.second)) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write failed.");
+            return false;
+        }
+    }
+
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    return true;
+}
+
+MineCustomData *MineCustomData::Unmarshalling(Parcel &parcel)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "begin.");
+    auto *mineCustomData = new (std::nothrow) MineCustomData();
+
+    if (mineCustomData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "mineCustomData is nullptr.");
+        return mineCustomData;
+    }
+
+    uint32_t failedNums = 0;
+    auto len = parcel.ReadUint32();
+    if (len <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length error");
+        delete mineCustomData;
+        mineCustomData = nullptr;
+        return mineCustomData;
+    }
+    for (uint32_t i = 0; i < len; i++) {
+        std::string mimeType = parcel.ReadString();
+        std::vector<uint8_t> arrayBuffer;
+        if (!parcel.ReadUInt8Vector(&arrayBuffer) || arrayBuffer.empty()) {
+            failedNums++;
+            continue;
+        }
+        mineCustomData->AddItemData(mimeType, arrayBuffer);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}d.", arrayBuffer.size());
+    }
+
+    if (failedNums == len) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "mineCustomData is nullptr.");
+        delete mineCustomData;
+        mineCustomData = nullptr;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    return mineCustomData;
 }
 } // MiscServices
 } // OHOS

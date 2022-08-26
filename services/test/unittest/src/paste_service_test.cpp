@@ -157,10 +157,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest004, TestSize.Level0)
 HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = {};
-    opts.size.height = 5;
-    opts.size.width = 7;
-    opts.pixelFormat = PixelFormat::ARGB_8888;
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
@@ -170,7 +167,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
     ImageInfo imageInfo = {};
     getPixelMap->GetImageInfo(imageInfo);
     ASSERT_TRUE(imageInfo.size.height == opts.size.height);
-    ASSERT_TRUE(imageInfo.size.width ==  opts.size.width);
+    ASSERT_TRUE(imageInfo.size.width == opts.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
 }
 
@@ -200,6 +197,54 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest006, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.height == opts1.size.height);
     ASSERT_TRUE(imageInfo.size.width == opts1.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts1.pixelFormat);
+}
+
+/**
+* @tc.name: PasteRecordTest007
+* @tc.desc: Create paste board record test.
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest007, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    auto customData = pasteDataRecord->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    auto itemData = customData->GetItemData();
+    ASSERT_TRUE(itemData.size() == 1);
+    auto item = itemData.find(mimeType);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer);
+}
+
+/**
+* @tc.name: PasteRecordTest008
+* @tc.desc: Create paste board record test.
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest008, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    std::string mimeType1 = "img/png";
+    std::vector<uint8_t> arrayBuffer1(46);
+    arrayBuffer1 = { 2, 7, 6, 8, 9 };
+    pasteDataRecord = pasteDataRecord->NewKvRecord(mimeType1, arrayBuffer1);
+    auto customData = pasteDataRecord->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    auto itemData = customData->GetItemData();
+    ASSERT_TRUE(itemData.size() == 1);
+    auto item = itemData.find(mimeType1);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer1);
 }
 
 /**
@@ -305,6 +350,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
 * @tc.name: PasteDataTest005
 * @tc.desc: marshalling test.
 * @tc.type: FUNC
+* @tc.require: AR000HEECD
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
 {
@@ -312,9 +358,17 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     ASSERT_TRUE(pasteData != nullptr);
     std::string plainText = "plain text";
-    PasteDataRecord::Builder builder(MIMETYPE_TEXT_PLAIN);
-    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetPlainText(std::make_shared<std::string>(plainText))
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
+    std::string mimeType = MIMETYPE_TEXT_PLAIN;
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType1 = "image/jpg";
+    std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
+    customData->AddItemData(mimeType1, arrayBuffer);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(mimeType)
+                                                           .SetPlainText(std::make_shared<std::string>(plainText))
                                                            .SetHtmlText(std::make_shared<std::string>(htmlText))
+                                                           .SetCustomData(customData)
                                                            .Build();
     pasteData->AddRecord(pasteDataRecord);
     PasteboardClient::GetInstance()->Clear();
@@ -331,13 +385,20 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
     ASSERT_TRUE(*primaryHtml == htmlText);
     auto firstRecord = getPasteData.GetRecordAt(0);
     ASSERT_TRUE(firstRecord != nullptr);
-    ASSERT_TRUE(firstRecord->GetMimeType() == MIMETYPE_TEXT_PLAIN);
+    ASSERT_TRUE(firstRecord->GetMimeType() == mimeType);
     auto getPlainText = firstRecord->GetPlainText();
     ASSERT_TRUE(getPlainText != nullptr);
     ASSERT_TRUE(*getPlainText == plainText);
     auto getHtmlText = firstRecord->GetHtmlText();
     ASSERT_TRUE(getHtmlText != nullptr);
     ASSERT_TRUE(*getHtmlText == htmlText);
+    customData = pasteDataRecord->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    auto itemData = customData->GetItemData();
+    ASSERT_TRUE(itemData.size() == 1);
+    auto item = itemData.find(mimeType1);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer);
 }
 
 /**
@@ -392,10 +453,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
     ASSERT_TRUE(pasteData != nullptr);
     OHOS::Uri uri("uri");
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = {};
-    opts.size.height = 4;
-    opts.size.width = 7;
-    opts.pixelFormat = PixelFormat::ARGB_8888;
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
@@ -435,10 +493,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
 HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = {};
-    opts.size.height = 6;
-    opts.size.width = 9;
-    opts.pixelFormat = PixelFormat::ARGB_8888;
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
@@ -472,10 +527,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = {};
-    opts.size.height = 3;
-    opts.size.width = 7;
-    opts.pixelFormat = PixelFormat::ARGB_8888;
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     pasteData->AddPixelMapRecord(pixelMapIn);
@@ -498,5 +550,164 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.height == opts.size.height);
     ASSERT_TRUE(imageInfo.size.width == opts.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+}
+
+/**
+* @tc.name: PasteDataTest0010
+* @tc.desc: Create paste board data test.
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0010, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteData = PasteboardClient::GetInstance()->CreateKvData(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData != true);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData == true);
+    PasteData getPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
+    ASSERT_TRUE(ret == true);
+    auto firstRecord = getPasteData.GetRecordAt(0);
+    auto customData = firstRecord->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    auto itemData = customData->GetItemData();
+    ASSERT_TRUE(itemData.size() == 1);
+    auto item = itemData.find(mimeType);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer);
+}
+/**
+* @tc.name: PasteDataTest0011
+* @tc.desc: Create paste board data test.
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0011, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    pasteData->AddKvRecord(mimeType, arrayBuffer);
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData != true);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData == true);
+    PasteData getPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
+    ASSERT_TRUE(ret == true);
+    auto firstRecord = getPasteData.GetRecordAt(0);
+    auto customData = firstRecord->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    auto itemData = customData->GetItemData();
+    ASSERT_TRUE(itemData.size() == 1);
+    auto item = itemData.find(mimeType);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer);
+    auto primaryPlainText = getPasteData.GetPrimaryText();
+    ASSERT_TRUE(primaryPlainText != nullptr);
+    ASSERT_TRUE(*primaryPlainText == plainText);
+}
+
+/**
+* @tc.name: PasteDataTest0012
+* @tc.desc: Create paste board data test.
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0012, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    pasteData->AddKvRecord(mimeType, arrayBuffer);
+    auto record = pasteData->GetRecordAt(0);
+    ASSERT_TRUE(record != nullptr);
+    std::string mimeType1 = "img/png";
+    std::vector<uint8_t> arrayBuffer1(54);
+    arrayBuffer1 = { 4, 7, 9, 8, 7 };
+    auto customData = record->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    customData->AddItemData(mimeType1, arrayBuffer1);
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData != true);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData == true);
+    PasteData getPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(getPasteData);
+    ASSERT_TRUE(ret == true);
+    auto firstRecord = getPasteData.GetRecordAt(0);
+    ASSERT_TRUE(firstRecord != nullptr);
+    customData = firstRecord->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    auto itemData = customData->GetItemData();
+    ASSERT_TRUE(itemData.size() == 2);
+    auto item = itemData.find(mimeType);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer);
+    item = itemData.find(mimeType1);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer1);
+    auto primaryPlainText = getPasteData.GetPrimaryText();
+    ASSERT_TRUE(primaryPlainText != nullptr);
+    ASSERT_TRUE(*primaryPlainText == plainText);
+    auto secondRecord = getPasteData.GetRecordAt(1);
+    ASSERT_TRUE(secondRecord != nullptr);
+    auto secondRecordMimeType = secondRecord->GetMimeType();
+    ASSERT_TRUE(secondRecordMimeType == MIMETYPE_TEXT_PLAIN);
+}
+
+/**
+* @tc.name: PasteDataTest0013
+* @tc.desc: Create paste board data test.
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0013, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    pasteData->AddKvRecord(mimeType, arrayBuffer);
+    auto record = pasteData->GetRecordAt(0);
+    ASSERT_TRUE(record != nullptr);
+    std::string mimeType1 = "img/png";
+    std::vector<uint8_t> arrayBuffer1(54);
+    arrayBuffer1 = { 4, 7, 9, 8, 7 };
+    auto customData = record->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    customData->AddItemData(mimeType1, arrayBuffer1);
+    Parcel parcel;
+    auto ret = customData->Marshalling(parcel);
+    ASSERT_TRUE(ret == true);
+    std::shared_ptr<MineCustomData> customDataGet(customData->Unmarshalling(parcel));
+    ASSERT_TRUE(customDataGet != nullptr);
+    auto itemData = customDataGet->GetItemData();
+    ASSERT_TRUE(itemData.size() == 2);
+    auto item = itemData.find(mimeType);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer);
+    item = itemData.find(mimeType1);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer1);
 }
 } // namespace

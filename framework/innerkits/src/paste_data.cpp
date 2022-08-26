@@ -26,7 +26,7 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 namespace {
-const std::uint32_t MAX_RECORD_NUM = 128;
+const std::uint32_t MAX_RECORD_NUM = 512;
 }
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
@@ -64,6 +64,11 @@ void PasteData::AddTextRecord(const std::string &text)
 void PasteData::AddUriRecord(const OHOS::Uri &uri)
 {
     this->AddRecord(PasteDataRecord::NewUriRecord(uri));
+}
+
+void PasteData::AddKvRecord(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
+{
+    AddRecord(PasteDataRecord::NewKvRecord(mimeType, arrayBuffer));
 }
 
 void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
@@ -255,11 +260,9 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
         return pasteData;
     }
 
-    pasteData->records_.clear();
-
     auto length = parcel.ReadUint32();
-    if (length == 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length == 0.");
+    if (length <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "length error.");
         delete pasteData;
         pasteData = nullptr;
         return pasteData;

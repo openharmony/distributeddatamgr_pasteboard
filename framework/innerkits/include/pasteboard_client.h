@@ -82,6 +82,16 @@ public:
     std::shared_ptr<PasteDataRecord> CreateWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
 
     /**
+     * CreateKvRecord
+     * @descrition Create Kv Record.
+    * @param std::string mimeType
+    * @param std::vector<uint8_t> arrayBuffer
+     * @return PasteDataRecord.
+     */
+    std::shared_ptr<PasteDataRecord> CreateKvRecord(
+        const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
+
+    /**
      * CreateHtmlData
      * @descrition Create Html Paste Data.
      * @param std::string text  .
@@ -120,6 +130,15 @@ public:
      * @return PasteData.
      */
     std::shared_ptr<PasteData> CreateWantData(std::shared_ptr<OHOS::AAFwk::Want> want);
+
+    /**
+    * CreateKvData
+    * @descrition Create Kv Paste Data.
+    * @param std::string mimeType
+    * @param std::vector<uint8_t> arrayBuffer
+    * @return PasteData.
+    */
+    std::shared_ptr<PasteData> CreateKvData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
     /**
      * GetPasteData

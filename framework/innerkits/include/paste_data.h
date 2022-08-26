@@ -44,6 +44,7 @@ public:
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
 
     void AddHtmlRecord(const std::string &html);
+    void AddKvRecord(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer);
     void AddPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     void AddTextRecord(const std::string &text);
     void AddUriRecord(const OHOS::Uri &uri);
