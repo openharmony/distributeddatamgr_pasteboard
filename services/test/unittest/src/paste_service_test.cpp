@@ -237,7 +237,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest008, TestSize.Level0)
     std::string mimeType1 = "img/png";
     std::vector<uint8_t> arrayBuffer1(46);
     arrayBuffer1 = { 2, 7, 6, 8, 9 };
-    pasteDataRecord = pasteDataRecord->NewKvRecord(mimeType1,arrayBuffer1);
+    pasteDataRecord = pasteDataRecord->NewKvRecord(mimeType1, arrayBuffer1);
     auto customData = pasteDataRecord->GetCustomData();
     ASSERT_TRUE(customData != nullptr);
     auto itemData = customData->GetItemData();

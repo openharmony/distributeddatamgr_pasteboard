@@ -88,7 +88,8 @@ public:
     * @param std::vector<uint8_t> arrayBuffer
      * @return PasteDataRecord.
      */
-    std::shared_ptr<PasteDataRecord> CreateKvRecord(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer);
+    std::shared_ptr<PasteDataRecord> CreateKvRecord(
+        const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
     /**
      * CreateHtmlData
