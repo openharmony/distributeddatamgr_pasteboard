@@ -303,14 +303,13 @@ bool MineCustomData::Marshalling(Parcel &parcel) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "begin.");
     auto len = itemData_.size();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "itemData_len = %{public}d,", len);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "itemData_len = %{public}zu,", len);
     if (!parcel.WriteUint32(static_cast<uint32_t>(len))) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "len Marshalling failed.");
         return false;
     }
     for (const auto &item : itemData_) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}d!", item.second.size());
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "for.");
         if (!parcel.WriteString(item.first) || !parcel.WriteUInt8Vector(item.second)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write failed.");
             return false;

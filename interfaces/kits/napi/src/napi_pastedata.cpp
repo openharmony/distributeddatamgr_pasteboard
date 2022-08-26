@@ -485,6 +485,9 @@ void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, PasteDataNapi *obj
 
     obj->value_->AddKvRecord(mimeType,
         std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
+    if (dataLen > 0 && data != nullptr) {
+        free(data);
+    }
 }
 
 bool PasteDataNapi::SetStringProp(
@@ -516,7 +519,7 @@ std::shared_ptr<MiscServices::PasteDataRecord> PasteDataNapi::ParseRecord(napi_e
     uint32_t propNameNums = 0;
     NAPI_CALL(env, napi_get_array_length(env, propNames, &propNameNums));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "propNameNums = %{public}d", propNameNums);
-    PasteDataRecord::Builder builder((std::string()));
+    PasteDataRecord::Builder builder("");
     for (uint32_t i = 0; i < propNameNums; i++) {
         napi_value propNameNapi = nullptr;
         NAPI_CALL(env, napi_get_element(env, propNames, i, &propNameNapi));

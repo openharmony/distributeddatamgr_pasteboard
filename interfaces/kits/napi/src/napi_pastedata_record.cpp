@@ -188,7 +188,7 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
     uint32_t mimeTypesNum = 0;
     NAPI_CALL(env, napi_get_array_length(env, mimeTypes, &mimeTypesNum));
 
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "mimeTypesNum = %{public}d", mimeTypesNum);
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "mimeTypesNum = %{public}u", mimeTypesNum);
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     for (uint32_t i = 0; i < mimeTypesNum; i++) {
         napi_value mimeTypeNapi = nullptr;
@@ -207,6 +207,9 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
         NAPI_CALL(env, napi_get_arraybuffer_info(env, napiArrayBuffer, &data, &dataLen));
         customData->AddItemData(mimeType,
             std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
+        if (dataLen > 0 && data != nullptr) {
+            free(data);
+        }
     }
     return customData;
 }

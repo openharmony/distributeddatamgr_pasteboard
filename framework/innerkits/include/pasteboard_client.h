@@ -138,7 +138,7 @@ public:
     * @param std::vector<uint8_t> arrayBuffer
     * @return PasteData.
     */
-    std::shared_ptr<PasteData> CreateKvData(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer);
+    std::shared_ptr<PasteData> CreateKvData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
     /**
      * GetPasteData

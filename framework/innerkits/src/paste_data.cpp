@@ -26,7 +26,7 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 namespace {
-const std::uint32_t MAX_RECORD_NUM = 1000;
+const std::uint32_t MAX_RECORD_NUM = 512;
 }
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
@@ -66,7 +66,7 @@ void PasteData::AddUriRecord(const OHOS::Uri &uri)
     this->AddRecord(PasteDataRecord::NewUriRecord(uri));
 }
 
-void PasteData::AddKvRecord(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer)
+void PasteData::AddKvRecord(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
     AddRecord(PasteDataRecord::NewKvRecord(mimeType, arrayBuffer));
 }
