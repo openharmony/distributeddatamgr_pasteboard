@@ -16,12 +16,14 @@
 
 #include <unistd.h>
 
+#include "accesstoken_kit.h"
 #include "calculate_time_consuming.h"
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "hiview_adapter.h"
 #include "iservice_registry.h"
 #include "loader.h"
+#include "native_token_info.h"
 #include "os_account_manager.h"
 #include "pasteboard_common.h"
 #include "pasteboard_trace.h"
@@ -37,15 +39,18 @@ namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
+const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
+const std::string DEFAULT_IME_BUNDLE_NAME = "com.example.kikakeyboard";
 const std::int32_t ERROR_USERID = -1;
 const bool G_REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(new PasteboardService());
-    const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 }
+using namespace Security::AccessToken;
 
 std::vector<std::shared_ptr<std::string>> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
+int32_t PasteboardService::focusAppUid_ = 0;
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true),
@@ -86,6 +91,12 @@ void PasteboardService::OnStart()
         return;
     }
 
+    if (focusChangedListener_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "focusChangedListener_.");
+        focusChangedListener_ = new PasteboardService::PasteboardFocusChangedListener();
+    }
+    Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusChangedListener_);
+
     copyHistory = std::make_shared<Command>(std::vector<std::string>{ "--copy-history" },
         "Dump access history last ten times.",
         [this](const std::vector<std::string> &input, std::string &output) -> bool {
@@ -115,6 +126,7 @@ void PasteboardService::OnStop()
     }
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
+    Rosen::WindowManager::GetInstance().UnregisterFocusChangedListener(focusChangedListener_);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }
 
@@ -127,7 +139,7 @@ void PasteboardService::InitServiceHandler()
     }
     std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create(PASTEBOARD_SERVICE_NAME);
     serviceHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
-    
+
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "InitServiceHandler Succeeded.");
 }
 
@@ -158,6 +170,114 @@ void PasteboardService::Clear()
     }
 }
 
+void PasteboardService::PasteboardFocusChangedListener::OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnFocused.");
+    focusAppUid_ = focusChangeInfo->uid_;
+}
+
+void PasteboardService::PasteboardFocusChangedListener::OnUnfocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnUnfocused.");
+    focusAppUid_ = 0;
+}
+
+bool PasteboardService::IsFocusOrDefaultIme(const std::string &currentAppId)
+{
+    // 默认输入法校验待确认修改
+    bool isDefaultIme = false;
+    std::string DefaultImeAppId = DEFAULT_IME_BUNDLE_NAME;
+    if (currentAppId == DefaultImeAppId) {
+        isDefaultIme = true;
+    }
+
+    bool isFocusApp = false;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uid = %{public}d, focusAppUid_ = %{public}d.",
+        IPCSkeleton::GetCallingUid(), focusAppUid_);
+    if (IPCSkeleton::GetCallingUid() == focusAppUid_) {
+        isFocusApp = true;
+    }
+    return isFocusApp || isDefaultIme;
+}
+
+bool PasteboardService::CheckPastePermission(const std::string &appId, ShareOption shareOption)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d.", static_cast<uint32_t>(shareOption));
+
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    AppInfo appInfo;
+    auto ret = GetAppInfoByTokenId(tokenId, appInfo);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetAppInfoByTokenId failed.");
+        return false;
+    }
+    if (appInfo.tokenType == ATokenTypeEnum::TOKEN_HAP) {
+        auto isFocusOrDefaultIme = IsFocusOrDefaultIme(appInfo.appId);
+        if (!isFocusOrDefaultIme) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme check failed.");
+            return false;
+        }
+    }
+
+    switch (shareOption) {
+        case ShareOption::InApp: {
+            if (appInfo.appId != appId) {
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                    "InApp check failed, appId = %{public}s, currentAppId = %{public}s.", appId.c_str(),
+                    appInfo.appId.c_str());
+                return false;
+            }
+            break;
+        }
+        case ShareOption::LocalDevice: {
+            break;
+        }
+        case ShareOption::CrossDevice: {
+            break;
+        }
+        default: {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d is error.", shareOption);
+            return false;
+        }
+    }
+    return true;
+}
+
+bool PasteboardService::GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo)
+{
+    appInfo.tokenType = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    switch (appInfo.tokenType) {
+        case ATokenTypeEnum::TOKEN_HAP: {
+            HapTokenInfo hapInfo;
+            if (AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo) != 0) {
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get hap token info fail.");
+                return false;
+            }
+            appInfo.appId = hapInfo.appID;
+            appInfo.bundleName = hapInfo.bundleName;
+            break;
+        }
+        case ATokenTypeEnum::TOKEN_NATIVE:
+        case ATokenTypeEnum::TOKEN_SHELL: {
+            NativeTokenInfo tokenInfo;
+            if (AccessTokenKit::GetNativeTokenInfo(tokenId, tokenInfo) != 0) {
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get native token info fail.");
+                return false;
+            }
+            appInfo.appId = tokenInfo.processName;
+            appInfo.bundleName = tokenInfo.processName;
+            break;
+        }
+        default: {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "token type not match.");
+            return false;
+        }
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "tokenType = %{public}d, appId = %{public}s, bundleName = %{public}s.",
+        appInfo.tokenType, appInfo.appId.c_str(), appInfo.bundleName.c_str());
+    return true;
+}
+
 bool PasteboardService::GetPasteData(PasteData& data)
 {
     PasteboardTrace tracer("PasteboardService, GetPasteData");
@@ -172,14 +292,17 @@ bool PasteboardService::GetPasteData(PasteData& data)
     std::lock_guard<std::mutex> lock(clipMutex_);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     auto it = clips_.find(userId);
-    if (it != clips_.end()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "find end.");
-        data = *(it->second);
-        return true;
-    } else {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not found end.");
+    if (it == clips_.end()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
         return false;
     }
+    auto ret = CheckPastePermission(it->second->GetAppId(), it->second->GetShareOption());
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "CheckPastePermission failed.");
+        return false;
+    }
+    data = *(it->second);
+    return true;
 }
 
 bool PasteboardService::HasPasteData()
@@ -190,7 +313,11 @@ bool PasteboardService::HasPasteData()
         return false;
     }
     std::lock_guard<std::mutex> lock(clipMutex_);
-    return clips_.find(userId) != clips_.end();
+    auto it = clips_.find(userId);
+    if (it == clips_.end()) {
+        return false;
+    }
+    return CheckPastePermission(it->second->GetAppId(), it->second->GetShareOption());
 }
 
 void PasteboardService::SetPasteData(PasteData& pasteData)
@@ -213,6 +340,17 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
     if (userId == ERROR_USERID) {
         return;
     }
+
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    AppInfo appInfo;
+    auto ret = GetAppInfoByTokenId(tokenId, appInfo);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetAppInfoByTokenId failed.");
+        return;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "appId = %{public}s.", appInfo.appId.c_str());
+    pasteData.SetAppId(appInfo.appId);
+
     std::lock_guard<std::mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
@@ -431,7 +569,7 @@ std::string PasteboardService::DunmpData()
         } else {
             bundleName = "com.pasteboard.default";
         }
-        
+
         result.append("|Owner       :  ")
          .append(bundleName).append("\n")
          .append("|Timestamp   :  ")

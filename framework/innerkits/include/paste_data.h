@@ -30,17 +30,23 @@
 
 namespace OHOS {
 namespace MiscServices {
+enum ShareOption : int32_t {
+    InApp = 0,
+    LocalDevice,
+    CrossDevice
+};
 struct PasteDataProperty {
     AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;
     std::string tag;
     std::int64_t timestamp;
-    bool localOnly;
+    ShareOption shareOption;
+    std::string appId = "";
 };
 
 class PasteData : public Parcelable, public TLVObject {
 public:
-    PasteData() = default;
+    PasteData();
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
 
     void AddHtmlRecord(const std::string &html);
@@ -65,12 +71,18 @@ public:
     bool ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRecord> record);
     bool HasMimeType(const std::string &mimeType);
     PasteDataProperty GetProperty();
+    ShareOption GetShareOption();
+    void SetShareOption(ShareOption shareOption);
+    std::string GetAppId();
+    void SetAppId(const std::string &appId);
     std::vector<std::shared_ptr<PasteDataRecord>> AllRecords() const;
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteData *Unmarshalling(Parcel &parcel);
 
 private:
+    bool MarshallingProps(Parcel &parcel) const;
+    static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);
     void RefreshMimeProp();
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;

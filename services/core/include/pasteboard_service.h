@@ -38,6 +38,7 @@
 #include "pasteboard_service_stub.h"
 #include "pasteboard_storage.h"
 #include "system_ability.h"
+#include "window_manager.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -45,7 +46,11 @@ enum class ServiceRunningState {
     STATE_NOT_START,
     STATE_RUNNING
 };
-
+struct AppInfo {
+    std::string appId;
+    std::string bundleName;
+    int32_t tokenType;
+};
 class PasteboardService final : public SystemAbility,
                                 public PasteboardServiceStub,
                                 public std::enable_shared_from_this<PasteboardService> {
@@ -68,7 +73,14 @@ public:
     bool SetPasteboardHistory(int32_t uId, std::string state, std::string timeStamp);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     std::string DumpHistory() const;
-    std::string  DunmpData();
+    std::string DunmpData();
+
+    class PasteboardFocusChangedListener : public Rosen::IFocusChangedListener {
+    public:
+        void OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
+        void OnUnfocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
+    };
+
 private:
     struct classcomp {
         bool operator() (const sptr<IPasteboardChangedObserver>& l, const sptr<IPasteboardChangedObserver>& r) const
@@ -84,6 +96,9 @@ private:
     void SetPasteDataDot(PasteData& pasteData);
     void GetPasteDataDot();
     std::string GetTime();
+    static bool CheckPastePermission(const std::string &appId, ShareOption shareOption);
+    static bool GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo);
+    static bool IsFocusOrDefaultIme(const std::string &currentAppId);
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;
@@ -92,11 +107,11 @@ private:
     std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>> observerMap_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
-
+    sptr<Rosen::IFocusChangedListener> focusChangedListener_;
+    static int32_t focusAppUid_;
     int32_t uIdForLastCopy_ = 0;
     std::string timeForLastCopy_;
     static std::vector<std::shared_ptr<std::string>> dataHistory_;
-    
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
 };
