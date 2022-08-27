@@ -524,6 +524,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
 * @tc.require: AR000H5GKU
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
+{
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
