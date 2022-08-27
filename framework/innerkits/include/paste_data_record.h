@@ -81,6 +81,8 @@ public:
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteDataRecord *Unmarshalling(Parcel &parcel);
+    bool Encode(std::vector<std::uint8_t> &buffer) override;
+    bool Decode(const std::vector<std::uint8_t> &buffer) override;
 
     class Builder {
     public:
