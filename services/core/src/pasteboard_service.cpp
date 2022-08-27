@@ -21,7 +21,6 @@
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "hiview_adapter.h"
-#include "input_method_ability_property.h"
 #include "input_method_controller.h"
 #include "iservice_registry.h"
 #include "loader.h"
@@ -188,9 +187,11 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme start.");
     bool isDefaultIme = false;
-    InputMethodAbilityProperty inputMethodAbilityProperty = GetCurrentInputMethod();
-    if (inputMethodAbilityProperty.packageName == appInfo.bundleName) {
-        isDefaultIme = true;
+    std::shared_ptr<Property> property = GetCurrentInputMethod();
+    if (property != nullptr) {
+        if (property->packageName == appInfo.bundleName) {
+            isDefaultIme = true;
+        }
     }
 
     bool isFocusApp = false;
