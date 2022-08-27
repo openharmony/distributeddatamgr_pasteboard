@@ -172,7 +172,7 @@ std::map<std::string, std::vector<uint8_t>> MineCustomData::GetItemData()
 void MineCustomData::AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
     itemData_.insert(std::make_pair(mimeType, arrayBuffer));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "itemData_.size = %{public}d", itemData_.size());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "itemData_.size = %{public}zu", itemData_.size());
 }
 
 std::string PasteDataRecord::ConvertToText() const
@@ -309,7 +309,7 @@ bool MineCustomData::Marshalling(Parcel &parcel) const
         return false;
     }
     for (const auto &item : itemData_) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}d!", item.second.size());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}zu.", item.second.size());
         if (!parcel.WriteString(item.first) || !parcel.WriteUInt8Vector(item.second)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write failed.");
             return false;
@@ -346,7 +346,7 @@ MineCustomData *MineCustomData::Unmarshalling(Parcel &parcel)
             continue;
         }
         mineCustomData->AddItemData(mimeType, arrayBuffer);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}d.", arrayBuffer.size());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}zu.", arrayBuffer.size());
     }
 
     if (failedNums == len) {
