@@ -620,7 +620,7 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
     napi_value thisVar = 0;
     void *data = nullptr;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, &data);
-    NAPI_ASSERT(env, argc >= 2, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET2, "Wrong number of arguments");
 
     size_t strLen = 0;
     char str[STR_DATA_SIZE] = { 0 };
