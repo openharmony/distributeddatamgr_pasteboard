@@ -130,7 +130,6 @@ struct SetContextInfo : public AsyncCall::Context {
     }
 };
 
-
 } // namespace MiscServicesNapi
 } // namespace OHOS
 #endif
