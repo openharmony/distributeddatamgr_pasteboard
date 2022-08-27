@@ -250,7 +250,7 @@ std::vector<std::shared_ptr<PasteDataRecord>> PasteData::AllRecords() const
 void PasteData::RefreshMimeProp()
 {
     std::vector<std::string> mimeTypes;
-    for (const auto record : records_) {
+    for (const auto& record : records_) {
         if (record == nullptr) {
             continue;
         }
@@ -365,7 +365,7 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
 
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
-    bool ret = Write(buffer, TAG_PROPERTYS, props_);
+    bool ret = Write(buffer, TAG_PROPERTYS, (TLVObject &)props_);
     ret = Write(buffer, TAG_RECORDS, records_) && ret;
     return ret;
 }
@@ -378,7 +378,7 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
         bool ret = ReadHead(buffer, head);
         switch (head.tag) {
             case TAG_PROPERTYS:
-                ret = ret && ReadValue(buffer, props_, head);
+                ret = ret && ReadValue(buffer, (TLVObject &)props_, head);
                 break;
             case TAG_RECORDS:
                 ret = ret && ReadValue(buffer, records_, head);

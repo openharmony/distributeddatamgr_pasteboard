@@ -55,7 +55,7 @@ public:
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int64_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::string &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value);
-    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, Parcel &value);
+//    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, Parcel &value);
     template<typename ParcelType> bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, ParcelType &value)
     {
         Parcel parcel;
@@ -96,7 +96,7 @@ public:
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int64_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::string &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &value, const TLVHead &head);
-    bool ReadValue(const std::vector<std::uint8_t> &buffer, Parcel &value, const TLVHead &head);
+//    bool ReadValue(const std::vector<std::uint8_t> &buffer, Parcel &value, const TLVHead &head);
     template<typename ParcelType>
     bool ReadValue(const std::vector<std::uint8_t> &buffer, ParcelType &value, const TLVHead &head)
     {
@@ -107,7 +107,7 @@ public:
             return false;
         }
         value = *obj;
-        return true;
+        return ret;
     }
 
     template<typename T>
