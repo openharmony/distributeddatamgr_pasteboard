@@ -731,10 +731,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     std::string appId = pasteData->GetAppId();
     ASSERT_TRUE(appId.empty() == true);
     pasteData->SetAppId("abc");
-    shareOption = getPasteData.GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::InApp);
-    appId =  getPasteData.GetAppId();
-    ASSERT_TRUE(appId.empty() == true);
     PasteboardClient::GetInstance()->Clear();
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData != true);
