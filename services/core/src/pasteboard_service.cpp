@@ -21,6 +21,8 @@
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "hiview_adapter.h"
+#include "input_method_ability_property.h"
+#include "input_method_controller.h"
 #include "iservice_registry.h"
 #include "loader.h"
 #include "native_token_info.h"
@@ -182,12 +184,12 @@ void PasteboardService::PasteboardFocusChangedListener::OnUnfocused(const sptr<R
     focusAppUid_ = 0;
 }
 
-bool PasteboardService::IsFocusOrDefaultIme(const std::string &currentAppId)
+bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
 {
-    // 默认输入法校验待确认修改
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme start.");
     bool isDefaultIme = false;
-    std::string DefaultImeAppId = DEFAULT_IME_BUNDLE_NAME;
-    if (currentAppId == DefaultImeAppId) {
+    InputMethodAbilityProperty inputMethodAbilityProperty = GetCurrentInputMethod();
+    if (inputMethodAbilityProperty.packageName == appInfo.bundleName) {
         isDefaultIme = true;
     }
 
@@ -200,7 +202,7 @@ bool PasteboardService::IsFocusOrDefaultIme(const std::string &currentAppId)
     return isFocusApp || isDefaultIme;
 }
 
-bool PasteboardService::CheckPastePermission(const std::string &appId, ShareOption shareOption)
+bool PasteboardService::HasPastePermission(const std::string &appId, ShareOption shareOption)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d.", static_cast<uint32_t>(shareOption));
 
@@ -212,7 +214,7 @@ bool PasteboardService::CheckPastePermission(const std::string &appId, ShareOpti
         return false;
     }
     if (appInfo.tokenType == ATokenTypeEnum::TOKEN_HAP) {
-        auto isFocusOrDefaultIme = IsFocusOrDefaultIme(appInfo.appId);
+        auto isFocusOrDefaultIme = IsFocusOrDefaultIme(appInfo);
         if (!isFocusOrDefaultIme) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme check failed.");
             return false;
@@ -296,9 +298,9 @@ bool PasteboardService::GetPasteData(PasteData& data)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
         return false;
     }
-    auto ret = CheckPastePermission(it->second->GetAppId(), it->second->GetShareOption());
+    auto ret = HasPastePermission(it->second->GetAppId(), it->second->GetShareOption());
     if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "CheckPastePermission failed.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "HasPastePermission failed.");
         return false;
     }
     data = *(it->second);
@@ -317,7 +319,7 @@ bool PasteboardService::HasPasteData()
     if (it == clips_.end()) {
         return false;
     }
-    return CheckPastePermission(it->second->GetAppId(), it->second->GetShareOption());
+    return HasPastePermission(it->second->GetAppId(), it->second->GetShareOption());
 }
 
 void PasteboardService::SetPasteData(PasteData& pasteData)

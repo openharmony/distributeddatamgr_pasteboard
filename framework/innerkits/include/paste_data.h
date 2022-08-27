@@ -40,6 +40,7 @@ struct PasteDataProperty {
     std::vector<std::string> mimeTypes;
     std::string tag;
     std::int64_t timestamp;
+    bool localOnly;
     ShareOption shareOption;
     std::string appId = "";
 };

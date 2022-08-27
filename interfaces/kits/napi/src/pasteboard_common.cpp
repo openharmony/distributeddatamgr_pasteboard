@@ -72,12 +72,10 @@ bool GetValue(napi_env env, napi_value in, std::string& out)
     if (len <= 0) {
         return false;
     }
-    std::vector<char> buf(len + STR_TAIL_LENGTH);
+
     size_t length = 0;
-    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, in, buf.data(), len + STR_TAIL_LENGTH, &length), false);
-    buf[length] = 0;
-    std::string str(buf.data());
-    out = str;
+    out.resize(len + STR_TAIL_LENGTH, 0);
+    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, in, out.data(), len + STR_TAIL_LENGTH, &length), false);
 
     return true;
 }
