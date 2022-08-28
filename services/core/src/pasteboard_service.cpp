@@ -191,6 +191,7 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
     if (property != nullptr) {
         if (property->packageName == appInfo.bundleName) {
             isDefaultIme = true;
+            return isDefaultIme;
         }
     }
 
@@ -200,7 +201,7 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
     if (IPCSkeleton::GetCallingUid() == focusAppUid_) {
         isFocusApp = true;
     }
-    return isFocusApp || isDefaultIme;
+    return isFocusApp;
 }
 
 bool PasteboardService::HasPastePermission(const std::string &appId, ShareOption shareOption)
