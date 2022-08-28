@@ -50,6 +50,9 @@ ohos_shared_library("pasteboard_service") {
     "${pasteboard_utils_path}/native/src/pasteboard_permission.cpp",
     "core/src/distributed_module_config.cpp",
     "core/src/pasteboard_service.cpp",
+    "core/src/dev_manager.cpp",
+    "core/src/dev_profile.cpp",
+    "core/src/para_handle.cpp",
     "dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
     "dfx/src/calculate_time_consuming.cpp",
     "dfx/src/command.cpp",
@@ -90,6 +93,10 @@ ohos_shared_library("pasteboard_service") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "device_info_manager:distributed_device_profile_client",
+    "device_manager:devicemanagersdk",
+    "init:libbegetutil",
+    "init:libbeget_proxy",
     "window_manager:libwm",
   ]
   if (os_dlp_part_enabled) {

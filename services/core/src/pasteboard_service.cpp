@@ -18,6 +18,8 @@
 
 #include "accesstoken_kit.h"
 #include "calculate_time_consuming.h"
+#include "dev_manager.h"
+#include "dev_profile.h"
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "hiview_adapter.h"
@@ -26,6 +28,7 @@
 #include "loader.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
+#include "para_handle.h"
 #include "pasteboard_common.h"
 #include "pasteboard_trace.h"
 #include "reporter.h"
@@ -92,6 +95,10 @@ void PasteboardService::OnStart()
         return;
     }
 
+    std::string dpbEnable = ParaHandle::GetDpbEnable();
+    DevProfile::GetInstance().PutDeviceProfile(dpbEnable);
+    ParaHandle::SubscribeDpbEnable();
+    DevManager::GetInstance().RegisterDevCallback();
     if (focusChangedListener_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "focusChangedListener_.");
         focusChangedListener_ = new PasteboardService::PasteboardFocusChangedListener();
@@ -127,6 +134,8 @@ void PasteboardService::OnStop()
     }
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
+    ParaHandle::UnSubscribeDpbEnable();
+    DevManager::GetInstance().UnRegisterDevCallback();
     Rosen::WindowManager::GetInstance().UnregisterFocusChangedListener(focusChangedListener_);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }

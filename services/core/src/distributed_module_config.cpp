@@ -14,19 +14,71 @@
  */
 #include "distributed_module_config.h"
 
+#include "dev_profile.h"
+#include "device_manager.h"
+#include "dm_device_info.h"
+#include "pasteboard_hilog_wreapper.h"
+
 namespace OHOS {
 namespace MiscServices {
+constexpr const char *PKG_NAME = "PasteboardService";
+using namespace DistributedHardware;
+bool DistributedModuleConfig::isOn_ = false;
+DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
-    return false;
+    isOn_ = IsServiceOn();
+    return isOn_;
 }
 
 void DistributedModuleConfig::Watch(Observer observer)
 {
+    observer_ = std::move(observer);
 }
 
 void DistributedModuleConfig::Notify()
 {
+    bool isOn = IsServiceOn();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Notify, isOn = %{public}d", isOn);
+    if (isOn != isOn_) {
+        isOn_ = isOn;
+        if (observer_ != nullptr) {
+            (observer_)(isOn);
+        }
+    }
 }
-} // namespace OHOS
+
+bool DistributedModuleConfig::IsServiceOn()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsServiceOn start.");
+
+    std::string localDpbEnable = "false";
+    DevProfile::GetInstance().GetDeviceProfile("", localDpbEnable);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "localDpbEnable = %{public}s.", localDpbEnable.c_str());
+    if (localDpbEnable == "false") {
+        return false;
+    }
+
+    std::vector<DmDeviceInfo> devList;
+    int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devList);
+    if (ret != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetTrustedDeviceList failed!");
+        return false;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "devList = %{public}d.", static_cast<uint32_t>(devList.size()));
+    if (devList.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
+        return false;
+    }
+    std::string externalDpbEnable = "false";
+    for (auto const &devInfo : devList) {
+        DevProfile::GetInstance().GetDeviceProfile(devInfo.deviceId, externalDpbEnable);
+        if (externalDpbEnable == "true") {
+            break;
+        }
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "externalDpbEnable = %{public}s.", externalDpbEnable.c_str());
+    return !(externalDpbEnable == "false");
+}
 } // namespace MiscServices
+} // namespace OHOS
