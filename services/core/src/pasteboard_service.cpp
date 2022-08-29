@@ -186,12 +186,11 @@ void PasteboardService::PasteboardFocusChangedListener::OnUnfocused(const sptr<R
 bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme start.");
-    bool isDefaultIme = false;
     std::shared_ptr<Property> property = InputMethodController::GetInstance()->GetCurrentInputMethod();
     if (property != nullptr) {
         if (property->packageName == appInfo.bundleName) {
-            isDefaultIme = true;
-            return isDefaultIme;
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "packageName = %{public}s.", property->packageName);
+            return true;
         }
     }
 
