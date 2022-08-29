@@ -26,13 +26,14 @@ class DevProfile {
 public:
     static DevProfile &GetInstance();
 
-    void GetDeviceProfile(const std::string &deviceId, std::string &dpbEnable);
-    void PutDeviceProfile(const std::string &dpbEnable);
-    int32_t PutDeviceProfileInit(const std::string &dpbEnable);
+    void GetDeviceProfile(const std::string &deviceId, std::string &enabledStatus);
+    void PutDeviceProfile(const std::string &enabledStatus);
+    int32_t Init(const std::string &enabledStatus);
     void RegisterProfileCallback(const std::string &deviceId);
     void UnRegisterProfileCallback(const std::string &deviceId);
     void SubscribeProfileEvent(const std::string &deviceId);
     void UnSubscribeProfileEvent(const std::string &deviceId);
+    void SyncDeviceProfile();
     void UnRegisterAllProfileCallback();
     void ProfileChanged();
     class PasteboardProfileEventCallback : public IProfileEventCallback {

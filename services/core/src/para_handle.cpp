@@ -27,31 +27,21 @@ namespace MiscServices {
 constexpr int32_t HANDLE_OK = 0;
 constexpr int32_t HANDLE_ERROR = -1;
 const char *ParaHandle::DEFAULT_VALUE = "true";
-const char *ParaHandle::DISTRIBUTED_PASTEBOARD_ENABLE = "persist.sys.distributedPasteboardEnabled";
+const char *ParaHandle::DISTRIBUTED_PASTEBOARD_ENABLED = "persist.sys.distributedPasteboardEnabled";
 
-void ParaHandle::SetDpbEnable()
+ParaHandle::ParaHandle()
 {
-    int32_t ret = SetParameter(DISTRIBUTED_PASTEBOARD_ENABLE, DEFAULT_VALUE);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetDpbEnable, ret = %{public}d", ret);
 }
 
-std::string ParaHandle::GetDpbEnable()
+ParaHandle &ParaHandle::GetInstance()
 {
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start.");
-    char value[CONFIG_LEN];
-    auto ret = GetParameter(DISTRIBUTED_PASTEBOARD_ENABLE, "", value, CONFIG_LEN);
-    if (ret > 0) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetParameter success, value = %{public}s.", value);
-        return value;
-    }
-
-    SetDpbEnable();
-    return DEFAULT_VALUE;
+    static ParaHandle instance;
+    return instance;
 }
 
 void ParaHandle::ParameterChange(const char *key, const char *value, void *context)
 {
-    if (strcmp(key, DISTRIBUTED_PASTEBOARD_ENABLE) != 0) {
+    if (strncmp(key, DISTRIBUTED_PASTEBOARD_ENABLED, strlen(key)) != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "key is error.");
         return;
     }
@@ -60,37 +50,56 @@ void ParaHandle::ParameterChange(const char *key, const char *value, void *conte
     DistributedModuleConfig::Notify();
 }
 
-void ParaHandle::SubscribeDpbEnable()
+int32_t ParaHandle::Init(std::string &enabledStatus)
 {
-    int32_t errNo = WatchParameter(DISTRIBUTED_PASTEBOARD_ENABLE, ParameterChange, nullptr);
+    char value[CONFIG_LEN] = { 0 };
+    auto errNo = GetParameter(DISTRIBUTED_PASTEBOARD_ENABLED, "", value, CONFIG_LEN);
+    if (errNo > HANDLE_OK) {
+        enabledStatus = value;
+    } else {
+        errNo = SetParameter(DISTRIBUTED_PASTEBOARD_ENABLED, DEFAULT_VALUE);
+        if (errNo != HANDLE_OK) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SetParameter failed.");
+            return errNo;
+        }
+        enabledStatus = DEFAULT_VALUE;
+    }
+    errNo = WatchParameter(DISTRIBUTED_PASTEBOARD_ENABLED, ParameterChange, nullptr);
+    return errNo;
+}
+
+std::string ParaHandle::GetAndSubscribeEnabledStatus()
+{
+    std::string enabledStatus;
+    auto errNo = Init(enabledStatus);
     if (errNo == HANDLE_OK) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "WatchParameter success");
-        return;
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetAndSubscribeEnabledStatus success.");
+        return enabledStatus;
     }
 
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SubscribeDpbEnable failed, try again");
-
-    std::thread th = std::thread([]() {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAndSubscribeEnabledStatus failed, try again");
+    std::thread th = std::thread([&]() {
         constexpr int RETRY_TIMES = 300;
         int i = 0;
         int32_t errNo = HANDLE_ERROR;
         while (i++ < RETRY_TIMES) {
-            errNo = WatchParameter(DISTRIBUTED_PASTEBOARD_ENABLE, ParameterChange, nullptr);
+            errNo = Init(enabledStatus);
             if (errNo == HANDLE_OK) {
                 break;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         PASTEBOARD_HILOGI(
-            PASTEBOARD_MODULE_SERVICE, "SubscribeDpbEnable exit now: %{public}d times, errNo: %{public}d", i, errNo);
+            PASTEBOARD_MODULE_SERVICE, "GetAndSubscribeEnabledStatus exit now: %{public}d times, errNo: %{public}d", i, errNo);
     });
     th.detach();
+    return enabledStatus;
 }
 
-void ParaHandle::UnSubscribeDpbEnable()
+void ParaHandle::UnSubscribeEnabledStatus()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
-    WatchParameter(DISTRIBUTED_PASTEBOARD_ENABLE, nullptr, nullptr);
+    WatchParameter(DISTRIBUTED_PASTEBOARD_ENABLED, nullptr, nullptr);
 }
 } // namespace MiscServices
 } // namespace OHOS

@@ -16,9 +16,8 @@
 
 #include <thread>
 
+#include "device_manager.h"
 #include "distributed_device_profile_client.h"
-//#include "json.hpp"
-//#include "json_1.hpp"
 #include "distributed_module_config.h"
 #include "nlohmann/json.hpp"
 #include "pasteboard_hilog_wreapper.h"
@@ -26,13 +25,16 @@
 #include "subscribe_info.h"
 namespace OHOS {
 namespace MiscServices {
-using namespace OHOS::DeviceProfile;
+using namespace DeviceProfile;
+using namespace DistributedHardware;
 constexpr int32_t HANDLE_OK = 0;
 constexpr int32_t HANDLE_ERROR = -1;
 constexpr const char *SERVICE_ID = "pasteboard_service";
+constexpr const char *PKG_NAME = "pasteboard_service";
 
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnSyncCompleted.");
 }
 
 void DevProfile::PasteboardProfileEventCallback::OnProfileChanged(const ProfileChangeNotification &changeNotification)
@@ -57,34 +59,37 @@ DevProfile &DevProfile::GetInstance()
     return instance;
 }
 
-int32_t DevProfile::PutDeviceProfileInit(const std::string &dpbEnable)
+int32_t DevProfile::Init(const std::string &enabledStatus)
 {
     ServiceCharacteristicProfile profile;
     profile.SetServiceId(SERVICE_ID);
     profile.SetServiceType(SERVICE_ID);
     nlohmann::json jsonObject;
-    jsonObject["distributed_pasteboard_enable"] = dpbEnable;
+    jsonObject["distributed_pasteboard_enabled"] = enabledStatus;
     profile.SetCharacteristicProfileJson(jsonObject.dump());
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutDeviceProfile(profile);
+    if (errNo == HANDLE_OK) {
+        SyncDeviceProfile();
+    }
     return errNo;
 }
 
-void DevProfile::PutDeviceProfile(const std::string &dpbEnable)
+void DevProfile::PutDeviceProfile(const std::string &enabledStatus)
 {
     PASTEBOARD_HILOGI(
-        PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile start, dpbEnableIn = %{public}s.", dpbEnable.c_str());
-    int32_t errNo = PutDeviceProfileInit(dpbEnable);
+        PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile start, dpbEnableIn = %{public}s.", enabledStatus.c_str());
+    int32_t errNo = Init(enabledStatus);
     if (errNo == HANDLE_OK) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile success.");
         return;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile failed.");
-    std::thread th = std::thread([dpbEnable, this]() {
+    std::thread th = std::thread([enabledStatus, this]() {
         constexpr int RETRY_TIMES = 300;
         int i = 0;
         int32_t errNo = HANDLE_ERROR;
         while (i++ < RETRY_TIMES) {
-            errNo = PutDeviceProfileInit(dpbEnable);
+            errNo = Init(enabledStatus);
             if (errNo == HANDLE_OK) {
                 break;
             }
@@ -96,7 +101,7 @@ void DevProfile::PutDeviceProfile(const std::string &dpbEnable)
     th.detach();
 }
 
-void DevProfile::GetDeviceProfile(const std::string &deviceId, std::string &dpbEnable)
+void DevProfile::GetDeviceProfile(const std::string &deviceId, std::string &enabledStatus)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile start.");
     ServiceCharacteristicProfile profile;
@@ -112,9 +117,9 @@ void DevProfile::GetDeviceProfile(const std::string &deviceId, std::string &dpbE
         return;
     }
 
-    dpbEnable = jsonObject["distributed_pasteboard_enable"];
+    enabledStatus = jsonObject["distributed_pasteboard_enabled"];
     PASTEBOARD_HILOGI(
-        PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile success, dpbEnableIn = %{public}s.", dpbEnable.c_str());
+        PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile success, dpbEnableIn = %{public}s.", enabledStatus.c_str());
 }
 
 void DevProfile::SubscribeProfileEvent(const std::string &deviceId)
@@ -176,6 +181,32 @@ void DevProfile::UnRegisterProfileCallback(const std::string &deviceId)
     if (callbackMap_.find(deviceId) != callbackMap_.end()) {
         callbackMap_.erase(deviceId);
     }
+}
+
+void DevProfile::SyncDeviceProfile()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncDeviceProfile start.");
+    std::vector<DmDeviceInfo> devList;
+    int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devList);
+    if (ret != HANDLE_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetTrustedDeviceList failed!");
+        return;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "devList = %{public}d.", static_cast<uint32_t>(devList.size()));
+    if (devList.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
+        return;
+    }
+
+    auto pasteboardSyncCallback = std::make_shared<PasteboardProfileEventCallback>();
+    SyncOptions syncOptions;
+    for (auto &devInfo : devList) {
+        syncOptions.AddDevice(devInfo.deviceId);
+    }
+    syncOptions.SetSyncMode(SyncMode::PUSH_PULL);
+    int32_t errCode =
+        DistributedDeviceProfileClient::GetInstance().SyncDeviceProfile(syncOptions, pasteboardSyncCallback);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncDeviceProfile, ret = %{public}d.", errCode);
 }
 
 void DevProfile::UnRegisterAllProfileCallback()

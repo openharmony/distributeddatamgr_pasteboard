@@ -95,10 +95,10 @@ void PasteboardService::OnStart()
         return;
     }
 
-    std::string dpbEnable = ParaHandle::GetDpbEnable();
-    DevProfile::GetInstance().PutDeviceProfile(dpbEnable);
-    ParaHandle::SubscribeDpbEnable();
+    std::string enabledStatus = ParaHandle::GetInstance().GetAndSubscribeEnabledStatus();
+    DevProfile::GetInstance().PutDeviceProfile(enabledStatus);
     DevManager::GetInstance().RegisterDevCallback();
+
     if (focusChangedListener_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "focusChangedListener_.");
         focusChangedListener_ = new PasteboardService::PasteboardFocusChangedListener();
@@ -134,8 +134,9 @@ void PasteboardService::OnStop()
     }
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
-    ParaHandle::UnSubscribeDpbEnable();
+    ParaHandle::GetInstance().UnSubscribeEnabledStatus();
     DevManager::GetInstance().UnRegisterDevCallback();
+	
     Rosen::WindowManager::GetInstance().UnregisterFocusChangedListener(focusChangedListener_);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }

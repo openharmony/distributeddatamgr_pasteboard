@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-constexpr const char *PKG_NAME = "PasteboardService";
+constexpr const char *PKG_NAME = "pasteboard_service";
 using namespace DistributedHardware;
 bool DistributedModuleConfig::isOn_ = false;
 DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
@@ -43,7 +43,7 @@ void DistributedModuleConfig::Notify()
     if (isOn != isOn_) {
         isOn_ = isOn;
         if (observer_ != nullptr) {
-            (observer_)(isOn);
+            observer_(isOn);
         }
     }
 }
@@ -52,10 +52,10 @@ bool DistributedModuleConfig::IsServiceOn()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsServiceOn start.");
 
-    std::string localDpbEnable = "false";
-    DevProfile::GetInstance().GetDeviceProfile("", localDpbEnable);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "localDpbEnable = %{public}s.", localDpbEnable.c_str());
-    if (localDpbEnable == "false") {
+    std::string localEnabledStatus = "false";
+    DevProfile::GetInstance().GetDeviceProfile("", localEnabledStatus);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "localEnabledStatus = %{public}s.", localEnabledStatus.c_str());
+    if (localEnabledStatus == "false") {
         return false;
     }
 
@@ -70,15 +70,15 @@ bool DistributedModuleConfig::IsServiceOn()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
         return false;
     }
-    std::string externalDpbEnable = "false";
+    std::string externalEnabledStatus = "false";
     for (auto const &devInfo : devList) {
-        DevProfile::GetInstance().GetDeviceProfile(devInfo.deviceId, externalDpbEnable);
-        if (externalDpbEnable == "true") {
-            break;
+        DevProfile::GetInstance().GetDeviceProfile(devInfo.deviceId, externalEnabledStatus);
+        if (externalEnabledStatus == "true") {
+            return true;
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "externalDpbEnable = %{public}s.", externalDpbEnable.c_str());
-    return !(externalDpbEnable == "false");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "externalEnabledStatus = %{public}s.", externalEnabledStatus.c_str());
+    return false;
 }
 } // namespace MiscServices
 } // namespace OHOS

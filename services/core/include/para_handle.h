@@ -20,16 +20,16 @@ namespace OHOS {
 namespace MiscServices {
 class ParaHandle {
 public:
-    ParaHandle() = default;
-    virtual ~ParaHandle() = default;
-    static void SetDpbEnable();
-    static std::string GetDpbEnable();
-    static void SubscribeDpbEnable();
-    static void UnSubscribeDpbEnable();
+    static ParaHandle &GetInstance();
+    void UnSubscribeEnabledStatus();
+    std::string GetAndSubscribeEnabledStatus();
     static void ParameterChange(const char *key, const char *value, void *context);
 
 private:
-    static const char *DISTRIBUTED_PASTEBOARD_ENABLE;
+    ParaHandle();
+    virtual ~ParaHandle() = default;
+    int32_t Init(std::string &enabledStatus);
+    static const char *DISTRIBUTED_PASTEBOARD_ENABLED;
     static const char *DEFAULT_VALUE;
     static constexpr int CONFIG_LEN = 10;
 };

@@ -37,6 +37,10 @@ public:
         void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override;
         void OnDeviceReady(const DmDeviceInfo &deviceInfo) override;
     };
+    class PasteboardDmInitCallback : public DmInitCallback {
+    public:
+        void OnRemoteDied() override;
+    };
 private:
     DevManager();
     ~DevManager() = default;

@@ -22,7 +22,7 @@
 #include "pasteboard_hilog_wreapper.h"
 namespace OHOS {
 namespace MiscServices {
-constexpr const char *PKG_NAME = "PasteboardService";
+constexpr const char *PKG_NAME = "pasteboard_service";
 constexpr int32_t DM_OK = 0;
 constexpr int32_t DM_ERROR = -1;
 constexpr const char EMPTY_STR[] = { "" };
@@ -45,12 +45,7 @@ void DevManager::PasteboardDevStateCallback::OnDeviceReady(const DmDeviceInfo &d
 {
 }
 
-class PasteboardDmInitCallback : public DmInitCallback {
-public:
-    void OnRemoteDied() override;
-};
-
-void PasteboardDmInitCallback::OnRemoteDied()
+void DevManager::PasteboardDmInitCallback::OnRemoteDied()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "dm device manager died, init it again");
     DevManager::GetInstance().RegisterDevCallback();
@@ -58,7 +53,6 @@ void PasteboardDmInitCallback::OnRemoteDied()
 
 DevManager::DevManager()
 {
-    //RegisterDevCallback();
 }
 
 void DevManager::UnRegisterDevCallback()
