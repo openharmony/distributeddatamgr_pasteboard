@@ -188,8 +188,8 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme start.");
     std::shared_ptr<Property> property = InputMethodController::GetInstance()->GetCurrentInputMethod();
     if (property != nullptr) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "packageName = %{public}s.", property->packageName.c_str());
         if (property->packageName == appInfo.bundleName) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "packageName = %{public}s.", property->packageName.c_str());
             return true;
         }
     }
