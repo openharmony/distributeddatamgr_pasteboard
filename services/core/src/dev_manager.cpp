@@ -24,6 +24,7 @@ namespace OHOS {
 namespace MiscServices {
 constexpr const char *PKG_NAME = "pasteboard_service";
 constexpr int32_t DM_OK = 0;
+constexpr const int32_t DELAY_TIME = 200;
 constexpr const char *EMPTY_STR = "";
 using namespace OHOS::DistributedHardware;
 
@@ -123,7 +124,7 @@ void DevManager::RetryInBlocking(DevManager::Function func) const
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry result: %{public}d times", i);
             return;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_TIME));
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry failed");
 }

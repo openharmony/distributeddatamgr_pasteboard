@@ -20,7 +20,6 @@
 
 namespace OHOS {
 namespace MiscServices {
-
 class DevProfile {
 public:
     static DevProfile &GetInstance();
