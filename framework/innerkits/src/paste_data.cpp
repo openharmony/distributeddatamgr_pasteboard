@@ -186,6 +186,7 @@ ShareOption PasteData::GetShareOption()
 void PasteData::SetShareOption(ShareOption shareOption)
 {
     props_.shareOption = shareOption;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOption = %{public}d.", shareOption);
 }
 
 std::string PasteData::GetAppId()

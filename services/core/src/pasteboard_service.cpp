@@ -88,16 +88,17 @@ void PasteboardService::OnStart()
         return;
     }
     InitServiceHandler();
+
+    DevManager::GetInstance().Init();
+    ParaHandle::GetInstance().Init();
+    DevProfile::GetInstance().Init();
+
     if (Init() != ERR_OK) {
         auto callback = [this]() { Init(); };
         serviceHandler_->PostTask(callback, INIT_INTERVAL);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Init failed. Try again 10s later.");
         return;
     }
-
-    std::string enabledStatus = ParaHandle::GetInstance().GetAndSubscribeEnabledStatus();
-    DevProfile::GetInstance().PutDeviceProfile(enabledStatus);
-    DevManager::GetInstance().RegisterDevCallback();
 
     if (focusChangedListener_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "focusChangedListener_.");
@@ -134,9 +135,10 @@ void PasteboardService::OnStop()
     }
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
-    ParaHandle::GetInstance().UnSubscribeEnabledStatus();
-    DevManager::GetInstance().UnRegisterDevCallback();
-	
+
+    ParaHandle::GetInstance().WatchEnabledStatus(nullptr);
+    DevManager::GetInstance().UnregisterDevCallback();
+
     Rosen::WindowManager::GetInstance().UnregisterFocusChangedListener(focusChangedListener_);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }

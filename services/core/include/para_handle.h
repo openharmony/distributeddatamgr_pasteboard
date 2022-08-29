@@ -16,20 +16,22 @@
 #ifndef PASTE_BOARD_PARA_HANDLE_H
 #define PASTE_BOARD_PARA_HANDLE_H
 #include <string>
+
+#include "parameter.h"
+
 namespace OHOS {
 namespace MiscServices {
 class ParaHandle {
 public:
     static ParaHandle &GetInstance();
-    void UnSubscribeEnabledStatus();
-    std::string GetAndSubscribeEnabledStatus();
-    static void ParameterChange(const char *key, const char *value, void *context);
+    std::string GetEnabledStatus() const;
+    void Init();
+    void WatchEnabledStatus(ParameterChgPtr ptr) const;
+    static const char *DISTRIBUTED_PASTEBOARD_ENABLED;
 
 private:
     ParaHandle();
     virtual ~ParaHandle() = default;
-    int32_t Init(std::string &enabledStatus);
-    static const char *DISTRIBUTED_PASTEBOARD_ENABLED;
     static const char *DEFAULT_VALUE;
     static constexpr int CONFIG_LEN = 10;
 };

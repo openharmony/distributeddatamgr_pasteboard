@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,86 +24,75 @@ namespace OHOS {
 namespace MiscServices {
 constexpr const char *PKG_NAME = "pasteboard_service";
 constexpr int32_t DM_OK = 0;
-constexpr int32_t DM_ERROR = -1;
-constexpr const char EMPTY_STR[] = { "" };
+constexpr const char *EMPTY_STR = "";
+using namespace OHOS::DistributedHardware;
 
-void DevManager::PasteboardDevStateCallback::OnDeviceOnline(const DmDeviceInfo &deviceInfo)
+class PasteboardDevStateCallback : public DistributedHardware::DeviceStateCallback {
+public:
+    void OnDeviceOnline(const DistributedHardware::DmDeviceInfo &deviceInfo) override;
+    void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override;
+    void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override;
+    void OnDeviceReady(const DmDeviceInfo &deviceInfo) override;
+};
+
+class PasteboardDmInitCallback : public DistributedHardware::DmInitCallback {
+public:
+    void OnRemoteDied() override;
+};
+
+void PasteboardDevStateCallback::OnDeviceOnline(const DmDeviceInfo &deviceInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevManager::GetInstance().Online(deviceInfo.deviceId);
 }
 
-void DevManager::PasteboardDevStateCallback::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
+void PasteboardDevStateCallback::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevManager::GetInstance().Offline(deviceInfo.deviceId);
 }
-void DevManager::PasteboardDevStateCallback::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
+void PasteboardDevStateCallback::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
 {
 }
-void DevManager::PasteboardDevStateCallback::OnDeviceReady(const DmDeviceInfo &deviceInfo)
+void PasteboardDevStateCallback::OnDeviceReady(const DmDeviceInfo &deviceInfo)
 {
 }
 
-void DevManager::PasteboardDmInitCallback::OnRemoteDied()
+void PasteboardDmInitCallback::OnRemoteDied()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "dm device manager died, init it again");
-    DevManager::GetInstance().RegisterDevCallback();
+    DevManager::GetInstance().Init();
 }
 
 DevManager::DevManager()
 {
 }
 
-void DevManager::UnRegisterDevCallback()
+void DevManager::UnregisterDevCallback()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start");
     auto &deviceManager = DeviceManager::GetInstance();
     deviceManager.UnRegisterDevStateCallback(PKG_NAME);
     deviceManager.UnInitDeviceManager(PKG_NAME);
-
-    DevProfile::GetInstance().UnRegisterAllProfileCallback();
+    DevProfile::GetInstance().UnsubscribeAllProfileEvents();
 }
 
-int32_t DevManager::init()
+int32_t DevManager::Init()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
-    auto &deviceManager = DeviceManager::GetInstance();
-    auto deviceInitCallback = std::make_shared<PasteboardDmInitCallback>();
-    auto deviceCallback = std::make_shared<PasteboardDevStateCallback>();
-    int32_t errNo = deviceManager.InitDeviceManager(PKG_NAME, deviceInitCallback);
-    if (errNo != DM_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InitDeviceManager failed, errNo = %{public}d.", errNo);
-        return errNo;
-    }
-    errNo = deviceManager.RegisterDevStateCallback(PKG_NAME, EMPTY_STR, deviceCallback);
-
-    return errNo;
-}
-
-void DevManager::RegisterDevCallback()
-{
-    int32_t errNo = init();
-    if (errNo == DM_OK) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "RegisterDevCallback success");
-        return;
-    }
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "register device failed, try again");
-    std::thread th = std::thread([this]() {
-        constexpr int RETRY_TIMES = 300;
-        int i = 0;
-        int32_t errNo = DM_ERROR;
-        while (i++ < RETRY_TIMES) {
-            errNo = init();
-            if (errNo == DM_OK) {
-                break;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-        PASTEBOARD_HILOGI(
-            PASTEBOARD_MODULE_SERVICE, "reg device exit now: %{public}d times, errNo: %{public}d", i, errNo);
+    RetryInBlocking([]() -> bool {
+        auto initCallback = std::make_shared<PasteboardDmInitCallback>();
+        int32_t errNo = DeviceManager::GetInstance().InitDeviceManager(PKG_NAME, initCallback);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "InitDeviceManager ret %{public}d", errNo);
+        return errNo == DM_OK;
     });
-    th.detach();
+    RetryInBlocking([]() -> bool {
+        auto stateCallback = std::make_shared<PasteboardDevStateCallback>();
+        auto errNo = DeviceManager::GetInstance().RegisterDevStateCallback(PKG_NAME, EMPTY_STR, stateCallback);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "RegisterDevStateCallback ret %{public}d", errNo);
+        return errNo == DM_OK;
+    });
+    return DM_OK;
 }
 
 DevManager &DevManager::GetInstance()
@@ -115,15 +104,47 @@ DevManager &DevManager::GetInstance()
 void DevManager::Online(const std::string &deviceId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    DevProfile::GetInstance().RegisterProfileCallback(deviceId);
+    DevProfile::GetInstance().SubscribeProfileEvent(deviceId);
     DistributedModuleConfig::Notify();
 }
 
 void DevManager::Offline(const std::string &deviceId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    DevProfile::GetInstance().UnRegisterProfileCallback(deviceId);
+    DevProfile::GetInstance().UnSubscribeProfileEvent(deviceId);
     DistributedModuleConfig::Notify();
+}
+void DevManager::RetryInBlocking(DevManager::Function func) const
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry start");
+    constexpr int32_t RETRY_TIMES = 300;
+    for (int32_t i = 0; i < RETRY_TIMES; ++i) {
+        if (func()) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry result: %{public}d times", i);
+            return;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry failed");
+}
+std::vector<std::string> DevManager::GetDeviceIds()
+{
+    std::vector<DmDeviceInfo> devices;
+    int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devices);
+    if (ret != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetTrustedDeviceList failed!");
+        return {};
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "devicesNums = %{public}zu.", devices.size());
+    if (devices.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
+        return {};
+    }
+    std::vector<std::string> deviceIds;
+    for (auto &item : devices) {
+        deviceIds.emplace_back(item.deviceId);
+    }
+    return deviceIds;
 }
 } // namespace MiscServices
 } // namespace OHOS

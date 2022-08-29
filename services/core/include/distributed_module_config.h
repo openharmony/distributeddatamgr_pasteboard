@@ -26,11 +26,11 @@ public:
     static bool IsOn();
     static void Watch(Observer observer);
     static void Notify();
-    static bool IsServiceOn();
 
 private:
+    static bool GetEnabledStatus();
     static Observer observer_;
-    static bool isOn_;
+    static bool status_;
 };
 } // namespace MiscServices
 } // namespace OHOS

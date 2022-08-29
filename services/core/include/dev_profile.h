@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,35 +20,31 @@
 
 namespace OHOS {
 namespace MiscServices {
-using namespace OHOS::DeviceProfile;
 
 class DevProfile {
 public:
     static DevProfile &GetInstance();
-
-    void GetDeviceProfile(const std::string &deviceId, std::string &enabledStatus);
-    void PutDeviceProfile(const std::string &enabledStatus);
-    int32_t Init(const std::string &enabledStatus);
-    void RegisterProfileCallback(const std::string &deviceId);
-    void UnRegisterProfileCallback(const std::string &deviceId);
+    void GetEnabledStatus(const std::string &deviceId, std::string &enabledStatus);
+    void Init();
+    void PutEnabledStatus(const std::string &enabledStatus);
     void SubscribeProfileEvent(const std::string &deviceId);
     void UnSubscribeProfileEvent(const std::string &deviceId);
-    void SyncDeviceProfile();
-    void UnRegisterAllProfileCallback();
-    void ProfileChanged();
-    class PasteboardProfileEventCallback : public IProfileEventCallback {
-public:
-    void OnSyncCompleted(const SyncResult& syncResults) override;
-    void OnProfileChanged(const ProfileChangeNotification& changeNotification) override;
-};
+    void UnsubscribeAllProfileEvents();
+
+    class PasteboardProfileEventCallback : public DeviceProfile::IProfileEventCallback {
+    public:
+        void OnSyncCompleted(const DeviceProfile::SyncResult &syncResults) override;
+        void OnProfileChanged(const DeviceProfile::ProfileChangeNotification &changeNotification) override;
+    };
 
 private:
     DevProfile();
     ~DevProfile() = default;
-    std::mutex callbackMapMutex_;
-    std::map<std::string, std::shared_ptr<PasteboardProfileEventCallback>> callbackMap_;
+    static void ParameterChange(const char *key, const char *value, void *context);
+    void SyncEnabledStatus();
+    std::mutex callbackMutex_;
+    std::map<std::string, std::shared_ptr<PasteboardProfileEventCallback>> callback_;
 };
 } // namespace MiscServices
 } // namespace OHOS
-
-#endif //PASTE_BOARD_DEV_PROFILE_H
+#endif // PASTE_BOARD_DEV_PROFILE_H

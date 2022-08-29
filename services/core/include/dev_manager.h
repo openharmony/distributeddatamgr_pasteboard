@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,34 +17,26 @@
 #define PASTE_BOARD_DEV_MANAGER_H
 
 #include <string>
+#include <vector>
 
 #include "device_manager_callback.h"
 
 namespace OHOS {
 namespace MiscServices {
-using namespace OHOS::DistributedHardware;
 class DevManager {
 public:
     static DevManager &GetInstance();
+    std::vector<std::string> GetDeviceIds();
+    int32_t Init();
     void Online(const std::string &deviceId);
     void Offline(const std::string &deviceId);
-    void RegisterDevCallback();
-    void UnRegisterDevCallback();
-    class PasteboardDevStateCallback : public DeviceStateCallback {
-    public:
-        void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override;
-        void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override;
-        void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override;
-        void OnDeviceReady(const DmDeviceInfo &deviceInfo) override;
-    };
-    class PasteboardDmInitCallback : public DmInitCallback {
-    public:
-        void OnRemoteDied() override;
-    };
+    void UnregisterDevCallback();
+
 private:
+    using Function = bool (*)();
     DevManager();
     ~DevManager() = default;
-    int32_t init();
+    void RetryInBlocking(Function func) const;
 };
 } // namespace MiscServices
 } // namespace OHOS

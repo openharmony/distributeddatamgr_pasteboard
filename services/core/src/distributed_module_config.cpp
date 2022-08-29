@@ -14,21 +14,19 @@
  */
 #include "distributed_module_config.h"
 
+#include "dev_manager.h"
 #include "dev_profile.h"
-#include "device_manager.h"
-#include "dm_device_info.h"
 #include "pasteboard_hilog_wreapper.h"
 
 namespace OHOS {
 namespace MiscServices {
-constexpr const char *PKG_NAME = "pasteboard_service";
 using namespace DistributedHardware;
-bool DistributedModuleConfig::isOn_ = false;
+bool DistributedModuleConfig::status_ = false;
 DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
-    isOn_ = IsServiceOn();
-    return isOn_;
+    status_ = GetEnabledStatus();
+    return status_;
 }
 
 void DistributedModuleConfig::Watch(Observer observer)
@@ -38,46 +36,36 @@ void DistributedModuleConfig::Watch(Observer observer)
 
 void DistributedModuleConfig::Notify()
 {
-    bool isOn = IsServiceOn();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Notify, isOn = %{public}d", isOn);
-    if (isOn != isOn_) {
-        isOn_ = isOn;
+    bool newStatus = GetEnabledStatus();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Notify, status:%{public}d, newStatus:%{public}d", status_, newStatus);
+    if (newStatus != status_) {
+        status_ = newStatus;
         if (observer_ != nullptr) {
-            observer_(isOn);
+            observer_(newStatus);
         }
     }
 }
 
-bool DistributedModuleConfig::IsServiceOn()
+bool DistributedModuleConfig::GetEnabledStatus()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsServiceOn start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
 
     std::string localEnabledStatus = "false";
-    DevProfile::GetInstance().GetDeviceProfile("", localEnabledStatus);
+    DevProfile::GetInstance().GetEnabledStatus("", localEnabledStatus);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "localEnabledStatus = %{public}s.", localEnabledStatus.c_str());
     if (localEnabledStatus == "false") {
         return false;
     }
 
-    std::vector<DmDeviceInfo> devList;
-    int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devList);
-    if (ret != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetTrustedDeviceList failed!");
-        return false;
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "devList = %{public}d.", static_cast<uint32_t>(devList.size()));
-    if (devList.empty()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
-        return false;
-    }
-    std::string externalEnabledStatus = "false";
-    for (auto const &devInfo : devList) {
-        DevProfile::GetInstance().GetDeviceProfile(devInfo.deviceId, externalEnabledStatus);
-        if (externalEnabledStatus == "true") {
+    auto deviceIds = DevManager::GetInstance().GetDeviceIds();
+    std::string remoteEnabledStatus = "false";
+    for (auto &id : deviceIds) {
+        DevProfile::GetInstance().GetEnabledStatus(id, remoteEnabledStatus);
+        if (remoteEnabledStatus == "true") {
             return true;
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "externalEnabledStatus = %{public}s.", externalEnabledStatus.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus = %{public}s.", remoteEnabledStatus.c_str());
     return false;
 }
 } // namespace MiscServices
