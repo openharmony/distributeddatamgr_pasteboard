@@ -41,7 +41,7 @@ ParaHandle &ParaHandle::GetInstance()
 
 void ParaHandle::ParameterChange(const char *key, const char *value, void *context)
 {
-    if (strncmp(key, DISTRIBUTED_PASTEBOARD_ENABLED, strlen(key)) != 0) {
+    if (strncmp(key, DISTRIBUTED_PASTEBOARD_ENABLED, strlen(DISTRIBUTED_PASTEBOARD_ENABLED)) != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "key is error.");
         return;
     }
