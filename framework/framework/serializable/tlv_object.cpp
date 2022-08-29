@@ -15,10 +15,12 @@
 #include "serializable/tlv_object.h"
 
 #include <cstring>
+
+#include "parcel.h"
 namespace OHOS::MiscServices {
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, bool value)
 {
-    return Write(buffer, type, (int8_t)(value));
+    return WriteBasic(buffer, type, (int8_t)(value));
 }
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, int8_t value)
 {
@@ -49,7 +51,7 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const st
     return true;
 }
 
-bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value)
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, Parcel &value)
 {
     if (!Check(buffer, sizeof(TLVHead))) {
         return false;
@@ -57,27 +59,13 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObjec
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     cursor_ += sizeof(TLVHead);
-    auto preCursor = cursor_;
-    bool ret = value.Encode(buffer, cursor_, buffer.size());
-    tlvHead->len = HostToNet((uint32_t)(cursor_ - preCursor));
-    return ret;
+    auto data = value.GetData();
+    auto size = value.GetDataSize();
+    memcpy(buffer.data() + cursor_, reinterpret_cast<const void *>(data), size);
+    cursor_ += size;
+    tlvHead->len = HostToNet(size);
+    return true;
 }
-
-//bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, Parcel &value)
-//{
-//    if (!Check(buffer, sizeof(TLVHead))) {
-//        return false;
-//    }
-//    auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
-//    tlvHead->tag = HostToNet(type);
-//    cursor_ += sizeof(TLVHead);
-//    auto data = value.GetData();
-//    auto size = value.GetDataSize();
-//    memcpy(buffer.data() + cursor_, reinterpret_cast<const void *>(data), size);
-//    cursor_ += size;
-//    tlvHead->len = HostToNet(size);
-//    return true;
-//}
 
 bool TLVObject::ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head)
 {
@@ -128,16 +116,16 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &va
 {
     return value.Decode(buffer, cursor_, cursor_ + head.len);
 }
-//
-//bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, Parcel &value, const TLVHead &head)
-//{
-//    if (!Check(buffer, head.len)) {
-//        return false;
-//    }
-//    value.ParseFrom(reinterpret_cast<uintptr_t>(buffer.data() + cursor_), head.len);
-//    cursor_ += head.len;
-//    return true;
-//}
+
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, Parcel &value, const TLVHead &head)
+{
+    if (!Check(buffer, head.len)) {
+        return false;
+    }
+    value.ParseFrom(reinterpret_cast<uintptr_t>(buffer.data() + cursor_), head.len);
+    cursor_ += head.len;
+    return true;
+}
 bool TLVObject::Encode(std::vector<std::uint8_t> &buffer, size_t &cursor, size_t total)
 {
     cursor_ = cursor;

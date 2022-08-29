@@ -32,6 +32,8 @@ const std::uint32_t MAX_RECORD_NUM = 512;
 enum TAG_PASTEBOARD : uint16_t {
     TAG_PROPERTYS = TAG_BUFF + 1,
     TAG_RECORDS,
+    TAG_RECORDS_COUNT,
+    TAG_RECORDS_ITEM,
 };
 enum TAG_PROPERTYS : uint16_t { TAG_ADDITIONS = TAG_BUFF + 1, TAG_MIMETYPES, TAG_TAG, TAG_TIMESTAMP, TAG_LOCALONLY };
 
@@ -366,13 +368,17 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_PROPERTYS, (TLVObject &)props_);
-    ret = Write(buffer, TAG_RECORDS, records_) && ret;
+    //    ret = Write(buffer, TAG_RECORDS, records_) && ret;
+    ret = Write(buffer, TAG_RECORDS_COUNT, (int32_t)records_.size()) && ret;
+    for (auto &record : records_) {
+        ret = Write(buffer, TAG_RECORDS_ITEM, (TLVObject &)(*record)) && ret;
+    }
     return ret;
 }
 
 bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
 {
-    total_ = buffer.size(); // to be delete
+    total_ = buffer.size();
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
@@ -380,9 +386,23 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_PROPERTYS:
                 ret = ret && ReadValue(buffer, (TLVObject &)props_, head);
                 break;
-            case TAG_RECORDS:
-                ret = ret && ReadValue(buffer, records_, head);
+            case TAG_RECORDS_COUNT: {
+                int32_t count = 0;
+                ret = ret && ReadValue(buffer, count, head);
+                records_.resize(count);
                 break;
+            }
+            case TAG_RECORDS_ITEM: {
+                auto item = std::make_shared<PasteDataRecord>();
+                ret = ret && ReadValue(buffer, (TLVObject &)(*item), head);
+                for (auto &record : records_) {
+                    if (record == nullptr) {
+                        record = item;
+                        break;
+                    }
+                }
+                break;
+            }
             default:
                 ret = ret && Skip(head.len, buffer.size());
                 break;
@@ -393,10 +413,19 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
     }
     return true;
 }
+size_t PasteData::Count()
+{
+    size_t expectSize = 0;
+    expectSize += props_.Count() + sizeof(TLVHead);
+    expectSize += sizeof(TLVHead);
+    expectSize += sizeof(TLVHead) + sizeof(int32_t);
+    for (auto & record : records_) {
+        expectSize += record->Count();
+    }
+    return expectSize;
+}
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {
-//    Parcel parcel;
-//    additions.Marshalling(parcel);
     bool ret = Write(buffer, TAG_ADDITIONS, additions);
     ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
     ret = Write(buffer, TAG_TAG, tag) && ret;
@@ -411,13 +440,7 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
         bool ret = ReadHead(buffer, head);
         switch (head.tag) {
             case TAG_ADDITIONS: {
-//                Parcel parcel;
                 ret = ret && ReadValue(buffer, additions, head);
-//                auto *wantParam = additions.Unmarshalling(parcel);
-//                if (wantParam == nullptr) {
-//                    break;
-//                }
-//                additions = *wantParam;
                 break;
             }
             case TAG_MIMETYPES:
@@ -441,6 +464,20 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
         }
     }
     return true;
+}
+size_t PasteDataProperty::Count()
+{
+    size_t expectedSize = 0;
+    expectedSize += TLVObject::Count(additions);
+    expectedSize += sizeof(TLVHead);
+    expectedSize += sizeof(int32_t) + sizeof(TLVHead);
+    for (auto &item : mimeTypes) {
+        expectedSize += TLVObject::Count(item);
+    }
+    expectedSize += TLVObject::Count(tag);
+    expectedSize += TLVObject::Count(timestamp);
+    expectedSize += TLVObject::Count(localOnly);
+    return expectedSize;
 }
 } // MiscServices
 } // OHOS

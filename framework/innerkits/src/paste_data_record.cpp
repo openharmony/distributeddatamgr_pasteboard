@@ -367,15 +367,9 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_MIMETYPE, mimeType_);
     ret = Write(buffer, TAG_HTMLTEXT, htmlText_) && ret;
-    //    Parcel parcel;
-    //    want_->Marshalling(parcel);
     ret = Write(buffer, TAG_WANT, want_) && ret;
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
-    //    Parcel uriPacel;
-    //    uri_->Marshalling(parcel);
     ret = Write(buffer, TAG_URI, uri_) && ret;
-    //    Parcel pixelMapParcel;
-    //    pixelMap_->Marshalling(pixelMapParcel);
     ret = Write(buffer, TAG_PIXELMAP, pixelMap_) && ret;
     return ret;
 }
@@ -394,16 +388,16 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && ReadValue(buffer, htmlText_, head);
                 break;
             case TAG_WANT:
-                ret = ret && ReadValue(buffer, want_, head);
+                ret = ret && ReadValue(buffer, want_, head, "");
                 break;
             case TAG_PLAINTEXT:
                 ret = ret && ReadValue(buffer, plainText_, head);
                 break;
             case TAG_URI:
-                ret = ret && ReadValue(buffer, uri_, head);
+                ret = ret && ReadValue(buffer, uri_, head, "");
                 break;
             case TAG_PIXELMAP:
-                ret = ret && ReadValue(buffer, pixelMap_, head);
+                ret = ret && ReadValue(buffer, pixelMap_, head, "");
                 break;
             default:
                 ret = ret && Skip(head.len, buffer.size());
@@ -414,6 +408,18 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
         }
     }
     return true;
+}
+
+size_t PasteDataRecord::Count()
+{
+    size_t expectedSize = 0;
+    expectedSize += TLVObject::Count(mimeType_);
+    expectedSize += TLVObject::Count(htmlText_);
+    expectedSize += TLVObject::Count(want_);
+    expectedSize += TLVObject::Count(plainText_);
+    expectedSize += TLVObject::Count(uri_);
+    expectedSize += TLVObject::Count(pixelMap_);
+    return expectedSize;
 }
 } // namespace MiscServices
 } // namespace OHOS

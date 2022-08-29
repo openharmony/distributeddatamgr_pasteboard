@@ -83,6 +83,7 @@ public:
     static PasteDataRecord *Unmarshalling(Parcel &parcel);
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    size_t Count() override;
 
     class Builder {
     public:

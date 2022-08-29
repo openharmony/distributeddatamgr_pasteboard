@@ -46,6 +46,7 @@ struct PasteDataProperty : public TLVObject {
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    size_t Count() override;
 };
 
 class PasteData : public Parcelable, public TLVObject {
@@ -85,6 +86,7 @@ public:
     static PasteData *Unmarshalling(Parcel &parcel);
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    size_t Count() override;
 
 private:
     bool MarshallingProps(Parcel &parcel) const;
