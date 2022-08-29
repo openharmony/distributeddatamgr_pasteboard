@@ -654,7 +654,8 @@ napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Clear is called!");
     auto context = std::make_shared<AsyncCall::Context>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        NAPI_ASSERT_BASE(env, argc == ARGC_TYPE_SET0 || argc == ARGC_TYPE_SET1, " should 0 or 1 parameters!", napi_invalid_arg);
+        NAPI_ASSERT_BASE(
+            env, argc == ARGC_TYPE_SET0 || argc == ARGC_TYPE_SET1, " should 0 or 1 parameters!", napi_invalid_arg);
         if (argc == ARGC_TYPE_SET1) {
             napi_valuetype valueType = napi_undefined;
             napi_typeof(env, argv[0], &valueType);
@@ -677,7 +678,8 @@ napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info i
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasPasteData is called!");
     auto context = std::make_shared<HasContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        NAPI_ASSERT_BASE(env, argc == ARGC_TYPE_SET0 || argc == ARGC_TYPE_SET1, " should 0 or 1 parameters!", napi_invalid_arg);
+        NAPI_ASSERT_BASE(
+            env, argc == ARGC_TYPE_SET0 || argc == ARGC_TYPE_SET1, " should 0 or 1 parameters!", napi_invalid_arg);
         if (argc == ARGC_TYPE_SET1) {
             napi_valuetype valueType = napi_undefined;
             napi_typeof(env, argv[0], &valueType);
@@ -707,7 +709,8 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData is called!");
     auto context = std::make_shared<AsyncCall::Context>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        NAPI_ASSERT_BASE(env, argc == ARGC_TYPE_SET0 || argc == ARGC_TYPE_SET1, " should 0 or 1 parameters!", napi_invalid_arg);
+        NAPI_ASSERT_BASE(
+            env, argc == ARGC_TYPE_SET0 || argc == ARGC_TYPE_SET1, " should 0 or 1 parameters!", napi_invalid_arg);
         if (argc == ARGC_TYPE_SET1) {
             napi_valuetype valueType = napi_undefined;
             napi_typeof(env, argv[0], &valueType);
@@ -745,7 +748,8 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SetPasteData is called!");
     auto context = std::make_shared<SetContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        NAPI_ASSERT_BASE(env, argc == ARGC_TYPE_SET1 || argc == ARGC_TYPE_SET2, " should 1 or 2 parameters!", napi_invalid_arg);
+        NAPI_ASSERT_BASE(
+            env, argc == ARGC_TYPE_SET1 || argc == ARGC_TYPE_SET2, " should 1 or 2 parameters!", napi_invalid_arg);
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "input ---- argc : %{public}zu", argc);
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[0], &valueType);
