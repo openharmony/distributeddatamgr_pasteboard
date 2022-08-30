@@ -18,6 +18,8 @@
 
 #include "accesstoken_kit.h"
 #include "calculate_time_consuming.h"
+#include "dev_manager.h"
+#include "dev_profile.h"
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "hiview_adapter.h"
@@ -26,6 +28,7 @@
 #include "loader.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
+#include "para_handle.h"
 #include "pasteboard_common.h"
 #include "pasteboard_trace.h"
 #include "reporter.h"
@@ -85,6 +88,11 @@ void PasteboardService::OnStart()
         return;
     }
     InitServiceHandler();
+
+    DevManager::GetInstance().Init();
+    ParaHandle::GetInstance().Init();
+    DevProfile::GetInstance().Init();
+
     if (Init() != ERR_OK) {
         auto callback = [this]() { Init(); };
         serviceHandler_->PostTask(callback, INIT_INTERVAL);
@@ -127,6 +135,10 @@ void PasteboardService::OnStop()
     }
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
+
+    ParaHandle::GetInstance().WatchEnabledStatus(nullptr);
+    DevManager::GetInstance().UnregisterDevCallback();
+
     Rosen::WindowManager::GetInstance().UnregisterFocusChangedListener(focusChangedListener_);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }

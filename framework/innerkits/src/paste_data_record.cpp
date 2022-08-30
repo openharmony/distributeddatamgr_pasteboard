@@ -309,7 +309,7 @@ bool MineCustomData::Marshalling(Parcel &parcel) const
         return false;
     }
     for (const auto &item : itemData_) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}zu.", item.second.size());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "dataLen = %{public}zu!", item.second.size());
         if (!parcel.WriteString(item.first) || !parcel.WriteUInt8Vector(item.second)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write failed.");
             return false;

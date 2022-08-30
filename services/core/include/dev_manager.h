@@ -13,25 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
-#define PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
+#ifndef PASTE_BOARD_DEV_MANAGER_H
+#define PASTE_BOARD_DEV_MANAGER_H
 
-#include <functional>
+#include <string>
+#include <vector>
+
+#include "device_manager_callback.h"
 
 namespace OHOS {
 namespace MiscServices {
-class DistributedModuleConfig {
+class DevManager {
 public:
-    using Observer = std::function<void(bool isOn)>;
-    static bool IsOn();
-    static void Watch(Observer observer);
-    static void Notify();
+    static DevManager &GetInstance();
+    std::vector<std::string> GetDeviceIds();
+    int32_t Init();
+    void Online(const std::string &deviceId);
+    void Offline(const std::string &deviceId);
+    void UnregisterDevCallback();
 
 private:
-    static bool GetEnabledStatus();
-    static Observer observer_;
-    static bool status_;
+    using Function = bool (*)();
+    DevManager();
+    ~DevManager() = default;
+    void RetryInBlocking(Function func) const;
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
+#endif // PASTE_BOARD_DEV_MANAGER_H

@@ -14,19 +14,59 @@
  */
 #include "distributed_module_config.h"
 
+#include "dev_manager.h"
+#include "dev_profile.h"
+#include "pasteboard_hilog_wreapper.h"
+
 namespace OHOS {
 namespace MiscServices {
+using namespace DistributedHardware;
+bool DistributedModuleConfig::status_ = false;
+DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
-    return false;
+    status_ = GetEnabledStatus();
+    return status_;
 }
 
 void DistributedModuleConfig::Watch(Observer observer)
 {
+    observer_ = std::move(observer);
 }
 
 void DistributedModuleConfig::Notify()
 {
+    bool newStatus = GetEnabledStatus();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Notify, status:%{public}d, newStatus:%{public}d", status_, newStatus);
+    if (newStatus != status_) {
+        status_ = newStatus;
+        if (observer_ != nullptr) {
+            observer_(newStatus);
+        }
+    }
 }
-} // namespace OHOS
+
+bool DistributedModuleConfig::GetEnabledStatus()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
+
+    std::string localEnabledStatus = "false";
+    DevProfile::GetInstance().GetEnabledStatus("", localEnabledStatus);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "localEnabledStatus = %{public}s.", localEnabledStatus.c_str());
+    if (localEnabledStatus == "false") {
+        return false;
+    }
+
+    auto deviceIds = DevManager::GetInstance().GetDeviceIds();
+    std::string remoteEnabledStatus = "false";
+    for (auto &id : deviceIds) {
+        DevProfile::GetInstance().GetEnabledStatus(id, remoteEnabledStatus);
+        if (remoteEnabledStatus == "true") {
+            return true;
+        }
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus = %{public}s.", remoteEnabledStatus.c_str());
+    return false;
+}
 } // namespace MiscServices
+} // namespace OHOS

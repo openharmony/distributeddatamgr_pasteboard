@@ -13,25 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
-#define PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
+#ifndef PASTE_BOARD_PARA_HANDLE_H
+#define PASTE_BOARD_PARA_HANDLE_H
+#include <string>
 
-#include <functional>
+#include "parameter.h"
 
 namespace OHOS {
 namespace MiscServices {
-class DistributedModuleConfig {
+class ParaHandle {
 public:
-    using Observer = std::function<void(bool isOn)>;
-    static bool IsOn();
-    static void Watch(Observer observer);
-    static void Notify();
+    static ParaHandle &GetInstance();
+    std::string GetEnabledStatus() const;
+    void Init();
+    void WatchEnabledStatus(ParameterChgPtr ptr) const;
+    static const char *DISTRIBUTED_PASTEBOARD_ENABLED;
 
 private:
-    static bool GetEnabledStatus();
-    static Observer observer_;
-    static bool status_;
+    ParaHandle();
+    virtual ~ParaHandle() = default;
+    static const char *DEFAULT_VALUE;
+    static constexpr int CONFIG_LEN = 10;
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
+#endif // PASTE_BOARD_PARA_HANDLE_H
