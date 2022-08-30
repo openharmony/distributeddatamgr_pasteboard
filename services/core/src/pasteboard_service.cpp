@@ -42,6 +42,7 @@
 
 namespace OHOS {
 namespace MiscServices {
+using namespace std::chrono;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
@@ -49,9 +50,8 @@ const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const std::string DEFAULT_IME_BUNDLE_NAME = "com.example.kikakeyboard";
 const std::int32_t ERROR_USERID = -1;
-const bool G_REGISTER_RESULT =
-    SystemAbility::MakeAndRegisterAbility(new PasteboardService());
-}
+const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
+} // namespace
 using namespace Security::AccessToken;
 
 std::vector<std::shared_ptr<std::string>> PasteboardService::dataHistory_;
