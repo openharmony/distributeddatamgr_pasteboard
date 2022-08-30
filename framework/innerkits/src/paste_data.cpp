@@ -30,12 +30,19 @@ const std::uint32_t MAX_RECORD_NUM = 512;
 }
 
 enum TAG_PASTEBOARD : uint16_t {
-    TAG_PROPERTYS = TAG_BUFF + 1,
+    TAG_PROPS = TAG_BUFF + 1,
     TAG_RECORDS,
     TAG_RECORDS_COUNT,
     TAG_RECORDS_ITEM,
 };
-enum TAG_PROPERTYS : uint16_t { TAG_ADDITIONS = TAG_BUFF + 1, TAG_MIMETYPES, TAG_TAG, TAG_TIMESTAMP, TAG_LOCALONLY };
+enum TAG_PROPERTY : uint16_t {
+    TAG_ADDITIONS = TAG_BUFF + 1,
+    TAG_MIMETYPES,
+    TAG_TAG,
+    TAG_TIMESTAMP,
+    TAG_SHAREOPTION,
+    TAG_APPID
+};
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
     : records_ {std::move(records)}
@@ -367,7 +374,7 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
 
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
-    bool ret = Write(buffer, TAG_PROPERTYS, (TLVObject &)props_);
+    bool ret = Write(buffer, TAG_PROPS, (TLVObject &)props_);
     //    ret = Write(buffer, TAG_RECORDS, records_) && ret;
     ret = Write(buffer, TAG_RECORDS_COUNT, (int32_t)records_.size()) && ret;
     for (auto &record : records_) {
@@ -383,7 +390,7 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
         switch (head.tag) {
-            case TAG_PROPERTYS:
+            case TAG_PROPS:
                 ret = ret && ReadValue(buffer, (TLVObject &)props_, head);
                 break;
             case TAG_RECORDS_COUNT: {
@@ -430,7 +437,8 @@ bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
     ret = Write(buffer, TAG_TAG, tag) && ret;
     ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
-    ret = Write(buffer, TAG_LOCALONLY, localOnly) && ret;
+    ret = Write(buffer, TAG_SHAREOPTION, (int32_t &)shareOption) && ret;
+    ret = Write(buffer, TAG_APPID, appId) && ret;
     return ret;
 }
 bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
@@ -452,8 +460,11 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_TIMESTAMP:
                 ret = ret && ReadValue(buffer, timestamp, head);
                 break;
-            case TAG_LOCALONLY:
-                ret = ret && ReadValue(buffer, localOnly, head);
+            case TAG_SHAREOPTION:
+                ret = ret && ReadValue(buffer, (int32_t &)shareOption, head);
+                break;
+            case TAG_APPID:
+                ret = ret && ReadValue(buffer, appId, head);
                 break;
             default:
                 ret = ret && Skip(head.len, buffer.size());
@@ -476,7 +487,8 @@ size_t PasteDataProperty::Count()
     }
     expectedSize += TLVObject::Count(tag);
     expectedSize += TLVObject::Count(timestamp);
-    expectedSize += TLVObject::Count(localOnly);
+    expectedSize += TLVObject::Count(shareOption);
+    expectedSize += TLVObject::Count(appId);
     return expectedSize;
 }
 } // MiscServices
