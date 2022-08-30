@@ -19,7 +19,6 @@
 namespace OHOS::MiscServices {
 using namespace OHOS::DistributedHardware;
 constexpr size_t DMAdapter::MAX_ID_LEN;
-constexpr const char *DMAdapter::PKG_NAME;
 class DmStateObserver : public DeviceStateCallback {
 public:
     DmStateObserver(std::function<void(const DmDeviceInfo &)> action) : online_(std::move(action))
@@ -49,20 +48,37 @@ private:
 
 class DmDeath : public DmInitCallback, public std::enable_shared_from_this<DmDeath> {
 public:
-    DmDeath(std::shared_ptr<DmStateObserver> observer) : observer_(observer)
+    DmDeath(std::shared_ptr<DmStateObserver> observer, std::string pkgName)
+        : observer_(observer), pkgName_(std::move(pkgName))
     {
     }
     void OnRemoteDied() override
     {
-        DeviceManager::GetInstance().InitDeviceManager(DMAdapter::PKG_NAME, shared_from_this());
-        DeviceManager::GetInstance().RegisterDevStateCallback(DMAdapter::PKG_NAME, "", observer_);
+        DeviceManager::GetInstance().InitDeviceManager(pkgName_, shared_from_this());
+        DeviceManager::GetInstance().RegisterDevStateCallback(pkgName_, "", observer_);
     }
 
 private:
     std::shared_ptr<DmStateObserver> observer_;
+    std::string pkgName_;
 };
 
 DMAdapter::DMAdapter()
+{
+
+}
+
+DMAdapter::~DMAdapter()
+{
+}
+
+DMAdapter &DMAdapter::GetInstance()
+{
+    static DMAdapter instance;
+    return instance;
+}
+
+bool DMAdapter::Initialize(const std::string &pkgName)
 {
     auto stateObserver = std::make_shared<DmStateObserver>([this](const DmDeviceInfo &deviceInfo) {
         observers_.ForEach([&deviceInfo](auto &key, auto &value) {
@@ -70,21 +86,10 @@ DMAdapter::DMAdapter()
             return false;
         });
     });
-    auto deathObserver = std::make_shared<DmDeath>(stateObserver);
-    DeviceManager::GetInstance().InitDeviceManager(PKG_NAME, deathObserver);
-    DeviceManager::GetInstance().RegisterDevStateCallback(PKG_NAME, "", stateObserver);
-}
-
-DMAdapter::~DMAdapter()
-{
-    DeviceManager::GetInstance().UnRegisterDevStateCallback(PKG_NAME);
-    DeviceManager::GetInstance().UnInitDeviceManager(PKG_NAME);
-}
-
-DMAdapter &DMAdapter::GetInstance()
-{
-    static DMAdapter instance;
-    return instance;
+    pkgName_ = pkgName + NAME_EX;
+    auto deathObserver = std::make_shared<DmDeath>(stateObserver, pkgName_);
+    deathObserver->OnRemoteDied();
+    return false;
 }
 
 const std::string &DMAdapter::GetLocalDevice()
@@ -95,11 +100,11 @@ const std::string &DMAdapter::GetLocalDevice()
     }
 
     DmDeviceInfo info;
-    int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(PKG_NAME, info);
+    int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(pkgName_, info);
     if (ret != 0) {
         return invalidDeviceId_;
     }
-    DeviceManager::GetInstance().GetUdidByNetworkId(PKG_NAME, info.networkId, localDeviceId_);
+    DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceId_);
     if (localDeviceId_.empty()) {
         return invalidDeviceId_;
     }

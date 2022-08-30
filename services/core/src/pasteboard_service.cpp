@@ -88,9 +88,9 @@ void PasteboardService::OnStart()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
         return;
     }
+
     InitServiceHandler();
     AppInfo appInfo;
-
     GetAppInfoByTokenId(IPCSkeleton::GetCallingTokenID(), appInfo);
     Loader loader;
     loader.LoadComponents();

@@ -16,9 +16,6 @@
 #ifndef PASTE_BOARD_SERVICE_H
 #define PASTE_BOARD_SERVICE_H
 
-#include <singleton.h>
-#include <sys/time.h>
-
 #include <atomic>
 #include <condition_variable>
 #include <ctime>
@@ -27,9 +24,11 @@
 #include <mutex>
 #include <set>
 #include <stack>
+#include <sys/time.h>
 #include <thread>
 
 #include "bundle_mgr_proxy.h"
+#include "clip/clip_plugin.h"
 #include "event_handler.h"
 #include "i_pasteboard_observer.h"
 #include "iremote_object.h"
@@ -82,6 +81,8 @@ public:
     };
 
 private:
+    static constexpr const char *PLUGIN_NAME = "distributed_clip";
+    static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     struct classcomp {
         bool operator() (const sptr<IPasteboardChangedObserver>& l, const sptr<IPasteboardChangedObserver>& r) const
         {
@@ -95,6 +96,15 @@ private:
     void InitStorage();
     void SetPasteDataDot(PasteData& pasteData);
     void GetPasteDataDot();
+
+    std::shared_ptr<PasteData> GetDistributedData();
+    bool SetDistributedData(int32_t user, PasteData& data);
+    bool HasDistributedData();
+    bool GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, ClipPlugin::GlobalEvent &event);
+    bool CleanDistributedData();
+    void OnConfigChange(bool isOn);
+    std::shared_ptr<ClipPlugin> GetClipPlugin();
+
     std::string GetTime();
     static bool HasPastePermission(const std::string &appId, ShareOption shareOption);
     static bool GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo);
@@ -105,9 +115,14 @@ private:
     std::mutex clipMutex_;
     std::mutex observerMutex_;
     std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>> observerMap_;
+    ClipPlugin::GlobalEvent currentEvent_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
     sptr<Rosen::IFocusChangedListener> focusChangedListener_;
+
+    std::recursive_mutex mutex;
+    std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
+    std::atomic<uint32_t> sequenceId_ = 0;
     static int32_t focusAppUid_;
     int32_t uIdForLastCopy_ = 0;
     std::string timeForLastCopy_;

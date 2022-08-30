@@ -23,20 +23,23 @@ namespace OHOS::MiscServices {
 class API_EXPORT DMAdapter {
 public:
     static constexpr size_t MAX_ID_LEN = 64;
-    static constexpr const char *PKG_NAME = "pasteboard_service";
     class DMObserver {
     public:
         virtual void Online(const std::string &device) = 0;
         virtual void Offline(const std::string &device) = 0;
     };
     static DMAdapter &GetInstance();
+    bool Initialize(const std::string &pkgName);
     const std::string &GetLocalDevice();
     void Register(DMObserver *observer);
     void Unregister(DMObserver *observer);
 
 private:
+    static constexpr const char *NAME_EX = "dm_adapter";
     DMAdapter();
     ~DMAdapter();
+
+    std::string pkgName_;
     const std::string invalidDeviceId_{};
     mutable std::mutex mutex_{};
     std::string localDeviceId_{};
