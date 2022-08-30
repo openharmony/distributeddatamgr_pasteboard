@@ -744,13 +744,6 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     };
 
     clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
-    DistributedModuleConfig::Watch([this](bool isOn) {
-        if (isOn) {
-            return;
-        }
-        std::lock_guard<decltype(mutex)> lockGuard(mutex);
-        clipPlugin_ = nullptr;
-    });
     return clipPlugin_;
 }
 
