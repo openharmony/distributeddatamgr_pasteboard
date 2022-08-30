@@ -15,7 +15,7 @@
 
 #include "serializable/serializable.h"
 namespace OHOS {
-namespace MiscServices {
+namespace DistributedData {
 Serializable::json Serializable::Marshall() const
 {
     json root;

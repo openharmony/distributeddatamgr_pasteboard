@@ -49,7 +49,7 @@ bool FuzzPasteboardService(const uint8_t* rawData, size_t size)
     MessageParcel reply;
     MessageOption option;
     
-    DelayedSingleton<PasteboardService>::GetInstance()->OnRemoteRequest(code, data, reply, option);
+    std::make_shared<PasteboardService>()->OnRemoteRequest(code, data, reply, option);
 
     return true;
 }

@@ -50,4 +50,7 @@ bool ClipPlugin::DestroyPlugin(const std::string &name, ClipPlugin *plugin)
     }
     return it->second->Destroy(plugin);
 }
+ClipPlugin::~ClipPlugin()
+{
+}
 } // namespace OHOS::MiscServices
