@@ -96,9 +96,9 @@ private:
     void SetPasteDataDot(PasteData& pasteData);
     void GetPasteDataDot();
     std::string GetTime();
-    static bool CheckPastePermission(const std::string &appId, ShareOption shareOption);
+    static bool HasPastePermission(const std::string &appId, ShareOption shareOption);
     static bool GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo);
-    static bool IsFocusOrDefaultIme(const std::string &currentAppId);
+    static bool IsFocusOrDefaultIme(const AppInfo &appInfo);
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;
