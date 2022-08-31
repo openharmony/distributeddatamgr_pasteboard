@@ -81,6 +81,7 @@ public:
     };
 
 private:
+    using Event = ClipPlugin::GlobalEvent;
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     struct classcomp {
@@ -97,11 +98,11 @@ private:
     void SetPasteDataDot(PasteData& pasteData);
     void GetPasteDataDot();
 
-    std::shared_ptr<PasteData> GetDistributedData();
+    std::shared_ptr<PasteData> GetDistributedData(int32_t user);
     bool SetDistributedData(int32_t user, PasteData& data);
-    bool HasDistributedData();
-    bool GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, ClipPlugin::GlobalEvent &event);
-    bool CleanDistributedData();
+    bool HasDistributedData(int32_t user);
+    bool GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, int32_t user, Event &event);
+    bool CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 

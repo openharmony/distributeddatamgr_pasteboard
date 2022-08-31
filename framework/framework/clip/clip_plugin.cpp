@@ -50,7 +50,30 @@ bool ClipPlugin::DestroyPlugin(const std::string &name, ClipPlugin *plugin)
     }
     return it->second->Destroy(plugin);
 }
+
 ClipPlugin::~ClipPlugin()
 {
+}
+
+std::vector<ClipPlugin::GlobalEvent> ClipPlugin::GetTopEvents(uint32_t topN)
+{
+    (void)topN;
+    return std::vector<GlobalEvent>();
+}
+
+std::vector<ClipPlugin::GlobalEvent> ClipPlugin::GetTopEvents(uint32_t topN, int32_t user)
+{
+    (void)user;
+    (void)topN;
+    return std::vector<GlobalEvent>();
+}
+
+void ClipPlugin::Clear()
+{
+}
+
+void ClipPlugin::Clear(int32_t user)
+{
+    (void)user;
 }
 } // namespace OHOS::MiscServices
