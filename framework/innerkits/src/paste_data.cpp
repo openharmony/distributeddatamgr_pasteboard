@@ -257,7 +257,7 @@ bool PasteData::MarshallingProps(Parcel &parcel) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props_.shareOption);
     return parcel.WriteParcelable(&props_.additions) && parcel.WriteStringVector(props_.mimeTypes)
-           && parcel.WriteString16(Str8ToStr16(props_.tag)) && parcel.WriteInt64(props_.timestamp)
+           && parcel.WriteString(props_.tag) && parcel.WriteInt64(props_.timestamp)
            && parcel.WriteInt32(static_cast<int32_t>(props_.shareOption));
 }
 
@@ -272,7 +272,7 @@ bool PasteData::UnMarshalling(Parcel &parcel, PasteDataProperty &props)
     if (!parcel.ReadStringVector(&props.mimeTypes)) {
         return false;
     }
-    props.tag = Str16ToStr8(parcel.ReadString16());
+    props.tag = parcel.ReadString();
     props.timestamp = parcel.ReadInt64();
     props.shareOption = static_cast<ShareOption>(parcel.ReadInt32());
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props.shareOption);

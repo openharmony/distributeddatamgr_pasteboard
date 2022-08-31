@@ -17,11 +17,14 @@
 #include <unistd.h>
 
 #include "accesstoken_kit.h"
+#include "account_manager.h"
 #include "calculate_time_consuming.h"
 #include "dev_manager.h"
 #include "dev_profile.h"
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
+#include "distributed_module_config.h"
+#include "device/dm_adapter.h"
 #include "hiview_adapter.h"
 #include "input_method_controller.h"
 #include "iservice_registry.h"
@@ -39,6 +42,7 @@
 
 namespace OHOS {
 namespace MiscServices {
+using namespace std::chrono;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
@@ -46,9 +50,8 @@ const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const std::string DEFAULT_IME_BUNDLE_NAME = "com.example.kikakeyboard";
 const std::int32_t ERROR_USERID = -1;
-const bool G_REGISTER_RESULT =
-    SystemAbility::MakeAndRegisterAbility(new PasteboardService());
-}
+const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
+} // namespace
 using namespace Security::AccessToken;
 
 std::vector<std::shared_ptr<std::string>> PasteboardService::dataHistory_;
@@ -67,8 +70,6 @@ PasteboardService::~PasteboardService() {}
 
 int32_t PasteboardService::Init()
 {
-    Loader loader;
-    loader.LoadComponents();
     if (!Publish(this)) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStart register to system ability manager failed.");
         auto userId = GetUserId();
@@ -87,7 +88,14 @@ void PasteboardService::OnStart()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
         return;
     }
+
     InitServiceHandler();
+    AppInfo appInfo;
+    GetAppInfoByTokenId(IPCSkeleton::GetCallingTokenID(), appInfo);
+    Loader loader;
+    loader.LoadComponents();
+    DMAdapter::GetInstance().Initialize(appInfo.bundleName);
+    DistributedModuleConfig::Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
 
     DevManager::GetInstance().Init();
     ParaHandle::GetInstance().Init();
@@ -181,6 +189,7 @@ void PasteboardService::Clear()
         clips_.erase(it);
         NotifyObservers();
     }
+    CleanDistributedData();
 }
 
 void PasteboardService::PasteboardFocusChangedListener::OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo)
@@ -304,8 +313,13 @@ bool PasteboardService::GetPasteData(PasteData& data)
     if (userId == ERROR_USERID) {
         return false;
     }
-    std::lock_guard<std::mutex> lock(clipMutex_);
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
+    std::lock_guard<std::mutex> lock(clipMutex_);
+    auto pastData = GetDistributedData();
+    if (pastData != nullptr) {
+        clips_.insert_or_assign(userId, pastData);
+    }
     auto it = clips_.find(userId);
     if (it == clips_.end()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
@@ -330,7 +344,7 @@ bool PasteboardService::HasPasteData()
     std::lock_guard<std::mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it == clips_.end()) {
-        return false;
+        return HasDistributedData();
     }
     return HasPastePermission(it->second->GetAppId(), it->second->GetShareOption());
 }
@@ -371,7 +385,8 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
     if (it != clips_.end()) {
         clips_.erase(it);
     }
-    clips_.insert(std::make_pair(userId, std::make_shared<PasteData>(pasteData)));
+    clips_.insert_or_assign(userId, std::make_shared<PasteData>(pasteData));
+    SetDistributedData(userId, pasteData);
     NotifyObservers();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
 }
@@ -461,7 +476,7 @@ void PasteboardService::NotifyObservers()
     std::lock_guard<std::mutex> lock(observerMutex_);
     for (auto &observers : observerMap_) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d.", observers.first);
-        for (const auto &observer: *(observers.second)) {
+        for (const auto &observer : *(observers.second)) {
             observer->OnPasteboardChanged();
         }
     }
@@ -655,5 +670,120 @@ void PasteboardService::GetPasteDataDot()
         CalculateTimeConsuming timeC(dataSize, state);
     }
 }
-} // MiscServices
-} // OHOS
+
+std::shared_ptr<PasteData> PasteboardService::GetDistributedData()
+{
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        return nullptr;
+    }
+    ClipPlugin::GlobalEvent event;
+    auto isExpiration = GetDistributedEvent(clipPlugin, event);
+    if (event.status == ClipPlugin::EVT_INVALID) {
+        return nullptr;
+    }
+
+    std::vector<uint8_t> rawData = std::move(event.addition);
+    if (!isExpiration) {
+        currentEvent_ = std::move(event);
+        currentEvent_.status = ClipPlugin::EVT_TIMEOUT;
+        return nullptr;
+    }
+
+    if (event.frameNum > 0) {
+        clipPlugin->GetPasteData(event, rawData);
+    }
+
+    std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+    pasteData->Decode(rawData);
+    return pasteData;
+}
+
+bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
+{
+    std::vector<uint8_t> rawData;
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr || (!data.Encode(rawData))) {
+        return false;
+    }
+
+    uint64_t expiration =
+        duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
+    ClipPlugin::GlobalEvent event;
+    event.seqId = ++sequenceId_;
+    event.expiration = expiration;
+    event.deviceId = DMAdapter::GetInstance().GetLocalDevice();
+    event.account = AccountManager::GetInstance().GetCurrentAccount();
+    event.status = ClipPlugin::EVT_NORMAL;
+    currentEvent_ = event;
+    clipPlugin->SetPasteData(event, rawData);
+    return true;
+}
+
+bool PasteboardService::HasDistributedData()
+{
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        return false;
+    }
+    ClipPlugin::GlobalEvent event;
+    return GetDistributedEvent(clipPlugin, event);
+}
+
+std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
+{
+    auto isOn = DistributedModuleConfig::IsOn();
+    std::lock_guard<decltype(mutex)> lockGuard(mutex);
+    if (!isOn || clipPlugin_ != nullptr) {
+        return clipPlugin_;
+    }
+
+    auto release = [this](ClipPlugin *plugin) {
+        std::lock_guard<decltype(mutex)> lockGuard(mutex);
+        ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
+    };
+
+    clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
+    return clipPlugin_;
+}
+
+bool PasteboardService::CleanDistributedData()
+{
+    currentEvent_.status = ClipPlugin::EVT_CLEANED;
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        return true;
+    }
+    clipPlugin->Clear();
+    return true;
+}
+
+void PasteboardService::OnConfigChange(bool isOn)
+{
+    if (isOn) {
+        return;
+    }
+    std::lock_guard<decltype(mutex)> lockGuard(mutex);
+    clipPlugin_ = nullptr;
+}
+
+bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, ClipPlugin::GlobalEvent &event)
+{
+    auto events = plugin->GetTopEvents(1);
+    if (events.empty()) {
+        return false;
+    }
+
+    auto &tmpEvent = events[0];
+    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalDevice() ||
+        tmpEvent.account != AccountManager::GetInstance().GetCurrentAccount() ||
+        (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId)) {
+        return false;
+    }
+
+    event = std::move(tmpEvent);
+    uint64_t curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    return (curTime < event.expiration);
+}
+} // namespace MiscServices
+} // namespace OHOS

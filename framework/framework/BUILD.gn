@@ -28,6 +28,7 @@ ohos_shared_library("pasteboard_framework") {
   sources = [
     "clip/clip_plugin.cpp",
     "clip/default_clip.cpp",
+    "device/dm_adapter.cpp",
     "serializable/serializable.cpp",
     "serializable/tlv_object.cpp",
   ]
@@ -38,7 +39,7 @@ ohos_shared_library("pasteboard_framework") {
   configs = [ ":module_public_config" ]
 
   public_configs = [ ":module_public_config" ]
-
+  deps = [ "//foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp:devicemanagersdk" ]
   external_deps = [
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",

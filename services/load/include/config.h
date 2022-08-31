@@ -17,9 +17,9 @@
 #define OHOS_PASTEBOARD_SERVICES_LOAD_CONFIG_H
 #include "serializable/serializable.h"
 namespace OHOS::MiscServices {
-class Config final : public Serializable {
+class Config final : public DistributedData::Serializable {
 public:
-    class Component final : public Serializable {
+    class Component final : public DistributedData::Serializable {
     public:
         std::string description = "";
         std::string lib = "";
