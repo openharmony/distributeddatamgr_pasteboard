@@ -15,7 +15,9 @@
  */
 
 #include "paste_data.h"
+
 #include <new>
+
 #include "paste_data_record.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "type_traits"
@@ -44,8 +46,7 @@ enum TAG_PROPERTY : uint16_t {
     TAG_APPID
 };
 
-PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
-    : records_ {std::move(records)}
+PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
@@ -99,13 +100,13 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
     }
     records_.insert(records_.begin(), std::move(record));
     if (records_.size() > MAX_RECORD_NUM) {
-        std::vector<std::shared_ptr<PasteDataRecord>> new_records(records_.begin(), records_.end()-1);
+        std::vector<std::shared_ptr<PasteDataRecord>> new_records(records_.begin(), records_.end() - 1);
         this->records_ = new_records;
     }
     RefreshMimeProp();
 }
 
-void PasteData::AddRecord(PasteDataRecord& record)
+void PasteData::AddRecord(PasteDataRecord &record)
 {
     this->AddRecord(std::make_shared<PasteDataRecord>(record));
     RefreshMimeProp();
@@ -114,7 +115,7 @@ void PasteData::AddRecord(PasteDataRecord& record)
 std::vector<std::string> PasteData::GetMimeTypes()
 {
     std::vector<std::string> mimeType;
-    for (const auto &item: records_) {
+    for (const auto &item : records_) {
         mimeType.push_back(item->GetMimeType());
     }
     return mimeType;
@@ -122,7 +123,7 @@ std::vector<std::string> PasteData::GetMimeTypes()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
-    for (const auto &item: records_) {
+    for (const auto &item : records_) {
         if (item->GetMimeType() == MIMETYPE_TEXT_HTML) {
             return item->GetHtmlText();
         }
@@ -142,7 +143,7 @@ std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 {
-    for (const auto &item: records_) {
+    for (const auto &item : records_) {
         if (item->GetMimeType() == MIMETYPE_TEXT_WANT) {
             return item->GetWant();
         }
@@ -152,7 +153,7 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryText()
 {
-    for (const auto &item: records_) {
+    for (const auto &item : records_) {
         if ((item->GetPlainText() != nullptr) && (item->GetPlainText()->size() > 0)) {
             return item->GetPlainText();
         }
@@ -259,7 +260,7 @@ std::vector<std::shared_ptr<PasteDataRecord>> PasteData::AllRecords() const
 void PasteData::RefreshMimeProp()
 {
     std::vector<std::string> mimeTypes;
-    for (const auto& record : records_) {
+    for (const auto &record : records_) {
         if (record == nullptr) {
             continue;
         }
@@ -374,11 +375,18 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
 
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
+    buffer.resize(Count());
+    total_ = buffer.size();
+
     bool ret = Write(buffer, TAG_PROPS, (TLVObject &)props_);
-    //    ret = Write(buffer, TAG_RECORDS, records_) && ret;
-    ret = Write(buffer, TAG_RECORDS_COUNT, (int32_t)records_.size()) && ret;
+
+    ret = Write(buffer, TAG_RECORDS_COUNT, (std::int32_t)(records_.size())) && ret;
+
     for (auto &record : records_) {
-        ret = Write(buffer, TAG_RECORDS_ITEM, (TLVObject &)(*record)) && ret;
+        if (record != nullptr) {
+            ret = Write(buffer, TAG_RECORDS_ITEM, (TLVObject &)(*record)) && ret;
+
+        }
     }
     return ret;
 }
@@ -424,21 +432,29 @@ size_t PasteData::Count()
 {
     size_t expectSize = 0;
     expectSize += props_.Count() + sizeof(TLVHead);
-    expectSize += sizeof(TLVHead);
-    expectSize += sizeof(TLVHead) + sizeof(int32_t);
-    for (auto & record : records_) {
-        expectSize += record->Count();
+    expectSize += sizeof(TLVHead) + sizeof(int32_t(records_.size()));
+    for (auto &record : records_) {
+        if (record != nullptr) {
+            expectSize += TLVObject::Count((TLVObject &)*record);
+        }
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "byy, count, %{public}zu.", expectSize);
     return expectSize;
 }
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_ADDITIONS, additions);
+
     ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
+
     ret = Write(buffer, TAG_TAG, tag) && ret;
+
     ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
+
     ret = Write(buffer, TAG_SHAREOPTION, (int32_t &)shareOption) && ret;
+
     ret = Write(buffer, TAG_APPID, appId) && ret;
+
     return ret;
 }
 bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
@@ -480,10 +496,10 @@ size_t PasteDataProperty::Count()
 {
     size_t expectedSize = 0;
     expectedSize += TLVObject::Count(additions);
-    expectedSize += sizeof(TLVHead);
-    expectedSize += sizeof(int32_t) + sizeof(TLVHead);
+    expectedSize += sizeof(TLVHead);                   // vector
+    expectedSize += sizeof(int32_t) + sizeof(TLVHead); // vector size
     for (auto &item : mimeTypes) {
-        expectedSize += TLVObject::Count(item);
+        expectedSize += TLVObject::Count(item); // vector item
     }
     expectedSize += TLVObject::Count(tag);
     expectedSize += TLVObject::Count(timestamp);
@@ -491,5 +507,5 @@ size_t PasteDataProperty::Count()
     expectedSize += TLVObject::Count(appId);
     return expectedSize;
 }
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS

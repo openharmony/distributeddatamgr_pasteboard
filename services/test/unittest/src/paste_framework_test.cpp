@@ -15,8 +15,8 @@
 
 #include <gtest/gtest.h>
 
-#include "serializable/tlv_object.h"
 #include "pasteboard_client.h"
+#include "serializable/tlv_object.h"
 #include "singleton.h"
 
 namespace OHOS::MiscServices {
@@ -69,8 +69,10 @@ HWTEST_F(PasteboardFrameworkTest, TLVOjbectTest001, TestSize.Level0)
     EXPECT_TRUE(ret);
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1.GetRecordCount());
     auto record2 = pasteData2.GetRecordAt(0);
-    EXPECT_EQ(record2->GetHtmlText(), record1->GetHtmlText());
-    EXPECT_EQ(record2->GetPlainText(), record1->GetPlainText());
-    EXPECT_EQ(record2->GetUri(), record1->GetUri());
+    EXPECT_EQ(*(record2->GetHtmlText()), *(record1->GetHtmlText()));
+    EXPECT_EQ(*(record2->GetPlainText()), *(record1->GetPlainText()));
+
+
+    EXPECT_EQ(record2->GetUri()->ToString(), record1->GetUri()->ToString());
 }
 } // namespace OHOS::MiscServices

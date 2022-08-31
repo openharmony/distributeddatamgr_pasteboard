@@ -15,6 +15,7 @@
 #include "serializable/tlv_object.h"
 
 #include <cstring>
+#include <iostream>
 
 #include "parcel.h"
 namespace OHOS::MiscServices {
@@ -53,14 +54,17 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const st
 
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, Parcel &value)
 {
+
     if (!Check(buffer, sizeof(TLVHead))) {
         return false;
     }
+
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     cursor_ += sizeof(TLVHead);
     auto data = value.GetData();
     auto size = value.GetDataSize();
+
     memcpy(buffer.data() + cursor_, reinterpret_cast<const void *>(data), size);
     cursor_ += size;
     tlvHead->len = HostToNet(size);

@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "api/visibility.h"
 #include "endian_converter.h"
@@ -74,10 +75,14 @@ public:
     {
         return value.size() + sizeof(TLVHead);
     }
+    static inline size_t Count(TLVObject &value)
+    {
+        return value.Count() + sizeof(TLVHead);
+    }
     static inline size_t Count(Parcelable &value)
     {
-        Parcel parcel;
-        value.Marshalling(parcel);
+        Parcel parcel(nullptr);
+        parcel.WriteParcelable((const Parcelable *)&value);
         return parcel.GetDataSize() + sizeof(TLVHead);
     }
     template<typename T> inline size_t Count(std::shared_ptr<T> &value)
@@ -97,8 +102,10 @@ public:
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, Parcel &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, Parcelable &value)
     {
-        Parcel parcel;
-        value.Marshalling(parcel);
+        Parcel parcel(nullptr);
+
+        parcel.WriteParcelable((const Parcelable *)&value);
+
         return Write(buffer, type, parcel);
     }
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value)
@@ -109,7 +116,7 @@ public:
         auto tagCursor = cursor_;
         cursor_ += sizeof(TLVHead);
         auto valueCursor = cursor_;
-        bool ret = value.Encode(buffer, cursor_, buffer.size());
+        bool ret = value.Encode(buffer, cursor_, (int32_t)(buffer.size()));
         WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
         return ret;
     }
@@ -145,7 +152,7 @@ public:
     template<typename T> bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::shared_ptr<T> &value)
     {
         if (value == nullptr) {
-            return false;
+            return true;
         }
         return Write(buffer, type, *value);
     }
@@ -161,13 +168,13 @@ public:
     template<typename ParcelableType>
     bool ReadValue(const std::vector<std::uint8_t> &buffer, ParcelableType &value, const TLVHead &head)
     {
-        Parcel parcel;
+        Parcel parcel(nullptr);
         bool ret = ReadValue(buffer, parcel, head);
-        auto *obj = ParcelableType::Unmarshalling(parcel);
-        if (obj == nullptr) {
+        auto tmp = parcel.ReadParcelable<ParcelableType>();
+        if (!ret || tmp == nullptr) {
             return false;
         }
-        value = *obj;
+        value = *tmp;
         return ret;
     }
 
@@ -208,13 +215,13 @@ public:
     bool ReadValue(
         const std::vector<std::uint8_t> &buffer, std::shared_ptr<ParcelableType> &value, const TLVHead &head, Dummy _)
     {
-        Parcel parcel;
+        Parcel parcel(nullptr);
         bool ret = ReadValue(buffer, parcel, head);
-        auto *obj = ParcelableType::Unmarshalling(parcel);
-        if (obj == nullptr) {
+        auto tmp = parcel.ReadParcelable<ParcelableType>();
+        if (!ret || tmp == nullptr) {
             return false;
         }
-        value = std::shared_ptr<ParcelableType>(obj);
+        value = std::shared_ptr<ParcelableType>(tmp);
         return ret;
     }
 
@@ -263,6 +270,7 @@ private:
 
     inline bool Check(const std::vector<std::uint8_t> &buffer, uint32_t expectLen) const
     {
+
         if (buffer.size() > cursor_ && buffer.size() - cursor_ < expectLen) {
             return false;
         }
