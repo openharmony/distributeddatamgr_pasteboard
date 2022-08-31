@@ -366,17 +366,11 @@ MineCustomData *MineCustomData::Unmarshalling(Parcel &parcel)
 bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_MIMETYPE, mimeType_);
-
     ret = Write(buffer, TAG_HTMLTEXT, htmlText_) && ret;
-
     ret = Write(buffer, TAG_WANT, want_) && ret;
-
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
-
     ret = Write(buffer, TAG_URI, uri_) && ret;
-
     ret = Write(buffer, TAG_PIXELMAP, pixelMap_) && ret;
-
     return ret;
 }
 

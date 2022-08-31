@@ -379,13 +379,10 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     total_ = buffer.size();
 
     bool ret = Write(buffer, TAG_PROPS, (TLVObject &)props_);
-
     ret = Write(buffer, TAG_RECORDS_COUNT, (std::int32_t)(records_.size())) && ret;
-
     for (auto &record : records_) {
         if (record != nullptr) {
             ret = Write(buffer, TAG_RECORDS_ITEM, (TLVObject &)(*record)) && ret;
-
         }
     }
     return ret;
@@ -444,17 +441,11 @@ size_t PasteData::Count()
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_ADDITIONS, additions);
-
     ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
-
     ret = Write(buffer, TAG_TAG, tag) && ret;
-
     ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
-
     ret = Write(buffer, TAG_SHAREOPTION, (int32_t &)shareOption) && ret;
-
     ret = Write(buffer, TAG_APPID, appId) && ret;
-
     return ret;
 }
 bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
