@@ -21,8 +21,8 @@ class DefaultClip : public ClipPlugin {
 public:
     int32_t SetPasteData(const GlobalEvent &event, const std::vector<uint8_t> &data) override;
     int32_t GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data) override;
-    std::vector<GlobalEvent> GetTopEvents(uint32_t topN) override;
-    void Clear() override;
+    std::vector<GlobalEvent> GetTopEvents(uint32_t topN, int32_t user) override;
+    void Clear(int32_t user) override;
 };
 } // namespace OHOS::MiscServices
 #endif // OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_CLIPS_DEFAULT_CLIPS_H

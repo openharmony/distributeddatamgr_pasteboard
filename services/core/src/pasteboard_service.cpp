@@ -189,7 +189,7 @@ void PasteboardService::Clear()
         clips_.erase(it);
         NotifyObservers();
     }
-    CleanDistributedData();
+    CleanDistributedData(userId);
 }
 
 void PasteboardService::PasteboardFocusChangedListener::OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo)
@@ -316,7 +316,7 @@ bool PasteboardService::GetPasteData(PasteData& data)
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     std::lock_guard<std::mutex> lock(clipMutex_);
-    auto pastData = GetDistributedData();
+    auto pastData = GetDistributedData(userId);
     if (pastData != nullptr) {
         clips_.insert_or_assign(userId, pastData);
     }
@@ -344,7 +344,7 @@ bool PasteboardService::HasPasteData()
     std::lock_guard<std::mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it == clips_.end()) {
-        return HasDistributedData();
+        return HasDistributedData(userId);
     }
     return HasPastePermission(it->second->GetAppId(), it->second->GetShareOption());
 }
@@ -671,22 +671,22 @@ void PasteboardService::GetPasteDataDot()
     }
 }
 
-std::shared_ptr<PasteData> PasteboardService::GetDistributedData()
+std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
 {
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         return nullptr;
     }
     ClipPlugin::GlobalEvent event;
-    auto isExpiration = GetDistributedEvent(clipPlugin, event);
-    if (event.status == ClipPlugin::EVT_INVALID) {
+    auto isEffective = GetDistributedEvent(clipPlugin, user, event);
+    if (event.status == ClipPlugin::EVT_UNKNOWN) {
         return nullptr;
     }
 
     std::vector<uint8_t> rawData = std::move(event.addition);
-    if (!isExpiration) {
+    if (!isEffective) {
         currentEvent_ = std::move(event);
-        currentEvent_.status = ClipPlugin::EVT_TIMEOUT;
+        currentEvent_.status = ClipPlugin::EVT_INVALID;
         return nullptr;
     }
 
@@ -703,31 +703,36 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
     std::vector<uint8_t> rawData;
     auto clipPlugin = GetClipPlugin();
-    if (clipPlugin == nullptr || (!data.Encode(rawData))) {
+    if (clipPlugin == nullptr) {
+        return false;
+    }
+
+    if (data.GetShareOption() == CrossDevice && !data.Encode(rawData)) {
         return false;
     }
 
     uint64_t expiration =
         duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
-    ClipPlugin::GlobalEvent event;
+    Event event;
+    event.user = user;
     event.seqId = ++sequenceId_;
     event.expiration = expiration;
     event.deviceId = DMAdapter::GetInstance().GetLocalDevice();
     event.account = AccountManager::GetInstance().GetCurrentAccount();
-    event.status = ClipPlugin::EVT_NORMAL;
+    event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
     currentEvent_ = event;
     clipPlugin->SetPasteData(event, rawData);
     return true;
 }
 
-bool PasteboardService::HasDistributedData()
+bool PasteboardService::HasDistributedData(int32_t user)
 {
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         return false;
     }
-    ClipPlugin::GlobalEvent event;
-    return GetDistributedEvent(clipPlugin, event);
+    Event event;
+    return GetDistributedEvent(clipPlugin, user, event);
 }
 
 std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
@@ -747,14 +752,13 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     return clipPlugin_;
 }
 
-bool PasteboardService::CleanDistributedData()
+bool PasteboardService::CleanDistributedData(int32_t user)
 {
-    currentEvent_.status = ClipPlugin::EVT_CLEANED;
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         return true;
     }
-    clipPlugin->Clear();
+    clipPlugin->Clear(user);
     return true;
 }
 
@@ -767,7 +771,7 @@ void PasteboardService::OnConfigChange(bool isOn)
     clipPlugin_ = nullptr;
 }
 
-bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, ClipPlugin::GlobalEvent &event)
+bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, int32_t user, Event &event)
 {
     auto events = plugin->GetTopEvents(1);
     if (events.empty()) {
@@ -783,7 +787,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
 
     event = std::move(tmpEvent);
     uint64_t curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-    return (curTime < event.expiration);
+    return ((curTime < event.expiration) && (event.status == ClipPlugin::EVT_NORMAL));
 }
 } // namespace MiscServices
 } // namespace OHOS

@@ -24,12 +24,12 @@ int32_t DefaultClip::GetPasteData(const GlobalEvent &event, std::vector<uint8_t>
     return 0;
 }
 
-std::vector<DefaultClip::GlobalEvent> DefaultClip::GetTopEvents(uint32_t topN)
+std::vector<DefaultClip::GlobalEvent> DefaultClip::GetTopEvents(uint32_t topN, int32_t user)
 {
     return std::vector<GlobalEvent>();
 }
 
-void DefaultClip::Clear()
+void DefaultClip::Clear(int32_t user)
 {
 }
 }

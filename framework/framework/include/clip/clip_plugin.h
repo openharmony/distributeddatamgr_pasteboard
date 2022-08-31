@@ -24,24 +24,22 @@ namespace OHOS::MiscServices {
 class API_EXPORT ClipPlugin {
 public:
     enum EventStatus : uint32_t {
+        EVT_UNKNOWN,
         EVT_INVALID,
         EVT_NORMAL,
-        EVT_TIMEOUT,
-        EVT_CLEANED,
         EVT_BUTT
     };
 
     struct GlobalEvent {
         uint8_t version = 0;
         uint8_t frameNum  = 0;
+        uint16_t user  = 0;
         uint32_t seqId = 0;
         uint64_t expiration = 0;
+        uint16_t status = EVT_UNKNOWN;
         std::string deviceId;
         std::string account;
         std::vector<uint8_t> addition;
-
-        // no package values
-        uint32_t status = EVT_INVALID;
     };
     class Factory {
     public:
@@ -55,8 +53,10 @@ public:
     virtual ~ClipPlugin();
     virtual int32_t SetPasteData(const GlobalEvent &event, const std::vector<uint8_t> &data) = 0;
     virtual int32_t GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data) = 0;
-    virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN) = 0;
-    virtual void Clear() = 0;
+    virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN);
+    virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN, int32_t user);
+    virtual void Clear();
+    virtual void Clear(int32_t user);
 
 private:
     static std::map<std::string, Factory *> factories_;
