@@ -16,10 +16,10 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "api/visibility.h"
 #include "endian_converter.h"
@@ -253,7 +253,7 @@ private:
         auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
         tlvHead->tag = HostToNet(type);
         tlvHead->len = HostToNet((uint32_t)sizeof(value));
-        *((T *)(tlvHead->value)) = HostToNet(value);
+        *(reinterpret_cast<uint32_t *>(tlvHead->value)) = HostToNet(value);
         cursor_ += sizeof(TLVHead) + sizeof(value);
         return true;
     }
@@ -263,18 +263,14 @@ private:
         if (!Check(buffer, head.len)) {
             return false;
         }
-        value = NetToHost(*((T *)(buffer.data() + cursor_)));
+        value = NetToHost(*(reinterpret_cast<const uint32_t *>(buffer.data() + cursor_)));
         cursor_ += sizeof(T);
         return true;
     }
 
     inline bool Check(const std::vector<std::uint8_t> &buffer, uint32_t expectLen) const
     {
-
-        if (buffer.size() > cursor_ && buffer.size() - cursor_ < expectLen) {
-            return false;
-        }
-        return true;
+        return buffer.size() <= cursor_ || buffer.size() - cursor_ >= expectLen;
     }
 
     size_t cursor_ = 0;
