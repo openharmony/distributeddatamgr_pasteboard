@@ -356,9 +356,9 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
 #ifdef WITH_DLP
     auto callingToken = IPCSkeleton::GetCallingTokenID();
     bool copyable = false;
-    auto ret = Security::DlpPermission::DlpPermissionKit::QueryDlpFileCopyableByTokenId(copyable, callingToken);
-    if (ret != 0 || !copyable) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret = %{public}d, copyable = %{public}d.", ret, copyable);
+    auto dlpRet = Security::DlpPermission::DlpPermissionKit::QueryDlpFileCopyableByTokenId(copyable, callingToken);
+    if (dlpRet != 0 || !copyable) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "dlpRet = %{public}d, copyable = %{public}d.", dlpRet, copyable);
         return;
     }
 #endif
