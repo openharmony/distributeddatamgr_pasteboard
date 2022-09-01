@@ -18,6 +18,7 @@
 
 #include <new>
 
+#include "../../framework/serializable/parcel_util.h"
 #include "paste_data_record.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "type_traits"
@@ -440,7 +441,10 @@ size_t PasteData::Count()
 }
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {
-    bool ret = Write(buffer, TAG_ADDITIONS, additions);
+    uintptr_t data = 0;
+    size_t size = 0;
+    bool ret = ParcelUtil::GetRawData(&additions, data, size);
+    ret = Write(buffer, TAG_ADDITIONS, data, size) && ret;
     ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
     ret = Write(buffer, TAG_TAG, tag) && ret;
     ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
