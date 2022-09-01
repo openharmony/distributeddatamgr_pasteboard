@@ -773,7 +773,7 @@ void PasteboardService::OnConfigChange(bool isOn)
 
 bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, int32_t user, Event &event)
 {
-    auto events = plugin->GetTopEvents(1);
+    auto events = plugin->GetTopEvents(1, user);
     if (events.empty()) {
         return false;
     }
