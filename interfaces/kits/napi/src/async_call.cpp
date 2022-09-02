@@ -20,16 +20,17 @@
 using namespace OHOS::MiscServices;
 
 namespace OHOS::MiscServicesNapi {
-AsyncCall::AsyncCall(napi_env env, napi_callback_info info, std::shared_ptr<Context> context, size_t pos) : env_(env)
+AsyncCall::AsyncCall(napi_env env, napi_callback_info info, std::shared_ptr<Context> context, int32_t pos) : env_(env)
 {
     context_ = new AsyncContext();
     size_t argc = 6;
     napi_value self = nullptr;
     napi_value argv[6] = { nullptr };
     NAPI_CALL_RETURN_VOID(env, napi_get_cb_info(env, info, &argc, argv, &self, nullptr));
-    NAPI_ASSERT_BASE(env, pos <= argc, " Invalid Args!", NAPI_RETVAL_NOTHING);
+    int argcNum = static_cast<int>(argc);
+    NAPI_ASSERT_BASE(env, pos <= argcNum, " Invalid Args!", NAPI_RETVAL_NOTHING);
     pos = ((pos == ASYNC_DEFAULT_POS) ? (argc - 1) : pos);
-    if (pos >= 0 && pos < argc) {
+    if (pos >= 0 && pos < argcNum) {
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[pos], &valueType);
         if (valueType == napi_function) {
