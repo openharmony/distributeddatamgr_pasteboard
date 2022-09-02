@@ -15,19 +15,20 @@
 
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_PARCEL_UTIL_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_PARCEL_UTIL_H
+#include "api/visibility.h"
 #include "parcel.h"
 namespace OHOS::MiscServices {
 class ParcelUtil {
 public:
     // parcelable to buffer
-    static bool GetRawData(const Parcelable *value, uintptr_t &data, size_t &size);
+    API_EXPORT static bool GetRawData(const Parcelable *value, uintptr_t &buffer, size_t &bufferLen);
 
     // buffer to parcelable
-    template<typename Parcelable> bool SetRawData(uintptr_t data, size_t size, Parcelable *&value)
+    template<typename Parcelable> API_EXPORT static bool SetRawData(uintptr_t data, size_t size, Parcelable *&value)
     {
         Parcel parcel(nullptr);
         bool ret = parcel.ParseFrom(data, size);
-        value = parcel.ReadParcelable<Parcelable>();
+        value = Parcelable::Unmarshalling(parcel);
         return ret && value != nullptr;
     }
 };

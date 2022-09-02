@@ -17,8 +17,9 @@
 #include "paste_data.h"
 
 #include <new>
+#include <iostream>
 
-#include "../../framework/serializable/parcel_util.h"
+#include "serializable/parcel_util.h"
 #include "paste_data_record.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "type_traits"
@@ -398,16 +399,19 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
         switch (head.tag) {
             case TAG_PROPS:
                 ret = ret && ReadValue(buffer, (TLVObject &)props_, head);
+                std::cout << "prop:" << ret << std::endl;
                 break;
             case TAG_RECORDS_COUNT: {
                 int32_t count = 0;
                 ret = ret && ReadValue(buffer, count, head);
+                std::cout << "count:" << ret << std::endl;
                 records_.resize(count);
                 break;
             }
             case TAG_RECORDS_ITEM: {
                 auto item = std::make_shared<PasteDataRecord>();
                 ret = ret && ReadValue(buffer, (TLVObject &)(*item), head);
+                std::cout << "item:" << ret << std::endl;
                 for (auto &record : records_) {
                     if (record == nullptr) {
                         record = item;
@@ -459,7 +463,16 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
         bool ret = ReadHead(buffer, head);
         switch (head.tag) {
             case TAG_ADDITIONS: {
-                ret = ret && ReadValue(buffer, additions, head);
+                uintptr_t data = 0;
+                size_t size = 0;
+                ret = ret && ReadValue(buffer, data, size, head);
+                std::cout << "addition:" << ret << std::endl;
+                AAFwk::WantParams *wantParams = nullptr;
+                ret = ret && ParcelUtil::SetRawData(data, size, wantParams);
+                std::cout << "addition raw:" << ret << std::endl;
+                if (wantParams != nullptr) {
+                    additions = *wantParams;
+                }
                 break;
             }
             case TAG_MIMETYPES:
@@ -490,7 +503,10 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
 size_t PasteDataProperty::Count()
 {
     size_t expectedSize = 0;
-    expectedSize += TLVObject::Count(additions);
+    uintptr_t data = 0;
+    size_t size = 0;
+    ParcelUtil::GetRawData(&additions, data, size);
+    expectedSize += sizeof(TLVHead) + size;
     expectedSize += sizeof(TLVHead);                   // vector
     expectedSize += sizeof(int32_t) + sizeof(TLVHead); // vector size
     for (auto &item : mimeTypes) {

@@ -62,7 +62,7 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, uintptr_
     memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, reinterpret_cast<const void *>(value), size);
     cursor_ += size;
     tlvHead->len = HostToNet((uint32_t)size);
-    return false;
+    return true;
 }
 
 bool TLVObject::ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head)

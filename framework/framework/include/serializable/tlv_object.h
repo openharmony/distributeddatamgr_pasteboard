@@ -16,7 +16,6 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
 #include <cstdint>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -212,7 +211,7 @@ private:
         auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
         tlvHead->tag = HostToNet(type);
         tlvHead->len = HostToNet((uint32_t)sizeof(value));
-        *(reinterpret_cast<uint32_t *>(tlvHead->value)) = HostToNet(value);
+        *(reinterpret_cast<T *>(tlvHead->value)) = HostToNet(value);
         cursor_ += sizeof(TLVHead) + sizeof(value);
         return true;
     }
@@ -222,7 +221,7 @@ private:
         if (!Check(buffer, head.len)) {
             return false;
         }
-        value = NetToHost(*(reinterpret_cast<const uint32_t *>(buffer.data() + cursor_)));
+        value = NetToHost(*(reinterpret_cast<const T *>(buffer.data() + cursor_)));
         cursor_ += sizeof(T);
         return true;
     }

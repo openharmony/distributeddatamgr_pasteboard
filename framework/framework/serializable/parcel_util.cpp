@@ -13,20 +13,22 @@
 * limitations under the License.
 */
 
-#include "parcel_util.h"
+#include "serializable/parcel_util.h"
+
+#include "securec.h"
 namespace OHOS::MiscServices {
-bool ParcelUtil::GetRawData(const Parcelable *value, uintptr_t &data, size_t &size)
+bool ParcelUtil::GetRawData(const Parcelable *value, uintptr_t &buffer, size_t &bufferLen)
 {
     if (value == nullptr) {
-        return false;
+        return true;
     }
     Parcel parcel(nullptr);
-    bool ret = parcel.WriteParcelable(value);
+    bool ret = value->Marshalling(parcel);
     if (!ret) {
         return false;
     }
-    data = parcel.GetData();
-    size = parcel.GetDataSize();
+    buffer = parcel.GetData();
+    bufferLen = parcel.GetDataSize();
     return true;
 }
 } // namespace OHOS::MiscServices
