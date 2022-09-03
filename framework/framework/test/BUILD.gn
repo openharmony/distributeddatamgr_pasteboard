@@ -28,9 +28,7 @@ module_output_path = "pasteboard/pasteboard_service"
 ohos_unittest("PasteboardFrameworkTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "tlv_object_test.cpp",
-  ]
+  sources = [ "tlv_object_test.cpp" ]
   configs = [
     "//commonlibrary/c_utils/base:utils_config",
     ":module_private_config",

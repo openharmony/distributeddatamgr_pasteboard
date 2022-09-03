@@ -30,9 +30,7 @@ module_output_path = "pasteboard/pasteboard_service"
 ohos_unittest("PasteboardServiceTest") {
   module_out_path = module_output_path
 
-  sources = [
-    "unittest/src/paste_service_test.cpp",
-  ]
+  sources = [ "unittest/src/paste_service_test.cpp" ]
   configs = [
     "//commonlibrary/c_utils/base:utils_config",
     ":module_private_config",

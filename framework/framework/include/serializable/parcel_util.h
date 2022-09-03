@@ -34,7 +34,6 @@ public:
         }
         Parcel parcel(nullptr);
         bool ret = parcel.ParseFrom(rawMem.buffer, rawMem.bufferLen);
-        std::cout << "ParseFrom:" << ret << std::endl;
         if (!ret) {
             return nullptr;
         }
