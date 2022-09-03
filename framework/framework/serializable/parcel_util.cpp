@@ -15,20 +15,20 @@
 
 #include "serializable/parcel_util.h"
 
-#include "securec.h"
 namespace OHOS::MiscServices {
-bool ParcelUtil::GetRawData(const Parcelable *value, uintptr_t &buffer, size_t &bufferLen)
+RawMem ParcelUtil::Parcelable2Raw(const Parcelable *value)
 {
+    RawMem rawMem{};
     if (value == nullptr) {
-        return true;
+        return rawMem;
     }
     Parcel parcel(nullptr);
-    bool ret = value->Marshalling(parcel);
+    bool ret = parcel.WriteParcelable(value);
     if (!ret) {
-        return false;
+        return rawMem;
     }
-    buffer = parcel.GetData();
-    bufferLen = parcel.GetDataSize();
-    return true;
+    rawMem.buffer = parcel.GetData();
+    rawMem.bufferLen = parcel.GetDataSize();
+    return rawMem;
 }
 } // namespace OHOS::MiscServices

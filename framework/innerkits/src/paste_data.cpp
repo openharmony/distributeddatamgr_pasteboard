@@ -17,11 +17,10 @@
 #include "paste_data.h"
 
 #include <new>
-#include <iostream>
 
-#include "serializable/parcel_util.h"
 #include "paste_data_record.h"
 #include "pasteboard_hilog_wreapper.h"
+#include "serializable/parcel_util.h"
 #include "type_traits"
 
 using namespace std::chrono;
@@ -381,12 +380,7 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     total_ = buffer.size();
 
     bool ret = Write(buffer, TAG_PROPS, (TLVObject &)props_);
-    ret = Write(buffer, TAG_RECORDS_COUNT, (std::int32_t)(records_.size())) && ret;
-    for (auto &record : records_) {
-        if (record != nullptr) {
-            ret = Write(buffer, TAG_RECORDS_ITEM, (TLVObject &)(*record)) && ret;
-        }
-    }
+    ret = Write(buffer, TAG_RECORDS, records_) && ret;
     return ret;
 }
 
@@ -399,25 +393,9 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
         switch (head.tag) {
             case TAG_PROPS:
                 ret = ret && ReadValue(buffer, (TLVObject &)props_, head);
-                std::cout << "prop:" << ret << std::endl;
                 break;
-            case TAG_RECORDS_COUNT: {
-                int32_t count = 0;
-                ret = ret && ReadValue(buffer, count, head);
-                std::cout << "count:" << ret << std::endl;
-                records_.resize(count);
-                break;
-            }
-            case TAG_RECORDS_ITEM: {
-                auto item = std::make_shared<PasteDataRecord>();
-                ret = ret && ReadValue(buffer, (TLVObject &)(*item), head);
-                std::cout << "item:" << ret << std::endl;
-                for (auto &record : records_) {
-                    if (record == nullptr) {
-                        record = item;
-                        break;
-                    }
-                }
+            case TAG_RECORDS: {
+                ret = ret && ReadValue(buffer, records_, head);
                 break;
             }
             default:
@@ -434,21 +412,12 @@ size_t PasteData::Count()
 {
     size_t expectSize = 0;
     expectSize += props_.Count() + sizeof(TLVHead);
-    expectSize += sizeof(TLVHead) + sizeof(int32_t(records_.size()));
-    for (auto &record : records_) {
-        if (record != nullptr) {
-            expectSize += TLVObject::Count((TLVObject &)*record);
-        }
-    }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "byy, count, %{public}zu.", expectSize);
+    expectSize += TLVObject::Count(records_);
     return expectSize;
 }
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {
-    uintptr_t data = 0;
-    size_t size = 0;
-    bool ret = ParcelUtil::GetRawData(&additions, data, size);
-    ret = Write(buffer, TAG_ADDITIONS, data, size) && ret;
+    bool ret = Write(buffer, TAG_ADDITIONS, ParcelUtil::Parcelable2Raw(&additions));
     ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
     ret = Write(buffer, TAG_TAG, tag) && ret;
     ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
@@ -463,15 +432,11 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
         bool ret = ReadHead(buffer, head);
         switch (head.tag) {
             case TAG_ADDITIONS: {
-                uintptr_t data = 0;
-                size_t size = 0;
-                ret = ret && ReadValue(buffer, data, size, head);
-                std::cout << "addition:" << ret << std::endl;
-                AAFwk::WantParams *wantParams = nullptr;
-                ret = ret && ParcelUtil::SetRawData(data, size, wantParams);
-                std::cout << "addition raw:" << ret << std::endl;
-                if (wantParams != nullptr) {
-                    additions = *wantParams;
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                auto *buff = ParcelUtil::Raw2Parcelable<AAFwk::WantParams>(rawMem);
+                if (buff != nullptr) {
+                    additions = *buff;
                 }
                 break;
             }
@@ -503,15 +468,8 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
 size_t PasteDataProperty::Count()
 {
     size_t expectedSize = 0;
-    uintptr_t data = 0;
-    size_t size = 0;
-    ParcelUtil::GetRawData(&additions, data, size);
-    expectedSize += sizeof(TLVHead) + size;
-    expectedSize += sizeof(TLVHead);                   // vector
-    expectedSize += sizeof(int32_t) + sizeof(TLVHead); // vector size
-    for (auto &item : mimeTypes) {
-        expectedSize += TLVObject::Count(item); // vector item
-    }
+    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(&additions));
+    expectedSize += TLVObject::Count(mimeTypes);
     expectedSize += TLVObject::Count(tag);
     expectedSize += TLVObject::Count(timestamp);
     expectedSize += TLVObject::Count(shareOption);

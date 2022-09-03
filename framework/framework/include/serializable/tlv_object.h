@@ -31,6 +31,10 @@ struct TLVHead {
     std::uint8_t value[0];
 };
 #pragma pack()
+struct RawMem {
+    uintptr_t buffer;
+    size_t bufferLen;
+};
 
 /*
  * Common tag definitions.
@@ -73,6 +77,13 @@ public:
     {
         return value.size() + sizeof(TLVHead);
     }
+    static inline size_t Count(const RawMem &value)
+    {
+        if (value.buffer == 0 || value.bufferLen == 0) {
+            return 0;
+        }
+        return value.bufferLen + sizeof(TLVHead);
+    }
     static inline size_t Count(TLVObject &value)
     {
         return value.Count() + sizeof(TLVHead);
@@ -84,6 +95,14 @@ public:
         }
         return Count(*value);
     }
+    template<typename T> inline size_t Count(std::vector<T> &value)
+    {
+        size_t expectSize = sizeof(TLVHead);
+        for (auto &item : value) {
+            expectSize += Count(item);
+        }
+        return expectSize;
+    }
 
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, bool value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int8_t value);
@@ -91,10 +110,10 @@ public:
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int32_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int64_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::string &value);
-    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, uintptr_t value, size_t size);
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const RawMem &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value)
     {
-        if (!Check(buffer, sizeof(TLVHead))) {
+        if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
             return false;
         }
         auto tagCursor = cursor_;
@@ -104,15 +123,9 @@ public:
         WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
         return ret;
     }
-    static inline void WriteHead(std::vector<std::uint8_t> &buffer, uint16_t type, size_t tagCursor, uint32_t len)
-    {
-        auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + tagCursor);
-        tlvHead->tag = HostToNet(type);
-        tlvHead->len = HostToNet(len);
-    }
     template<typename T> bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<T> &value)
     {
-        if (!Check(buffer, sizeof(TLVHead))) {
+        if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
             return false;
         }
         auto tagCursor = cursor_;
@@ -122,17 +135,6 @@ public:
         WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
         return ret;
     }
-    template<typename T> bool WriteValue(std::vector<std::uint8_t> &buffer, std::vector<T> &value)
-    {
-        // item count
-        bool ret = Write(buffer, TAG_VECTOR_INFO, (int32_t)(value.size()));
-        // items iterator
-        for (T &item : value) {
-            ret = ret && Write(buffer, TAG_VECTOR_ITEM, item);
-        }
-        return ret;
-    }
-
     template<typename T> bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::shared_ptr<T> &value)
     {
         if (value == nullptr) {
@@ -147,24 +149,18 @@ public:
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int32_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int64_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::string &value, const TLVHead &head);
-    bool ReadValue(const std::vector<std::uint8_t> &buffer, uintptr_t &value, size_t &size, const TLVHead &head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMem, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &value, const TLVHead &head);
     template<typename T>
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<T> &value, const TLVHead &head)
     {
-        TLVHead vectorInfo{};
-        bool ret = ReadHead(buffer, vectorInfo);
-        int32_t count = 0;
-        ret = ret && ReadValue(buffer, count, head);
-        if (!ret) {
-            return false;
-        }
-
-        for (int32_t i = 0; i < count; ++i) {
-            TLVHead itemHead{};
-            ret = ReadHead(buffer, itemHead);
+        auto vectorEnd = cursor_ + head.len;
+        for (; cursor_ < vectorEnd;) {
+            // V: item value
+            TLVHead valueHead{};
+            bool ret = ReadHead(buffer, valueHead);
             T item{};
-            ret = ret && ReadValue(buffer, item, itemHead);
+            ret = ret && ReadValue(buffer, item, valueHead);
             if (!ret) {
                 return false;
             }
@@ -203,9 +199,20 @@ protected:
 private:
     bool Encode(std::vector<std::uint8_t> &buffer, size_t &cursor, size_t total);
     bool Decode(const std::vector<std::uint8_t> &buffer, size_t &cursor, size_t total);
+    static inline void WriteHead(std::vector<std::uint8_t> &buffer, uint16_t type, size_t tagCursor, uint32_t len)
+    {
+        auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + tagCursor);
+        tlvHead->tag = HostToNet(type);
+        tlvHead->len = HostToNet(len);
+    }
+    static inline void WriteLen(std::vector<std::uint8_t> &buffer, size_t tagCursor, uint32_t len)
+    {
+        auto *pLen = reinterpret_cast<uint32_t *>(buffer.data() + tagCursor);
+        *pLen = HostToNet(len);
+    }
     template<typename T> bool WriteBasic(std::vector<std::uint8_t> &buffer, uint16_t type, T value)
     {
-        if (!Check(buffer, sizeof(TLVHead) + sizeof(value))) {
+        if (!HasExpectBuffer(buffer, sizeof(TLVHead) + sizeof(value))) {
             return false;
         }
         auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
@@ -216,9 +223,20 @@ private:
         return true;
     }
 
+    template<typename T> bool WriteValue(std::vector<std::uint8_t> &buffer, std::vector<T> &value)
+    {
+        // items iterator
+        bool ret = true;
+        for (T &item : value) {
+            // V:item value
+            ret = ret && Write(buffer, TAG_VECTOR_ITEM, item);
+        }
+        return ret;
+    }
+
     template<typename T> bool ReadBasicValue(const std::vector<std::uint8_t> &buffer, T &value, const TLVHead &head)
     {
-        if (!Check(buffer, head.len)) {
+        if (!HasExpectBuffer(buffer, head.len)) {
             return false;
         }
         value = NetToHost(*(reinterpret_cast<const T *>(buffer.data() + cursor_)));
@@ -226,7 +244,18 @@ private:
         return true;
     }
 
-    inline bool Check(const std::vector<std::uint8_t> &buffer, uint32_t expectLen) const
+    inline uint32_t ReadLen(const std::vector<std::uint8_t> &buffer)
+    {
+        if (!HasExpectBuffer(buffer, sizeof(uint32_t))) {
+            return false;
+        }
+        auto itemLen = *reinterpret_cast<const uint32_t *>(buffer.data() + cursor_);
+        itemLen = NetToHost(itemLen);
+        cursor_ += sizeof(uint32_t);
+        return itemLen;
+    }
+
+    inline bool HasExpectBuffer(const std::vector<std::uint8_t> &buffer, uint32_t expectLen) const
     {
         return buffer.size() <= cursor_ || buffer.size() - cursor_ >= expectLen;
     }

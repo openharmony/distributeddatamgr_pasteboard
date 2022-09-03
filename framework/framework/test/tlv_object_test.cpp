@@ -13,15 +13,15 @@
 * limitations under the License.
 */
 
+#include "serializable/tlv_object.h"
+
 #include <gtest/gtest.h>
 
 #include "pasteboard_client.h"
-#include "serializable/tlv_object.h"
-#include "singleton.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
-class PasteboardFrameworkTest : public testing::Test {
+class TLVObjectTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
@@ -29,27 +29,30 @@ public:
     void TearDown();
 };
 
-void PasteboardFrameworkTest::SetUpTestCase(void)
+void TLVObjectTest::SetUpTestCase(void)
 {
 }
 
-void PasteboardFrameworkTest::TearDownTestCase(void)
+void TLVObjectTest::TearDownTestCase(void)
 {
 }
 
-void PasteboardFrameworkTest::SetUp(void)
+void TLVObjectTest::SetUp(void)
 {
 }
 
-void PasteboardFrameworkTest::TearDown(void)
+void TLVObjectTest::TearDown(void)
 {
 }
+
 /**
 * @tc.name: TLVOjbectTest001
 * @tc.desc: test tlv coder.
 * @tc.type: FUNC
+* @tc.require:AR000H5I1D
+* @tc.author: baoyayong
 */
-HWTEST_F(PasteboardFrameworkTest, TLVOjbectTest001, TestSize.Level0)
+HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
 {
     auto plainText = std::make_shared<std::string>("hello");
     auto htmlText = std::make_shared<std::string>("<span>hello</span>");

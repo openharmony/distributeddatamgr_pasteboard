@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include "paste_data_record.h"
-#include <iostream>
 
 #include "pasteboard_common.h"
 #include "serializable/parcel_util.h"
@@ -369,15 +368,10 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_MIMETYPE, mimeType_);
     ret = Write(buffer, TAG_HTMLTEXT, htmlText_) && ret;
-    uintptr_t data = 0;
-    size_t size = 0;
-    ret = ParcelUtil::GetRawData(want_.get(), data, size) && ret;
-    ret = Write(buffer, TAG_WANT, data, size) && ret;
+    ret = Write(buffer, TAG_WANT, ParcelUtil::Parcelable2Raw(want_.get())) && ret;
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
-    ret = ParcelUtil::GetRawData(uri_.get(), data, size) && ret;
-    ret = Write(buffer, TAG_URI, data, size) && ret;
-    ret = ParcelUtil::GetRawData(pixelMap_.get(), data, size) && ret;
-    ret = Write(buffer, TAG_PIXELMAP, data, size) && ret;
+    ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
+    ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
     return ret;
 }
 
@@ -395,39 +389,24 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && ReadValue(buffer, htmlText_, head);
                 break;
             case TAG_WANT: {
-                uintptr_t data = 0;
-                size_t size = 0;
-                ret = ret && ReadValue(buffer, data, size, head);
-                AAFwk::Want *want = nullptr;
-                ret = ret && ParcelUtil::SetRawData(data, size, want);
-                if (want != nullptr) {
-                    want_ = std::shared_ptr<AAFwk::Want>(want);
-                }
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                want_ = std::shared_ptr<AAFwk::Want>(ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem));
                 break;
             }
             case TAG_PLAINTEXT:
                 ret = ret && ReadValue(buffer, plainText_, head);
                 break;
             case TAG_URI: {
-                uintptr_t data = 0;
-                size_t size = 0;
-                ret = ret && ReadValue(buffer, data, size, head);
-                OHOS::Uri *uri = nullptr;
-                ret = ret && ParcelUtil::SetRawData(data, size, uri);
-                if (uri != nullptr) {
-                    uri_ = std::shared_ptr<OHOS::Uri>(uri);
-                }
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                uri_ = std::shared_ptr<OHOS::Uri>(ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem));
                 break;
             }
             case TAG_PIXELMAP: {
-                uintptr_t data = 0;
-                size_t size = 0;
-                ret = ret && ReadValue(buffer, data, size, head);
-                PixelMap *tmp = nullptr;
-                ret = ret && ParcelUtil::SetRawData(data, size, tmp);
-                if (tmp != nullptr) {
-                    pixelMap_ = std::shared_ptr<PixelMap>(tmp);
-                }
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                pixelMap_ = std::shared_ptr<PixelMap>(ParcelUtil::Raw2Parcelable<PixelMap>(rawMem));
                 break;
             }
             default:
@@ -446,15 +425,10 @@ size_t PasteDataRecord::Count()
     size_t expectedSize = 0;
     expectedSize += TLVObject::Count(mimeType_);
     expectedSize += TLVObject::Count(htmlText_);
-    uintptr_t data = 0;
-    size_t size = 0;
-    ParcelUtil::GetRawData(want_.get(), data, size);
-    expectedSize += size + sizeof(TLVHead);
+    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(want_.get()));
     expectedSize += TLVObject::Count(plainText_);
-    ParcelUtil::GetRawData(uri_.get(), data, size);
-    expectedSize += size + sizeof(TLVHead);
-    ParcelUtil::GetRawData(pixelMap_.get(), data, size);
-    expectedSize += size + sizeof(TLVHead);
+    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
+    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
     return expectedSize;
 }
 } // namespace MiscServices

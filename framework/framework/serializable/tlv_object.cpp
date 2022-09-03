@@ -14,8 +14,6 @@
  */
 #include "serializable/tlv_object.h"
 
-#include <cstring>
-
 #include "securec.h"
 namespace OHOS::MiscServices {
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, bool value)
@@ -40,38 +38,42 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, int64_t 
 }
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::string &value)
 {
-    if (!Check(buffer, sizeof(TLVHead) + value.size())) {
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.size())) {
         return false;
     }
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
-    tlvHead->tag = type;
-    tlvHead->len = value.size();
+    tlvHead->tag = HostToNet(type);
+    tlvHead->len = HostToNet((uint32_t)value.size());
     memcpy(tlvHead->value, value.c_str(), value.size());
     cursor_ += sizeof(TLVHead) + value.size();
     return true;
 }
 
-bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, uintptr_t value, size_t size)
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const RawMem &value)
 {
-    if (!Check(buffer, sizeof(TLVHead) + size)) {
+    if (value.bufferLen == 0 || value.buffer == 0) {
+        return true;
+    }
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.bufferLen)) {
         return false;
     }
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     cursor_ += sizeof(TLVHead);
-    memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, reinterpret_cast<const void *>(value), size);
-    cursor_ += size;
-    tlvHead->len = HostToNet((uint32_t)size);
+    memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, reinterpret_cast<const void *>(value.buffer),
+        value.bufferLen);
+    cursor_ += value.bufferLen;
+    tlvHead->len = HostToNet((uint32_t)value.bufferLen);
     return true;
 }
 
 bool TLVObject::ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head)
 {
-    if (!Check(buffer, sizeof(TLVHead))) {
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
     }
     const auto *pHead = reinterpret_cast<const TLVHead *>(buffer.data() + cursor_);
-    if (!Check(buffer, NetToHost(pHead->len) + sizeof(TLVHead))) {
+    if (!HasExpectBuffer(buffer, NetToHost(pHead->len) + sizeof(TLVHead))) {
         return false;
     }
     head.tag = NetToHost(pHead->tag);
@@ -103,20 +105,21 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, int64_t &valu
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::string &value, const TLVHead &head)
 {
-    if (!Check(buffer, head.len)) {
+    if (!HasExpectBuffer(buffer, head.len)) {
         return false;
     }
     value.append(reinterpret_cast<const char *>(buffer.data() + cursor_), head.len);
     cursor_ += head.len;
     return true;
 }
-bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, uintptr_t &value, size_t &size, const TLVHead &head)
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMem, const TLVHead &head)
 {
-    if (!Check(buffer, head.len)) {
+    if (!HasExpectBuffer(buffer, head.len)) {
         return false;
     }
-    value = (uintptr_t)(buffer.data() + cursor_);
-    size = head.len;
+    rawMem.buffer = (uintptr_t)(buffer.data() + cursor_);
+    rawMem.bufferLen = head.len;
+    cursor_ += head.len;
     return true;
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &value, const TLVHead &head)
