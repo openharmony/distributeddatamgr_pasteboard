@@ -26,7 +26,6 @@
 #include "distributed_module_config.h"
 #include "device/dm_adapter.h"
 #include "hiview_adapter.h"
-#include "input_method_ability_property.h"
 #include "input_method_controller.h"
 #include "iservice_registry.h"
 #include "loader.h"

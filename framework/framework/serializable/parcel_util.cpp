@@ -23,7 +23,7 @@ RawMem ParcelUtil::Parcelable2Raw(const Parcelable *value)
         return rawMem;
     }
     Parcel parcel(nullptr);
-    bool ret = parcel.WriteParcelable(value);
+    bool ret = value->Marshalling(parcel);
     if (!ret) {
         return rawMem;
     }

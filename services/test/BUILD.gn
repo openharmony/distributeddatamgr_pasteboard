@@ -19,7 +19,6 @@ config("module_private_config") {
 
   include_dirs = [
     "${pasteboard_innerkits_path}/include",
-    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "include",
     "unittest/include",
   ]

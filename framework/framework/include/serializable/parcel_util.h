@@ -37,7 +37,7 @@ public:
         if (!ret) {
             return nullptr;
         }
-        return parcel.ReadParcelable<ParcelableType>();
+        return ParcelableType::Unmarshalling(parcel);
     }
 };
 } // namespace OHOS::MiscServices

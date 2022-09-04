@@ -74,5 +74,6 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
     auto record2 = pasteData2.GetRecordAt(0);
     EXPECT_EQ(*(record2->GetHtmlText()), *(record1->GetHtmlText()));
     EXPECT_EQ(*(record2->GetPlainText()), *(record1->GetPlainText()));
+    EXPECT_EQ(record2->GetUri()->ToString(), record1->GetUri()->ToString());
 }
 } // namespace OHOS::MiscServices
