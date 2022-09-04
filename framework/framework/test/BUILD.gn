@@ -1,0 +1,49 @@
+# Copyright (C) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
+
+config("module_private_config") {
+  visibility = [ ":*" ]
+
+  include_dirs = [
+    "${pasteboard_innerkits_path}/include",
+    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
+  ]
+}
+
+module_output_path = "pasteboard/pasteboard_service"
+
+ohos_unittest("PasteboardFrameworkTest") {
+  module_out_path = module_output_path
+
+  sources = [ "tlv_object_test.cpp" ]
+  configs = [
+    "//commonlibrary/c_utils/base:utils_config",
+    ":module_private_config",
+  ]
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "multimedia_image_standard:image_native",
+  ]
+
+  deps = [
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "//third_party/googletest:gtest_main",
+  ]
+}

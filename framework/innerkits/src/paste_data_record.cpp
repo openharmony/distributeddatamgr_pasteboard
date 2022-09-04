@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 #include "paste_data_record.h"
+
 #include "pasteboard_common.h"
+#include "serializable/parcel_util.h"
 
 using namespace OHOS::Media;
 
@@ -28,6 +30,14 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mime
     record_->mimeType_ = std::move(mimeType);
     return *this;
 }
+enum TAG_PASTEBOARD_RECORD : uint16_t {
+    TAG_MIMETYPE = TAG_BUFF + 1,
+    TAG_HTMLTEXT,
+    TAG_WANT,
+    TAG_PLAINTEXT,
+    TAG_URI,
+    TAG_PIXELMAP,
+};
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<std::string> htmlText)
 {
@@ -111,23 +121,19 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
-    const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer)
+    const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType, arrayBuffer);
     return Builder(mimeType).SetCustomData(std::move(customData)).Build();
 }
 
-PasteDataRecord::PasteDataRecord(std::string mimeType,
-                                 std::shared_ptr<std::string> htmlText,
-                                 std::shared_ptr<OHOS::AAFwk::Want> want,
-                                 std::shared_ptr<std::string> plainText,
-                                 std::shared_ptr<OHOS::Uri> uri)
-    : mimeType_ {std::move(mimeType)},
-      htmlText_ {std::move(htmlText)},
-      want_ {std::move(want)},
-      plainText_ {std::move(plainText)},
-      uri_ {std::move(uri)} {}
+PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
+    std::shared_ptr<OHOS::AAFwk::Want> want, std::shared_ptr<std::string> plainText, std::shared_ptr<OHOS::Uri> uri)
+    : mimeType_{ std::move(mimeType) }, htmlText_{ std::move(htmlText) }, want_{ std::move(want) },
+      plainText_{ std::move(plainText) }, uri_{ std::move(uri) }
+{
+}
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
 {
@@ -357,5 +363,73 @@ MineCustomData *MineCustomData::Unmarshalling(Parcel &parcel)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return mineCustomData;
 }
-} // MiscServices
-} // OHOS
+
+bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
+{
+    bool ret = Write(buffer, TAG_MIMETYPE, mimeType_);
+    ret = Write(buffer, TAG_HTMLTEXT, htmlText_) && ret;
+    ret = Write(buffer, TAG_WANT, ParcelUtil::Parcelable2Raw(want_.get())) && ret;
+    ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
+    ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
+    ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
+    return ret;
+}
+
+bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
+{
+    total_ = buffer.size(); // to be delete
+    for (; IsEnough();) {
+        TLVHead head{};
+        bool ret = ReadHead(buffer, head);
+        switch (head.tag) {
+            case TAG_MIMETYPE:
+                ret = ret && ReadValue(buffer, mimeType_, head);
+                break;
+            case TAG_HTMLTEXT:
+                ret = ret && ReadValue(buffer, htmlText_, head);
+                break;
+            case TAG_WANT: {
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                want_ = std::shared_ptr<AAFwk::Want>(ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem));
+                break;
+            }
+            case TAG_PLAINTEXT:
+                ret = ret && ReadValue(buffer, plainText_, head);
+                break;
+            case TAG_URI: {
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                uri_ = std::shared_ptr<OHOS::Uri>(ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem));
+                break;
+            }
+            case TAG_PIXELMAP: {
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                pixelMap_ = std::shared_ptr<PixelMap>(ParcelUtil::Raw2Parcelable<PixelMap>(rawMem));
+                break;
+            }
+            default:
+                ret = ret && Skip(head.len, buffer.size());
+                break;
+        }
+        if (!ret) {
+            return false;
+        }
+    }
+    return true;
+}
+
+size_t PasteDataRecord::Count()
+{
+    size_t expectedSize = 0;
+    expectedSize += TLVObject::Count(mimeType_);
+    expectedSize += TLVObject::Count(htmlText_);
+    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(want_.get()));
+    expectedSize += TLVObject::Count(plainText_);
+    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
+    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
+    return expectedSize;
+}
+} // namespace MiscServices
+} // namespace OHOS

@@ -15,9 +15,12 @@
  */
 
 #include "paste_data.h"
+
 #include <new>
+
 #include "paste_data_record.h"
 #include "pasteboard_hilog_wreapper.h"
+#include "serializable/parcel_util.h"
 #include "type_traits"
 
 using namespace std::chrono;
@@ -29,8 +32,22 @@ namespace {
 const std::uint32_t MAX_RECORD_NUM = 512;
 }
 
-PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records)
-    : records_ {std::move(records)}
+enum TAG_PASTEBOARD : uint16_t {
+    TAG_PROPS = TAG_BUFF + 1,
+    TAG_RECORDS,
+    TAG_RECORDS_COUNT,
+    TAG_RECORDS_ITEM,
+};
+enum TAG_PROPERTY : uint16_t {
+    TAG_ADDITIONS = TAG_BUFF + 1,
+    TAG_MIMETYPES,
+    TAG_TAG,
+    TAG_TIMESTAMP,
+    TAG_SHAREOPTION,
+    TAG_APPID
+};
+
+PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
@@ -84,13 +101,13 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
     }
     records_.insert(records_.begin(), std::move(record));
     if (records_.size() > MAX_RECORD_NUM) {
-        std::vector<std::shared_ptr<PasteDataRecord>> new_records(records_.begin(), records_.end()-1);
+        std::vector<std::shared_ptr<PasteDataRecord>> new_records(records_.begin(), records_.end() - 1);
         this->records_ = new_records;
     }
     RefreshMimeProp();
 }
 
-void PasteData::AddRecord(PasteDataRecord& record)
+void PasteData::AddRecord(PasteDataRecord &record)
 {
     this->AddRecord(std::make_shared<PasteDataRecord>(record));
     RefreshMimeProp();
@@ -99,7 +116,7 @@ void PasteData::AddRecord(PasteDataRecord& record)
 std::vector<std::string> PasteData::GetMimeTypes()
 {
     std::vector<std::string> mimeType;
-    for (const auto &item: records_) {
+    for (const auto &item : records_) {
         mimeType.push_back(item->GetMimeType());
     }
     return mimeType;
@@ -107,7 +124,7 @@ std::vector<std::string> PasteData::GetMimeTypes()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
-    for (const auto &item: records_) {
+    for (const auto &item : records_) {
         if (item->GetMimeType() == MIMETYPE_TEXT_HTML) {
             return item->GetHtmlText();
         }
@@ -127,7 +144,7 @@ std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 {
-    for (const auto &item: records_) {
+    for (const auto &item : records_) {
         if (item->GetMimeType() == MIMETYPE_TEXT_WANT) {
             return item->GetWant();
         }
@@ -137,7 +154,7 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryText()
 {
-    for (const auto &item: records_) {
+    for (const auto &item : records_) {
         if ((item->GetPlainText() != nullptr) && (item->GetPlainText()->size() > 0)) {
             return item->GetPlainText();
         }
@@ -244,7 +261,7 @@ std::vector<std::shared_ptr<PasteDataRecord>> PasteData::AllRecords() const
 void PasteData::RefreshMimeProp()
 {
     std::vector<std::string> mimeTypes;
-    for (const auto record : records_) {
+    for (const auto &record : records_) {
         if (record == nullptr) {
             continue;
         }
@@ -356,5 +373,108 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return pasteData;
 }
-} // MiscServices
-} // OHOS
+
+bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
+{
+    buffer.resize(Count());
+    total_ = buffer.size();
+
+    bool ret = Write(buffer, TAG_PROPS, (TLVObject &)props_);
+    ret = Write(buffer, TAG_RECORDS, records_) && ret;
+    return ret;
+}
+
+bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
+{
+    total_ = buffer.size();
+    for (; IsEnough();) {
+        TLVHead head{};
+        bool ret = ReadHead(buffer, head);
+        switch (head.tag) {
+            case TAG_PROPS:
+                ret = ret && ReadValue(buffer, (TLVObject &)props_, head);
+                break;
+            case TAG_RECORDS: {
+                ret = ret && ReadValue(buffer, records_, head);
+                break;
+            }
+            default:
+                ret = ret && Skip(head.len, buffer.size());
+                break;
+        }
+        if (!ret) {
+            return false;
+        }
+    }
+    return true;
+}
+size_t PasteData::Count()
+{
+    size_t expectSize = 0;
+    expectSize += props_.Count() + sizeof(TLVHead);
+    expectSize += TLVObject::Count(records_);
+    return expectSize;
+}
+bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
+{
+    bool ret = Write(buffer, TAG_ADDITIONS, ParcelUtil::Parcelable2Raw(&additions));
+    ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
+    ret = Write(buffer, TAG_TAG, tag) && ret;
+    ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
+    ret = Write(buffer, TAG_SHAREOPTION, (int32_t &)shareOption) && ret;
+    ret = Write(buffer, TAG_APPID, appId) && ret;
+    return ret;
+}
+bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
+{
+    for (; IsEnough();) {
+        TLVHead head{};
+        bool ret = ReadHead(buffer, head);
+        switch (head.tag) {
+            case TAG_ADDITIONS: {
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                auto *buff = ParcelUtil::Raw2Parcelable<AAFwk::WantParams>(rawMem);
+                if (buff != nullptr) {
+                    additions = *buff;
+                }
+                break;
+            }
+            case TAG_MIMETYPES:
+                ret = ret && ReadValue(buffer, mimeTypes, head);
+                break;
+            case TAG_TAG:
+                ret = ret && ReadValue(buffer, tag, head);
+                break;
+            case TAG_TIMESTAMP:
+                ret = ret && ReadValue(buffer, timestamp, head);
+                break;
+            case TAG_SHAREOPTION:
+                ret = ret && ReadValue(buffer, (int32_t &)shareOption, head);
+                break;
+            case TAG_APPID:
+                ret = ret && ReadValue(buffer, appId, head);
+                break;
+            default:
+                ret = ret && Skip(head.len, buffer.size());
+                break;
+        }
+        if (!ret) {
+            return false;
+        }
+    }
+    return true;
+}
+size_t PasteDataProperty::Count()
+{
+    size_t expectedSize = 0;
+    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(&additions));
+    expectedSize += TLVObject::Count(mimeTypes);
+    expectedSize += TLVObject::Count(tag);
+    expectedSize += TLVObject::Count(timestamp);
+    expectedSize += TLVObject::Count(shareOption);
+    expectedSize += TLVObject::Count(appId);
+    return expectedSize;
+}
+} // namespace MiscServices
+} // namespace OHOS

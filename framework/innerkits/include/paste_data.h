@@ -35,7 +35,7 @@ enum ShareOption : int32_t {
     LocalDevice,
     CrossDevice
 };
-struct PasteDataProperty {
+struct PasteDataProperty : public TLVObject {
     AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;
     std::string tag;
@@ -43,6 +43,10 @@ struct PasteDataProperty {
     bool localOnly;
     ShareOption shareOption;
     std::string appId = "";
+
+    bool Encode(std::vector<std::uint8_t> &buffer) override;
+    bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    size_t Count() override;
 };
 
 class PasteData : public Parcelable, public TLVObject {
@@ -80,6 +84,9 @@ public:
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteData *Unmarshalling(Parcel &parcel);
+    bool Encode(std::vector<std::uint8_t> &buffer) override;
+    bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    size_t Count() override;
 
 private:
     bool MarshallingProps(Parcel &parcel) const;
