@@ -92,6 +92,44 @@ private:
     static std::mutex pasteboardObserverInsMutex_;
 };
 
+struct HasContextInfo : public AsyncCall::Context {
+    bool hasPasteData;
+    napi_status status = napi_generic_failure;
+    HasContextInfo() : Context(nullptr, nullptr){};
+
+    napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
+    {
+        NAPI_ASSERT_BASE(env, self != nullptr, "self is nullptr", napi_invalid_arg);
+        return Context::operator()(env, argc, argv, self);
+    }
+    napi_status operator()(napi_env env, napi_value *result) override
+    {
+        if (status != napi_ok) {
+            return status;
+        }
+        return Context::operator()(env, result);
+    }
+};
+
+struct SetContextInfo : public AsyncCall::Context {
+    std::shared_ptr<PasteDataNapi> obj;
+    napi_status status = napi_generic_failure;
+    SetContextInfo() : Context(nullptr, nullptr){};
+
+    napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
+    {
+        NAPI_ASSERT_BASE(env, self != nullptr, "self is nullptr", napi_invalid_arg);
+        return Context::operator()(env, argc, argv, self);
+    }
+    napi_status operator()(napi_env env, napi_value *result) override
+    {
+        if (status != napi_ok) {
+            return status;
+        }
+        return Context::operator()(env, result);
+    }
+};
+
 } // namespace MiscServicesNapi
 } // namespace OHOS
 #endif
