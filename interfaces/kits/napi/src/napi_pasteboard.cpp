@@ -757,7 +757,9 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
     };
     auto exec = [context](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
-        PasteboardClient::GetInstance()->SetPasteData(*(context->obj->value_));
+        if ((context->obj != nullptr) && (context->obj->value_ != nullptr)) {
+            PasteboardClient::GetInstance()->SetPasteData(*(context->obj->value_));
+        }
         context->status = napi_ok;
     };
     context->SetAction(std::move(input));
