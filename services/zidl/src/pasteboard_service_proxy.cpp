@@ -41,7 +41,7 @@ void PasteboardServiceProxy::Clear()
     }
 }
 
-void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
+void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (observer == nullptr) {
@@ -65,7 +65,7 @@ void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboard
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
-void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
+void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (observer == nullptr) {
@@ -124,7 +124,7 @@ bool PasteboardServiceProxy::HasPasteData()
     return has;
 }
 
-void PasteboardServiceProxy::SetPasteData(PasteData& pasteData)
+void PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
@@ -133,7 +133,13 @@ void PasteboardServiceProxy::SetPasteData(PasteData& pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
-    if (!data.WriteParcelable(&pasteData)) {
+    std::vector<uint8_t> pasteDataTlv(0);
+    bool ret = pasteData.Encode(pasteDataTlv);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to encode pastedata in TLV");
+        return;
+    }
+    if (!data.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable subscribeInfo");
         return;
     }
@@ -144,7 +150,7 @@ void PasteboardServiceProxy::SetPasteData(PasteData& pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
-bool PasteboardServiceProxy::GetPasteData(PasteData& pasteData)
+bool PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
@@ -158,12 +164,18 @@ bool PasteboardServiceProxy::GetPasteData(PasteData& pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return false;
     }
-    std::unique_ptr<PasteData> pasteInfo(reply.ReadParcelable<PasteData>());
-    if (pasteInfo == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "nullptr end.");
+    auto *rawData = (uint8_t *)reply.GetRawData();
+    auto rawDataSize = reply.GetRawDataSize();
+    if (rawData == nullptr || rawDataSize == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw data");
         return false;
     }
-    pasteData = *pasteInfo;
+    std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
+    bool ret = pasteData.Decode(pasteDataTlv);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
+        return false;
+    }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return true;
 }

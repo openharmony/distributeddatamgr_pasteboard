@@ -29,16 +29,13 @@ PasteboardServiceStub::PasteboardServiceStub()
     memberFuncMap_[static_cast<uint32_t>(HAS_PASTE_DATA)] = &PasteboardServiceStub::OnHasPasteData;
     memberFuncMap_[static_cast<uint32_t>(SET_PASTE_DATA)] = &PasteboardServiceStub::OnSetPasteData;
     memberFuncMap_[static_cast<uint32_t>(CLEAR_ALL)] = &PasteboardServiceStub::OnClear;
-    memberFuncMap_[static_cast<uint32_t>(ADD_OBSERVER)] =
-        &PasteboardServiceStub::OnAddPasteboardChangedObserver;
-    memberFuncMap_[static_cast<uint32_t>(DELETE_OBSERVER)] =
-        &PasteboardServiceStub::OnRemovePasteboardChangedObserver;
-    memberFuncMap_[static_cast<uint32_t>(DELETE_ALL_OBSERVER)] =
-        &PasteboardServiceStub::OnRemoveAllChangedObserver;
+    memberFuncMap_[static_cast<uint32_t>(ADD_OBSERVER)] = &PasteboardServiceStub::OnAddPasteboardChangedObserver;
+    memberFuncMap_[static_cast<uint32_t>(DELETE_OBSERVER)] = &PasteboardServiceStub::OnRemovePasteboardChangedObserver;
+    memberFuncMap_[static_cast<uint32_t>(DELETE_ALL_OBSERVER)] = &PasteboardServiceStub::OnRemoveAllChangedObserver;
 }
 
-int32_t PasteboardServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    MessageOption &option)
+int32_t PasteboardServiceStub::OnRemoteRequest(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start##code = %{public}u", code);
     std::u16string myDescripter = PasteboardServiceStub::GetDescriptor();
@@ -49,9 +46,8 @@ int32_t PasteboardServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
     }
     pid_t p = IPCSkeleton::GetCallingPid();
     pid_t p1 = IPCSkeleton::GetCallingUid();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
-        "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u",
-        p, p1, code);
+    PASTEBOARD_HILOGI(
+        PASTEBOARD_MODULE_SERVICE, "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u", p, p1, code);
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;
@@ -74,14 +70,20 @@ int32_t PasteboardServiceStub::OnClear(MessageParcel &data, MessageParcel &reply
 int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
-    PasteData pasteData {};
-    auto hasPasteData = GetPasteData(pasteData);
-    if (!hasPasteData) {
+    PasteData pasteData{};
+    auto ret = GetPasteData(pasteData);
+    if (!ret) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
         return ERR_INVALID_VALUE;
     }
-    if (!reply.WriteParcelable(&pasteData)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write parcelable pasteData");
+    std::vector<uint8_t> pasteDataTlv(0);
+    ret = pasteData.Encode(pasteDataTlv);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to encode pastedata in TLV");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable subscribeInfo");
         return ERR_INVALID_VALUE;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
@@ -99,13 +101,20 @@ int32_t PasteboardServiceStub::OnHasPasteData(MessageParcel &data, MessageParcel
 int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
-    std::unique_ptr<PasteData> pasteData(data.ReadParcelable<PasteData>());
-    if (!pasteData) {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
+    auto *rawData = (uint8_t *)data.GetRawData();
+    auto rawDataSize = data.GetRawDataSize();
+    if (rawData == nullptr || rawDataSize == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to get raw data");
         return ERR_INVALID_VALUE;
     }
-
-    SetPasteData(*pasteData);
+    std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
+    PasteData pasteData;
+    bool ret = pasteData.Decode(pasteDataTlv);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
+        return ERR_INVALID_VALUE;
+    }
+    SetPasteData(pasteData);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
     return ERR_OK;
 }
