@@ -32,6 +32,8 @@
 namespace OHOS {
 namespace MiscServices {
 enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
+const std::int32_t MAX_RECORD_NUM = 512;
+
 struct PasteDataProperty : public TLVObject {
     AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;
