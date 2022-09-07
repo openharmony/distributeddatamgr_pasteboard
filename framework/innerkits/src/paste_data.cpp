@@ -35,8 +35,6 @@ const std::uint32_t MAX_RECORD_NUM = 512;
 enum TAG_PASTEBOARD : uint16_t {
     TAG_PROPS = TAG_BUFF + 1,
     TAG_RECORDS,
-    TAG_RECORDS_COUNT,
-    TAG_RECORDS_ITEM,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -386,9 +384,6 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
 {
     total_ = buffer.size();
-    for (auto &item : buffer) {
-        printf("%02x ", item);
-    }
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);

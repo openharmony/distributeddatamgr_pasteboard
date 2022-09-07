@@ -50,13 +50,6 @@ public:
         }
         return ParcelableType::Unmarshalling(parcel);
     }
-
-    static inline void Dump(uint8_t *buff, size_t len)
-    {
-        for (uint32_t i = 0; i < len; ++i) {
-            printf("%02x ", buff[i]);
-        }
-    }
 };
 } // namespace OHOS::MiscServices
 #endif //DISTRIBUTEDDATAMGR_PASTEBOARD_PARCEL_UTIL_H
