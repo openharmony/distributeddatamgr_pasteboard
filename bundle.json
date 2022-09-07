@@ -73,7 +73,8 @@
         "test": [
           "//foundation/distributeddatamgr/pasteboard/framework/framework/test:PasteboardFrameworkTest",
           "//foundation/distributeddatamgr/pasteboard/services/test:PasteboardServiceTest",
-          "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest"
+          "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest",
+          "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test:unittest"
         ]
       },
         "hisysevent_config": [
