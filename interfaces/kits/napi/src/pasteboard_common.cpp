@@ -76,6 +76,7 @@ bool GetValue(napi_env env, napi_value in, std::string& out)
     size_t length = 0;
     out.resize(len + STR_TAIL_LENGTH, 0);
     NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, in, out.data(), len + STR_TAIL_LENGTH, &length), false);
+    out.resize(len);
 
     return true;
 }
