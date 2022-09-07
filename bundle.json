@@ -71,7 +71,7 @@
           }
         ],
         "test": [
-          "//foundation/distributeddatamgr/pasteboard/framework/framework/test:PasteboardFrameworkTest",
+          "//foundation/distributeddatamgr/pasteboard/framework/test:PasteboardFrameworkTest",
           "//foundation/distributeddatamgr/pasteboard/services/test:PasteboardServiceTest",
           "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest"
         ]

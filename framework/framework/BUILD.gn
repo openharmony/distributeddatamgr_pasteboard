@@ -29,9 +29,7 @@ ohos_shared_library("pasteboard_framework") {
     "clip/clip_plugin.cpp",
     "clip/default_clip.cpp",
     "device/dm_adapter.cpp",
-    "serializable/parcel_util.cpp",
     "serializable/serializable.cpp",
-    "serializable/tlv_object.cpp",
   ]
   cflags = [ "-Wno-multichar" ]
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Huawei Device Co., Ltd.
+# Copyright (C) 2022 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,18 +19,17 @@ config("module_private_config") {
 
   include_dirs = [
     "${pasteboard_innerkits_path}/include",
-    "include",
-    "unittest/include",
+    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
   ]
 }
 
 module_output_path = "pasteboard/pasteboard_service"
 
-ohos_unittest("PasteboardServiceTest") {
+ohos_unittest("PasteboardFrameworkTest") {
   module_out_path = module_output_path
 
-  sources = [ "unittest/src/paste_service_test.cpp" ]
+  sources = [ "tlv_object_test.cpp" ]
   configs = [
     "//commonlibrary/c_utils/base:utils_config",
     ":module_private_config",
@@ -48,12 +47,4 @@ ohos_unittest("PasteboardServiceTest") {
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//third_party/googletest:gtest_main",
   ]
-}
-
-group("unittest") {
-  testonly = true
-
-  deps = []
-
-  deps += [ ":PasteboardServiceTest" ]
 }

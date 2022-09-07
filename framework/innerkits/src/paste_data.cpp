@@ -20,7 +20,7 @@
 
 #include "paste_data_record.h"
 #include "pasteboard_hilog_wreapper.h"
-#include "serializable/parcel_util.h"
+#include "parcel_util.h"
 #include "type_traits"
 
 using namespace std::chrono;
@@ -35,8 +35,6 @@ const std::uint32_t MAX_RECORD_NUM = 512;
 enum TAG_PASTEBOARD : uint16_t {
     TAG_PROPS = TAG_BUFF + 1,
     TAG_RECORDS,
-    TAG_RECORDS_COUNT,
-    TAG_RECORDS_ITEM,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -376,8 +374,7 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
 
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
-    buffer.resize(Count());
-    total_ = buffer.size();
+    Init(buffer);
 
     bool ret = Write(buffer, TAG_PROPS, (TLVObject &)props_);
     ret = Write(buffer, TAG_RECORDS, records_) && ret;

@@ -13,8 +13,7 @@
 * limitations under the License.
 */
 
-#include "serializable/parcel_util.h"
-
+#include "parcel_util.h"
 namespace OHOS::MiscServices {
 RawMem ParcelUtil::Parcelable2Raw(const Parcelable *value)
 {
@@ -22,13 +21,13 @@ RawMem ParcelUtil::Parcelable2Raw(const Parcelable *value)
     if (value == nullptr) {
         return rawMem;
     }
-    Parcel parcel(nullptr);
-    bool ret = value->Marshalling(parcel);
+    rawMem.parcel = std::make_shared<Parcel>(nullptr);
+    bool ret = value->Marshalling(*rawMem.parcel);
     if (!ret) {
         return rawMem;
     }
-    rawMem.buffer = parcel.GetData();
-    rawMem.bufferLen = parcel.GetDataSize();
+    rawMem.buffer = rawMem.parcel->GetData();
+    rawMem.bufferLen = rawMem.parcel->GetDataSize();
     return rawMem;
 }
 } // namespace OHOS::MiscServices

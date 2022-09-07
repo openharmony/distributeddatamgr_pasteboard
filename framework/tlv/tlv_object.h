@@ -16,12 +16,15 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "api/visibility.h"
 #include "endian_converter.h"
+#include "parcel.h"
+#include "securec.h"
 
 namespace OHOS::MiscServices {
 #pragma pack(1)
@@ -34,6 +37,8 @@ struct TLVHead {
 struct RawMem {
     uintptr_t buffer;
     size_t bufferLen;
+    // notice:Keep the parcel reference to prevent the memory in the parcel from being destructed
+    std::shared_ptr<OHOS::Parcel> parcel;
 };
 
 /*
@@ -41,17 +46,27 @@ struct RawMem {
  * Product should use after TAG_BUFF
  **/
 enum COMMON_TAG : uint16_t {
-    TAG_VECTOR = 0x0000,
-    TAG_VECTOR_INFO,
-    TAG_VECTOR_ITEM,
+    TAG_VECTOR_ITEM = 0x0000,
+    TAG_MAP_KEY,
+    TAG_MAP_VALUE,
 
     TAG_BUFF = 0x0100,
 };
 struct API_EXPORT TLVObject {
 public:
+    TLVObject() : total_(0), cursor_(0)
+    {
+    }
     virtual bool Encode(std::vector<std::uint8_t> &buffer) = 0;
     virtual bool Decode(const std::vector<std::uint8_t> &buffer) = 0;
     virtual size_t Count() = 0;
+
+    inline void Init(std::vector<std::uint8_t> &buffer)
+    {
+        buffer.resize(Count());
+        total_ = buffer.size();
+        cursor_ = 0;
+    }
 
     static inline size_t Count(bool value)
     {
@@ -103,6 +118,21 @@ public:
         }
         return expectSize;
     }
+    static inline size_t Count(std::vector<uint8_t> &value)
+    {
+        size_t expectSize = sizeof(TLVHead);
+        expectSize += value.size();
+        return expectSize;
+    }
+    static inline size_t Count(std::map<std::string, std::vector<uint8_t>> &value)
+    {
+        size_t expectSize = sizeof(TLVHead);
+        for (auto &item : value) {
+            expectSize += Count(item.first);
+            expectSize += Count(item.second);
+        }
+        return expectSize;
+    }
 
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, bool value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int8_t value);
@@ -111,18 +141,7 @@ public:
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int64_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::string &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const RawMem &value);
-    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value)
-    {
-        if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-            return false;
-        }
-        auto tagCursor = cursor_;
-        cursor_ += sizeof(TLVHead);
-        auto valueCursor = cursor_;
-        bool ret = value.Encode(buffer, cursor_, buffer.size());
-        WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
-        return ret;
-    }
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value);
     template<typename T> bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<T> &value)
     {
         if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
@@ -135,6 +154,8 @@ public:
         WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
         return ret;
     }
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<uint8_t> &value);
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::map<std::string, std::vector<uint8_t>> &value);
     template<typename T> bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::shared_ptr<T> &value)
     {
         if (value == nullptr) {
@@ -168,6 +189,9 @@ public:
         }
         return true;
     }
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<uint8_t> &value, const TLVHead &head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value,
+        const TLVHead &head);
 
     template<typename T>
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::shared_ptr<T> &value, const TLVHead &head)

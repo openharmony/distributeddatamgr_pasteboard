@@ -18,6 +18,7 @@
 
 #include "api/visibility.h"
 #include "parcel.h"
+#include "securec.h"
 #include "tlv_object.h"
 namespace OHOS::MiscServices {
 
@@ -33,8 +34,18 @@ public:
             return nullptr;
         }
         Parcel parcel(nullptr);
-        bool ret = parcel.ParseFrom(rawMem.buffer, rawMem.bufferLen);
+        auto *temp = malloc(rawMem.bufferLen); // free by Parcel!
+        if (temp == nullptr) {
+            return nullptr;
+        }
+        auto err = memcpy_s(temp, rawMem.bufferLen, reinterpret_cast<const void *>(rawMem.buffer), rawMem.bufferLen);
+        if (err != EOK) {
+            free(temp);
+            return nullptr;
+        }
+        bool ret = parcel.ParseFrom(reinterpret_cast<uintptr_t>(temp), rawMem.bufferLen);
         if (!ret) {
+            free(temp);
             return nullptr;
         }
         return ParcelableType::Unmarshalling(parcel);

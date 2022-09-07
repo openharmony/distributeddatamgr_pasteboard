@@ -23,10 +23,10 @@
 #include "uri.h"
 #include "want.h"
 
+namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AAFwk;
-using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
 
 class PasteboardServiceTest : public testing::Test {
@@ -59,7 +59,6 @@ void PasteboardObserverCallback::OnPasteboardChanged()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback.");
 }
 
-namespace {
 /**
 * @tc.name: PasteboardTest001
 * @tc.desc: Create paste board test.
@@ -742,7 +741,5 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     ASSERT_TRUE(ret == true);
     shareOption = newPasteData.GetShareOption();
     ASSERT_TRUE(shareOption == ShareOption::InApp);
-    appId = newPasteData.GetAppId();
-    ASSERT_TRUE(appId.empty() == true);
 }
-} // namespace
+} // namespace OHOS::MiscServices

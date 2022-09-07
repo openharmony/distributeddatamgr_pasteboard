@@ -15,7 +15,7 @@
 #include "paste_data_record.h"
 
 #include "pasteboard_common.h"
-#include "serializable/parcel_util.h"
+#include "parcel_util.h"
 
 using namespace OHOS::Media;
 
@@ -37,6 +37,11 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_PLAINTEXT,
     TAG_URI,
     TAG_PIXELMAP,
+    TAG_CUSTOM_DATA,
+};
+
+enum TAG_CUSTOMDATA : uint16_t {
+    TAG_ITEM_DATA = TAG_BUFF + 1,
 };
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<std::string> htmlText)
@@ -364,6 +369,36 @@ MineCustomData *MineCustomData::Unmarshalling(Parcel &parcel)
     return mineCustomData;
 }
 
+bool MineCustomData::Encode(std::vector<std::uint8_t> &buffer)
+{
+    return TLVObject::Write(buffer, TAG_ITEM_DATA, itemData_);
+}
+
+bool MineCustomData::Decode(const std::vector<std::uint8_t> &buffer)
+{
+    for (; IsEnough();) {
+        TLVHead head{};
+        bool ret = ReadHead(buffer, head);
+        switch (head.tag) {
+            case TAG_ITEM_DATA:
+                ret = ret && ReadValue(buffer, itemData_, head);
+                break;
+            default:
+                ret = ret && Skip(head.len, buffer.size());
+                break;
+        }
+        if (!ret) {
+            return false;
+        }
+    }
+    return true;
+}
+
+size_t MineCustomData::Count()
+{
+    return TLVObject::Count(itemData_);
+}
+
 bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_MIMETYPE, mimeType_);
@@ -372,12 +407,12 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
     ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
     ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
+    ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
     return ret;
 }
 
 bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
 {
-    total_ = buffer.size(); // to be delete
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
@@ -409,6 +444,9 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 pixelMap_ = std::shared_ptr<PixelMap>(ParcelUtil::Raw2Parcelable<PixelMap>(rawMem));
                 break;
             }
+            case TAG_CUSTOM_DATA:
+                ret = ret && ReadValue(buffer, customData_, head);
+                break;
             default:
                 ret = ret && Skip(head.len, buffer.size());
                 break;
@@ -429,6 +467,7 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(plainText_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
+    expectedSize += TLVObject::Count(customData_);
     return expectedSize;
 }
 } // namespace MiscServices
