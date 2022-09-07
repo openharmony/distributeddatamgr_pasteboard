@@ -229,11 +229,6 @@ private:
         tlvHead->tag = HostToNet(type);
         tlvHead->len = HostToNet(len);
     }
-    static inline void WriteLen(std::vector<std::uint8_t> &buffer, size_t tagCursor, uint32_t len)
-    {
-        auto *pLen = reinterpret_cast<uint32_t *>(buffer.data() + tagCursor);
-        *pLen = HostToNet(len);
-    }
     template<typename T> bool WriteBasic(std::vector<std::uint8_t> &buffer, uint16_t type, T value)
     {
         if (!HasExpectBuffer(buffer, sizeof(TLVHead) + sizeof(value))) {
@@ -242,7 +237,11 @@ private:
         auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
         tlvHead->tag = HostToNet(type);
         tlvHead->len = HostToNet((uint32_t)sizeof(value));
-        *(reinterpret_cast<T *>(tlvHead->value)) = HostToNet(value);
+        auto valueBuff = HostToNet(value);
+        auto ret = memcpy_s(tlvHead->value, sizeof(value), &valueBuff, sizeof(value));
+        if (ret != EOK) {
+            return false;
+        }
         cursor_ += sizeof(TLVHead) + sizeof(value);
         return true;
     }
@@ -263,20 +262,13 @@ private:
         if (!HasExpectBuffer(buffer, head.len)) {
             return false;
         }
-        value = NetToHost(*(reinterpret_cast<const T *>(buffer.data() + cursor_)));
-        cursor_ += sizeof(T);
-        return true;
-    }
-
-    inline uint32_t ReadLen(const std::vector<std::uint8_t> &buffer)
-    {
-        if (!HasExpectBuffer(buffer, sizeof(uint32_t))) {
+        auto ret = memcpy_s(&value, sizeof(T), buffer.data() + cursor_, sizeof(T));
+        if (ret != EOK) {
             return false;
         }
-        auto itemLen = *reinterpret_cast<const uint32_t *>(buffer.data() + cursor_);
-        itemLen = NetToHost(itemLen);
-        cursor_ += sizeof(uint32_t);
-        return itemLen;
+        value = NetToHost(value);
+        cursor_ += sizeof(T);
+        return true;
     }
 
     inline bool HasExpectBuffer(const std::vector<std::uint8_t> &buffer, uint32_t expectLen) const

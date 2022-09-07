@@ -44,7 +44,10 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const st
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     tlvHead->len = HostToNet((uint32_t)value.size());
-    memcpy(tlvHead->value, value.c_str(), value.size());
+    auto err = memcpy_s(tlvHead->value, value.size(), value.c_str(), value.size());
+    if (err != EOK) {
+        return false;
+    }
     cursor_ += sizeof(TLVHead) + value.size();
     return true;
 }
@@ -60,8 +63,11 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Ra
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     cursor_ += sizeof(TLVHead);
-    memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, reinterpret_cast<const void *>(value.buffer),
+    auto err = memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, reinterpret_cast<const void *>(value.buffer),
         value.bufferLen);
+    if (err != EOK) {
+        return false;
+    }
     cursor_ += value.bufferLen;
     tlvHead->len = HostToNet((uint32_t)value.bufferLen);
     return true;

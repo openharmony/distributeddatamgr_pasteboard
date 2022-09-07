@@ -389,7 +389,7 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
         bool ret = ReadHead(buffer, head);
         switch (head.tag) {
             case TAG_PROPS:
-                ret = ret && ReadValue(buffer, (TLVObject &)props_, head);
+                ret = ret && ReadValue(buffer, props_, head);
                 break;
             case TAG_RECORDS: {
                 ret = ret && ReadValue(buffer, records_, head);
