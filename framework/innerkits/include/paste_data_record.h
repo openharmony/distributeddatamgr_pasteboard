@@ -20,7 +20,7 @@
 #include <string>
 #include "parcel.h"
 #include "pixel_map.h"
-#include "serializable/tlv_object.h"
+#include "tlv_object.h"
 #include "string_ex.h"
 #include "uri.h"
 #include "want.h"

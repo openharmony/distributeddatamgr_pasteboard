@@ -21,7 +21,6 @@ config("module_public_config") {
   include_dirs = [
     "include",
     "//third_party/json/single_include",
-    "//foundation/distributeddatamgr/pasteboard/utils/native/include",
   ]
 }
 
@@ -30,9 +29,7 @@ ohos_shared_library("pasteboard_framework") {
     "clip/clip_plugin.cpp",
     "clip/default_clip.cpp",
     "device/dm_adapter.cpp",
-    "serializable/parcel_util.cpp",
     "serializable/serializable.cpp",
-    "serializable/tlv_object.cpp",
   ]
   cflags = [ "-Wno-multichar" ]
 

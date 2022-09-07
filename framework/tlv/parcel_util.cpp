@@ -13,8 +13,7 @@
 * limitations under the License.
 */
 
-#include "serializable/parcel_util.h"
-
+#include "parcel_util.h"
 namespace OHOS::MiscServices {
 RawMem ParcelUtil::Parcelable2Raw(const Parcelable *value)
 {

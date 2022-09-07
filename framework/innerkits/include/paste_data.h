@@ -23,7 +23,7 @@
 #include <vector>
 #include "parcel.h"
 #include "paste_data_record.h"
-#include "serializable/tlv_object.h"
+#include "tlv_object.h"
 #include "uri.h"
 #include "want.h"
 #include "want_params.h"

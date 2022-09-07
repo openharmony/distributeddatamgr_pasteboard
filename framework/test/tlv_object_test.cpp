@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#include "serializable/tlv_object.h"
+#include "tlv_object.h"
 
 #include <gtest/gtest.h>
 

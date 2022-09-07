@@ -40,6 +40,7 @@ ohos_shared_library("pasteboard_client") {
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
+    "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

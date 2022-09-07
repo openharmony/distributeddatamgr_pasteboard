@@ -76,6 +76,7 @@ ohos_shared_library("pasteboard_service") {
   deps = [
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
+    "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

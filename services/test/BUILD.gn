@@ -21,6 +21,7 @@ config("module_private_config") {
     "${pasteboard_innerkits_path}/include",
     "include",
     "unittest/include",
+    "//foundation/distributeddatamgr/pasteboard/framework/tlv",
   ]
 }
 
