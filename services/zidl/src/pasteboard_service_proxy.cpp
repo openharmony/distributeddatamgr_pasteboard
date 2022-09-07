@@ -139,8 +139,12 @@ void PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to encode pastedata in TLV");
         return;
     }
+    if (!data.WriteInt32(pasteDataTlv.size())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw size");
+        return;
+    }
     if (!data.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable subscribeInfo");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw data");
         return;
     }
     int32_t result = Remote()->SendRequest(SET_PASTE_DATA, data, reply, option);
@@ -164,9 +168,13 @@ bool PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return false;
     }
-    auto *rawData = (uint8_t *)reply.GetRawData();
-    auto rawDataSize = reply.GetRawDataSize();
-    if (rawData == nullptr || rawDataSize == 0) {
+    int32_t rawDataSize = reply.ReadInt32();
+    if (rawDataSize <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw size");
+        return false;
+    }
+    auto *rawData = (uint8_t *)reply.ReadRawData(rawDataSize);
+    if (rawData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw data");
         return false;
     }

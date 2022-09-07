@@ -79,11 +79,15 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
     std::vector<uint8_t> pasteDataTlv(0);
     ret = pasteData.Encode(pasteDataTlv);
     if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to encode pastedata in TLV");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode pastedata in TLV");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(pasteDataTlv.size())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write raw size");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable subscribeInfo");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write raw data");
         return ERR_INVALID_VALUE;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
@@ -101,9 +105,13 @@ int32_t PasteboardServiceStub::OnHasPasteData(MessageParcel &data, MessageParcel
 int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
-    auto *rawData = (uint8_t *)data.GetRawData();
-    auto rawDataSize = data.GetRawDataSize();
-    if (rawData == nullptr || rawDataSize == 0) {
+    int32_t rawDataSize = data.ReadInt32();
+    if (rawDataSize <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read raw size");
+        return ERR_INVALID_VALUE;
+    }
+    auto *rawData = (uint8_t *)data.ReadRawData(rawDataSize);
+    if (rawData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to get raw data");
         return ERR_INVALID_VALUE;
     }
@@ -111,7 +119,7 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
     PasteData pasteData;
     bool ret = pasteData.Decode(pasteDataTlv);
     if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
         return ERR_INVALID_VALUE;
     }
     SetPasteData(pasteData);

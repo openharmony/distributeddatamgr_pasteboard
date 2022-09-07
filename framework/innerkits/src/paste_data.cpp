@@ -376,8 +376,7 @@ PasteData *PasteData::Unmarshalling(Parcel &parcel)
 
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
-    buffer.resize(Count());
-    total_ = buffer.size();
+    Init(buffer);
 
     bool ret = Write(buffer, TAG_PROPS, (TLVObject &)props_);
     ret = Write(buffer, TAG_RECORDS, records_) && ret;
@@ -387,6 +386,9 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
 {
     total_ = buffer.size();
+    for (auto &item : buffer) {
+        printf("%02x ", item);
+    }
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);

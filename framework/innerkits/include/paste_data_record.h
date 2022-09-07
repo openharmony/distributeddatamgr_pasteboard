@@ -41,13 +41,17 @@ enum ResultCode : int32_t {
     IPC_ERROR
 };
 
-class MineCustomData : public Parcelable {
+class MineCustomData : public Parcelable, public TLVObject {
 public:
     MineCustomData() = default;
     std::map<std::string, std::vector<uint8_t>> GetItemData();
     void AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
     virtual bool Marshalling(Parcel &parcel) const override;
     static MineCustomData *Unmarshalling(Parcel &parcel);
+    bool Encode(std::vector<std::uint8_t> &buffer) override;
+    bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    size_t Count() override;
+
 private:
     std::map<std::string, std::vector<uint8_t>> itemData_;
 };

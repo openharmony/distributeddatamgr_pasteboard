@@ -21,6 +21,7 @@ config("module_public_config") {
   include_dirs = [
     "include",
     "//third_party/json/single_include",
+    "//foundation/distributeddatamgr/pasteboard/utils/native/include",
   ]
 }
 
