@@ -313,9 +313,6 @@ bool ParseKvData(napi_env env, napi_callback_info info, std::string &mimeType, s
     NAPI_CALL_BASE(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen), false);
     std::vector<uint8_t> arrayBuf(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
     arrayBuffer = std::move(arrayBuf);
-    if (dataLen > 0 && data != nullptr) {
-        free(data);
-    }
     return true;
 }
 

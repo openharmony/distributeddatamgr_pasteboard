@@ -485,9 +485,6 @@ void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, PasteDataNapi *obj
 
     obj->value_->AddKvRecord(mimeType,
         std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
-    if (dataLen > 0 && data != nullptr) {
-        free(data);
-    }
 }
 
 bool PasteDataNapi::SetStringProp(
