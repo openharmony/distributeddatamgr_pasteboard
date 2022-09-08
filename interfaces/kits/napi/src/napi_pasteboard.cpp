@@ -12,13 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <thread>
 #include <uv.h>
 
+#include "common/block_object.h"
 #include "napi_common.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "systempasteboard_napi.h"
-
+#include "napi_errcode.h"
+#include "paste_board_dialog.h"
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
 
@@ -652,13 +655,7 @@ napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Clear is called!");
     auto context = std::make_shared<AsyncCall::Context>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        NAPI_ASSERT_BASE(env, argc == ARGC_NUM_0 || argc == ARGC_NUM_1, " should 0 or 1 parameters!", napi_invalid_arg);
-        if (argc == ARGC_NUM_1) {
-            napi_valuetype valueType = napi_undefined;
-            napi_typeof(env, argv[0], &valueType);
-            NAPI_ASSERT_BASE(
-                env, valueType == napi_function, "Wrong argument type. Function expected.", napi_invalid_arg);
-        }
+        NAPI_ASSERT_BASE(env, argc == 0, " should 0 parameters!", napi_invalid_arg);
         return napi_ok;
     };
     auto exec = [context](AsyncCall::Context *ctx) {
@@ -666,7 +663,7 @@ napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
         PasteboardClient::GetInstance()->Clear();
     };
     context->SetAction(std::move(input));
-    AsyncCall asyncCall(env, info, context, AsyncCall::ASYNC_DEFAULT_POS);
+    AsyncCall asyncCall(env, info, context, 0);
     return asyncCall.Call(env, exec);
 }
 
@@ -675,13 +672,7 @@ napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info i
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasPasteData is called!");
     auto context = std::make_shared<HasContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        NAPI_ASSERT_BASE(env, argc == ARGC_NUM_0 || argc == ARGC_NUM_1, " should 0 or 1 parameters!", napi_invalid_arg);
-        if (argc == ARGC_NUM_1) {
-            napi_valuetype valueType = napi_undefined;
-            napi_typeof(env, argv[0], &valueType);
-            NAPI_ASSERT_BASE(
-                env, valueType == napi_function, "Wrong argument type. Function expected.", napi_invalid_arg);
-        }
+        NAPI_ASSERT_BASE(env, argc == 0, " should 0 parameters!", napi_invalid_arg);
         return napi_ok;
     };
     auto output = [context](napi_env env, napi_value *result) -> napi_status {
@@ -696,45 +687,60 @@ napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info i
         context->status = napi_ok;
     };
     context->SetAction(std::move(input), std::move(output));
-    AsyncCall asyncCall(env, info, context, AsyncCall::ASYNC_DEFAULT_POS);
+    AsyncCall asyncCall(env, info, context, 0);
     return asyncCall.Call(env, exec);
 }
 
 napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData is called!");
-    auto context = std::make_shared<AsyncCall::Context>();
-    auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        NAPI_ASSERT_BASE(env, argc == ARGC_NUM_0 || argc == ARGC_NUM_1, " should 0 or 1 parameters!", napi_invalid_arg);
-        if (argc == ARGC_NUM_1) {
-            napi_valuetype valueType = napi_undefined;
-            napi_typeof(env, argv[0], &valueType);
-            NAPI_ASSERT_BASE(
-                env, valueType == napi_function, "Wrong argument type. Function expected.", napi_invalid_arg);
-        }
+    struct ExeContext {
+        std::shared_ptr<PasteData> pasteData;
+        std::shared_ptr<BlockObject<uint32_t>> block;
+        uint32_t errCode = napi_ok;
+    };
+    auto context = std::make_shared<ExeContext>();
+    context->pasteData = std::make_shared<PasteData>();
+    auto input = [](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
+        NAPI_ASSERT_BASE(env, argc == 0, " should 0 parameters!", napi_invalid_arg);
         return napi_ok;
     };
+
     auto output = [context](napi_env env, napi_value *result) -> napi_status {
         napi_value instance = nullptr;
         PasteDataNapi::NewInstance(env, instance);
         PasteDataNapi *obj = nullptr;
         napi_status ret = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
         if ((ret == napi_ok) || (obj != nullptr)) {
-            auto pasteData = std::make_shared<PasteData>();
-            if (!pasteData) {
-                return napi_generic_failure;
-            }
-            PasteboardClient::GetInstance()->GetPasteData(*pasteData);
-            obj->value_ = pasteData;
+            obj->value_ = context->pasteData;
         } else {
             return napi_generic_failure;
         }
         *result = instance;
         return napi_ok;
     };
-    auto exec = [context](AsyncCall::Context *ctx) {};
-    context->SetAction(std::move(input), std::move(output));
-    AsyncCall asyncCall(env, info, context, AsyncCall::ASYNC_DEFAULT_POS);
+
+    auto exec = [context](AsyncCall::Context *ctx) {
+        context->block = std::make_shared<BlockObject<uint32_t>>(1, E_TIMEOUT);
+        std::thread thread([context] {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
+            auto success = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
+            context->block->SetValue(success ? E_SUCCESS : E_ERROR);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData End");
+        });
+        thread.detach();
+        auto result = context->block->GetValue();
+        if (result != E_TIMEOUT) {
+            context->errCode = result;
+            return ;
+        }
+
+        auto id = PasteBoardDialog::GetInstance().ShowDialog(context->block);
+        context->block->SetInterval(300);
+        context->errCode = context->block->GetValue();
+        PasteBoardDialog::GetInstance().CancelDialog(id);
+    };
+    AsyncCall asyncCall(env, info, std::make_shared<AsyncCall::Context>(std::move(input), std::move(output)), 0);
     return asyncCall.Call(env, exec);
 }
 
@@ -743,27 +749,27 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SetPasteData is called!");
     auto context = std::make_shared<SetContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        NAPI_ASSERT_BASE(env, argc == ARGC_NUM_1 || argc == ARGC_NUM_2, " should 1 or 2 parameters!", napi_invalid_arg);
+        NAPI_ASSERT_BASE(env, argc == 1, " should 1 parameters!", napi_invalid_arg);
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[0], &valueType);
         NAPI_ASSERT_BASE(env, valueType == napi_object, "Wrong argument type. Object expected.", napi_invalid_arg);
-        if (argc == ARGC_NUM_2) {
-            napi_typeof(env, argv[1], &valueType);
-            NAPI_ASSERT_BASE(
-                env, valueType == napi_function, "Wrong argument type. Function expected.", napi_invalid_arg);
+        PasteDataNapi *pasteData = nullptr;
+        napi_unwrap(env, argv[0], reinterpret_cast<void **>(&pasteData));
+        if (pasteData != nullptr) {
+            context->obj = pasteData->value_;
         }
-        napi_unwrap(env, argv[0], reinterpret_cast<void **>(&(context->obj)));
         return napi_ok;
     };
     auto exec = [context](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
-        if ((context->obj != nullptr) && (context->obj->value_ != nullptr)) {
-            PasteboardClient::GetInstance()->SetPasteData(*(context->obj->value_));
+        if (context->obj != nullptr) {
+            PasteboardClient::GetInstance()->SetPasteData(*(context->obj));
+            context->obj = nullptr;
         }
         context->status = napi_ok;
     };
     context->SetAction(std::move(input));
-    AsyncCall asyncCall(env, info, context, AsyncCall::ASYNC_DEFAULT_POS);
+    AsyncCall asyncCall(env, info, context, 1);
     return asyncCall.Call(env, exec);
 }
 

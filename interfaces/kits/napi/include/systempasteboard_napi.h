@@ -112,7 +112,7 @@ struct HasContextInfo : public AsyncCall::Context {
 };
 
 struct SetContextInfo : public AsyncCall::Context {
-    std::shared_ptr<PasteDataNapi> obj;
+    std::shared_ptr<MiscServices::PasteData> obj;
     napi_status status = napi_generic_failure;
     SetContextInfo() : Context(nullptr, nullptr){};
 
