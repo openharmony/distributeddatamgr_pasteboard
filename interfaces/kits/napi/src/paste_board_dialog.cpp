@@ -33,7 +33,7 @@ int32_t PasteBoardDialog::ShowDialog(std::shared_ptr<BlockObject<uint32_t>> bloc
     auto rect = GetDisplayRect();
     std::string params = std::string("{\"deviceType\":\"") + message + "\"}";
     Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
-        "pasting",
+        "pasting_dialog",
         params,
         OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
         rect.x, rect.y, rect.width, rect.height,
