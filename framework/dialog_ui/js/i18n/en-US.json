@@ -1,6 +1,11 @@
 {
+  "message": {
+    "deviceType": "unknown"
+  },
   "strings": {
-    "title": "pasting",
+    "title": "pasting to memo",
+    "from": "from",
+    "done": "pasted to memo",
     "cancel": "canceled"
   }
 }

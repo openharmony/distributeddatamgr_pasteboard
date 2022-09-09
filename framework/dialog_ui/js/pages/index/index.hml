@@ -15,9 +15,14 @@
 
 <div class="dialog-page">
     <div class="dialog-div" id="loading-dialog">
-        <image class="loading-img img-rotate" id="loading-img" src="/common/images/loading.svg"></image>
-        <text class="show-msg">{{ $t('strings.title') }}</text>
-        <image class="cancel-img" id="cancel-img" src="/common/images/ic_public_cancel.svg"
+        <div class="rect-div">
+            <progress  class="loading-progress" type="ring" percent="50"></progress>
+        </div>
+        <div class="context-div" id="test-context">
+            <text class="show-msg">{{ $t('strings.title') }}</text>
+            <text class="show-from">{{ $t('strings.from') }}"{{ deviceType }}"</text>
+        </div>
+        <image class="cancel-img" id="cancel-img" src="/common/images/ic_public_input_cancel.svg"
                on:click="onCancel({{ $t('strings.cancel') }})"></image>
     </div>
 </div>

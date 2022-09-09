@@ -19,12 +19,20 @@
 namespace OHOS::MiscServicesNapi {
 class PasteBoardDialog {
 public:
+    static constexpr uint32_t POPUP_INTERVAL = 1;  // seconds
+    static constexpr uint32_t MAX_LIFE_TIME = 300; // seconds
     static PasteBoardDialog &GetInstance();
-    int32_t ShowDialog(std::shared_ptr<BlockObject<uint32_t>> block);
+    int32_t ShowDialog(std::shared_ptr<BlockObject<uint32_t>> block, const std::string &message = "unknown");
     int32_t CancelDialog(int32_t id);
 
 private:
-    static constexpr const char *LAYOUT = "{\"lowPower\":\"Low Power\", \"cancelButton\":\"Cancel\"}";
+    struct Rect {
+        int32_t x = 0;
+        int32_t y = 0;
+        int32_t width = 1920;
+        int32_t height = 1080;
+    };
+    Rect GetDisplayRect();
 };
 }
 #endif // PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H

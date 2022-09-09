@@ -12,33 +12,18 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import router from '@ohos.router'
 import prompt from '@system.prompt';
 var EVENT_CANCEL = "EVENT_CANCEL";
 var EVENT_VALUE = "value";
 export default {
+    data: {
+        deviceType: ''
+    },
     onInit() {
+        this.deviceType = this.$t("message.deviceType");
     },
     onShow() {
-        const options = {
-            duration: 800,
-            easing: 'linear',
-            iterations: 'Infinity'
-        };
-        const frames = [
-            {
-                transform: {
-                    rotate: '0deg'
-                }
-            },
-            {
-                transform: {
-                    rotate: '360deg'
-                }
-            }
-        ];
-        this.animation = this.$element('loading-img').animate(frames, options);
-        this.animation.play();
+
     },
     onCancel(msg){
         callNativeHandler(EVENT_CANCEL, EVENT_VALUE);

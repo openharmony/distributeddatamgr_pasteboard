@@ -1,6 +1,11 @@
 {
+  "message": {
+    "deviceType": "未知"
+  },
   "strings": {
-    "title": "正在粘贴",
+    "title": "正在粘贴至备忘录",
+    "from": "来自",
+    "done": "已粘贴至备忘录",
     "cancel": "已取消"
   }
 }
