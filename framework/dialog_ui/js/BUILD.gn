@@ -14,7 +14,8 @@
 import("//foundation/arkui/ace_engine/build/ace_gen_sa_dialog_js.gni")
 
 gen_sa_dialog_js("dialog_js_files_etc") {
-  project_path = "//foundation/distributeddatamgr/pasteboard/framework/dialog_ui/js"
+  project_path =
+      "//foundation/distributeddatamgr/pasteboard/framework/dialog_ui/js"
   dialog_name = "pasting_dialog"
   part_name = "pasteboard"
   subsystem_name = "distributeddatamgr"
