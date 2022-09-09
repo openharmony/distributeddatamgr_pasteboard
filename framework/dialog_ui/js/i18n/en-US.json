@@ -1,0 +1,12 @@
+{
+  "message": {
+    "appName": "memo",
+    "deviceType": "unknown"
+  },
+  "strings": {
+    "title": "pasting to ",
+    "from": "from",
+    "done": "pasted to ",
+    "cancel": "canceled"
+  }
+}

@@ -1,0 +1,100 @@
+/*
+    Copyright (c) 2022 Huawei Device Co., Ltd.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
+
+.dialog-page {
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+    background-color: #00ffffff;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.dialog-div {
+    height: 56px;
+    flex-direction: row;
+    background-color: #ffffffff;
+    box-shadow: 0px 10px #4d000000;
+    justify-content: center;
+    align-items: center;
+    border-radius: 33px;
+}
+
+.rect-div {
+    height: 36px;
+    width: 36px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.context-div {
+    height: 56px;
+    flex-direction: column;
+    background-color: #00ffffff;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.loading-progress {
+    height: 24px;
+    width: 24px;
+    stroke-width:2.67px;
+    color: linear-gradient(#ff86c1ff, #ff254FF7);
+    animation: Go 3s infinite;
+    animation-timing-function:linear;
+}
+
+.show-msg {
+    height: 16px;
+    font-size: 12px;
+    color: black;
+    opacity: 100;
+    letter-spacing: 0px;
+    font-family: HYQiHei-65S;
+    margin-top: 12px;
+}
+
+.show-from {
+    height: 14px;
+    font-size: 12px;
+    color: black;
+    opacity: 100;
+    letter-spacing: 0px;
+    font-family: HYQiHei-65S;
+    margin-top: 2px;
+    margin-bottom: 12px;
+}
+
+.cancel-img {
+    height: 18px;
+    width: 18px;
+    margin-top: 19px;
+    margin-bottom: 19px;
+    margin-right: 8px;
+}
+
+@keyframes Go{
+    from {
+        transform:rotate(0deg);
+    }
+    50% {
+        transform:rotate(180deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}

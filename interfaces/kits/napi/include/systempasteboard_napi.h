@@ -70,7 +70,7 @@ public:
     static napi_value New(napi_env env, napi_callback_info info);
     static napi_status NewInstance(napi_env env, napi_value &instance);
     static void Destructor(napi_env env, void *nativeObject, void *finalize_hint);
-    static void DeletePasteboardObserverIns(const std::shared_ptr<PasteboardObserverInstance> &observer);
+    static void DeleteObserver(const std::shared_ptr<PasteboardObserverInstance> &observer);
     SystemPasteboardNapi();
     ~SystemPasteboardNapi();
 
@@ -81,8 +81,8 @@ private:
     static napi_value GetPasteData(napi_env env, napi_callback_info info);
     static napi_value SetPasteData(napi_env env, napi_callback_info info);
     static napi_value HasPasteData(napi_env env, napi_callback_info info);
-    static std::shared_ptr<PasteboardObserverInstance> GetPasteboardObserverIns(
-        const napi_env &env, const napi_value &currCallback);
+    static void SetObserver(napi_ref ref, std::shared_ptr<PasteboardObserverInstance> observer);
+    static std::shared_ptr<PasteboardObserverInstance> GetObserver(napi_env env, napi_value observer);
 
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
@@ -112,7 +112,7 @@ struct HasContextInfo : public AsyncCall::Context {
 };
 
 struct SetContextInfo : public AsyncCall::Context {
-    std::shared_ptr<PasteDataNapi> obj;
+    std::shared_ptr<MiscServices::PasteData> obj;
     napi_status status = napi_generic_failure;
     SetContextInfo() : Context(nullptr, nullptr){};
 
