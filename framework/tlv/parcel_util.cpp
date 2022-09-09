@@ -30,4 +30,25 @@ RawMem ParcelUtil::Parcelable2Raw(const Parcelable *value)
     rawMem.bufferLen = rawMem.parcel->GetDataSize();
     return rawMem;
 }
+bool ParcelUtil::Raw2Parcel(const RawMem &rawMem, Parcel &parcel)
+{
+    if (rawMem.buffer == 0 || rawMem.bufferLen == 0) {
+        return false;
+    }
+    auto *temp = malloc(rawMem.bufferLen); // free by Parcel!
+    if (temp == nullptr) {
+        return false;
+    }
+    auto err = memcpy_s(temp, rawMem.bufferLen, reinterpret_cast<const void *>(rawMem.buffer), rawMem.bufferLen);
+    if (err != EOK) {
+        free(temp);
+        return false;
+    }
+    bool ret = parcel.ParseFrom(reinterpret_cast<uintptr_t>(temp), rawMem.bufferLen);
+    if (!ret) {
+        free(temp);
+        return false;
+    }
+    return true;
+}
 } // namespace OHOS::MiscServices

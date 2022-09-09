@@ -24,6 +24,8 @@ config("pasteboard_client_config") {
     "//commonlibrary/c_utils/base/include",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
+    "//foundation/distributeddatamgr/pasteboard/framework/uri",
+    "//foundation/filemanagement/app_file_service/interfaces/innerkits/remote_file_share/native",
   ]
 }
 
@@ -42,6 +44,7 @@ ohos_shared_library("pasteboard_client") {
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
+    "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
     "//third_party/jsoncpp:jsoncpp",
   ]
 

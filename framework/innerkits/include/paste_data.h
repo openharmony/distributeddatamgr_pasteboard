@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include "parcel.h"
 #include "paste_data_record.h"
 #include "tlv_object.h"
@@ -30,11 +31,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-enum ShareOption : int32_t {
-    InApp = 0,
-    LocalDevice,
-    CrossDevice
-};
+enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
 struct PasteDataProperty : public TLVObject {
     AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;
@@ -55,13 +52,13 @@ public:
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
 
     void AddHtmlRecord(const std::string &html);
-    void AddKvRecord(const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer);
+    void AddKvRecord(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
     void AddPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     void AddTextRecord(const std::string &text);
     void AddUriRecord(const OHOS::Uri &uri);
     void AddWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
     void AddRecord(std::shared_ptr<PasteDataRecord> record);
-    void AddRecord(PasteDataRecord& record);
+    void AddRecord(PasteDataRecord &record);
     std::vector<std::string> GetMimeTypes();
     std::shared_ptr<std::string> GetPrimaryHtml();
     std::shared_ptr<OHOS::Media::PixelMap> GetPrimaryPixelMap();
@@ -87,6 +84,9 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
+    bool WriteUriFd(MessageParcel &parcel);
+
+    bool ReadUriFd(MessageParcel &parcel);
 
 private:
     bool MarshallingProps(Parcel &parcel) const;
@@ -95,6 +95,6 @@ private:
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_BOARD_DATA_H

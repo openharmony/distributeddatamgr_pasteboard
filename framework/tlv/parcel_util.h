@@ -30,26 +30,14 @@ public:
     // buffer to parcelable
     template<typename ParcelableType> API_EXPORT static ParcelableType *Raw2Parcelable(const RawMem &rawMem)
     {
-        if (rawMem.buffer == 0 || rawMem.bufferLen == 0) {
-            return nullptr;
-        }
         Parcel parcel(nullptr);
-        auto *temp = malloc(rawMem.bufferLen); // free by Parcel!
-        if (temp == nullptr) {
-            return nullptr;
-        }
-        auto err = memcpy_s(temp, rawMem.bufferLen, reinterpret_cast<const void *>(rawMem.buffer), rawMem.bufferLen);
-        if (err != EOK) {
-            free(temp);
-            return nullptr;
-        }
-        bool ret = parcel.ParseFrom(reinterpret_cast<uintptr_t>(temp), rawMem.bufferLen);
-        if (!ret) {
-            free(temp);
+        if (!Raw2Parcel(rawMem, parcel)) {
             return nullptr;
         }
         return ParcelableType::Unmarshalling(parcel);
     }
+    // buffer to parcelable
+    API_EXPORT static bool Raw2Parcel(const RawMem &rawMem, Parcel &parcel);
 };
 } // namespace OHOS::MiscServices
 #endif //DISTRIBUTEDDATAMGR_PASTEBOARD_PARCEL_UTIL_H

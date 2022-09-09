@@ -44,36 +44,39 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const st
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     tlvHead->len = HostToNet((uint32_t)value.size());
-    auto err = memcpy_s(tlvHead->value, value.size(), value.c_str(), value.size());
-    if (err != EOK) {
-        return false;
+    if (!value.empty()) {
+        auto err = memcpy_s(tlvHead->value, value.size(), value.c_str(), value.size());
+        if (err != EOK) {
+            return false;
+        }
     }
+
     cursor_ += sizeof(TLVHead) + value.size();
     return true;
 }
 
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const RawMem &value)
 {
-    if (value.bufferLen == 0 || value.buffer == 0) {
-        return true;
-    }
     if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.bufferLen)) {
         return false;
     }
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     cursor_ += sizeof(TLVHead);
-    auto err = memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, reinterpret_cast<const void *>(value.buffer),
-        value.bufferLen);
-    if (err != EOK) {
-        return false;
+
+    if (value.bufferLen != 0 && value.buffer != 0) {
+        auto err = memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_,
+            reinterpret_cast<const void *>(value.buffer), value.bufferLen);
+        if (err != EOK) {
+            return false;
+        }
     }
     cursor_ += value.bufferLen;
     tlvHead->len = HostToNet((uint32_t)value.bufferLen);
     return true;
 }
-bool TLVObject::Write(
-    std::vector<std::uint8_t> &buffer, uint16_t type, std::map<std::string, std::vector<uint8_t>> &value)
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type,
+    std::map<std::string, std::vector<uint8_t>> &value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
@@ -98,6 +101,7 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObjec
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
+    value.SetIsCrossDevice(IsCrossDevice());
     bool ret = value.Encode(buffer, cursor_, buffer.size());
     WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
     return ret;
@@ -109,9 +113,12 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vec
     }
     WriteHead(buffer, type, cursor_, value.size());
     cursor_ += sizeof(TLVHead);
-    auto err = memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, value.data(), value.size());
-    if (err != EOK) {
-        return false;
+
+    if (!value.empty()) {
+        auto err = memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, value.data(), value.size());
+        if (err != EOK) {
+            return false;
+        }
     }
     cursor_ += value.size();
     return true;
@@ -172,6 +179,7 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMe
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &value, const TLVHead &head)
 {
+    value.SetIsCrossDevice(IsCrossDevice());
     return value.Decode(buffer, cursor_, cursor_ + head.len);
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<uint8_t> &value, const TLVHead &head)
@@ -184,8 +192,8 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<u
     cursor_ += head.len;
     return true;
 }
-bool TLVObject::ReadValue(
-    const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value, const TLVHead &head)
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value,
+    const TLVHead &head)
 {
     auto mapEnd = cursor_ + head.len;
     for (; cursor_ < mapEnd;) {
@@ -222,5 +230,13 @@ bool TLVObject::Decode(const std::vector<std::uint8_t> &buffer, size_t &cursor, 
     bool ret = Decode(buffer);
     cursor = cursor_;
     return ret;
+}
+void TLVObject::SetIsCrossDevice(bool isCrossDevice)
+{
+    isCrossDevice_ = isCrossDevice;
+}
+bool TLVObject::IsCrossDevice() const
+{
+    return isCrossDevice_;
 }
 } // namespace OHOS::MiscServices

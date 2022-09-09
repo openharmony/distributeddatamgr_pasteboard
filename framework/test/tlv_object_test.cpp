@@ -93,7 +93,7 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
         auto record1 = pasteData1.GetRecordAt(i);
         EXPECT_EQ(*(record2->GetHtmlText()), *(record1->GetHtmlText()));
         EXPECT_EQ(*(record2->GetPlainText()), *(record1->GetPlainText()));
-        EXPECT_EQ(record2->GetUri()->ToString(), record1->GetUri()->ToString());
+        EXPECT_TRUE(record2->GetUri()->ToString() == record1->GetUri()->ToString());
         EXPECT_EQ(record2->GetWant()->OperationEquals(*(record1->GetWant())), true);
     }
 }

@@ -14,8 +14,11 @@
  */
 #include "paste_data_record.h"
 
-#include "pasteboard_common.h"
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "parcel_util.h"
+#include "pasteboard_common.h"
 
 using namespace OHOS::Media;
 
@@ -36,6 +39,7 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_WANT,
     TAG_PLAINTEXT,
     TAG_URI,
+    TAG_URIINFO,
     TAG_PIXELMAP,
     TAG_CUSTOM_DATA,
 };
@@ -62,6 +66,7 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetPlainText(std::shared_ptr
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetUri(std::shared_ptr<OHOS::Uri> uri)
 {
     record_->uri_ = std::move(uri);
+    record_->SetUriInfo();
     return *this;
 }
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetPixelMap(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
@@ -89,6 +94,7 @@ PasteDataRecord::Builder::Builder(const std::string &mimeType)
         record_->want_ = nullptr;
         record_->plainText_ = nullptr;
         record_->uri_ = nullptr;
+        record_->uriInfo_ = nullptr;
         record_->pixelMap_ = nullptr;
         record_->customData_ = nullptr;
     }
@@ -125,8 +131,8 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &
     return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
 }
 
-std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
-    const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(const std::string &mimeType,
+    const std::vector<uint8_t> &arrayBuffer)
 {
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType, arrayBuffer);
@@ -138,6 +144,7 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
     : mimeType_{ std::move(mimeType) }, htmlText_{ std::move(htmlText) }, want_{ std::move(want) },
       plainText_{ std::move(plainText) }, uri_{ std::move(uri) }
 {
+    SetUriInfo();
 }
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
@@ -162,7 +169,10 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
 {
-    return this->uri_;
+    if (uriInfo_ == nullptr || uriInfo_->uri_.empty()) {
+        return uri_;
+    }
+    return std::make_shared<OHOS::Uri>(uriInfo_->uri_);
 }
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
@@ -241,7 +251,8 @@ bool PasteDataRecord::Marshalling(Parcel &parcel) const
     return ret;
 }
 
-template<typename T> ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
+template<typename T>
+ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
@@ -402,12 +413,20 @@ size_t MineCustomData::Count()
 bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_MIMETYPE, mimeType_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret1:%{public}d", ret);
     ret = Write(buffer, TAG_HTMLTEXT, htmlText_) && ret;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret2:%{public}d", ret);
     ret = Write(buffer, TAG_WANT, ParcelUtil::Parcelable2Raw(want_.get())) && ret;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret3:%{public}d", ret);
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret4:%{public}d", ret);
     ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
+    ret = Write(buffer, TAG_URIINFO, uriInfo_) && ret;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret5:%{public}d", ret);
     ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret6:%{public}d", ret);
     ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret7:%{public}d", ret);
     return ret;
 }
 
@@ -438,6 +457,10 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 uri_ = std::shared_ptr<OHOS::Uri>(ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem));
                 break;
             }
+            case TAG_URIINFO: {
+                ret = ret && ReadValue(buffer, uriInfo_, head);
+                break;
+            }
             case TAG_PIXELMAP: {
                 RawMem rawMem{};
                 ret = ret && ReadValue(buffer, rawMem, head);
@@ -451,6 +474,8 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && Skip(head.len, buffer.size());
                 break;
         }
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
+            head.tag, head.len, ret);
         if (!ret) {
             return false;
         }
@@ -466,9 +491,64 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(want_.get()));
     expectedSize += TLVObject::Count(plainText_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
+    expectedSize += TLVObject::Count(uriInfo_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
     expectedSize += TLVObject::Count(customData_);
     return expectedSize;
+}
+bool PasteDataRecord::WriteFd(MessageParcel &parcel)
+{
+    if (uriInfo_ != nullptr) {
+        return uriInfo_->Marshalling(parcel);
+    }
+    return true;
+}
+bool PasteDataRecord::ReadFd(MessageParcel &parcel)
+{
+    if (uriInfo_ == nullptr) {
+        uriInfo_ = std::make_shared<UriInfo>();
+    }
+    if (uriInfo_ == nullptr) {
+        return false;
+    }
+    return uriInfo_->Unmarshalling(parcel);
+}
+void PasteDataRecord::SetUriInfo()
+{
+    if (uri_ == nullptr) {
+        return;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri_->ToString().c_str());
+    if (!IsFileUri(uri_->ToString())) {
+        // ignore other type of uri, only file path
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s, not a valid file", uri_->ToString().c_str());
+        return;
+    }
+    if (uriInfo_ == nullptr) {
+        uriInfo_ = std::make_shared<UriInfo>();
+    }
+    if (uriInfo_ == nullptr) {
+        return;
+    }
+    uriInfo_->uri_ = uri_->ToString();
+}
+bool PasteDataRecord::NeedFd()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+    if (uriInfo_ == nullptr || uriInfo_->uri_.empty()) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid uriinfo");
+        return false;
+    }
+    return IsFileUri(uriInfo_->uri_);
+}
+bool PasteDataRecord::IsFileUri(const std::string &filePath)
+{
+    struct stat fileInfo {};
+    if (stat(filePath.c_str(), &fileInfo) == 0 && (fileInfo.st_mode & S_IFREG)) {
+        return true;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "not a valid file path:%{public}s", filePath.c_str());
+    return false;
 }
 } // namespace MiscServices
 } // namespace OHOS

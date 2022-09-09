@@ -67,6 +67,8 @@ public:
         total_ = buffer.size();
         cursor_ = 0;
     }
+    void SetIsCrossDevice(bool isCrossDevice);
+    bool IsCrossDevice() const;
 
     static inline size_t Count(bool value)
     {
@@ -94,9 +96,6 @@ public:
     }
     static inline size_t Count(const RawMem &value)
     {
-        if (value.buffer == 0 || value.bufferLen == 0) {
-            return 0;
-        }
         return value.bufferLen + sizeof(TLVHead);
     }
     static inline size_t Count(TLVObject &value)
@@ -259,6 +258,9 @@ private:
 
     template<typename T> bool ReadBasicValue(const std::vector<std::uint8_t> &buffer, T &value, const TLVHead &head)
     {
+        if (head.len == 0) {
+            return false;
+        }
         if (!HasExpectBuffer(buffer, head.len)) {
             return false;
         }
@@ -277,6 +279,7 @@ private:
     }
 
     size_t cursor_ = 0;
+    bool isCrossDevice_ = false;
 };
 } // namespace OHOS::MiscServices
 #endif // DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
