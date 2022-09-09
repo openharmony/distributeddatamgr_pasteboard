@@ -207,9 +207,6 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
         NAPI_CALL(env, napi_get_arraybuffer_info(env, napiArrayBuffer, &data, &dataLen));
         customData->AddItemData(mimeType,
             std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
-        if (dataLen > 0 && data != nullptr) {
-            free(data);
-        }
     }
     return customData;
 }
