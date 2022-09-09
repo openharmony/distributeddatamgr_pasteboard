@@ -712,11 +712,6 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
     };
 
     auto output = [context](napi_env env, napi_value *result) -> napi_status {
-        if (context->errCode != E_SUCCESS) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "failed errCode is %{public}d", context->errCode);
-            return napi_generic_failure;
-        }
-
         napi_value instance = nullptr;
         PasteDataNapi::NewInstance(env, instance);
         PasteDataNapi *obj = nullptr;
