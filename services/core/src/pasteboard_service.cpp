@@ -682,10 +682,11 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     if (event.status == ClipPlugin::EVT_UNKNOWN) {
         return nullptr;
     }
-
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
+        event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
     std::vector<uint8_t> rawData = std::move(event.addition);
+    currentEvent_ = std::move(event);
     if (!isEffective) {
-        currentEvent_ = std::move(event);
         currentEvent_.status = ClipPlugin::EVT_INVALID;
         return nullptr;
     }
@@ -732,7 +733,10 @@ bool PasteboardService::HasDistributedData(int32_t user)
         return false;
     }
     Event event;
-    return GetDistributedEvent(clipPlugin, user, event);
+    auto has = GetDistributedEvent(clipPlugin, user, event);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
+        event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
+    return has;
 }
 
 std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
