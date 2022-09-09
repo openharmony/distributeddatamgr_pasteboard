@@ -17,9 +17,11 @@ var EVENT_CANCEL = "EVENT_CANCEL";
 var EVENT_VALUE = "value";
 export default {
     data: {
+        appName : '',
         deviceType: ''
     },
     onInit() {
+        this.appName = this.$t("message.appName");
         this.deviceType = this.$t("message.deviceType");
     },
     onShow() {

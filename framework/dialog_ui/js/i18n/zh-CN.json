@@ -1,11 +1,12 @@
 {
   "message": {
+    "appName": "备忘录",
     "deviceType": "未知"
   },
   "strings": {
-    "title": "正在粘贴至备忘录",
+    "title": "正在粘贴至",
     "from": "来自",
-    "done": "已粘贴至备忘录",
+    "done": "已粘贴至",
     "cancel": "已取消"
   }
 }

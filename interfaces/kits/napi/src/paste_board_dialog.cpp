@@ -27,11 +27,12 @@ PasteBoardDialog &PasteBoardDialog::GetInstance()
     return instance;
 }
 
-int32_t PasteBoardDialog::ShowDialog(std::shared_ptr<BlockObject<uint32_t>> block, const std::string &message)
+int32_t PasteBoardDialog::ShowDialog(std::shared_ptr<BlockObject<uint32_t>> block, const MessageInfo &message)
 {
     int32_t id = -1;
     auto rect = GetDisplayRect();
-    std::string params = std::string("{\"deviceType\":\"") + message + "\"}";
+    std::string params =
+        std::string("{\"appName\":\"") + message.appName + "\", \"deviceType\":\"" + message.deviceType + "\"}";
     Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
         "pasting_dialog",
         params,

@@ -15,14 +15,19 @@
 
 #ifndef PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H
 #define PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H
+#include <string>
 #include "common/block_object.h"
 namespace OHOS::MiscServicesNapi {
 class PasteBoardDialog {
 public:
+    struct MessageInfo {
+        std::string appName{ "unknown" };
+        std::string deviceType{ "unknown" };
+    };
     static constexpr uint32_t POPUP_INTERVAL = 1;  // seconds
     static constexpr uint32_t MAX_LIFE_TIME = 300; // seconds
     static PasteBoardDialog &GetInstance();
-    int32_t ShowDialog(std::shared_ptr<BlockObject<uint32_t>> block, const std::string &message = "unknown");
+    int32_t ShowDialog(std::shared_ptr<BlockObject<uint32_t>> block, const MessageInfo &message);
     int32_t CancelDialog(int32_t id);
 
 private:

@@ -744,8 +744,8 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
             context->errCode = result;
             return ;
         }
-
-        auto id = PasteBoardDialog::GetInstance().ShowDialog(context->block);
+        PasteBoardDialog::MessageInfo messageInfo;
+        auto id = PasteBoardDialog::GetInstance().ShowDialog(context->block, messageInfo);
         context->block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
         context->errCode = context->block->GetValue();
         PasteBoardDialog::GetInstance().CancelDialog(id);
