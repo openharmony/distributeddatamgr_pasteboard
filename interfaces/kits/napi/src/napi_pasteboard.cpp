@@ -730,6 +730,7 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
         std::thread thread([context] {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
             auto success = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
+            sleep(11);
             context->block->SetValue(success ? E_SUCCESS : E_ERROR);
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData End");
         });
