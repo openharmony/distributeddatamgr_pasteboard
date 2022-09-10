@@ -18,13 +18,13 @@ var EVENT_CANCEL = "EVENT_CANCEL";
 var EVENT_VALUE = "value";
 export default {
     data: {
-        appName : router.getParams().appName,
-        deviceType: router.getParams().deviceType,
+        appName : this.$t("message.appName"),
+        deviceType: this.$t("message.deviceType"),
     },
     onInit() {
         console.info('getParams: ' + JSON.stringify(router.getParams()));
-        this.appName = this.$t("message.appName");
-        this.deviceType = this.$t("message.deviceType");
+        this.appName = router.getParams().appName;
+        this.deviceType = router.getParams().deviceType;
     },
     onShow() {
 
