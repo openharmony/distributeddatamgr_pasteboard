@@ -33,6 +33,7 @@ int32_t PasteBoardDialog::ShowDialog(std::shared_ptr<BlockObject<uint32_t>> bloc
     auto rect = GetDisplayRect();
     std::string params =
         std::string("{\"appName\":\"") + message.appName + "\", \"deviceType\":\"" + message.deviceType + "\"}";
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasting_dialog message:%{public}s.", params.c_str());
     Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
         "pasting_dialog",
         params,

@@ -13,19 +13,16 @@
     limitations under the License.
 */
 import prompt from '@system.prompt';
+import router from '@ohos.router';
 var EVENT_CANCEL = "EVENT_CANCEL";
 var EVENT_VALUE = "value";
 export default {
     data: {
-        appName : '',
-        deviceType: ''
+        appName : router.getParams().appName,
+        deviceType: router.getParams().deviceType,
     },
     onInit() {
-        this.appName = this.$t("message.appName");
-        this.deviceType = this.$t("message.deviceType");
-    },
-    onShow() {
-
+        console.info('getParams: ' + JSON.stringify(router.getParams()));
     },
     onCancel(msg){
         callNativeHandler(EVENT_CANCEL, EVENT_VALUE);
