@@ -22,7 +22,7 @@
             <text class="show-msg">{{ $t('strings.title') }}{{appName}}</text>
             <text class="show-from">{{ $t('strings.from') }}"{{ deviceType }}"</text>
         </div>
-        <image class="cancel-img" id="cancel-img" src="/common/images/ic_public_input_cancel.svg"
+        <image class="cancel-img" id="cancel-img" src="/common/ic_public_input_cancel.svg"
                on:click="onCancel({{ $t('strings.cancel') }})"></image>
     </div>
 </div>

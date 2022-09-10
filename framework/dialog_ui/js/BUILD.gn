@@ -20,7 +20,7 @@ gen_sa_dialog_js("dialog_js_files_etc") {
     "i18n/en-US.json",
     "i18n/zh-CN.json",
   ]
-  common_files = [ "common/images/ic_public_input_cancel.svg" ]
+  common_files = [ "common/ic_public_input_cancel.svg" ]
   dialog_name = "pasting_dialog"
   part_name = "pasteboard"
   subsystem_name = "distributeddatamgr"
