@@ -18,16 +18,11 @@ var EVENT_CANCEL = "EVENT_CANCEL";
 var EVENT_VALUE = "value";
 export default {
     data: {
-        appName : this.$t("message.appName"),
-        deviceType: this.$t("message.deviceType"),
+        appName : router.getParams().appName,
+        deviceType: router.getParams().deviceType,
     },
     onInit() {
         console.info('getParams: ' + JSON.stringify(router.getParams()));
-        this.appName = router.getParams().appName;
-        this.deviceType = router.getParams().deviceType;
-    },
-    onShow() {
-
     },
     onCancel(msg){
         callNativeHandler(EVENT_CANCEL, EVENT_VALUE);
