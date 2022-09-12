@@ -24,8 +24,9 @@
 #include "string_ex.h"
 #include "tlv_object.h"
 #include "uri.h"
-#include "uri_info.h"
 #include "want.h"
+#include "uri_handler.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -84,9 +85,9 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteFd(MessageParcel &parcel);
-    bool ReadFd(MessageParcel &parcel);
-    bool NeedFd();
+    bool WriteFd(MessageParcel &parcel, bool b);
+    bool ReadFd(MessageParcel &parcel, bool b);
+    bool NeedFd(bool b);
 
     class Builder {
     public:
@@ -114,15 +115,13 @@ private:
     {
         return resultCode == ResultCode::OK;
     }
-    void SetUriInfo();
-    bool IsFileUri(const std::string &file);
 
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
     std::shared_ptr<OHOS::AAFwk::Want> want_;
     std::shared_ptr<std::string> plainText_;
     std::shared_ptr<OHOS::Uri> uri_;
-    std::shared_ptr<UriInfo> uriInfo_;
+    std::shared_ptr<UriHandler> uriHandler_;
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
 };

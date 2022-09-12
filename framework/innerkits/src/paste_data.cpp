@@ -476,12 +476,12 @@ size_t PasteDataProperty::Count()
     return expectedSize;
 }
 
-bool PasteData::WriteUriFd(MessageParcel &parcel)
+bool PasteData::WriteUriFd(MessageParcel &parcel, bool isClient)
 {
     std::vector<uint32_t> fdRecordMap;
     for (size_t i = 0; i < GetRecordCount(); ++i) {
         auto record = GetRecordAt(i);
-        if (record != nullptr && record->NeedFd()) {
+        if (record != nullptr && record->NeedFd(isClient)) {
             fdRecordMap.push_back(i);
         }
     }
@@ -491,14 +491,14 @@ bool PasteData::WriteUriFd(MessageParcel &parcel)
     }
     for (auto index : fdRecordMap) {
         auto record = GetRecordAt(index);
-        if (record == nullptr || !record->WriteFd(parcel)) {
+        if (record == nullptr || !record->WriteFd(parcel, isClient)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write fd");
             return false;
         }
     }
     return true;
 }
-bool PasteData::ReadUriFd(MessageParcel &parcel)
+bool PasteData::ReadUriFd(MessageParcel &parcel, bool isClient)
 {
     std::vector<uint32_t> fdRecordMap;
     if (!parcel.ReadUInt32Vector(&fdRecordMap)) {
@@ -507,7 +507,7 @@ bool PasteData::ReadUriFd(MessageParcel &parcel)
     }
     for (auto index : fdRecordMap) {
         auto record = GetRecordAt(index);
-        if (record == nullptr || !record->ReadFd(parcel)) {
+        if (record == nullptr || !record->ReadFd(parcel, isClient)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read fd");
             return false;
         }

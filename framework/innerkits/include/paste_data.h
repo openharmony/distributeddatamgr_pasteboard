@@ -84,9 +84,8 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteUriFd(MessageParcel &parcel);
-
-    bool ReadUriFd(MessageParcel &parcel);
+    bool WriteUriFd(MessageParcel &parcel, bool isClient);
+    bool ReadUriFd(MessageParcel &parcel, bool isClient);
 
 private:
     bool MarshallingProps(Parcel &parcel) const;

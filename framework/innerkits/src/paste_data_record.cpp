@@ -17,8 +17,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "client_uri_handler.h"
 #include "parcel_util.h"
 #include "pasteboard_common.h"
+#include "server_uri_handler.h"
 
 using namespace OHOS::Media;
 
@@ -39,7 +41,6 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_WANT,
     TAG_PLAINTEXT,
     TAG_URI,
-    TAG_URIINFO,
     TAG_PIXELMAP,
     TAG_CUSTOM_DATA,
 };
@@ -66,7 +67,6 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetPlainText(std::shared_ptr
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetUri(std::shared_ptr<OHOS::Uri> uri)
 {
     record_->uri_ = std::move(uri);
-    record_->SetUriInfo();
     return *this;
 }
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetPixelMap(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
@@ -94,7 +94,6 @@ PasteDataRecord::Builder::Builder(const std::string &mimeType)
         record_->want_ = nullptr;
         record_->plainText_ = nullptr;
         record_->uri_ = nullptr;
-        record_->uriInfo_ = nullptr;
         record_->pixelMap_ = nullptr;
         record_->customData_ = nullptr;
     }
@@ -144,7 +143,6 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
     : mimeType_{ std::move(mimeType) }, htmlText_{ std::move(htmlText) }, want_{ std::move(want) },
       plainText_{ std::move(plainText) }, uri_{ std::move(uri) }
 {
-    SetUriInfo();
 }
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
@@ -169,10 +167,10 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
 {
-    if (uriInfo_ == nullptr || uriInfo_->uri_.empty()) {
+    if (uriHandler_ == nullptr || uriHandler_->ToUri().empty()) {
         return uri_;
     }
-    return std::make_shared<OHOS::Uri>(uriInfo_->uri_);
+    return std::make_shared<OHOS::Uri>(uriHandler_->ToUri());
 }
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
@@ -413,20 +411,12 @@ size_t MineCustomData::Count()
 bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_MIMETYPE, mimeType_);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret1:%{public}d", ret);
     ret = Write(buffer, TAG_HTMLTEXT, htmlText_) && ret;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret2:%{public}d", ret);
     ret = Write(buffer, TAG_WANT, ParcelUtil::Parcelable2Raw(want_.get())) && ret;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret3:%{public}d", ret);
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret4:%{public}d", ret);
     ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
-    ret = Write(buffer, TAG_URIINFO, uriInfo_) && ret;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret5:%{public}d", ret);
     ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret6:%{public}d", ret);
     ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ret7:%{public}d", ret);
     return ret;
 }
 
@@ -455,10 +445,6 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 RawMem rawMem{};
                 ret = ret && ReadValue(buffer, rawMem, head);
                 uri_ = std::shared_ptr<OHOS::Uri>(ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem));
-                break;
-            }
-            case TAG_URIINFO: {
-                ret = ret && ReadValue(buffer, uriInfo_, head);
                 break;
             }
             case TAG_PIXELMAP: {
@@ -491,64 +477,50 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(want_.get()));
     expectedSize += TLVObject::Count(plainText_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
-    expectedSize += TLVObject::Count(uriInfo_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
     expectedSize += TLVObject::Count(customData_);
     return expectedSize;
 }
-bool PasteDataRecord::WriteFd(MessageParcel &parcel)
-{
-    if (uriInfo_ != nullptr) {
-        return uriInfo_->Marshalling(parcel);
-    }
-    return true;
-}
-bool PasteDataRecord::ReadFd(MessageParcel &parcel)
-{
-    if (uriInfo_ == nullptr) {
-        uriInfo_ = std::make_shared<UriInfo>();
-    }
-    if (uriInfo_ == nullptr) {
-        return false;
-    }
-    return uriInfo_->Unmarshalling(parcel);
-}
-void PasteDataRecord::SetUriInfo()
+bool PasteDataRecord::WriteFd(MessageParcel &parcel, bool isClient)
 {
     if (uri_ == nullptr) {
-        return;
-    }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri_->ToString().c_str());
-    if (!IsFileUri(uri_->ToString())) {
-        // ignore other type of uri, only file path
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s, not a valid file", uri_->ToString().c_str());
-        return;
-    }
-    if (uriInfo_ == nullptr) {
-        uriInfo_ = std::make_shared<UriInfo>();
-    }
-    if (uriInfo_ == nullptr) {
-        return;
-    }
-    uriInfo_->uri_ = uri_->ToString();
-}
-bool PasteDataRecord::NeedFd()
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
-    if (uriInfo_ == nullptr || uriInfo_->uri_.empty()) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid uriinfo");
-        return false;
-    }
-    return IsFileUri(uriInfo_->uri_);
-}
-bool PasteDataRecord::IsFileUri(const std::string &filePath)
-{
-    struct stat fileInfo {};
-    if (stat(filePath.c_str(), &fileInfo) == 0 && (fileInfo.st_mode & S_IFREG)) {
         return true;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "not a valid file path:%{public}s", filePath.c_str());
-    return false;
+    if (isClient) {
+        uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
+    } else {
+        uriHandler_ = std::make_shared<ServerUriHandler>(uri_->ToString());
+    }
+    auto fd = uriHandler_->ToFd();
+    return parcel.WriteFileDescriptor(fd);
+}
+bool PasteDataRecord::ReadFd(MessageParcel &parcel, bool isClient)
+{
+    auto fd = parcel.ReadFileDescriptor();
+    if (isClient) {
+        uriHandler_ = std::make_shared<ClientUriHandler>(fd);
+    } else {
+        uriHandler_ = std::make_shared<ServerUriHandler>(fd);
+    }
+    uriHandler_->ToUri();
+    return true;
+}
+bool PasteDataRecord::NeedFd(bool isClient)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+    if (uri_ == nullptr) {
+        return false;
+    }
+    if (isClient) {
+        uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
+    } else {
+        uriHandler_ = std::make_shared<ServerUriHandler>(uri_->ToString());
+    }
+    if (uriHandler_ == nullptr || !uriHandler_->IsFile()) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid file uri");
+        return false;
+    }
+    return true;
 }
 } // namespace MiscServices
 } // namespace OHOS

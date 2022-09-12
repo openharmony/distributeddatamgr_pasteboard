@@ -25,7 +25,10 @@ config("module_public_config") {
 }
 
 ohos_static_library("pasteboard_uri") {
-  sources = [ "uri_info.cpp" ]
+  sources = [
+    "client_uri_handler.cpp",
+    "server_uri_handler.cpp",
+  ]
   cflags = [ "-Wno-multichar" ]
 
   cflags_cc = [ "-fvisibility=hidden" ]
