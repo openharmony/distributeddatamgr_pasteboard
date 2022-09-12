@@ -48,6 +48,7 @@ std::string ServerUriHandler::ToUri()
 }
 int32_t OHOS::MiscServices::ServerUriHandler::ToFd()
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
     if (fd_ >= 0) {
         return fd_;
     }

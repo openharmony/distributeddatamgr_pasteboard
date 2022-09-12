@@ -488,8 +488,9 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, bool isClient)
     }
     if (isClient) {
         uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
-    } else {
-        uriHandler_ = std::make_shared<ServerUriHandler>(uri_->ToString());
+    }
+    if (uriHandler_ == nullptr) {
+        return false;
     }
     auto fd = uriHandler_->ToFd();
     return parcel.WriteFileDescriptor(fd);
@@ -513,8 +514,6 @@ bool PasteDataRecord::NeedFd(bool isClient)
     }
     if (isClient) {
         uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
-    } else {
-        uriHandler_ = std::make_shared<ServerUriHandler>(uri_->ToString());
     }
     if (uriHandler_ == nullptr || !uriHandler_->IsFile()) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid file uri");
