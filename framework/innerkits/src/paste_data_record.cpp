@@ -14,8 +14,13 @@
  */
 #include "paste_data_record.h"
 
-#include "pasteboard_common.h"
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include "client_uri_handler.h"
 #include "parcel_util.h"
+#include "pasteboard_common.h"
+#include "server_uri_handler.h"
 
 using namespace OHOS::Media;
 
@@ -125,8 +130,8 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &
     return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
 }
 
-std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
-    const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(const std::string &mimeType,
+    const std::vector<uint8_t> &arrayBuffer)
 {
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType, arrayBuffer);
@@ -162,7 +167,10 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
 {
-    return this->uri_;
+    if (uriHandler_ == nullptr || uriHandler_->ToUri().empty()) {
+        return uri_;
+    }
+    return std::make_shared<OHOS::Uri>(uriHandler_->ToUri());
 }
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
@@ -241,7 +249,8 @@ bool PasteDataRecord::Marshalling(Parcel &parcel) const
     return ret;
 }
 
-template<typename T> ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
+template<typename T>
+ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
@@ -451,6 +460,8 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && Skip(head.len, buffer.size());
                 break;
         }
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
+            head.tag, head.len, ret);
         if (!ret) {
             return false;
         }
@@ -469,6 +480,46 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
     expectedSize += TLVObject::Count(customData_);
     return expectedSize;
+}
+bool PasteDataRecord::WriteFd(MessageParcel &parcel, bool isClient)
+{
+    if (uri_ == nullptr) {
+        return true;
+    }
+    if (isClient) {
+        uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
+    }
+    if (uriHandler_ == nullptr) {
+        return false;
+    }
+    auto fd = uriHandler_->ToFd();
+    return parcel.WriteFileDescriptor(fd);
+}
+bool PasteDataRecord::ReadFd(MessageParcel &parcel, bool isClient)
+{
+    auto fd = parcel.ReadFileDescriptor();
+    if (isClient) {
+        uriHandler_ = std::make_shared<ClientUriHandler>(fd);
+    } else {
+        uriHandler_ = std::make_shared<ServerUriHandler>(fd);
+    }
+    uriHandler_->ToUri();
+    return true;
+}
+bool PasteDataRecord::NeedFd(bool isClient)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+    if (uri_ == nullptr) {
+        return false;
+    }
+    if (isClient) {
+        uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
+    }
+    if (uriHandler_ == nullptr || !uriHandler_->IsFile()) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid file uri");
+        return false;
+    }
+    return true;
 }
 } // namespace MiscServices
 } // namespace OHOS

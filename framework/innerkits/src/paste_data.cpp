@@ -18,9 +18,9 @@
 
 #include <new>
 
+#include "parcel_util.h"
 #include "paste_data_record.h"
 #include "pasteboard_hilog_wreapper.h"
-#include "parcel_util.h"
 #include "type_traits"
 
 using namespace std::chrono;
@@ -271,9 +271,9 @@ void PasteData::RefreshMimeProp()
 bool PasteData::MarshallingProps(Parcel &parcel) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props_.shareOption);
-    return parcel.WriteParcelable(&props_.additions) && parcel.WriteStringVector(props_.mimeTypes)
-           && parcel.WriteString(props_.tag) && parcel.WriteInt64(props_.timestamp)
-           && parcel.WriteInt32(static_cast<int32_t>(props_.shareOption));
+    return parcel.WriteParcelable(&props_.additions) && parcel.WriteStringVector(props_.mimeTypes) &&
+           parcel.WriteString(props_.tag) && parcel.WriteInt64(props_.timestamp) &&
+           parcel.WriteInt32(static_cast<int32_t>(props_.shareOption));
 }
 
 bool PasteData::UnMarshalling(Parcel &parcel, PasteDataProperty &props)
@@ -376,7 +376,7 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
     Init(buffer);
 
-    bool ret = Write(buffer, TAG_PROPS, (TLVObject &)props_);
+    bool ret = Write(buffer, TAG_PROPS, props_);
     ret = Write(buffer, TAG_RECORDS, records_) && ret;
     return ret;
 }
@@ -389,7 +389,7 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
         bool ret = ReadHead(buffer, head);
         switch (head.tag) {
             case TAG_PROPS:
-                ret = ret && ReadValue(buffer, (TLVObject &)props_, head);
+                ret = ret && ReadValue(buffer, props_, head);
                 break;
             case TAG_RECORDS: {
                 ret = ret && ReadValue(buffer, records_, head);
@@ -399,6 +399,8 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && Skip(head.len, buffer.size());
                 break;
         }
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
+            head.tag, head.len, ret);
         if (!ret) {
             return false;
         }
@@ -472,6 +474,45 @@ size_t PasteDataProperty::Count()
     expectedSize += TLVObject::Count(shareOption);
     expectedSize += TLVObject::Count(appId);
     return expectedSize;
+}
+
+bool PasteData::WriteUriFd(MessageParcel &parcel, bool isClient)
+{
+    std::vector<uint32_t> fdRecordMap;
+    for (size_t i = 0; i < GetRecordCount(); ++i) {
+        auto record = GetRecordAt(i);
+        if (record != nullptr && record->NeedFd(isClient)) {
+            fdRecordMap.push_back(i);
+        }
+    }
+    if (!parcel.WriteUInt32Vector(fdRecordMap)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write fd index vector");
+        return false;
+    }
+    for (auto index : fdRecordMap) {
+        auto record = GetRecordAt(index);
+        if (record == nullptr || !record->WriteFd(parcel, isClient)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write fd");
+            return false;
+        }
+    }
+    return true;
+}
+bool PasteData::ReadUriFd(MessageParcel &parcel, bool isClient)
+{
+    std::vector<uint32_t> fdRecordMap;
+    if (!parcel.ReadUInt32Vector(&fdRecordMap)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read fd index vector");
+        return false;
+    }
+    for (auto index : fdRecordMap) {
+        auto record = GetRecordAt(index);
+        if (record == nullptr || !record->ReadFd(parcel, isClient)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read fd");
+            return false;
+        }
+    }
+    return true;
 }
 } // namespace MiscServices
 } // namespace OHOS

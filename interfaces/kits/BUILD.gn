@@ -18,6 +18,7 @@ ohos_shared_library("pasteboard_napi") {
   include_dirs = [
     "${pasteboard_innerkits_path}/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
+    "//foundation/distributeddatamgr/pasteboard/framework/uri",
     "${ability_runtime_napi_path}/inner/napi_common",
     "napi/include",
   ]

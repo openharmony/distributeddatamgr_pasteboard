@@ -18,12 +18,15 @@
 
 #include <memory>
 #include <string>
+
 #include "parcel.h"
 #include "pixel_map.h"
-#include "tlv_object.h"
 #include "string_ex.h"
+#include "tlv_object.h"
 #include "uri.h"
 #include "want.h"
+#include "uri_handler.h"
+#include "message_parcel.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -33,13 +36,9 @@ const std::string MIMETYPE_TEXT_HTML = "text/html";
 const std::string MIMETYPE_TEXT_PLAIN = "text/plain";
 const std::string MIMETYPE_TEXT_URI = "text/uri";
 const std::string MIMETYPE_TEXT_WANT = "text/want";
-}
+} // namespace
 
-enum ResultCode : int32_t {
-    OK = 0,
-    IPC_NO_DATA,
-    IPC_ERROR
-};
+enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
 
 class MineCustomData : public Parcelable, public TLVObject {
 public:
@@ -59,19 +58,17 @@ private:
 class PasteDataRecord : public Parcelable, public TLVObject {
 public:
     PasteDataRecord() = default;
-    PasteDataRecord(std::string mimeType,
-                    std::shared_ptr<std::string> htmlText,
-                    std::shared_ptr<OHOS::AAFwk::Want> want,
-                    std::shared_ptr<std::string> plainText,
-                    std::shared_ptr<OHOS::Uri> uri);
+    PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
+        std::shared_ptr<OHOS::AAFwk::Want> want, std::shared_ptr<std::string> plainText,
+        std::shared_ptr<OHOS::Uri> uri);
 
     static std::shared_ptr<PasteDataRecord> NewHtmlRecord(const std::string &htmlText);
     static std::shared_ptr<PasteDataRecord> NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
     static std::shared_ptr<PasteDataRecord> NewPlaintTextRecord(const std::string &text);
     static std::shared_ptr<PasteDataRecord> NewPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     static std::shared_ptr<PasteDataRecord> NewUriRecord(const OHOS::Uri &uri);
-    static std::shared_ptr<PasteDataRecord> NewKvRecord(
-        const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
+    static std::shared_ptr<PasteDataRecord> NewKvRecord(const std::string &mimeType,
+        const std::vector<uint8_t> &arrayBuffer);
 
     std::string GetMimeType() const;
     std::shared_ptr<std::string> GetHtmlText() const;
@@ -88,6 +85,9 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
+    bool WriteFd(MessageParcel &parcel, bool b);
+    bool ReadFd(MessageParcel &parcel, bool b);
+    bool NeedFd(bool b);
 
     class Builder {
     public:
@@ -100,6 +100,7 @@ public:
         Builder &SetCustomData(std::shared_ptr<MineCustomData> customData);
         Builder &SetMimeType(std::string mimeType);
         std::shared_ptr<PasteDataRecord> Build();
+
     private:
         std::shared_ptr<PasteDataRecord> record_ = nullptr;
     };
@@ -107,7 +108,8 @@ public:
 private:
     static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
     static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
-    template<typename T> static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
+    template<typename T>
+    static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
     static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
     inline static bool CheckResult(ResultCode resultCode)
     {
@@ -119,9 +121,10 @@ private:
     std::shared_ptr<OHOS::AAFwk::Want> want_;
     std::shared_ptr<std::string> plainText_;
     std::shared_ptr<OHOS::Uri> uri_;
+    std::shared_ptr<UriHandler> uriHandler_;
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_BOARD_RECORD_H

@@ -34,8 +34,8 @@ PasteboardServiceStub::PasteboardServiceStub()
     memberFuncMap_[static_cast<uint32_t>(DELETE_ALL_OBSERVER)] = &PasteboardServiceStub::OnRemoveAllChangedObserver;
 }
 
-int32_t PasteboardServiceStub::OnRemoteRequest(
-    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+int32_t PasteboardServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
+    MessageOption &option)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start##code = %{public}u", code);
     std::u16string myDescripter = PasteboardServiceStub::GetDescriptor();
@@ -46,8 +46,8 @@ int32_t PasteboardServiceStub::OnRemoteRequest(
     }
     pid_t p = IPCSkeleton::GetCallingPid();
     pid_t p1 = IPCSkeleton::GetCallingUid();
-    PASTEBOARD_HILOGI(
-        PASTEBOARD_MODULE_SERVICE, "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u", p, p1, code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u",
+        p, p1, code);
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;
@@ -90,6 +90,10 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write raw data");
         return ERR_INVALID_VALUE;
     }
+    if (!pasteData.WriteUriFd(reply, false)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
+        return ERR_INVALID_VALUE;
+    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
     return ERR_OK;
 }
@@ -120,6 +124,10 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
     bool ret = pasteData.Decode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
+        return ERR_INVALID_VALUE;
+    }
+    if (!pasteData.ReadUriFd(data, false)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
         return ERR_INVALID_VALUE;
     }
     SetPasteData(pasteData);

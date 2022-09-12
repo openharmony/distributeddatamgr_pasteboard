@@ -17,6 +17,7 @@
 
 #include "iremote_broker.h"
 #include "pasteboard_common.h"
+#include "pasteboard_hilog_wreapper.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -147,6 +148,11 @@ void PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw data");
         return;
     }
+    if (!pasteData.WriteUriFd(data, true)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
+        return;
+    }
+
     int32_t result = Remote()->SendRequest(SET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
@@ -184,6 +190,11 @@ bool PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
         return false;
     }
+    if (!pasteData.ReadUriFd(reply, true)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
+        return false;
+    }
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return true;
 }
