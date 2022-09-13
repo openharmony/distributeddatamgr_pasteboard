@@ -27,7 +27,6 @@
 #include <sys/time.h>
 #include <thread>
 
-#include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
 #include "event_handler.h"
 #include "i_pasteboard_observer.h"
