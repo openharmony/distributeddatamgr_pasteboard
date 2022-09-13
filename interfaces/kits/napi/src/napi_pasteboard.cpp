@@ -725,7 +725,7 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
         auto success = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData End");
-        context->errCode = E_SUCCESS;
+        context->errCode = success ? E_SUCCESS : E_ERROR;
     };
     // 0: the AsyncCall at the first position;
     AsyncCall asyncCall(env, info, std::make_shared<AsyncCall::Context>(std::move(input), std::move(output)), 0);

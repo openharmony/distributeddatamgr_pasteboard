@@ -441,7 +441,7 @@ bool PasteboardService::IsCopyable(uint32_t tokenId) const
 #ifdef WITH_DLP
     bool copyable = false;
     auto ret = Security::DlpPermission::DlpPermissionKit::QueryDlpFileCopyableByTokenId(copyable, tokenId);
-    if (dlpRet != 0 || !copyable) {
+    if (ret != 0 || !copyable) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "tokenId = 0x%{public}x ret = %{public}d, copyable = %{public}d.",
             tokenId, ret, copyable);
         return false;
