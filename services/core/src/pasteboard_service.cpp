@@ -672,7 +672,7 @@ void PasteboardService::GetPasteDataDot(uint32_t tokenId)
 {
     AppInfo appInfo;
     bool success = GetAppInfoByTokenId(tokenId, appInfo);
-    if (success) {
+    if (!success) {
         appInfo.bundleName = "com.pasteboard.default";
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetBundleName from access token failed");
     }
