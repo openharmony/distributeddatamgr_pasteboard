@@ -19,8 +19,9 @@
 #include <unistd.h>
 
 #include "pasteboard_hilog_wreapper.h"
+#include "tlv_object.h"
 namespace OHOS::MiscServices {
-class UriHandler {
+class UriHandler : public TLVObject {
 public:
     explicit UriHandler(int32_t fd) : fd_(fd)
     {

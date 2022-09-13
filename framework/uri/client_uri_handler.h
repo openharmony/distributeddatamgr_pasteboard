@@ -22,6 +22,9 @@ public:
     explicit ClientUriHandler(const std::string &uri);
     std::string ToUri() override;
     int32_t ToFd() override;
+    bool Encode(std::vector<std::uint8_t> &buffer) override;
+    bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    size_t Count() override;
 };
 } // namespace OHOS::MiscServices
 #endif //DISTRIBUTEDDATAMGR_PASTEBOARD_CLIENT_URI_HANDLER_H

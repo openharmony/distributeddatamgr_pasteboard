@@ -43,6 +43,7 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_URI,
     TAG_PIXELMAP,
     TAG_CUSTOM_DATA,
+    TAG_URI_HANDLER,
 };
 
 enum TAG_CUSTOMDATA : uint16_t {
@@ -415,6 +416,7 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_WANT, ParcelUtil::Parcelable2Raw(want_.get())) && ret;
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
     ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
+    ret = Write(buffer, TAG_URI_HANDLER, uriHandler_) && ret;
     ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
     ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
     return ret;
@@ -447,6 +449,10 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 uri_ = std::shared_ptr<OHOS::Uri>(ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem));
                 break;
             }
+            case TAG_URI_HANDLER: {
+                ret = ret && ReadValue(buffer, uriHandler_, head);
+                break;
+            }
             case TAG_PIXELMAP: {
                 RawMem rawMem{};
                 ret = ret && ReadValue(buffer, rawMem, head);
@@ -460,7 +466,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && Skip(head.len, buffer.size());
                 break;
         }
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
             head.tag, head.len, ret);
         if (!ret) {
             return false;
@@ -483,10 +489,10 @@ size_t PasteDataRecord::Count()
 }
 bool PasteDataRecord::WriteFd(MessageParcel &parcel, bool isClient)
 {
-    if (uri_ == nullptr) {
-        return true;
-    }
     if (isClient) {
+        if (uri_ == nullptr) {
+            return false;
+        }
         uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
     }
     if (uriHandler_ == nullptr) {
@@ -509,10 +515,10 @@ bool PasteDataRecord::ReadFd(MessageParcel &parcel, bool isClient)
 bool PasteDataRecord::NeedFd(bool isClient)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
-    if (uri_ == nullptr) {
-        return false;
-    }
     if (isClient) {
+        if (uri_ == nullptr) {
+            return false;
+        }
         uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
     }
     if (uriHandler_ == nullptr || !uriHandler_->IsFile()) {

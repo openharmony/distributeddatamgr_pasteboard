@@ -52,4 +52,16 @@ int32_t OHOS::MiscServices::ClientUriHandler::ToFd()
     }
     return fd_;
 }
+bool ClientUriHandler::Encode(std::vector<std::uint8_t> &buffer)
+{
+    return true;
+}
+bool ClientUriHandler::Decode(const std::vector<std::uint8_t> &buffer)
+{
+    return true;
+}
+size_t ClientUriHandler::Count()
+{
+    return 0;
+}
 } // namespace OHOS::MiscServices

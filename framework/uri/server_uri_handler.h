@@ -22,6 +22,14 @@ public:
     explicit ServerUriHandler(const std::string &uri);
     std::string ToUri() override;
     int32_t ToFd() override;
+    bool Encode(std::vector<std::uint8_t> &buffer) override;
+    bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    size_t Count() override;
+
+private:
+    enum TAG_URIHANDLER : uint16_t {
+        TAG_URI = TAG_BUFF + 1
+    };
 };
 } // namespace OHOS::MiscServices
 #endif //DISTRIBUTEDDATAMGR_PASTEBOARD_SERVER_URI_HANDLER_H

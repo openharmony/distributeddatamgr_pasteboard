@@ -22,7 +22,7 @@
 #include "pasteboard_hilog_wreapper.h"
 #include "remote_file_share.h"
 namespace OHOS::MiscServices {
-using namespace AppFileService::ModuleRemoteFileShare;
+using namespace OHOS::AppFileService::ModuleRemoteFileShare;
 ServerUriHandler::ServerUriHandler(int32_t fd) : UriHandler(fd)
 {
 }
@@ -37,8 +37,7 @@ std::string ServerUriHandler::ToUri()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
         return uri_;
     }
-    RemoteFileShare remoteFileShare;
-    ret = remoteFileShare.CreateSharePath(fd_, uri_, ids[0]);
+    ret = RemoteFileShare::CreateSharePath(fd_, uri_, ids[0]);
     if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " create share path failed, %{public}d ", ret);
         return uri_;
@@ -58,5 +57,34 @@ int32_t OHOS::MiscServices::ServerUriHandler::ToFd()
             uri_.c_str());
     }
     return fd_;
+}
+bool ServerUriHandler::Encode(std::vector<std::uint8_t> &buffer)
+{
+    return Write(buffer, TAG_URI, uri_);
+}
+bool ServerUriHandler::Decode(const std::vector<std::uint8_t> &buffer)
+{
+    for (; IsEnough();) {
+        TLVHead head{};
+        bool ret = ReadHead(buffer, head);
+        switch (head.tag) {
+            case TAG_URI:
+                ret = ret && ReadValue(buffer, uri_, head);
+                break;
+            default:
+                ret = ret && Skip(head.len, buffer.size());
+                break;
+        }
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
+                          head.tag, head.len, ret);
+        if (!ret) {
+            return false;
+        }
+    }
+    return true;
+}
+size_t ServerUriHandler::Count()
+{
+    return TLVObject::Count(uri_);
 }
 } // namespace OHOS::MiscServices
