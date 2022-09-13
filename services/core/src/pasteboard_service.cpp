@@ -19,12 +19,13 @@
 #include "accesstoken_kit.h"
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
+#include "common/block_object.h"
 #include "dev_manager.h"
 #include "dev_profile.h"
+#include "device/dm_adapter.h"
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "distributed_module_config.h"
-#include "device/dm_adapter.h"
 #include "hiview_adapter.h"
 #include "input_method_controller.h"
 #include "iservice_registry.h"
@@ -33,6 +34,8 @@
 #include "os_account_manager.h"
 #include "para_handle.h"
 #include "pasteboard_common.h"
+#include "pasteboard_dialog.h"
+#include "pasteboard_errcode.h"
 #include "pasteboard_trace.h"
 #include "reporter.h"
 #include "system_ability_definition.h"
@@ -53,26 +56,27 @@ const std::int32_t ERROR_USERID = -1;
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
 using namespace Security::AccessToken;
-
-std::vector<std::shared_ptr<std::string>> PasteboardService::dataHistory_;
+std::mutex PasteboardService::historyMutex_;
+std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
 int32_t PasteboardService::focusAppUid_ = 0;
 
 PasteboardService::PasteboardService()
-    : SystemAbility(PASTEBOARD_SERVICE_ID, true),
-      state_(ServiceRunningState::STATE_NOT_START)
+    : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
 }
 
-PasteboardService::~PasteboardService() {}
+PasteboardService::~PasteboardService()
+{
+}
 
 int32_t PasteboardService::Init()
 {
     if (!Publish(this)) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStart register to system ability manager failed.");
-        auto userId = GetUserId();
+        auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
         Reporter::GetInstance().InitializationFault().Report({ userId, "ERR_INVALID_OPTION" });
         return ERR_INVALID_OPTION;
     }
@@ -123,7 +127,7 @@ void PasteboardService::OnStart()
 
     copyData = std::make_shared<Command>(std::vector<std::string>{ "--data" }, "Show copy data details.",
         [this](const std::vector<std::string> &input, std::string &output) -> bool {
-            output = DunmpData();
+            output = DumpData();
             return true;
         });
 
@@ -179,7 +183,7 @@ void PasteboardService::InitStorage()
 void PasteboardService::Clear()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto userId = GetUserId();
+    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
     if (userId == ERROR_USERID) {
         return;
     }
@@ -224,11 +228,9 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
     return isFocusApp;
 }
 
-bool PasteboardService::HasPastePermission(const std::string &appId, ShareOption shareOption)
+bool PasteboardService::HasPastePermission(uint32_t tokenId, const std::string &appId, ShareOption shareOption)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d.", static_cast<uint32_t>(shareOption));
-
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
     AppInfo appInfo;
     auto ret = GetAppInfoByTokenId(tokenId, appInfo);
     if (!ret) {
@@ -302,14 +304,53 @@ bool PasteboardService::GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo)
     return true;
 }
 
-bool PasteboardService::GetPasteData(PasteData& data)
+bool PasteboardService::GetPasteData(PasteData &data)
 {
-    PasteboardTrace tracer("PasteboardService, GetPasteData");
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto userId = GetUserId();
+    if (pasting_.exchange(true)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is passing.");
+        return false;
+    }
 
-    GetPasteDataDot();
+    PasteboardTrace tracer("PasteboardService GetPasteData");
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto block =  std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
+    std::thread thread([this, block, tokenId]() mutable {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
+        std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+        auto success = GetPasteData(*pasteData, tokenId);
+        sleep(11);
+        if (!success) {
+            pasteData->SetInvalid();
+        }
+        block->SetValue(pasteData);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData End");
+    });
+    thread.detach();
+    auto value = block->GetValue();
+    if (value == nullptr) {
+        PasteBoardDialog::MessageInfo message;
+        auto id = PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
+        block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
+        PasteBoardDialog::GetInstance().CancelDialog(id);
+        value = block->GetValue();
+    }
+    bool result = false;
+    if (value != nullptr) {
+        result = value->IsValid();
+        data = std::move(*value);
+    }
+    pasting_.store(false);
+    return result;
+}
 
+bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId)
+{
+    PasteboardTrace tracer("GetPasteData inner");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
+
+    GetPasteDataDot(tokenId);
+
+    auto userId = GetUserIdByToken(tokenId);
     if (userId == ERROR_USERID) {
         return false;
     }
@@ -325,7 +366,7 @@ bool PasteboardService::GetPasteData(PasteData& data)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
         return false;
     }
-    auto ret = HasPastePermission(it->second->GetAppId(), it->second->GetShareOption());
+    auto ret = HasPastePermission(tokenId, it->second->GetAppId(), it->second->GetShareOption());
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "HasPastePermission failed.");
         return false;
@@ -337,7 +378,8 @@ bool PasteboardService::GetPasteData(PasteData& data)
 bool PasteboardService::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto userId = GetUserId();
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto userId = GetUserIdByToken(tokenId);
     if (userId == ERROR_USERID) {
         return false;
     }
@@ -346,31 +388,24 @@ bool PasteboardService::HasPasteData()
     if (it == clips_.end()) {
         return HasDistributedData(userId);
     }
-    return HasPastePermission(it->second->GetAppId(), it->second->GetShareOption());
+    return HasPastePermission(tokenId, it->second->GetAppId(), it->second->GetShareOption());
 }
 
-void PasteboardService::SetPasteData(PasteData& pasteData)
+void PasteboardService::SetPasteData(PasteData &pasteData)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-#ifdef WITH_DLP
-    auto callingToken = IPCSkeleton::GetCallingTokenID();
-    bool copyable = false;
-    auto dlpRet = Security::DlpPermission::DlpPermissionKit::QueryDlpFileCopyableByTokenId(copyable, callingToken);
-    if (dlpRet != 0 || !copyable) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "dlpRet = %{public}d, copyable = %{public}d.", dlpRet, copyable);
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!IsCopyable(tokenId)) {
         return;
     }
-#endif
-    auto userId = GetUserId();
 
-    SetPasteDataDot(pasteData);
-
+    SetPasteDataDot(pasteData, tokenId);
+    auto userId = GetUserIdByToken(tokenId);
     if (userId == ERROR_USERID) {
         return;
     }
 
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
     AppInfo appInfo;
     auto ret = GetAppInfoByTokenId(tokenId, appInfo);
     if (!ret) {
@@ -391,28 +426,42 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
 }
 
-int32_t PasteboardService::GetUserId()
+int32_t PasteboardService::GetUserIdByToken(uint32_t tokenId)
 {
-    int32_t userId = ERROR_USERID;
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    auto result = AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
-        "Get UserId, uid = %{public}d, userId = %{public}d, result = %{public}d.", uid, userId, result);
-    return userId;
+    HapTokenInfo info;
+    info.userID = ERROR_USERID;
+    auto result = AccessTokenKit::GetHapTokenInfo(tokenId, info);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "tokenId = 0x%{public}x, userId = %{public}d, result = %{public}d.",
+        tokenId, info.userID, result);
+    return info.userID;
 }
 
-void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
+bool PasteboardService::IsCopyable(uint32_t tokenId) const
+{
+#ifdef WITH_DLP
+    bool copyable = false;
+    auto ret = Security::DlpPermission::DlpPermissionKit::QueryDlpFileCopyableByTokenId(copyable, tokenId);
+    if (dlpRet != 0 || !copyable) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "tokenId = 0x%{public}x ret = %{public}d, copyable = %{public}d.",
+            tokenId, ret, copyable);
+        return false;
+    }
+#endif
+    return true;
+}
+
+void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "nullptr.");
         return;
     }
-    std::lock_guard<std::mutex> lock(observerMutex_);
-    auto userId = GetUserId();
+    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
     if (userId == ERROR_USERID) {
         return;
     }
+    std::lock_guard<std::mutex> lock(observerMutex_);
     auto it = observerMap_.find(userId);
     std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>> observers;
     if (it != observerMap_.end()) {
@@ -422,18 +471,16 @@ void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChang
         observerMap_.insert(std::make_pair(userId, observers));
     }
     observers->insert(observer);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
-        " observer = %{public}p, observers->size = %{public}d,",
-        observer.GetRefPtr(),
-        static_cast<unsigned int>(observerMap_.size()));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, " observer = %{public}p, observers->size = %{public}d,",
+        observer.GetRefPtr(), static_cast<unsigned int>(observerMap_.size()));
 }
-void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer)
+void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     if (observer == nullptr) {
         return;
     }
-    auto userId = GetUserId();
+    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
     if (userId == ERROR_USERID) {
         return;
     }
@@ -449,15 +496,13 @@ void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardCh
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         " callback = %{public}p, listeners.size = %{public}d,"
         " eraseNum = %{public}zu",
-        observer.GetRefPtr(),
-        static_cast<unsigned int>(observers->size()),
-        eraseNum);
+        observer.GetRefPtr(), static_cast<unsigned int>(observers->size()), eraseNum);
 }
 
 void PasteboardService::RemoveAllChangedObserver()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto userId = GetUserId();
+    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
     if (userId == ERROR_USERID) {
         return;
     }
@@ -482,7 +527,7 @@ void PasteboardService::NotifyObservers()
     }
 }
 
-size_t PasteboardService::GetDataSize(PasteData& data) const
+size_t PasteboardService::GetDataSize(PasteData &data) const
 {
     if (data.GetRecordCount() != 0) {
         size_t counts = data.GetRecordCount() - 1;
@@ -494,37 +539,15 @@ size_t PasteboardService::GetDataSize(PasteData& data) const
     return GET_WRONG_SIZE;
 }
 
-bool PasteboardService::GetBundleNameByUid(int32_t uid, std::string &bundleName)
-{
-    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
-        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    OHOS::sptr<OHOS::IRemoteObject> remoteObject =
-        systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-
-    sptr<AppExecFwk::IBundleMgr> iBundleMgr = OHOS::iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-    if (iBundleMgr == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, " permission check failed, cannot get IBundleMgr.");
-        return false;
-    }
-    return iBundleMgr->GetBundleNameForUid(uid, bundleName);
-}
-
-bool PasteboardService::SetPasteboardHistory(int32_t uid, std::string state, std::string timeStamp)
+bool PasteboardService::SetPasteboardHistory(const std::string &bundleName, std::string state, std::string timeStamp)
 {
     constexpr const size_t DATA_HISTORY_SIZE = 10;
-    std::string bundleName;
-    if (GetBundleNameByUid(uid, bundleName)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
-    } else {
-        bundleName = "com.pasteboard.default";
-    }
-
-    std::string bundleNameState = timeStamp + "  " + bundleName + "    " + state;
-    std::shared_ptr<std::string> pBundleNameState = std::make_shared<std::string>(bundleNameState);
+    std::string history = std::move(timeStamp) + "  " + bundleName + "    " + std::move(state);
+    std::lock_guard<decltype(historyMutex_)> lg(historyMutex_);
     if (dataHistory_.size() == DATA_HISTORY_SIZE) {
         dataHistory_.erase(dataHistory_.begin());
     }
-    dataHistory_.push_back(pBundleNameState);
+    dataHistory_.push_back(std::move(history));
     return true;
 }
 
@@ -560,25 +583,21 @@ std::string PasteboardService::GetTime()
     struct timeval timeVal = { 0, 0 };
     gettimeofday(&timeVal, nullptr);
 
-    std::string targetTime = std::to_string(nowTime.tm_year + 1900) + "-"
-                             + std::to_string(nowTime.tm_mon + 1) + "-"
-                             + std::to_string(nowTime.tm_mday) + " "
-                             + std::to_string(nowTime.tm_hour) + ":"
-                             + std::to_string(nowTime.tm_min) + ":"
-                             + std::to_string(nowTime.tm_sec) + "."
-                             + std::to_string(timeVal.tv_usec / USEC_TO_MSEC);
+    std::string targetTime = std::to_string(nowTime.tm_year + 1900) + "-" + std::to_string(nowTime.tm_mon + 1) + "-" +
+                             std::to_string(nowTime.tm_mday) + " " + std::to_string(nowTime.tm_hour) + ":" +
+                             std::to_string(nowTime.tm_min) + ":" + std::to_string(nowTime.tm_sec) + "." +
+                             std::to_string(timeVal.tv_usec / USEC_TO_MSEC);
     return targetTime;
 }
 
 std::string PasteboardService::DumpHistory() const
 {
     std::string result;
+    std::lock_guard<decltype(historyMutex_)> lg(historyMutex_);
     if (!dataHistory_.empty()) {
-    result.append("Access history last ten times: ").append("\n");
-    for (auto iter = dataHistory_.rbegin(); iter != dataHistory_.rend(); ++iter) {
-        result.append("          ")
-            .append(**iter)
-            .append("\n");
+        result.append("Access history last ten times: ").append("\n");
+        for (auto iter = dataHistory_.rbegin(); iter != dataHistory_.rend(); ++iter) {
+            result.append("          ").append(*iter).append("\n");
         }
     } else {
         result.append("Access history fail! dataHistory_ no data.").append("\n");
@@ -586,29 +605,33 @@ std::string PasteboardService::DumpHistory() const
     return result;
 }
 
-std::string PasteboardService::DunmpData()
+std::string PasteboardService::DumpData()
 {
     std::string result;
     std::vector<std::string> mimeTypes;
-    std::string bundleName;
+    AppInfo info;
     if (!clips_.empty()) {
         size_t recordCounts = clips_.rbegin()->second->GetRecordCount();
         mimeTypes = clips_.rbegin()->second->GetMimeTypes();
-        if (GetBundleNameByUid(uIdForLastCopy_, bundleName)) {
+        if (GetAppInfoByTokenId(lastCopyApp_, info)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
         } else {
-            bundleName = "com.pasteboard.default";
+            info.bundleName = "com.pasteboard.default";
         }
 
         result.append("|Owner       :  ")
-         .append(bundleName).append("\n")
-         .append("|Timestamp   :  ")
-         .append(timeForLastCopy_).append("\n")
-         .append("|Share Option: ")
-         .append(" CrossDevice").append("\n")
-         .append("|Record Count:  ")
-         .append(std::to_string(recordCounts)).append("\n")
-         .append("|Mime types  :  {");
+            .append(info.bundleName)
+            .append("\n")
+            .append("|Timestamp   :  ")
+            .append(timeForLastCopy_)
+            .append("\n")
+            .append("|Share Option: ")
+            .append(" CrossDevice")
+            .append("\n")
+            .append("|Record Count:  ")
+            .append(std::to_string(recordCounts))
+            .append("\n")
+            .append("|Mime types  :  {");
         if (!mimeTypes.empty()) {
             for (size_t i = 0; i < mimeTypes.size(); ++i) {
                 result.append(mimeTypes[i]).append(",");
@@ -621,23 +644,22 @@ std::string PasteboardService::DunmpData()
     return result;
 }
 
-void PasteboardService::SetPasteDataDot(PasteData& pasteData)
+void PasteboardService::SetPasteDataDot(PasteData &pasteData, uint32_t tokenId)
 {
-    int32_t uId = IPCSkeleton::GetCallingUid();
-    uIdForLastCopy_ = uId;
+    lastCopyApp_ = tokenId;
     std::string time = GetTime();
     timeForLastCopy_ = time;
-    SetPasteboardHistory(uId, "Set", time);
-    std::string bundleName;
-    if (GetBundleNameByUid(uId, bundleName)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
-    } else {
-        bundleName = "com.pasteboard.default";
+    AppInfo info;
+    auto success = GetAppInfoByTokenId(tokenId, info);
+    if (!success) {
+        info.bundleName = "com.pasteboard.default";
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "default bundleName!");
     }
+    SetPasteboardHistory(info.bundleName, "Set", std::move(time));
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData Report!");
     Reporter::GetInstance().PasteboardBehaviour().Report(
-        { static_cast<int>(BehaviourPasteboardState::BPS_COPY_STATE), bundleName });
+        { static_cast<int>(BehaviourPasteboardState::BPS_COPY_STATE), info.bundleName });
 
     int state = static_cast<int>(StatisticPasteboardState::SPS_COPY_STATE);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData GetDataSize!");
@@ -646,21 +668,20 @@ void PasteboardService::SetPasteDataDot(PasteData& pasteData)
     CalculateTimeConsuming timeC(dataSize, state);
 }
 
-void PasteboardService::GetPasteDataDot()
+void PasteboardService::GetPasteDataDot(uint32_t tokenId)
 {
-    int32_t uId = IPCSkeleton::GetCallingUid();
-    std::string bundleName;
-    std::string time = GetTime();
-    SetPasteboardHistory(uId, "Get", time);
-    if (GetBundleNameByUid(uId, bundleName)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get bundleName success!");
-    } else {
-        bundleName = "com.pasteboard.default";
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "defaulit bundlename");
+    AppInfo appInfo;
+    bool success = GetAppInfoByTokenId(tokenId, appInfo);
+    if (success) {
+        appInfo.bundleName = "com.pasteboard.default";
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetBundleName from access token failed");
     }
+
+    SetPasteboardHistory(appInfo.bundleName, "Get", GetTime());
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     Reporter::GetInstance().PasteboardBehaviour().Report(
-        { static_cast<int>(BehaviourPasteboardState::BPS_PASTE_STATE), bundleName });
+        { static_cast<int>(BehaviourPasteboardState::BPS_PASTE_STATE), appInfo.bundleName });
 
     if (!clips_.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData GetDataSize");

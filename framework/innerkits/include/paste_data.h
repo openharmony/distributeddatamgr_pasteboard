@@ -87,12 +87,15 @@ public:
     bool WriteUriFd(MessageParcel &parcel, bool isClient);
     bool ReadUriFd(MessageParcel &parcel, bool isClient);
 
+    bool IsValid() const;
+    void SetInvalid();
 private:
     bool MarshallingProps(Parcel &parcel) const;
     static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);
     void RefreshMimeProp();
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
+    bool valid_ = true;
 };
 } // namespace MiscServices
 } // namespace OHOS

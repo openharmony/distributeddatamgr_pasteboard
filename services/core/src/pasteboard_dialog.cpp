@@ -13,21 +13,20 @@
  * limitations under the License.
  */
 
-#include "paste_board_dialog.h"
+#include "pasteboard_dialog.h"
 
 #include "display_manager.h"
-#include "napi_errcode.h"
+#include "pasteboard_errcode.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "ui_service_mgr_client.h"
-namespace OHOS::MiscServicesNapi {
-using namespace OHOS::MiscServices;
+namespace OHOS::MiscServices {
 PasteBoardDialog &PasteBoardDialog::GetInstance()
 {
     static PasteBoardDialog instance;
     return instance;
 }
 
-int32_t PasteBoardDialog::ShowDialog(std::shared_ptr<BlockObject<uint32_t>> block, const MessageInfo &message)
+int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &cancel)
 {
     int32_t id = -1;
     auto rect = GetDisplayRect();
@@ -39,10 +38,10 @@ int32_t PasteBoardDialog::ShowDialog(std::shared_ptr<BlockObject<uint32_t>> bloc
         params,
         OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
         rect.x, rect.y, rect.width, rect.height,
-        [block](int32_t id, const std::string &event, const std::string &params) {
+        [cancel](int32_t id, const std::string &event, const std::string &params) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Event:%{public}s arrived.", event.c_str());
-            if (event == std::string("EVENT_CANCEL")) {
-                block->SetValue(E_CANCELED);
+            if (event == std::string("EVENT_CANCEL") && cancel) {
+                cancel();
             }
         },
         &id);

@@ -414,6 +414,17 @@ size_t PasteData::Count()
     expectSize += TLVObject::Count(records_);
     return expectSize;
 }
+
+bool PasteData::IsValid() const
+{
+    return valid_;
+}
+
+void PasteData::SetInvalid()
+{
+    valid_ = false;
+}
+
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_ADDITIONS, ParcelUtil::Parcelable2Raw(&additions));

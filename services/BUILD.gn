@@ -32,8 +32,6 @@ config("pasteboard_service_config") {
     "//commonlibrary/c_utils/base/include",
     "//third_party/json/include",
     "//foundation/distributeddatamgr/pasteboard/utils/native/include",
-    "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr",
-    "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
   ]
 
@@ -54,6 +52,7 @@ ohos_shared_library("pasteboard_service") {
     "core/src/dev_profile.cpp",
     "core/src/distributed_module_config.cpp",
     "core/src/para_handle.cpp",
+    "core/src/pasteboard_dialog.cpp",
     "core/src/pasteboard_service.cpp",
     "dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
     "dfx/src/calculate_time_consuming.cpp",
@@ -74,7 +73,8 @@ ohos_shared_library("pasteboard_service") {
     ":pasteboard_service_config",
   ]
   deps = [
-    "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
+    "//foundation/arkui/ace_engine/interfaces/inner_api/ui_service_manager:ui_service_mgr",
+    "//foundation/distributeddatamgr/pasteboard/framework/dialog_ui/js:dialog_js_files_etc",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
