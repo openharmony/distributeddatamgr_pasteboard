@@ -49,6 +49,7 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
 
             if (event == std::string("EVENT_CANCEL") && cancel) {
                 cancel();
+                PasteBoardDialog::GetInstance().CancelDialog(id);
             }
         },
         &result);
