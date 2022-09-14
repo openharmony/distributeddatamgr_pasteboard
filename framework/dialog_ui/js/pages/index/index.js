@@ -25,6 +25,7 @@ export default {
         console.info('getParams: ' + JSON.stringify(router.getParams()));
     },
     onCancel(msg){
+        console.info('onCancel: ' + EVENT_CANCEL);
         callNativeHandler(EVENT_CANCEL, EVENT_VALUE);
         prompt.showToast({
             message: msg
