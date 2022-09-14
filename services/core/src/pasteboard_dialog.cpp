@@ -42,7 +42,7 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
         OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
         rect.x, rect.y, rect.width, rect.height,
         [cancel, realId](int32_t id, const std::string &event, const std::string &params) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Event:%{public}s arrived.", event.c_str());
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Id:%{public}d Event:%{public}s arrived.", id, event.c_str());
             if (event == std::string("EVENT_INIT") && realId) {
                 realId->SetValue(id);
             }
