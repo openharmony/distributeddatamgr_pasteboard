@@ -318,7 +318,6 @@ bool PasteboardService::GetPasteData(PasteData &data)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
         auto success = GetPasteData(*pasteData, tokenId);
-        sleep(11);
         if (!success) {
             pasteData->SetInvalid();
         }
