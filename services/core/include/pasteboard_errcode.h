@@ -15,8 +15,8 @@
 
 #ifndef PASTEBOARD_INTERFACES_KITS_NAPI_INCLUDE_NAPI_ERRCODE_H
 #define PASTEBOARD_INTERFACES_KITS_NAPI_INCLUDE_NAPI_ERRCODE_H
-namespace OHOS::MiscServicesNapi {
-enum ErrorCode {
+namespace OHOS::MiscServices {
+enum PasteBoardError {
     E_SUCCESS,
     E_ERROR,
     E_TIMEOUT,

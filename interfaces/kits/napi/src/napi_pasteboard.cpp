@@ -18,10 +18,9 @@
 #include "common/block_object.h"
 #include "napi_common.h"
 #include "pasteboard_common.h"
+#include "pasteboard_errcode.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "systempasteboard_napi.h"
-#include "napi_errcode.h"
-#include "paste_board_dialog.h"
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
 
@@ -723,24 +722,10 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
     };
 
     auto exec = [context](AsyncCall::Context *ctx) {
-        context->block = std::make_shared<BlockObject<uint32_t>>(PasteBoardDialog::POPUP_INTERVAL, E_TIMEOUT);
-        std::thread thread([context] {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
-            auto success = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
-            context->block->SetValue(success ? E_SUCCESS : E_ERROR);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData End");
-        });
-        thread.detach();
-        auto result = context->block->GetValue();
-        if (result != E_TIMEOUT) {
-            context->errCode = result;
-            return ;
-        }
-        PasteBoardDialog::MessageInfo messageInfo;
-        auto id = PasteBoardDialog::GetInstance().ShowDialog(context->block, messageInfo);
-        context->block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-        context->errCode = context->block->GetValue();
-        PasteBoardDialog::GetInstance().CancelDialog(id);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
+        auto success = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData End");
+        context->errCode = success ? E_SUCCESS : E_ERROR;
     };
     // 0: the AsyncCall at the first position;
     AsyncCall asyncCall(env, info, std::make_shared<AsyncCall::Context>(std::move(input), std::move(output)), 0);

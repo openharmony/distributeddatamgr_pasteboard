@@ -13,40 +13,47 @@
  * limitations under the License.
  */
 
-#include "paste_board_dialog.h"
+#include "pasteboard_dialog.h"
 
 #include "display_manager.h"
-#include "napi_errcode.h"
+#include "pasteboard_errcode.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "ui_service_mgr_client.h"
-namespace OHOS::MiscServicesNapi {
-using namespace OHOS::MiscServices;
+#include "common/block_object.h"
+namespace OHOS::MiscServices {
 PasteBoardDialog &PasteBoardDialog::GetInstance()
 {
     static PasteBoardDialog instance;
     return instance;
 }
 
-int32_t PasteBoardDialog::ShowDialog(std::shared_ptr<BlockObject<uint32_t>> block, const MessageInfo &message)
+int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &cancel)
 {
-    int32_t id = -1;
     auto rect = GetDisplayRect();
     std::string params =
         std::string("{\"appName\":\"") + message.appName + "\", \"deviceType\":\"" + message.deviceType + "\"}";
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasting_dialog message:%{public}s.", params.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pasting_dialog message:%{public}s.", params.c_str());
+
+    auto realId = std::make_shared<BlockObject<int32_t>>(-1, POPUP_INTERVAL);
+    int32_t result = -1;
     Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
         "pasting_dialog",
         params,
         OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
         rect.x, rect.y, rect.width, rect.height,
-        [block](int32_t id, const std::string &event, const std::string &params) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Event:%{public}s arrived.", event.c_str());
-            if (event == std::string("EVENT_CANCEL")) {
-                block->SetValue(E_CANCELED);
+        [cancel, realId](int32_t id, const std::string &event, const std::string &params) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Id:%{public}d Event:%{public}s arrived.", id, event.c_str());
+            if (event == std::string("EVENT_INIT") && realId) {
+                realId->SetValue(id);
+            }
+
+            if (event == std::string("EVENT_CANCEL") && cancel) {
+                cancel();
+                PasteBoardDialog::GetInstance().CancelDialog(id);
             }
         },
-        &id);
-    return id;
+        &result);
+    return realId->GetValue();
 }
 int32_t PasteBoardDialog::CancelDialog(int32_t id)
 {

@@ -27,7 +27,6 @@
 #include <sys/time.h>
 #include <thread>
 
-#include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
 #include "event_handler.h"
 #include "i_pasteboard_observer.h"
@@ -68,11 +67,8 @@ public:
     virtual void OnStart() override;
     virtual void OnStop() override;
     size_t GetDataSize(PasteData& data) const;
-    bool GetBundleNameByUid(int32_t uid, std::string &bundleName);
-    bool SetPasteboardHistory(int32_t uId, std::string state, std::string timeStamp);
+    bool SetPasteboardHistory(const std::string &bundleName, std::string state, std::string timeStamp);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
-    std::string DumpHistory() const;
-    std::string DunmpData();
 
     class PasteboardFocusChangedListener : public Rosen::IFocusChangedListener {
     public:
@@ -91,12 +87,16 @@ private:
         }
     };
     int32_t Init();
-    int32_t GetUserId();
+    int32_t GetUserIdByToken(uint32_t tokenId);
+    std::string DumpHistory() const;
+    std::string DumpData();
     void NotifyObservers();
     void InitServiceHandler();
     void InitStorage();
-    void SetPasteDataDot(PasteData& pasteData);
-    void GetPasteDataDot();
+    bool IsCopyable(uint32_t tokenId) const;
+    void SetPasteDataDot(PasteData& pasteData, uint32_t tokenId);
+    void GetPasteDataDot(uint32_t tokenId);
+    bool GetPasteData(PasteData& data, uint32_t tokenId);
 
     std::shared_ptr<PasteData> GetDistributedData(int32_t user);
     bool SetDistributedData(int32_t user, PasteData& data);
@@ -107,7 +107,7 @@ private:
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
     std::string GetTime();
-    static bool HasPastePermission(const std::string &appId, ShareOption shareOption);
+    static bool HasPastePermission(uint32_t tokenId, const std::string &appId, ShareOption shareOption);
     static bool GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo);
     static bool IsFocusOrDefaultIme(const AppInfo &appInfo);
     ServiceRunningState state_;
@@ -125,11 +125,13 @@ private:
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint32_t> sequenceId_ = 0;
     static int32_t focusAppUid_;
-    int32_t uIdForLastCopy_ = 0;
+    uint32_t lastCopyApp_ = 0;
     std::string timeForLastCopy_;
-    static std::vector<std::shared_ptr<std::string>> dataHistory_;
+    static std::mutex historyMutex_;
+    static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
+    std::atomic<bool> pasting_ = false;
 };
 } // MiscServices
 } // OHOS
