@@ -15,6 +15,7 @@
 import prompt from '@system.prompt';
 import router from '@ohos.router';
 var EVENT_CANCEL = "EVENT_CANCEL";
+var EVENT_INIT = "EVENT_INIT";
 var EVENT_VALUE = "value";
 export default {
     data: {
@@ -23,6 +24,7 @@ export default {
     },
     onInit() {
         console.info('getParams: ' + JSON.stringify(router.getParams()));
+        callNativeHandler(EVENT_INIT, EVENT_VALUE);
     },
     onCancel(msg){
         console.info('onCancel: ' + EVENT_CANCEL);

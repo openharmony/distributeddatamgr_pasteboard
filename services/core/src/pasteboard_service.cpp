@@ -318,6 +318,7 @@ bool PasteboardService::GetPasteData(PasteData &data)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
         auto success = GetPasteData(*pasteData, tokenId);
+        sleep(11);
         if (!success) {
             pasteData->SetInvalid();
         }
@@ -330,8 +331,8 @@ bool PasteboardService::GetPasteData(PasteData &data)
         PasteBoardDialog::MessageInfo message;
         auto id = PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
         block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-        PasteBoardDialog::GetInstance().CancelDialog(id);
         value = block->GetValue();
+        PasteBoardDialog::GetInstance().CancelDialog(id);
     }
     bool result = false;
     if (value != nullptr) {

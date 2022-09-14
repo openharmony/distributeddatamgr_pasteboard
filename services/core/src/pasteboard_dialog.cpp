@@ -19,6 +19,7 @@
 #include "pasteboard_errcode.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "ui_service_mgr_client.h"
+#include "common/block_object.h"
 namespace OHOS::MiscServices {
 PasteBoardDialog &PasteBoardDialog::GetInstance()
 {
@@ -28,24 +29,30 @@ PasteBoardDialog &PasteBoardDialog::GetInstance()
 
 int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &cancel)
 {
-    int32_t id = -1;
     auto rect = GetDisplayRect();
     std::string params =
         std::string("{\"appName\":\"") + message.appName + "\", \"deviceType\":\"" + message.deviceType + "\"}";
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasting_dialog message:%{public}s.", params.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pasting_dialog message:%{public}s.", params.c_str());
+
+    auto realId = std::make_shared<BlockObject<int32_t>>(-1, POPUP_INTERVAL);
+    int32_t result = -1;
     Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
         "pasting_dialog",
         params,
         OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
         rect.x, rect.y, rect.width, rect.height,
-        [cancel](int32_t id, const std::string &event, const std::string &params) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Event:%{public}s arrived.", event.c_str());
+        [cancel, realId](int32_t id, const std::string &event, const std::string &params) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Event:%{public}s arrived.", event.c_str());
+            if (event == std::string("EVENT_INIT") && realId) {
+                realId->SetValue(id);
+            }
+
             if (event == std::string("EVENT_CANCEL") && cancel) {
                 cancel();
             }
         },
-        &id);
-    return id;
+        &result);
+    return realId->GetValue();
 }
 int32_t PasteBoardDialog::CancelDialog(int32_t id)
 {
