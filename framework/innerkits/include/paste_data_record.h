@@ -85,9 +85,9 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteFd(MessageParcel &parcel, bool b);
-    bool ReadFd(MessageParcel &parcel, bool b);
-    bool NeedFd(bool b);
+    bool WriteFd(MessageParcel &parcel, UriHandler &uriHandler);
+    bool ReadFd(MessageParcel &parcel, UriHandler &uriHandler);
+    bool NeedFd();
 
     class Builder {
     public:
@@ -121,9 +121,10 @@ private:
     std::shared_ptr<OHOS::AAFwk::Want> want_;
     std::shared_ptr<std::string> plainText_;
     std::shared_ptr<OHOS::Uri> uri_;
-    std::shared_ptr<UriHandler> uriHandler_;
+    std::string convertUri_;
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
+    std::string GetPassUri();
 };
 } // namespace MiscServices
 } // namespace OHOS

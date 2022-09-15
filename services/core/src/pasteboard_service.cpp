@@ -666,7 +666,7 @@ void PasteboardService::GetPasteDataDot(uint32_t tokenId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     Reporter::GetInstance().PasteboardBehaviour().Report(
         { static_cast<int>(BehaviourPasteboardState::BPS_PASTE_STATE), appInfo.bundleName });
-
+    std::lock_guard<std::mutex> lock(clipMutex_);
     if (!clips_.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData GetDataSize");
         int state = static_cast<int>(StatisticPasteboardState::SPS_PASTE_STATE);

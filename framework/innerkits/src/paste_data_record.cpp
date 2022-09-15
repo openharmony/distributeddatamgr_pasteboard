@@ -17,10 +17,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "client_uri_handler.h"
+#include "paste_uri_handler.h"
 #include "parcel_util.h"
 #include "pasteboard_common.h"
-#include "server_uri_handler.h"
+#include "copy_uri_handler.h"
 
 using namespace OHOS::Media;
 
@@ -43,7 +43,7 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_URI,
     TAG_PIXELMAP,
     TAG_CUSTOM_DATA,
-    TAG_URI_HANDLER,
+    TAG_CONVERT_URI,
 };
 
 enum TAG_CUSTOMDATA : uint16_t {
@@ -168,10 +168,10 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
 {
-    if (uriHandler_ == nullptr || uriHandler_->ToUri().empty()) {
+    if (convertUri_.empty()) {
         return uri_;
     }
-    return std::make_shared<OHOS::Uri>(uriHandler_->ToUri());
+    return std::make_shared<OHOS::Uri>(convertUri_);
 }
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
@@ -416,7 +416,7 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_WANT, ParcelUtil::Parcelable2Raw(want_.get())) && ret;
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
     ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
-    ret = Write(buffer, TAG_URI_HANDLER, uriHandler_) && ret;
+    ret = Write(buffer, TAG_CONVERT_URI, convertUri_) && ret;
     ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
     ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
     return ret;
@@ -449,8 +449,8 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 uri_ = std::shared_ptr<OHOS::Uri>(ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem));
                 break;
             }
-            case TAG_URI_HANDLER: {
-                ret = ret && ReadValue(buffer, uriHandler_, head);
+            case TAG_CONVERT_URI: {
+                ret = ret && ReadValue(buffer, convertUri_, head);
                 break;
             }
             case TAG_PIXELMAP: {
@@ -483,49 +483,48 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(want_.get()));
     expectedSize += TLVObject::Count(plainText_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
+    expectedSize += TLVObject::Count(convertUri_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
     expectedSize += TLVObject::Count(customData_);
     return expectedSize;
 }
-bool PasteDataRecord::WriteFd(MessageParcel &parcel, bool isClient)
+bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
-    if (isClient) {
-        if (uri_ == nullptr) {
-            return false;
-        }
-        uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
-    }
-    if (uriHandler_ == nullptr) {
+    std::string tempUri = GetPassUri();
+    if (tempUri.empty()) {
         return false;
     }
-    auto fd = uriHandler_->ToFd();
-    return parcel.WriteFileDescriptor(fd);
+    return parcel.WriteFileDescriptor(uriHandler.ToFd(tempUri));
 }
-bool PasteDataRecord::ReadFd(MessageParcel &parcel, bool isClient)
+bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
-    auto fd = parcel.ReadFileDescriptor();
-    if (isClient) {
-        uriHandler_ = std::make_shared<ClientUriHandler>(fd);
-    } else {
-        uriHandler_ = std::make_shared<ServerUriHandler>(fd);
-    }
-    uriHandler_->ToUri();
+    convertUri_ = uriHandler.ToUri(parcel.ReadFileDescriptor());
     return true;
 }
-bool PasteDataRecord::NeedFd(bool isClient)
+bool PasteDataRecord::NeedFd()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
-    if (isClient) {
-        if (uri_ == nullptr) {
-            return false;
-        }
-        uriHandler_ = std::make_shared<ClientUriHandler>(uri_->ToString());
+    std::string tempUri = GetPassUri();
+    if (tempUri.empty()) {
+        return false;
     }
-    if (uriHandler_ == nullptr || !uriHandler_->IsFile()) {
+    if (!UriHandler::IsFile(tempUri)) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid file uri");
         return false;
     }
     return true;
+}
+std::string PasteDataRecord::GetPassUri()
+{
+    std::string tempUri;
+    if (uri_ != nullptr) {
+        tempUri = uri_->ToString();
+    }
+    if (!convertUri_.empty()) {
+        tempUri = convertUri_;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "tempUri:%{public}s", tempUri.c_str());
+    return tempUri;
 }
 } // namespace MiscServices
 } // namespace OHOS

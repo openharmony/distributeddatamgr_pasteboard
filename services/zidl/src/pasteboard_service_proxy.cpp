@@ -18,6 +18,8 @@
 #include "iremote_broker.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog_wreapper.h"
+#include "paste_uri_handler.h"
+#include "copy_uri_handler.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -148,7 +150,8 @@ void PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw data");
         return;
     }
-    if (!pasteData.WriteUriFd(data, true)) {
+    CopyUriHandler copyHandler;
+    if (!pasteData.WriteUriFd(data, copyHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return;
     }
@@ -190,7 +193,8 @@ bool PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
         return false;
     }
-    if (!pasteData.ReadUriFd(reply, true)) {
+    PasteUriHandler pasteHandler;
+    if (!pasteData.ReadUriFd(reply, pasteHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return false;
     }
