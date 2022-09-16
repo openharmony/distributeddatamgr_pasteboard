@@ -40,14 +40,15 @@
 
 namespace OHOS {
 namespace MiscServices {
+const std::int32_t ERROR_USERID = -1;
 enum class ServiceRunningState {
     STATE_NOT_START,
     STATE_RUNNING
 };
 struct AppInfo {
-    std::string appId;
-    std::string bundleName;
-    int32_t tokenType;
+    std::string bundleName = "com.pasteboard.default";
+    int32_t tokenType = -1;
+    int32_t userId = ERROR_USERID;
 };
 class PasteboardService final : public SystemAbility,
                                 public PasteboardServiceStub,
@@ -96,7 +97,10 @@ private:
     bool IsCopyable(uint32_t tokenId) const;
     void SetPasteDataDot(PasteData& pasteData, uint32_t tokenId);
     void GetPasteDataDot(uint32_t tokenId);
-    bool GetPasteData(PasteData& data, uint32_t tokenId);
+    bool GetPasteData(PasteData& data, uint32_t tokenId, int32_t pid);
+    std::string GetAppLabel(uint32_t tokenId);
+    std::string GetDeviceName();
+    void SetDeviceName(const std::string &device = "");
 
     std::shared_ptr<PasteData> GetDistributedData(int32_t user);
     bool SetDistributedData(int32_t user, PasteData& data);
@@ -107,9 +111,10 @@ private:
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
     std::string GetTime();
-    static bool HasPastePermission(uint32_t tokenId, const std::string &appId, ShareOption shareOption);
-    static bool GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo);
-    static bool IsFocusOrDefaultIme(const AppInfo &appInfo);
+    static bool HasPastePermission(uint32_t tokenId, int32_t pid, const std::shared_ptr<PasteData> &pasteData);
+    static AppInfo GetAppInfo(uint32_t tokenId);
+    static bool IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid);
+    static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, std::shared_ptr<PasteData> &pasteData);
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;
@@ -124,7 +129,7 @@ private:
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint32_t> sequenceId_ = 0;
-    static int32_t focusAppUid_;
+    static int32_t focusApp_;
     uint32_t lastCopyApp_ = 0;
     std::string timeForLastCopy_;
     static std::mutex historyMutex_;
@@ -132,6 +137,9 @@ private:
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> pasting_ = false;
+
+    std::mutex deviceMutex_;
+    std::string fromDevice_;
 };
 } // MiscServices
 } // OHOS

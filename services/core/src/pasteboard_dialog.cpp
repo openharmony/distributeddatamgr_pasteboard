@@ -40,7 +40,7 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
         "pasting_dialog",
         params,
         OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
-        rect.x, rect.y, rect.width, rect.height,
+        rect.x, rect.y + STATUS_BAR_HEIGHT, rect.width, rect.height - STATUS_BAR_HEIGHT,
         [cancel, realId](int32_t id, const std::string &event, const std::string &params) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Id:%{public}d Event:%{public}s arrived.", id, event.c_str());
             if (event == std::string("EVENT_INIT") && realId) {

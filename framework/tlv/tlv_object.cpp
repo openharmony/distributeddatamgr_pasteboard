@@ -36,6 +36,10 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, int64_t 
 {
     return WriteBasic(buffer, type, value);
 }
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, uint32_t value)
+{
+    return WriteBasic(buffer, type, value);
+}
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::string &value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.size())) {
@@ -155,6 +159,10 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, int32_t &valu
 }
 
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, int64_t &value, const TLVHead &head)
+{
+    return ReadBasicValue(buffer, value, head);
+}
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, uint32_t &value, const TLVHead &head)
 {
     return ReadBasicValue(buffer, value, head);
 }

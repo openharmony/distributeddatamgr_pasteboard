@@ -2756,6 +2756,240 @@ describe('PasteBoardJSTest', function () {
     })
 
     /**
+     * @tc.name      pasteboard_function_test75
+     * @tc.desc      自定义数据测试
+     * @tc.type      Function
+     * @tc.require   AR000HEECB
+     */
+    it('pasteboard_function_test75', 0, async function (done) {
+        console.info("pasteboard_function_test75 start")
+        var systemPasteBoard = pasteboard.getSystemPasteboard();
+        await systemPasteBoard.clear().then(async () => {
+            var pasteData = undefined;
+            console.info("systemPasteBoard clear data success")
+            var dataUri = new ArrayBuffer(256)
+            pasteData = pasteboard.createData("text/uri", dataUri)
+            var addUri = new ArrayBuffer(128)
+            pasteData.addRecord("text/uri", addUri)
+            var recordUri = new ArrayBuffer(96)
+            var pasteDataRecord = pasteboard.createRecord("text/uri", recordUri)
+            pasteData.addRecord(pasteDataRecord)
+            await systemPasteBoard.setPasteData(pasteData).then(async () => {
+                console.info("Set pastedata success")
+                await systemPasteBoard.hasPasteData().then(async (data) => {
+                    console.info("Check pastedata has data success, result: " + data)
+                    expect(data).assertTrue();
+                    await systemPasteBoard.getPasteData().then(async (data) => {
+                        console.info("Get paste data success")
+                        expect(data.getRecordCount()).assertEqual(3)
+                        expect(data.getRecordAt(0).data["text/uri"].byteLength).assertEqual(96)
+                        expect(data.getRecordAt(1).data["text/uri"].byteLength).assertEqual(128)
+                        expect(data.getRecordAt(2).data["text/uri"].byteLength).assertEqual(256)
+                    })
+                })
+            })
+        })
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test76
+     * @tc.desc      自定义数据测试
+     * @tc.type      Function
+     * @tc.require   AR000HEECB
+     */
+    it('pasteboard_function_test76', 0, async function (done) {
+        console.info("pasteboard_function_test76 start")
+        var systemPasteBoard = pasteboard.getSystemPasteboard();
+        await systemPasteBoard.clear().then(async () => {
+            console.info("systemPasteBoard clear data success")
+            var pasteData = undefined
+            var pasteRecord = undefined;
+
+            var dataHtml = new ArrayBuffer(256)
+            pasteData = pasteboard.createData("xy", dataHtml)
+            expect(pasteData != undefined).assertTrue();
+
+            pasteData.addRecord("x".repeat(1024), dataHtml)
+            expect(pasteData.getRecordCount()).assertEqual(2)
+
+            pasteRecord = pasteboard.createRecord("xy2", dataHtml)
+            expect(pasteRecord != undefined).assertTrue();
+            pasteData.addRecord(pasteRecord)
+
+            await systemPasteBoard.setPasteData(pasteData).then(async () => {
+                console.info("set pastedata success")
+                await systemPasteBoard.hasPasteData().then(async (data) => {
+                    console.info("Check pastedata has data success, result: " + data)
+                    expect(data).assertTrue();
+                    await systemPasteBoard.getPasteData().then(async (data) => {
+                        console.info("get paste data success")
+                        expect(data.getRecordCount()).assertEqual(3)
+                        expect(data.getRecordAt(0).mimeType).assertEqual("xy2")
+                        expect(data.getRecordAt(1).mimeType).assertEqual("x".repeat(1024))
+                        expect(data.getRecordAt(2).mimeType).assertEqual("xy")
+                    })
+                })
+            })
+        })
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test77
+     * @tc.desc      自定义数据异常测试
+     * @tc.type      Function
+     * @tc.require   AR000HEECB
+     */
+    it('pasteboard_function_test77', 0, async function (done) {
+        console.info("pasteboard_function_test77 start")
+        var systemPasteBoard = pasteboard.getSystemPasteboard();
+        await systemPasteBoard.clear().then(async () => {
+            console.info("systemPasteBoard clear data success")
+            var pasteData = undefined
+            var pasteRecord = undefined;
+
+
+            var dataHtml = new ArrayBuffer(256)
+            pasteData = pasteboard.createData("x".repeat(1025), dataHtml)
+            expect(pasteData).assertEqual(undefined)
+            pasteData = pasteboard.createData("x".repeat(1024), dataHtml)
+            expect(pasteData != undefined).assertTrue();
+
+            var addHtml = new ArrayBuffer(128)
+            pasteData.addRecord("x".repeat(1025), addHtml)
+            expect(pasteData.getRecordCount()).assertEqual(1)
+            pasteData.addRecord("x".repeat(1024), addHtml)
+            expect(pasteData.getRecordCount()).assertEqual(2)
+
+            var recordHtml = new ArrayBuffer(64)
+            pasteRecord = pasteboard.createRecord("x".repeat(1025), recordHtml)
+            expect(pasteRecord).assertEqual(undefined);
+            pasteRecord = pasteboard.createRecord("x".repeat(1024), recordHtml)
+            expect(pasteRecord != undefined).assertTrue();
+
+            pasteData.addRecord(pasteRecord)
+            await systemPasteBoard.setPasteData(pasteData).then(async () => {
+                console.info("set pastedata success")
+                await systemPasteBoard.hasPasteData().then(async (data) => {
+                    console.info("Check pastedata has data success, result: " + data)
+                    expect(data).assertTrue();
+                    await systemPasteBoard.getPasteData().then(async (data) => {
+                        console.info("get paste data success")
+                        expect(data.getRecordCount()).assertEqual(3)
+                    })
+                })
+            })
+        })
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test78
+     * @tc.desc      自定义数据异常测试
+     * @tc.type      Function
+     * @tc.require   AR000HEECB
+     */
+    it('pasteboard_function_test78', 0, async function (done) {
+        console.info("pasteboard_function_test78 start")
+        var systemPasteBoard = pasteboard.getSystemPasteboard();
+        await systemPasteBoard.clear().then(async () => {
+            console.info("systemPasteBoard clear data success")
+            var pasteData = undefined
+            var pasteRecord = undefined;
+
+
+            var dataHtml = new ArrayBuffer(256)
+            pasteData = pasteboard.createData("x".repeat(1025), dataHtml)
+            expect(pasteData).assertEqual(undefined)
+            pasteData = pasteboard.createData("x".repeat(1024), dataHtml)
+            expect(pasteData != undefined).assertTrue();
+
+            pasteData.addRecord("x".repeat(1025), dataHtml)
+            expect(pasteData.getRecordCount()).assertEqual(1)
+            pasteData.addRecord("x".repeat(1024), dataHtml)
+            expect(pasteData.getRecordCount()).assertEqual(2)
+
+            pasteRecord = pasteboard.createRecord("x".repeat(1025), dataHtml)
+            expect(pasteRecord).assertEqual(undefined);
+            pasteRecord = pasteboard.createRecord("x".repeat(1024), dataHtml)
+            expect(pasteRecord != undefined).assertTrue();
+
+            pasteData.addRecord(pasteRecord)
+            await systemPasteBoard.setPasteData(pasteData).then(async () => {
+                console.info("set pastedata success")
+                await systemPasteBoard.hasPasteData().then(async (data) => {
+                    console.info("Check pastedata has data success, result: " + data)
+                    expect(data).assertTrue();
+                    await systemPasteBoard.getPasteData().then(async (data) => {
+                        console.info("get paste data success")
+                        expect(data.getRecordCount()).assertEqual(3)
+                    })
+                })
+            })
+        })
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test79
+     * @tc.desc      一个record中多个数据类型：get primary html、pixelMap、want、text、uri
+     * @tc.type      Function
+     * @tc.require   AR000HEECB
+     */
+    it('pasteboard_function_test79', 0, async function (done) {
+        var systemPasteBoard = pasteboard.getSystemPasteboard();
+        systemPasteBoard.clear().then(() => {
+            var dataHtml = new ArrayBuffer(256)
+            var htmlText = '<html><head></head><body>Hello!</body></html>';
+            var uriText = 'https://www.baidu.com/';
+            var wantText = {
+                bundleName: "com.example.myapplication3",
+                abilityName: "com.example.myapplication3.MainAbility"
+            };
+            var plainText = "";
+            var pasteData = pasteboard.createData("x".repeat(1024), dataHtml)
+            var record = pasteData.getRecordAt(0)
+            record.htmlText = htmlText;
+            record.plainText = plainText;
+            record.uri = uriText;
+            record.want = wantText;
+            var buffer = new ArrayBuffer(128);
+            var opt = {
+                size: {height: 5, width: 5},
+                pixelFormat: 3,
+                editable: true,
+                alphaType: 1,
+                scaleMode: 1
+            };
+            image.createPixelMap(buffer, opt).then((pixelMap) => {
+                record.pixelMap = pixelMap;
+                pasteData.replaceRecordAt(0, record);
+                systemPasteBoard.setPasteData(pasteData).then(() => {
+                    systemPasteBoard.hasPasteData().then((hasData) => {
+                        expect(hasData).assertTrue();
+                        systemPasteBoard.getPasteData().then((data) => {
+                            expect(data.getRecordCount()).assertEqual(1)
+                            expect(data.getRecordAt(0).mimeType).assertEqual("x".repeat(1024))
+                            expect(data.getPrimaryWant().bundleName).assertEqual(wantText.bundleName)
+                            expect(data.getPrimaryWant().abilityName).assertEqual(wantText.abilityName)
+                            var newPixelMap = data.getPrimaryPixelMap();
+                            newPixelMap.getImageInfo().then((imageInfo) => {
+                                expect(imageInfo.size.height).assertEqual(opt.size.height);
+                                expect(imageInfo.size.width).assertEqual(opt.size.width);
+                            });
+                            expect(data.getPrimaryUri()).assertEqual(uriText)
+                            expect(data.getPrimaryText()).assertEqual(plainText)
+                            expect(data.getPrimaryHtml()).assertEqual(htmlText)
+                        })
+                    })
+                })
+            })
+        })
+        done();
+    })
+
+    /**
      *  The callback function is used for pasteboard content changes
      */
     function contentChanges() {

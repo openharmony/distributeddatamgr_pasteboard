@@ -727,9 +727,9 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     auto shareOption = pasteData->GetShareOption();
     ASSERT_TRUE(shareOption == ShareOption::CrossDevice);
     pasteData->SetShareOption(ShareOption::InApp);
-    std::string appId = pasteData->GetAppId();
-    ASSERT_TRUE(appId.empty() == true);
-    pasteData->SetAppId("abc");
+    auto tokenId = pasteData->GetTokenId();
+    ASSERT_TRUE(tokenId == 0);
+    pasteData->SetTokenId(1);
     PasteboardClient::GetInstance()->Clear();
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData != true);
@@ -741,5 +741,38 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     ASSERT_TRUE(ret == true);
     shareOption = newPasteData.GetShareOption();
     ASSERT_TRUE(shareOption == ShareOption::InApp);
+    tokenId = pasteData->GetTokenId();
+    ASSERT_TRUE(tokenId != 0);
+}
+
+/**
+* @tc.name: PasteDataTest0015
+* @tc.desc: isLocalPaste and isDraggedData test.
+* @tc.type: FUNC
+* @tc.require: AROOOH5R5G
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData);
+    auto isDraggedData = pasteData->IsDraggedData();
+    ASSERT_FALSE(isDraggedData);
+    pasteData->SetDraggedDataFlag(true);
+    auto isLocalPaste = pasteData->IsLocalPaste();
+    ASSERT_FALSE(isLocalPaste);
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_FALSE(hasPasteData);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData);
+    PasteData newPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret);
+    isDraggedData = newPasteData.IsDraggedData();
+    ASSERT_TRUE(isDraggedData);
+    isLocalPaste = newPasteData.IsLocalPaste();
+    ASSERT_TRUE(isLocalPaste);
 }
 } // namespace OHOS::MiscServices

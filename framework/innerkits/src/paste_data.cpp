@@ -35,6 +35,8 @@ const std::uint32_t MAX_RECORD_NUM = 512;
 enum TAG_PASTEBOARD : uint16_t {
     TAG_PROPS = TAG_BUFF + 1,
     TAG_RECORDS,
+    TAG_DRAGGED_DATA_FLAG,
+    TAG_LOCAL_PASTE_FLAG
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -42,7 +44,7 @@ enum TAG_PROPERTY : uint16_t {
     TAG_TAG,
     TAG_TIMESTAMP,
     TAG_SHAREOPTION,
-    TAG_APPID
+    TAG_TOKENID
 };
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
@@ -123,7 +125,7 @@ std::vector<std::string> PasteData::GetMimeTypes()
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
     for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_TEXT_HTML) {
+        if (item->GetHtmlText() != nullptr)  {
             return item->GetHtmlText();
         }
     }
@@ -133,7 +135,7 @@ std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 {
     for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_PIXELMAP) {
+        if (item->GetPixelMap() != nullptr) {
             return item->GetPixelMap();
         }
     }
@@ -143,7 +145,7 @@ std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 {
     for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_TEXT_WANT) {
+        if (item->GetWant() != nullptr) {
             return item->GetWant();
         }
     }
@@ -153,7 +155,7 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 std::shared_ptr<std::string> PasteData::GetPrimaryText()
 {
     for (const auto &item : records_) {
-        if ((item->GetPlainText() != nullptr) && (item->GetPlainText()->size() > 0)) {
+        if (item->GetPlainText() != nullptr) {
             return item->GetPlainText();
         }
     }
@@ -163,7 +165,7 @@ std::shared_ptr<std::string> PasteData::GetPrimaryText()
 std::shared_ptr<OHOS::Uri> PasteData::GetPrimaryUri()
 {
     for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_TEXT_URI) {
+        if (item->GetUri() != nullptr) {
             return item->GetUri();
         }
     }
@@ -204,14 +206,14 @@ void PasteData::SetShareOption(ShareOption shareOption)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOption = %{public}d.", shareOption);
 }
 
-std::string PasteData::GetAppId()
+std::uint32_t PasteData::GetTokenId()
 {
-    return props_.appId;
+    return props_.tokenId;
 }
 
-void PasteData::SetAppId(const std::string &appId)
+void PasteData::SetTokenId(const uint32_t tokenId)
 {
-    props_.appId = appId;
+    props_.tokenId = tokenId;
 }
 
 bool PasteData::RemoveRecordAt(std::size_t number)
@@ -254,6 +256,26 @@ std::string PasteData::GetTag()
 std::vector<std::shared_ptr<PasteDataRecord>> PasteData::AllRecords() const
 {
     return this->records_;
+}
+
+bool PasteData::IsDraggedData() const
+{
+    return isDraggedData_;
+}
+
+bool PasteData::IsLocalPaste() const
+{
+    return isLocalPaste_;
+}
+
+void PasteData::SetDraggedDataFlag(bool isDraggedData)
+{
+    isDraggedData_ = isDraggedData;
+}
+
+void PasteData::SetLocalPasteFlag(bool isLocalPaste)
+{
+    isLocalPaste_ = isLocalPaste;
 }
 
 void PasteData::RefreshMimeProp()
@@ -378,6 +400,8 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 
     bool ret = Write(buffer, TAG_PROPS, props_);
     ret = Write(buffer, TAG_RECORDS, records_) && ret;
+    ret = Write(buffer, TAG_DRAGGED_DATA_FLAG, isDraggedData_) && ret;
+    ret = Write(buffer, TAG_LOCAL_PASTE_FLAG, isLocalPaste_) && ret;
     return ret;
 }
 
@@ -393,6 +417,14 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 break;
             case TAG_RECORDS: {
                 ret = ret && ReadValue(buffer, records_, head);
+                break;
+            }
+            case TAG_DRAGGED_DATA_FLAG: {
+                ret = ret && ReadValue(buffer, isDraggedData_, head);
+                break;
+            }
+            case TAG_LOCAL_PASTE_FLAG: {
+                ret = ret && ReadValue(buffer, isLocalPaste_, head);
                 break;
             }
             default:
@@ -412,6 +444,8 @@ size_t PasteData::Count()
     size_t expectSize = 0;
     expectSize += props_.Count() + sizeof(TLVHead);
     expectSize += TLVObject::Count(records_);
+    expectSize += TLVObject::Count(isDraggedData_);
+    expectSize += TLVObject::Count(isLocalPaste_);
     return expectSize;
 }
 
@@ -432,7 +466,7 @@ bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_TAG, tag) && ret;
     ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
     ret = Write(buffer, TAG_SHAREOPTION, (int32_t &)shareOption) && ret;
-    ret = Write(buffer, TAG_APPID, appId) && ret;
+    ret = Write(buffer, TAG_TOKENID, tokenId) && ret;
     return ret;
 }
 bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
@@ -462,8 +496,8 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_SHAREOPTION:
                 ret = ret && ReadValue(buffer, (int32_t &)shareOption, head);
                 break;
-            case TAG_APPID:
-                ret = ret && ReadValue(buffer, appId, head);
+            case TAG_TOKENID:
+                ret = ret && ReadValue(buffer, tokenId, head);
                 break;
             default:
                 ret = ret && Skip(head.len, buffer.size());
@@ -483,7 +517,7 @@ size_t PasteDataProperty::Count()
     expectedSize += TLVObject::Count(tag);
     expectedSize += TLVObject::Count(timestamp);
     expectedSize += TLVObject::Count(shareOption);
-    expectedSize += TLVObject::Count(appId);
+    expectedSize += TLVObject::Count(tokenId);
     return expectedSize;
 }
 

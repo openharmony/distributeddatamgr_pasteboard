@@ -13,16 +13,18 @@
     limitations under the License.
 -->
 
-<div class="dialog-page">
+<div id="dialog" class="dialog-page">
     <div class="dialog-div" id="loading-dialog">
         <div class="rect-div">
-            <progress  class="loading-progress" type="ring" percent="50"></progress>
+            <progress class="loading-progress" type="ring" percent="50"></progress>
         </div>
-        <div class="context-div" id="test-context">
-            <text class="show-msg">{{ $t('strings.title') }}{{appName}}</text>
+        <div class="context-div">
+            <text class="show-msg">{{ $t('strings.title') }}{{ appName }}</text>
             <text class="show-from">{{ $t('strings.from') }}"{{ deviceType }}"</text>
         </div>
-        <image class="cancel-img" id="cancel-img" src="/common/ic_public_input_cancel.svg"
-               on:click="onCancel({{ $t('strings.cancel') }})"></image>
+        <div class="cancel-div" on:touchend="onCancel">
+            <image class="cancel-img" id="cancel-img" src="/common/ic_public_input_cancel.svg">
+            </image>
+        </div>
     </div>
 </div>

@@ -26,6 +26,7 @@ public:
     };
     static constexpr uint32_t POPUP_INTERVAL = 1;  // seconds
     static constexpr uint32_t MAX_LIFE_TIME = 300; // seconds
+    static constexpr const char *DEFAULT_LABEL = "unknown";
     using Cancel = std::function<void()>;
     static PasteBoardDialog &GetInstance();
     int32_t ShowDialog(const MessageInfo &message, const Cancel &cancel);
@@ -38,6 +39,7 @@ private:
         int32_t width = 1920;
         int32_t height = 1080;
     };
+    static constexpr int32_t STATUS_BAR_HEIGHT = 72;
     Rect GetDisplayRect();
 };
 } // namespace OHOS::MiscServices

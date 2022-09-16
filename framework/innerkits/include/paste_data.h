@@ -39,7 +39,7 @@ struct PasteDataProperty : public TLVObject {
     std::int64_t timestamp;
     bool localOnly;
     ShareOption shareOption;
-    std::string appId = "";
+    uint32_t tokenId = 0;
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
@@ -75,9 +75,13 @@ public:
     PasteDataProperty GetProperty();
     ShareOption GetShareOption();
     void SetShareOption(ShareOption shareOption);
-    std::string GetAppId();
-    void SetAppId(const std::string &appId);
+    uint32_t GetTokenId();
+    void SetTokenId(const uint32_t tokenId);
     std::vector<std::shared_ptr<PasteDataRecord>> AllRecords() const;
+    bool IsDraggedData() const;
+    void SetDraggedDataFlag(bool isDraggedData);
+    bool IsLocalPaste() const;
+    void SetLocalPasteFlag(bool isLocalPaste);
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteData *Unmarshalling(Parcel &parcel);
@@ -96,6 +100,8 @@ private:
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
     bool valid_ = true;
+    bool isDraggedData_ = false;
+    bool isLocalPaste_ = false;
 };
 } // namespace MiscServices
 } // namespace OHOS

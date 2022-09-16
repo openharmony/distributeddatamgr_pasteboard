@@ -31,11 +31,13 @@ public:
     static DMAdapter &GetInstance();
     bool Initialize(const std::string &pkgName);
     const std::string &GetLocalDevice();
+    std::string GetDeviceName(const std::string &udid);
     void Register(DMObserver *observer);
     void Unregister(DMObserver *observer);
 
 private:
     static constexpr const char *NAME_EX = "dm_adapter";
+    static constexpr const char *DEVICE_INVALID_NAME = "unknown";
     DMAdapter();
     ~DMAdapter();
 
