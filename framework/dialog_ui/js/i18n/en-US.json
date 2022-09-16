@@ -7,6 +7,7 @@
     "title": "pasting to ",
     "from": "from",
     "done": "pasted to ",
-    "cancel": "canceled"
+    "cancel": "canceled",
+    "zombie": "The top dialog is zombie, please reset the device!"
   }
 }

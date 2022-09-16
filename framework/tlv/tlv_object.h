@@ -90,6 +90,10 @@ public:
     {
         return sizeof(value) + sizeof(TLVHead);
     }
+    static inline size_t Count(uint32_t value)
+    {
+        return sizeof(value) + sizeof(TLVHead);
+    }
     static inline size_t Count(const std::string &value)
     {
         return value.size() + sizeof(TLVHead);
@@ -138,6 +142,7 @@ public:
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int16_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int32_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int64_t value);
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, uint32_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::string &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const RawMem &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value);
@@ -168,6 +173,7 @@ public:
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int16_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int32_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int64_t &value, const TLVHead &head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, uint32_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::string &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMem, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &value, const TLVHead &head);

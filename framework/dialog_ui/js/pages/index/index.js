@@ -26,11 +26,19 @@ export default {
         console.info('getParams: ' + JSON.stringify(router.getParams()));
         callNativeHandler(EVENT_INIT, EVENT_VALUE);
     },
-    onCancel(msg){
-        console.info('onCancel: ' + EVENT_CANCEL);
-        callNativeHandler(EVENT_CANCEL, EVENT_VALUE);
+    onZombie() {
+        console.error('Zombie dialog!');
         prompt.showToast({
-            message: msg
+            message: this.$t("strings.zombie")
         });
+    },
+    onCancel() {
+        console.info('onCancel: ' + EVENT_CANCEL);
+        // start the timer to prevent myself being a zombie dialog
+        setTimeout(this.onZombie, 5000);
+        prompt.showToast({
+            message: this.$t("strings.cancel")
+        });
+        callNativeHandler(EVENT_CANCEL, EVENT_VALUE);
     }
 };

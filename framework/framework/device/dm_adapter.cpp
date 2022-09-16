@@ -111,6 +111,20 @@ const std::string &DMAdapter::GetLocalDevice()
     return localDeviceId_;
 }
 
+std::string DMAdapter::GetDeviceName(const std::string &udid)
+{
+    std::vector<DmDeviceInfo> devices;
+    (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
+    for (auto &device : devices) {
+        std::string deviceId;
+        (void)DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, device.networkId, deviceId);
+        if (deviceId == udid) {
+            return device.deviceName;
+        }
+    }
+    return DEVICE_INVALID_NAME;
+}
+
 void DMAdapter::Register(DMObserver *observer)
 {
     observers_.Insert(observer, observer);

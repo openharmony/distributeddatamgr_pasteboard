@@ -14,77 +14,89 @@
 */
 
 .dialog-page {
-    height: 100%;
+    height: 74fp;
     width: 100%;
     flex-direction: row;
-    background-color: #00ffffff;
-    justify-content: space-around;
+    background-color: #00000000;
+    justify-content: center;
     align-items: flex-start;
 }
 
 .dialog-div {
-    height: 56px;
+    height: 56fp;
     flex-direction: row;
     background-color: #ffffffff;
-    box-shadow: 0px 10px #4d000000;
+    box-shadow: 0fp 10fp #4d000000;
     justify-content: center;
     align-items: center;
-    border-radius: 33px;
+    border-radius: 33fp;
+    margin-top: 8fp;
 }
 
 .rect-div {
-    height: 36px;
-    width: 36px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    height: 24fp;
+    width: 24fp;
+    margin-top: 16fp;
+    margin-bottom: 16fp;
+    margin-left: 24fp;
     justify-content: center;
     align-items: center;
 }
 
 .context-div {
-    height: 56px;
+    height: 56fp;
     flex-direction: column;
     background-color: #00ffffff;
     justify-content: center;
     align-items: flex-start;
+    margin-left: 8fp;
 }
 
 .loading-progress {
-    height: 24px;
-    width: 24px;
-    stroke-width:2.67px;
+    height: 24fp;
+    width: 24fp;
+    stroke-width:2.67fp;
     color: linear-gradient(#ff86c1ff, #ff254FF7);
     animation: Go 3s infinite;
     animation-timing-function:linear;
 }
 
 .show-msg {
-    height: 16px;
-    font-size: 12px;
+    height: 16fp;
+    font-size: 12fp;
     color: black;
     opacity: 100;
-    letter-spacing: 0px;
+    letter-spacing: 0fp;
     font-family: HYQiHei-65S;
-    margin-top: 12px;
+    margin-top: 12fp;
 }
 
 .show-from {
-    height: 14px;
-    font-size: 12px;
+    height: 14fp;
+    font-size: 12fp;
     color: black;
     opacity: 100;
-    letter-spacing: 0px;
+    letter-spacing: 0fp;
     font-family: HYQiHei-65S;
-    margin-top: 2px;
-    margin-bottom: 12px;
+    margin-top: 2fp;
+    margin-bottom: 12fp;
+}
+
+.cancel-div {
+    height: 18fp;
+    width: 18fp;
+    margin-top: 19fp;
+    margin-bottom: 19fp;
+    margin-right: 24fp;
+    margin-left: 8fp;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .cancel-img {
-    height: 18px;
-    width: 18px;
-    margin-top: 19px;
-    margin-bottom: 19px;
-    margin-right: 8px;
+    height: 100%;
+    width: 100%;
 }
 
 @keyframes Go{
