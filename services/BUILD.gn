@@ -86,6 +86,8 @@ ohos_shared_library("pasteboard_service") {
     "ability_base:zuri",
     "ability_runtime:abilitykit_native",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "device_info_manager:distributed_device_profile_client",
     "device_manager:devicemanagersdk",
@@ -102,8 +104,6 @@ ohos_shared_library("pasteboard_service") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libwm",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
   ]
   if (os_dlp_part_enabled) {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
