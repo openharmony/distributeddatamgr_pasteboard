@@ -93,7 +93,7 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
     PasteUriHandler pasteUriHandler;
-    if (!pasteData.WriteUriFd(reply, pasteUriHandler)) {
+    if (!pasteData.WriteUriFd(reply, pasteUriHandler, IPCSkeleton::GetCallingTokenID())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
         return ERR_INVALID_VALUE;
     }

@@ -88,7 +88,7 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler);
+    bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, uint32_t callerToken);
     bool ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler);
 
     bool IsValid() const;
