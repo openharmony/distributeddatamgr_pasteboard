@@ -225,7 +225,7 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid)
     return pid == focusApp_;
 }
 
-bool PasteboardService::HasPastePermission(uint32_t tokenId, int32_t pid, const std::shared_ptr<PasteData>& pasteData)
+bool PasteboardService::HasPastePermission(uint32_t tokenId, int32_t pid, std::shared_ptr<PasteData> pasteData)
 {
     if (pasteData == nullptr) {
         return false;

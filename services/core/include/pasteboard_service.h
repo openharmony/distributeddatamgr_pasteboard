@@ -111,7 +111,7 @@ private:
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
     std::string GetTime();
-    static bool HasPastePermission(uint32_t tokenId, int32_t pid, const std::shared_ptr<PasteData> &pasteData);
+    static bool HasPastePermission(uint32_t tokenId, int32_t pid, std::shared_ptr<PasteData> pasteData);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static bool IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, std::shared_ptr<PasteData> &pasteData);
