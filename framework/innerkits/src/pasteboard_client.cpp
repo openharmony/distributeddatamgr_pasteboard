@@ -41,7 +41,7 @@ PasteboardClient::~PasteboardClient()
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateHtmlTextRecord(const std::string &htmlText)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New text record: %{public}s", htmlText.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New html record");
     return PasteDataRecord::NewHtmlRecord(htmlText);
 }
 
@@ -53,7 +53,7 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateWantRecord(std::shared_
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePlainTextRecord(const std::string &text)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New text record: %{public}s", text.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New text record");
     return PasteDataRecord::NewPlaintTextRecord(text);
 }
 
@@ -78,7 +78,7 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateKvRecord(
 
 std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &htmlText)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New htmlText data: %{public}s", htmlText.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New html data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddHtmlRecord(htmlText);
     return pasteData;
@@ -94,7 +94,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreateWantData(std::shared_ptr<OHOS
 
 std::shared_ptr<PasteData> PasteboardClient::CreatePlainTextData(const std::string &text)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New plain data: %{public}s", text.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New text data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddTextRecord(text);
     return pasteData;
@@ -119,7 +119,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreateUriData(const OHOS::Uri &uri)
 std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
     const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New KvData data");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New Kv data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddKvRecord(mimeType, arrayBuffer);
     return pasteData;

@@ -123,7 +123,7 @@ std::vector<std::string> PasteData::GetMimeTypes()
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
     for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_TEXT_HTML) {
+        if (item->GetHtmlText() != nullptr)  {
             return item->GetHtmlText();
         }
     }
@@ -133,7 +133,7 @@ std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 {
     for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_PIXELMAP) {
+        if (item->GetPixelMap() != nullptr) {
             return item->GetPixelMap();
         }
     }
@@ -143,7 +143,7 @@ std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 {
     for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_TEXT_WANT) {
+        if (item->GetWant() != nullptr) {
             return item->GetWant();
         }
     }
@@ -153,7 +153,7 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 std::shared_ptr<std::string> PasteData::GetPrimaryText()
 {
     for (const auto &item : records_) {
-        if ((item->GetPlainText() != nullptr) && (item->GetPlainText()->size() > 0)) {
+        if (item->GetPlainText() != nullptr) {
             return item->GetPlainText();
         }
     }
@@ -163,7 +163,7 @@ std::shared_ptr<std::string> PasteData::GetPrimaryText()
 std::shared_ptr<OHOS::Uri> PasteData::GetPrimaryUri()
 {
     for (const auto &item : records_) {
-        if (item->GetMimeType() == MIMETYPE_TEXT_URI) {
+        if (item->GetUri() != nullptr) {
             return item->GetUri();
         }
     }
