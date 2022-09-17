@@ -34,4 +34,4 @@ protected:
     std::string uri_;
 };
 } // namespace OHOS::MiscServices
-#endif //DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H
+#endif // DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H

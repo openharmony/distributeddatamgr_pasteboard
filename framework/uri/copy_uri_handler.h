@@ -21,4 +21,4 @@ public:
     std::string ToUri(int32_t fd) override;
 };
 } // namespace OHOS::MiscServices
-#endif //DISTRIBUTEDDATAMGR_PASTEBOARD_COPY_URI_HANDLER_H
+#endif // DISTRIBUTEDDATAMGR_PASTEBOARD_COPY_URI_HANDLER_H
