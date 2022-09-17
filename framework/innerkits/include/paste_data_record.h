@@ -88,6 +88,7 @@ public:
     bool WriteFd(MessageParcel &parcel, UriHandler &uriHandler);
     bool ReadFd(MessageParcel &parcel, UriHandler &uriHandler);
     bool NeedFd();
+    void ReplaceShareUri(int32_t userId);
 
     class Builder {
     public:

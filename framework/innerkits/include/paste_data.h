@@ -90,6 +90,7 @@ public:
     size_t Count() override;
     bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, uint32_t callerToken);
     bool ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler);
+    void ReplaceUri(int32_t userId);
 
     bool IsValid() const;
     void SetInvalid();

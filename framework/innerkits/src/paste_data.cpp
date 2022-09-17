@@ -559,5 +559,16 @@ bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler)
     }
     return true;
 }
+void PasteData::ReplaceUri(int32_t userId)
+{
+    auto count = GetRecordCount();
+    for (size_t i = 0; i < count; ++i) {
+        auto record = GetRecordAt(i);
+        if (record == nullptr) {
+            continue;
+        }
+        record->ReplaceShareUri(userId);
+    }
+}
 } // namespace MiscServices
 } // namespace OHOS

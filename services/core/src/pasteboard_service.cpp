@@ -703,6 +703,8 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
 
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     pasteData->Decode(rawData);
+    // todo: uri转换
+    pasteData->ReplaceUri(user);
     return pasteData;
 }
 

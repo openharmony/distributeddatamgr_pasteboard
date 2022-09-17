@@ -526,5 +526,9 @@ std::string PasteDataRecord::GetPassUri()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "tempUri:%{public}s", tempUri.c_str());
     return tempUri;
 }
+void PasteDataRecord::ReplaceShareUri(int32_t userId)
+{
+    // uri format: /mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt
+}
 } // namespace MiscServices
 } // namespace OHOS
