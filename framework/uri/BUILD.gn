@@ -26,8 +26,9 @@ config("module_public_config") {
 
 ohos_static_library("pasteboard_uri") {
   sources = [
-    "client_uri_handler.cpp",
-    "server_uri_handler.cpp",
+    "copy_uri_handler.cpp",
+    "paste_uri_handler.cpp",
+    "uri_handler.cpp",
   ]
   cflags = [ "-Wno-multichar" ]
 

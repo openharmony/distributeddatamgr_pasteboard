@@ -14,46 +14,24 @@
 */
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H
+#include <fcntl.h>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "pasteboard_hilog_wreapper.h"
 namespace OHOS::MiscServices {
 class UriHandler {
 public:
-    explicit UriHandler(int32_t fd) : fd_(fd)
-    {
-    }
-    explicit UriHandler(const std::string &uri) : fd_(INVALID_FD), uri_(uri)
-    {
-    }
-    virtual ~UriHandler()
-    {
-        if (fd_ >= 0) {
-            close(fd_);
-        }
-    }
-    bool IsFile()
-    {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri_.c_str());
-        if (uri_.empty()) {
-            return false;
-        }
-        struct stat fileInfo {};
-        if (stat(uri_.c_str(), &fileInfo) == 0 && (fileInfo.st_mode & S_IFREG)) {
-            return true;
-        }
-        return false;
-    }
-    virtual std::string ToUri() = 0;
-    virtual int32_t ToFd() = 0;
+    ~UriHandler();
+    static bool IsFile(const std::string &uri);
+    virtual std::string ToUri(int32_t fd) = 0;
+    virtual int32_t ToFd(const std::string &uri);
 
 protected:
     static constexpr int32_t INVALID_FD = -1;
 
-    std::int32_t fd_;
+    std::int32_t fd_ = INVALID_FD;
     std::string uri_;
 };
 } // namespace OHOS::MiscServices
-#endif //DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H
+#endif // DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H

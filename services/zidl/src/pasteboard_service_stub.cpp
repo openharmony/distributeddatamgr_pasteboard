@@ -20,6 +20,8 @@
 #include "pasteboard_common.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "pasteboard_observer_proxy.h"
+#include "paste_uri_handler.h"
+#include "copy_uri_handler.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -90,7 +92,8 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write raw data");
         return ERR_INVALID_VALUE;
     }
-    if (!pasteData.WriteUriFd(reply, false)) {
+    PasteUriHandler pasteUriHandler;
+    if (!pasteData.WriteUriFd(reply, pasteUriHandler, IPCSkeleton::GetCallingTokenID())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
         return ERR_INVALID_VALUE;
     }
@@ -126,7 +129,8 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
         return ERR_INVALID_VALUE;
     }
-    if (!pasteData.ReadUriFd(data, false)) {
+    CopyUriHandler copyUriHandler;
+    if (!pasteData.ReadUriFd(data, copyUriHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
         return ERR_INVALID_VALUE;
     }

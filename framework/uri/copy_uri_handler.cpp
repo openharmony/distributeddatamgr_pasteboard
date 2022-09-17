@@ -12,7 +12,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "server_uri_handler.h"
+#include "copy_uri_handler.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -22,41 +22,23 @@
 #include "pasteboard_hilog_wreapper.h"
 #include "remote_file_share.h"
 namespace OHOS::MiscServices {
-using namespace AppFileService::ModuleRemoteFileShare;
-ServerUriHandler::ServerUriHandler(int32_t fd) : UriHandler(fd)
+using namespace OHOS::AppFileService::ModuleRemoteFileShare;
+std::string CopyUriHandler::ToUri(int32_t fd)
 {
-}
-ServerUriHandler::ServerUriHandler(const std::string &uri) : UriHandler(uri)
-{
-}
-std::string ServerUriHandler::ToUri()
-{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin, fd:%{public}d", fd);
     std::vector<int32_t> ids;
     auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ret != ERR_OK || ids.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
         return uri_;
     }
-    RemoteFileShare remoteFileShare;
-    ret = remoteFileShare.CreateSharePath(fd_, uri_, ids[0]);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fd: %{public}d, user:%{public}d", fd, ids[0]);
+    ret = RemoteFileShare::CreateSharePath(fd, uri_, ids[0]);
     if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " create share path failed, %{public}d ", ret);
         return uri_;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
     return uri_;
-}
-int32_t OHOS::MiscServices::ServerUriHandler::ToFd()
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
-    if (fd_ >= 0) {
-        return fd_;
-    }
-    fd_ = open(uri_.c_str(), O_RDONLY);
-    if (fd_ < 0) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
-            uri_.c_str());
-    }
-    return fd_;
 }
 } // namespace OHOS::MiscServices

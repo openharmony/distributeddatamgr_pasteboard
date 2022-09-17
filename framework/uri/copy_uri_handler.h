@@ -12,16 +12,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_SERVER_URI_HANDLER_H
-#define DISTRIBUTEDDATAMGR_PASTEBOARD_SERVER_URI_HANDLER_H
+#ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_COPY_URI_HANDLER_H
+#define DISTRIBUTEDDATAMGR_PASTEBOARD_COPY_URI_HANDLER_H
 #include "uri_handler.h"
 namespace OHOS::MiscServices {
-class ServerUriHandler : public UriHandler {
+class CopyUriHandler : public UriHandler {
 public:
-    explicit ServerUriHandler(int32_t fd);
-    explicit ServerUriHandler(const std::string &uri);
-    std::string ToUri() override;
-    int32_t ToFd() override;
+    std::string ToUri(int32_t fd) override;
 };
 } // namespace OHOS::MiscServices
-#endif //DISTRIBUTEDDATAMGR_PASTEBOARD_SERVER_URI_HANDLER_H
+#endif // DISTRIBUTEDDATAMGR_PASTEBOARD_COPY_URI_HANDLER_H

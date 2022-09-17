@@ -12,44 +12,25 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "client_uri_handler.h"
-
-#include <fcntl.h>
-#include <unistd.h>
+#include "paste_uri_handler.h"
 
 #include "pasteboard_hilog_wreapper.h"
 #include "remote_uri.h"
 namespace OHOS::MiscServices {
-ClientUriHandler::ClientUriHandler(int32_t fd) : UriHandler(fd)
+std::string PasteUriHandler::ToUri(int fd)
 {
-}
-ClientUriHandler::ClientUriHandler(const std::string &uri) : UriHandler(uri)
-{
-}
-std::string ClientUriHandler::ToUri()
-{
-    if (fd_ < 0) {
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "begin");
+    if (fd < 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fd not available");
         return "";
     }
     std::string result;
-    int ret = DistributedFS::ModuleRemoteUri::RemoteUri::ConvertUri(fd_, result);
+    int ret = DistributedFS::ModuleRemoteUri::RemoteUri::ConvertUri(fd, result);
     if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "convert uri from fd failed: %{public}d", ret);
         return result;
     }
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end, %{public}s", result.c_str());
     return result;
-}
-int32_t OHOS::MiscServices::ClientUriHandler::ToFd()
-{
-    if (fd_ >= 0) {
-        return fd_;
-    }
-    fd_ = open(uri_.c_str(), O_RDONLY);
-    if (fd_ < 0) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
-            uri_.c_str());
-    }
-    return fd_;
 }
 } // namespace OHOS::MiscServices
