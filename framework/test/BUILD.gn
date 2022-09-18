@@ -31,7 +31,7 @@ ohos_unittest("PasteboardFrameworkTest") {
 
   sources = [
     "paste_data_test.cpp",
-    "tlv_object_test.cpp"
+    "tlv_object_test.cpp",
   ]
   configs = [
     "//commonlibrary/c_utils/base:utils_config",
