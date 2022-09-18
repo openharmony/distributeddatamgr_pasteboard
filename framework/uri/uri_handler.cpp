@@ -17,7 +17,7 @@
 #include "pasteboard_hilog_wreapper.h"
 
 namespace OHOS::MiscServices {
-bool UriHandler::IsFile(const std::string &uri)
+bool UriHandler::IsFile(const std::string &uri) const
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri.c_str());
     if (uri.empty()) {

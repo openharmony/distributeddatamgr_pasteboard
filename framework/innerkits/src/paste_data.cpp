@@ -431,7 +431,7 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && Skip(head.len, buffer.size());
                 break;
         }
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
             head.tag, head.len, ret);
         if (!ret) {
             return false;
@@ -526,7 +526,7 @@ bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, uint32
     std::vector<uint32_t> uriIndexList;
     for (size_t i = 0; props_.tokenId != callerToken && i < GetRecordCount(); ++i) {
         auto record = GetRecordAt(i);
-        if (record != nullptr && record->NeedFd()) {
+        if (record != nullptr && record->NeedFd(uriHandler)) {
             uriIndexList.push_back(i);
         }
     }
@@ -559,7 +559,7 @@ bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler)
     }
     return true;
 }
-void PasteData::ReplaceUri(int32_t userId)
+void PasteData::ReplaceShareUri(int32_t userId)
 {
     auto count = GetRecordCount();
     for (size_t i = 0; i < count; ++i) {
