@@ -87,7 +87,8 @@ public:
     size_t Count() override;
     bool WriteFd(MessageParcel &parcel, UriHandler &uriHandler);
     bool ReadFd(MessageParcel &parcel, UriHandler &uriHandler);
-    bool NeedFd();
+    bool NeedFd(const UriHandler &uriHandler);
+    void ReplaceShareUri(int32_t userId);
 
     class Builder {
     public:

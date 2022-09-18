@@ -501,14 +501,14 @@ bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
     convertUri_ = uriHandler.ToUri(parcel.ReadFileDescriptor());
     return true;
 }
-bool PasteDataRecord::NeedFd()
+bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
     std::string tempUri = GetPassUri();
     if (tempUri.empty()) {
         return false;
     }
-    if (!UriHandler::IsFile(tempUri)) {
+    if (!uriHandler.IsFile(tempUri)) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid file uri");
         return false;
     }
@@ -525,6 +525,21 @@ std::string PasteDataRecord::GetPassUri()
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "tempUri:%{public}s", tempUri.c_str());
     return tempUri;
+}
+void PasteDataRecord::ReplaceShareUri(int32_t userId)
+{
+    if (convertUri_.empty()) {
+        return;
+    }
+
+    // convert uri format: /mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt
+    constexpr const char *SHARE_PATH_PREFIX = "/mnt/hmdfs/";
+    auto frontPos = convertUri_.find(SHARE_PATH_PREFIX);
+    auto rearPos = convertUri_.find("/account/");
+    if (frontPos == 0 && rearPos != std::string::npos) {
+        convertUri_ = SHARE_PATH_PREFIX + std::to_string(userId) + convertUri_.substr(rearPos);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "replace uri:%{public}s", convertUri_.c_str());
+    }
 }
 } // namespace MiscServices
 } // namespace OHOS
