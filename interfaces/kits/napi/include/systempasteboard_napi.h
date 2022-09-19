@@ -88,8 +88,7 @@ private:
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
     napi_ref wrapper_;
-    static std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
-    static std::mutex pasteboardObserverInsMutex_;
+    static thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
 };
 
 struct HasContextInfo : public AsyncCall::Context {

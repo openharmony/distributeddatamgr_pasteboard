@@ -28,8 +28,7 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_systemPasteboard = nullptr;
-std::mutex SystemPasteboardNapi::pasteboardObserverInsMutex_;
-std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
+thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
 constexpr size_t MAX_ARGS = 6;
 constexpr int32_t STR_DATA_SIZE = 10;
 const std::string STRING_UPDATE = "update";
@@ -609,7 +608,7 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
     observer = std::make_shared<PasteboardObserverInstance>(env, ref);
     observer->GetStub()->SetObserverWrapper(observer);
     PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer->GetStub());
-    SetObserver(ref, observer);
+    observers_[ref] = observer;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi on() is end!");
     return result;
 }
@@ -866,7 +865,6 @@ napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance
 std::shared_ptr<PasteboardObserverInstance> SystemPasteboardNapi::GetObserver(napi_env env, napi_value observer)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetObserver start");
-    std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
     for (auto &[refKey, observerValue] : observers_) {
         napi_value callback = nullptr;
         napi_get_reference_value(env, refKey, &callback);
@@ -879,18 +877,11 @@ std::shared_ptr<PasteboardObserverInstance> SystemPasteboardNapi::GetObserver(na
     return nullptr;
 }
 
-void SystemPasteboardNapi::SetObserver(napi_ref ref, std::shared_ptr<PasteboardObserverInstance> observer)
-{
-    std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
-    observers_[ref] = observer;
-}
-
 void SystemPasteboardNapi::DeleteObserver(const std::shared_ptr<PasteboardObserverInstance> &observer)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "DeleteObserver start");
     std::vector<std::shared_ptr<PasteboardObserverInstance>> observers;
     {
-        std::lock_guard<std::mutex> lock(pasteboardObserverInsMutex_);
         for (auto it = observers_.begin(); it != observers_.end(); ++it) {
             if (it->second == observer) {
                 observers.push_back(observer);
