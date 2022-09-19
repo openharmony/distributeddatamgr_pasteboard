@@ -490,8 +490,12 @@ size_t PasteDataRecord::Count()
 
 std::shared_ptr<PixelMap> PasteDataRecord::Raw2PixelMap(const RawMem &rawMem)
 {
+    if (rawMem.buffer == 0 || rawMem.bufferLen == 0) {
+        return nullptr;
+    }
     MessageParcel data;
     if (!ParcelUtil::Raw2Parcel(rawMem, data)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "raw to parcel failed");
         return nullptr;
     }
     return PixelMapParcel::CreateFromParcel(data);
@@ -500,8 +504,12 @@ std::shared_ptr<PixelMap> PasteDataRecord::Raw2PixelMap(const RawMem &rawMem)
 RawMem PasteDataRecord::PixelMap2Raw(const std::shared_ptr<PixelMap> &pixelMap)
 {
     RawMem rawMem{ 0 };
+    if (pixelMap == nullptr) {
+        return rawMem;
+    }
     auto data = std::make_shared<MessageParcel>();
     if (!PixelMapParcel::WriteToParcel(pixelMap.get(), *data)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "parcel to raw failed");
         return rawMem;
     }
     rawMem.parcel = data;

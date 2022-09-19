@@ -21,6 +21,7 @@ namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::AAFwk;
+using namespace OHOS::Media;
 class PasteDataTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -55,7 +56,7 @@ public:
     MOCK_CONST_METHOD1(IsFile, bool(const std::string &uri));
 };
 /**
-* @tc.name: PasteDataTest
+* @tc.name: ReplaceShareUri001
 * @tc.desc: replace user id in share path
 * @tc.type: FUNC
 * @tc.require:AR000H5I1D
