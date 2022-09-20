@@ -209,8 +209,8 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme start.");
     std::shared_ptr<Property> property = InputMethodController::GetInstance()->GetCurrentInputMethod();
     if (property != nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "packageName = %{public}s.", property->packageName.c_str());
         if (property->packageName == appInfo.bundleName) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "default ime.");
             return true;
         }
     }
@@ -246,9 +246,7 @@ bool PasteboardService::HasPastePermission(const std::string &appId, ShareOption
     switch (shareOption) {
         case ShareOption::InApp: {
             if (appInfo.appId != appId) {
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                    "InApp check failed, appId = %{public}s, currentAppId = %{public}s.", appId.c_str(),
-                    appInfo.appId.c_str());
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InApp check failed!");
                 return false;
             }
             break;
@@ -293,12 +291,10 @@ bool PasteboardService::GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo)
             break;
         }
         default: {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "token type not match.");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "tokenType = %{public}d not match.", appInfo.tokenType);
             return false;
         }
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "tokenType = %{public}d, appId = %{public}s, bundleName = %{public}s.",
-        appInfo.tokenType, appInfo.appId.c_str(), appInfo.bundleName.c_str());
     return true;
 }
 
@@ -377,7 +373,6 @@ void PasteboardService::SetPasteData(PasteData& pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetAppInfoByTokenId failed.");
         return;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "appId = %{public}s.", appInfo.appId.c_str());
     pasteData.SetAppId(appInfo.appId);
 
     std::lock_guard<std::mutex> lock(clipMutex_);
