@@ -119,12 +119,12 @@ HWTEST_F(PasteDataTest, PasteDataRecordReplaceShareUri001, TestSize.Level0)
     bool result = record->ReadFd(parcel, mock);
     EXPECT_TRUE(result);
     auto uri1 = record->GetUri();
-    ASSERT_TRUE(uri1);
+    ASSERT_TRUE(uri1 != nullptr);
     EXPECT_EQ(mockUri, uri1->ToString());
     record->ReplaceShareUri(200);
     std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
     auto uri2 = record->GetUri();
-    ASSERT_TRUE(uri2);
+    ASSERT_TRUE(uri2 != nullptr);
     EXPECT_EQ(mockUri2, uri2->ToString());
 }
 
@@ -143,9 +143,9 @@ HWTEST_F(PasteDataTest, PasteDataMarshallingUnMarshalling001, TestSize.Level0)
     auto ret = pasteData->Marshalling(parcel);
     ASSERT_TRUE(ret);
     std::shared_ptr<PasteData> pasteData1(pasteData->Unmarshalling(parcel));
-    ASSERT_TRUE(pasteData1);
+    ASSERT_TRUE(pasteData1 != nullptr);
     auto html = pasteData1->GetPrimaryHtml();
-    ASSERT_TRUE(html);
+    ASSERT_TRUE(html != nullptr);
     EXPECT_EQ(*html, htmlText);
 }
 
@@ -163,14 +163,14 @@ HWTEST_F(PasteDataTest, PasteDataRecordMarshallingUnMarshalling001, TestSize.Lev
     int32_t id = 456;
     Want wantIn = want->SetParam(key, id);
     auto record = PasteboardClient::GetInstance()->CreateWantRecord(want);
-    ASSERT_TRUE(record);
+    ASSERT_TRUE(record != nullptr);
     Parcel parcel;
     auto ret = record->Marshalling(parcel);
     ASSERT_TRUE(ret);
     std::shared_ptr<PasteDataRecord> record1(record->Unmarshalling(parcel));
-    ASSERT_TRUE(record1);
+    ASSERT_TRUE(record1 != nullptr);
     auto newWant = record->GetWant();
-    ASSERT_TRUE(newWant);
+    ASSERT_TRUE(newWant != nullptr);
     int32_t defaultValue = 333;
     EXPECT_EQ(newWant->GetIntParam(key, defaultValue), id);
 }
@@ -186,7 +186,7 @@ HWTEST_F(PasteDataTest, ConvertToText001, TestSize.Level0)
 {
     std::string htmlText = "<div class='disabled item tip user-programs'>";
     auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
-    ASSERT_TRUE(record);
+    ASSERT_TRUE(record != nullptr);
     auto text = record->ConvertToText();
     EXPECT_EQ(text, htmlText);
 }

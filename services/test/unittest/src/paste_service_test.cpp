@@ -38,10 +38,10 @@ public:
     void TearDown();
 
     static sptr<PasteboardObserver> pasteboardObserver_;
-    static bool pasteboardChangedFlag_;
+    static std::atomic_bool pasteboardChangedFlag_;
 };
 
-bool PasteboardServiceTest::pasteboardChangedFlag_ = false;
+std::atomic_bool PasteboardServiceTest::pasteboardChangedFlag_ = false;
 sptr<PasteboardObserver> PasteboardServiceTest::pasteboardObserver_ = nullptr;
 
 void PasteboardServiceTest::SetUpTestCase(void)
@@ -763,7 +763,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
 {
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    ASSERT_TRUE(pasteData);
+    ASSERT_TRUE(pasteData != nullptr);
     auto isDraggedData = pasteData->IsDraggedData();
     ASSERT_FALSE(isDraggedData);
     pasteData->SetDraggedDataFlag(true);
@@ -800,7 +800,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0016, TestSize.Level0)
 {
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    ASSERT_TRUE(pasteData);
+    ASSERT_TRUE(pasteData != nullptr);
     std::vector<uint8_t> arrayBuffer(46);
     arrayBuffer = { 2, 7, 6, 8, 9 };
     std::string mimeType = "image/jpg";
@@ -818,14 +818,14 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0016, TestSize.Level0)
     ASSERT_TRUE(newPasteData.HasMimeType(mimeType));
     ASSERT_TRUE(newPasteData.GetRecordCount() == 1);
     auto record = newPasteData.GetRecordAt(0);
-    ASSERT_TRUE(record);
+    ASSERT_TRUE(record != nullptr);
     auto customData = record->GetCustomData();
-    ASSERT_TRUE(customData);
+    ASSERT_TRUE(customData != nullptr);
     auto itemData = customData->GetItemData();
-    ASSERT_TRUE(itemData.size() == 1);
+    ASSERT_EQ(itemData.size(), 1);
     auto item = itemData.find(mimeType);
     ASSERT_TRUE(item != itemData.end());
-    ASSERT_TRUE(item->second == arrayBuffer);
+    EXPECT_EQ(item->second, arrayBuffer);
 }
 
 /**
@@ -841,17 +841,17 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color)/sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
-    ASSERT_TRUE(pasteData);
+    ASSERT_TRUE(pasteData != nullptr);
     auto pixelMap1 = pasteData->GetPrimaryPixelMap();
-    ASSERT_TRUE(pixelMap1);
+    ASSERT_TRUE(pixelMap1 != nullptr);
     ImageInfo imageInfo = {};
     pixelMap1->GetImageInfo(imageInfo);
-    ASSERT_TRUE(imageInfo.size.height == opts.size.height);
-    ASSERT_TRUE(imageInfo.size.width == opts.size.width);
-    ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+    ASSERT_EQ(imageInfo.size.height, opts.size.height);
+    ASSERT_EQ(imageInfo.size.width, opts.size.width);
+    ASSERT_EQ(imageInfo.pixelFormat, opts.pixelFormat);
     std::string plainText = "plain text";
     auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord(plainText);
-    ASSERT_TRUE(record);
+    ASSERT_TRUE(record != nullptr);
     ASSERT_TRUE(pasteData->ReplaceRecordAt(0, record));
     PasteboardClient::GetInstance()->Clear();
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
@@ -862,21 +862,21 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
     PasteData newPasteData;
     auto ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     ASSERT_TRUE(ret);
-    ASSERT_TRUE(newPasteData.GetRecordCount() == 1);
+    ASSERT_EQ(newPasteData.GetRecordCount(), 1);
     auto record1 = newPasteData.GetRecordAt(0);
-    ASSERT_TRUE(record1);
+    ASSERT_TRUE(record1 != nullptr);
     auto plainText1 = record1->GetPlainText();
-    ASSERT_TRUE(plainText1);
-    ASSERT_TRUE(*plainText1 == plainText);
+    ASSERT_TRUE(plainText1 != nullptr);
+    EXPECT_EQ(*plainText1, plainText);
     auto property = newPasteData.GetProperty();
-    ASSERT_TRUE(property.additions.IsEmpty());
-    ASSERT_TRUE(property.mimeTypes.size() == 1);
-    ASSERT_TRUE(property.mimeTypes[0] == MIMETYPE_TEXT_PLAIN);
-    ASSERT_TRUE(property.tag.empty());
-    ASSERT_TRUE(property.shareOption == ShareOption::CrossDevice);
-    ASSERT_TRUE(property.tokenId != 0);
+    EXPECT_TRUE(property.additions.IsEmpty());
+    EXPECT_EQ(property.mimeTypes.size(), 1);
+    EXPECT_EQ(property.mimeTypes[0], MIMETYPE_TEXT_PLAIN);
+    EXPECT_TRUE(property.tag.empty());
+    EXPECT_EQ(property.shareOption, ShareOption::CrossDevice);
+    EXPECT_TRUE(property.tokenId != 0);
     auto tag = newPasteData.GetTag();
-    ASSERT_TRUE(tag.empty());
+    EXPECT_TRUE(tag.empty());
 }
 
 /**
@@ -890,7 +890,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     if (PasteboardServiceTest::pasteboardObserver_ == nullptr) {
         PasteboardServiceTest::pasteboardObserver_ = new PasteboardObserverCallback();
     }
-    ASSERT_TRUE(PasteboardServiceTest::pasteboardObserver_);
+    ASSERT_TRUE(PasteboardServiceTest::pasteboardObserver_ != nullptr);
     PasteboardClient::GetInstance()->AddPasteboardChangedObserver(PasteboardServiceTest::pasteboardObserver_);
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     const wptr<IRemoteObject> object;
@@ -902,7 +902,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color)/sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
-    ASSERT_TRUE(pasteData);
+    ASSERT_TRUE(pasteData != nullptr);
     PasteboardClient::GetInstance()->Clear();
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
