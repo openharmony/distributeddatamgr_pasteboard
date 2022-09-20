@@ -742,4 +742,38 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     shareOption = newPasteData.GetShareOption();
     ASSERT_TRUE(shareOption == ShareOption::InApp);
 }
+/**
+* @tc.name: BigPixelMap001
+* @tc.desc: paste big pixel map image
+* @tc.type: FUNC
+* @tc.require:AR000H5I1D
+* @tc.author: baoyayong
+*/
+HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
+{
+    constexpr uint32_t COLOR_SIZE = 1024 * 1960;
+    auto color = std::make_unique<uint32_t[]>(COLOR_SIZE);
+    InitializationOptions opts = { { 1024, 1960 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color.get(), COLOR_SIZE, opts);
+
+    auto pasteData1 = PasteboardClient::GetInstance()->CreatePixelMapData(std::move(pixelMap));
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_FALSE(hasPasteData);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData1);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData);
+
+    PasteData pasteData2;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(pasteData2);
+    ASSERT_TRUE(ret);
+
+    auto pixelMap2 = pasteData2.GetPrimaryPixelMap();
+    ASSERT_TRUE(pixelMap2 != nullptr);
+    ImageInfo imageInfo{};
+    pixelMap2->GetImageInfo(imageInfo);
+    EXPECT_TRUE(imageInfo.size.height == opts.size.height);
+    EXPECT_TRUE(imageInfo.size.width == opts.size.width);
+    EXPECT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+}
 } // namespace OHOS::MiscServices
