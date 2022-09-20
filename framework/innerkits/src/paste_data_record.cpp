@@ -17,10 +17,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "paste_uri_handler.h"
-#include "parcel_util.h"
-#include "pasteboard_common.h"
 #include "copy_uri_handler.h"
+#include "parcel_util.h"
+#include "paste_uri_handler.h"
+#include "pasteboard_common.h"
+#include "pixel_map_parcel.h"
 
 using namespace OHOS::Media;
 
@@ -131,8 +132,8 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &
     return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
 }
 
-std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(const std::string &mimeType,
-    const std::vector<uint8_t> &arrayBuffer)
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
+    const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType, arrayBuffer);
@@ -250,8 +251,7 @@ bool PasteDataRecord::Marshalling(Parcel &parcel) const
     return ret;
 }
 
-template<typename T>
-ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
+template<typename T> ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");
@@ -417,7 +417,7 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
     ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
     ret = Write(buffer, TAG_CONVERT_URI, convertUri_) && ret;
-    ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
+    ret = Write(buffer, TAG_PIXELMAP, PixelMap2Raw(pixelMap_)) && ret;
     ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
     return ret;
 }
@@ -456,7 +456,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_PIXELMAP: {
                 RawMem rawMem{};
                 ret = ret && ReadValue(buffer, rawMem, head);
-                pixelMap_ = std::shared_ptr<PixelMap>(ParcelUtil::Raw2Parcelable<PixelMap>(rawMem));
+                pixelMap_ = Raw2PixelMap(rawMem);
                 break;
             }
             case TAG_CUSTOM_DATA:
@@ -474,7 +474,6 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
     }
     return true;
 }
-
 size_t PasteDataRecord::Count()
 {
     size_t expectedSize = 0;
@@ -484,10 +483,41 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(plainText_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
     expectedSize += TLVObject::Count(convertUri_);
-    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
+    expectedSize += TLVObject::Count(PixelMap2Raw(pixelMap_));
     expectedSize += TLVObject::Count(customData_);
     return expectedSize;
 }
+
+std::shared_ptr<PixelMap> PasteDataRecord::Raw2PixelMap(const RawMem &rawMem)
+{
+    if (rawMem.buffer == 0 || rawMem.bufferLen == 0) {
+        return nullptr;
+    }
+    MessageParcel data;
+    if (!ParcelUtil::Raw2Parcel(rawMem, data)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "raw to parcel failed");
+        return nullptr;
+    }
+    return PixelMapParcel::CreateFromParcel(data);
+}
+
+RawMem PasteDataRecord::PixelMap2Raw(const std::shared_ptr<PixelMap> &pixelMap)
+{
+    RawMem rawMem{ 0 };
+    if (pixelMap == nullptr) {
+        return rawMem;
+    }
+    auto data = std::make_shared<MessageParcel>();
+    if (!PixelMapParcel::WriteToParcel(pixelMap.get(), *data)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "parcel to raw failed");
+        return rawMem;
+    }
+    rawMem.parcel = data;
+    rawMem.buffer = data->GetData();
+    rawMem.bufferLen = data->GetDataSize();
+    return rawMem;
+}
+
 bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
     std::string tempUri = GetPassUri();
