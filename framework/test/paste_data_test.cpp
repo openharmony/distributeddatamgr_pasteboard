@@ -190,4 +190,119 @@ HWTEST_F(PasteDataTest, ConvertToText001, TestSize.Level0)
     auto text = record->ConvertToText();
     EXPECT_EQ(text, htmlText);
 }
+
+/**
+* @tc.name: AddRecord001
+* @tc.desc: AddRecord: records_.size() > MAX_RECORD_NUM
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, AddRecord001, TestSize.Level0)
+{
+    std::string htmlText = "<div class='disabled item tip user-programs'>";
+    auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
+    ASSERT_TRUE(record != nullptr);
+    auto pasteData = std::make_shared<PasteData>();
+    for (size_t i = 0; i < PasteData::MAX_RECORD_NUM; i++) {
+        pasteData->AddRecord(*record);
+    }
+    ASSERT_EQ(pasteData->GetRecordCount(), PasteData::MAX_RECORD_NUM);
+    std::shared_ptr<OHOS::AAFwk::Want> want = std::make_shared<OHOS::AAFwk::Want>();
+    std::string key = "id";
+    int32_t id = 456;
+    Want wantIn = want->SetParam(key, id);
+    record = PasteboardClient::GetInstance()->CreateWantRecord(want);
+    ASSERT_TRUE(record != nullptr);
+    pasteData->AddRecord(*record);
+    ASSERT_EQ(pasteData->GetRecordCount(), PasteData::MAX_RECORD_NUM);
+    auto record0 = pasteData->GetRecordAt(0);
+    ASSERT_TRUE(record0 != nullptr);
+    auto newWant = record0->GetWant();
+    ASSERT_TRUE(newWant != nullptr);
+    int32_t defaultValue = 333;
+    EXPECT_EQ(newWant->GetIntParam(key, defaultValue), id);
+    auto lastRecord= pasteData->GetRecordAt(PasteData::MAX_RECORD_NUM - 1);
+    ASSERT_TRUE(lastRecord != nullptr);
+    auto newHtml = lastRecord->GetHtmlText();
+    ASSERT_TRUE(newHtml != nullptr);
+    EXPECT_EQ(*newHtml, htmlText);
+}
+
+/**
+* @tc.name: PartGetInterfaceAbnormalTest001
+* @tc.desc: GetPrimaryPixelMap¡¢GetPrimaryText¡¢GetPrimaryUri¡¢GetPrimaryWant
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, PartGetInterfaceAbnormalTest001, TestSize.Level0)
+{
+    std::string htmlText = "<div class='disabled item tip user-programs'>";
+    auto pasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(pasteData != nullptr);
+    auto html = pasteData->GetPrimaryHtml();
+    EXPECT_TRUE(html != nullptr);
+    auto want = pasteData->GetPrimaryWant();
+    EXPECT_TRUE(want == nullptr);
+    auto pixelMap = pasteData->GetPrimaryPixelMap();
+    EXPECT_TRUE(pixelMap == nullptr);
+    auto text = pasteData->GetPrimaryText();
+    EXPECT_TRUE(text == nullptr);
+    auto uri = pasteData->GetPrimaryUri();
+    EXPECT_TRUE(uri == nullptr);
+}
+
+/**
+* @tc.name: PartGetInterfaceAbnormalTest002
+* @tc.desc: GetPrimaryMimeType¡¢GetPrimaryHtml¡¢GetRecordAt
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, PartGetInterfaceAbnormalTest002, TestSize.Level0)
+{
+    auto pasteData = std::make_shared<PasteData>();
+    auto html = pasteData->GetPrimaryHtml();
+    EXPECT_TRUE(html == nullptr);
+    auto mimeType = pasteData->GetPrimaryMimeType();
+    EXPECT_TRUE(mimeType == nullptr);
+    auto Record0 = pasteData->GetRecordAt(0);
+    EXPECT_TRUE(Record0 == nullptr);
+}
+
+/**
+* @tc.name: RemoveRecordAt001
+* @tc.desc: RemoveRecordAtÒì³£²âÊÔ
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, RemoveRecordAt001, TestSize.Level0)
+{
+    std::string htmlText = "<div class='disabled item tip user-programs'>";
+    auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
+    ASSERT_TRUE(record != nullptr);
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddRecord(*record);
+    EXPECT_FALSE(pasteData->RemoveRecordAt(1));
+}
+
+/**
+* @tc.name: ReplaceRecordAt001
+* @tc.desc: ReplaceRecordAtÒì³£²âÊÔ
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, ReplaceRecordAt001, TestSize.Level0)
+{
+    std::string htmlText = "<div class='disabled item tip user-programs'>";
+    auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
+    ASSERT_TRUE(record != nullptr);
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddRecord(*record);
+    EXPECT_FALSE(pasteData->ReplaceRecordAt(1, record));
+    EXPECT_FALSE(pasteData->HasMimeType(MIMETYPE_TEXT_WANT));
+}
 } // namespace OHOS::MiscServices
