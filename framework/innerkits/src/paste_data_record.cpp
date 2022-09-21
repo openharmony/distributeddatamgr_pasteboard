@@ -20,6 +20,7 @@
 #include "client_uri_handler.h"
 #include "parcel_util.h"
 #include "pasteboard_common.h"
+#include "pixel_map_parcel.h"
 #include "server_uri_handler.h"
 
 using namespace OHOS::Media;
@@ -415,7 +416,7 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_WANT, ParcelUtil::Parcelable2Raw(want_.get())) && ret;
     ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
     ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
-    ret = Write(buffer, TAG_PIXELMAP, ParcelUtil::Parcelable2Raw(pixelMap_.get())) && ret;
+    ret = Write(buffer, TAG_PIXELMAP, PixelMap2Raw(pixelMap_)) && ret;
     ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
     return ret;
 }
@@ -450,7 +451,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_PIXELMAP: {
                 RawMem rawMem{};
                 ret = ret && ReadValue(buffer, rawMem, head);
-                pixelMap_ = std::shared_ptr<PixelMap>(ParcelUtil::Raw2Parcelable<PixelMap>(rawMem));
+                pixelMap_ = Raw2PixelMap(rawMem);
                 break;
             }
             case TAG_CUSTOM_DATA:
@@ -460,7 +461,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && Skip(head.len, buffer.size());
                 break;
         }
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
             head.tag, head.len, ret);
         if (!ret) {
             return false;
@@ -477,9 +478,39 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(want_.get()));
     expectedSize += TLVObject::Count(plainText_);
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
-    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(pixelMap_.get()));
+    expectedSize += TLVObject::Count(PixelMap2Raw(pixelMap_));
     expectedSize += TLVObject::Count(customData_);
     return expectedSize;
+}
+
+std::shared_ptr<PixelMap> PasteDataRecord::Raw2PixelMap(const RawMem &rawMem)
+{
+    if (rawMem.buffer == 0 || rawMem.bufferLen == 0) {
+        return nullptr;
+    }
+    MessageParcel data;
+    if (!ParcelUtil::Raw2Parcel(rawMem, data)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "raw to parcel failed");
+        return nullptr;
+    }
+    return PixelMapParcel::CreateFromParcel(data);
+}
+
+RawMem PasteDataRecord::PixelMap2Raw(const std::shared_ptr<PixelMap> &pixelMap)
+{
+    RawMem rawMem{ 0 };
+    if (pixelMap == nullptr) {
+        return rawMem;
+    }
+    auto data = std::make_shared<MessageParcel>();
+    if (!PixelMapParcel::WriteToParcel(pixelMap.get(), *data)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "parcel to raw failed");
+        return rawMem;
+    }
+    rawMem.parcel = data;
+    rawMem.buffer = data->GetData();
+    rawMem.bufferLen = data->GetDataSize();
+    return rawMem;
 }
 bool PasteDataRecord::WriteFd(MessageParcel &parcel, bool isClient)
 {

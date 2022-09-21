@@ -115,6 +115,8 @@ private:
     {
         return resultCode == ResultCode::OK;
     }
+    static std::shared_ptr<OHOS::Media::PixelMap> Raw2PixelMap(const RawMem &rawMem);
+    static RawMem PixelMap2Raw(const std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
