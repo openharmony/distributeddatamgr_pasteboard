@@ -78,6 +78,8 @@ public:
     std::string GetAppId();
     void SetAppId(const std::string &appId);
     std::vector<std::shared_ptr<PasteDataRecord>> AllRecords() const;
+    bool IsDraggedData() const;
+    void SetDraggedDataFlag(bool isDraggedData);
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteData *Unmarshalling(Parcel &parcel);
@@ -93,6 +95,7 @@ private:
     void RefreshMimeProp();
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
+    bool isDraggedData = false;
 };
 } // namespace MiscServices
 } // namespace OHOS

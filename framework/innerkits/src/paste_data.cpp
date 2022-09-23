@@ -35,6 +35,7 @@ const std::uint32_t MAX_RECORD_NUM = 512;
 enum TAG_PASTEBOARD : uint16_t {
     TAG_PROPS = TAG_BUFF + 1,
     TAG_RECORDS,
+    TAG_DRAGGED_DATA_FLAG,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -256,6 +257,16 @@ std::vector<std::shared_ptr<PasteDataRecord>> PasteData::AllRecords() const
     return this->records_;
 }
 
+bool PasteData::IsDraggedData() const
+{
+    return isDraggedData_;
+}
+
+void PasteData::SetDraggedDataFlag(bool isDraggedData)
+{
+    isDraggedData_ = isDraggedData;
+}
+
 void PasteData::RefreshMimeProp()
 {
     std::vector<std::string> mimeTypes;
@@ -378,6 +389,7 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 
     bool ret = Write(buffer, TAG_PROPS, props_);
     ret = Write(buffer, TAG_RECORDS, records_) && ret;
+    ret = Write(buffer, TAG_DRAGGED_DATA_FLAG, isDraggedData_) && ret;
     return ret;
 }
 
@@ -393,6 +405,10 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 break;
             case TAG_RECORDS: {
                 ret = ret && ReadValue(buffer, records_, head);
+                break;
+            }
+            case TAG_DRAGGED_DATA_FLAG: {
+                ret = ret && ReadValue(buffer, isDraggedData_, head);
                 break;
             }
             default:
@@ -412,6 +428,7 @@ size_t PasteData::Count()
     size_t expectSize = 0;
     expectSize += props_.Count() + sizeof(TLVHead);
     expectSize += TLVObject::Count(records_);
+    expectSize += TLVObject::Count(isDraggedData_);
     return expectSize;
 }
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
