@@ -28,6 +28,7 @@ bool UriHandler::IsFile(const std::string &uri) const
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "valid uri");
         return true;
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "not file");
     return false;
 }
 int32_t UriHandler::ToFd(const std::string &uri)

@@ -209,7 +209,6 @@ void PasteboardService::PasteboardFocusChangedListener::OnUnfocused(const sptr<R
 
 bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid)
 {
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start.");
     if (appInfo.tokenType != ATokenTypeEnum::TOKEN_HAP) {
         return true;
     }
@@ -291,14 +290,10 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
     return info;
 }
 
-void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, std::shared_ptr<PasteData> &pasteData)
+void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData)
 {
-    if (!isCrossPaste) {
-        pasteData->SetLocalPasteFlag(tokenId == pasteData->GetTokenId());
-    } else {
-        pasteData->SetLocalPasteFlag(false);
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isLocalPaste = %{public}d.", pasteData->IsLocalPaste());
+    pasteData.SetLocalPaste(!isCrossPaste && tokenId == pasteData.GetTokenId());
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "isLocalPaste = %{public}d.", pasteData.IsLocalPaste());
 }
 
 bool PasteboardService::GetPasteData(PasteData &data)
@@ -350,7 +345,6 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
 
     GetPasteDataDot(tokenId);
-
     auto userId = GetUserIdByToken(tokenId);
     if (userId == ERROR_USERID) {
         return false;
@@ -377,8 +371,8 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t 
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
 
-    SetLocalPasteFlag(isCrossPaste, tokenId, it->second);
     data = *(it->second);
+    SetLocalPasteFlag(isCrossPaste, tokenId, data);
     return true;
 }
 

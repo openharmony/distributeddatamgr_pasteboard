@@ -766,7 +766,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
     ASSERT_TRUE(pasteData != nullptr);
     auto isDraggedData = pasteData->IsDraggedData();
     ASSERT_FALSE(isDraggedData);
-    pasteData->SetDraggedDataFlag(true);
+    pasteData->SetDraggedData(true);
     auto isLocalPaste = pasteData->IsLocalPaste();
     ASSERT_FALSE(isLocalPaste);
     pasteData->SetLocalPasteFlag(true);

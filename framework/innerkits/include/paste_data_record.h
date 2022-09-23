@@ -89,6 +89,7 @@ public:
     bool ReadFd(MessageParcel &parcel, UriHandler &uriHandler);
     bool NeedFd(const UriHandler &uriHandler);
     void ReplaceShareUri(int32_t userId);
+    void SetConvertUri(const std::string &value);
 
     class Builder {
     public:

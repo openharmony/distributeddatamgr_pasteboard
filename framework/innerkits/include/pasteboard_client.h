@@ -188,6 +188,7 @@ public:
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
 private:
     void ConnectService();
+    static void RetainUri(PasteData &pasteData) ;
 
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;

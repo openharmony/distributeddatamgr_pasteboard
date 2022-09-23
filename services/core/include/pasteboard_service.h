@@ -114,7 +114,7 @@ private:
     static bool HasPastePermission(uint32_t tokenId, int32_t pid, std::shared_ptr<PasteData> pasteData);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static bool IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid);
-    static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, std::shared_ptr<PasteData> &pasteData);
+    static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;

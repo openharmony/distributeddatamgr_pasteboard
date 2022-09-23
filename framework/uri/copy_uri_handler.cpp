@@ -26,6 +26,7 @@ using namespace OHOS::AppFileService::ModuleRemoteFileShare;
 std::string CopyUriHandler::ToUri(int32_t fd)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin, fd:%{public}d", fd);
+    fd_ = fd;
     std::vector<int32_t> ids;
     auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ret != ERR_OK || ids.empty()) {

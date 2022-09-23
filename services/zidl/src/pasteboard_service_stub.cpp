@@ -15,13 +15,13 @@
 
 #include "pasteboard_service_stub.h"
 
+#include "copy_uri_handler.h"
 #include "errors.h"
 #include "paste_data.h"
+#include "paste_uri_handler.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "pasteboard_observer_proxy.h"
-#include "paste_uri_handler.h"
-#include "copy_uri_handler.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -93,7 +93,7 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
     PasteUriHandler pasteUriHandler;
-    if (!pasteData.WriteUriFd(reply, pasteUriHandler, IPCSkeleton::GetCallingTokenID())) {
+    if (!pasteData.WriteUriFd(reply, pasteUriHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
         return ERR_INVALID_VALUE;
     }
