@@ -833,7 +833,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
     EXPECT_EQ(property.mimeTypes[0], MIMETYPE_TEXT_PLAIN);
     EXPECT_TRUE(property.tag.empty());
     EXPECT_EQ(property.shareOption, ShareOption::CrossDevice);
-    EXPECT_TRUE(property.tokenId != 0);
     auto tag = newPasteData.GetTag();
     EXPECT_TRUE(tag.empty());
 }
