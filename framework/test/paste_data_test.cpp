@@ -71,7 +71,7 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
     builder.SetUri(uri);
     auto record = builder.Build();
 
-    //mock
+    // mock
     UriHandlerMock mock;
     std::string mockUri = "/mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt";
     EXPECT_CALL(mock, ToUri(_)).WillRepeatedly(Return(mockUri));
