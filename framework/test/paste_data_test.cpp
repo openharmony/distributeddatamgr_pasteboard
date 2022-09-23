@@ -71,7 +71,7 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
     builder.SetUri(uri);
     auto record = builder.Build();
 
-    //mock
+    // mock
     UriHandlerMock mock;
     std::string mockUri = "/mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt";
     EXPECT_CALL(mock, ToUri(_)).WillRepeatedly(Return(mockUri));
@@ -87,5 +87,107 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
     data.ReplaceShareUri(200);
     std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
     EXPECT_EQ(mockUri2, data.GetPrimaryUri()->ToString());
+}
+
+/**
+* @tc.name: PasteDataRecordReplaceShareUri001
+* @tc.desc: PasteDataRecord: WriteFd ReadFd NeedFd ReplaceShareUri
+* @tc.type: FUNC
+* @tc.require:AR000H5I1D
+* @tc.author: baoyayong
+*/
+HWTEST_F(PasteDataTest, PasteDataRecordReplaceShareUri001, TestSize.Level0)
+{
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    std::string uriStr = "/data/storage/100/haps/caches/xxx.txt";
+    auto uri = std::make_shared<OHOS::Uri>(uriStr);
+    builder.SetUri(uri);
+    auto record = builder.Build();
+
+    //mock
+    UriHandlerMock mock;
+    std::string mockUri = "/mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt";
+    EXPECT_CALL(mock, ToUri(_)).WillRepeatedly(Return(mockUri));
+    EXPECT_CALL(mock, ToFd(_)).WillRepeatedly(Return(10));
+    EXPECT_CALL(mock, IsFile(_)).WillRepeatedly(Return(true));
+
+    ASSERT_TRUE(record->NeedFd(mock));
+
+    MessageParcel parcel;
+    record->WriteFd(parcel, mock);
+
+    bool result = record->ReadFd(parcel, mock);
+    EXPECT_TRUE(result);
+    auto uri1 = record->GetUri();
+    ASSERT_TRUE(uri1 != nullptr);
+    EXPECT_EQ(mockUri, uri1->ToString());
+    record->ReplaceShareUri(200);
+    std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
+    auto uri2 = record->GetUri();
+    ASSERT_TRUE(uri2 != nullptr);
+    EXPECT_EQ(mockUri2, uri2->ToString());
+}
+
+/**
+* @tc.name: PasteDataMarshallingUnMarshalling001
+* @tc.desc: PasteData: Marshalling unMarshalling
+* @tc.type: FUNC
+* @tc.require: AROOOH5R5G
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, PasteDataMarshallingUnMarshalling001, TestSize.Level0)
+{
+    std::string htmlText = "<div class='disabled item tip user-programs'>";
+    auto pasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    Parcel parcel;
+    auto ret = pasteData->Marshalling(parcel);
+    ASSERT_TRUE(ret);
+    std::shared_ptr<PasteData> pasteData1(pasteData->Unmarshalling(parcel));
+    ASSERT_TRUE(pasteData1 != nullptr);
+    auto html = pasteData1->GetPrimaryHtml();
+    ASSERT_TRUE(html != nullptr);
+    EXPECT_EQ(*html, htmlText);
+}
+
+/**
+* @tc.name: PasteDataRecordMarshallingUnMarshalling001
+* @tc.desc: PasteDataRecord: Marshalling unMarshalling
+* @tc.type: FUNC
+* @tc.require: AROOOH5R5G
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, PasteDataRecordMarshallingUnMarshalling001, TestSize.Level0)
+{
+    std::shared_ptr<OHOS::AAFwk::Want> want = std::make_shared<OHOS::AAFwk::Want>();
+    std::string key = "id";
+    int32_t id = 456;
+    Want wantIn = want->SetParam(key, id);
+    auto record = PasteboardClient::GetInstance()->CreateWantRecord(want);
+    ASSERT_TRUE(record != nullptr);
+    Parcel parcel;
+    auto ret = record->Marshalling(parcel);
+    ASSERT_TRUE(ret);
+    std::shared_ptr<PasteDataRecord> record1(record->Unmarshalling(parcel));
+    ASSERT_TRUE(record1 != nullptr);
+    auto newWant = record->GetWant();
+    ASSERT_TRUE(newWant != nullptr);
+    int32_t defaultValue = 333;
+    EXPECT_EQ(newWant->GetIntParam(key, defaultValue), id);
+}
+
+/**
+* @tc.name: ConvertToText001
+* @tc.desc: PasteDataRecord: ConvertToText
+* @tc.type: FUNC
+* @tc.require: AR000HEECD
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, ConvertToText001, TestSize.Level0)
+{
+    std::string htmlText = "<div class='disabled item tip user-programs'>";
+    auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
+    ASSERT_TRUE(record != nullptr);
+    auto text = record->ConvertToText();
+    EXPECT_EQ(text, htmlText);
 }
 } // namespace OHOS::MiscServices
