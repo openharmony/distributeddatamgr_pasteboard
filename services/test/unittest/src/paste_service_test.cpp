@@ -776,4 +776,31 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
     EXPECT_TRUE(imageInfo.size.width == opts.size.width);
     EXPECT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
 }
+
+/**
+* @tc.name: isDraggedData001
+* @tc.desc: isDraggedData test.
+* @tc.type: FUNC
+* @tc.require: AROOOH5R5G
+*/
+HWTEST_F(PasteboardServiceTest, isDraggedData001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    auto isDraggedData = pasteData->IsDraggedData();
+    ASSERT_FALSE(isDraggedData);
+    pasteData->SetDraggedDataFlag(true);
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_FALSE(hasPasteData);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData);
+    PasteData newPasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret);
+    isDraggedData = newPasteData.IsDraggedData();
+    ASSERT_TRUE(isDraggedData);
+}
 } // namespace OHOS::MiscServices
