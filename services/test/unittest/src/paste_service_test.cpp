@@ -769,10 +769,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
     pasteData->SetDraggedData(true);
     auto isLocalPaste = pasteData->IsLocalPaste();
     ASSERT_FALSE(isLocalPaste);
-    pasteData->SetLocalPasteFlag(true);
+    pasteData->SetLocalPaste(true);
     isLocalPaste = pasteData->IsLocalPaste();
     ASSERT_TRUE(isLocalPaste);
-    pasteData->SetLocalPasteFlag(false);
+    pasteData->SetLocalPaste(false);
     isLocalPaste = pasteData->IsLocalPaste();
     ASSERT_FALSE(isLocalPaste);
     PasteboardClient::GetInstance()->Clear();

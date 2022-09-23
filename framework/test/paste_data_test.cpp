@@ -80,19 +80,13 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
 
     data.AddRecord(record);
     MessageParcel parcel;
-    data.WriteUriFd(parcel, mock, true);
+    data.WriteUriFd(parcel, mock);
     bool result = data.ReadUriFd(parcel, mock);
     EXPECT_TRUE(result);
     EXPECT_EQ(mockUri, data.GetPrimaryUri()->ToString());
     data.ReplaceShareUri(200);
     std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
     EXPECT_EQ(mockUri2, data.GetPrimaryUri()->ToString());
-
-    MessageParcel parcelNoFd;
-    data.WriteUriFd(parcelNoFd, mock, false);
-    result = data.ReadUriFd(parcelNoFd, mock);
-    EXPECT_TRUE(result);
-    EXPECT_EQ(uriStr, data.GetPrimaryUri()->ToString());
 }
 
 /**
