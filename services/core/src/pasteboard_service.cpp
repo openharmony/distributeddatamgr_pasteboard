@@ -292,7 +292,7 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
 
 void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData)
 {
-    pasteData.SetLocalPaste(!isCrossPaste && tokenId == pasteData.GetTokenId());
+    pasteData.SetLocalPasteFlag(!isCrossPaste && tokenId == pasteData.GetTokenId());
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "isLocalPaste = %{public}d.", pasteData.IsLocalPaste());
 }
 

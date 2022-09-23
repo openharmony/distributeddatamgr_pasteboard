@@ -766,13 +766,13 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
     ASSERT_TRUE(pasteData != nullptr);
     auto isDraggedData = pasteData->IsDraggedData();
     ASSERT_FALSE(isDraggedData);
-    pasteData->SetDraggedData(true);
+    pasteData->SetDraggedDataFlag(true);
     auto isLocalPaste = pasteData->IsLocalPaste();
     ASSERT_FALSE(isLocalPaste);
-    pasteData->SetLocalPaste(true);
+    pasteData->SetLocalPasteFlag(true);
     isLocalPaste = pasteData->IsLocalPaste();
     ASSERT_TRUE(isLocalPaste);
-    pasteData->SetLocalPaste(false);
+    pasteData->SetLocalPasteFlag(false);
     isLocalPaste = pasteData->IsLocalPaste();
     ASSERT_FALSE(isLocalPaste);
     PasteboardClient::GetInstance()->Clear();

@@ -79,9 +79,9 @@ public:
     void SetTokenId(uint32_t tokenId);
     std::vector<std::shared_ptr<PasteDataRecord>> AllRecords() const;
     bool IsDraggedData() const;
-    void SetDraggedData(bool isDraggedData);
+    void SetDraggedDataFlag(bool isDraggedData);
     bool IsLocalPaste() const;
-    void SetLocalPaste(bool isLocalPaste);
+    void SetLocalPasteFlag(bool isLocalPaste);
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteData *Unmarshalling(Parcel &parcel);

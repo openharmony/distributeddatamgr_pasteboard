@@ -268,12 +268,12 @@ bool PasteData::IsLocalPaste() const
     return isLocalPaste_;
 }
 
-void PasteData::SetDraggedData(bool isDraggedData)
+void PasteData::SetDraggedDataFlag(bool isDraggedData)
 {
     isDraggedData_ = isDraggedData;
 }
 
-void PasteData::SetLocalPaste(bool isLocalPaste)
+void PasteData::SetLocalPasteFlag(bool isLocalPaste)
 {
     isLocalPaste_ = isLocalPaste;
 }
