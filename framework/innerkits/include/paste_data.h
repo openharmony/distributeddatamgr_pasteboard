@@ -95,7 +95,7 @@ private:
     void RefreshMimeProp();
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
-    bool isDraggedData = false;
+    bool isDraggedData_ = false;
 };
 } // namespace MiscServices
 } // namespace OHOS
