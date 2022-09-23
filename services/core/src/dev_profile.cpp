@@ -97,7 +97,8 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
     ServiceCharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(deviceId, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, deviceId = %{public}.5s.", deviceId.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, deviceId = %{public}.5s.",
+            deviceId.c_str());
         return;
     }
     const auto &jsonData = profile.GetCharacteristicProfileJson();
