@@ -41,7 +41,7 @@ ohos_static_library("pasteboard_uri") {
   external_deps = [
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
-    "distributedfilejs:remote_uri_native",
+    "file_api:remote_uri_native",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
