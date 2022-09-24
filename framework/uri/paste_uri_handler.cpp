@@ -20,7 +20,6 @@ namespace OHOS::MiscServices {
 std::string PasteUriHandler::ToUri(int32_t fd)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "begin");
-    fd_ = fd;
     if (fd < 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fd not available");
         return "";
