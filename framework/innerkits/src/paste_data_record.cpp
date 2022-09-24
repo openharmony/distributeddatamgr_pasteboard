@@ -132,8 +132,8 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &
     return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
 }
 
-std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
-    const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(const std::string &mimeType,
+    const std::vector<uint8_t> &arrayBuffer)
 {
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType, arrayBuffer);
@@ -570,6 +570,10 @@ void PasteDataRecord::ReplaceShareUri(int32_t userId)
         convertUri_ = SHARE_PATH_PREFIX + std::to_string(userId) + convertUri_.substr(rearPos);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "replace uri:%{public}s", convertUri_.c_str());
     }
+}
+void PasteDataRecord::SetConvertUri(const std::string &value)
+{
+    convertUri_ = value;
 }
 } // namespace MiscServices
 } // namespace OHOS

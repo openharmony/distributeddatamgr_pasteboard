@@ -151,7 +151,7 @@ void PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
         return;
     }
     CopyUriHandler copyHandler;
-    if (!pasteData.WriteUriFd(data, copyHandler, 0)) {
+    if (!pasteData.WriteUriFd(data, copyHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return;
     }

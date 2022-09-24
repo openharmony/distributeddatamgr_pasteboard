@@ -155,7 +155,24 @@ bool PasteboardClient::GetPasteData(PasteData& pasteData)
         return false;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
-    return pasteboardServiceProxy_->GetPasteData(pasteData);
+    bool isSuccess = pasteboardServiceProxy_->GetPasteData(pasteData);
+    RetainUri(pasteData);
+    return isSuccess;
+}
+void PasteboardClient::RetainUri(PasteData &pasteData)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+    if (!pasteData.IsLocalPaste()) {
+        return;
+    }
+    // clear convert uri
+    for (size_t i = 0; i < pasteData.GetRecordCount(); ++i) {
+        auto record = pasteData.GetRecordAt(0);
+        if (record != nullptr) {
+            record->SetConvertUri("");
+        }
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
 }
 
 bool PasteboardClient::HasPasteData()

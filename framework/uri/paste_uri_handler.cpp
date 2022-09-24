@@ -17,9 +17,9 @@
 #include "pasteboard_hilog_wreapper.h"
 #include "remote_uri.h"
 namespace OHOS::MiscServices {
-std::string PasteUriHandler::ToUri(int fd)
+std::string PasteUriHandler::ToUri(int32_t fd)
 {
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "begin");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "begin");
     if (fd < 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fd not available");
         return "";
@@ -30,7 +30,7 @@ std::string PasteUriHandler::ToUri(int fd)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "convert uri from fd failed: %{public}d", ret);
         return result;
     }
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end, %{public}s", result.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end, %{public}s", result.c_str());
     return result;
 }
 } // namespace OHOS::MiscServices

@@ -80,7 +80,7 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
 
     data.AddRecord(record);
     MessageParcel parcel;
-    data.WriteUriFd(parcel, mock, 0xff);
+    data.WriteUriFd(parcel, mock);
     bool result = data.ReadUriFd(parcel, mock);
     EXPECT_TRUE(result);
     EXPECT_EQ(mockUri, data.GetPrimaryUri()->ToString());

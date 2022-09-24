@@ -76,7 +76,7 @@ public:
     ShareOption GetShareOption();
     void SetShareOption(ShareOption shareOption);
     uint32_t GetTokenId();
-    void SetTokenId(const uint32_t tokenId);
+    void SetTokenId(uint32_t tokenId);
     std::vector<std::shared_ptr<PasteDataRecord>> AllRecords() const;
     bool IsDraggedData() const;
     void SetDraggedDataFlag(bool isDraggedData);
@@ -88,7 +88,7 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, uint32_t callerToken);
+    bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler);
     bool ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler);
     void ReplaceShareUri(int32_t userId);
 
@@ -98,6 +98,7 @@ private:
     bool MarshallingProps(Parcel &parcel) const;
     static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);
     void RefreshMimeProp();
+
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
     bool valid_ = true;

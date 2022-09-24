@@ -211,7 +211,7 @@ std::uint32_t PasteData::GetTokenId()
     return props_.tokenId;
 }
 
-void PasteData::SetTokenId(const uint32_t tokenId)
+void PasteData::SetTokenId(uint32_t tokenId)
 {
     props_.tokenId = tokenId;
 }
@@ -521,15 +521,24 @@ size_t PasteDataProperty::Count()
     return expectedSize;
 }
 
-bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, uint32_t callerToken)
+bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
     std::vector<uint32_t> uriIndexList;
-    for (size_t i = 0; props_.tokenId != callerToken && i < GetRecordCount(); ++i) {
+    for (size_t i = 0; i < GetRecordCount(); ++i) {
         auto record = GetRecordAt(i);
-        if (record != nullptr && record->NeedFd(uriHandler)) {
+        if (record == nullptr) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "record null");
+            continue;
+        }
+        if (isLocalPaste_) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "isLocalPaste");
+            continue;
+        }
+        if (record->NeedFd(uriHandler)) {
             uriIndexList.push_back(i);
         }
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write fd vector size:%{public}zu", uriIndexList.size());
     if (!parcel.WriteUInt32Vector(uriIndexList)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write fd index vector");
         return false;
