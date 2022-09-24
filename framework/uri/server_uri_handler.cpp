@@ -43,18 +43,18 @@ std::string ServerUriHandler::ToUri()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " create share path failed, %{public}d ", ret);
         return uri_;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
     return uri_;
 }
 int32_t OHOS::MiscServices::ServerUriHandler::ToFd()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
     if (fd_ >= 0) {
         return fd_;
     }
     fd_ = open(uri_.c_str(), O_RDONLY);
     if (fd_ < 0) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
             uri_.c_str());
     }
     return fd_;

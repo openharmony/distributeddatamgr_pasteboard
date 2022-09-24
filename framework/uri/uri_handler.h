@@ -36,7 +36,7 @@ public:
     }
     bool IsFile()
     {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri_.c_str());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri_.c_str());
         if (uri_.empty()) {
             return false;
         }
