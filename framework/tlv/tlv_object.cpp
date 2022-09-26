@@ -101,7 +101,6 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObjec
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
-    value.SetIsCrossDevice(IsCrossDevice());
     bool ret = value.Encode(buffer, cursor_, buffer.size());
     WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
     return ret;
@@ -179,7 +178,6 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMe
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &value, const TLVHead &head)
 {
-    value.SetIsCrossDevice(IsCrossDevice());
     return value.Decode(buffer, cursor_, cursor_ + head.len);
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<uint8_t> &value, const TLVHead &head)
@@ -230,13 +228,5 @@ bool TLVObject::Decode(const std::vector<std::uint8_t> &buffer, size_t &cursor, 
     bool ret = Decode(buffer);
     cursor = cursor_;
     return ret;
-}
-void TLVObject::SetIsCrossDevice(bool isCrossDevice)
-{
-    isCrossDevice_ = isCrossDevice;
-}
-bool TLVObject::IsCrossDevice() const
-{
-    return isCrossDevice_;
 }
 } // namespace OHOS::MiscServices
