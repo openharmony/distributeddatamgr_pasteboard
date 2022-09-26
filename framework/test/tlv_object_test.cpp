@@ -22,6 +22,13 @@
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
+
+enum TAG_VALUE : uint16_t {
+    TAG_BOOL = 1,
+    TAG_INT8,
+    TAG_INT16,
+};
+
 class TLVObjectTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -46,6 +53,89 @@ void TLVObjectTest::SetUp(void)
 
 void TLVObjectTest::TearDown(void)
 {
+}
+
+struct TLVTest : public TLVObject {
+public:
+    TLVTest() = default;
+    TLVTest(bool valueBool, int8_t valueInt8, int16_t valueInt16);
+    virtual bool Encode(std::vector<std::uint8_t> &buffer);
+    virtual bool Decode(const std::vector<std::uint8_t> &buffer);
+    virtual size_t Count();
+    bool GetBool();
+    int8_t GetInt8();
+    int16_t GetInt16();
+
+private:
+    bool valueBool;
+    int8_t valueInt8;
+    int16_t valueInt16;
+};
+
+TLVTest::TLVTest(bool valueBool, int8_t valueInt8, int16_t valueInt16)
+    : valueBool{ valueBool }, valueInt8{ valueInt8 }, valueInt16{ valueInt16 }
+{
+}
+
+bool TLVTest::Encode(std::vector<std::uint8_t> &buffer)
+{
+    Init(buffer);
+    bool ret = Write(buffer, TAG_BOOL, valueBool);
+    ret = Write(buffer, TAG_INT8, valueInt8) && ret;
+    ret = Write(buffer, TAG_INT16, valueInt16) && ret;
+    return ret;
+}
+
+bool TLVTest::Decode(const std::vector<std::uint8_t> &buffer)
+{
+    total_ = buffer.size();
+    for (; IsEnough();) {
+        TLVHead head{};
+        bool ret = ReadHead(buffer, head);
+        switch (head.tag) {
+            case TAG_BOOL:
+                ret = ret && ReadValue(buffer, valueBool, head);
+                break;
+            case TAG_INT8: {
+                ret = ret && ReadValue(buffer, valueInt8, head);
+                break;
+            }
+            case TAG_INT16: {
+                ret = ret && ReadValue(buffer, valueInt16, head);
+                break;
+            }
+            default:
+                ret = ret && Skip(head.len, buffer.size());
+                break;
+        }
+        if (!ret) {
+            return false;
+        }
+    }
+    return true;
+}
+
+size_t TLVTest::Count()
+{
+    size_t expectSize = 0;
+    expectSize += sizeof(TLVHead);
+    expectSize += TLVObject::Count(valueBool);
+    expectSize += TLVObject::Count(valueInt8);
+    expectSize += TLVObject::Count(valueInt16);
+    return expectSize;
+}
+
+bool TLVTest::GetBool()
+{
+    return valueBool;
+}
+int8_t TLVTest::GetInt8()
+{
+    return valueInt8;
+}
+int16_t TLVTest::GetInt16()
+{
+    return valueInt16;
 }
 
 std::shared_ptr<PasteDataRecord> TLVObjectTest::GenRecord(std::uint32_t index)
@@ -166,5 +256,30 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest003, TestSize.Level0)
     auto custom1 = record1->GetCustomData();
     ASSERT_TRUE(custom1 != nullptr && custom2 != nullptr);
     EXPECT_EQ(custom2->GetItemData().size(), custom1->GetItemData().size());
+}
+
+/**
+* @tc.name: WriteReadValueTest001
+* @tc.desc: Write、ReadValue.
+* @tc.type: FUNC
+* @tc.require:AR000H5I1D
+* @tc.author: chenyu
+*/
+HWTEST_F(TLVObjectTest, WriteReadValueTest001, TestSize.Level0)
+{
+    TLVTest tlvTest(false, -1, 8);
+    std::vector<uint8_t> buffer;
+    auto ret = tlvTest.Encode(buffer);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(buffer.size(), tlvTest.Count());
+
+    TLVTest tlvTest1;
+    ret = tlvTest1.Decode(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(tlvTest1.Count(), tlvTest.Count());
+    EXPECT_EQ(tlvTest1.GetBool(), tlvTest.GetBool());
+    EXPECT_EQ(tlvTest1.GetInt8(), tlvTest.GetInt8());
+    EXPECT_EQ(tlvTest1.GetInt16(), tlvTest.GetInt16());
 }
 } // namespace OHOS::MiscServices

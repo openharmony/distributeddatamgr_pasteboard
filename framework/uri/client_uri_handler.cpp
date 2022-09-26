@@ -47,7 +47,7 @@ int32_t OHOS::MiscServices::ClientUriHandler::ToFd()
     }
     fd_ = open(uri_.c_str(), O_RDONLY);
     if (fd_ < 0) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
             uri_.c_str());
     }
     return fd_;
