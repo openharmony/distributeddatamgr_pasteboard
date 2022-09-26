@@ -67,22 +67,22 @@ public:
     int16_t GetInt16();
 
 private:
-    bool valueBool_;
-    int8_t valueInt8_;
-    int16_t valueInt16_;
+    bool valueBool;
+    int8_t valueInt8;
+    int16_t valueInt16;
 };
 
 TLVTest::TLVTest(bool valueBool, int8_t valueInt8, int16_t valueInt16)
-    : valueBool_{ valueBool }, valueInt8_{ valueInt8 }, valueInt16_{ valueInt16 }
+    : valueBool{ valueBool }, valueInt8{ valueInt8 }, valueInt16{ valueInt16 }
 {
 }
 
 bool TLVTest::Encode(std::vector<std::uint8_t> &buffer)
 {
     Init(buffer);
-    bool ret = Write(buffer, TAG_BOOL, valueBool_);
-    ret = Write(buffer, TAG_INT8, valueInt8_) && ret;
-    ret = Write(buffer, TAG_INT16, valueInt16_) && ret;
+    bool ret = Write(buffer, TAG_BOOL, valueBool);
+    ret = Write(buffer, TAG_INT8, valueInt8) && ret;
+    ret = Write(buffer, TAG_INT16, valueInt16) && ret;
     return ret;
 }
 
@@ -94,14 +94,14 @@ bool TLVTest::Decode(const std::vector<std::uint8_t> &buffer)
         bool ret = ReadHead(buffer, head);
         switch (head.tag) {
             case TAG_BOOL:
-                ret = ret && ReadValue(buffer, valueBool_, head);
+                ret = ret && ReadValue(buffer, valueBool, head);
                 break;
             case TAG_INT8: {
-                ret = ret && ReadValue(buffer, valueInt8_, head);
+                ret = ret && ReadValue(buffer, valueInt8, head);
                 break;
             }
             case TAG_INT16: {
-                ret = ret && ReadValue(buffer, valueInt16_, head);
+                ret = ret && ReadValue(buffer, valueInt16, head);
                 break;
             }
             default:
@@ -119,23 +119,23 @@ size_t TLVTest::Count()
 {
     size_t expectSize = 0;
     expectSize += sizeof(TLVHead);
-    expectSize += TLVObject::Count(valueBool_);
-    expectSize += TLVObject::Count(valueInt8_);
-    expectSize += TLVObject::Count(valueInt16_);
+    expectSize += TLVObject::Count(valueBool);
+    expectSize += TLVObject::Count(valueInt8);
+    expectSize += TLVObject::Count(valueInt16);
     return expectSize;
 }
 
 bool TLVTest::GetBool()
 {
-    return valueBool_;
+    return valueBool;
 }
 int8_t TLVTest::GetInt8()
 {
-    return valueInt8_;
+    return valueInt8;
 }
 int16_t TLVTest::GetInt16()
 {
-    return valueInt16_;
+    return valueInt16;
 }
 
 std::shared_ptr<PasteDataRecord> TLVObjectTest::GenRecord(std::uint32_t index)
