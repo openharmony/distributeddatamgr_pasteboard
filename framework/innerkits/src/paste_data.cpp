@@ -478,7 +478,7 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_ADDITIONS: {
                 RawMem rawMem{};
                 ret = ret && ReadValue(buffer, rawMem, head);
-                auto *buff = ParcelUtil::Raw2Parcelable<AAFwk::WantParams>(rawMem);
+                auto buff = ParcelUtil::Raw2Parcelable<AAFwk::WantParams>(rawMem);
                 if (buff != nullptr) {
                     additions = *buff;
                 }
