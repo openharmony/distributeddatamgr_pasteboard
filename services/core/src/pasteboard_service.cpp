@@ -232,7 +232,7 @@ bool PasteboardService::HasPastePermission(uint32_t tokenId, int32_t pid, std::s
 
     if (!pasteData->IsDraggedData() && !IsFocusOrDefaultIme(GetAppInfo(tokenId), pid)) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "token:0x%{public}x, pid:%{public}d, not focus app:%{public}d.",
-                          tokenId, IPCSkeleton::GetCallingPid(), focusApp_);
+            tokenId, pid, focusApp_);
         return false;
     }
     switch (pasteData->GetShareOption()) {
