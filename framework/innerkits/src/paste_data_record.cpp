@@ -22,6 +22,7 @@
 #include "paste_uri_handler.h"
 #include "pasteboard_common.h"
 #include "pixel_map_parcel.h"
+#include "pasteboard_hilog_wreapper.h"
 
 using namespace OHOS::Media;
 
@@ -437,7 +438,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_WANT: {
                 RawMem rawMem{};
                 ret = ret && ReadValue(buffer, rawMem, head);
-                want_ = std::shared_ptr<AAFwk::Want>(ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem));
+                want_ = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);
                 break;
             }
             case TAG_PLAINTEXT:
@@ -446,7 +447,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_URI: {
                 RawMem rawMem{};
                 ret = ret && ReadValue(buffer, rawMem, head);
-                uri_ = std::shared_ptr<OHOS::Uri>(ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem));
+                uri_ = ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem);
                 break;
             }
             case TAG_CONVERT_URI: {
