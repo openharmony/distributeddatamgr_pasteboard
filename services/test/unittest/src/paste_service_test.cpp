@@ -878,10 +878,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_FALSE(hasPasteData);
-    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData);
 }
 
 /**
@@ -908,14 +904,14 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(PasteboardServiceTest::pasteboardChangedFlag_);
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData);
     PasteboardServiceTest::pasteboardChangedFlag_ = false;
     PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
     PasteboardClient::GetInstance()->Clear();
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
-    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData);
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_FALSE(hasPasteData);
 }
 
 /**
