@@ -67,8 +67,6 @@ public:
         total_ = buffer.size();
         cursor_ = 0;
     }
-    void SetIsCrossDevice(bool isCrossDevice);
-    bool IsCrossDevice() const;
 
     static inline size_t Count(bool value)
     {
@@ -279,7 +277,6 @@ private:
     }
 
     size_t cursor_ = 0;
-    bool isCrossDevice_ = false;
 };
 } // namespace OHOS::MiscServices
 #endif // DISTRIBUTEDDATAMGR_PASTEBOARD_TLV_OBJECT_H
