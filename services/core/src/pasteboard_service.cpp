@@ -224,7 +224,7 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo)
     return isFocusApp;
 }
 
-bool PasteboardService::HasPastePermission(const std::string &appId, ShareOption shareOption)
+bool PasteboardService::HasPastePermission(const std::string &appId, ShareOption shareOption, bool isDraggedData)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d.", static_cast<uint32_t>(shareOption));
 
@@ -235,7 +235,7 @@ bool PasteboardService::HasPastePermission(const std::string &appId, ShareOption
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetAppInfoByTokenId failed.");
         return false;
     }
-    if (appInfo.tokenType == ATokenTypeEnum::TOKEN_HAP) {
+    if (!isDraggedData && appInfo.tokenType == ATokenTypeEnum::TOKEN_HAP) {
         auto isFocusOrDefaultIme = IsFocusOrDefaultIme(appInfo);
         if (!isFocusOrDefaultIme) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "IsFocusOrDefaultIme check failed.");
@@ -321,7 +321,7 @@ bool PasteboardService::GetPasteData(PasteData& data)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
         return false;
     }
-    auto ret = HasPastePermission(it->second->GetAppId(), it->second->GetShareOption());
+    auto ret = HasPastePermission(it->second->GetAppId(), it->second->GetShareOption(), it->second->IsDraggedData());
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "HasPastePermission failed.");
         return false;
@@ -342,7 +342,7 @@ bool PasteboardService::HasPasteData()
     if (it == clips_.end()) {
         return HasDistributedData(userId);
     }
-    return HasPastePermission(it->second->GetAppId(), it->second->GetShareOption());
+    return HasPastePermission(it->second->GetAppId(), it->second->GetShareOption(), it->second->IsDraggedData());
 }
 
 void PasteboardService::SetPasteData(PasteData& pasteData)

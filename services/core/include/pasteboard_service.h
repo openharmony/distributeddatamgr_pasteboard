@@ -107,7 +107,7 @@ private:
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
     std::string GetTime();
-    static bool HasPastePermission(const std::string &appId, ShareOption shareOption);
+    static bool HasPastePermission(const std::string &appId, ShareOption shareOption, bool isDraggedData);
     static bool GetAppInfoByTokenId(int32_t tokenId, AppInfo &appInfo);
     static bool IsFocusOrDefaultIme(const AppInfo &appInfo);
     ServiceRunningState state_;
