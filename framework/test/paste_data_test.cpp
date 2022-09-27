@@ -22,6 +22,7 @@ using namespace testing;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
 constexpr const std::uint32_t MAX_RECORD_NUM = 512;
+constexpr const char *FILE = "/data/test/resource/pasteboardTest.txt";
 class PasteDataTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -57,7 +58,7 @@ HWTEST_F(PasteDataTest, WriteUriFdReadUriFd001, TestSize.Level0)
 {
     PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = "/data/PasteboardFrameworkTest";
+    std::string uriStr = FILE;
     auto uri = std::make_shared<OHOS::Uri>(uriStr);
     builder.SetUri(uri);
     auto record = builder.Build();
@@ -84,7 +85,7 @@ HWTEST_F(PasteDataTest, WriteUriFdReadUriFd002, TestSize.Level0)
 {
     PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = "/data/PasteboardFrameworkTest";
+    std::string uriStr = FILE;
     auto uri = std::make_shared<OHOS::Uri>(uriStr);
     builder.SetUri(uri);
     auto record = builder.Build();
@@ -111,7 +112,7 @@ HWTEST_F(PasteDataTest, WriteUriFdReadUriFd003, TestSize.Level0)
 {
     PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = "/data/PasteboardFrameworkTest";
+    std::string uriStr = FILE;
     auto uri = std::make_shared<OHOS::Uri>(uriStr);
     builder.SetUri(uri);
     auto record = builder.Build();
@@ -137,7 +138,7 @@ HWTEST_F(PasteDataTest, WriteUriFdReadUriFd004, TestSize.Level0)
 {
     PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = "/data/PasteboardFrameworkTest";
+    std::string uriStr = FILE;
     auto uri = std::make_shared<OHOS::Uri>(uriStr);
     builder.SetUri(uri);
     auto record = builder.Build();
@@ -163,7 +164,7 @@ HWTEST_F(PasteDataTest, WriteUriFdReadUriFd005, TestSize.Level0)
 {
     PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = "/data/PasteboardFrameworkTest";
+    std::string uriStr = FILE;
     auto uri = std::make_shared<OHOS::Uri>(uriStr);
     builder.SetUri(uri);
     auto record = builder.Build();
