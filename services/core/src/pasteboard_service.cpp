@@ -684,17 +684,18 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
         event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
     std::vector<uint8_t> rawData = std::move(event.addition);
-    currentEvent_ = std::move(event);
+    SetDeviceName(event.deviceId);
     if (!isEffective) {
         currentEvent_.status = ClipPlugin::EVT_INVALID;
+        currentEvent_ = std::move(event);
         return nullptr;
     }
 
-    SetDeviceName(currentEvent_.deviceId);
-    if (event.frameNum > 0) {
-        clipPlugin->GetPasteData(event, rawData);
+    if (event.frameNum > 0 && (clipPlugin->GetPasteData(event, rawData) != 0)) {
+        return nullptr;
     }
 
+    currentEvent_ = std::move(event);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     pasteData->Decode(rawData);
     pasteData->ReplaceShareUri(user);
