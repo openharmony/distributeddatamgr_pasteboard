@@ -37,7 +37,7 @@ config("pasteboard_service_config") {
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
   ]
 
-  cflags_cc = [ "-fexceptions" ]
+  cflags_cc = []
   if (os_dlp_part_enabled) {
     cflags_cc += [ "-DWITH_DLP" ]
   }
