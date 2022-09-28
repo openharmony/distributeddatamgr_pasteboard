@@ -87,28 +87,20 @@ PasteboardStorage::PasteboardStorage(std::string file) : file { std::move(file) 
 
 void PasteboardStorage::SaveData(std::map<int32_t, std::shared_ptr<PasteData>> data)
 {
-    try {
-        nlohmann::json jsonData = data;
-        auto str = jsonData.dump();
-        std::ofstream outstream(this->file);
-        if (outstream.is_open()) {
-            outstream<< str;
-        }
-    }catch(const std::exception& e) {
-        std::cout<<"save passteboard failed "<<e.what()<<std::endl;
+    nlohmann::json jsonData = data;
+    auto str = jsonData.dump(-1, ' ', false, error_handler_t::ignore);
+    std::ofstream outstream(this->file);
+    if (outstream.is_open()) {
+        outstream << str;
     }
 }
 
 std::map<int32_t, std::shared_ptr<PasteData>> PasteboardStorage::LoadData()
 {
     std::map<int32_t, std::shared_ptr<PasteData>> data;
-    try {
-        std::ifstream instream(this->file);
-        if (instream.is_open()) {
-            return nlohmann::json::parse(instream);
-        }
-    }catch(const std::exception& e) {
-        std::cout<<"load passteboard failed "<<e.what()<<std::endl;
+    std::ifstream instream(this->file);
+    if (instream.is_open()) {
+        return nlohmann::json::parse(instream, nullptr, false, false);
     }
     return data;
 }
