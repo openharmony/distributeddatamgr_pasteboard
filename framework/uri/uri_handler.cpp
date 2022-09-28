@@ -19,7 +19,7 @@
 namespace OHOS::MiscServices {
 bool UriHandler::IsFile(const std::string &uri) const
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri.c_str());
     if (uri.empty()) {
         return false;
     }
@@ -33,10 +33,10 @@ bool UriHandler::IsFile(const std::string &uri) const
 }
 int32_t UriHandler::ToFd(const std::string &uri)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri: %{public}s", uri.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri: %{public}s", uri.c_str());
     fd_ = open(uri.c_str(), O_RDONLY);
     if (fd_ < 0) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
             uri.c_str());
     }
     return fd_;
