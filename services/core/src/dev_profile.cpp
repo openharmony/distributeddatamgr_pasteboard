@@ -30,11 +30,11 @@ namespace OHOS {
 namespace MiscServices {
 using namespace OHOS::DeviceProfile;
 using namespace OHOS::DistributedHardware;
-constexpr int32_t HANDLE_OK = 0;
+constexpr const int32_t HANDLE_OK = 0;
+constexpr const uint32_t NOT_SUPPORT = 0;
+constexpr const uint32_t SUPPORT = 1;
 constexpr const char *SERVICE_ID = "pasteboardService";
 constexpr const char *CHARACTER_ID = "supportDistributedPasteboard";
-
-enum SupportDistributedPasteboard : uint32_t { NOT_SUPPORT = 0, SUPPORT };
 
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
@@ -79,15 +79,15 @@ void DevProfile::ParameterChange(const char *key, const char *value, void *conte
 
 void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 {
-    uint32_t isSupportDistributedPasteboard = SupportDistributedPasteboard::NOT_SUPPORT;
+    uint32_t isSupport = NOT_SUPPORT;
     if (enabledStatus == "true") {
-        isSupportDistributedPasteboard = SupportDistributedPasteboard::SUPPORT;
+        isSupport = SUPPORT;
     }
     ServiceCharacteristicProfile profile;
     profile.SetServiceId(SERVICE_ID);
     profile.SetServiceType(SERVICE_ID);
     nlohmann::json jsonObject;
-    jsonObject[CHARACTER_ID] = isSupportDistributedPasteboard;
+    jsonObject[CHARACTER_ID] = isSupport;
     profile.SetCharacteristicProfileJson(jsonObject.dump());
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutDeviceProfile(profile);
     if (errNo != HANDLE_OK) {
@@ -113,10 +113,10 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
         return;
     }
 
-    uint32_t isSupportDistributedPasteboard = jsonObject[CHARACTER_ID];
+    uint32_t isSupport = jsonObject[CHARACTER_ID];
 
     enabledStatus = "false";
-    if (isSupportDistributedPasteboard == SupportDistributedPasteboard::SUPPORT) {
+    if (isSupport == SUPPORT) {
         enabledStatus = "true";
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
