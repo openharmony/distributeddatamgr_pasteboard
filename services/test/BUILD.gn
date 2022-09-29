@@ -42,7 +42,7 @@ ohos_unittest("PasteboardServiceTest") {
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "multimedia_image_standard:image_native",
+    "multimedia_image_framework:image_native",
   ]
 
   deps = [
