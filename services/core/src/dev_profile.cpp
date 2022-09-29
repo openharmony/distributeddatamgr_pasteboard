@@ -79,15 +79,14 @@ void DevProfile::ParameterChange(const char *key, const char *value, void *conte
 
 void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 {
-    uint32_t isSupport = NOT_SUPPORT;
-    if (enabledStatus == "true") {
-        isSupport = SUPPORT;
-    }
     ServiceCharacteristicProfile profile;
     profile.SetServiceId(SERVICE_ID);
     profile.SetServiceType(SERVICE_ID);
     nlohmann::json jsonObject;
-    jsonObject[CHARACTER_ID] = isSupport;
+    jsonObject[CHARACTER_ID] = NOT_SUPPORT;
+    if (enabledStatus == "true") {
+        jsonObject[CHARACTER_ID] = SUPPORT;
+    }
     profile.SetCharacteristicProfileJson(jsonObject.dump());
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutDeviceProfile(profile);
     if (errNo != HANDLE_OK) {
@@ -113,10 +112,8 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
         return;
     }
 
-    uint32_t isSupport = jsonObject[CHARACTER_ID];
-
     enabledStatus = "false";
-    if (isSupport == SUPPORT) {
+    if (jsonObject[CHARACTER_ID] == SUPPORT) {
         enabledStatus = "true";
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
