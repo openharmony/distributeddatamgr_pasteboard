@@ -28,6 +28,7 @@
 #include "uri.h"
 #include "want.h"
 #include "want_params.h"
+#include "pasteboard_hilog_wreapper.h"
 
 namespace OHOS {
 namespace MiscServices {

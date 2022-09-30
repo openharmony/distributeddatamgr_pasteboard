@@ -33,9 +33,8 @@
 #include "native_token_info.h"
 #include "os_account_manager.h"
 #include "para_handle.h"
-#include "pasteboard_common.h"
+#include "pasteboard_error.h"
 #include "pasteboard_dialog.h"
-#include "pasteboard_errcode.h"
 #include "pasteboard_trace.h"
 #include "reporter.h"
 #include "system_ability_definition.h"
@@ -78,7 +77,7 @@ int32_t PasteboardService::Init()
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStart register to system ability manager failed.");
         auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
         Reporter::GetInstance().InitializationFault().Report({ userId, "ERR_INVALID_OPTION" });
-        return ERR_INVALID_OPTION;
+        return static_cast<int32_t>(PasteboardError::E_INVALID_OPTION);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Init Success.");
     state_ = ServiceRunningState::STATE_RUNNING;
@@ -209,6 +208,7 @@ void PasteboardService::PasteboardFocusChangedListener::OnUnfocused(const sptr<R
 
 bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid)
 {
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start.");
     if (appInfo.tokenType != ATokenTypeEnum::TOKEN_HAP) {
         return true;
     }
@@ -296,13 +296,13 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "isLocalPaste = %{public}d.", pasteData.IsLocalPaste());
 }
 
-bool PasteboardService::GetPasteData(PasteData &data)
+int32_t PasteboardService::GetPasteData(PasteData &data)
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto pid = IPCSkeleton::GetCallingPid();
     if (pasting_.exchange(true)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is passing.");
-        return false;
+        return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);
     }
 
     SetDeviceName();
@@ -336,7 +336,10 @@ bool PasteboardService::GetPasteData(PasteData &data)
         data = std::move(*value);
     }
     pasting_.store(false);
-    return result;
+    if(result) {
+        return static_cast<int32_t>(PasteboardError::E_OK);
+    }
+    return static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
 bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t pid)
@@ -394,19 +397,22 @@ bool PasteboardService::HasPasteData()
     return HasPastePermission(tokenId, pid, it->second);
 }
 
-void PasteboardService::SetPasteData(PasteData &pasteData)
+int32_t PasteboardService::SetPasteData(PasteData &pasteData)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsCopyable(tokenId)) {
-        return;
+        return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
     }
-
+    if (setting_.exchange(true)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is setting.");
+        return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);
+    }
     SetPasteDataDot(pasteData, tokenId);
     auto userId = GetUserIdByToken(tokenId);
     if (userId == ERROR_USERID) {
-        return;
+        return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
 
     pasteData.SetTokenId(tokenId);
@@ -419,7 +425,9 @@ void PasteboardService::SetPasteData(PasteData &pasteData)
     clips_.insert_or_assign(userId, std::make_shared<PasteData>(pasteData));
     SetDistributedData(userId, pasteData);
     NotifyObservers();
+    setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardService::GetUserIdByToken(uint32_t tokenId)

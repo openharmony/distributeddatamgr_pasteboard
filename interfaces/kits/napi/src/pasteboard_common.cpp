@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 #include "pasteboard_common.h"
-
+#include "pasteboard_hilog_wreapper.h"
+using namespace OHOS::MiscServices;
 namespace OHOS {
 namespace MiscServicesNapi {
 const size_t ARGC_TYPE_SET2 = 2;
@@ -61,7 +62,8 @@ napi_value CreateNapiString(napi_env env, std::string str)
     return value;
 }
 
-bool GetValue(napi_env env, napi_value in, std::string& out)
+/* napi_value <-> std::string */
+bool GetValue(napi_env env, napi_value in, std::string &out)
 {
     napi_valuetype type = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
@@ -69,7 +71,7 @@ bool GetValue(napi_env env, napi_value in, std::string& out)
 
     size_t len = 0;
     NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, in, nullptr, 0, &len), false);
-    if (len <= 0) {
+    if (len < 0) {
         return false;
     }
 

@@ -19,7 +19,7 @@
 #include <mutex>
 #include <string>
 #include "bundle_mgr_interface.h"
-#include "pasteboard_common.h"
+#include "pasteboard_error.h"
 #include "mock_permission.h"
 #include "system_ability_definition.h"
 #include "iservice_registry.h"

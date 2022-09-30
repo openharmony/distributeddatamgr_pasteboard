@@ -18,6 +18,8 @@
 #include "napi_common.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "paste_data_record.h"
+#include "async_call.h"
+#include "pasteboard_js_err.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
@@ -26,7 +28,6 @@ namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
 const size_t ARGC_TYPE_SET1 = 1;
-const size_t CALLBACK_RESULT_NUM = 2;
 constexpr int32_t  MIMETYPE_MAX_SIZE = 1024;
 
 PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
@@ -128,6 +129,7 @@ bool PasteDataRecordNapi::NewWantRecordInstance(
     obj->JSFillInstance(env, instance);
     return true;
 }
+
 bool PasteDataRecordNapi::NewKvRecordInstance(
     napi_env env, const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer, napi_value &instance)
 {
@@ -142,6 +144,7 @@ bool PasteDataRecordNapi::NewKvRecordInstance(
     obj->JSFillInstance(env, instance);
     return true;
 }
+
 void PasteDataRecordNapi::SetNamedPropertyByStr(
     napi_env env, napi_value &instance, const char *propName, const char *propValue)
 {
@@ -195,7 +198,8 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
         NAPI_CALL(env, napi_get_element(env, mimeTypes, i, &mimeTypeNapi));
 
         std::string mimeType;
-        if (!(MiscServicesNapi::GetValue(env, mimeTypeNapi, mimeType)) || (mimeType.size() > MIMETYPE_MAX_SIZE)) {
+        bool ret = GetValue(env, mimeTypeNapi, mimeType);
+        if (!ret || (mimeType.size() > MIMETYPE_MAX_SIZE) || mimeType == "") {
             return nullptr;
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType = %{public}s,", mimeType.c_str());
@@ -261,107 +265,100 @@ void PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
     }
 }
 
-using AsyncText = struct AsyncText {
-    napi_env env = nullptr;
-    napi_async_work work = nullptr;
-    napi_deferred deferred = nullptr;
-    napi_ref callbackRef = nullptr;
-    PasteDataRecordNapi *obj = nullptr;
-    int32_t status = 0;
-    std::string text;
-};
-
-void AsyncCompleteCallbackConvertToText(napi_env env, napi_status status, void *data)
-{
-    if (!data) {
-        return;
-    }
-    AsyncText *asyncText = (AsyncText *)data;
-    napi_value results[CALLBACK_RESULT_NUM] = { 0 };
-    if (asyncText->status == 0) {
-        napi_get_undefined(env, &results[0]);
-        napi_create_string_utf8(env, asyncText->text.c_str(), NAPI_AUTO_LENGTH, &results[1]);
-    } else {
-        napi_value message = nullptr;
-        napi_create_string_utf8(env, "ConvertToText Failed", NAPI_AUTO_LENGTH, &message);
-        napi_create_error(env, nullptr, message, &results[0]);
-        napi_get_undefined(env, &results[1]);
-    }
-    if (asyncText->deferred != nullptr) {
-        if (asyncText->status == 0) {
-            napi_resolve_deferred(env, asyncText->deferred, results[1]);
-        } else {
-            napi_reject_deferred(env, asyncText->deferred, results[0]);
-        }
-    } else {
-        napi_value callback = nullptr;
-        napi_value resultOut = nullptr;
-        napi_get_reference_value(env, asyncText->callbackRef, &callback);
-        napi_call_function(env, nullptr, callback, CALLBACK_RESULT_NUM, results, &resultOut);
-        napi_delete_reference(env, asyncText->callbackRef);
-    }
-    napi_delete_async_work(env, asyncText->work);
-    delete asyncText;
-    asyncText = nullptr;
-}
-
 napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info info)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ConvertToText is called!");
+
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[1] = {0};
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-   
+    struct ExeContext {
+        std::string text;
+        PasteDataRecordNapi *obj = nullptr;
+    };
+
     PasteDataRecordNapi *obj = nullptr;
     auto status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ConvertToText object failed");
         return nullptr;
     }
-    AsyncText *asyncText = new (std::nothrow) AsyncText {.env = env, .work = nullptr, .obj = obj};
-    if (asyncText == nullptr) {
-        return NapiGetNull(env);
-    }
-    if (argc >= ARGC_TYPE_SET1) {
-        napi_valuetype valueType = napi_undefined;
-        NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "Wrong argument type. Function expected.");
-        napi_create_reference(env, argv[0], 1, &asyncText->callbackRef);
-    }
-    napi_value promise = nullptr;
-    if (asyncText->callbackRef == nullptr) {
-        napi_create_promise(env, &asyncText->deferred, &promise);
-    } else {
-        napi_get_undefined(env, &promise);
-    }
-    napi_value resource = nullptr;
-    napi_create_string_utf8(env, "ConvertToText", NAPI_AUTO_LENGTH, &resource);
-    napi_status syncWork = napi_create_async_work(env,
-        nullptr, resource,
-        [](napi_env env, void *data) {
-            AsyncText *asyncText = (AsyncText *)data;
-            if (asyncText->obj == nullptr || asyncText->obj->value_ == nullptr) {
-                asyncText->status = -1;
-            } else {
-                asyncText->text = asyncText->obj->value_->ConvertToText();
-                asyncText->status = 0;
-            }
-        },
-        AsyncCompleteCallbackConvertToText,
-        (void *)asyncText, &asyncText->work);
-    napi_queue_async_work(env, asyncText->work);
-    if (syncWork != napi_ok) {
-        delete asyncText;
-        asyncText = nullptr;
-    }
+    auto exeContext = std::make_shared<ExeContext>();
+    exeContext->obj = obj;
 
-    return promise;
+    auto exec = [exeContext](AsyncCall::Context *ctx) {
+        if((exeContext->obj != nullptr) && (exeContext->obj->value_ != nullptr)) {
+            exeContext->text = exeContext->obj->value_->ConvertToText();
+        }
+    };
+    auto output = [exeContext](napi_env env, napi_value *result) -> napi_status {
+        napi_status status = napi_create_string_utf8(env, (exeContext->text).c_str(), (exeContext->text).length(), result);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_create_string_utf8 status = %{public}d", status);
+        return status;
+    };
+
+    auto context = std::make_shared<AsyncCall::Context>();
+    context->SetAction(std::move(output));
+    // 0: the AsyncCall at the first position;
+    AsyncCall asyncCall(env, info, context, 0);
+    return asyncCall.Call(env, exec);
+}
+
+napi_value PasteDataRecordNapi::ConvertToTextV9(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ConvertToTextV9 is called!");
+
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    if(argc > 0) {
+        napi_valuetype type = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, argv[0], &type));
+        if (type != napi_function) {
+            JSErrorCode errCode = JSErrorCode::INVALID_PARAMETERS;
+            ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of callback must be function.");
+            return nullptr;
+        }
+    }
+    struct ExeContext {
+        std::string text;
+        PasteDataRecordNapi *obj = nullptr;
+    };
+
+    PasteDataRecordNapi *obj = nullptr;
+    auto status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ConvertToTextV9 object failed");
+        return nullptr;
+    }
+    auto exeContext = std::make_shared<ExeContext>();
+    exeContext->obj = obj;
+
+    auto exec = [exeContext](AsyncCall::Context *ctx) {
+        if((exeContext->obj != nullptr) && (exeContext->obj->value_ != nullptr)) {
+            exeContext->text = exeContext->obj->value_->ConvertToText();
+        }
+    };
+    auto output = [exeContext](napi_env env, napi_value *result) -> napi_status {
+        napi_status status = napi_create_string_utf8(env, (exeContext->text).c_str(), (exeContext->text).length(), result);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_create_string_utf8 status = %{public}d", status);
+        return status;
+    };
+
+    auto context = std::make_shared<AsyncCall::Context>();
+    context->SetAction(std::move(output));
+    // 0: the AsyncCall at the first position;
+    AsyncCall asyncCall(env, info, context, 0);
+    return asyncCall.Call(env, exec);
 }
 
 napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
+        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9)
     };
 
     napi_status status = napi_ok;

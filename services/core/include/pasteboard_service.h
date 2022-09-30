@@ -59,9 +59,9 @@ public:
     PasteboardService();
     ~PasteboardService();
     virtual void Clear() override;
-    virtual bool GetPasteData(PasteData& data) override;
+    virtual int32_t GetPasteData(PasteData& data) override;
     virtual bool HasPasteData() override;
-    virtual void SetPasteData(PasteData& pasteData) override;
+    virtual int32_t SetPasteData(PasteData& pasteData) override;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
     virtual void RemoveAllChangedObserver() override;
@@ -137,7 +137,7 @@ private:
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> pasting_ = false;
-
+    std::atomic<bool> setting_ = false;
     std::mutex deviceMutex_;
     std::string fromDevice_;
 };

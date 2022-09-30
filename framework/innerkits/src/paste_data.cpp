@@ -56,6 +56,8 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : re
 
 PasteData::PasteData()
 {
+    props_.timestamp = steady_clock::now().time_since_epoch().count();
+    props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
 }
 
@@ -312,7 +314,8 @@ bool PasteData::UnMarshalling(Parcel &parcel, PasteDataProperty &props)
     props.tag = parcel.ReadString();
     props.timestamp = parcel.ReadInt64();
     props.shareOption = static_cast<ShareOption>(parcel.ReadInt32());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props.shareOption);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT,
+                      "props.shareOption =  %{public}d.", props.shareOption);
     return true;
 }
 

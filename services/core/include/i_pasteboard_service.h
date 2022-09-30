@@ -34,9 +34,9 @@ public:
         DELETE_ALL_OBSERVER
     };
     virtual void Clear() = 0;
-    virtual bool GetPasteData(PasteData& data) = 0;
+    virtual int32_t GetPasteData(PasteData& data) = 0;
     virtual bool HasPasteData() = 0;
-    virtual void SetPasteData(PasteData& pasteData) = 0;
+    virtual int32_t SetPasteData(PasteData& pasteData) = 0;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) = 0;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) = 0;
     virtual void RemoveAllChangedObserver() = 0;

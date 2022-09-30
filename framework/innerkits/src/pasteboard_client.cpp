@@ -18,7 +18,7 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "pasteboard_observer.h"
-#include "pasteboard_common.h"
+#include "pasteboard_error.h"
 #include "pasteboard_client.h"
 
 using namespace OHOS::Media;
@@ -142,7 +142,7 @@ void PasteboardClient::Clear()
     return;
 }
 
-bool PasteboardClient::GetPasteData(PasteData& pasteData)
+int32_t PasteboardClient::GetPasteData(PasteData& pasteData)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
     if (pasteboardServiceProxy_ == nullptr) {
@@ -152,12 +152,12 @@ bool PasteboardClient::GetPasteData(PasteData& pasteData)
 
     if (pasteboardServiceProxy_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
-        return false;
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
-    bool isSuccess = pasteboardServiceProxy_->GetPasteData(pasteData);
+    int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
     RetainUri(pasteData);
-    return isSuccess;
+    return ret;
 }
 void PasteboardClient::RetainUri(PasteData &pasteData)
 {
@@ -184,14 +184,13 @@ bool PasteboardClient::HasPasteData()
     }
 
     if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "HasPasteData quit ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "HasPasteData quit");
         return false;
     }
-    auto result = pasteboardServiceProxy_->HasPasteData();
-    return result;
+    return pasteboardServiceProxy_->HasPasteData();
 }
 
-void PasteboardClient::SetPasteData(PasteData& pasteData)
+int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
     if (pasteboardServiceProxy_ == nullptr) {
@@ -201,9 +200,9 @@ void PasteboardClient::SetPasteData(PasteData& pasteData)
 
     if (pasteboardServiceProxy_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SetPasteData quit.");
-        return;
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
-    pasteboardServiceProxy_->SetPasteData(pasteData);
+    return pasteboardServiceProxy_->SetPasteData(pasteData);
 }
 
 void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)

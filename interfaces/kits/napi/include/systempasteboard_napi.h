@@ -81,6 +81,10 @@ private:
     static napi_value GetPasteData(napi_env env, napi_callback_info info);
     static napi_value SetPasteData(napi_env env, napi_callback_info info);
     static napi_value HasPasteData(napi_env env, napi_callback_info info);
+    static napi_value ClearData(napi_env env, napi_callback_info info);
+    static napi_value GetData(napi_env env, napi_callback_info info);
+    static napi_value SetData(napi_env env, napi_callback_info info);
+    static napi_value HasData(napi_env env, napi_callback_info info);
     static void SetObserver(napi_ref ref, std::shared_ptr<PasteboardObserverInstance> observer);
     static std::shared_ptr<PasteboardObserverInstance> GetObserver(napi_env env, napi_value observer);
 
@@ -88,8 +92,7 @@ private:
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
     napi_ref wrapper_;
-    static std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
-    static std::mutex pasteboardObserverInsMutex_;
+    static thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
 };
 
 struct HasContextInfo : public AsyncCall::Context {
@@ -115,6 +118,25 @@ struct SetContextInfo : public AsyncCall::Context {
     std::shared_ptr<MiscServices::PasteData> obj;
     napi_status status = napi_generic_failure;
     SetContextInfo() : Context(nullptr, nullptr){};
+
+    napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
+    {
+        NAPI_ASSERT_BASE(env, self != nullptr, "self is nullptr", napi_invalid_arg);
+        return Context::operator()(env, argc, argv, self);
+    }
+    napi_status operator()(napi_env env, napi_value *result) override
+    {
+        if (status != napi_ok) {
+            return status;
+        }
+        return Context::operator()(env, result);
+    }
+};
+
+struct GetContextInfo : public AsyncCall::Context {
+    std::shared_ptr<MiscServices::PasteData> pasteData;
+    napi_status status = napi_generic_failure;
+    GetContextInfo() : Context(nullptr, nullptr){};
 
     napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
     {
