@@ -17,6 +17,8 @@
 #define PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H
 #include <functional>
 #include <string>
+
+#include "ability_manager_interface.h"
 namespace OHOS::MiscServices {
 class PasteBoardDialog {
 public:
@@ -30,17 +32,13 @@ public:
     using Cancel = std::function<void()>;
     static PasteBoardDialog &GetInstance();
     int32_t ShowDialog(const MessageInfo &message, const Cancel &cancel);
-    int32_t CancelDialog(int32_t id);
+    static sptr<AAFwk::IAbilityManager> GetAbilityManagerService();
 
 private:
-    struct Rect {
-        int32_t x = 0;
-        int32_t y = 0;
-        int32_t width = 1920;
-        int32_t height = 1080;
-    };
     static constexpr int32_t STATUS_BAR_HEIGHT = 72;
-    Rect GetDisplayRect();
+    static constexpr const char *PASTEBOARD_DIALOG_ACTION = "action.system.pasteboarddialog";
+    static constexpr const char *PASTEBOARD_DIALOG_APP = "cn.openharmony.pasteboarddialog";
+    static constexpr const char *PASTEBOARD_DIALOG_ABILITY = "DialogExtensionAbility";
 };
 } // namespace OHOS::MiscServices
 #endif // PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H

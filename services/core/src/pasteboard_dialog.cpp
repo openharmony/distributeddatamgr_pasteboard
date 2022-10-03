@@ -15,11 +15,9 @@
 
 #include "pasteboard_dialog.h"
 
-#include "display_manager.h"
-#include "pasteboard_errcode.h"
+#include "iservice_registry.h"
 #include "pasteboard_hilog_wreapper.h"
-#include "ui_service_mgr_client.h"
-#include "common/block_object.h"
+#include "system_ability_definition.h"
 namespace OHOS::MiscServices {
 PasteBoardDialog &PasteBoardDialog::GetInstance()
 {
@@ -29,49 +27,40 @@ PasteBoardDialog &PasteBoardDialog::GetInstance()
 
 int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &cancel)
 {
-    auto rect = GetDisplayRect();
-    std::string params =
-        std::string("{\"appName\":\"") + message.appName + "\", \"deviceType\":\"" + message.deviceType + "\"}";
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pasting_dialog message:%{public}s.", params.c_str());
-
-    auto realId = std::make_shared<BlockObject<int32_t>>(-1, POPUP_INTERVAL);
-    int32_t result = -1;
-    Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
-        "pasting_dialog",
-        params,
-        OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
-        rect.x, rect.y + STATUS_BAR_HEIGHT, rect.width, rect.height - STATUS_BAR_HEIGHT,
-        [cancel, realId](int32_t id, const std::string &event, const std::string &params) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Id:%{public}d Event:%{public}s arrived.", id, event.c_str());
-            if (event == std::string("EVENT_INIT") && realId) {
-                realId->SetValue(id);
-            }
-
-            if (event == std::string("EVENT_CANCEL") && cancel) {
-                cancel();
-                PasteBoardDialog::GetInstance().CancelDialog(id);
-            }
-        },
-        &result);
-    return realId->GetValue();
-}
-int32_t PasteBoardDialog::CancelDialog(int32_t id)
-{
-    return Ace::UIServiceMgrClient::GetInstance()->CancelDialog(id);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin");
+    auto abilityManager = GetAbilityManagerService();
+    if (abilityManager == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
+        return -1;
+    }
+    AAFwk::Want want;
+    want.SetAction("");
+    want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_DIALOG_ABILITY);
+    want.SetParam("appName", message.appName);
+    want.SetParam("deviceType", message.deviceType);
+    int32_t result = abilityManager->StartAbility(want);
+    if (result != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog failed, result:%{public}d", result);
+        return -1;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog success.");
+    return 0;
 }
 
-PasteBoardDialog::Rect PasteBoardDialog::GetDisplayRect()
+sptr<AAFwk::IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
 {
-    Rect rect;
-    auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
-    if (display == nullptr) {
-        display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin");
+    auto systemAbilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to get samgr");
+        return nullptr;
     }
 
-    if (display != nullptr) {
-        rect.width = display->GetWidth();
-        rect.height = display->GetHeight();
+    sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    if (!remoteObject) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to get ability manager service");
+        return nullptr;
     }
-    return rect;
+    return iface_cast<AAFwk::IAbilityManager>(remoteObject);
 }
 } // namespace OHOS::MiscServicesNapi
