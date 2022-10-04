@@ -16,6 +16,7 @@
     "package": "ohos.acts.distributeddatamgr.pasteboard",
     "name": ".MyApplication",
     "deviceType": [
+      "default",
       "phone"
     ],
     "distro": {
