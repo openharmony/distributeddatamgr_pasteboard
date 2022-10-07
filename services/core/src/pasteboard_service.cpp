@@ -350,6 +350,8 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t 
     if (userId == ERROR_USERID) {
         return false;
     }
+
+    // todo: debug use
     PasteBoardDialog::MessageInfo message;
     message.appName = GetAppLabel(tokenId);
     message.deviceType = GetDeviceName();
