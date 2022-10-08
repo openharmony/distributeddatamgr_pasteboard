@@ -39,7 +39,7 @@ public:
 private:
     class DialogConnection : public AAFwk::AbilityConnectionStub {
     public:
-        DialogConnection(const Cancel &cancel) : cancel_(cancel)
+        DialogConnection(Cancel cancel) : cancel_(std::move(cancel))
         {
         }
         void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
@@ -48,7 +48,7 @@ private:
 
     private:
         DISALLOW_COPY_AND_MOVE(DialogConnection);
-        const Cancel &cancel_;
+        Cancel cancel_;
     };
 
     static constexpr const char *PASTEBOARD_DIALOG_APP = "cn.openharmony.pasteboarddialog";

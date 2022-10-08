@@ -88,6 +88,8 @@ void PasteBoardDialog::DialogConnection::OnAbilityDisconnectDone(const AppExecFw
     int32_t resultCode)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dialog ability disconnect");
-    cancel_();
+    if (cancel_ != nullptr) {
+        cancel_();
+    }
 }
 } // namespace OHOS::MiscServices

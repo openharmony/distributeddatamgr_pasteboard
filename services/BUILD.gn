@@ -83,8 +83,8 @@ ohos_shared_library("pasteboard_service") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "ability_runtime:abilitykit_native",
     "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
