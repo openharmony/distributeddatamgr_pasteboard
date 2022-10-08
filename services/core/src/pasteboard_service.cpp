@@ -330,6 +330,7 @@ bool PasteboardService::GetPasteData(PasteData &data)
         block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
         sleep(3000);
         value = block->GetValue();
+        PasteBoardDialog::GetInstance().CancelDialog();
     }
     bool result = false;
     if (value != nullptr) {
@@ -350,13 +351,6 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t 
     if (userId == ERROR_USERID) {
         return false;
     }
-
-    // todo: debug use
-    PasteBoardDialog::MessageInfo message;
-    message.appName = GetAppLabel(tokenId);
-    message.deviceType = GetDeviceName();
-    PasteBoardDialog::GetInstance().ShowDialog(message, [] {});
-
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     bool isCrossPaste = false;
     std::lock_guard<std::mutex> lock(clipMutex_);

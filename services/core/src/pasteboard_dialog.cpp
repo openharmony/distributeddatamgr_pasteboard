@@ -38,13 +38,29 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
     want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_DIALOG_ABILITY);
     want.SetParam("appName", message.appName);
     want.SetParam("deviceType", message.deviceType);
-    int32_t result = abilityManager->StartAbility(want);
+
+    std::lock_guard<std::mutex> lock(connectionLock_);
+    connection_ = new DialogConnection(cancel);
+    int32_t result = abilityManager->ConnectAbility(want, connection_, nullptr);
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog failed, result:%{public}d", result);
         return -1;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog success.");
     return 0;
+}
+
+void PasteBoardDialog::CancelDialog()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin");
+    auto abilityManager = GetAbilityManagerService();
+    if (abilityManager == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
+        return;
+    }
+    std::lock_guard<std::mutex> lock(connectionLock_);
+    int result = abilityManager->DisconnectAbility(connection_);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect dialog ability:%{public}d", result);
 }
 
 sptr<AAFwk::IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
@@ -63,4 +79,15 @@ sptr<AAFwk::IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
     }
     return iface_cast<AAFwk::IAbilityManager>(remoteObject);
 }
-} // namespace OHOS::MiscServicesNapi
+void PasteBoardDialog::DialogConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+    const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dialog ability connected");
+}
+void PasteBoardDialog::DialogConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
+    int32_t resultCode)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dialog ability disconnect");
+    cancel_();
+}
+} // namespace OHOS::MiscServices
