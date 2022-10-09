@@ -325,10 +325,10 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
         PasteBoardDialog::MessageInfo message;
         message.appName = GetAppLabel(tokenId);
         message.deviceType = GetDeviceName();
-        auto id = PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
+        PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
         block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
         value = block->GetValue();
-        PasteBoardDialog::GetInstance().CancelDialog(id);
+        PasteBoardDialog::GetInstance().CancelDialog();
     }
     bool result = false;
     if (value != nullptr) {
@@ -349,7 +349,6 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t 
     if (userId == ERROR_USERID) {
         return false;
     }
-
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     bool isCrossPaste = false;
     std::lock_guard<std::mutex> lock(clipMutex_);

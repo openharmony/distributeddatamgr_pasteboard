@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "Pasteboard dialog"
+    },
+    {
+      "name": "ExtensionAbility_desc",
+      "value": "Pasteboard dialog extension"
+    },
+    {
+      "name": "ExtensionAbility_label",
+      "value": "Pasteboard Dialog"
+    },
+    {
+      "name": "title",
+      "value": "pasting to"
+    },
+    {
+      "name": "from",
+      "value": "from"
+    },
+    {
+      "name": "done",
+      "value": "pasted to"
+    },
+    {
+      "name": "cancel",
+      "value": "canceled"
+    }
+  ]
+}

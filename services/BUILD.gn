@@ -74,7 +74,6 @@ ohos_shared_library("pasteboard_service") {
   ]
   deps = [
     "//foundation/arkui/ace_engine/interfaces/inner_api/ui_service_manager:ui_service_mgr",
-    "//foundation/distributeddatamgr/pasteboard/framework/dialog_ui/js:dialog_js_files_etc",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
@@ -84,6 +83,7 @@ ohos_shared_library("pasteboard_service") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",

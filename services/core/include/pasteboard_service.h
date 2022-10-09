@@ -50,9 +50,7 @@ struct AppInfo {
     int32_t tokenType = -1;
     int32_t userId = ERROR_USERID;
 };
-class PasteboardService final : public SystemAbility,
-                                public PasteboardServiceStub,
-                                public std::enable_shared_from_this<PasteboardService> {
+class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
     DECLARE_SYSTEM_ABILITY(PasteboardService)
 
 public:
