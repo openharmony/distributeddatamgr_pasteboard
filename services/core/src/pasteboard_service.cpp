@@ -214,7 +214,7 @@ bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid)
     }
     std::shared_ptr<Property> property = InputMethodController::GetInstance()->GetCurrentInputMethod();
     if (property != nullptr) {
-        if (property->packageName == appInfo.bundleName) {
+        if (property->name == appInfo.bundleName) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "default ime.");
             return true;
         }
