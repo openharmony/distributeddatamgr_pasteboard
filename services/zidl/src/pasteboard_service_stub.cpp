@@ -89,7 +89,7 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
     PasteUriHandler pasteUriHandler;
-    if (!pasteData.WriteUriFd(reply, pasteUriHandler, IPCSkeleton::GetCallingTokenID())) {
+    if (!pasteData.WriteUriFd(reply, pasteUriHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
         return ERR_INVALID_VALUE;
     }
@@ -142,7 +142,6 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
     return ERR_OK;
 }
-
 int32_t PasteboardServiceStub::OnAddPasteboardChangedObserver(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
