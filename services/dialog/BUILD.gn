@@ -11,17 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//foundation/arkui/ace_engine/build/ace_gen_sa_dialog_js.gni")
+import("//build/ohos.gni")
 
-gen_sa_dialog_js("dialog_js_files_etc") {
-  project_path =
-      "//foundation/distributeddatamgr/pasteboard/framework/dialog_ui/js"
-  i18n_files = [
-    "i18n/en-US.json",
-    "i18n/zh-CN.json",
-  ]
-  common_files = [ "common/ic_public_input_cancel.svg" ]
-  dialog_name = "pasting_dialog"
-  part_name = "pasteboard"
-  subsystem_name = "distributeddatamgr"
+ohos_prebuilt_etc("pasteboard_dialog_hap") {
+  module_install_dir = "app/cn.openharmony.pasteboarddialog"
+  source = "pasteboard_dialog.hap"
+  part_name = "prebuilt_hap"
+  subsystem_name = "application"
 }

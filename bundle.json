@@ -47,7 +47,6 @@
             "base_group": [
             ],
             "fwk_group": [
-                "//foundation/distributeddatamgr/pasteboard/framework/dialog_ui/js:dialog_js_files_etc",
                 "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
                 "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
                 "//foundation/distributeddatamgr/pasteboard/interfaces/declaration:pasteboard_js",
