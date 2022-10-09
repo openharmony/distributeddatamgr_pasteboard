@@ -23,7 +23,7 @@ namespace OHOS::MiscServices {
 using namespace OHOS::AAFwk;
 class DialogConnection : public AAFwk::AbilityConnectionStub {
 public:
-    DialogConnection(PasteBoardDialog::Cancel cancel) : cancel_(std::move(cancel))
+    explicit DialogConnection(PasteBoardDialog::Cancel cancel) : cancel_(std::move(cancel))
     {
     }
     DialogConnection(const DialogConnection &) = delete;
