@@ -15,10 +15,43 @@
 
 #include "pasteboard_dialog.h"
 
+#include "ability_connect_callback_stub.h"
 #include "iservice_registry.h"
 #include "pasteboard_hilog_wreapper.h"
 #include "system_ability_definition.h"
 namespace OHOS::MiscServices {
+using namespace OHOS::AAFwk;
+class DialogConnection : public AAFwk::AbilityConnectionStub {
+public:
+    DialogConnection(PasteBoardDialog::Cancel cancel) : cancel_(std::move(cancel))
+    {
+    }
+    DialogConnection(const DialogConnection &) = delete;
+    DialogConnection &operator=(const DialogConnection &) = delete;
+    DialogConnection(DialogConnection &&) = delete;
+    DialogConnection &operator=(DialogConnection &&) = delete;
+    void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
+        int32_t resultCode) override;
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
+
+private:
+    PasteBoardDialog::Cancel cancel_;
+};
+
+void DialogConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+    const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "dialog ability connected");
+}
+
+void DialogConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "dialog ability disconnect");
+    if (cancel_ != nullptr) {
+        cancel_();
+    }
+}
+
 PasteBoardDialog &PasteBoardDialog::GetInstance()
 {
     static PasteBoardDialog instance;
@@ -27,13 +60,14 @@ PasteBoardDialog &PasteBoardDialog::GetInstance()
 
 int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &cancel)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin, app:%{public}s, device:%{public}s", message.appName.c_str(),
+        message.deviceType.c_str());
     auto abilityManager = GetAbilityManagerService();
     if (abilityManager == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
         return -1;
     }
-    AAFwk::Want want;
+    Want want;
     want.SetAction("");
     want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_DIALOG_ABILITY);
     want.SetParam("appName", message.appName);
@@ -46,13 +80,13 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog failed, result:%{public}d", result);
         return -1;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog success.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog success.");
     return 0;
 }
 
 void PasteBoardDialog::CancelDialog()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin");
     auto abilityManager = GetAbilityManagerService();
     if (abilityManager == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
@@ -63,11 +97,11 @@ void PasteBoardDialog::CancelDialog()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect dialog ability:%{public}d", result);
 }
 
-sptr<AAFwk::IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
+sptr<IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin");
     auto systemAbilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!systemAbilityManager) {
+    if (systemAbilityManager == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to get samgr");
         return nullptr;
     }
@@ -77,19 +111,6 @@ sptr<AAFwk::IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to get ability manager service");
         return nullptr;
     }
-    return iface_cast<AAFwk::IAbilityManager>(remoteObject);
-}
-void PasteBoardDialog::DialogConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
-    const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dialog ability connected");
-}
-void PasteBoardDialog::DialogConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
-    int32_t resultCode)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dialog ability disconnect");
-    if (cancel_ != nullptr) {
-        cancel_();
-    }
+    return iface_cast<IAbilityManager>(remoteObject);
 }
 } // namespace OHOS::MiscServices

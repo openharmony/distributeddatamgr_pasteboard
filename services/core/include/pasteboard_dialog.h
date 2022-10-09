@@ -16,11 +16,14 @@
 #ifndef PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H
 #define PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H
 #include <functional>
+#include <mutex>
 #include <string>
 
-#include "ability_connect_callback_stub.h"
 #include "ability_manager_interface.h"
+#include "refbase.h"
+
 namespace OHOS::MiscServices {
+class DialogConnection;
 class PasteBoardDialog {
 public:
     struct MessageInfo {
@@ -34,22 +37,9 @@ public:
     static PasteBoardDialog &GetInstance();
     int32_t ShowDialog(const MessageInfo &message, const Cancel &cancel);
     void CancelDialog();
-    static sptr<AAFwk::IAbilityManager> GetAbilityManagerService();
 
 private:
-    class DialogConnection : public AAFwk::AbilityConnectionStub {
-    public:
-        DialogConnection(Cancel cancel) : cancel_(std::move(cancel))
-        {
-        }
-        void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
-            int32_t resultCode) override;
-        void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
-
-    private:
-        DISALLOW_COPY_AND_MOVE(DialogConnection);
-        Cancel cancel_;
-    };
+    static sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerService();
 
     static constexpr const char *PASTEBOARD_DIALOG_APP = "cn.openharmony.pasteboarddialog";
     static constexpr const char *PASTEBOARD_DIALOG_ABILITY = "DialogExtensionAbility";

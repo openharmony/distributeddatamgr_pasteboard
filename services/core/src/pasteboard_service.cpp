@@ -325,10 +325,8 @@ bool PasteboardService::GetPasteData(PasteData &data)
         PasteBoardDialog::MessageInfo message;
         message.appName = GetAppLabel(tokenId);
         message.deviceType = GetDeviceName();
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "popup dialog");
         PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
         block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-        sleep(3000);
         value = block->GetValue();
         PasteBoardDialog::GetInstance().CancelDialog();
     }
