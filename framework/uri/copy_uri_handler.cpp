@@ -19,7 +19,7 @@
 
 #include "errors.h"
 #include "os_account_manager.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "remote_file_share.h"
 namespace OHOS::MiscServices {
 using namespace OHOS::AppFileService::ModuleRemoteFileShare;

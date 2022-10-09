@@ -18,7 +18,7 @@
 #include <sys/time.h>
 
 #include "dfx_types.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "reporter.h"
 #include "statistic_reporter.h"
 

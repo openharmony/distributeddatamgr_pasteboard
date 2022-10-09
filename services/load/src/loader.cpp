@@ -15,7 +15,7 @@
 #include "loader.h"
 #include <dlfcn.h>
 #include <fstream>
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
 Loader::Loader()
 {

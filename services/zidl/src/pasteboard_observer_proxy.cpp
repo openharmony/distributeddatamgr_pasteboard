@@ -18,7 +18,7 @@
 #include "errors.h"
 #include "message_option.h"
 #include "message_parcel.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {

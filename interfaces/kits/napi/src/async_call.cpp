@@ -15,7 +15,7 @@
 #define LOG_TAG "AsyncCall"
 #include "async_call.h"
 
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 
 using namespace OHOS::MiscServices;
 
@@ -28,16 +28,17 @@ AsyncCall::AsyncCall(napi_env env, napi_callback_info info, std::shared_ptr<Cont
     napi_value argv[6] = { nullptr };
     NAPI_CALL_RETURN_VOID(env, napi_get_cb_info(env, info, &argc, argv, &self, nullptr));
     pos = ((pos == ASYNC_DEFAULT_POS) ? (argc - 1) : pos);
-    NAPI_ASSERT_BASE(env, pos <= argc, " Invalid Args!", NAPI_RETVAL_NOTHING);
     if (pos >= 0 && pos < argc) {
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[pos], &valueType);
         if (valueType == napi_function) {
             napi_create_reference(env, argv[pos], 1, &context_->callback);
-            argc = pos;
         }
     }
-    NAPI_CALL_RETURN_VOID(env, (*context)(env, argc, argv, self));
+    napi_status status = (*context)(env, argc, argv, self);
+    if(status != napi_ok) {
+        return;
+    }
     context_->ctx = std::move(context);
     napi_create_reference(env, self, 1, &context_->self);
 }

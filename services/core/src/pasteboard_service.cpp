@@ -336,10 +336,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
         data = std::move(*value);
     }
     pasting_.store(false);
-    if(result) {
-        return static_cast<int32_t>(PasteboardError::E_OK);
-    }
-    return static_cast<int32_t>(PasteboardError::E_ERROR);
+    return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
 bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t pid)

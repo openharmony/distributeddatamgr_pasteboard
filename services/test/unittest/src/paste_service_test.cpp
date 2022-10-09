@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "pasteboard_client.h"
+#include "pasteboard_hilog.h"
 #include "pasteboard_observer_callback.h"
 #include "pixel_map.h"
 #include "uri.h"

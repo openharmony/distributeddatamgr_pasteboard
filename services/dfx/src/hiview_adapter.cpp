@@ -22,7 +22,7 @@
 #include <thread>
 #include <algorithm>
 #include "def.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 using namespace HiviewDFX;

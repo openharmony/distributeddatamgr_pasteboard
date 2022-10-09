@@ -16,7 +16,7 @@
 #include "pasteboard_dialog.h"
 
 #include "display_manager.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "ui_service_mgr_client.h"
 #include "common/block_object.h"
 namespace OHOS::MiscServices {

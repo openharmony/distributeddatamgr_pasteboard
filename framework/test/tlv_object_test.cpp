@@ -18,7 +18,7 @@
 #include <gtest/gtest.h>
 
 #include "pasteboard_client.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace OHOS::AAFwk;

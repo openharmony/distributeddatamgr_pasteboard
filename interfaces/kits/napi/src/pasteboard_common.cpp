@@ -13,12 +13,15 @@
  * limitations under the License.
  */
 #include "pasteboard_common.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_js_err.h"
+#include "pasteboard_hilog.h"
 using namespace OHOS::MiscServices;
+
 namespace OHOS {
 namespace MiscServicesNapi {
 const size_t ARGC_TYPE_SET2 = 2;
 constexpr size_t STR_TAIL_LENGTH = 1;
+constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
 napi_value GetCallbackErrorValue(napi_env env, int32_t errorCode)
 {
@@ -82,5 +85,51 @@ bool GetValue(napi_env env, napi_value in, std::string &out)
 
     return true;
 }
+
+bool CheckArgsType(napi_env env, napi_value in, napi_valuetype expectedType, const char *message)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
+    int32_t errCode = static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS);
+    if (type != expectedType) {
+        napi_throw_error(env, std::to_string(errCode).c_str(), message);
+        return false;
+    }
+    return true;
+}
+
+bool CheckExpression(napi_env env, bool flag, MiscServices::JSErrorCode errCode, const char *message)
+{
+    if (!flag) {
+        NAPI_CALL_BASE(
+            env, napi_throw_error(env, std::to_string(static_cast<int32_t>(errCode)).c_str(), message), false);
+        return false;
+    }
+    return true;
+}
+
+// Check Parameters of CreateData, CreateRecord and AddRecord
+bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeType)
+{
+    // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
+    if (!CheckExpression(env, argc >= 2, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+        || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+        return false;
+    }
+
+    bool ret = GetValue(env, argv[0], mimeType);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
+        return false;
+    }
+    if (!CheckExpression(
+            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.")
+        || !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
+        return false;
+    }
+    return true;
+}
+
 } // namespace MiscServicesNapi
 } // namespace OHOS

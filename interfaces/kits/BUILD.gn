@@ -35,8 +35,8 @@ ohos_shared_library("pasteboard_napi") {
     "napi/src/napi_pasteboard.cpp",
     "napi/src/napi_pastedata.cpp",
     "napi/src/napi_pastedata_record.cpp",
+    "napi/src/napi_systempasteboard.cpp",
     "napi/src/pasteboard_common.cpp",
-    "napi/src/pasteboard_js_err.cpp",
   ]
 
   deps = [

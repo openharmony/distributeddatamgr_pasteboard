@@ -19,7 +19,7 @@
 #include "dev_profile.h"
 #include "device_manager.h"
 #include "distributed_module_config.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 namespace OHOS {
 namespace MiscServices {
 constexpr const char *PKG_NAME = "pasteboard_service";

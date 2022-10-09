@@ -17,7 +17,7 @@
 
 #include "iremote_broker.h"
 #include "pasteboard_error.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "paste_uri_handler.h"
 #include "copy_uri_handler.h"
 

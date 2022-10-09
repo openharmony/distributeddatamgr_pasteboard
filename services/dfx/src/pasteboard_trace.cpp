@@ -22,7 +22,7 @@
 
 #include "hitrace/hitrace.h"
 #include "hitrace_meter.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {

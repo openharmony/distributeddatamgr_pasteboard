@@ -55,11 +55,10 @@ public:
 
 private:
     void JSFillInstance(napi_env env, napi_value &instance);
-    void SetNamedPropertyByStr(
-        napi_env env, napi_value &instance, const char *propName, const char *propValue);
+    void SetNamedPropertyByStr(napi_env env, napi_value &instance, const char *propName, const char *propValue);
     napi_env env_;
     napi_ref wrapper_;
 };
-} // MiscServicesNapi
-} // OHOS
+} // namespace MiscServicesNapi
+} // namespace OHOS
 #endif

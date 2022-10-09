@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 #include <cstddef>
+#include <unordered_set>
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 #include "pasteboard_common.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "napi_common.h"
 #include "pasteboard_js_err.h"
-
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
 
@@ -33,91 +33,6 @@ constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 constexpr int32_t MAX_TEXT_LEN = 500 * 1024;
 constexpr size_t STR_TAIL_LENGTH = 1;
 constexpr size_t MAX_RECORD_NUM = 512;
-
-void SetProperty(napi_env env, napi_value in, PasteDataNapi *obj)
-{
-    napi_value propertyNames = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_get_property_names(env, in, &propertyNames));
-    uint32_t propertyNamesNum = 0;
-    NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, propertyNames, &propertyNamesNum));
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "propertyNamesNum = %{public}d", propertyNamesNum);
-
-    for (uint32_t i = 0; i < propertyNamesNum; i++) {
-        napi_value propertyNameNapi = nullptr;
-        NAPI_CALL_RETURN_VOID(env, napi_get_element(env, propertyNames, i, &propertyNameNapi));
-        size_t len = 0;
-        char str[STR_MAX_SIZE] = { 0 };
-        NAPI_CALL_RETURN_VOID(env, napi_get_value_string_utf8(env, propertyNameNapi, str, STR_MAX_SIZE, &len));
-        std::string propertyName = str;
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "shareOptionName = %{public}s,", propertyName.c_str());
-        if (propertyName == "shareOption") {
-            napi_value shareOptionValueNapi = nullptr;
-            NAPI_CALL_RETURN_VOID(env, napi_get_named_property(env, in, str, &shareOptionValueNapi));
-            int32_t shareOptionValue = 0;
-            NAPI_CALL_RETURN_VOID(env, napi_get_value_int32(env, shareOptionValueNapi, &shareOptionValue));
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOptionValue = %{public}d,", shareOptionValue);
-            obj->value_->SetShareOption(static_cast<ShareOption>(shareOptionValue));
-            break;
-        }
-    }
-}
-
-bool IsProperty(napi_env env, napi_value in)
-{
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL_BASE(env, napi_typeof(env, in, &valueType), false);
-    if (valueType != napi_object) {
-        return false;
-    }
-    napi_value propertyNames = nullptr;
-    NAPI_CALL_BASE(env, napi_get_property_names(env, in, &propertyNames), false);
-    uint32_t propertyNamesNum = 0;
-    NAPI_CALL_BASE(env, napi_get_array_length(env, propertyNames, &propertyNamesNum), false);
-    if (propertyNamesNum != 6) {
-        return false;
-    }
-    bool hasProperty = false;
-    const char *key[] = { "additions", "mimeTypes", "tag", "timestamp", "localOnly", "shareOption" };
-    for (uint32_t i = 0; i < propertyNamesNum; i++) {
-        NAPI_CALL_BASE(env, napi_has_named_property(env, in, key[i], &hasProperty), false);
-        if (!hasProperty) {
-            return false;
-        }
-    }
-    napi_value propertyValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, in, key[0], &propertyValue), false);
-    AAFwk::WantParams wantParams;
-    if (!AppExecFwk::UnwrapWantParams(env, propertyValue, wantParams)) {
-        return false;
-    }
-    NAPI_CALL_BASE(env, napi_get_named_property(env, in, key[1], &propertyValue), false);
-    bool result = false;
-    NAPI_CALL_BASE(env, napi_is_array(env, propertyValue, &result), false);
-    if (!result) {
-        return false;
-    }
-    NAPI_CALL_BASE(env, napi_get_named_property(env, in, key[2], &propertyValue), false);
-    NAPI_CALL_BASE(env, napi_typeof(env, propertyValue, &valueType), false);
-    if (valueType != napi_string) {
-        return false;
-    }
-    NAPI_CALL_BASE(env, napi_get_named_property(env, in, key[3], &propertyValue), false);
-    NAPI_CALL_BASE(env, napi_typeof(env, propertyValue, &valueType), false);
-    if (valueType != napi_number) {
-        return false;
-    }
-    NAPI_CALL_BASE(env, napi_get_named_property(env, in, key[4], &propertyValue), false);
-    NAPI_CALL_BASE(env, napi_typeof(env, propertyValue, &valueType), false);
-    if (valueType != napi_boolean) {
-        return false;
-    }
-    NAPI_CALL_BASE(env, napi_get_named_property(env, in, key[5], &propertyValue), false);
-    NAPI_CALL_BASE(env, napi_typeof(env, propertyValue, &valueType), false);
-    if (valueType != napi_number) {
-        return false;
-    }
-    return true;
-}
 }  // namespace
 static thread_local napi_ref g_pasteData = nullptr;
 
@@ -362,11 +277,13 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
+    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+        || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+        return nullptr;
+    }
 
-    std::string mimeType ;
-    bool ret = GetValue(env, argv[0], mimeType);
-    if (!ret || mimeType.size() > MIMETYPE_MAX_SIZE || mimeType == "") {
+    std::string mimeType;
+    if (!GetValue(env, argv[0], mimeType)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue!");
         return nullptr;
     }
@@ -378,122 +295,63 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    ret = obj->value_->HasMimeType(mimeType);
+    bool ret = obj->value_->HasMimeType(mimeType);
     napi_value result = nullptr;
     napi_get_boolean(env, ret, &result);
-
     return result;
 }
 
 napi_value PasteDataNapi::HasType(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasType is called!");
-    size_t argc = 1;
-    napi_value argv[1] = {0};
-    napi_value thisVar = nullptr;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    JSErrorCode errCode = JSErrorCode::INVALID_PARAMETERS;
-    if (argc < 1) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. Wrong number of arguments.");
-        return nullptr;
-    }
-    napi_valuetype type = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &type));
-    if (type != napi_string) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of mimeType must be string.");
-        return nullptr;
-    }
-    std::string mimeType;
-    bool ret = GetValue(env, argv[0], mimeType);
-    if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
-        return nullptr;
-    }
-    if (mimeType == "") {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. mimeType cannot be empty.");
-        return nullptr;
-    }
-
-    PasteDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get HasType object failed");
-        return nullptr;
-    }
-
-    ret = obj->value_->HasMimeType(mimeType);
-    napi_value result = nullptr;
-    napi_get_boolean(env, ret, &result);
-
-    return result;
+    return HasMimeType(env, info);
 }
 
-napi_value PasteDataNapi::RemoveRecordAt(napi_env env, napi_callback_info info)
+PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callback_info info, int64_t &index)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecordAt is called!");
     size_t argc = 1;
     napi_value argv[1] = {0};
     napi_value thisVar = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
 
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, valueType == napi_number, "Wrong argument type. number expected.");
-
-    PasteDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get RemoveRecordAt object failed");
+    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+        || !CheckArgsType(env, argv[0], napi_number, "Parameter error. The type of mimeType must be number.")) {
         return nullptr;
     }
-
-    int64_t number = 0;
-    napi_get_value_int64(env, argv[0], &number);
-    bool ret = obj->value_->RemoveRecordAt(number);
-    napi_value result = nullptr;
-    napi_get_boolean(env, ret, &result);
-
-    return result;
-}
-
-napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecord is called!");
-    size_t argc = 1;
-    napi_value argv[1] = {0};
-    napi_value thisVar = nullptr;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    JSErrorCode errCode = JSErrorCode::INVALID_PARAMETERS;
-    if (argc < 1) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. Wrong number of arguments.");
-        return nullptr;
-    }
-
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    if (valueType != napi_number) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of mimeType must be number.");
-        return nullptr;
-    }
-
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get RemoveRecord object failed");
         return nullptr;
     }
-    int64_t index = 0;
     NAPI_CALL(env, napi_get_value_int64(env, argv[0], &index));
+    return obj;
+}
 
-    if (index < 0 || index >= obj->value_->GetRecordCount()) {
-        ThrowErr(env, JSErrorCode::OUT_OF_RANGE, "BusinessError 12900001: index out of range.");
+napi_value PasteDataNapi::RemoveRecordAt(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecordAt is called!");
+    int64_t index = 0;
+    PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
+    if (obj == nullptr) {
         return nullptr;
     }
+    bool ret = obj->value_->RemoveRecordAt(index);
+    napi_value result = nullptr;
+    napi_get_boolean(env, ret, &result);
+    return result;
+}
 
+napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecord is called!");
+    int64_t index = 0;
+    PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
+    if (obj == nullptr
+        || !CheckExpression(env, index >= 0 && index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
+            "index out of range.")) {
+        return nullptr;
+    }
     obj->value_->RemoveRecordAt(index);
     return nullptr;
 }
@@ -607,40 +465,20 @@ napi_value PasteDataNapi::GetMimeTypes(napi_env env, napi_callback_info info)
     return nMimeTypes;
 }
 
-void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, PasteDataNapi *obj)
+void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, size_t argc, PasteDataNapi *obj)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddRecordV9!");
-
-    if(obj->value_->GetRecordCount() >= MAX_RECORD_NUM) {
-        JSErrorCode code = JSErrorCode::RECORD_EXCEEDS_LIMIT;
-        ThrowErr(env, code, "BusinessError 12900002: The count of records in PasteData exceeds MAX_RECORD_NUM");
-        return;
-    }
-    JSErrorCode errCode = JSErrorCode::INVALID_PARAMETERS;
-    napi_valuetype type = napi_undefined;
-    NAPI_CALL_RETURN_VOID(env, napi_typeof(env, argv[0], &type));
-    if (type != napi_string) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of mimeType must be string.");
+    if (!CheckExpression(env, obj->value_->GetRecordCount() < MAX_RECORD_NUM, JSErrorCode::RECORD_EXCEEDS_LIMIT,
+            "The count of records in PasteData exceeds MAX_RECORD_NUM.")) {
         return;
     }
     std::string mimeType;
-    bool ret = GetValue(env, argv[0], mimeType);
-    if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
+    if (!CheckArgs(env, argv, argc, mimeType)) {
         return;
     }
-    if (mimeType == "") {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. mimeType cannot be empty.");
-        return;
-    }
-    if (mimeType.size() > MIMETYPE_MAX_SIZE) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
-        return;
-    }
-    bool result = false;
-    NAPI_CALL_RETURN_VOID(env, napi_is_arraybuffer(env, argv[1], &result));
-
-    if (result) {
+    bool isArrayBuffer = false;
+    NAPI_CALL_RETURN_VOID(env, napi_is_arraybuffer(env, argv[1], &isArrayBuffer));
+    if (isArrayBuffer) {
         void *data = nullptr;
         size_t dataLen = 0;
         NAPI_CALL_RETURN_VOID(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
@@ -648,35 +486,41 @@ void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, PasteDataNapi *obj
             std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
         return;
     }
-    if (mimeType == MIMETYPE_TEXT_HTML || mimeType == MIMETYPE_TEXT_PLAIN || mimeType == MIMETYPE_TEXT_URI) {
-        std::string str;
-        ret = GetValue(env, argv[1], str);
-        if (!ret) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue!");
-            return;
-        }
-        if (mimeType == MIMETYPE_TEXT_HTML) {
-            obj->value_->AddHtmlRecord(str);
-        } else if (mimeType == MIMETYPE_TEXT_PLAIN) {
-            obj->value_->AddTextRecord(str);
-        } else {
-            obj->value_->AddUriRecord(OHOS::Uri(str));
-        }
-    } else if (mimeType == MIMETYPE_PIXELMAP) {
+    std::unordered_set<std::string> mimeTypeSet = { MIMETYPE_TEXT_HTML, MIMETYPE_TEXT_PLAIN, MIMETYPE_TEXT_URI,
+        MIMETYPE_PIXELMAP, MIMETYPE_TEXT_WANT };
+    if (mimeTypeSet.find(mimeType) == mimeTypeSet.end()) {
+        napi_throw_error(env, std::to_string(static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS)).c_str(),
+            "Parameter error. The type of mimeType is not one of VauleType.");
+    }
+    if (mimeType == MIMETYPE_PIXELMAP) {
         std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, argv[1]);
         if (pixelMap == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetPixelMap!");
             return;
         }
         obj->value_->AddPixelMapRecord(pixelMap);
+        return;
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, argv[1], want)) {
             return;
         }
         obj->value_->AddWantRecord(std::make_shared<OHOS::AAFwk::Want>(want));
+        return;
+    }
+
+    std::string str;
+    bool ret = GetValue(env, argv[1], str);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue!");
+        return;
+    }
+    if (mimeType == MIMETYPE_TEXT_HTML) {
+        obj->value_->AddHtmlRecord(str);
+    } else if (mimeType == MIMETYPE_TEXT_PLAIN) {
+        obj->value_->AddTextRecord(str);
     } else {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of mimeType is not one of VauleType.");
+        obj->value_->AddUriRecord(OHOS::Uri(str));
     }
 }
 
@@ -783,7 +627,7 @@ napi_value PasteDataNapi::AddRecord(napi_env env, napi_callback_info info)
         AddRecord(env, argv[0], obj);
         return nullptr;
     }
-    AddRecord(env, argv, obj);
+    AddRecord(env, argv, argc, obj);
     return nullptr;
 }
 
@@ -831,20 +675,12 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     size_t argc = ARGC_TYPE_SET2;
     napi_value argv[ARGC_TYPE_SET2] = { 0 };
     napi_value thisVar = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    JSErrorCode errCode = JSErrorCode::INVALID_PARAMETERS;
-    if (argc < 2) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. Wrong number of arguments.");
+    if (!CheckExpression(env, argc > 1, JSErrorCode::INVALID_PARAMETERS, "Wrong number of arguments.")
+        || !CheckArgsType(env, argv[0], napi_number, "The type of mimeType must be number.")) {
         return nullptr;
     }
 
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    if (valueType != napi_number) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of mimeType must be number.");
-        return nullptr;
-    }
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
@@ -853,18 +689,19 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     }
     int64_t index = 0;
     NAPI_CALL(env, napi_get_value_int64(env, argv[0], &index));
-    if (index < 0 || index >= obj->value_->GetRecordCount()) {
-        ThrowErr(env, JSErrorCode::OUT_OF_RANGE, "BusinessError 12900001: index out of range.");
+    if (!CheckExpression(env, index >= 0 && index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
+            "index out of range.")) {
         return nullptr;
     }
 
-    NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
+    if (!CheckArgsType(env, argv[1], napi_object, "The type of record must be PasteDataRecord.")) {
+        return nullptr;
+    }
     std::shared_ptr<PasteDataRecord> pasteDataRecord = ParseRecord(env, argv[1]);
-    if (valueType != napi_object || pasteDataRecord == nullptr) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of record must be PasteDataRecord.");
+    if (!CheckExpression(env, pasteDataRecord != nullptr, JSErrorCode::INVALID_PARAMETERS,
+            "The type of record must be PasteDataRecord.")) {
         return nullptr;
     }
-
     obj->value_->ReplaceRecordAt(index, pasteDataRecord);
     return nullptr;
 }
@@ -986,27 +823,13 @@ napi_value PasteDataNapi::GetProperty(napi_env env, napi_callback_info info)
 napi_value PasteDataNapi::GetRecordAt(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecordAt is called!");
-    size_t argc = 1;
-    napi_value argv[1] = {0};
-    napi_value thisVar = nullptr;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
-
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, valueType == napi_number, "Wrong argument type. number expected.");
-
-    PasteDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get GetRecordAt object failed");
+    int64_t index = 0;
+    PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
+    if (obj == nullptr) {
         return nullptr;
     }
-    int64_t number = 0;
-    napi_get_value_int64(env, argv[0], &number);
-    std::shared_ptr<PasteDataRecord> record = obj->value_->GetRecordAt(number);
 
+    std::shared_ptr<PasteDataRecord> record = obj->value_->GetRecordAt(index);
     napi_value instance = nullptr;
     PasteDataRecordNapi::NewInstanceByRecord(env, instance, record);
     return instance;
@@ -1015,36 +838,11 @@ napi_value PasteDataNapi::GetRecordAt(napi_env env, napi_callback_info info)
 napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecord is called!");
-    size_t argc = 1;
-    napi_value argv[1] = {0};
-    napi_value thisVar = nullptr;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    JSErrorCode errCode = JSErrorCode::INVALID_PARAMETERS;
-    if (argc < 1) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. Wrong number of arguments.");
-        return nullptr;
-    }
-
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    if (valueType != napi_number) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of mimeType must be number.");
-        return nullptr;
-    }
-
-    PasteDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get GetRecordAt object failed");
-        return nullptr;
-    }
-
     int64_t index = 0;
-    NAPI_CALL(env, napi_get_value_int64(env, argv[0], &index));
-
-    if (index < 0 || index >= obj->value_->GetRecordCount()) {
-        ThrowErr(env, JSErrorCode::OUT_OF_RANGE, "BusinessError 12900001: index out of range.");
+    PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
+    if (obj == nullptr
+        || !CheckExpression(env, index >= 0 && index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
+            "index out of range.")) {
         return nullptr;
     }
 
@@ -1052,6 +850,71 @@ napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
     napi_value instance = nullptr;
     PasteDataRecordNapi::NewInstanceByRecord(env, instance, record);
     return instance;
+}
+
+void PasteDataNapi::SetProperty(napi_env env, napi_value in, PasteDataNapi *obj)
+{
+    napi_value propertyNames = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_get_property_names(env, in, &propertyNames));
+    uint32_t propertyNamesNum = 0;
+    NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, propertyNames, &propertyNamesNum));
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "propertyNamesNum = %{public}d", propertyNamesNum);
+
+    for (uint32_t i = 0; i < propertyNamesNum; i++) {
+        napi_value propertyNameNapi = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_element(env, propertyNames, i, &propertyNameNapi));
+        size_t len = 0;
+        char str[STR_MAX_SIZE] = { 0 };
+        NAPI_CALL_RETURN_VOID(env, napi_get_value_string_utf8(env, propertyNameNapi, str, STR_MAX_SIZE, &len));
+        std::string propertyName = str;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "shareOptionName = %{public}s,", propertyName.c_str());
+        if (propertyName == "shareOption") {
+            napi_value shareOptionValueNapi = nullptr;
+            NAPI_CALL_RETURN_VOID(env, napi_get_named_property(env, in, str, &shareOptionValueNapi));
+            int32_t shareOptionValue = 0;
+            NAPI_CALL_RETURN_VOID(env, napi_get_value_int32(env, shareOptionValueNapi, &shareOptionValue));
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOptionValue = %{public}d,", shareOptionValue);
+            obj->value_->SetShareOption(static_cast<ShareOption>(shareOptionValue));
+            break;
+        }
+    }
+}
+
+bool PasteDataNapi::IsProperty(napi_env env, napi_value in)
+{
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &valueType), false);
+    if (valueType != napi_object) {
+        return false;
+    }
+    napi_value propertyNames = nullptr;
+    NAPI_CALL_BASE(env, napi_get_property_names(env, in, &propertyNames), false);
+    uint32_t propertyNamesNum = 0;
+    NAPI_CALL_BASE(env, napi_get_array_length(env, propertyNames, &propertyNamesNum), false);
+    bool hasProperty = false;
+    const char *key[] = { "additions", "mimeTypes", "tag", "timestamp", "localOnly", "shareOption" };
+    const napi_valuetype type[] = { napi_object, napi_object, napi_string, napi_number, napi_boolean, napi_number };
+    napi_value propertyValue = nullptr;
+    for (uint32_t i = 0; i < propertyNamesNum; i++) {
+        NAPI_CALL_BASE(env, napi_has_named_property(env, in, key[i], &hasProperty), false);
+        if (!hasProperty) {
+            return false;
+        }
+        NAPI_CALL_BASE(env, napi_get_named_property(env, in, key[i], &propertyValue), false);
+        if (i == 1) {
+            bool isArray = false;
+            NAPI_CALL_BASE(env, napi_is_array(env, propertyValue, &isArray), false);
+            if (!isArray) {
+                return false;
+            }
+            continue;
+        }
+        NAPI_CALL_BASE(env, napi_typeof(env, propertyValue, &valueType), false);
+        if (valueType != type[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
@@ -1062,9 +925,9 @@ napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    JSErrorCode errCode = JSErrorCode::INVALID_PARAMETERS;
-    if (argc < 1) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. Wrong number of arguments.");
+    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+        || !CheckExpression(env, IsProperty(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The type of property must be PasteDataProperty.")) {
         return nullptr;
     }
 
@@ -1074,12 +937,7 @@ napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
         return nullptr;
     }
-
-    if (!IsProperty(env, argv[0])) {
-        ThrowErr(env, errCode, "BusinessError 401: Parameter error. The type of property must be PasteDataProperty.");
-        return nullptr;
-    }
-    MiscServicesNapi::SetProperty(env, argv[0], obj);
+    SetProperty(env, argv[0], obj);
     return nullptr;
 }
 
@@ -1182,10 +1040,11 @@ bool PasteDataNapi::IsPasteData(napi_env env, napi_value in)
         return false;
     }
     napi_value constructor;
-    bool ret = false;
+    bool isPasteData = false;
     NAPI_CALL_BASE(env, napi_get_reference_value(env, g_pasteData, &constructor), false);
-    NAPI_CALL_BASE(env, napi_instanceof(env, in, constructor, &ret), false);
-    return ret;
+    NAPI_CALL_BASE(env, napi_instanceof(env, in, constructor, &isPasteData), false);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "isPasteData is [%{public}d]", isPasteData);
+    return isPasteData;
 }
 
 } // namespace MiscServicesNapi

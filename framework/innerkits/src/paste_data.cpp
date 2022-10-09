@@ -20,7 +20,7 @@
 
 #include "parcel_util.h"
 #include "paste_data_record.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "type_traits"
 
 using namespace std::chrono;
@@ -314,8 +314,7 @@ bool PasteData::UnMarshalling(Parcel &parcel, PasteDataProperty &props)
     props.tag = parcel.ReadString();
     props.timestamp = parcel.ReadInt64();
     props.shareOption = static_cast<ShareOption>(parcel.ReadInt32());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT,
-                      "props.shareOption =  %{public}d.", props.shareOption);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props.shareOption);
     return true;
 }
 
