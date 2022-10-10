@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-#include "initialization_fault_impl.h"
+#include "pasteboard_fault_impl.h"
 
 #include "dfx_code_constant.h"
 #include "hiview_adapter.h"
 
 namespace OHOS {
 namespace MiscServices {
-ReportStatus InitializationFaultImpl::Report(const InitializationFaultMsg &msg)
+ReportStatus PasteboardFaultImpl::Report(const PasteboardFaultMsg &msg)
 {
-    HiViewAdapter::ReportInitializationFault(DfxCodeConstant::INITIALIZATION_FAULT, msg);
+    HiViewAdapter::ReportPasteboardFault(DfxCodeConstant::PASTEBOARD_FAULT, msg);
     return ReportStatus::SUCCESS;
 }
 } // namespace MiscServices
