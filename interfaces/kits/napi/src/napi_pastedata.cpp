@@ -30,7 +30,7 @@ constexpr int ARGC_TYPE_SET1 = 1;
 constexpr int ARGC_TYPE_SET2 = 2;
 const int32_t STR_MAX_SIZE = 256;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
-constexpr int32_t MAX_TEXT_LEN = 500 * 1024;
+constexpr int32_t MAX_TEXT_LEN = 20 * 1024 * 1024;
 constexpr size_t STR_TAIL_LENGTH = 1;
 constexpr size_t MAX_RECORD_NUM = 512;
 }  // namespace
