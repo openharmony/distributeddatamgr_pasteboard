@@ -85,6 +85,8 @@ private:
             return l->AsObject() < r->AsObject();
         }
     };
+    void AddSysAbilityListener();
+    void AddWmsSysAbilityListener(uint32_t times);
     int32_t Init();
     int32_t GetUserIdByToken(uint32_t tokenId);
     std::string DumpHistory() const;
@@ -113,6 +115,9 @@ private:
     static AppInfo GetAppInfo(uint32_t tokenId);
     static bool IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
+    void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void RegisterFocusListener();
+
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;

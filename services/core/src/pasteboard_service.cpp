@@ -50,6 +50,7 @@ using namespace std::chrono;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
+constexpr const int32_t RETRY_TIMES = 10;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const std::string DEFAULT_IME_BUNDLE_NAME = "com.example.kikakeyboard";
@@ -104,18 +105,14 @@ void PasteboardService::OnStart()
     ParaHandle::GetInstance().Init();
     DevProfile::GetInstance().Init();
 
+    AddSysAbilityListener();
+
     if (Init() != ERR_OK) {
         auto callback = [this]() { Init(); };
         serviceHandler_->PostTask(callback, INIT_INTERVAL);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Init failed. Try again 10s later.");
         return;
     }
-
-    if (focusChangedListener_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "focusChangedListener_.");
-        focusChangedListener_ = new PasteboardService::PasteboardFocusChangedListener();
-    }
-    Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusChangedListener_);
 
     copyHistory = std::make_shared<Command>(std::vector<std::string>{ "--copy-history" },
         "Dump access history last ten times.",
@@ -152,6 +149,41 @@ void PasteboardService::OnStop()
 
     Rosen::WindowManager::GetInstance().UnregisterFocusChangedListener(focusChangedListener_);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
+}
+
+void PasteboardService::AddSysAbilityListener()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin.");
+    uint32_t times = 0;
+    AddWmsSysAbilityListener(times);
+}
+
+void PasteboardService::AddWmsSysAbilityListener(uint32_t times)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin, times = %{public}d!.", times);
+    times++;
+    auto ret = AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
+    if (!ret && times <= RETRY_TIMES) {
+        auto callback = [this, times]() { AddWmsSysAbilityListener(times); };
+        serviceHandler_->PostTask(callback, INIT_INTERVAL);
+    }
+}
+
+void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "systemAbilityId = %{public}d added!", systemAbilityId);
+    if (systemAbilityId == WINDOW_MANAGER_SERVICE_ID) {
+        RegisterFocusListener();
+    }
+}
+
+void PasteboardService::RegisterFocusListener()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin.");
+    if (focusChangedListener_ == nullptr) {
+        focusChangedListener_ = new PasteboardService::PasteboardFocusChangedListener();
+    }
+    Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusChangedListener_);
 }
 
 void PasteboardService::InitServiceHandler()
