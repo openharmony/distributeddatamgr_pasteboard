@@ -230,6 +230,9 @@ napi_value PasteboardNapi::JScreateWantRecord(napi_env env, napi_callback_info i
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type. Object expected.");
 
     return CreateWantRecord(env, argv[0]);
 }
@@ -307,24 +310,18 @@ napi_value PasteboardNapi::JSCreateRecord(napi_env env, napi_callback_info info)
     if (!CheckArgs(env, argv, argc, mimeType)) {
         return nullptr;
     }
-    bool isArrayBuffer = false;
-    NAPI_CALL(env, napi_is_arraybuffer(env, argv[1], &isArrayBuffer));
-    if (isArrayBuffer) {
-        void *data = nullptr;
-        size_t dataLen = 0;
-        NAPI_CALL(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
-        std::vector<uint8_t> arrayBuf(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
-        napi_value instance = nullptr;
-        PasteDataRecordNapi::NewKvRecordInstance(env, mimeType, arrayBuf, instance);
-        return instance;
-    }
     auto it = createRecordMap_.find(mimeType);
     if (it != createRecordMap_.end()) {
         return (it->second)(env, argv[1]);
     }
-    napi_throw_error(env, std::to_string(static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS)).c_str(),
-        "Parameter error. The type of mimeType is not one of VauleType.");
-    return nullptr;
+
+    void *data = nullptr;
+    size_t dataLen = 0;
+    NAPI_CALL(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
+    std::vector<uint8_t> arrayBuf(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
+    napi_value instance = nullptr;
+    PasteDataRecordNapi::NewKvRecordInstance(env, mimeType, arrayBuf, instance);
+    return instance;
 }
 
 napi_value PasteboardNapi::JScreateHtmlData(napi_env env, napi_callback_info info)
@@ -417,22 +414,16 @@ napi_value PasteboardNapi::JSCreateData(napi_env env, napi_callback_info info)
     if (!CheckArgs(env, argv, argc, mimeType)) {
         return nullptr;
     }
-    bool result = false;
-    NAPI_CALL(env, napi_is_arraybuffer(env, argv[1], &result));
-    if (result) {
-        void *data = nullptr;
-        size_t dataLen = 0;
-        NAPI_CALL(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
-        std::vector<uint8_t> arrayBuf(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
-        return JSCreateKvData(env, mimeType, arrayBuf);
-    }
     auto it = createDataMap_.find(mimeType);
     if (it != createDataMap_.end()) {
         return (it->second)(env, argv[1]);
     }
-    napi_throw_error(env, std::to_string(static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS)).c_str(),
-        "Parameter error. The type of mimeType is not one of VauleType.");
-    return nullptr;
+
+    void *data = nullptr;
+    size_t dataLen = 0;
+    NAPI_CALL(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
+    std::vector<uint8_t> arrayBuf(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
+    return JSCreateKvData(env, mimeType, arrayBuf);
 }
 
 napi_value PasteboardNapi::JSgetSystemPasteboard(napi_env env, napi_callback_info info)

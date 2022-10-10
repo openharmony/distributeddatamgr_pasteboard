@@ -62,4 +62,4 @@ private:
 } // namespace MiscServicesNapi
 } // namespace OHOS
 
-#endif //DISTRIBUTEDDATAMGR_PASTEBOARD_PASTEBOARD_NAPI_H
+#endif // DISTRIBUTEDDATAMGR_PASTEBOARD_PASTEBOARD_NAPI_H

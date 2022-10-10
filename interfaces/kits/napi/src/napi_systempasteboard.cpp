@@ -144,6 +144,7 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
     napi_value thisVar = 0;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    // on(type: 'update', callback: () => void) has 2 args
     if (!CheckAgrsOfOnAndOff(env, argc >= 2, argv, argc)
         || !CheckArgsType(env, argv[1], napi_function, "Parameter error. The type of callback must be function.")) {
         return nullptr;
@@ -173,6 +174,7 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
     napi_value thisVar = 0;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    // off(type: 'update', callback?: () => void) has at least 1 arg
     if (!CheckAgrsOfOnAndOff(env, argc >= 1, argv, argc)) {
         return nullptr;
     }

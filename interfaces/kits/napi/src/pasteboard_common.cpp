@@ -15,10 +15,13 @@
 #include "pasteboard_common.h"
 #include "pasteboard_js_err.h"
 #include "pasteboard_hilog.h"
-using namespace OHOS::MiscServices;
+#include "pixel_map_napi.h"
+#include "paste_data_record.h"
+#include "napi_common.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
+using namespace OHOS::MiscServices;
 const size_t ARGC_TYPE_SET2 = 2;
 constexpr size_t STR_TAIL_LENGTH = 1;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
@@ -127,6 +130,30 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         || !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
         return false;
+    }
+    const char *message = "Parameter error. The value does not match mimeType correctly.";
+
+    if (mimeType == MIMETYPE_TEXT_URI || mimeType == MIMETYPE_TEXT_PLAIN || mimeType == MIMETYPE_TEXT_HTML) {
+        if (!CheckArgsType(env, argv[1], napi_string, message)) {
+            return false;
+        }
+    } else if (mimeType == MIMETYPE_PIXELMAP) {
+        if (!CheckExpression(env, Media::PixelMapNapi::GetPixelMap(env, argv[1]) != nullptr,
+                JSErrorCode::INVALID_PARAMETERS, message)) {
+            return false;
+        }
+    } else if (mimeType == MIMETYPE_TEXT_WANT) {
+        AAFwk::Want want;
+        bool ret = OHOS::AppExecFwk::UnwrapWant(env, argv[1], want);
+        if (!CheckExpression(env, ret, JSErrorCode::INVALID_PARAMETERS, message)) {
+            return false;
+        }
+    } else {
+        bool isArrayBuffer = false;
+        NAPI_CALL_BASE(env, napi_is_arraybuffer(env, argv[1], &isArrayBuffer), false);
+        if (!CheckExpression(env, isArrayBuffer, JSErrorCode::INVALID_PARAMETERS, message)) {
+            return false;
+        }
     }
     return true;
 }

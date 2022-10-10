@@ -911,7 +911,7 @@ describe('PasteBoardJSTest', function () {
                 bundleName: "com.example.myapplication3",
                 abilityName: "com.example.myapplication3.MainAbility"
             }
-            var pasteData = pasteboard.createWantData(wantText0);
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText0);
             systemPasteboard.setPasteData(pasteData).then(() => {
                 systemPasteboard.hasPasteData().then((data) => {
                     expect(data).assertEqual(true);
@@ -922,7 +922,7 @@ describe('PasteBoardJSTest', function () {
                             bundleName: "com.example.myapplication30",
                             abilityName: "com.example.myapplication30.MainAbility"
                         }
-                        var pasteDataRecord = pasteboard.createWantRecord(wantText1)
+                        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText1);
                         var replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
                         expect(replace).assertEqual(true);
                         var primaryWant = pasteData1.getPrimaryWant();
@@ -2258,7 +2258,7 @@ describe('PasteBoardJSTest', function () {
                     bundleName: "com.example.myapplication3",
                     abilityName: "com.example.myapplication3.MainAbility"
                 };
-                var pasteData = pasteboard.createWantData(wantText0);
+                var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText0);
                 systemPasteboard.setPasteData(pasteData, (err, data) => {
                     if (err) {
                         console.error('f_test64: systemPasteboard.setPasteData callback error:' + err);
@@ -2277,7 +2277,7 @@ describe('PasteBoardJSTest', function () {
                                             bundleName: "com.example.myapplication30",
                                             abilityName: "com.example.myapplication30.MainAbility"
                                         };
-                                        var pasteDataRecord = pasteboard.createWantRecord(wantText1);
+                                        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText1);
                                         var replace = data.replaceRecordAt(0, pasteDataRecord);
                                         expect(replace).assertEqual(true);
                                         var primaryWant = data.getPrimaryWant();
@@ -2768,11 +2768,11 @@ describe('PasteBoardJSTest', function () {
             var pasteData = undefined;
             console.info("systemPasteBoard clear data success")
             var dataUri = new ArrayBuffer(256)
-            pasteData = pasteboard.createData("text/uri", dataUri)
+            pasteData = pasteboard.createData("xxx", dataUri)
             var addUri = new ArrayBuffer(128)
-            pasteData.addRecord("text/uri", addUri)
+            pasteData.addRecord("xxx", addUri)
             var recordUri = new ArrayBuffer(96)
-            var pasteDataRecord = pasteboard.createRecord("text/uri", recordUri)
+            var pasteDataRecord = pasteboard.createRecord("xxx", recordUri)
             pasteData.addRecord(pasteDataRecord)
             await systemPasteBoard.setPasteData(pasteData).then(async () => {
                 console.info("Set pastedata success")
@@ -2782,9 +2782,9 @@ describe('PasteBoardJSTest', function () {
                     await systemPasteBoard.getPasteData().then(async (data) => {
                         console.info("Get paste data success")
                         expect(data.getRecordCount()).assertEqual(3)
-                        expect(data.getRecordAt(0).data["text/uri"].byteLength).assertEqual(96)
-                        expect(data.getRecordAt(1).data["text/uri"].byteLength).assertEqual(128)
-                        expect(data.getRecordAt(2).data["text/uri"].byteLength).assertEqual(256)
+                        expect(data.getRecordAt(0).data["xxx"].byteLength).assertEqual(96)
+                        expect(data.getRecordAt(1).data["xxx"].byteLength).assertEqual(128)
+                        expect(data.getRecordAt(2).data["xxx"].byteLength).assertEqual(256)
                         done();
                     })
                 })
@@ -3140,7 +3140,7 @@ describe('PasteBoardJSTest', function () {
                 expect(true === false).assertTrue();
             } catch (error) {
                 expect(error.code).assertEqual("401");
-                expect(error.message).assertEqual("Parameter error. The type of mimeType is not one of VauleType.");
+                expect(error.message).assertEqual("Parameter error. The value does not match mimeType correctly.");
             }
             done();
         });
@@ -3280,7 +3280,7 @@ describe('PasteBoardJSTest', function () {
 
     /**
      * @tc.name      pasteboard_function_test87
-     * @tc.desc      Test Create KV Data
+     * @tc.desc      Test CreateData throw error
      * @tc.type      Function
      * @tc.require   AR000HINQN
      */
@@ -3291,20 +3291,12 @@ describe('PasteBoardJSTest', function () {
         var pasteData = undefined;
         try {
             pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, dataHtml);
-        } catch (e) {
             expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code).assertEqual("401");
+            expect(e.message).assertEqual("Parameter error. The value does not match mimeType correctly.");
         }
-        systemPasteboard.setPasteData(pasteData).then(() => {
-            systemPasteboard.hasPasteData().then((data) => {
-                expect(data).assertEqual(true);
-                systemPasteboard.getPasteData().then((data) => {
-                    expect(data.getRecordCount()).assertEqual(1);
-                    var dataRecord = data.getRecordAt(0);
-                    expect(dataRecord.mimeType).assertEqual(pasteboard.MIMETYPE_PIXELMAP);
-                    done();
-                });
-            });
-        });
+        done();
     })
 
     /**
@@ -3603,6 +3595,61 @@ describe('PasteBoardJSTest', function () {
         });
     })
 
+    /**
+     * @tc.name      pasteboard_function_test101
+     * @tc.desc      Test createData throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test101', 0, async function (done) {
+        var textData = 'Hello World!';
+        var dataXml = new ArrayBuffer(512);
+        try {
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, dataXml);
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+            expect(e.message === "Parameter error. The value does not match mimeType correctly.").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test102
+     * @tc.desc      Test createData throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test102', 0, async function (done) {
+        var textData = 'Hello World!';
+        var dataXml = new ArrayBuffer(512);
+        try {
+            var pasteData = pasteboard.createData("xxxxx", textData);
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+            expect(e.message === "Parameter error. The value does not match mimeType correctly.").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test103
+     * @tc.desc      Test createData throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test103', 0, async function (done) {
+
+        try {
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, {});
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+            expect(e.message === "Parameter error. The value does not match mimeType correctly.").assertTrue();
+        }
+        done();
+    })
     /**
      *  The callback function is used for pasteboard content changes
      */

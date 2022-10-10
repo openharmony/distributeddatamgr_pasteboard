@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include <cstddef>
-#include <unordered_set>
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 #include "pasteboard_common.h"
@@ -26,6 +25,7 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServicesNapi {
 namespace {
+constexpr int ARGC_TYPE_SET0 = 0;
 constexpr int ARGC_TYPE_SET1 = 1;
 constexpr int ARGC_TYPE_SET2 = 2;
 const int32_t STR_MAX_SIZE = 256;
@@ -54,7 +54,7 @@ napi_value PasteDataNapi::AddHtmlRecord(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc > ARGC_TYPE_SET0, "Wrong number of arguments");
 
     std::string str;
     bool ret = GetValue(env, argv[0], str);
@@ -81,7 +81,7 @@ napi_value PasteDataNapi::AddPixelMapRecord(napi_env env, napi_callback_info inf
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > 0 , "Wrong number of arguments");
+    NAPI_ASSERT(env, argc > ARGC_TYPE_SET0 , "Wrong number of arguments");
 
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
@@ -111,7 +111,7 @@ napi_value PasteDataNapi::AddTextRecord(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc > ARGC_TYPE_SET0, "Wrong number of arguments");
 
     std::string str;
     bool ret = GetValue(env, argv[0], str);
@@ -138,7 +138,7 @@ napi_value PasteDataNapi::AddUriRecord(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc > ARGC_TYPE_SET0, "Wrong number of arguments");
 
     std::string str;
     bool ret = GetValue(env, argv[0], str);
@@ -165,7 +165,7 @@ napi_value PasteDataNapi::GetPrimaryHtml(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -193,7 +193,7 @@ napi_value PasteDataNapi::GetPrimaryPixelMap(napi_env env, napi_callback_info in
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -220,7 +220,7 @@ napi_value PasteDataNapi::GetPrimaryText(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -248,7 +248,7 @@ napi_value PasteDataNapi::GetPrimaryUri(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -277,7 +277,7 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+    if (!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
         || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return nullptr;
     }
@@ -314,7 +314,7 @@ PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callba
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
 
-    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+    if (!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
         || !CheckArgsType(env, argv[0], napi_number, "Parameter error. The type of mimeType must be number.")) {
         return nullptr;
     }
@@ -348,8 +348,8 @@ napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
     int64_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr
-        || !CheckExpression(env, index >= 0 && index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
-            "index out of range.")) {
+        || !CheckExpression(env, index >= ARGC_TYPE_SET0 && index < obj->value_->GetRecordCount(),
+            JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
     obj->value_->RemoveRecordAt(index);
@@ -364,7 +364,7 @@ napi_value PasteDataNapi::GetPrimaryMimeType(napi_env env, napi_callback_info in
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -391,7 +391,7 @@ napi_value PasteDataNapi::GetRecordCount(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -415,7 +415,7 @@ napi_value PasteDataNapi::GetTag(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -438,7 +438,7 @@ napi_value PasteDataNapi::GetMimeTypes(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -486,25 +486,13 @@ void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, size_t argc, Paste
             std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
         return;
     }
-    std::unordered_set<std::string> mimeTypeSet = { MIMETYPE_TEXT_HTML, MIMETYPE_TEXT_PLAIN, MIMETYPE_TEXT_URI,
-        MIMETYPE_PIXELMAP, MIMETYPE_TEXT_WANT };
-    if (mimeTypeSet.find(mimeType) == mimeTypeSet.end()) {
-        napi_throw_error(env, std::to_string(static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS)).c_str(),
-            "Parameter error. The type of mimeType is not one of VauleType.");
-    }
     if (mimeType == MIMETYPE_PIXELMAP) {
         std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, argv[1]);
-        if (pixelMap == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetPixelMap!");
-            return;
-        }
         obj->value_->AddPixelMapRecord(pixelMap);
         return;
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
         OHOS::AAFwk::Want want;
-        if (!OHOS::AppExecFwk::UnwrapWant(env, argv[1], want)) {
-            return;
-        }
+        AppExecFwk::UnwrapWant(env, argv[1], want);
         obj->value_->AddWantRecord(std::make_shared<OHOS::AAFwk::Want>(want));
         return;
     }
@@ -641,7 +629,7 @@ napi_value PasteDataNapi::ReplaceRecordAt(napi_env env, napi_callback_info info)
     napi_get_boolean(env, false, &result);
 
     NAPI_CALL_BASE(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL), result);
-    NAPI_ASSERT(env, argc > 1, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc > ARGC_TYPE_SET1, "Wrong number of arguments");
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, argv[0], &valueType), result);
     NAPI_ASSERT(env, valueType == napi_number, "Wrong argument type. number expected.");
@@ -676,7 +664,7 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_TYPE_SET2] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc > 1, JSErrorCode::INVALID_PARAMETERS, "Wrong number of arguments.")
+    if (!CheckExpression(env, argc > ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS, "Wrong number of arguments.")
         || !CheckArgsType(env, argv[0], napi_number, "The type of mimeType must be number.")) {
         return nullptr;
     }
@@ -689,8 +677,8 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     }
     int64_t index = 0;
     NAPI_CALL(env, napi_get_value_int64(env, argv[0], &index));
-    if (!CheckExpression(env, index >= 0 && index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
-            "index out of range.")) {
+    if (!CheckExpression(env, index >= ARGC_TYPE_SET0 && index < obj->value_->GetRecordCount(),
+            JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
 
@@ -714,7 +702,7 @@ napi_value PasteDataNapi::AddWantRecord(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc > ARGC_TYPE_SET0, "Wrong number of arguments");
 
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
@@ -743,7 +731,7 @@ napi_value PasteDataNapi::GetPrimaryWant(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -803,7 +791,7 @@ napi_value PasteDataNapi::GetProperty(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc >= 0, "Wrong number of arguments");
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
@@ -841,8 +829,8 @@ napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
     int64_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr
-        || !CheckExpression(env, index >= 0 && index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
-            "index out of range.")) {
+        || !CheckExpression(env, index >= ARGC_TYPE_SET0 && index < obj->value_->GetRecordCount(),
+            JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
 
@@ -901,7 +889,7 @@ bool PasteDataNapi::IsProperty(napi_env env, napi_value in)
             return false;
         }
         NAPI_CALL_BASE(env, napi_get_named_property(env, in, key[i], &propertyValue), false);
-        if (i == 1) {
+        if (i == ARGC_TYPE_SET1) {
             bool isArray = false;
             NAPI_CALL_BASE(env, napi_is_array(env, propertyValue, &isArray), false);
             if (!isArray) {
