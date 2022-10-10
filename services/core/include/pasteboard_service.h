@@ -97,7 +97,7 @@ private:
     bool IsCopyable(uint32_t tokenId) const;
     void SetPasteDataDot(PasteData& pasteData, uint32_t tokenId);
     void GetPasteDataDot(uint32_t tokenId);
-    bool GetPasteData(PasteData& data, uint32_t tokenId, int32_t pid);
+    bool GetPasteData(PasteData& data, uint32_t tokenId, bool isFocusedApp);
     std::string GetAppLabel(uint32_t tokenId);
     std::string GetDeviceName();
     void SetDeviceName(const std::string &device = "");
@@ -111,9 +111,10 @@ private:
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
     std::string GetTime();
-    static bool HasPastePermission(uint32_t tokenId, int32_t pid, std::shared_ptr<PasteData> pasteData);
+    static bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
     static AppInfo GetAppInfo(uint32_t tokenId);
-    static bool IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid);
+    static bool IsDefaultIME(const AppInfo &appInfo);
+    static bool IsFocusedApp(int32_t pid);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void RegisterFocusListener();

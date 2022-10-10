@@ -239,38 +239,36 @@ void PasteboardService::PasteboardFocusChangedListener::OnUnfocused(const sptr<R
     focusApp_ = 0;
 }
 
-bool PasteboardService::IsFocusOrDefaultIme(const AppInfo &appInfo, int32_t pid)
+bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 {
     if (appInfo.tokenType != ATokenTypeEnum::TOKEN_HAP) {
         return true;
     }
     std::shared_ptr<Property> property = InputMethodController::GetInstance()->GetCurrentInputMethod();
-    if (property != nullptr) {
-        if (property->name == appInfo.bundleName) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "default ime.");
-            return true;
-        }
-    }
+    return property != nullptr && property->name == appInfo.bundleName;
+}
 
+bool PasteboardService::IsFocusedApp(int32_t pid)
+{
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid = %{public}d, focusApp = %{public}d.", pid, focusApp_);
     return pid == focusApp_;
 }
 
-bool PasteboardService::HasPastePermission(uint32_t tokenId, int32_t pid, std::shared_ptr<PasteData> pasteData)
+bool PasteboardService::HasPastePermission(uint32_t tokenId, bool isFocusedApp,
+    const std::shared_ptr<PasteData> &pasteData)
 {
     if (pasteData == nullptr) {
         return false;
     }
 
-    if (!pasteData->IsDraggedData() && !IsFocusOrDefaultIme(GetAppInfo(tokenId), pid)) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "token:0x%{public}x, pid:%{public}d, not focus app:%{public}d.",
-                          tokenId, IPCSkeleton::GetCallingPid(), focusApp_);
+    if (!pasteData->IsDraggedData() && (!isFocusedApp || !IsDefaultIME(GetAppInfo(tokenId)))) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "token:0x%{public}x", tokenId);
         return false;
     }
     switch (pasteData->GetShareOption()) {
         case ShareOption::InApp: {
             if (pasteData->GetTokenId() != tokenId) {
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InApp check failed.");
+                PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "InApp check failed.");
                 return false;
             }
             break;
@@ -282,7 +280,8 @@ bool PasteboardService::HasPastePermission(uint32_t tokenId, int32_t pid, std::s
             break;
         }
         default: {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d is error.", pasteData->GetShareOption());
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d is error.",
+                pasteData->GetShareOption());
             return false;
         }
     }
@@ -340,11 +339,12 @@ bool PasteboardService::GetPasteData(PasteData &data)
     SetDeviceName();
     PasteboardTrace tracer("PasteboardService GetPasteData");
 
+    bool isFocusedApp = IsFocusedApp(pid);
     auto block =  std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
-    std::thread thread([this, block, tokenId, pid]() mutable {
+    std::thread thread([this, block, tokenId, isFocusedApp]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-        auto success = GetPasteData(*pasteData, tokenId, pid);
+        auto success = GetPasteData(*pasteData, tokenId, isFocusedApp);
         if (!success) {
             pasteData->SetInvalid();
         }
@@ -371,7 +371,7 @@ bool PasteboardService::GetPasteData(PasteData &data)
     return result;
 }
 
-bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t pid)
+bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, bool isFocusedApp)
 {
     PasteboardTrace tracer("GetPasteData inner");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
@@ -395,7 +395,7 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, int32_t 
         return false;
     }
 
-    auto ret = HasPastePermission(tokenId, pid, it->second);
+    auto ret = HasPastePermission(tokenId, isFocusedApp, it->second);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "don't have paste permission.");
         return false;
@@ -422,7 +422,7 @@ bool PasteboardService::HasPasteData()
         return HasDistributedData(userId);
     }
 
-    return HasPastePermission(tokenId, pid, it->second);
+    return HasPastePermission(tokenId, IsFocusedApp(pid), it->second);
 }
 
 void PasteboardService::SetPasteData(PasteData &pasteData)
