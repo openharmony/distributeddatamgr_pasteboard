@@ -15,9 +15,10 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_PASTEBOARD_NAPI_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_PASTEBOARD_NAPI_H
 
+#include <unordered_map>
+#include "pastedata_napi.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include <unordered_map>
 namespace OHOS {
 namespace MiscServicesNapi {
 class PasteboardNapi {
@@ -35,6 +36,7 @@ private:
     static napi_value CreatePixelMapRecord(napi_env env, napi_value in);
     static napi_value CreateWantRecord(napi_env env, napi_value in);
 
+    static PasteDataNapi *CreateDataCommon(napi_env env, napi_value in, std::string &str, napi_value &instance);
     static napi_value CreateHtmlData(napi_env env, napi_value in);
     static napi_value CreatePlainTextData(napi_env env, napi_value in);
     static napi_value CreateUriData(napi_env env, napi_value in);

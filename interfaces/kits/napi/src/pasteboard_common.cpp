@@ -144,7 +144,7 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         }
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
         AAFwk::Want want;
-        bool ret = OHOS::AppExecFwk::UnwrapWant(env, argv[1], want);
+        ret = OHOS::AppExecFwk::UnwrapWant(env, argv[1], want);
         if (!CheckExpression(env, ret, JSErrorCode::INVALID_PARAMETERS, message)) {
             return false;
         }

@@ -1034,6 +1034,5 @@ bool PasteDataNapi::IsPasteData(napi_env env, napi_value in)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "isPasteData is [%{public}d]", isPasteData);
     return isPasteData;
 }
-
 } // namespace MiscServicesNapi
 } // namespace OHOS

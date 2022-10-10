@@ -14,13 +14,12 @@
  */
 
 #include "napi_common.h"
-#include "pasteboard_client.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "pasteboard_napi.h"
-#include "pixel_map_napi.h"
 #include "systempasteboard_napi.h"
+#include "pixel_map_napi.h"
 #include "uri.h"
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
@@ -102,20 +101,30 @@ napi_value PasteboardNapi::CreateWantRecord(napi_env env, napi_value in)
     return instance;
 }
 
-napi_value PasteboardNapi::CreateHtmlData(napi_env env, napi_value in)
+// common function of CreateHtmlData, CreatePlainTextData, CreateUriData
+PasteDataNapi* PasteboardNapi::CreateDataCommon(napi_env env, napi_value in, std::string &str, napi_value &instance)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlData is called!");
-    std::string str;
     bool ret = GetValue(env, in, str);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
         return nullptr;
     }
-    napi_value instance = nullptr;
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        return nullptr;
+    }
+    return obj;
+}
+
+napi_value PasteboardNapi::CreateHtmlData(napi_env env, napi_value in)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlData is called!");
+    std::string str;
+    napi_value instance = nullptr;
+    PasteDataNapi* obj = CreateDataCommon(env, in, str, instance);
+    if (obj == nullptr) {
         return nullptr;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateHtmlData(str);
@@ -127,16 +136,9 @@ napi_value PasteboardNapi::CreatePlainTextData(napi_env env, napi_value in)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreatePlainTextData is called!");
     std::string str;
-    bool ret = GetValue(env, in, str);
-    if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
-        return nullptr;
-    }
     napi_value instance = nullptr;
-    NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
-    PasteDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
+    if (obj == nullptr) {
         return nullptr;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreatePlainTextData(str);
@@ -148,16 +150,9 @@ napi_value PasteboardNapi::CreateUriData(napi_env env, napi_value in)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateUriData is called!");
     std::string str;
-    bool ret = GetValue(env, in, str);
-    if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
-        return nullptr;
-    }
     napi_value instance = nullptr;
-    NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
-    PasteDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
+    if (obj == nullptr) {
         return nullptr;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateUriData(OHOS::Uri(str));
@@ -173,7 +168,6 @@ napi_value PasteboardNapi::CreatePixelMapData(napi_env env, napi_value in)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to get pixelMap!");
         return nullptr;
     }
-
     napi_value instance = nullptr;
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
     PasteDataNapi *obj = nullptr;
