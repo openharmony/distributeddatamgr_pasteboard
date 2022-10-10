@@ -12,9 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "pasteboard_client.h"
+
 #include <if_system_ability_manager.h>
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
+
+#include "hitrace_meter.h"
+
+#include "pasteboard_observer.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "pasteboard_observer.h"
@@ -25,9 +31,9 @@ using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServices {
+constexpr const int32_t HITRACE_GETPASTEDATA = 0;
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 std::mutex PasteboardClient::instanceLock_;
-
 PasteboardClient::PasteboardClient() {};
 PasteboardClient::~PasteboardClient()
 {
@@ -144,6 +150,7 @@ void PasteboardClient::Clear()
 
 int32_t PasteboardClient::GetPasteData(PasteData& pasteData)
 {
+    StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
     if (pasteboardServiceProxy_ == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
@@ -157,6 +164,7 @@ int32_t PasteboardClient::GetPasteData(PasteData& pasteData)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
     RetainUri(pasteData);
+    FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     return ret;
 }
 void PasteboardClient::RetainUri(PasteData &pasteData)

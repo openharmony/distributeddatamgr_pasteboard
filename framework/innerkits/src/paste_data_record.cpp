@@ -29,7 +29,7 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 namespace {
-constexpr int MAX_TEXT_LEN = 500 * 1024;
+constexpr int MAX_TEXT_LEN = 20 * 1024 * 1024;
 }
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mimeType)

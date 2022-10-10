@@ -20,14 +20,14 @@
 #include <atomic>
 #include <cstdint>
 
-#include "hitrace/hitrace.h"
+#include "hitrace/trace.h"
 #include "hitrace_meter.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
 static constexpr uint64_t BYTRACE_LABEL = HITRACE_TAG_MISC;
-using OHOS::HiviewDFX::HiTrace;
+using OHOS::HiviewDFX::HiTraceChain;
 using namespace MiscServices;
 
 std::atomic_bool PasteboardTrace::isSetBytraceEnabled_ = false;
