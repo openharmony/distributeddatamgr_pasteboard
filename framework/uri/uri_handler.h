@@ -22,15 +22,13 @@
 namespace OHOS::MiscServices {
 class UriHandler {
 public:
-    ~UriHandler();
     virtual bool IsFile(const std::string &uri) const;
     virtual std::string ToUri(int32_t fd) = 0;
     virtual int32_t ToFd(const std::string &uri);
+    virtual void ReleaseFd(int32_t fd);
 
 protected:
     static constexpr int32_t INVALID_FD = -1;
-
-    std::int32_t fd_ = INVALID_FD;
     std::string uri_;
 };
 } // namespace OHOS::MiscServices
