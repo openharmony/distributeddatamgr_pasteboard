@@ -273,11 +273,12 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasMimeType is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+    if (!CheckExpression(
+            env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
         || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return nullptr;
     }
