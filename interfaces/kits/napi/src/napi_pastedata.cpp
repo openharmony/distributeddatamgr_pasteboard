@@ -315,7 +315,8 @@ PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callba
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
 
-    if (!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+    if (!CheckExpression(
+            env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
         || !CheckArgsType(env, argv[0], napi_number, "Parameter error. The type of mimeType must be number.")) {
         return nullptr;
     }

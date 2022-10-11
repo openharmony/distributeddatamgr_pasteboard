@@ -282,7 +282,8 @@ bool PasteboardService::HasPastePermission(uint32_t tokenId, int32_t pid, std::s
             break;
         }
         default: {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d is error.", pasteData->GetShareOption());
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d is error.", pasteData->GetShareOption());
             return false;
         }
     }
