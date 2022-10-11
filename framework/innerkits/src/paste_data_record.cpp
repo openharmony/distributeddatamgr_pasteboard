@@ -533,9 +533,8 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
 }
 bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
-    int32_t  fd = parcel.ReadFileDescriptor();
+    int32_t fd = parcel.ReadFileDescriptor();
     convertUri_ = uriHandler.ToUri(fd);
-    uriHandler.ReleaseFd(fd);
     return true;
 }
 bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)

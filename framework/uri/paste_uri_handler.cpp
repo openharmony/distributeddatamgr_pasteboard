@@ -25,7 +25,7 @@ std::string PasteUriHandler::ToUri(int32_t fd)
         return "";
     }
     std::string result;
-    int ret = DistributedFS::ModuleRemoteUri::RemoteUri::ConvertUri(fd, result);
+    int ret = DistributedFS::ModuleRemoteUri::RemoteUri::ConvertUri(fd, result); // transfer fd ownership
     if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "convert uri from fd failed: %{public}d", ret);
         return result;
