@@ -854,7 +854,6 @@ std::string PasteboardService::GetDeviceName()
 {
     std::lock_guard<decltype(deviceMutex_)> lockGuard(deviceMutex_);
     return fromDevice_;
-
 }
 
 void PasteboardService::SetDeviceName(const std::string &device)
