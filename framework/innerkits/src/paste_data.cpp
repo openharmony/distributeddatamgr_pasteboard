@@ -20,7 +20,7 @@
 
 #include "parcel_util.h"
 #include "paste_data_record.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "type_traits"
 
 using namespace std::chrono;
@@ -56,6 +56,8 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : re
 
 PasteData::PasteData()
 {
+    props_.timestamp = steady_clock::now().time_since_epoch().count();
+    props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
 }
 

@@ -16,7 +16,7 @@
 
 #include "dev_manager.h"
 #include "dev_profile.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {

@@ -14,7 +14,7 @@
 */
 #include "uri_handler.h"
 
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 bool UriHandler::IsFile(const std::string &uri) const

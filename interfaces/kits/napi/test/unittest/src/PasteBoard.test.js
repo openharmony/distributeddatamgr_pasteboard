@@ -911,7 +911,7 @@ describe('PasteBoardJSTest', function () {
                 bundleName: "com.example.myapplication3",
                 abilityName: "com.example.myapplication3.MainAbility"
             }
-            var pasteData = pasteboard.createWantData(wantText0);
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText0);
             systemPasteboard.setPasteData(pasteData).then(() => {
                 systemPasteboard.hasPasteData().then((data) => {
                     expect(data).assertEqual(true);
@@ -922,7 +922,7 @@ describe('PasteBoardJSTest', function () {
                             bundleName: "com.example.myapplication30",
                             abilityName: "com.example.myapplication30.MainAbility"
                         }
-                        var pasteDataRecord = pasteboard.createWantRecord(wantText1)
+                        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText1);
                         var replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
                         expect(replace).assertEqual(true);
                         var primaryWant = pasteData1.getPrimaryWant();
@@ -1550,9 +1550,9 @@ describe('PasteBoardJSTest', function () {
                 alphaType: 1,
                 scaleMode: 1
             };
-            image.createPixelMap(buffer, opt).then((pixelMap) => {
+            image.createPixelMap(buffer, opt).then(async (pixelMap) => {
                 expect(pixelMap.getPixelBytesNumber()).assertEqual(100);
-                var pasteData = pasteboard.createPixelMapData(pixelMap);
+                var pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
                 systemPasteboard.setPasteData(pasteData).then(() => {
                     systemPasteboard.hasPasteData().then((data) => {
                         expect(data).assertEqual(true);
@@ -1638,7 +1638,7 @@ describe('PasteBoardJSTest', function () {
             var pasteData = pasteboard.createHtmlData('application/xml');
             image.createPixelMap(buffer, opt).then((pixelMap) => {
                 expect(pixelMap.getPixelBytesNumber() === 100).assertEqual(true);
-                pasteData.addPixelMapRecord(pixelMap);
+                pasteData.addRecord(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
                 systemPasteboard.setPasteData(pasteData).then(() => {
                     systemPasteboard.hasPasteData().then((data) => {
                         expect(data).assertEqual(true);
@@ -2258,7 +2258,7 @@ describe('PasteBoardJSTest', function () {
                     bundleName: "com.example.myapplication3",
                     abilityName: "com.example.myapplication3.MainAbility"
                 };
-                var pasteData = pasteboard.createWantData(wantText0);
+                var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText0);
                 systemPasteboard.setPasteData(pasteData, (err, data) => {
                     if (err) {
                         console.error('f_test64: systemPasteboard.setPasteData callback error:' + err);
@@ -2277,7 +2277,7 @@ describe('PasteBoardJSTest', function () {
                                             bundleName: "com.example.myapplication30",
                                             abilityName: "com.example.myapplication30.MainAbility"
                                         };
-                                        var pasteDataRecord = pasteboard.createWantRecord(wantText1);
+                                        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText1);
                                         var replace = data.replaceRecordAt(0, pasteDataRecord);
                                         expect(replace).assertEqual(true);
                                         var primaryWant = data.getPrimaryWant();
@@ -2498,7 +2498,7 @@ describe('PasteBoardJSTest', function () {
             var pasteData = pasteboard.createHtmlData('application/xml');
             image.createPixelMap(buffer, opt).then((pixelMap) => {
                 expect(pixelMap.getPixelBytesNumber()).assertEqual(100);
-                var pixelMapRecord = pasteboard.createPixelMapRecord(pixelMap);
+                var pixelMapRecord = pasteboard.createRecord(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
                 pasteData.addRecord(pixelMapRecord);
                 systemPasteboard.setPasteData(pasteData).then(() => {
                     systemPasteboard.hasPasteData().then((data) => {
@@ -2768,11 +2768,11 @@ describe('PasteBoardJSTest', function () {
             var pasteData = undefined;
             console.info("systemPasteBoard clear data success")
             var dataUri = new ArrayBuffer(256)
-            pasteData = pasteboard.createData("text/uri", dataUri)
+            pasteData = pasteboard.createData("xxx", dataUri)
             var addUri = new ArrayBuffer(128)
-            pasteData.addRecord("text/uri", addUri)
+            pasteData.addRecord("xxx", addUri)
             var recordUri = new ArrayBuffer(96)
-            var pasteDataRecord = pasteboard.createRecord("text/uri", recordUri)
+            var pasteDataRecord = pasteboard.createRecord("xxx", recordUri)
             pasteData.addRecord(pasteDataRecord)
             await systemPasteBoard.setPasteData(pasteData).then(async () => {
                 console.info("Set pastedata success")
@@ -2782,14 +2782,14 @@ describe('PasteBoardJSTest', function () {
                     await systemPasteBoard.getPasteData().then(async (data) => {
                         console.info("Get paste data success")
                         expect(data.getRecordCount()).assertEqual(3)
-                        expect(data.getRecordAt(0).data["text/uri"].byteLength).assertEqual(96)
-                        expect(data.getRecordAt(1).data["text/uri"].byteLength).assertEqual(128)
-                        expect(data.getRecordAt(2).data["text/uri"].byteLength).assertEqual(256)
+                        expect(data.getRecordAt(0).data["xxx"].byteLength).assertEqual(96)
+                        expect(data.getRecordAt(1).data["xxx"].byteLength).assertEqual(128)
+                        expect(data.getRecordAt(2).data["xxx"].byteLength).assertEqual(256)
+                        done();
                     })
                 })
             })
         })
-        done();
     })
 
     /**
@@ -2828,11 +2828,11 @@ describe('PasteBoardJSTest', function () {
                         expect(data.getRecordAt(0).mimeType).assertEqual("xy2")
                         expect(data.getRecordAt(1).mimeType).assertEqual("x".repeat(1024))
                         expect(data.getRecordAt(2).mimeType).assertEqual("xy")
+                        done();
                     })
                 })
             })
         })
-        done();
     })
 
     /**
@@ -2849,26 +2849,45 @@ describe('PasteBoardJSTest', function () {
             var pasteData = undefined
             var pasteRecord = undefined;
 
-
             var dataHtml = new ArrayBuffer(256)
-            pasteData = pasteboard.createData("x".repeat(1025), dataHtml)
+            try {
+                pasteData = pasteboard.createData("x".repeat(1025), dataHtml)
+                expect(true === false).assertTrue();
+            } catch (error) {
+                console.info(error.code);
+                console.info(error.message);
+            }
+
             expect(pasteData).assertEqual(undefined)
             pasteData = pasteboard.createData("x".repeat(1024), dataHtml)
             expect(pasteData != undefined).assertTrue();
 
             var addHtml = new ArrayBuffer(128)
-            pasteData.addRecord("x".repeat(1025), addHtml)
+
+            try {
+                pasteData.addRecord("x".repeat(1025), addHtml)
+                expect(true === false).assertTrue();
+            } catch (error) {
+                console.info(error.code);
+                console.info(error.message);
+            }
             expect(pasteData.getRecordCount()).assertEqual(1)
             pasteData.addRecord("x".repeat(1024), addHtml)
             expect(pasteData.getRecordCount()).assertEqual(2)
 
             var recordHtml = new ArrayBuffer(64)
-            pasteRecord = pasteboard.createRecord("x".repeat(1025), recordHtml)
+            try {
+                pasteRecord = pasteboard.createRecord("x".repeat(1025), recordHtml)
+                expect(true === false).assertTrue();
+            } catch (error) {
+                console.info(error.code);
+                console.info(error.message);
+            }
             expect(pasteRecord).assertEqual(undefined);
             pasteRecord = pasteboard.createRecord("x".repeat(1024), recordHtml)
             expect(pasteRecord != undefined).assertTrue();
-
             pasteData.addRecord(pasteRecord)
+            expect(pasteData.getRecordCount()).assertEqual(3)
             await systemPasteBoard.setPasteData(pasteData).then(async () => {
                 console.info("set pastedata success")
                 await systemPasteBoard.hasPasteData().then(async (data) => {
@@ -2877,11 +2896,11 @@ describe('PasteBoardJSTest', function () {
                     await systemPasteBoard.getPasteData().then(async (data) => {
                         console.info("get paste data success")
                         expect(data.getRecordCount()).assertEqual(3)
+                        done();
                     })
                 })
             })
         })
-        done();
     })
 
     /**
@@ -2900,22 +2919,42 @@ describe('PasteBoardJSTest', function () {
 
 
             var dataHtml = new ArrayBuffer(256)
-            pasteData = pasteboard.createData("x".repeat(1025), dataHtml)
+            try {
+                pasteData = pasteboard.createData("x".repeat(1025), dataHtml)
+                expect(true === false).assertTrue();
+            } catch (error) {
+                console.info(error.code);
+                console.info(error.message);
+            }
             expect(pasteData).assertEqual(undefined)
             pasteData = pasteboard.createData("x".repeat(1024), dataHtml)
             expect(pasteData != undefined).assertTrue();
 
-            pasteData.addRecord("x".repeat(1025), dataHtml)
+
+            try {
+                pasteData.addRecord("x".repeat(1025), dataHtml)
+                expect(true === false).assertTrue();
+            } catch (error) {
+                console.info(error.code);
+                console.info(error.message);
+            }
             expect(pasteData.getRecordCount()).assertEqual(1)
             pasteData.addRecord("x".repeat(1024), dataHtml)
             expect(pasteData.getRecordCount()).assertEqual(2)
 
-            pasteRecord = pasteboard.createRecord("x".repeat(1025), dataHtml)
+            try {
+                pasteRecord = pasteboard.createRecord("x".repeat(1025), dataHtml)
+                expect(true === false).assertTrue();
+            } catch (error) {
+                console.info(error.code);
+                console.info(error.message);
+            }
             expect(pasteRecord).assertEqual(undefined);
             pasteRecord = pasteboard.createRecord("x".repeat(1024), dataHtml)
             expect(pasteRecord != undefined).assertTrue();
 
             pasteData.addRecord(pasteRecord)
+            expect(pasteData.getRecordCount()).assertEqual(3)
             await systemPasteBoard.setPasteData(pasteData).then(async () => {
                 console.info("set pastedata success")
                 await systemPasteBoard.hasPasteData().then(async (data) => {
@@ -2924,11 +2963,11 @@ describe('PasteBoardJSTest', function () {
                     await systemPasteBoard.getPasteData().then(async (data) => {
                         console.info("get paste data success")
                         expect(data.getRecordCount()).assertEqual(3)
+                        done();
                     })
                 })
             })
         })
-        done();
     })
 
     /**
@@ -2981,14 +3020,636 @@ describe('PasteBoardJSTest', function () {
                             expect(data.getPrimaryUri()).assertEqual(uriText)
                             expect(data.getPrimaryText()).assertEqual(plainText)
                             expect(data.getPrimaryHtml()).assertEqual(htmlText)
+                            done();
                         })
                     })
                 })
             })
         })
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test80
+     * @tc.desc      Test CreateRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test80', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        systemPasteboard.clear().then(() => {
+            var uriText = 'https://www.baidu.com/';
+            var pasteData = pasteboard.createUriData(uriText);
+            systemPasteboard.setPasteData(pasteData).then(() => {
+                systemPasteboard.hasPasteData().then((data) => {
+                    expect(data).assertEqual(true);
+                    systemPasteboard.getPasteData().then((data) => {
+                        var pasteData1 = data;
+                        expect(pasteData1.getRecordCount()).assertEqual(1);
+                        var uriText1 = 'https://www.baidu.com/1';
+                        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText1);
+                        var replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
+                        expect(replace).assertEqual(true);
+                        var primaryUri = pasteData1.getPrimaryUri();
+                        expect(primaryUri).assertEqual(uriText1);
+                        expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
+                        var primaryUri = pasteData1.getPrimaryUri();
+                        expect(primaryUri).assertEqual(uriText1);
+                        done();
+                    })
+                });
+            });
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test81
+     * @tc.desc      Test CreateRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test81', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        systemPasteboard.clear().then(async () => {
+            var uriText = 'https://www.baidu.com/';
+            var textData = 'Hello World!';
+            var htmlText = '<html><head></head><body>Hello World!</body></html>';
+            var wantText = {
+                bundleName: "com.example.myapplication3",
+                abilityName: "com.example.myapplication3.MainAbility"
+            };
+            var dataHtml = new ArrayBuffer(256);
+            var buffer = new ArrayBuffer(128);
+            var opt = {
+                size: {height: 5, width: 5},
+                pixelFormat: 3,
+                editable: true,
+                alphaType: 1,
+                scaleMode: 1
+            };
+            var pixelMap = await image.createPixelMap(buffer, opt);
+            var pasteData = pasteboard.createUriData(uriText);
+
+            try {
+                var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
+                pasteData.addRecord(pasteDataRecord);
+                pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
+                pasteData.addRecord(pasteDataRecord);
+                pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+                pasteData.addRecord(pasteDataRecord);
+                pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText);
+                pasteData.addRecord(pasteDataRecord);
+                pasteDataRecord = pasteboard.createRecord("x".repeat(1022), dataHtml);
+                pasteData.addRecord(pasteDataRecord);
+                pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
+                pasteData.addRecord(pasteDataRecord);
+            } catch (error) {
+                expect(error.code === undefined).assertTrue();
+                expect(error.message === undefined).assertTrue();
+                expect(True === false).assertTrue();
+            }
+            systemPasteboard.setPasteData(pasteData).then(() => {
+                systemPasteboard.hasPasteData().then((data) => {
+                    expect(data).assertEqual(true);
+                    systemPasteboard.getPasteData().then((data) => {
+                        expect(data.getRecordCount()).assertEqual(7);
+                        var dataRecord = data.getRecordAt(3);
+                        expect(dataRecord.htmlText).assertEqual(htmlText);
+                        done();
+                    });
+                });
+            });
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test82
+     * @tc.desc      Test CreateRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test82', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        systemPasteboard.clear().then(async () => {
+            var uriText = 'https://www.baidu.com/';
+            var htmlText = '<html><head></head><body>Hello World!</body></html>';
+            var pasteData = pasteboard.createUriData(uriText);
+
+            try {
+                var pasteDataRecord = pasteboard.createRecord("xxddxx", htmlText);
+                pasteData.addRecord(pasteDataRecord);
+                expect(true === false).assertTrue();
+            } catch (error) {
+                expect(error.code).assertEqual("401");
+                expect(error.message).assertEqual("Parameter error. The value does not match mimeType correctly.");
+            }
+            done();
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test83
+     * @tc.desc      Test Create Uri Data
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test83', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        await systemPasteboard.clear();
+        var uriText = 'https://www.baidu.com/';
+        var pasteData = undefined;
+        try {
+            pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        } catch (e) {
+            expect(true === false).assertTrue();
+        }
+        systemPasteboard.setPasteData(pasteData).then(() => {
+            systemPasteboard.hasPasteData().then((data) => {
+                expect(data).assertEqual(true);
+                systemPasteboard.getPasteData().then((data) => {
+                    expect(data.getRecordCount()).assertEqual(1);
+                    var dataRecord = data.getRecordAt(0);
+                    expect(dataRecord.uri).assertEqual(uriText);
+                    done();
+                });
+            });
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test84
+     * @tc.desc      Test Create htmlText Data
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test84', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        await systemPasteboard.clear();
+        var htmlText = '<html><head></head><body>Hello World!</body></html>';
+        var pasteData = undefined;
+        try {
+            pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        } catch (e) {
+            expect(true === false).assertTrue();
+        }
+        systemPasteboard.setPasteData(pasteData).then(() => {
+            systemPasteboard.hasPasteData().then((data) => {
+                expect(data).assertEqual(true);
+                systemPasteboard.getPasteData().then((data) => {
+                    expect(data.getRecordCount()).assertEqual(1);
+                    var dataRecord = data.getRecordAt(0);
+                    expect(dataRecord.htmlText).assertEqual(htmlText);
+                    done();
+                });
+            });
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test85
+     * @tc.desc      Test Create wantText Data
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test85', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        await systemPasteboard.clear();
+        var wantText = {
+            bundleName: "com.example.myapplication3",
+            abilityName: "com.example.myapplication3.MainAbility"
+        };
+        var pasteData = undefined;
+        try {
+            pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText);
+        } catch (e) {
+            expect(true === false).assertTrue();
+        }
+        systemPasteboard.setPasteData(pasteData).then(() => {
+            systemPasteboard.hasPasteData().then((data) => {
+                expect(data).assertEqual(true);
+                systemPasteboard.getPasteData().then((data) => {
+                    expect(data.getRecordCount()).assertEqual(1);
+                    var primaryWant = data.getPrimaryWant();
+                    expect(primaryWant.bundleName).assertEqual(wantText.bundleName);
+                    expect(primaryWant.abilityName).assertEqual(wantText.abilityName);
+                    done();
+                });
+            });
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test86
+     * @tc.desc      Test Create pixelMap Data
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test86', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        await systemPasteboard.clear();
+        var buffer = new ArrayBuffer(128);
+        var opt = {
+            size: {height: 5, width: 5},
+            pixelFormat: 3,
+            editable: true,
+            alphaType: 1,
+            scaleMode: 1
+        };
+        var pasteData = undefined;
+        var pixelMap = await image.createPixelMap(buffer, opt);
+        try {
+            pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
+        } catch (e) {
+            expect(true === false).assertTrue();
+        }
+        systemPasteboard.setPasteData(pasteData).then(() => {
+            systemPasteboard.hasPasteData().then((data) => {
+                expect(data).assertEqual(true);
+                systemPasteboard.getPasteData().then((data) => {
+                    expect(data.getRecordCount()).assertEqual(1);
+                    var primaryPixelMap = data.getPrimaryPixelMap();
+                    var PixelMapBytesNumber = primaryPixelMap.getPixelBytesNumber();
+                    expect(PixelMapBytesNumber).assertEqual(100);
+                    primaryPixelMap.getImageInfo().then((imageInfo) => {
+                        expect(imageInfo.size.height === 5 && imageInfo.size.width === 5).assertEqual(true);
+                        done();
+                    });
+                });
+            });
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test87
+     * @tc.desc      Test CreateData throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test87', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        await systemPasteboard.clear();
+        var dataHtml = new ArrayBuffer(256);
+        var pasteData = undefined;
+        try {
+            pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, dataHtml);
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code).assertEqual("401");
+            expect(e.message).assertEqual("Parameter error. The value does not match mimeType correctly.");
+        }
         done();
     })
 
+    /**
+     * @tc.name      pasteboard_function_test88
+     * @tc.desc      Test Create KV Data
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test88', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        await systemPasteboard.clear();
+        var dataHtml = new ArrayBuffer(256);
+        var pasteData = undefined;
+        try {
+            pasteData = pasteboard.createData("x".repeat(1034), dataHtml);
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+            expect(e.message === "Parameter error. The length of mimeType cannot be greater than 1024 bytes.").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test89
+     * @tc.desc      Test addRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test89', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        systemPasteboard.clear().then(async () => {
+            var uriText = 'https://www.baidu.com/';
+            var textData = 'Hello World!';
+            var htmlText = '<html><head></head><body>Hello World!</body></html>';
+            var wantText = {
+                bundleName: "com.example.myapplication3",
+                abilityName: "com.example.myapplication3.MainAbility"
+            };
+            var dataHtml = new ArrayBuffer(256);
+            var buffer = new ArrayBuffer(128);
+            var opt = {
+                size: {height: 5, width: 5},
+                pixelFormat: 3,
+                editable: true,
+                alphaType: 1,
+                scaleMode: 1
+            };
+            var pixelMap = await image.createPixelMap(buffer, opt);
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+
+            try {
+                pasteData.addRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+                pasteData.addRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
+                pasteData.addRecord(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
+                pasteData.addRecord(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
+                pasteData.addRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText);
+                pasteData.addRecord("x".repeat(100), dataHtml);
+            } catch (error) {
+                expect(true === false).assertTrue();
+            }
+            systemPasteboard.setPasteData(pasteData).then(() => {
+                systemPasteboard.hasPasteData().then((data) => {
+                    expect(data).assertEqual(true);
+                    systemPasteboard.getPasteData().then((data) => {
+                        expect(data.getRecordCount()).assertEqual(7);
+                        var dataRecord = data.getRecordAt(6);
+                        expect(dataRecord.uri).assertEqual(uriText);
+                        var primaryPixelMap = data.getPrimaryPixelMap();
+                        var PixelMapBytesNumber = primaryPixelMap.getPixelBytesNumber();
+                        expect(PixelMapBytesNumber).assertEqual(100);
+                        done();
+                    });
+                });
+            });
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test90
+     * @tc.desc      Test addRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test90', 0, async function (done) {
+        var uriText = 'https://www.baidu.com/';
+        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        try {
+            pasteData.addRecord("xxxx", uriText);
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test91
+     * @tc.desc      Test addRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test91', 0, async function (done) {
+        var uriText = 'https://www.baidu.com/';
+        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        try {
+            for (var i = 0; i < 600; i++) {
+                pasteData.addRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
+            }
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "12900002").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test92
+     * @tc.desc      Test getRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test92', 0, async function (done) {
+        var uriText = 'https://www.baidu.com/';
+        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        try {
+            var dataRecord = pasteData.getRecord(0);
+            expect(dataRecord.uri).assertEqual(uriText);
+        } catch (e) {
+            expect(true === false).assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test93
+     * @tc.desc      Test getRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test93', 0, async function (done) {
+        var uriText = 'https://www.baidu.com/';
+        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        try {
+            var dataRecord = pasteData.getRecord(5);
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "12900001").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test94
+     * @tc.desc      Test replaceRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test94', 0, async function (done) {
+        var uriText = 'https://www.baidu.com/';
+        var uriText1 = 'https://www.baidu1.com/';
+        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        var dataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText1);
+        try {
+            pasteData.replaceRecord(0, dataRecord);
+            var record = pasteData.getRecord(0);
+            expect(record.uri).assertEqual(uriText1);
+        } catch (e) {
+            expect(true === false).assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test95
+     * @tc.desc      Test replaceRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test95', 0, async function (done) {
+        var uriText = 'https://www.baidu.com/';
+        var uriText1 = 'https://www.baidu1.com/';
+        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        var dataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText1);
+        try {
+            pasteData.replaceRecord(0, dataRecord);
+            var record = pasteData.getRecord(0);
+            expect(record.uri).assertEqual(uriText1);
+        } catch (e) {
+            expect(true === false).assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test96
+     * @tc.desc      Test replaceRecord throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test96', 0, async function (done) {
+        var uriText = 'https://www.baidu.com/';
+        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        try {
+            pasteData.replaceRecord(0, "xxxxxx");
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test97
+     * @tc.desc      Test setData
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test97', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        systemPasteboard.clearData().then(() => {
+            var uriText = 'Hello//';
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+            systemPasteboard.setData(pasteData).then(() => {
+                systemPasteboard.hasData().then((data) => {
+                    expect(data).assertEqual(true);
+                    systemPasteboard.getData().then((pasteData1) => {
+                        expect(pasteData1.getRecordCount()).assertEqual(1);
+                        expect(pasteData1.hasType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
+                        expect(pasteData1.getPrimaryUri()).assertEqual(uriText);
+                        done();
+                    })
+                });
+            });
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test98
+     * @tc.desc      Test setData throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test98', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        try {
+            systemPasteboard.setData("xxxxx");
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+            expect(e.message === "Parameter error. The Type of data must be pasteData.").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test99
+     * @tc.desc      Test setproperty throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test99', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        systemPasteboard.clear().then(async () => {
+            var textData = 'Hello World!';
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
+            var pasteDataProperty = pasteData.getProperty()
+            expect(pasteDataProperty.shareOption).assertEqual(pasteboard.ShareOption.CrossDevice);
+            pasteDataProperty.shareOption = pasteboard.ShareOption.InApp;
+            pasteData.setProperty(pasteDataProperty);
+            expect(pasteData.getProperty().shareOption).assertEqual(pasteboard.ShareOption.InApp);
+            done();
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test100
+     * @tc.desc      Test setproperty throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test100', 0, async function (done) {
+        var systemPasteboard = pasteboard.getSystemPasteboard();
+        systemPasteboard.clear().then(async () => {
+            var textData = 'Hello World!';
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
+            try {
+                var obj = {"shareOption": 1};
+                pasteData.setProperty(obj);
+                expect(true === false).assertTrue();
+            } catch (e) {
+                expect(e.code === "401").assertTrue();
+                expect(e.message === "Parameter error. The type of property must be PasteDataProperty.").assertTrue();
+            }
+            done();
+        });
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test101
+     * @tc.desc      Test createData throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test101', 0, async function (done) {
+        var textData = 'Hello World!';
+        var dataXml = new ArrayBuffer(512);
+        try {
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, dataXml);
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+            expect(e.message === "Parameter error. The value does not match mimeType correctly.").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test102
+     * @tc.desc      Test createData throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test102', 0, async function (done) {
+        var textData = 'Hello World!';
+        var dataXml = new ArrayBuffer(512);
+        try {
+            var pasteData = pasteboard.createData("xxxxx", textData);
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+            expect(e.message === "Parameter error. The value does not match mimeType correctly.").assertTrue();
+        }
+        done();
+    })
+
+    /**
+     * @tc.name      pasteboard_function_test103
+     * @tc.desc      Test createData throw error
+     * @tc.type      Function
+     * @tc.require   AR000HINQN
+     */
+    it('pasteboard_function_test103', 0, async function (done) {
+
+        try {
+            var pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, {});
+            expect(true === false).assertTrue();
+        } catch (e) {
+            expect(e.code === "401").assertTrue();
+            expect(e.message === "Parameter error. The value does not match mimeType correctly.").assertTrue();
+        }
+        done();
+    })
     /**
      *  The callback function is used for pasteboard content changes
      */

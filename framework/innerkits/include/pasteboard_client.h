@@ -145,7 +145,7 @@ public:
      * @descrition
      * @return bool.
      */
-    bool GetPasteData(PasteData& pasteData);
+    int32_t GetPasteData(PasteData& pasteData);
 
     /**
      * HasPasteData
@@ -167,7 +167,7 @@ public:
      * @param pasteData .
      * @return void.
      */
-    void SetPasteData(PasteData& pasteData);
+    int32_t SetPasteData(PasteData& pasteData);
 
     /**
      * AddPasteboardChangedObserver

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PASTEBOARD_HILOG_WRAPPER_H
-#define PASTEBOARD_HILOG_WRAPPER_H
+#ifndef PASTEBOARD_HILOG_H
+#define PASTEBOARD_HILOG_H
 
 #include "hilog/log.h"
 
@@ -73,4 +73,4 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD_MODULE_LABEL[PASTEBOARD_
 } // namespace MiscServices
 } // namespace OHOS
 
-#endif // PASTEBOARD_HILOG_WRAPPER_H
+#endif // PASTEBOARD_HILOG_H

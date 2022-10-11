@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PASTEBOARD_COMMON_H
-#define PASTEBOARD_COMMON_H
+#ifndef PASTEBOARD_ERROR_H
+#define PASTEBOARD_ERROR_H
 
 #include "errors.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -27,12 +27,26 @@ enum PasteboardModule {
 // Pasteboard error offset, used only in this file.
 constexpr ErrCode PASTEBOARD_ERR_OFFSET = ErrCodeOffset(SUBSYS_SMALLSERVICES, PASTEBOARD_MODULE_SERVICE_ID);
 
-enum PasteboardError {
-    E_PASTEBOARD_OK = PASTEBOARD_ERR_OFFSET,
-    ERR_INVALID_VALUE,
-    ERR_INVALID_OPTION,
-    ERR_WRITE_PARCEL_ERROR,
+enum class PasteboardError : int32_t {
+    E_OK = PASTEBOARD_ERR_OFFSET,
+    E_INVALID_VALUE,
+    E_INVALID_OPTION,
+    E_WRITE_PARCEL_ERROR,
+    E_READ_PARCEL_ERROR,
+    E_SA_DIED,
+    E_ERROR,
+    E_OUT_OF_RANGE,
+    E_NO_PERMISSION,
+    E_INVALID_PARAMETERS,
+    E_TIMEOUT,
+    E_CANCELED,
+    E_EXCEEDS_LIMIT,
+    E_IS_BEGING_PROCESSED,
+    E_COPY_FORBIDDEN,
+    E_UNKNOWN,
+    E_BUTT,
 };
+
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTEBOARD_COMMON_H
+#endif // PASTEBOARD_ERROR_H

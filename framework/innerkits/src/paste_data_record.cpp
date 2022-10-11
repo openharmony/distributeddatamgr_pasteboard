@@ -20,9 +20,9 @@
 #include "copy_uri_handler.h"
 #include "parcel_util.h"
 #include "paste_uri_handler.h"
-#include "pasteboard_common.h"
+#include "pasteboard_error.h"
 #include "pixel_map_parcel.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 
 using namespace OHOS::Media;
 

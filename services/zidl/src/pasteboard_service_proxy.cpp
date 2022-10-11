@@ -16,8 +16,8 @@
 #include "pasteboard_service_proxy.h"
 
 #include "iremote_broker.h"
-#include "pasteboard_common.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 #include "paste_uri_handler.h"
 #include "copy_uri_handler.h"
 
@@ -127,80 +127,82 @@ bool PasteboardServiceProxy::HasPasteData()
     return has;
 }
 
-void PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
+int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return;
+        return ERR_INVALID_VALUE;
     }
     std::vector<uint8_t> pasteDataTlv(0);
     bool ret = pasteData.Encode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to encode pastedata in TLV");
-        return;
+        return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(pasteDataTlv.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw size");
-        return;
+        return ERR_INVALID_VALUE;
     }
     if (!data.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw data");
-        return;
+        return ERR_INVALID_VALUE;
     }
     CopyUriHandler copyHandler;
     if (!pasteData.WriteUriFd(data, copyHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
-        return;
+        return ERR_INVALID_VALUE;
     }
 
     int32_t result = Remote()->SendRequest(SET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+        return ERR_INVALID_OPERATION;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    return reply.ReadInt32();
 }
 
-bool PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
+int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data, reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return false;
+        return ERR_INVALID_VALUE;
     }
     int32_t result = Remote()->SendRequest(GET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-        return false;
+        return ERR_INVALID_OPERATION;
     }
     int32_t rawDataSize = reply.ReadInt32();
     if (rawDataSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw size");
-        return false;
+        return ERR_INVALID_VALUE;
     }
     auto *rawData = (uint8_t *)reply.ReadRawData(rawDataSize);
     if (rawData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw data");
-        return false;
+        return ERR_INVALID_VALUE;
     }
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
     bool ret = pasteData.Decode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
-        return false;
+        return ERR_INVALID_VALUE;
     }
     PasteUriHandler pasteHandler;
     if (!pasteData.ReadUriFd(reply, pasteHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
-        return false;
+        return ERR_INVALID_VALUE;
     }
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-    return true;
+    return reply.ReadInt32();
 }
 } // namespace MiscServices
 } // namespace OHOS

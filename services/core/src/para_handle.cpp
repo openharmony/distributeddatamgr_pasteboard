@@ -15,7 +15,7 @@
 
 #include "para_handle.h"
 
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 namespace OHOS {
 namespace MiscServices {
 constexpr int32_t HANDLE_OK = 0;

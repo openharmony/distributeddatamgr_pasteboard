@@ -39,7 +39,10 @@ ohos_shared_library("pasteboard_framework") {
 
   public_configs = [ ":module_public_config" ]
   deps = [ "//foundation/distributedhardware/device_manager/interfaces/inner_kits/native_cpp:devicemanagersdk" ]
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
   subsystem_name = "distributeddatamgr"
   part_name = "pasteboard"
 }

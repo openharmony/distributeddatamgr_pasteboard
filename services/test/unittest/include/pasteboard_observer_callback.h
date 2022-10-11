@@ -17,7 +17,7 @@
 
 #include "pasteboard_observer_stub.h"
 #include "pasteboard_observer.h"
-#include "pasteboard_common.h"
+#include "pasteboard_error.h"
 
 namespace OHOS {
 namespace MiscServices {

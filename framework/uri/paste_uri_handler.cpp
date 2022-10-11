@@ -14,7 +14,7 @@
 */
 #include "paste_uri_handler.h"
 
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "remote_uri.h"
 namespace OHOS::MiscServices {
 std::string PasteUriHandler::ToUri(int32_t fd)

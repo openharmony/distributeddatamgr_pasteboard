@@ -15,13 +15,13 @@
 
 #include "pasteboard_service_stub.h"
 
-#include "copy_uri_handler.h"
 #include "errors.h"
 #include "paste_data.h"
-#include "paste_uri_handler.h"
-#include "pasteboard_common.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 #include "pasteboard_observer_proxy.h"
+#include "paste_uri_handler.h"
+#include "copy_uri_handler.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -73,13 +73,9 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
     PasteData pasteData{};
-    auto ret = GetPasteData(pasteData);
-    if (!ret) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
-        return ERR_INVALID_VALUE;
-    }
+    auto result = GetPasteData(pasteData);
     std::vector<uint8_t> pasteDataTlv(0);
-    ret = pasteData.Encode(pasteDataTlv);
+    bool ret = pasteData.Encode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode pastedata in TLV");
         return ERR_INVALID_VALUE;
@@ -95,6 +91,10 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
     PasteUriHandler pasteUriHandler;
     if (!pasteData.WriteUriFd(reply, pasteUriHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to GetPasteData result");
         return ERR_INVALID_VALUE;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
@@ -134,7 +134,11 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
         return ERR_INVALID_VALUE;
     }
-    SetPasteData(pasteData);
+    int32_t result = SetPasteData(pasteData);
+    if (!reply.WriteInt32(result)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write SetPasteData result");
+        return ERR_INVALID_VALUE;
+    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
     return ERR_OK;
 }

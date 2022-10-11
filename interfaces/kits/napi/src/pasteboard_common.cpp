@@ -13,11 +13,18 @@
  * limitations under the License.
  */
 #include "pasteboard_common.h"
+#include "pasteboard_js_err.h"
+#include "pasteboard_hilog.h"
+#include "pixel_map_napi.h"
+#include "paste_data_record.h"
+#include "napi_common.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
+using namespace OHOS::MiscServices;
 const size_t ARGC_TYPE_SET2 = 2;
 constexpr size_t STR_TAIL_LENGTH = 1;
+constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
 napi_value GetCallbackErrorValue(napi_env env, int32_t errorCode)
 {
@@ -61,7 +68,8 @@ napi_value CreateNapiString(napi_env env, std::string str)
     return value;
 }
 
-bool GetValue(napi_env env, napi_value in, std::string& out)
+/* napi_value <-> std::string */
+bool GetValue(napi_env env, napi_value in, std::string &out)
 {
     napi_valuetype type = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
@@ -69,7 +77,7 @@ bool GetValue(napi_env env, napi_value in, std::string& out)
 
     size_t len = 0;
     NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, in, nullptr, 0, &len), false);
-    if (len <= 0) {
+    if (len < 0) {
         return false;
     }
 
@@ -80,5 +88,75 @@ bool GetValue(napi_env env, napi_value in, std::string& out)
 
     return true;
 }
+
+bool CheckArgsType(napi_env env, napi_value in, napi_valuetype expectedType, const char *message)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
+    int32_t errCode = static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS);
+    if (type != expectedType) {
+        napi_throw_error(env, std::to_string(errCode).c_str(), message);
+        return false;
+    }
+    return true;
+}
+
+bool CheckExpression(napi_env env, bool flag, MiscServices::JSErrorCode errCode, const char *message)
+{
+    if (!flag) {
+        NAPI_CALL_BASE(
+            env, napi_throw_error(env, std::to_string(static_cast<int32_t>(errCode)).c_str(), message), false);
+        return false;
+    }
+    return true;
+}
+
+// Check Parameters of CreateData, CreateRecord and AddRecord
+bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeType)
+{
+    // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
+    if (!CheckExpression(env, argc >= 2, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
+        || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+        return false;
+    }
+
+    bool ret = GetValue(env, argv[0], mimeType);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
+        return false;
+    }
+    if (!CheckExpression(
+            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.")
+        || !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
+        return false;
+    }
+    const char *message = "Parameter error. The value does not match mimeType correctly.";
+
+    if (mimeType == MIMETYPE_TEXT_URI || mimeType == MIMETYPE_TEXT_PLAIN || mimeType == MIMETYPE_TEXT_HTML) {
+        if (!CheckArgsType(env, argv[1], napi_string, message)) {
+            return false;
+        }
+    } else if (mimeType == MIMETYPE_PIXELMAP) {
+        if (!CheckExpression(env, Media::PixelMapNapi::GetPixelMap(env, argv[1]) != nullptr,
+                JSErrorCode::INVALID_PARAMETERS, message)) {
+            return false;
+        }
+    } else if (mimeType == MIMETYPE_TEXT_WANT) {
+        AAFwk::Want want;
+        ret = OHOS::AppExecFwk::UnwrapWant(env, argv[1], want);
+        if (!CheckExpression(env, ret, JSErrorCode::INVALID_PARAMETERS, message)) {
+            return false;
+        }
+    } else {
+        bool isArrayBuffer = false;
+        NAPI_CALL_BASE(env, napi_is_arraybuffer(env, argv[1], &isArrayBuffer), false);
+        if (!CheckExpression(env, isArrayBuffer, JSErrorCode::INVALID_PARAMETERS, message)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 } // namespace MiscServicesNapi
 } // namespace OHOS

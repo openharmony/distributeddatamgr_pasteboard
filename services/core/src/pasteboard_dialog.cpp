@@ -14,11 +14,11 @@
  */
 
 #include "pasteboard_dialog.h"
-
 #include "ability_connect_callback_stub.h"
 #include "iservice_registry.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "system_ability_definition.h"
+
 namespace OHOS::MiscServices {
 using namespace OHOS::AAFwk;
 class DialogConnection : public AAFwk::AbilityConnectionStub {

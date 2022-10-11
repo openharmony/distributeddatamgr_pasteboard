@@ -21,6 +21,7 @@ ohos_shared_library("pasteboard_napi") {
     "//foundation/distributeddatamgr/pasteboard/framework/uri",
     "${ability_runtime_napi_path}/inner/napi_common",
     "napi/include",
+    "${pasteboard_utils_path}/native/include",
   ]
 
   cflags = [
@@ -34,6 +35,7 @@ ohos_shared_library("pasteboard_napi") {
     "napi/src/napi_pasteboard.cpp",
     "napi/src/napi_pastedata.cpp",
     "napi/src/napi_pastedata_record.cpp",
+    "napi/src/napi_systempasteboard.cpp",
     "napi/src/pasteboard_common.cpp",
   ]
 

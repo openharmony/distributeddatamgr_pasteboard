@@ -16,6 +16,7 @@
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 #include "systempasteboard_napi.h"
+#include "pasteboard_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -31,7 +32,7 @@ static napi_value NapiInit(napi_env env, napi_value exports)
     PasteDataRecordNapi::PasteDataRecordInit(env, exports);
     PasteDataNapi::PasteDataInit(env, exports);
     SystemPasteboardNapi::SystemPasteboardInit(env, exports);
-    PasteBoardInit(env, exports);
+    PasteboardNapi::PasteBoardInit(env, exports);
     return exports;
 }
 EXTERN_C_END

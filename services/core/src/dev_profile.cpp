@@ -23,7 +23,7 @@
 #include "distributed_module_config.h"
 #include "nlohmann/json.hpp"
 #include "para_handle.h"
-#include "pasteboard_hilog_wreapper.h"
+#include "pasteboard_hilog.h"
 #include "service_characteristic_profile.h"
 #include "subscribe_info.h"
 namespace OHOS {
