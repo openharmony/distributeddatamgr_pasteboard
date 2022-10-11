@@ -261,7 +261,7 @@ bool PasteboardService::HasPastePermission(uint32_t tokenId, bool isFocusedApp,
         return false;
     }
 
-    if (!pasteData->IsDraggedData() && (!isFocusedApp || !IsDefaultIME(GetAppInfo(tokenId)))) {
+    if (!pasteData->IsDraggedData() && (!isFocusedApp && !IsDefaultIME(GetAppInfo(tokenId)))) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "token:0x%{public}x", tokenId);
         return false;
     }

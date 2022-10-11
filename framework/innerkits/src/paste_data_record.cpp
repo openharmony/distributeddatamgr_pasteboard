@@ -525,11 +525,17 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
     if (tempUri.empty()) {
         return false;
     }
-    return parcel.WriteFileDescriptor(uriHandler.ToFd(tempUri));
+
+    int32_t fd = uriHandler.ToFd(tempUri);
+    bool ret = parcel.WriteFileDescriptor(fd);
+    uriHandler.ReleaseFd(fd);
+    return ret;
 }
 bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
-    convertUri_ = uriHandler.ToUri(parcel.ReadFileDescriptor());
+    int32_t  fd = parcel.ReadFileDescriptor();
+    convertUri_ = uriHandler.ToUri(fd);
+    uriHandler.ReleaseFd(fd);
     return true;
 }
 bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
