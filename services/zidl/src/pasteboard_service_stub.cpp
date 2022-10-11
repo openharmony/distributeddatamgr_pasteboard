@@ -135,7 +135,7 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
     int32_t result = SetPasteData(pasteData);
-    if(!reply.WriteInt32(result)) {
+    if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write SetPasteData result");
         return ERR_INVALID_VALUE;
     }

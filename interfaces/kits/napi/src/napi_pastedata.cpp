@@ -81,7 +81,7 @@ napi_value PasteDataNapi::AddPixelMapRecord(napi_env env, napi_callback_info inf
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    NAPI_ASSERT(env, argc > ARGC_TYPE_SET0 , "Wrong number of arguments");
+    NAPI_ASSERT(env, argc > ARGC_TYPE_SET0, "Wrong number of arguments");
 
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
@@ -277,9 +277,9 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(
-            env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
-        || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+    if ((!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. Wrong number of arguments."))
+        || (!CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string."))) {
         return nullptr;
     }
 
@@ -315,9 +315,9 @@ PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callba
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
 
-    if (!CheckExpression(
-            env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
-        || !CheckArgsType(env, argv[0], napi_number, "Parameter error. The type of mimeType must be number.")) {
+    if ((!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. Wrong number of arguments."))
+        || (!CheckArgsType(env, argv[0], napi_number, "Parameter error. The type of mimeType must be number."))) {
         return nullptr;
     }
     PasteDataNapi *obj = nullptr;

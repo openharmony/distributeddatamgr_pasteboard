@@ -36,7 +36,7 @@ AsyncCall::AsyncCall(napi_env env, napi_callback_info info, std::shared_ptr<Cont
         }
     }
     napi_status status = (*context)(env, argc, argv, self);
-    if(status != napi_ok) {
+    if (status != napi_ok) {
         return;
     }
     context_->ctx = std::move(context);
