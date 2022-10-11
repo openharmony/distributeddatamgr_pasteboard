@@ -30,15 +30,18 @@ std::string CopyUriHandler::ToUri(int32_t fd)
     auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ret != ERR_OK || ids.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
+        ReleaseFd(fd);
         return uri_;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fd: %{public}d, user:%{public}d", fd, ids[0]);
     ret = RemoteFileShare::CreateSharePath(fd, uri_, ids[0]);
     if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " create share path failed, %{public}d ", ret);
+        ReleaseFd(fd);
         return uri_;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
+    ReleaseFd(fd);
     return uri_;
 }
 } // namespace OHOS::MiscServices
