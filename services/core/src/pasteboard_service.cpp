@@ -436,9 +436,6 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-
-    CalculateTimeConsuming::SetBeginTime();
-
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsCopyable(tokenId)) {
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
