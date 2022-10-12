@@ -55,7 +55,7 @@ enum TimeConsumingLevel : std::int32_t {
 class HiViewAdapter {
 public:
     ~HiViewAdapter();
-    static void ReportInitializationFault(int dfxCode, const InitializationFaultMsg &msg);
+    static void ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg &msg);
     static void ReportTimeConsumingStatistic(const TimeConsumingStat &stat);
     static void ReportPasteboardBehaviour(const PasteboardBehaviourMsg &msg);
     static void StartTimerThread();
@@ -67,6 +67,7 @@ private:
     static void InitializeTimeConsuming(int initFlag);
     static void CopyTimeConsumingCount(int dataLevel, int timeLevel);
     static void PasteTimeConsumingCount(int dataLevel, int timeLevel);
+    static void RemotePasteTimeConsumingCount(int dataLevel, int timeLevel);
     static void CopyTimeConsuming(const TimeConsumingStat &stat, int level);
     static void PasteTimeConsuming(const TimeConsumingStat &stat, int level);
     static const char *GetDataLevel(int dataLevel);
@@ -78,10 +79,12 @@ private:
     static std::mutex timeConsumingMutex_;
     static std::vector<std::map<int, int>> copyTimeConsumingStat_;
     static std::vector<std::map<int, int>> pasteTimeConsumingStat_;
+    static std::vector<std::map<int, int>> remotePasteTimeConsumingStat_;
 
     static std::mutex behaviourMutex_;
     static std::map<std::string, int> copyPasteboardBehaviour_;
     static std::map<std::string, int> pastePasteboardBehaviour_;
+    static std::map<std::string, int> remotePastePasteboardBehaviour_;
     
     static std::map<int, int> dataMap_;
     static std::map<int, int> timeMap_;
@@ -109,6 +112,7 @@ private:
     static inline const char *OVER_FIFTY_MB = "OVER_FIFTY_MB";
     static inline const char *CONSUMING_DATA = "CONSUMING_DATA";
     static inline const char *DATA_LEVEL = "DATA_LEVEL";
+    static inline constexpr const char *NET_TYPE = "NET_TYPE";
 // behaviour key
     static inline const char *TOP_ONE_APP = "TOP_ONE_APP";
     static inline const char *TOP_TOW_APP = "TOP_TOW_APP";
@@ -123,9 +127,11 @@ private:
     
     static inline const char *COPY_STATE = "COPY_STATE";
     static inline const char *PASTE_STATE = "PASTE_STATE";
+    static inline constexpr const char *REMOTE_PASTE_STATE = "REMOTE_PASTE_STATE";
     
     static inline const int INIT_COPY_TIME_SONSUMING = 7;
     static inline const int INIT_PASTE_TIME_SONSUMING = 8;
+    static inline constexpr const int INIT_REMOTE_PASTE_TIME_SONSUMING = 9;
 };
 }  // namespace MiscServices
 }  // namespace OHOS

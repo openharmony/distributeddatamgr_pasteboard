@@ -26,7 +26,7 @@ namespace MiscServices {
 class Reporter {
 public:
     static Reporter &GetInstance();
-    FaultReporter &InitializationFault();
+    FaultReporter &PasteboardFault();
 
     StatisticReporter<TimeConsumingStat> &TimeConsumingStatistic();
 

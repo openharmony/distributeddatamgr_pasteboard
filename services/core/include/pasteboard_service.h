@@ -50,6 +50,15 @@ struct AppInfo {
     int32_t tokenType = -1;
     int32_t userId = ERROR_USERID;
 };
+
+struct HistoryInfo {
+    std::string time;
+    std::string bundleName;
+    std::string state;
+    std::string pop;
+    std::string remote;
+};
+
 class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
     DECLARE_SYSTEM_ABILITY(PasteboardService)
 
@@ -66,7 +75,7 @@ public:
     virtual void OnStart() override;
     virtual void OnStop() override;
     size_t GetDataSize(PasteData& data) const;
-    bool SetPasteboardHistory(const std::string &bundleName, std::string state, std::string timeStamp);
+    bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
 
     class PasteboardFocusChangedListener : public Rosen::IFocusChangedListener {
@@ -95,8 +104,9 @@ private:
     void InitServiceHandler();
     void InitStorage();
     bool IsCopyable(uint32_t tokenId) const;
-    void SetPasteDataDot(PasteData& pasteData, uint32_t tokenId);
-    void GetPasteDataDot(uint32_t tokenId);
+
+    void SetPasteDataDot(PasteData &pasteData);
+    void GetPasteDataDot(PasteData &pasteData, const std::string &pop, uint32_t tokenId);
     bool GetPasteData(PasteData& data, uint32_t tokenId, bool isFocusedApp);
     std::string GetAppLabel(uint32_t tokenId);
     std::string GetDeviceName();
@@ -134,8 +144,6 @@ private:
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint32_t> sequenceId_ = 0;
     static int32_t focusApp_;
-    uint32_t lastCopyApp_ = 0;
-    std::string timeForLastCopy_;
     static std::mutex historyMutex_;
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
