@@ -16,7 +16,7 @@
 #include "reporter.h"
 
 #include "behaviour/pasteboard_behaviour_reporter_impl.h"
-#include "fault/initialization_fault_impl.h"
+#include "fault/pasteboard_fault_impl.h"
 #include "statistic/time_consuming_statistic_impl.h"
 
 namespace OHOS {
@@ -27,10 +27,10 @@ Reporter &Reporter::GetInstance()
     return reporter;
 }
 
-FaultReporter &Reporter::InitializationFault()
+FaultReporter &Reporter::PasteboardFault()
 {
-    static InitializationFaultImpl initializationFault;
-    return initializationFault;
+    static PasteboardFaultImpl pasteboardFault;
+    return pasteboardFault;
 }
 
 StatisticReporter<struct TimeConsumingStat> &Reporter::TimeConsumingStatistic()

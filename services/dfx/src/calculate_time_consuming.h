@@ -38,8 +38,9 @@ enum class TimeLevel : std::uint64_t {
 
 class CalculateTimeConsuming : public Singleton<CalculateTimeConsuming> {
 public:
-     CalculateTimeConsuming(const size_t calPasteboardData, const int calPasteboardState);
-     ~CalculateTimeConsuming();
+    CalculateTimeConsuming(const size_t calPasteboardData, const int calPasteboardState);
+    ~CalculateTimeConsuming();
+    static void SetBeginTime();
 private:
     static uint64_t GetCurrentTimeMicros();
     int CalculateTime(uint64_t time);
@@ -47,7 +48,7 @@ private:
     
     int pasteboardData_;
     int pasteboardState_;
-    uint64_t lastTime_ { 0 };
+    static uint64_t lastTime_;
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -21,9 +21,9 @@
 
 namespace OHOS {
 namespace MiscServices {
-class InitializationFaultImpl : public FaultReporter {
+class PasteboardFaultImpl : public FaultReporter {
 public:
-    ReportStatus Report(const InitializationFaultMsg &msg) override;
+    ReportStatus Report(const PasteboardFaultMsg &msg) override;
 };
 }  // namespace MiscServices
 }  // namespace OHOS

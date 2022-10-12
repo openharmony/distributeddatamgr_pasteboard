@@ -41,6 +41,9 @@ struct PasteDataProperty : public TLVObject {
     bool localOnly;
     ShareOption shareOption;
     uint32_t tokenId = 0;
+    bool isRemote = false;
+    std::string bundleName;
+    std::string setTime;
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
@@ -73,7 +76,7 @@ public:
     bool RemoveRecordAt(std::size_t number);
     bool ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRecord> record);
     bool HasMimeType(const std::string &mimeType);
-    PasteDataProperty GetProperty();
+    PasteDataProperty GetProperty() const;
     ShareOption GetShareOption();
     void SetShareOption(ShareOption shareOption);
     uint32_t GetTokenId();
@@ -83,6 +86,10 @@ public:
     void SetDraggedDataFlag(bool isDraggedData);
     bool IsLocalPaste() const;
     void SetLocalPasteFlag(bool isLocalPaste);
+
+    void SetBundleName(const std::string &bundleName);
+    void SetRemote(bool isRemote);
+    void SetTime(const std::string &time);
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteData *Unmarshalling(Parcel &parcel);
@@ -104,7 +111,7 @@ private:
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
     bool valid_ = true;
     bool isDraggedData_ = false;
-    bool isLocalPaste_ = false;
+    bool isLocalPaste_ = false;  // local in app paste
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -29,7 +29,7 @@ using namespace HiviewDFX;
 namespace MiscServices {
 namespace {
 const std::map<int, std::string> EVENT_COVERT_TABLE = {
-    { DfxCodeConstant::INITIALIZATION_FAULT, "INITIALIZATION_FAULT" },
+    { DfxCodeConstant::PASTEBOARD_FAULT, "PASTEBOARD_FAULT" },
     { DfxCodeConstant::TIME_CONSUMING_STATISTIC, "TIME_CONSUMING_STATISTIC" },
     { DfxCodeConstant::PASTEBOARD_BEHAVIOUR, "PASTEBOARD_BEHAVIOUR" },
 };
@@ -42,9 +42,11 @@ std::mutex HiViewAdapter::timeConsumingMutex_;
 std::mutex HiViewAdapter::behaviourMutex_;
 std::vector<std::map<int, int>> HiViewAdapter::copyTimeConsumingStat_;
 std::vector<std::map<int, int>> HiViewAdapter::pasteTimeConsumingStat_;
+std::vector<std::map<int, int>> HiViewAdapter::remotePasteTimeConsumingStat_;
 
 std::map<std::string, int> HiViewAdapter::copyPasteboardBehaviour_;
 std::map<std::string, int> HiViewAdapter::pastePasteboardBehaviour_;
+std::map<std::string, int> HiViewAdapter::remotePastePasteboardBehaviour_;
 
 std::map<int, int> HiViewAdapter::dataMap_ = HiViewAdapter::InitDataMap();
 std::map<int, int> HiViewAdapter::timeMap_ = HiViewAdapter::InitTimeMap();
@@ -97,7 +99,7 @@ std::map<int, int> HiViewAdapter::InitTimeMap()
     return timeMap;
 }
 
-void HiViewAdapter::ReportInitializationFault(int dfxCode, const InitializationFaultMsg &msg)
+void HiViewAdapter::ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg &msg)
 {
     constexpr const char *USER_ID = "USER_ID";
     constexpr const char *ERROR_TYPE = "ERROR_TYPE";
@@ -135,6 +137,11 @@ void HiViewAdapter::InitializeTimeConsuming(int initFlag)
             pasteTimeConsumingStat_.push_back(initTimeConsuming);
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pasteTimeConsumingStat_.push_back");
         }
+    } else {
+        for (int i = 0; i < DATA_LEVEL_NUMBERS; ++i) {
+            remotePasteTimeConsumingStat_.push_back(initTimeConsuming);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remotePasteTimeConsumingStat_.push_back");
+        }
     }
 }
 
@@ -147,8 +154,11 @@ void HiViewAdapter::ReportTimeConsumingStatistic(const TimeConsumingStat &stat)
     if (pasteTimeConsumingStat_.empty()) {
         InitializeTimeConsuming(INIT_PASTE_TIME_SONSUMING);
     }
+    if (remotePasteTimeConsumingStat_.empty()) {
+        InitializeTimeConsuming(INIT_REMOTE_PASTE_TIME_SONSUMING);
+    }
 
-    if (stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_PASTE_STATE)) {
+    if (stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_COPY_STATE)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent pasteboard state is %{public}d", stat.pasteboardState);
         auto iter = dataMap_.find(stat.dataSize);
         if (iter != dataMap_.end()) {
@@ -156,7 +166,8 @@ void HiViewAdapter::ReportTimeConsumingStatistic(const TimeConsumingStat &stat)
         } else {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "wrong data level");
         }
-    } else if (stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_COPY_STATE)) {
+    } else if (stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_PASTE_STATE)
+               || stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_REMOTE_PASTE_STATE)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent pasteboard state is %{public}d", stat.pasteboardState);
         auto iter = dataMap_.find(stat.dataSize);
         if (iter != dataMap_.end()) {
@@ -198,6 +209,20 @@ void HiViewAdapter::PasteTimeConsumingCount(int dataLevel, int timeLevel)
     }
 }
 
+void HiViewAdapter::RemotePasteTimeConsumingCount(int dataLevel, int timeLevel)
+{
+    if (static_cast<int>(remotePasteTimeConsumingStat_.size()) <= dataLevel) {
+        return;
+    }
+    auto it = remotePasteTimeConsumingStat_[dataLevel].find(timeLevel);
+    if (it != remotePasteTimeConsumingStat_[dataLevel].end()) {
+        (it->second)++;
+    } else {
+        PASTEBOARD_HILOGD(
+            PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, tiem level:  %{public}d", timeLevel);
+    }
+}
+
 void HiViewAdapter::CopyTimeConsuming(const TimeConsumingStat &stat, int level)
 {
     auto iter = timeMap_.find(stat.timeConsuming);
@@ -212,7 +237,11 @@ void HiViewAdapter::PasteTimeConsuming(const TimeConsumingStat &stat, int level)
 {
     auto iter = timeMap_.find(stat.timeConsuming);
     if (iter != timeMap_.end()) {
-        PasteTimeConsumingCount(level, iter->second);
+        if (stat.pasteboardState == SPS_PASTE_STATE) {
+            PasteTimeConsumingCount(level, iter->second);
+        } else {
+            RemotePasteTimeConsumingCount(level, iter->second);
+        }
     } else {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "wrong time level");
     }
@@ -223,18 +252,25 @@ void HiViewAdapter::ReportPasteboardBehaviour(const PasteboardBehaviourMsg &msg)
     std::lock_guard<std::mutex> lock(behaviourMutex_);
 
     if (msg.pasteboardState == static_cast<int>(BehaviourPasteboardState::BPS_COPY_STATE)) {
-        auto it = copyPasteboardBehaviour_.find(msg.appId);
+        auto it = copyPasteboardBehaviour_.find(msg.bundleName);
         if (it != copyPasteboardBehaviour_.end()) {
             (it->second)++;
         } else {
-            copyPasteboardBehaviour_.insert(std::pair<std::string, int>(msg.appId, 1));
+            copyPasteboardBehaviour_.insert(std::pair<std::string, int>(msg.bundleName, 1));
         }
     } else if (msg.pasteboardState == static_cast<int>(BehaviourPasteboardState::BPS_PASTE_STATE)) {
-        auto it = pastePasteboardBehaviour_.find(msg.appId);
+        auto it = pastePasteboardBehaviour_.find(msg.bundleName);
         if (it != pastePasteboardBehaviour_.end()) {
             (it->second)++;
         } else {
-            pastePasteboardBehaviour_.insert(std::pair<std::string, int>(msg.appId, 1));
+            pastePasteboardBehaviour_.insert(std::pair<std::string, int>(msg.bundleName, 1));
+        }
+    } else if (msg.pasteboardState == static_cast<int>(BehaviourPasteboardState::BPS_REMOTE_PASTE_STATE)) {
+        auto it = remotePastePasteboardBehaviour_.find(msg.bundleName);
+        if (it != remotePastePasteboardBehaviour_.end()) {
+            (it->second)++;
+        } else {
+            remotePastePasteboardBehaviour_.insert(std::pair<std::string, int>(msg.bundleName, 1));
         }
     } else {
         PASTEBOARD_HILOGD(
@@ -280,6 +316,8 @@ void HiViewAdapter::InvokeTimeConsuming()
     copyTimeConsumingStat_.clear();
     ReportStatisticEvent(pasteTimeConsumingStat_, PASTE_STATE);
     pasteTimeConsumingStat_.clear();
+    ReportStatisticEvent(remotePasteTimeConsumingStat_, REMOTE_PASTE_STATE);
+    remotePasteTimeConsumingStat_.clear();
 }
 
 void HiViewAdapter::ReportStatisticEvent(
@@ -295,11 +333,22 @@ void HiViewAdapter::ReportStatisticEvent(
             buffMsg = buffMsg + std::to_string(timeConsumingStat[i].at(j)) + ",";
         }
         buffMsg += "]";
-        int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
-            HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, DATA_LEVEL, GetDataLevel(i),
-            CONSUMING_DATA, buffMsg);
+
+        int ret = -1;
+        if (pasteboardState == REMOTE_PASTE_STATE) {
+            std::string netType = "WIFI";
+            ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
+                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, NET_TYPE, netType, DATA_LEVEL,
+                GetDataLevel(i), CONSUMING_DATA, buffMsg);
+        } else {
+            ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
+                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, DATA_LEVEL, GetDataLevel(i),
+                CONSUMING_DATA, buffMsg);
+        }
+
         if (ret != HiviewDFX::SUCCESS) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
+            PASTEBOARD_HILOGD(
+                PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret = %{public}d, i = %{public}d.", ret, i);
         }
     }
 }
@@ -348,11 +397,10 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
         if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
         }
-        behaviour.clear();
     } else {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "behaviour is empty!");
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour   end");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour end");
 }
 
 void HiViewAdapter::InvokePasteBoardBehaviour()
@@ -360,13 +408,21 @@ void HiViewAdapter::InvokePasteBoardBehaviour()
     std::lock_guard<std::mutex> lock(behaviourMutex_);
     if (!copyPasteboardBehaviour_.empty()) {
         ReportBehaviour(copyPasteboardBehaviour_, COPY_STATE);
+        copyPasteboardBehaviour_.clear();
     } else {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "InvokePasteBoardBehaviour :copyPasteboardBehaviour_ is empty ");
     }
     if (!pastePasteboardBehaviour_.empty()) {
         ReportBehaviour(pastePasteboardBehaviour_, PASTE_STATE);
+        pastePasteboardBehaviour_.clear();
     } else {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "InvokePasteBoardBehaviour :pastePasteboardBehaviour_ is empty ");
+    }
+    if (!remotePastePasteboardBehaviour_.empty()) {
+        ReportBehaviour(remotePastePasteboardBehaviour_, REMOTE_PASTE_STATE);
+        remotePastePasteboardBehaviour_.clear();
+    } else {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remotePastePasteboardBehaviour_ is empty ");
     }
 }
 
