@@ -57,7 +57,7 @@ ohos_shared_library("pasteboard_service") {
     "dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
     "dfx/src/calculate_time_consuming.cpp",
     "dfx/src/command.cpp",
-    "dfx/src/fault/initialization_fault_impl.cpp",
+    "dfx/src/fault/pasteboard_fault_impl.cpp",
     "dfx/src/hiview_adapter.cpp",
     "dfx/src/pasteboard_dump_helper.cpp",
     "dfx/src/pasteboard_trace.cpp",

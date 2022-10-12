@@ -39,11 +39,15 @@ enum TimeConsumingStatistic : std::int32_t {
 enum BehaviourPasteboardState : std::int32_t {
     BPS_COPY_STATE = 0,
     BPS_PASTE_STATE,
+    BPS_REMOTE_PASTE_STATE,
+    BPS_INVALID_STATE,
 };
 
 enum StatisticPasteboardState : std::int32_t {
     SPS_COPY_STATE = 0,
     SPS_PASTE_STATE,
+    SPS_REMOTE_PASTE_STATE,
+    SPS_INVALID_STATE,
 };
 
 enum DataRange : std::int32_t {
@@ -56,14 +60,14 @@ enum DataRange : std::int32_t {
     DR_OVER_FIFTY_MB,
 };
 
-struct InitializationFaultMsg {
+struct PasteboardFaultMsg {
     int32_t userId;
     std::string errorCode;
 };
 
 struct PasteboardBehaviourMsg {
     int pasteboardState;
-    std::string appId;
+    std::string bundleName;
 };
 
 struct TimeConsumingStat {

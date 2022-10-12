@@ -18,7 +18,7 @@
 
 class DfxCodeConstant {
 public:
-    static inline constexpr int INITIALIZATION_FAULT = 950001100;
+    static inline constexpr int PASTEBOARD_FAULT = 950001100;
     static inline constexpr int TIME_CONSUMING_STATISTIC = 950001105;
     static inline constexpr int PASTEBOARD_BEHAVIOUR = 950001106;
 };

@@ -40,7 +40,7 @@
 
 domain: PASTEBOARD
 
-INITIALIZATION_FAULT:
+PASTEBOARD_FAULT:
   __BASE: {type: FAULT, level: CRITICAL, desc: The event is database fault }
   USER_ID: {type: INT32, desc: app id }
   FAULT_CODE: {type: STRING, desc: fault code }
@@ -48,6 +48,7 @@ INITIALIZATION_FAULT:
 TIME_CONSUMING_STATISTIC: 
   __BASE: {type: STATISTIC, level: MINOR, desc: The event is api visit statistic } 
   PASTEBOARD_STATE: {type: STRING, desc: Pasteboard state }
+  NET_TYPE: {type: STRING, desc: net type }
   DATA_LEVLE: {type: STRING, desc: Data level }
   CONSUMING_DATA: {type: STRING, desc: Consuming data }
 

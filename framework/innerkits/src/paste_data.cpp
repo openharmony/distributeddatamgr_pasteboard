@@ -44,7 +44,10 @@ enum TAG_PROPERTY : uint16_t {
     TAG_TAG,
     TAG_TIMESTAMP,
     TAG_SHAREOPTION,
-    TAG_TOKENID
+    TAG_TOKENID,
+    TAG_ISREMOTE,
+    TAG_BUNDLENAME,
+    TAG_SETTIME,
 };
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
@@ -61,7 +64,7 @@ PasteData::PasteData()
     props_.shareOption = ShareOption::CrossDevice;
 }
 
-PasteDataProperty PasteData::GetProperty()
+PasteDataProperty PasteData::GetProperty() const
 {
     return props_;
 }
@@ -280,6 +283,21 @@ void PasteData::SetLocalPasteFlag(bool isLocalPaste)
     isLocalPaste_ = isLocalPaste;
 }
 
+void PasteData::SetRemote(bool isRemote)
+{
+    props_.isRemote = isRemote;
+}
+
+void PasteData::SetBundleName(const std::string &bundleName)
+{
+    props_.bundleName = bundleName;
+}
+
+void PasteData::SetTime(const std::string &setTime)
+{
+    props_.setTime = setTime;
+}
+
 void PasteData::RefreshMimeProp()
 {
     std::vector<std::string> mimeTypes;
@@ -469,6 +487,9 @@ bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
     ret = Write(buffer, TAG_SHAREOPTION, (int32_t &)shareOption) && ret;
     ret = Write(buffer, TAG_TOKENID, tokenId) && ret;
+    ret = Write(buffer, TAG_ISREMOTE, isRemote) && ret;
+    ret = Write(buffer, TAG_BUNDLENAME, bundleName) && ret;
+    ret = Write(buffer, TAG_SETTIME, setTime) && ret;
     return ret;
 }
 bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
@@ -501,6 +522,15 @@ bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
             case TAG_TOKENID:
                 ret = ret && ReadValue(buffer, tokenId, head);
                 break;
+            case TAG_ISREMOTE:
+                ret = ret && ReadValue(buffer, isRemote, head);
+                break;
+            case TAG_BUNDLENAME:
+                ret = ret && ReadValue(buffer, bundleName, head);
+                break;
+            case TAG_SETTIME:
+                ret = ret && ReadValue(buffer, setTime, head);
+                break;
             default:
                 ret = ret && Skip(head.len, buffer.size());
                 break;
@@ -520,6 +550,9 @@ size_t PasteDataProperty::Count()
     expectedSize += TLVObject::Count(timestamp);
     expectedSize += TLVObject::Count(shareOption);
     expectedSize += TLVObject::Count(tokenId);
+    expectedSize += TLVObject::Count(isRemote);
+    expectedSize += TLVObject::Count(bundleName);
+    expectedSize += TLVObject::Count(setTime);
     return expectedSize;
 }
 

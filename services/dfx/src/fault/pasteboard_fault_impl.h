@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,17 +13,18 @@
  * limitations under the License.
  */
 
-#include "initialization_fault_impl.h"
+#ifndef MISCSERVICES_PASTEBOARD_INITIALIZATION_FAULT_IMPL_H
+#define MISCSERVICES_PASTEBOARD_INITIALIZATION_FAULT_IMPL_H
 
-#include "dfx_code_constant.h"
-#include "hiview_adapter.h"
+#include "dfx_types.h"
+#include "fault_reporter.h"
 
 namespace OHOS {
 namespace MiscServices {
-ReportStatus InitializationFaultImpl::Report(const InitializationFaultMsg &msg)
-{
-    HiViewAdapter::ReportInitializationFault(DfxCodeConstant::INITIALIZATION_FAULT, msg);
-    return ReportStatus::SUCCESS;
-}
-} // namespace MiscServices
-} // namespace OHOS
+class PasteboardFaultImpl : public FaultReporter {
+public:
+    ReportStatus Report(const PasteboardFaultMsg &msg) override;
+};
+}  // namespace MiscServices
+}  // namespace OHOS
+#endif // MISCSERVICES_PASTEBOARD_INITIALIZATION_FAULT_IMPL_H
