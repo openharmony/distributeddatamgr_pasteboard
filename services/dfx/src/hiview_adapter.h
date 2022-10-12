@@ -112,6 +112,7 @@ private:
     static inline const char *OVER_FIFTY_MB = "OVER_FIFTY_MB";
     static inline const char *CONSUMING_DATA = "CONSUMING_DATA";
     static inline const char *DATA_LEVEL = "DATA_LEVEL";
+    static inline constexpr const char *NET_TYPE = "NET_TYPE";
 // behaviour key
     static inline const char *TOP_ONE_APP = "TOP_ONE_APP";
     static inline const char *TOP_TOW_APP = "TOP_TOW_APP";
