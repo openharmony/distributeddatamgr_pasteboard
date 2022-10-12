@@ -462,7 +462,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     clips_.insert_or_assign(appInfo.userId, std::make_shared<PasteData>(pasteData));
     SetDistributedData(appInfo.userId, pasteData);
     NotifyObservers();
-    SetPasteDataDot(pasteData);	
+    SetPasteDataDot(pasteData);
     setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     return static_cast<int32_t>(PasteboardError::E_OK);
