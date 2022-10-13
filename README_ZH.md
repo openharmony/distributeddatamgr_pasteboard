@@ -641,11 +641,11 @@ console.log('Checks the pasteboard content')
 assert.equal(pasteData.getRecordAt(0).plainText, textDataNew)
 
 //构建一个自定义类型的剪贴板内容对象
-var dataXml = 'aStringValueType';
+var dataXml = new ArrayBuffer(256);
 var pasteData = pasteboard.createData('app/xml', dataXml);
 
 //创建一条自定义数据内容条目
-var dataXml = 'aStringValueType';
+var dataXml = new ArrayBuffer(256);
 var pasteDataRecord = pasteboard.createRecord('app/xml', dataXml);
 
 //将一个PasteData中的内容强制转换为文本内容，使用callback异步回调
@@ -668,7 +668,7 @@ record.convertToTextV9().then((data) => {
 
 //向当前剪贴板内容中添加一条自定义数据内容条目
 var pasteData = pasteboard.createUriData("dataability:///com.example.myapplication1/user.txt");
-var dataXml = 'aStringValueType';
+var dataXml = new ArrayBuffer(256);
 pasteData.addRecord('app/xml', dataXml);
 
 //获取剪贴板内容中指定下标的条目
