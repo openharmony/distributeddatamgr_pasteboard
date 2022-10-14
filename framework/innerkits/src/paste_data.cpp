@@ -28,10 +28,6 @@ using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServices {
-namespace {
-const std::uint32_t MAX_RECORD_NUM = 512;
-}
-
 enum TAG_PASTEBOARD : uint16_t {
     TAG_PROPS = TAG_BUFF + 1,
     TAG_RECORDS,
