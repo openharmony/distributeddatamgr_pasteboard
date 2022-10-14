@@ -57,7 +57,7 @@ describe('PasteBoardJSTest', function () {
                                         expect(data.getRecordCount()).assertEqual(1);
                                         var primaryText = data.getPrimaryText();
                                         expect(primaryText).assertEqual(textData);
-                                        expect(pasteboard.MAX_RECORD_NUM).assertEqual(128);
+                                        expect(pasteboard.MAX_RECORD_NUM).assertEqual(512);
                                         expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_PLAIN)).assertEqual(true);
                                         expect(data.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
                                         done();

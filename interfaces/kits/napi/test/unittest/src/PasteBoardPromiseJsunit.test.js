@@ -47,7 +47,7 @@ describe('PasteBoardJSTest', function () {
                         expect(pasteData1.getRecordCount()).assertEqual(1);
                         var primaryText = pasteData1.getPrimaryText();
                         expect(primaryText).assertEqual(textData);
-                        expect(pasteboard.MAX_RECORD_NUM).assertEqual(128);
+                        expect(pasteboard.MAX_RECORD_NUM).assertEqual(512);
                         expect(pasteData1.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
                         done();
                     })
@@ -1659,6 +1659,61 @@ describe('PasteBoardJSTest', function () {
                 });
             });
         });
+    })
+    
+    
+    /**
+     * @tc.name      pasteboard_function_test52
+     * @tc.desc      支持512个record
+     * @tc.type      Function
+     * @tc.require   AR000HEECB
+     */
+    it('pasteboard_function_test52', 0, async function (done) {
+        var systemPasteBoard = pasteboard.getSystemPasteboard();
+        systemPasteBoard.clear().then(() => {
+            var dataHtml = new ArrayBuffer(256)
+            var htmlText = '<html><head></head><body>Hello!</body></html>';
+            var uriText = 'https://www.baidu.com/';
+            var wantText = {
+                bundleName: "com.example.myapplication3",
+                abilityName: "com.example.myapplication3.MainAbility"
+            };
+            var plainText = "";
+            var pasteData = pasteboard.createData("x".repeat(1024), dataHtml)
+            var record = pasteData.getRecordAt(0)
+            record.htmlText = htmlText;
+            record.plainText = plainText;
+            record.uri = uriText;
+            record.want = wantText;
+            var buffer = new ArrayBuffer(128);
+            var opt = {
+                size: {height: 5, width: 5},
+                pixelFormat: 3,
+                editable: true,
+                alphaType: 1,
+                scaleMode: 1
+            };
+            image.createPixelMap(buffer, opt).then((pixelMap) => {
+                record.pixelMap = pixelMap;
+                pasteData.replaceRecordAt(0, record);
+                for (var i = 0; i < 511; i++) {
+                    pasteData.addRecord(record);
+                }
+                systemPasteBoard.setPasteData(pasteData).then(() => {
+                    systemPasteBoard.hasPasteData().then((hasData) => {
+                        expect(hasData).assertTrue();
+                        systemPasteBoard.getPasteData().then((data) => {
+                            expect(data.getRecordCount()).assertEqual(512)
+                            expect(data.getRecordAt(0).mimeType).assertEqual("x".repeat(1024))
+                            expect(data.getPrimaryWant().bundleName).assertEqual(wantText.bundleName)
+                            expect(data.getRecordAt(253).htmlText).assertEqual(htmlText)
+                            expect(data.getRecordAt(512).plainText).assertEqual(plainText)
+                        })
+                    })
+                })
+            })
+        })
+        done();
     })
 
     /**
