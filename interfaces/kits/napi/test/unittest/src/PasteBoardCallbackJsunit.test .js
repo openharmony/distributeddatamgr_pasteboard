@@ -774,7 +774,7 @@ describe('PasteBoardJSTest', function () {
             } else {
                 systemPasteboard.on('update', contentChanges);
                 var textData = 'Hello World!';
-                var pasteData = pasteboard.createPlainTextData(textData);
+                var pasteData = pasteboard.createPlainTextData(textData); 
                 systemPasteboard.setPasteData(pasteData, (err, data) => {
                     if (err) {
                         console.error('f_test16: systemPasteboard.setPasteData callback error:' + err);

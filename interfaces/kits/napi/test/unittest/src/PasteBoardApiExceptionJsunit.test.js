@@ -301,7 +301,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test6
      * @tc.desc      Test CreateRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test6', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -334,7 +334,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test7
      * @tc.desc      Test CreateRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test7', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -394,7 +394,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test8
      * @tc.desc      Test CreateRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test8', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -419,7 +419,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test9
      * @tc.desc      Test Create Uri Data
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test9', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -448,7 +448,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test10
      * @tc.desc      Test Create htmlText Data
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test10', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -477,7 +477,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test11
      * @tc.desc      Test Create wantText Data
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test11', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -510,7 +510,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test12
      * @tc.desc      Test Create pixelMap Data
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test12', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -551,7 +551,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test13
      * @tc.desc      Test CreateData throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test13', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -572,7 +572,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test14
      * @tc.desc      Test Create KV Data
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test14', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -593,7 +593,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test15
      * @tc.desc      Test addRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test15', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -648,7 +648,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test16
      * @tc.desc      Test addRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test16', 0, async function (done) {
         var uriText = 'https://www.baidu.com/';
@@ -666,7 +666,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test17
      * @tc.desc      Test addRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test17', 0, async function (done) {
         var uriText = 'https://www.baidu.com/';
@@ -686,7 +686,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test18
      * @tc.desc      Test getRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test18', 0, async function (done) {
         var uriText = 'https://www.baidu.com/';
@@ -704,7 +704,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test19
      * @tc.desc      Test getRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test19', 0, async function (done) {
         var uriText = 'https://www.baidu.com/';
@@ -722,7 +722,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test20
      * @tc.desc      Test replaceRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test20', 0, async function (done) {
         var uriText = 'https://www.baidu.com/';
@@ -743,7 +743,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test21
      * @tc.desc      Test replaceRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test21', 0, async function (done) {
         var uriText = 'https://www.baidu.com/';
@@ -764,7 +764,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test22
      * @tc.desc      Test replaceRecord throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test22', 0, async function (done) {
         var uriText = 'https://www.baidu.com/';
@@ -782,7 +782,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test23
      * @tc.desc      Test setData
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test23', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -807,7 +807,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test24
      * @tc.desc      Test setData throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test24', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -825,7 +825,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test25
      * @tc.desc      Test setproperty throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test25', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -845,7 +845,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test26
      * @tc.desc      Test setproperty throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test26', 0, async function (done) {
         var systemPasteboard = pasteboard.getSystemPasteboard();
@@ -868,7 +868,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test27
      * @tc.desc      Test createData throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test27', 0, async function (done) {
         var textData = 'Hello World!';
@@ -887,7 +887,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test28
      * @tc.desc      Test createData throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test28', 0, async function (done) {
         var textData = 'Hello World!';
@@ -906,7 +906,7 @@ describe('PasteBoardJSTest', function () {
      * @tc.name      pasteboard_function_test29
      * @tc.desc      Test createData throw error
      * @tc.type      Function
-     * @tc.require   AR000HINQN
+     * @tc.require   I5TYVJ
      */
     it('pasteboard_function_test29', 0, async function (done) {
 
@@ -919,4 +919,5 @@ describe('PasteBoardJSTest', function () {
         }
         done();
     })
+
 });
