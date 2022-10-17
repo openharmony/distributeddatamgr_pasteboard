@@ -16,7 +16,6 @@
 
 #include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
-constexpr const int32_t ERROR_FD = -1;
 bool UriHandler::IsFile(const std::string &uri) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri.c_str());
@@ -36,7 +35,7 @@ int32_t UriHandler::ToFd(const std::string &uri)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri: %{public}s", uri.c_str());
     std::string fileRealPath;
     if (!GetRealPath(uri, fileRealPath)) {
-        return ERROR_FD;
+        return INVALID_FD;
     }
     int32_t fd = open(fileRealPath.c_str(), O_RDONLY);
     if (fd < 0) {
@@ -48,7 +47,7 @@ int32_t UriHandler::ToFd(const std::string &uri)
 
 bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealPath)
 {
-    char realPath[PATH_MAX + 1] = {0x00};
+    char realPath[PATH_MAX + 1] = { 0x00 };
     if (inOriPath.size() > PATH_MAX || realpath(inOriPath.c_str(), realPath) == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get real path failed, len = %{public}zu, errno = %{public}d.",
             inOriPath.size(), errno);
