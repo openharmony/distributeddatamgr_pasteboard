@@ -24,8 +24,6 @@ using namespace testing;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
 constexpr const char *FILE_URI = "/data/test/resource/pasteboardTest.txt";
-constexpr const char *CHANGE_URI = "/mnt/hmdfs/100/account/merge_view/services/PasteboardFrame/.share/"
-                                   "pasteboardTest.txt";
 class PasteDataTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -92,10 +90,9 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
     std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
     EXPECT_EQ(mockUri2, data.GetPrimaryUri()->ToString());
 }
-
 /**
 * @tc.name: uriConvertTest001
-* @tc.desc: uri convert(not in same app)
+* @tc.desc: uri convert(in same app)
 * @tc.type: FUNC
 * @tc.require:AR000H5I1D
 * @tc.author: chenyu
@@ -120,45 +117,10 @@ HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
 
     MessageParcel parcel1;
     PasteUriHandler pasteHandler;
-    chmod(CHANGE_URI, 0777);
-    data.WriteUriFd(parcel1, pasteHandler);
-    result = data.ReadUriFd(parcel1, pasteHandler);
-    EXPECT_TRUE(result);
-    ASSERT_TRUE(data.GetPrimaryUri() != nullptr);
-    auto convertedUri = data.GetPrimaryUri()->ToString();
-    EXPECT_FALSE(uriStr == convertedUri);
-    EXPECT_FALSE(distributedUri == convertedUri);
-}
-
-
-/**
-* @tc.name: uriConvertTest002
-* @tc.desc: uri convert(in same app)
-* @tc.type: FUNC
-* @tc.require:AR000H5I1D
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteDataTest, uriConvertTest002, TestSize.Level0)
-{
-    PasteData data;
-    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = FILE_URI;
-    auto uri = std::make_shared<OHOS::Uri>(uriStr);
-    builder.SetUri(uri);
-    auto record = builder.Build();
-    data.AddRecord(record);
-
-    MessageParcel parcel;
-    CopyUriHandler copyHandler;
-    data.WriteUriFd(parcel, copyHandler);
-    bool result = data.ReadUriFd(parcel, copyHandler);
-    EXPECT_TRUE(result);
-    auto distributedUri = data.GetPrimaryUri()->ToString();
-    EXPECT_FALSE(uriStr == distributedUri);
+    int32_t fd = 5;
+    pasteHandler.ToUri(fd);
 
     data.SetLocalPasteFlag(true);
-    MessageParcel parcel1;
-    PasteUriHandler pasteHandler;
     data.WriteUriFd(parcel1, pasteHandler);
     result = data.ReadUriFd(parcel1, pasteHandler);
     EXPECT_TRUE(result);
