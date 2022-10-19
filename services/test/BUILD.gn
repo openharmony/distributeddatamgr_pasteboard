@@ -29,7 +29,6 @@ config("module_private_config") {
 module_output_path = "pasteboard/pasteboard_service"
 
 ohos_unittest("PasteboardServiceTest") {
-  resource_config_file = "//foundation/distributeddatamgr/pasteboard/services/test/resource/ohos_test.xml"
   module_out_path = module_output_path
 
   sources = [ "unittest/src/paste_service_test.cpp" ]

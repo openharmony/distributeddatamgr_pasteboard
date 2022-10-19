@@ -15,13 +15,15 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "copy_uri_handler.h"
+#include "paste_uri_handler.h"
 #include "pasteboard_client.h"
-
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
+constexpr const char *FILE_URI = "/data/test/resource/pasteboardTest.txt";
 class PasteDataTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -90,42 +92,77 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataRecordReplaceShareUri001
-* @tc.desc: PasteDataRecord: WriteFd ReadFd NeedFd ReplaceShareUri
+* @tc.name: uriConvertTest001
+* @tc.desc: uri convert(not in same app)
 * @tc.type: FUNC
 * @tc.require:AR000H5I1D
-* @tc.author: baoyayong
+* @tc.author: chenyu
 */
-HWTEST_F(PasteDataTest, PasteDataRecordReplaceShareUri001, TestSize.Level0)
+HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
 {
+    PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = "/data/storage/100/haps/caches/xxx.txt";
+    std::string uriStr = FILE_URI;
     auto uri = std::make_shared<OHOS::Uri>(uriStr);
     builder.SetUri(uri);
     auto record = builder.Build();
-
-    //mock
-    UriHandlerMock mock;
-    std::string mockUri = "/mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt";
-    EXPECT_CALL(mock, ToUri(_)).WillRepeatedly(Return(mockUri));
-    EXPECT_CALL(mock, ToFd(_)).WillRepeatedly(Return(10));
-    EXPECT_CALL(mock, IsFile(_)).WillRepeatedly(Return(true));
-
-    ASSERT_TRUE(record->NeedFd(mock));
+    data.AddRecord(record);
 
     MessageParcel parcel;
-    record->WriteFd(parcel, mock);
-
-    bool result = record->ReadFd(parcel, mock);
+    CopyUriHandler copyHandler;
+    data.WriteUriFd(parcel, copyHandler);
+    bool result = data.ReadUriFd(parcel, copyHandler);
     EXPECT_TRUE(result);
-    auto uri1 = record->GetUri();
-    ASSERT_TRUE(uri1 != nullptr);
-    EXPECT_EQ(mockUri, uri1->ToString());
-    record->ReplaceShareUri(200);
-    std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
-    auto uri2 = record->GetUri();
-    ASSERT_TRUE(uri2 != nullptr);
-    EXPECT_EQ(mockUri2, uri2->ToString());
+    auto distributedUri = data.GetPrimaryUri()->ToString();
+    EXPECT_FALSE(uriStr == distributedUri);
+
+    MessageParcel parcel1;
+    PasteUriHandler pasteHandler;
+    data.WriteUriFd(parcel1, pasteHandler);
+    result = data.ReadUriFd(parcel1, pasteHandler);
+    EXPECT_TRUE(result);
+    ASSERT_TRUE(data.GetPrimaryUri() != nullptr);
+    auto convertedUri = data.GetPrimaryUri()->ToString();
+    EXPECT_FALSE(uriStr == convertedUri);
+    EXPECT_FALSE(distributedUri == convertedUri);
+}
+
+
+/**
+* @tc.name: uriConvertTest002
+* @tc.desc: uri convert(in same app)
+* @tc.type: FUNC
+* @tc.require:AR000H5I1D
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, uriConvertTest002, TestSize.Level0)
+{
+    PasteData data;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    std::string uriStr = FILE_URI;
+    auto uri = std::make_shared<OHOS::Uri>(uriStr);
+    builder.SetUri(uri);
+    auto record = builder.Build();
+    data.AddRecord(record);
+
+    MessageParcel parcel;
+    CopyUriHandler copyHandler;
+    data.WriteUriFd(parcel, copyHandler);
+    bool result = data.ReadUriFd(parcel, copyHandler);
+    EXPECT_TRUE(result);
+    auto distributedUri = data.GetPrimaryUri()->ToString();
+    EXPECT_FALSE(uriStr == distributedUri);
+
+    data.SetLocalPasteFlag(true);
+    MessageParcel parcel1;
+    PasteUriHandler pasteHandler;
+    data.WriteUriFd(parcel1, pasteHandler);
+    result = data.ReadUriFd(parcel1, pasteHandler);
+    EXPECT_TRUE(result);
+    ASSERT_TRUE(data.GetPrimaryUri() != nullptr);
+    auto convertedUri = data.GetPrimaryUri()->ToString();
+    EXPECT_EQ(distributedUri, convertedUri);
+    EXPECT_FALSE(uriStr == convertedUri);
 }
 
 /**

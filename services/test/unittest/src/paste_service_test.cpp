@@ -30,7 +30,7 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
-constexpr const char *FILE_URI = "/data/test/resource/pasteboardTest.txt";
+
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -979,34 +979,5 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
     EXPECT_TRUE(imageInfo.size.height == opts.size.height);
     EXPECT_TRUE(imageInfo.size.width == opts.size.width);
     EXPECT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
-}
-
-/**
-* @tc.name: FilePaste001
-* @tc.desc: file paste
-* @tc.type: FUNC
-* @tc.require:AR000H5I1D
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteboardServiceTest, FilePaste001, TestSize.Level1)
-{
-    PasteData data;
-    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = FILE_URI;
-    auto uri = std::make_shared<OHOS::Uri>(uriStr);
-    builder.SetUri(uri);
-    auto record = builder.Build();
-    data.AddRecord(record);
-
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(data);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData);
-
-    PasteData data2;
-    ret = PasteboardClient::GetInstance()->GetPasteData(data2);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    ASSERT_TRUE(data2.GetPrimaryUri() != nullptr);
-    EXPECT_EQ(data2.GetPrimaryUri()->ToString(), uriStr);
 }
 } // namespace OHOS::MiscServices

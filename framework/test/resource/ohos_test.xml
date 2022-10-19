@@ -14,7 +14,7 @@
  limitations under the License.
 -->
 <configuration ver="2.0">
-    <target name="PasteboardServiceTest">
+    <target name="PasteboardFrameworkTest">
         <preparer>
             <option name="push" value="pasteboardTest.txt -> /data/test/resource" src="res"/>
         </preparer>
