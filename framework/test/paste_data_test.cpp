@@ -24,6 +24,8 @@ using namespace testing;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
 constexpr const char *FILE_URI = "/data/test/resource/pasteboardTest.txt";
+constexpr const char *CHANGE_URI = "/mnt/hmdfs/100/account/merge_view/services/PasteboardFrame/.share/"
+                                   "pasteboardTest.txt";
 class PasteDataTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -118,6 +120,7 @@ HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
 
     MessageParcel parcel1;
     PasteUriHandler pasteHandler;
+    chmod(CHANGE_URI, 0777);
     data.WriteUriFd(parcel1, pasteHandler);
     result = data.ReadUriFd(parcel1, pasteHandler);
     EXPECT_TRUE(result);
