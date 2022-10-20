@@ -984,7 +984,7 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
 * @tc.name: GetPastedataFail001
 * @tc.desc: get paste data fail - SetValue()
 * @tc.type: FUNC
-* @tc.require:AR000H5I1D
+* @tc.require: issuesI5WPTM
 * @tc.author: chenyu
 */
 HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
