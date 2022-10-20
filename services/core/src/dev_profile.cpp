@@ -30,9 +30,11 @@ namespace OHOS {
 namespace MiscServices {
 using namespace OHOS::DeviceProfile;
 using namespace OHOS::DistributedHardware;
-constexpr int32_t HANDLE_OK = 0;
-constexpr const char *SERVICE_ID = "pasteboard_service";
-constexpr const char *PROFILE_CONTENT_KEY = "distributed_pasteboard_enabled";
+constexpr const int32_t HANDLE_OK = 0;
+constexpr const uint32_t NOT_SUPPORT = 0;
+constexpr const uint32_t SUPPORT = 1;
+constexpr const char *SERVICE_ID = "pasteboardService";
+constexpr const char *CHARACTER_ID = "supportDistributedPasteboard";
 
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
@@ -81,7 +83,10 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     profile.SetServiceId(SERVICE_ID);
     profile.SetServiceType(SERVICE_ID);
     nlohmann::json jsonObject;
-    jsonObject[PROFILE_CONTENT_KEY] = enabledStatus;
+    jsonObject[CHARACTER_ID] = NOT_SUPPORT;
+    if (enabledStatus == "true") {
+        jsonObject[CHARACTER_ID] = SUPPORT;
+    }
     profile.SetCharacteristicProfileJson(jsonObject.dump());
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutDeviceProfile(profile);
     if (errNo != HANDLE_OK) {
@@ -107,7 +112,10 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
         return;
     }
 
-    enabledStatus = jsonObject[PROFILE_CONTENT_KEY];
+    enabledStatus = "false";
+    if (jsonObject[CHARACTER_ID] == SUPPORT) {
+        enabledStatus = "true";
+    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
 }
 
