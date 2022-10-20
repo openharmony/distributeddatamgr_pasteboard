@@ -20,8 +20,7 @@ bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealP
 {
     char realPath[PATH_MAX + 1] = { 0x00 };
     if (inOriPath.size() > PATH_MAX || realpath(inOriPath.c_str(), realPath) == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get real path failed, len = %{public}zu, errno = %{public}d.",
-                          inOriPath.size(), errno);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get real path failed, len = %{public}zu.", inOriPath.size());
         return false;
     }
     outRealPath = std::string(realPath);
