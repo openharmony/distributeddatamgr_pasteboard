@@ -17,6 +17,16 @@
 #include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
+bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealPath)
+{
+    char realPath[PATH_MAX + 1] = { 0x00 };
+    if (inOriPath.size() > PATH_MAX || realpath(inOriPath.c_str(), realPath) == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get real path failed, len = %{public}zu.", inOriPath.size());
+        return false;
+    }
+    outRealPath = std::string(realPath);
+    return true;
+}
 bool UriHandler::IsFile(const std::string &uri) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri.c_str());
@@ -34,10 +44,14 @@ bool UriHandler::IsFile(const std::string &uri) const
 int32_t UriHandler::ToFd(const std::string &uri)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri: %{public}s", uri.c_str());
-    int32_t fd = open(uri.c_str(), O_RDONLY);
+    std::string fileRealPath;
+    if (!GetRealPath(uri, fileRealPath)) {
+        return INVALID_FD;
+    }
+    int32_t fd = open(fileRealPath.c_str(), O_RDONLY);
     if (fd < 0) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "open uri failed, maybe its not a legal file path %{public}s",
-            uri.c_str());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "open file failed, maybe its not a legal file path %{public}s",
+            fileRealPath.c_str());
     }
     return fd;
 }
