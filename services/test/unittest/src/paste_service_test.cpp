@@ -30,7 +30,6 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
-
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -979,5 +978,20 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
     EXPECT_TRUE(imageInfo.size.height == opts.size.height);
     EXPECT_TRUE(imageInfo.size.width == opts.size.width);
     EXPECT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+}
+
+/**
+* @tc.name: GetPastedataFail001
+* @tc.desc: get paste data fail - SetValue()
+* @tc.type: FUNC
+* @tc.require: issuesI5WPTM
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
+{
+    PasteboardClient::GetInstance()->Clear();
+    PasteData data;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(data);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_ERROR));
 }
 } // namespace OHOS::MiscServices
