@@ -326,7 +326,7 @@ PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callba
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get RemoveRecord object failed");
         return nullptr;
     }
-    NAPI_CALL(env, napi_get_value_int64(env, argv[0], &index));
+    NAPI_CALL(env, napi_get_value_uint32(env, argv[0], &index));
     return obj;
 }
 
