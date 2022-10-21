@@ -25,6 +25,7 @@ bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealP
         return false;
     }
     outRealPath = std::string(realPath);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "file path:%{public}s", outRealPath.c_str());
     return true;
 }
 bool UriHandler::IsFile(const std::string &uri) const
