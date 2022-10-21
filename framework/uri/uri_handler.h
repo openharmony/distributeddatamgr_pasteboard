@@ -30,6 +30,9 @@ public:
 protected:
     static constexpr int32_t INVALID_FD = -1;
     std::string uri_;
+
+private:
+    static bool GetRealPath(const std::string &inOriPath, std::string &outRealPath);
 };
 } // namespace OHOS::MiscServices
 #endif // DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H
