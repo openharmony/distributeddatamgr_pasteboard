@@ -677,9 +677,9 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ReplaceRecord object failed");
         return nullptr;
     }
-    int64_t index = 0;
-    NAPI_CALL(env, napi_get_value_int64(env, argv[0], &index));
-    if (!CheckExpression(env, index >= ARGC_TYPE_SET0 && index < obj->value_->GetRecordCount(),
+    uint32_t index = 0;
+    NAPI_CALL(env, napi_get_value_uint32(env, argv[0], &index));
+    if (!CheckExpression(env, index < obj->value_->GetRecordCount(),
         JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
