@@ -11,12 +11,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
-
-group("fuzztest") {
-  testonly = true
-
-  deps = [ "pasteboardservice_fuzzer:fuzztest",
-           "pasteboardclient_fuzzer:fuzztest",
-  ]
-}
+FUZZ
