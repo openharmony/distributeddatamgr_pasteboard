@@ -64,7 +64,7 @@ private:
     static napi_value GetProperty(napi_env env, napi_callback_info info);
     static napi_value GetRecordAt(napi_env env, napi_callback_info info);
     static napi_value GetRecord(napi_env env, napi_callback_info info);
-    static PasteDataNapi *RemoveAndGetRecordCommon(napi_env env, napi_callback_info info, int64_t &index);
+    static PasteDataNapi *RemoveAndGetRecordCommon(napi_env env, napi_callback_info info, uint32_t &index);
     static std::shared_ptr<MiscServices::PasteDataRecord> ParseRecord(napi_env env, napi_value &recordNapi);
     static bool SetStringProp(napi_env env, const std::string &propName, napi_value &propValueNapi,
         MiscServices::PasteDataRecord::Builder &builder);
