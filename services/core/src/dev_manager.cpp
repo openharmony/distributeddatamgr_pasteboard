@@ -23,8 +23,6 @@
 namespace OHOS {
 namespace MiscServices {
 constexpr const char *PKG_NAME = "pasteboard_service";
-constexpr const int32_t DM_OK = 0;
-constexpr const int32_t DELAY_TIME = 200;
 using namespace OHOS::DistributedHardware;
 
 class PasteboardDevStateCallback : public DistributedHardware::DeviceStateCallback {
