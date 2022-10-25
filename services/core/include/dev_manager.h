@@ -27,7 +27,7 @@ class DevManager {
 public:
     static DevManager &GetInstance();
     std::vector<std::string> GetDeviceIds();
-    int32_t Init();
+    void Init();
     void Online(const std::string &deviceId);
     void Offline(const std::string &deviceId);
     void UnregisterDevCallback();
@@ -36,7 +36,6 @@ private:
     using Function = bool (*)();
     DevManager();
     ~DevManager() = default;
-    void RetryInBlocking(Function func) const;
 };
 } // namespace MiscServices
 } // namespace OHOS
