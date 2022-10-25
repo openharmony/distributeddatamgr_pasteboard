@@ -41,7 +41,7 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
     uint32_t code = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
-    std::string str(reinterpret_cast<const char*>(rawData), size);
+    std::string str(reinterpret_cast<const char *>(rawData), size);
     switch (code) {
         case 0:
             pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(str);
@@ -62,7 +62,7 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
 
     PasteData pasteData2;
     pasteData2.Decode(buffer);
-    pasteData2.HasMimeType(std::string((const char*)rawData, size));
+    pasteData2.HasMimeType(std::string(reinterpret_cast<const char *>(rawData), size));
     pasteData2.RemoveRecordAt(code);
     pasteData2.ReplaceRecordAt(code, pasteDataRecord);
 }
