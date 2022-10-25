@@ -63,7 +63,8 @@ PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
-    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] = &PasteboardService::DevManagerInit;
+    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
+        &PasteboardService::DevManagerInit;
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
     ServiceListenerFunc_[static_cast<int32_t>(WINDOW_MANAGER_SERVICE_ID)] = &PasteboardService::RegisterFocusListener;
 }
@@ -150,8 +151,9 @@ void PasteboardService::AddSysAbilityListener()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin.");
     for (int32_t i = 0; i < sizeof(LISTENING_SERVICE); i++) {
-        auto ret = AddSystemAbilityListener( LISTENING_SERVICE[i]);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret = %{public}d, serviceId = %{public}d.", ret, LISTENING_SERVICE[i]);
+        auto ret = AddSystemAbilityListener(LISTENING_SERVICE[i]);
+        PASTEBOARD_HILOGD(
+            PASTEBOARD_MODULE_SERVICE, "ret = %{public}d, serviceId = %{public}d.", ret, LISTENING_SERVICE[i]);
     }
 }
 

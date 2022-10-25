@@ -82,7 +82,8 @@ void DevManager::Init()
     auto errNo = DeviceManager::GetInstance().InitDeviceManager(PKG_NAME, initCallback);
     auto stateCallback = std::make_shared<PasteboardDevStateCallback>();
     auto registerErrNo = DeviceManager::GetInstance().RegisterDevStateCallback(PKG_NAME, "", stateCallback);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "initRet = %{public}d, registerRet = %{public}d.", errNo, registerErrNo);
+    PASTEBOARD_HILOGD(
+        PASTEBOARD_MODULE_SERVICE, "initRet = %{public}d, registerRet = %{public}d.", errNo, registerErrNo);
 }
 
 DevManager &DevManager::GetInstance()
