@@ -61,7 +61,7 @@ napi_value CreateNapiNumber(napi_env env, int32_t num)
     return value;
 }
 
-napi_value CreateNapiString(napi_env env, std::string str)
+napi_value CreateNapiString(napi_env env, const std::string &str)
 {
     napi_value value = nullptr;
     napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &value);
