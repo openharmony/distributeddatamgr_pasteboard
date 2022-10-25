@@ -119,7 +119,7 @@ public:
         }
         return expectSize;
     }
-    static inline size_t Count(std::vector<uint8_t> &value)
+    static inline size_t Count(const std::vector<uint8_t> &value)
     {
         size_t expectSize = sizeof(TLVHead);
         expectSize += value.size();

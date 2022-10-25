@@ -55,7 +55,6 @@ void ParaHandle::WatchEnabledStatus(ParameterChgPtr ptr) const
 std::string ParaHandle::GetEnabledStatus() const
 {
     char value[CONFIG_LEN] = { 0 };
-    std::string enabledStatus;
     auto errNo = GetParameter(DISTRIBUTED_PASTEBOARD_ENABLED, "", value, CONFIG_LEN);
     if (errNo > HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetParameter success, value = %{public}s.", value);

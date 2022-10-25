@@ -56,11 +56,6 @@ void to_json(nlohmann::json& j, const PasteDataRecord& r)
 
 void from_json(const nlohmann::json& j, PasteDataRecord& r)
 {
-    std::string mimeType = j.at("mime_type");
-    std::shared_ptr<std::string> htmlText = j.at("html_text");
-    std::shared_ptr<std::string> plainText = j.at("plain_text");
-    std::shared_ptr<OHOS::Uri> uri = std::make_shared<OHOS::Uri>(j.at("uri"));
-
     auto wantJson = j.at("want");
     OHOS::AAFwk::Want want;
 }
