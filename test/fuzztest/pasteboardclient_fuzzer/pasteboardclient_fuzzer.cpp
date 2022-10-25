@@ -24,6 +24,7 @@ using namespace OHOS::MiscServices;
 namespace OHOS {
 constexpr size_t THRESHOLD = 10;
 constexpr int32_t OFFSET = 4;
+
 uint32_t ConvertToUint32(const uint8_t *ptr)
 {
     if (ptr == nullptr) {
