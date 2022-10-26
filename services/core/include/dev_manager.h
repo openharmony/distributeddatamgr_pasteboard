@@ -36,6 +36,7 @@ private:
     using Function = bool (*)();
     DevManager();
     ~DevManager() = default;
+    void RetryInBlocking(Function func) const;
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -23,6 +23,8 @@
 namespace OHOS {
 namespace MiscServices {
 constexpr const char *PKG_NAME = "pasteboard_service";
+constexpr int32_t DM_OK = 0;
+constexpr const int32_t DELAY_TIME = 200;
 using namespace OHOS::DistributedHardware;
 
 class PasteboardDevStateCallback : public DistributedHardware::DeviceStateCallback {
@@ -78,12 +80,18 @@ void DevManager::UnregisterDevCallback()
 void DevManager::Init()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
-    auto initCallback = std::make_shared<PasteboardDmInitCallback>();
-    auto errNo = DeviceManager::GetInstance().InitDeviceManager(PKG_NAME, initCallback);
-    auto stateCallback = std::make_shared<PasteboardDevStateCallback>();
-    auto registerErrNo = DeviceManager::GetInstance().RegisterDevStateCallback(PKG_NAME, "", stateCallback);
-    PASTEBOARD_HILOGD(
-        PASTEBOARD_MODULE_SERVICE, "initRet = %{public}d, registerRet = %{public}d.", errNo, registerErrNo);
+    RetryInBlocking([]() -> bool {
+        auto initCallback = std::make_shared<PasteboardDmInitCallback>();
+        int32_t errNo = DeviceManager::GetInstance().InitDeviceManager(PKG_NAME, initCallback);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "InitDeviceManager ret %{public}d", errNo);
+        return errNo == DM_OK;
+    });
+    RetryInBlocking([]() -> bool {
+        auto stateCallback = std::make_shared<PasteboardDevStateCallback>();
+        auto errNo = DeviceManager::GetInstance().RegisterDevStateCallback(PKG_NAME, "", stateCallback);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "RegisterDevStateCallback ret %{public}d", errNo);
+        return errNo == DM_OK;
+    });
 }
 
 DevManager &DevManager::GetInstance()
@@ -105,7 +113,19 @@ void DevManager::Offline(const std::string &deviceId)
     DevProfile::GetInstance().UnSubscribeProfileEvent(deviceId);
     DistributedModuleConfig::Notify();
 }
-
+void DevManager::RetryInBlocking(DevManager::Function func) const
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry start");
+    constexpr int32_t RETRY_TIMES = 300;
+    for (int32_t i = 0; i < RETRY_TIMES; ++i) {
+        if (func()) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry result: %{public}d times", i);
+            return;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_TIME));
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry failed");
+}
 std::vector<std::string> DevManager::GetDeviceIds()
 {
     std::vector<DmDeviceInfo> devices;
