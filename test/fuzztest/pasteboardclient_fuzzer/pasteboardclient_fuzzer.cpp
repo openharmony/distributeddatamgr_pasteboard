@@ -23,7 +23,10 @@ using namespace OHOS::MiscServices;
 
 namespace OHOS {
 constexpr size_t THRESHOLD = 10;
-constexpr int32_t OFFSET = 4;
+constexpr size_t OFFSET = 4;
+constexpr size_t RANDNUM_ZERO = 0;
+constexpr size_t RANDNUM_ONE = 1;
+constexpr size_t RANDNUM_TWO = 2;
 
 uint32_t ConvertToUint32(const uint8_t *ptr)
 {
@@ -43,15 +46,15 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
     size = size - OFFSET;
     std::string str(reinterpret_cast<const char *>(rawData), size);
     switch (code) {
-        case 0:
+        case RANDNUM_ZERO:
             pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(str);
             pasteDataRecord = PasteboardClient::GetInstance()->CreatePlainTextRecord(str);
             break;
-        case 1:
+        case RANDNUM_ONE:
             pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
             pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
             break;
-        case 2:
+        case RANDNUM_TWO:
             pasteData = PasteboardClient::GetInstance()->CreateUriData(Uri(str));
             pasteDataRecord = PasteboardClient::GetInstance()->CreateUriRecord(Uri(str));
             break;
