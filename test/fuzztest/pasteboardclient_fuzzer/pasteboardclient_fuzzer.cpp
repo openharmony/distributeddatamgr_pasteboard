@@ -26,7 +26,6 @@ constexpr size_t THRESHOLD = 10;
 constexpr size_t OFFSET = 4;
 constexpr size_t RANDNUM_ZERO = 0;
 constexpr size_t RANDNUM_ONE = 1;
-constexpr size_t RANDNUM_TWO = 2;
 
 uint32_t ConvertToUint32(const uint8_t *ptr)
 {
@@ -54,7 +53,7 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
             pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
             pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
             break;
-        case RANDNUM_TWO:
+        default:
             pasteData = PasteboardClient::GetInstance()->CreateUriData(Uri(str));
             pasteDataRecord = PasteboardClient::GetInstance()->CreateUriRecord(Uri(str));
             break;
