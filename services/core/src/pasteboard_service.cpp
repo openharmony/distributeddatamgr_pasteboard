@@ -150,7 +150,7 @@ void PasteboardService::OnStop()
 void PasteboardService::AddSysAbilityListener()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin.");
-    for (int32_t i = 0; i < sizeof(LISTENING_SERVICE) / sizeof(LISTENING_SERVICE[0]); i++) {
+    for (uint32_t i = 0; i < sizeof(LISTENING_SERVICE) / sizeof(LISTENING_SERVICE[0]); i++) {
         auto ret = AddSystemAbilityListener(LISTENING_SERVICE[i]);
         PASTEBOARD_HILOGD(
             PASTEBOARD_MODULE_SERVICE, "ret = %{public}d, serviceId = %{public}d.", ret, LISTENING_SERVICE[i]);
@@ -180,13 +180,13 @@ void PasteboardService::RegisterFocusListener()
 
 void PasteboardService::DevManagerInit()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     DevManager::GetInstance().Init();
 }
 
 void PasteboardService::DevProfileInit()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     ParaHandle::GetInstance().Init();
     DevProfile::GetInstance().Init();
 }
