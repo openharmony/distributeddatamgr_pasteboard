@@ -198,18 +198,6 @@ void PasteboardService::InitServiceHandler()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "InitServiceHandler Succeeded.");
 }
 
-void PasteboardService::InitStorage()
-{
-    if (pasteboardStorage_ == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Init storage handler.");
-    }
-
-    if (pasteboardStorage_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Init storage handler failed.");
-        return;
-    }
-}
-
 void PasteboardService::Clear()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
