@@ -19,9 +19,6 @@
 namespace OHOS {
 namespace MiscServices {
 constexpr int32_t HANDLE_OK = 0;
-const char *ParaHandle::DEFAULT_VALUE = "true";
-const char *ParaHandle::DISTRIBUTED_PASTEBOARD_ENABLED = "persist.sys.distributedPasteboardEnabled";
-
 ParaHandle::ParaHandle()
 {
 }
@@ -40,13 +37,13 @@ void ParaHandle::Init()
         return;
     }
 
-    auto errNo = SetParameter(DISTRIBUTED_PASTEBOARD_ENABLED, DEFAULT_VALUE);
+    auto errNo = SetParameter(DISTRIBUTED_PASTEBOARD_ENABLED_KEY, DISTRIBUTED_PASTEBOARD_ENABLED_DEFAULT_VALUE);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetParameter, errNo = %{public}d.", errNo);
 }
 
 void ParaHandle::WatchEnabledStatus(ParameterChgPtr ptr) const
 {
-    auto errNo = WatchParameter(DISTRIBUTED_PASTEBOARD_ENABLED, ptr, nullptr);
+    auto errNo = WatchParameter(DISTRIBUTED_PASTEBOARD_ENABLED_KEY, ptr, nullptr);
     if (errNo != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "local device param watch failed, %{public}d", errNo);
     }
@@ -56,7 +53,7 @@ std::string ParaHandle::GetEnabledStatus() const
 {
     char value[CONFIG_LEN] = { 0 };
     std::string enabledStatus;
-    auto errNo = GetParameter(DISTRIBUTED_PASTEBOARD_ENABLED, "", value, CONFIG_LEN);
+    auto errNo = GetParameter(DISTRIBUTED_PASTEBOARD_ENABLED_KEY, "", value, CONFIG_LEN);
     if (errNo > HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetParameter success, value = %{public}s.", value);
         return value;
