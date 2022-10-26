@@ -107,10 +107,7 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
         return;
     }
 
-    enabledStatus = "false";
-    if (jsonObject[CHARACTER_ID] == SUPPORT) {
-        enabledStatus = "true";
-    }
+    enabledStatus = jsonObject[PROFILE_CONTENT_KEY];
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
 }
 
