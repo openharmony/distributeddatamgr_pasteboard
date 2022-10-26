@@ -65,7 +65,7 @@ void DevProfile::Init()
 
 void DevProfile::ParameterChange(const char *key, const char *value, void *context)
 {
-    auto enabledKey = ParaHandle::DISTRIBUTED_PASTEBOARD_ENABLED;
+    auto enabledKey = ParaHandle::DISTRIBUTED_PASTEBOARD_ENABLED_KEY;
     if (strncmp(key, enabledKey, strlen(enabledKey)) != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "key is error.");
         return;
@@ -107,7 +107,10 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
         return;
     }
 
-    enabledStatus = jsonObject[PROFILE_CONTENT_KEY];
+    enabledStatus = "false";
+    if (jsonObject[CHARACTER_ID] == SUPPORT) {
+        enabledStatus = "true";
+    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
 }
 
