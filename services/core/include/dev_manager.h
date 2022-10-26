@@ -27,7 +27,7 @@ class DevManager {
 public:
     static DevManager &GetInstance();
     std::vector<std::string> GetDeviceIds();
-    void Init();
+    int32_t Init();
     void Online(const std::string &deviceId);
     void Offline(const std::string &deviceId);
     void UnregisterDevCallback();

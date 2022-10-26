@@ -77,7 +77,7 @@ void DevManager::UnregisterDevCallback()
     DevProfile::GetInstance().UnsubscribeAllProfileEvents();
 }
 
-void DevManager::Init()
+int32_t DevManager::Init()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
     RetryInBlocking([]() -> bool {
@@ -92,6 +92,7 @@ void DevManager::Init()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "RegisterDevStateCallback ret %{public}d", errNo);
         return errNo == DM_OK;
     });
+    return DM_OK;
 }
 
 DevManager &DevManager::GetInstance()
