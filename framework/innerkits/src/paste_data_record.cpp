@@ -148,6 +148,14 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
 {
 }
 
+PasteDataRecord::~PasteDataRecord()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "close uriFd_: %{public}d", uriFd_);
+    if (uriFd_ > 0) {
+        close(uriFd_);
+    }
+}
+
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
 {
     return this->htmlText_;
@@ -519,8 +527,11 @@ RawMem PasteDataRecord::PixelMap2Raw(const std::shared_ptr<PixelMap> &pixelMap)
     return rawMem;
 }
 
-bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
+bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, PasteType type)
 {
+    if (type == PasteType::PASTE_ACROSS_APP && uriFd_ > 0) {
+        return parcel.WriteFileDescriptor(uriFd_);
+    }
     std::string tempUri = GetPassUri();
     if (tempUri.empty()) {
         return false;
@@ -531,10 +542,15 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
     uriHandler.ReleaseFd(fd);
     return ret;
 }
-bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
+bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler, bool isPaste)
 {
-    int32_t fd = parcel.ReadFileDescriptor();
-    convertUri_ = uriHandler.ToUri(fd);
+    if (isPaste) {
+        int32_t fd = parcel.ReadFileDescriptor();
+        convertUri_ = uriHandler.ToUri(fd);
+    } else {
+        uriFd_ = parcel.ReadFileDescriptor();
+        convertUri_ = uriHandler.ToUri(uriFd_);
+    }
     return true;
 }
 bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
