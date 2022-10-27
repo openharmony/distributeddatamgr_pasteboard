@@ -37,7 +37,6 @@
 #include "pasteboard_dialog.h"
 #include "pasteboard_trace.h"
 #include "reporter.h"
-#include "system_ability_definition.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
@@ -49,10 +48,8 @@ using namespace std::chrono;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
-constexpr const int32_t RETRY_TIMES = 10;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
-const std::string DEFAULT_IME_BUNDLE_NAME = "com.example.kikakeyboard";
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
 using namespace Security::AccessToken;
@@ -66,6 +63,10 @@ PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
+    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
+        &PasteboardService::DevManagerInit;
+    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
+    ServiceListenerFunc_[static_cast<int32_t>(WINDOW_MANAGER_SERVICE_ID)] = &PasteboardService::RegisterFocusListener;
 }
 
 PasteboardService::~PasteboardService()
@@ -99,10 +100,6 @@ void PasteboardService::OnStart()
     loader.LoadComponents();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
     DistributedModuleConfig::Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
-
-    DevManager::GetInstance().Init();
-    ParaHandle::GetInstance().Init();
-    DevProfile::GetInstance().Init();
 
     AddSysAbilityListener();
 
@@ -153,26 +150,22 @@ void PasteboardService::OnStop()
 void PasteboardService::AddSysAbilityListener()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin.");
-    uint32_t times = 0;
-    AddWmsSysAbilityListener(times);
-}
-
-void PasteboardService::AddWmsSysAbilityListener(uint32_t times)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin, times = %{public}d!.", times);
-    times++;
-    auto ret = AddSystemAbilityListener(WINDOW_MANAGER_SERVICE_ID);
-    if (!ret && times <= RETRY_TIMES) {
-        auto callback = [this, times]() { AddWmsSysAbilityListener(times); };
-        serviceHandler_->PostTask(callback, INIT_INTERVAL);
+    for (uint32_t i = 0; i < sizeof(LISTENING_SERVICE) / sizeof(LISTENING_SERVICE[0]); i++) {
+        auto ret = AddSystemAbilityListener(LISTENING_SERVICE[i]);
+        PASTEBOARD_HILOGD(
+            PASTEBOARD_MODULE_SERVICE, "ret = %{public}d, serviceId = %{public}d.", ret, LISTENING_SERVICE[i]);
     }
 }
 
 void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "systemAbilityId = %{public}d added!", systemAbilityId);
-    if (systemAbilityId == WINDOW_MANAGER_SERVICE_ID) {
-        RegisterFocusListener();
+    auto itFunc = ServiceListenerFunc_.find(systemAbilityId);
+    if (itFunc != ServiceListenerFunc_.end()) {
+        auto ServiceListenerFunc = itFunc->second;
+        if (ServiceListenerFunc != nullptr) {
+            (this->*ServiceListenerFunc)();
+        }
     }
 }
 
@@ -183,6 +176,19 @@ void PasteboardService::RegisterFocusListener()
         focusChangedListener_ = new PasteboardService::PasteboardFocusChangedListener();
     }
     Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusChangedListener_);
+}
+
+void PasteboardService::DevManagerInit()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
+    DevManager::GetInstance().Init();
+}
+
+void PasteboardService::DevProfileInit()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
+    ParaHandle::GetInstance().Init();
+    DevProfile::GetInstance().Init();
 }
 
 void PasteboardService::InitServiceHandler()

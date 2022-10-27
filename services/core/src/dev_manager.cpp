@@ -25,7 +25,6 @@ namespace MiscServices {
 constexpr const char *PKG_NAME = "pasteboard_service";
 constexpr int32_t DM_OK = 0;
 constexpr const int32_t DELAY_TIME = 200;
-constexpr const char *EMPTY_STR = "";
 using namespace OHOS::DistributedHardware;
 
 class PasteboardDevStateCallback : public DistributedHardware::DeviceStateCallback {
@@ -89,7 +88,7 @@ int32_t DevManager::Init()
     });
     RetryInBlocking([]() -> bool {
         auto stateCallback = std::make_shared<PasteboardDevStateCallback>();
-        auto errNo = DeviceManager::GetInstance().RegisterDevStateCallback(PKG_NAME, EMPTY_STR, stateCallback);
+        auto errNo = DeviceManager::GetInstance().RegisterDevStateCallback(PKG_NAME, "", stateCallback);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "RegisterDevStateCallback ret %{public}d", errNo);
         return errNo == DM_OK;
     });
