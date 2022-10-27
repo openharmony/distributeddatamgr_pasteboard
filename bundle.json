@@ -55,7 +55,8 @@
             "service_group": [
                 "//foundation/distributeddatamgr/pasteboard/etc/init:pasteboardservice.cfg",
                 "//foundation/distributeddatamgr/pasteboard/profile:distributeddatamgr_pasteboard_sa_profiles",
-                "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service"
+                "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service",
+                "//foundation/distributeddatamgr/pasteboard/services/etc:pasteboard.para.dac"
             ]
         },
         "inner_kits": [

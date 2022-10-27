@@ -16,6 +16,9 @@
 #ifndef PASTE_BOARD_SERVICE_H
 #define PASTE_BOARD_SERVICE_H
 
+#include <sys/time.h>
+#include <system_ability_definition.h>
+
 #include <atomic>
 #include <condition_variable>
 #include <ctime>
@@ -24,7 +27,6 @@
 #include <mutex>
 #include <set>
 #include <stack>
-#include <sys/time.h>
 #include <thread>
 
 #include "clip/clip_plugin.h"
@@ -85,6 +87,9 @@ public:
 
 private:
     using Event = ClipPlugin::GlobalEvent;
+    using ServiceListenerFunc = void (PasteboardService::*)();
+    static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
+        DISTRIBUTED_DEVICE_PROFILE_SA_ID, WINDOW_MANAGER_SERVICE_ID };
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     struct classcomp {
@@ -94,7 +99,6 @@ private:
         }
     };
     void AddSysAbilityListener();
-    void AddWmsSysAbilityListener(uint32_t times);
     int32_t Init();
     int32_t GetUserIdByToken(uint32_t tokenId);
     std::string DumpHistory() const;
@@ -126,7 +130,8 @@ private:
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void RegisterFocusListener();
-
+    void DevManagerInit();
+    void DevProfileInit();
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::mutex clipMutex_;
@@ -149,6 +154,7 @@ private:
     std::atomic<bool> setting_ = false;
     std::mutex deviceMutex_;
     std::string fromDevice_;
+    std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
 };
 } // MiscServices
 } // OHOS

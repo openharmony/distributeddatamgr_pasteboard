@@ -23,17 +23,17 @@ namespace OHOS {
 namespace MiscServices {
 class ParaHandle {
 public:
+    static constexpr const char *DISTRIBUTED_PASTEBOARD_ENABLED_KEY = "persist.pasteboard.distributedPasteboardEnabled";
     static ParaHandle &GetInstance();
     std::string GetEnabledStatus() const;
     void Init();
     void WatchEnabledStatus(ParameterChgPtr ptr) const;
-    static const char *DISTRIBUTED_PASTEBOARD_ENABLED;
 
 private:
+    static constexpr const char *DISTRIBUTED_PASTEBOARD_ENABLED_DEFAULT_VALUE = "true";
+    static constexpr int CONFIG_LEN = 10;
     ParaHandle();
     virtual ~ParaHandle() = default;
-    static const char *DEFAULT_VALUE;
-    static constexpr int CONFIG_LEN = 10;
 };
 } // namespace MiscServices
 } // namespace OHOS
