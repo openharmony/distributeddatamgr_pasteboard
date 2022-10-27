@@ -36,7 +36,6 @@
 #include "paste_data.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
-#include "pasteboard_storage.h"
 #include "system_ability.h"
 #include "window_manager.h"
 
@@ -106,7 +105,6 @@ private:
     std::string DumpData();
     void NotifyObservers();
     void InitServiceHandler();
-    void InitStorage();
     bool IsCopyable(uint32_t tokenId) const;
 
     void SetPasteDataDot(PasteData &pasteData);
@@ -136,7 +134,6 @@ private:
     void DevProfileInit();
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
-    std::shared_ptr<IPasteboardStorage> pasteboardStorage_ = nullptr;
     std::mutex clipMutex_;
     std::mutex observerMutex_;
     std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>> observerMap_;

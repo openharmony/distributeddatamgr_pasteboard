@@ -308,7 +308,7 @@ napi_value PasteDataNapi::HasType(napi_env env, napi_callback_info info)
     return HasMimeType(env, info);
 }
 
-PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callback_info info, int64_t &index)
+PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callback_info info, uint32_t &index)
 {
     size_t argc = 1;
     napi_value argv[1] = {0};
@@ -326,14 +326,14 @@ PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callba
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get RemoveRecord object failed");
         return nullptr;
     }
-    NAPI_CALL(env, napi_get_value_int64(env, argv[0], &index));
+    NAPI_CALL(env, napi_get_value_uint32(env, argv[0], &index));
     return obj;
 }
 
 napi_value PasteDataNapi::RemoveRecordAt(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecordAt is called!");
-    int64_t index = 0;
+    uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr) {
         return nullptr;
@@ -347,10 +347,10 @@ napi_value PasteDataNapi::RemoveRecordAt(napi_env env, napi_callback_info info)
 napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecord is called!");
-    int64_t index = 0;
+    uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr
-        || !CheckExpression(env, index >= ARGC_TYPE_SET0 && index < obj->value_->GetRecordCount(),
+        || !CheckExpression(env, index < obj->value_->GetRecordCount(),
             JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
@@ -677,9 +677,9 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ReplaceRecord object failed");
         return nullptr;
     }
-    int64_t index = 0;
-    NAPI_CALL(env, napi_get_value_int64(env, argv[0], &index));
-    if (!CheckExpression(env, index >= ARGC_TYPE_SET0 && index < obj->value_->GetRecordCount(),
+    uint32_t index = 0;
+    NAPI_CALL(env, napi_get_value_uint32(env, argv[0], &index));
+    if (!CheckExpression(env, index < obj->value_->GetRecordCount(),
         JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
@@ -813,7 +813,7 @@ napi_value PasteDataNapi::GetProperty(napi_env env, napi_callback_info info)
 napi_value PasteDataNapi::GetRecordAt(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecordAt is called!");
-    int64_t index = 0;
+    uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr) {
         return nullptr;
@@ -828,10 +828,10 @@ napi_value PasteDataNapi::GetRecordAt(napi_env env, napi_callback_info info)
 napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecord is called!");
-    int64_t index = 0;
+    uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr
-        || !CheckExpression(env, index >= ARGC_TYPE_SET0 && index < obj->value_->GetRecordCount(),
+        || !CheckExpression(env, index < obj->value_->GetRecordCount(),
             JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
