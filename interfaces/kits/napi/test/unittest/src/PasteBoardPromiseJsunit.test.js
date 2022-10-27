@@ -1707,7 +1707,7 @@ describe('PasteBoardJSTest', function () {
                             expect(data.getRecordAt(0).mimeType).assertEqual("x".repeat(1024))
                             expect(data.getPrimaryWant().bundleName).assertEqual(wantText.bundleName)
                             expect(data.getRecordAt(253).htmlText).assertEqual(htmlText)
-                            expect(data.getRecordAt(512).plainText).assertEqual(plainText)
+                            expect(data.getRecordAt(511).plainText).assertEqual(plainText)
                             done();
                         })
                     })
