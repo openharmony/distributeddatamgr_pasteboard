@@ -148,6 +148,11 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
 {
 }
 
+PasteDataRecord::PasteDataRecord()
+{
+    fd_ = std::make_shared<FileDescriptor>();
+}
+
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
 {
     return this->htmlText_;
@@ -519,22 +524,34 @@ RawMem PasteDataRecord::PixelMap2Raw(const std::shared_ptr<PixelMap> &pixelMap)
     return rawMem;
 }
 
-bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
+bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, PasteType type)
 {
+    if (type == PasteType::PASTE_ACROSS_APP && fd_->GetFd() >= 0) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write fd_, fd_ is %{public}d", fd_->GetFd());
+        return parcel.WriteFileDescriptor(fd_->GetFd());
+    }
     std::string tempUri = GetPassUri();
     if (tempUri.empty()) {
         return false;
     }
-
-    int32_t fd = uriHandler.ToFd(tempUri);
-    bool ret = parcel.WriteFileDescriptor(fd);
-    uriHandler.ReleaseFd(fd);
+    bool ret = true;
+    if (uriHandler.IsFile(tempUri)) {
+        int32_t fd = uriHandler.ToFd(tempUri);
+        ret = parcel.WriteFileDescriptor(fd);
+        uriHandler.ReleaseFd(fd);
+    }
     return ret;
 }
-bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
+bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler, bool isPaste)
 {
     int32_t fd = parcel.ReadFileDescriptor();
-    convertUri_ = uriHandler.ToUri(fd);
+    if (fd >= 0) {
+        convertUri_ = uriHandler.ToUri(fd);
+    }
+    if ((!isPaste) && (fd_ != nullptr)) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Set fd, fd is %{public}d", fd);
+        fd_->SetFd(fd);
+    }
     return true;
 }
 bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
@@ -544,7 +561,7 @@ bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
     if (tempUri.empty()) {
         return false;
     }
-    if (!uriHandler.IsFile(tempUri)) {
+    if (!uriHandler.IsFile(tempUri) && fd_->GetFd() < 0) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid file uri");
         return false;
     }
@@ -580,6 +597,21 @@ void PasteDataRecord::ReplaceShareUri(int32_t userId)
 void PasteDataRecord::SetConvertUri(const std::string &value)
 {
     convertUri_ = value;
+}
+FileDescriptor::~FileDescriptor()
+{
+    if (fd_ >= 0) {
+        close(fd_);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "close fd_: %{public}d", fd_);
+    }
+}
+void FileDescriptor::SetFd(int32_t fd)
+{
+    fd_ = fd;
+}
+int32_t FileDescriptor::GetFd()
+{
+    return fd_;
 }
 } // namespace MiscServices
 } // namespace OHOS

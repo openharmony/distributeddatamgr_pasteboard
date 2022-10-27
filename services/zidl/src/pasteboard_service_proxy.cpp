@@ -151,7 +151,7 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
         return ERR_INVALID_VALUE;
     }
     CopyUriHandler copyHandler;
-    if (!pasteData.WriteUriFd(data, copyHandler)) {
+    if (!pasteData.WriteUriFd(data, copyHandler, PasteType::PASTE_ACROSS_DEVICE)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return ERR_INVALID_VALUE;
     }
@@ -196,7 +196,7 @@ int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
         return ERR_INVALID_VALUE;
     }
     PasteUriHandler pasteHandler;
-    if (!pasteData.ReadUriFd(reply, pasteHandler)) {
+    if (!pasteData.ReadUriFd(reply, pasteHandler, true)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return ERR_INVALID_VALUE;
     }
