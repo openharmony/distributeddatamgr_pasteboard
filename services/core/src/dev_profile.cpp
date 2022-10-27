@@ -65,7 +65,7 @@ void DevProfile::Init()
 
 void DevProfile::ParameterChange(const char *key, const char *value, void *context)
 {
-    auto enabledKey = ParaHandle::DISTRIBUTED_PASTEBOARD_ENABLED;
+    auto enabledKey = ParaHandle::DISTRIBUTED_PASTEBOARD_ENABLED_KEY;
     if (strncmp(key, enabledKey, strlen(enabledKey)) != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "key is error.");
         return;
