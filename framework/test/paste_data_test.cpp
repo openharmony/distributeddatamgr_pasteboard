@@ -23,6 +23,7 @@ using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
+constexpr const int32_t INVALID_FD = -1;
 constexpr const char *FILE_URI = "/data/test/resource/pasteboardTest.txt";
 class PasteDataTest : public testing::Test {
 public:
@@ -128,6 +129,36 @@ HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
     auto convertedUri = data.GetPrimaryUri()->ToString();
     EXPECT_EQ(distributedUri, convertedUri);
     EXPECT_FALSE(uriStr == convertedUri);
+}
+
+/**
+* @tc.name: GetRealPathFailed001
+* @tc.desc: GetRealPath Failed(realpath(inOriPath.c_str(), realPath) == nullptr)
+* @tc.type: FUNC
+* @tc.require: issuesI5Y6PO
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, GetRealPathFailed001, TestSize.Level0)
+{
+    std::string uriStr = "/data/storage/100/haps/caches/xxx.txt";
+    PasteUriHandler pasteHandler;
+    auto ret = pasteHandler.ToFd(uriStr);
+    EXPECT_EQ(ret, INVALID_FD);
+}
+
+/**
+* @tc.name: GetRealPathFailed002
+* @tc.desc: GetRealPath Failed(inOriPath.size() > PATH_MAX)
+* @tc.type: FUNC
+* @tc.require: issuesI5Y6PO
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteDataTest, GetRealPathFailed002, TestSize.Level0)
+{
+    std::string uriStr(PATH_MAX + 2, '*');
+    PasteUriHandler pasteHandler;
+    auto ret = pasteHandler.ToFd(uriStr);
+    EXPECT_EQ(ret, INVALID_FD);
 }
 
 /**
