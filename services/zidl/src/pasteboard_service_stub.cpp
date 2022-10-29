@@ -88,18 +88,8 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write raw data");
         return ERR_INVALID_VALUE;
     }
-    DataType type = DataType::IN_SAME_APP;
     PasteUriHandler pasteUriHandler;
-    if (pasteData.IsLocalPaste()) {
-        type = DataType::IN_SAME_APP;
-    } else {
-        if (pasteData.GetProperty().isRemote) {
-            type = DataType::ACROSS_DEVICE;
-        } else {
-            type = DataType::ACROSS_APP;
-        }
-    }
-    if (!pasteData.WriteUriFd(reply, pasteUriHandler, type)) {
+    if (!pasteData.WriteUriFd(reply, pasteUriHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
         return ERR_INVALID_VALUE;
     }
@@ -140,7 +130,7 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
     CopyUriHandler copyUriHandler;
-    if (!pasteData.ReadUriFd(data, copyUriHandler, false)) {
+    if (!pasteData.ReadUriFd(data, copyUriHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
         return ERR_INVALID_VALUE;
     }

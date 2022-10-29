@@ -524,9 +524,9 @@ RawMem PasteDataRecord::PixelMap2Raw(const std::shared_ptr<PixelMap> &pixelMap)
     return rawMem;
 }
 
-bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, DataType type)
+bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, PasteType type)
 {
-    if (type == DataType::ACROSS_APP && fd_->GetFd() >= 0) {
+    if (type == PasteType::PASTE_ACROSS_APP && fd_->GetFd() >= 0) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write fd_, fd_ is %{public}d", fd_->GetFd());
         return parcel.WriteFileDescriptor(fd_->GetFd());
     }
@@ -542,13 +542,13 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, Dat
     }
     return ret;
 }
-bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler, bool isPaste)
+bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
     int32_t fd = parcel.ReadFileDescriptor();
     if (fd >= 0) {
         convertUri_ = uriHandler.ToUri(fd);
     }
-    if ((!isPaste) && (fd_ != nullptr)) {
+    if (!uriHandler.IsPaste()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Set fd, fd is %{public}d", fd);
         fd_->SetFd(fd);
     }

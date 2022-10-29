@@ -97,12 +97,13 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, DataType type);
-    bool ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool isPaste);
+    bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler);
+    bool ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler);
     void ReplaceShareUri(int32_t userId);
 
     bool IsValid() const;
     void SetInvalid();
+    PasteType GetPasteType() const;
 private:
     bool MarshallingProps(Parcel &parcel) const;
     static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);

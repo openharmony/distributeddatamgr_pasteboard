@@ -82,8 +82,8 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
 
     data.AddRecord(record);
     MessageParcel parcel;
-    data.WriteUriFd(parcel, mock, DataType::ACROSS_DEVICE);
-    bool result = data.ReadUriFd(parcel, mock, true);
+    data.WriteUriFd(parcel, mock);
+    bool result = data.ReadUriFd(parcel, mock);
     EXPECT_TRUE(result);
     EXPECT_EQ(mockUri, data.GetPrimaryUri()->ToString());
     data.ReplaceShareUri(200);
@@ -109,8 +109,8 @@ HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
 
     MessageParcel parcel;
     CopyUriHandler copyHandler;
-    data.WriteUriFd(parcel, copyHandler, DataType::ACROSS_DEVICE);
-    bool result = data.ReadUriFd(parcel, copyHandler, false);
+    data.WriteUriFd(parcel, copyHandler);
+    bool result = data.ReadUriFd(parcel, copyHandler);
     EXPECT_TRUE(result);
     auto distributedUri = data.GetPrimaryUri()->ToString();
     EXPECT_FALSE(uriStr == distributedUri);
@@ -121,8 +121,8 @@ HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
     pasteHandler.ToUri(fd);
 
     data.SetLocalPasteFlag(true);
-    data.WriteUriFd(parcel1, pasteHandler, DataType::IN_SAME_APP);
-    result = data.ReadUriFd(parcel1, pasteHandler, true);
+    data.WriteUriFd(parcel1, pasteHandler);
+    result = data.ReadUriFd(parcel1, pasteHandler);
     EXPECT_TRUE(result);
     ASSERT_TRUE(data.GetPrimaryUri() != nullptr);
     auto convertedUri = data.GetPrimaryUri()->ToString();

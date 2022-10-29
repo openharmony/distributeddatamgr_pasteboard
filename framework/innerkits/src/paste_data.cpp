@@ -552,7 +552,7 @@ size_t PasteDataProperty::Count()
     return expectedSize;
 }
 
-bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, DataType type)
+bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
     std::vector<uint32_t> uriIndexList;
     for (size_t i = 0; i < GetRecordCount(); ++i) {
@@ -576,14 +576,14 @@ bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, DataTy
     }
     for (auto index : uriIndexList) {
         auto record = GetRecordAt(index);
-        if (record == nullptr || !record->WriteFd(parcel, uriHandler, type)) {
+        if (record == nullptr || !record->WriteFd(parcel, uriHandler, GetPasteType())) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write fd");
             return false;
         }
     }
     return true;
 }
-bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool isPaste)
+bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
     std::vector<uint32_t> fdRecordMap;
     if (!parcel.ReadUInt32Vector(&fdRecordMap)) {
@@ -592,7 +592,7 @@ bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool is
     }
     for (auto index : fdRecordMap) {
         auto record = GetRecordAt(index);
-        if (record == nullptr || !record->ReadFd(parcel, uriHandler, isPaste)) {
+        if (record == nullptr || !record->ReadFd(parcel, uriHandler)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read fd");
             return false;
         }
@@ -609,6 +609,17 @@ void PasteData::ReplaceShareUri(int32_t userId)
         }
         record->ReplaceShareUri(userId);
     }
+}
+PasteType PasteData::GetPasteType() const
+{
+    if (IsLocalPaste()) {
+        return PasteType::PASTE_IN_APP;
+    } else {
+        if (props_.isRemote) {
+            return PasteType::PASTE_ACROSS_DEVICE;
+        }
+    }
+    return PasteType::PASTE_ACROSS_APP;
 }
 } // namespace MiscServices
 } // namespace OHOS

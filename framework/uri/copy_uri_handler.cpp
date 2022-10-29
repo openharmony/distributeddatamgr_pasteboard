@@ -23,6 +23,10 @@
 #include "remote_file_share.h"
 namespace OHOS::MiscServices {
 using namespace OHOS::AppFileService::ModuleRemoteFileShare;
+CopyUriHandler::CopyUriHandler()
+{
+    isPaste_ = false;
+}
 std::string CopyUriHandler::ToUri(int32_t fd)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin, fd:%{public}d", fd);
