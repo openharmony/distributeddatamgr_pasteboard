@@ -29,7 +29,8 @@ class PasteboardServiceStub : public IRemoteStub<IPasteboardService> {
 public:
     PasteboardServiceStub();
     ~PasteboardServiceStub();
-    int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    API_EXPORT int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
+        MessageOption &option) override;
 
 private:
     using PasteboardServiceFunc = int32_t (PasteboardServiceStub::*)(MessageParcel &data, MessageParcel &reply);

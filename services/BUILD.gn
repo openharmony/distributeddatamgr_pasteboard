@@ -34,7 +34,12 @@ config("pasteboard_service_config") {
     "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
   ]
-
+  ldflags = [ "-Wl,--exclude-libs=ALL" ]
+  cflags = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fvisibility=hidden",
+  ]
   cflags_cc = []
   if (os_dlp_part_enabled) {
     cflags_cc += [ "-DWITH_DLP" ]
@@ -45,8 +50,6 @@ ohos_shared_library("pasteboard_service") {
   sources = [
     "${pasteboard_innerkits_path}/src/paste_data.cpp",
     "${pasteboard_innerkits_path}/src/paste_data_record.cpp",
-    "${pasteboard_utils_path}/mock/src/mock_permission.cpp",
-    "${pasteboard_utils_path}/native/src/pasteboard_permission.cpp",
     "account/src/account_manager.cpp",
     "core/src/dev_manager.cpp",
     "core/src/dev_profile.cpp",
@@ -73,18 +76,15 @@ ohos_shared_library("pasteboard_service") {
     ":pasteboard_service_config",
   ]
   deps = [
-    "//foundation/arkui/ace_engine/interfaces/inner_api/ui_service_manager:ui_service_mgr",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_manager",
-    "ability_runtime:abilitykit_native",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -100,10 +100,10 @@ ohos_shared_library("pasteboard_service") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
   ]
   if (os_dlp_part_enabled) {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
