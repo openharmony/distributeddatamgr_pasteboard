@@ -576,7 +576,7 @@ bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler)
     }
     for (auto index : uriIndexList) {
         auto record = GetRecordAt(index);
-        if (record == nullptr || !record->WriteFd(parcel, uriHandler, GetPasteType())) {
+        if (record == nullptr || !record->WriteFd(parcel, uriHandler)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write fd");
             return false;
         }
@@ -609,17 +609,6 @@ void PasteData::ReplaceShareUri(int32_t userId)
         }
         record->ReplaceShareUri(userId);
     }
-}
-PasteType PasteData::GetPasteType() const
-{
-    if (IsLocalPaste()) {
-        return PasteType::PASTE_IN_APP;
-    } else {
-        if (props_.isRemote) {
-            return PasteType::PASTE_ACROSS_DEVICE;
-        }
-    }
-    return PasteType::PASTE_ACROSS_APP;
 }
 } // namespace MiscServices
 } // namespace OHOS

@@ -103,7 +103,6 @@ public:
 
     bool IsValid() const;
     void SetInvalid();
-    PasteType GetPasteType() const;
 private:
     bool MarshallingProps(Parcel &parcel) const;
     static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);
