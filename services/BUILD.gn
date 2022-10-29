@@ -34,7 +34,12 @@ config("pasteboard_service_config") {
     "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
   ]
-
+  ldflags = [ "-Wl,--exclude-libs=ALL" ]
+  cflags = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fvisibility=hidden",
+  ]
   cflags_cc = []
   if (os_dlp_part_enabled) {
     cflags_cc += [ "-DWITH_DLP" ]
@@ -71,7 +76,6 @@ ohos_shared_library("pasteboard_service") {
     ":pasteboard_service_config",
   ]
   deps = [
-    "//foundation/arkui/ace_engine/interfaces/inner_api/ui_service_manager:ui_service_mgr",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
