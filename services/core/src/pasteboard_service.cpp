@@ -41,7 +41,7 @@
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
-#include "bundle_mgr_proxy.h"
+#include "bundle_mgr_interface.h"
 
 namespace OHOS {
 namespace MiscServices {

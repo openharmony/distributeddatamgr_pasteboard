@@ -24,7 +24,6 @@
       "ram":"1024KB",
       "deps": {
         "components": [
-          "jsoncpp",
           "hisysevent_native",
           "napi",
           "samgr",
@@ -39,7 +38,6 @@
           "c_utils"
         ],
         "third_party": [
-          "jsoncpp"
         ]
         },
       "build": {
