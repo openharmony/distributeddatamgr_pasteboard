@@ -18,6 +18,7 @@
 namespace OHOS::MiscServices {
 class CopyUriHandler : public UriHandler {
 public:
+    CopyUriHandler();
     std::string ToUri(int32_t fd) override;
 };
 } // namespace OHOS::MiscServices

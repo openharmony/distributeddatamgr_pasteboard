@@ -1660,8 +1660,8 @@ describe('PasteBoardJSTest', function () {
             });
         });
     })
-    
-    
+
+
     /**
      * @tc.name      pasteboard_function_test52
      * @tc.desc      支持512个record

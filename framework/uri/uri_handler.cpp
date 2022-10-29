@@ -15,7 +15,6 @@
 #include "uri_handler.h"
 
 #include "pasteboard_hilog.h"
-
 namespace OHOS::MiscServices {
 bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealPath)
 {
@@ -28,6 +27,7 @@ bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealP
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "file path:%{public}s", outRealPath.c_str());
     return true;
 }
+
 bool UriHandler::IsFile(const std::string &uri) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri.c_str());
@@ -56,11 +56,16 @@ int32_t UriHandler::ToFd(const std::string &uri)
     }
     return fd;
 }
+
 void UriHandler::ReleaseFd(int32_t fd)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "close fd: %{public}d", fd);
     if (fd >= 0) {
         close(fd);
     }
+}
+bool UriHandler::IsPaste() const
+{
+    return isPaste_;
 }
 } // namespace OHOS::MiscServices
