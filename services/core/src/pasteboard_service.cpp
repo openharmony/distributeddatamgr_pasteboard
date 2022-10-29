@@ -16,6 +16,7 @@
 
 #include <unistd.h>
 
+#include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
@@ -57,7 +58,6 @@ std::mutex PasteboardService::historyMutex_;
 std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
-int32_t PasteboardService::focusApp_ = 0;
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
@@ -66,7 +66,6 @@ PasteboardService::PasteboardService()
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
         &PasteboardService::DevManagerInit;
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
-    ServiceListenerFunc_[static_cast<int32_t>(WINDOW_MANAGER_SERVICE_ID)] = &PasteboardService::RegisterFocusListener;
 }
 
 PasteboardService::~PasteboardService()
@@ -143,7 +142,6 @@ void PasteboardService::OnStop()
     ParaHandle::GetInstance().WatchEnabledStatus(nullptr);
     DevManager::GetInstance().UnregisterDevCallback();
 
-    Rosen::WindowManager::GetInstance().UnregisterFocusChangedListener(focusChangedListener_);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }
 
@@ -167,15 +165,6 @@ void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::s
             (this->*ServiceListenerFunc)();
         }
     }
-}
-
-void PasteboardService::RegisterFocusListener()
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin.");
-    if (focusChangedListener_ == nullptr) {
-        focusChangedListener_ = new PasteboardService::PasteboardFocusChangedListener();
-    }
-    Rosen::WindowManager::GetInstance().RegisterFocusChangedListener(focusChangedListener_);
 }
 
 void PasteboardService::DevManagerInit()
@@ -220,18 +209,6 @@ void PasteboardService::Clear()
     CleanDistributedData(userId);
 }
 
-void PasteboardService::PasteboardFocusChangedListener::OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnFocused.");
-    focusApp_ = focusChangeInfo->pid_;
-}
-
-void PasteboardService::PasteboardFocusChangedListener::OnUnfocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnUnfocused.");
-    focusApp_ = 0;
-}
-
 bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start.");
@@ -242,10 +219,18 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     return property != nullptr && property->name == appInfo.bundleName;
 }
 
-bool PasteboardService::IsFocusedApp(int32_t pid)
+bool PasteboardService::IsFocusedApp(int32_t tokenId)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid = %{public}d, focusApp = %{public}d.", pid, focusApp_);
-    return pid == focusApp_;
+    using namespace OHOS::AAFwk;
+    AppInfo appInfo = GetAppInfo(tokenId);
+    if (appInfo.bundleName.empty()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get bundle name by token failed");
+        return false;
+    }
+    auto elementName = AbilityManagerClient::GetInstance()->GetTopAbility();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " Top app:%{public}s, caller app:%{public}s",
+        elementName.GetBundleName().c_str(), appInfo.bundleName.c_str());
+    return elementName.GetBundleName() == appInfo.bundleName;
 }
 
 bool PasteboardService::HasPastePermission(uint32_t tokenId, bool isFocusedApp,
@@ -324,7 +309,6 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 int32_t PasteboardService::GetPasteData(PasteData &data)
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto pid = IPCSkeleton::GetCallingPid();
     if (pasting_.exchange(true)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is passing.");
         return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);
@@ -335,7 +319,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     SetDeviceName();
     PasteboardTrace tracer("PasteboardService GetPasteData");
 
-    bool isFocusedApp = IsFocusedApp(pid);
+    bool isFocusedApp = IsFocusedApp(tokenId);
     auto block =  std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
     std::thread thread([this, block, tokenId, isFocusedApp]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
@@ -411,7 +395,6 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, bool isF
 bool PasteboardService::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto pid = IPCSkeleton::GetCallingPid();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto userId = GetUserIdByToken(tokenId);
     if (userId == ERROR_USERID) {
@@ -423,7 +406,7 @@ bool PasteboardService::HasPasteData()
         return HasDistributedData(userId);
     }
 
-    return HasPastePermission(tokenId, IsFocusedApp(pid), it->second);
+    return HasPastePermission(tokenId, IsFocusedApp(tokenId), it->second);
 }
 
 int32_t PasteboardService::SetPasteData(PasteData &pasteData)

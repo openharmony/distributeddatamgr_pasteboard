@@ -37,7 +37,6 @@
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
 #include "system_ability.h"
-#include "window_manager.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -64,8 +63,8 @@ class PasteboardService final : public SystemAbility, public PasteboardServiceSt
     DECLARE_SYSTEM_ABILITY(PasteboardService)
 
 public:
-    PasteboardService();
-    ~PasteboardService();
+    API_EXPORT PasteboardService();
+    API_EXPORT ~PasteboardService();
     virtual void Clear() override;
     virtual int32_t GetPasteData(PasteData& data) override;
     virtual bool HasPasteData() override;
@@ -78,12 +77,6 @@ public:
     size_t GetDataSize(PasteData& data) const;
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
-
-    class PasteboardFocusChangedListener : public Rosen::IFocusChangedListener {
-    public:
-        void OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
-        void OnUnfocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
-    };
 
 private:
     using Event = ClipPlugin::GlobalEvent;
@@ -126,10 +119,9 @@ private:
     static bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static bool IsDefaultIME(const AppInfo &appInfo);
-    static bool IsFocusedApp(int32_t pid);
+    static bool IsFocusedApp(int32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    void RegisterFocusListener();
     void DevManagerInit();
     void DevProfileInit();
     ServiceRunningState state_;
@@ -140,12 +132,10 @@ private:
     ClipPlugin::GlobalEvent currentEvent_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
-    sptr<Rosen::IFocusChangedListener> focusChangedListener_;
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint32_t> sequenceId_ = 0;
-    static int32_t focusApp_;
     static std::mutex historyMutex_;
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
