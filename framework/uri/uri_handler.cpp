@@ -64,4 +64,8 @@ void UriHandler::ReleaseFd(int32_t fd)
         close(fd);
     }
 }
+bool UriHandler::IsPaste() const
+{
+    return isPaste_;
+}
 } // namespace OHOS::MiscServices

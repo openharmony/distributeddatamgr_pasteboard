@@ -17,6 +17,10 @@
 #include "pasteboard_hilog.h"
 #include "remote_uri.h"
 namespace OHOS::MiscServices {
+PasteUriHandler::PasteUriHandler()
+{
+    isPaste_ = true;
+}
 std::string PasteUriHandler::ToUri(int32_t fd)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "begin");

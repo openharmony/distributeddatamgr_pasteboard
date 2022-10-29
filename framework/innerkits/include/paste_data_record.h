@@ -55,9 +55,20 @@ private:
     std::map<std::string, std::vector<uint8_t>> itemData_;
 };
 
+class FileDescriptor {
+public:
+    FileDescriptor() = default;
+    ~FileDescriptor();
+    void SetFd(int32_t fd);
+    int32_t GetFd() const;
+
+private:
+    int32_t fd_ = -1;
+};
+
 class PasteDataRecord : public Parcelable, public TLVObject {
 public:
-    PasteDataRecord() = default;
+    PasteDataRecord();
     PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
         std::shared_ptr<OHOS::AAFwk::Want> want, std::shared_ptr<std::string> plainText,
         std::shared_ptr<OHOS::Uri> uri);
@@ -129,6 +140,7 @@ private:
     std::string convertUri_;
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
+    std::shared_ptr<FileDescriptor> fd_;
 };
 } // namespace MiscServices
 } // namespace OHOS
