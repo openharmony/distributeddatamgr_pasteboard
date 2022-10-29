@@ -540,6 +540,7 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
         ret = parcel.WriteFileDescriptor(fd);
         uriHandler.ReleaseFd(fd);
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ret is %{public}d", ret);
     return ret;
 }
 bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
@@ -547,6 +548,7 @@ bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
     int32_t fd = parcel.ReadFileDescriptor();
     if (fd >= 0) {
         convertUri_ = uriHandler.ToUri(fd);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "convertUri_:%{public}s", convertUri_.c_str());
     }
     if (!uriHandler.IsPaste()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Set fd, fd is %{public}d", fd);

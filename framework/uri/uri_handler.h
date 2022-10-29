@@ -31,7 +31,7 @@ public:
 protected:
     static constexpr int32_t INVALID_FD = -1;
     std::string uri_;
-    bool isPaste_ = true;
+    bool isPaste_ = false;
 
 private:
     static bool GetRealPath(const std::string &inOriPath, std::string &outRealPath);
