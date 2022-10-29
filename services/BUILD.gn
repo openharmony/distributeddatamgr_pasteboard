@@ -104,7 +104,6 @@ ohos_shared_library("pasteboard_service") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
   ]
   if (os_dlp_part_enabled) {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
