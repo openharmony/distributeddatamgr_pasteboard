@@ -39,7 +39,7 @@ const std::string MIMETYPE_TEXT_WANT = "text/want";
 } // namespace
 
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
-enum PasteType : int32_t { PASTE_IN_SAME_APP, PASTE_ACROSS_APP, PASTE_ACROSS_DEVICE };
+enum DataType : int32_t { IN_SAME_APP, ACROSS_APP, ACROSS_DEVICE };
 
 class MineCustomData : public Parcelable, public TLVObject {
 public:
@@ -97,7 +97,7 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteFd(MessageParcel &parcel, UriHandler &uriHandler, PasteType type);
+    bool WriteFd(MessageParcel &parcel, UriHandler &uriHandler, DataType type);
     bool ReadFd(MessageParcel &parcel, UriHandler &uriHandler, bool isPaste);
     bool NeedFd(const UriHandler &uriHandler);
     void ReplaceShareUri(int32_t userId);

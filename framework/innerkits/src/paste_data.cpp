@@ -552,7 +552,7 @@ size_t PasteDataProperty::Count()
     return expectedSize;
 }
 
-bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, PasteType type)
+bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, DataType type)
 {
     std::vector<uint32_t> uriIndexList;
     for (size_t i = 0; i < GetRecordCount(); ++i) {

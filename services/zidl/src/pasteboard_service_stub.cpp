@@ -88,15 +88,15 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write raw data");
         return ERR_INVALID_VALUE;
     }
-    PasteType type = PasteType::PASTE_IN_SAME_APP;
+    DataType type = DataType::IN_SAME_APP;
     PasteUriHandler pasteUriHandler;
     if (pasteData.IsLocalPaste()) {
-        type = PasteType::PASTE_IN_SAME_APP;
+        type = DataType::IN_SAME_APP;
     } else {
         if (pasteData.GetProperty().isRemote) {
-            type = PasteType::PASTE_ACROSS_DEVICE;
+            type = DataType::ACROSS_DEVICE;
         } else {
-            type = PasteType::PASTE_ACROSS_APP;
+            type = DataType::ACROSS_APP;
         }
     }
     if (!pasteData.WriteUriFd(reply, pasteUriHandler, type)) {
