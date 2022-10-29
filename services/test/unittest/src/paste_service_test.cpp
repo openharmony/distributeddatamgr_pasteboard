@@ -30,7 +30,6 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
-
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
