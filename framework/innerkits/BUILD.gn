@@ -43,7 +43,8 @@ ohos_shared_library("pasteboard_client") {
   deps = [
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
-    "//third_party/jsoncpp:jsoncpp",
+
+    #    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
