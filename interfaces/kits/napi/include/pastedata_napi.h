@@ -71,11 +71,10 @@ private:
     static napi_value SetProperty(napi_env env, napi_callback_info info);
     static void SetProperty(napi_env env, napi_value in, PasteDataNapi *obj);
     static bool IsProperty(napi_env env, napi_value in);
-    static bool SetNapiProperty(
-        napi_env env, const MiscServices::PasteDataProperty &property, napi_value &nProperty);
+    static bool SetNapiProperty(napi_env env, const MiscServices::PasteDataProperty &property, napi_value &nProperty);
     napi_env env_;
     napi_ref wrapper_;
 };
-} // MiscServicesNapi
-} // OHOS
+} // namespace MiscServicesNapi
+} // namespace OHOS
 #endif

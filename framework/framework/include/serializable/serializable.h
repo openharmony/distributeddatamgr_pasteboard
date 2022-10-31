@@ -34,8 +34,7 @@ public:
     using size_type = nlohmann::json::size_type;
     using error_handler_t = nlohmann::detail::error_handler_t;
     API_EXPORT json Marshall() const;
-    template<typename T>
-    static std::string Marshall(T &values)
+    template<typename T> static std::string Marshall(T &values)
     {
         json root;
         SetValue(root, values);
@@ -43,8 +42,7 @@ public:
     }
 
     API_EXPORT bool Unmarshall(const std::string &jsonStr);
-    template<typename T>
-    static bool Unmarshall(const std::string &body, T &values)
+    template<typename T> static bool Unmarshall(const std::string &body, T &values)
     {
         return GetValue(ToJson(body), "", values);
     }
@@ -69,8 +67,7 @@ public:
 protected:
     API_EXPORT ~Serializable() = default;
 
-    template<typename T>
-    static bool GetValue(const json &node, const std::string &name, T *&value)
+    template<typename T> static bool GetValue(const json &node, const std::string &name, T *&value)
     {
         auto &subNode = GetSubNode(node, name);
         if (subNode.is_null()) {
@@ -87,8 +84,7 @@ protected:
         }
         return result;
     }
-    template<typename T>
-    static bool GetValue(const json &node, const std::string &name, std::vector<T> &values)
+    template<typename T> static bool GetValue(const json &node, const std::string &name, std::vector<T> &values)
     {
         auto &subNode = GetSubNode(node, name);
         if (subNode.is_null() || !subNode.is_array()) {
@@ -102,8 +98,7 @@ protected:
         return result;
     }
 
-    template<typename T>
-    static bool SetValue(json &node, const std::vector<T> &values)
+    template<typename T> static bool SetValue(json &node, const std::vector<T> &values)
     {
         bool result = true;
         size_type i = 0;
@@ -117,6 +112,6 @@ protected:
 
     API_EXPORT static const json &GetSubNode(const json &node, const std::string &name);
 };
-} // namespace MiscServices
+} // namespace DistributedData
 } // namespace OHOS
 #endif // OHOS_DISTRIBUTED_SERIALIZABLE_SERIALIZABLE_H

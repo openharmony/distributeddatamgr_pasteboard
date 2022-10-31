@@ -19,13 +19,11 @@
 #include <iservice_registry.h>
 
 #include "hitrace_meter.h"
-
+#include "pasteboard_client.h"
+#include "pasteboard_error.h"
 #include "pasteboard_observer.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#include "pasteboard_observer.h"
-#include "pasteboard_error.h"
-#include "pasteboard_client.h"
 
 using namespace OHOS::Media;
 
@@ -34,7 +32,7 @@ namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 std::mutex PasteboardClient::instanceLock_;
-PasteboardClient::PasteboardClient() {};
+PasteboardClient::PasteboardClient(){};
 PasteboardClient::~PasteboardClient()
 {
     if (pasteboardServiceProxy_ != nullptr) {
@@ -76,7 +74,7 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateUriRecord(const OHOS::U
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateKvRecord(
-    const std::string &mimeType, const std::vector<uint8_t>& arrayBuffer)
+    const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New kv record");
     return PasteDataRecord::NewKvRecord(mimeType, arrayBuffer);
@@ -148,7 +146,7 @@ void PasteboardClient::Clear()
     return;
 }
 
-int32_t PasteboardClient::GetPasteData(PasteData& pasteData)
+int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
@@ -261,7 +259,7 @@ void PasteboardClient::ConnectService()
 {
     std::lock_guard<std::mutex> lock(instanceLock_);
     if (pasteboardServiceProxy_ != nullptr) {
-        return ;
+        return;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -289,7 +287,7 @@ void PasteboardClient::ConnectService()
     pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
     if (pasteboardServiceProxy_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Get PasteboardServiceProxy from SA failed.");
-        return ;
+        return;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
 }
@@ -309,5 +307,5 @@ void PasteboardSaDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "PasteboardSaDeathRecipient on remote systemAbility died.");
     PasteboardClient::GetInstance()->OnRemoteSaDied(object);
 }
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS

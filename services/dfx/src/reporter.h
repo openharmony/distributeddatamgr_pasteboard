@@ -32,6 +32,6 @@ public:
 
     BehaviourReporter &PasteboardBehaviour();
 };
-}  // namespace MiscServices
-}  // namespace OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // MISCSERVICES_PASTEBOARD_REPORTER_H

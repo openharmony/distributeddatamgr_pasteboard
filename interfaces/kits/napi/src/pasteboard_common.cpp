@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 #include "pasteboard_common.h"
-#include "pasteboard_js_err.h"
-#include "pasteboard_hilog.h"
-#include "pixel_map_napi.h"
-#include "paste_data_record.h"
+
 #include "napi_common.h"
+#include "paste_data_record.h"
+#include "pasteboard_hilog.h"
+#include "pasteboard_js_err.h"
+#include "pixel_map_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {

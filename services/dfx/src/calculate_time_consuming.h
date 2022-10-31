@@ -41,11 +41,12 @@ public:
     CalculateTimeConsuming(const size_t calPasteboardData, const int calPasteboardState);
     ~CalculateTimeConsuming();
     static void SetBeginTime();
+
 private:
     static uint64_t GetCurrentTimeMicros();
     int CalculateTime(uint64_t time);
     int CalculateData(size_t calPasteboardData) const;
-    
+
     int pasteboardData_;
     int pasteboardState_;
     static uint64_t lastTime_;

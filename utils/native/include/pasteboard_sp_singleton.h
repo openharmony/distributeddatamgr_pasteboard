@@ -16,9 +16,11 @@
 #ifndef PASTEBOARD_SP_SINGLETON_H
 #define PASTEBOARD_SP_SINGLETON_H
 
-#include <mutex>
-#include <memory>
 #include <refbase.h>
+
+#include <memory>
+#include <mutex>
+
 #include "nocopyable.h"
 
 namespace OHOS {
@@ -31,8 +33,7 @@ private:                                      \
     friend DelayedSpSingleton<MyClass>;       \
     MyClass();
 
-template<typename T>
-class DelayedSpSingleton : public NoCopyable {
+template<typename T> class DelayedSpSingleton : public NoCopyable {
 public:
     static sptr<T> GetInstance();
     static void DestroyInstance();
@@ -42,14 +43,11 @@ private:
     static std::mutex mutex_;
 };
 
-template<typename T>
-sptr<T> DelayedSpSingleton<T>::instance_ = nullptr;
+template<typename T> sptr<T> DelayedSpSingleton<T>::instance_ = nullptr;
 
-template<typename T>
-std::mutex DelayedSpSingleton<T>::mutex_;
+template<typename T> std::mutex DelayedSpSingleton<T>::mutex_;
 
-template<typename T>
-sptr<T> DelayedSpSingleton<T>::GetInstance()
+template<typename T> sptr<T> DelayedSpSingleton<T>::GetInstance()
 {
     if (!instance_) {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -61,8 +59,7 @@ sptr<T> DelayedSpSingleton<T>::GetInstance()
     return instance_;
 }
 
-template<typename T>
-void DelayedSpSingleton<T>::DestroyInstance()
+template<typename T> void DelayedSpSingleton<T>::DestroyInstance()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (instance_) {

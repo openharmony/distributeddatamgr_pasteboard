@@ -29,5 +29,5 @@ void PasteboardObserver::OnPasteboardChanged()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "call back.");
 }
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS

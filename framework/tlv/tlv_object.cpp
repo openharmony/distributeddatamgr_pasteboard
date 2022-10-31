@@ -79,8 +79,8 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Ra
     tlvHead->len = HostToNet((uint32_t)value.bufferLen);
     return true;
 }
-bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type,
-    std::map<std::string, std::vector<uint8_t>> &value)
+bool TLVObject::Write(
+    std::vector<std::uint8_t> &buffer, uint16_t type, std::map<std::string, std::vector<uint8_t>> &value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
@@ -198,8 +198,8 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<u
     cursor_ += head.len;
     return true;
 }
-bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value,
-    const TLVHead &head)
+bool TLVObject::ReadValue(
+    const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value, const TLVHead &head)
 {
     auto mapEnd = cursor_ + head.len;
     for (; cursor_ < mapEnd;) {

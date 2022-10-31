@@ -17,6 +17,7 @@
 #define OHOS_PASTEBOARD_SERVICES_DEVICE_DM_ADAPTER_H
 #include <mutex>
 #include <string>
+
 #include "api/visibility.h"
 #include "common/concurrent_map.h"
 namespace OHOS::MiscServices {

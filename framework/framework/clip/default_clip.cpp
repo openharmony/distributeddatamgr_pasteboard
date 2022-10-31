@@ -32,4 +32,4 @@ std::vector<DefaultClip::GlobalEvent> DefaultClip::GetTopEvents(uint32_t topN, i
 void DefaultClip::Clear(int32_t user)
 {
 }
-}
+} // namespace OHOS::MiscServices

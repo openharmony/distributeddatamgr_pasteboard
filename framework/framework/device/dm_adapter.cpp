@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "device/dm_adapter.h"
+
 #include "device_manager.h"
 #include "device_manager_callback.h"
 #include "dm_device_info.h"
@@ -46,7 +47,9 @@ private:
     std::function<void(const DmDeviceInfo &)> online_;
 };
 
-class DmDeath : public DmInitCallback, public std::enable_shared_from_this<DmDeath> {
+class DmDeath
+    : public DmInitCallback
+    , public std::enable_shared_from_this<DmDeath> {
 public:
     DmDeath(std::shared_ptr<DmStateObserver> observer, std::string pkgName)
         : observer_(observer), pkgName_(std::move(pkgName))
@@ -65,7 +68,6 @@ private:
 
 DMAdapter::DMAdapter()
 {
-
 }
 
 DMAdapter::~DMAdapter()

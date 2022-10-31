@@ -15,13 +15,13 @@
 
 #include "pasteboard_service_stub.h"
 
+#include "copy_uri_handler.h"
 #include "errors.h"
 #include "paste_data.h"
+#include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_proxy.h"
-#include "paste_uri_handler.h"
-#include "copy_uri_handler.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -36,8 +36,8 @@ PasteboardServiceStub::PasteboardServiceStub()
     memberFuncMap_[static_cast<uint32_t>(DELETE_ALL_OBSERVER)] = &PasteboardServiceStub::OnRemoveAllChangedObserver;
 }
 
-int32_t PasteboardServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    MessageOption &option)
+int32_t PasteboardServiceStub::OnRemoteRequest(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start##code = %{public}u", code);
     std::u16string myDescripter = PasteboardServiceStub::GetDescriptor();
@@ -48,8 +48,8 @@ int32_t PasteboardServiceStub::OnRemoteRequest(uint32_t code, MessageParcel &dat
     }
     pid_t p = IPCSkeleton::GetCallingPid();
     pid_t p1 = IPCSkeleton::GetCallingUid();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u",
-        p, p1, code);
+    PASTEBOARD_HILOGI(
+        PASTEBOARD_MODULE_SERVICE, "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u", p, p1, code);
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;

@@ -33,11 +33,13 @@ public:
     explicit PasteboardSaDeathRecipient();
     ~PasteboardSaDeathRecipient() = default;
     void OnRemoteDied(const wptr<IRemoteObject> &object) override;
+
 private:
     DISALLOW_COPY_AND_MOVE(PasteboardSaDeathRecipient);
 };
-class PasteboardClient : public DelayedSingleton<PasteboardClient>  {
+class PasteboardClient : public DelayedSingleton<PasteboardClient> {
     DECLARE_DELAYED_SINGLETON(PasteboardClient);
+
 public:
     DISALLOW_COPY_AND_MOVE(PasteboardClient);
 
@@ -145,7 +147,7 @@ public:
      * @descrition
      * @return bool.
      */
-    int32_t GetPasteData(PasteData& pasteData);
+    int32_t GetPasteData(PasteData &pasteData);
 
     /**
      * HasPasteData
@@ -167,7 +169,7 @@ public:
      * @param pasteData .
      * @return void.
      */
-    int32_t SetPasteData(PasteData& pasteData);
+    int32_t SetPasteData(PasteData &pasteData);
 
     /**
      * AddPasteboardChangedObserver
@@ -186,15 +188,16 @@ public:
     void RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback);
 
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
+
 private:
     void ConnectService();
-    static void RetainUri(PasteData &pasteData) ;
+    static void RetainUri(PasteData &pasteData);
 
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
 
-    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_BOARD_CLIENT_H

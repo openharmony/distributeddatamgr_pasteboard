@@ -25,8 +25,8 @@ PasteboardObserverStub::PasteboardObserverStub()
     memberFuncMap_[static_cast<uint32_t>(ON_PASTE_BOARD_CHANGE)] = &PasteboardObserverStub::OnPasteboardChangedStub;
 }
 
-int32_t PasteboardObserverStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
-    MessageOption &option)
+int32_t PasteboardObserverStub::OnRemoteRequest(
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start##code = %{public}u", code);
     std::u16string myDescripter = PasteboardObserverStub::GetDescriptor();
@@ -37,8 +37,8 @@ int32_t PasteboardObserverStub::OnRemoteRequest(uint32_t code, MessageParcel &da
     }
     pid_t p = IPCSkeleton::GetCallingPid();
     pid_t p1 = IPCSkeleton::GetCallingUid();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
-        "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u", p, p1, code);
+    PASTEBOARD_HILOGI(
+        PASTEBOARD_MODULE_SERVICE, "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u", p, p1, code);
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;

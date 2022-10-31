@@ -27,4 +27,3 @@ ReportStatus PasteboardBehaviourReporterImpl::Report(const PasteboardBehaviourMs
 }
 } // namespace MiscServices
 } // namespace OHOS
-

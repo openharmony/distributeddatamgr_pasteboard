@@ -27,4 +27,3 @@ ReportStatus TimeConsumingStatisticImpl::Report(const TimeConsumingStat &stat)
 }
 } // namespace MiscServices
 } // namespace OHOS
-

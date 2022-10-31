@@ -14,6 +14,7 @@
  */
 
 #include "pasteboard_dialog.h"
+
 #include "ability_connect_callback_stub.h"
 #include "iservice_registry.h"
 #include "pasteboard_hilog.h"
@@ -30,16 +31,16 @@ public:
     DialogConnection &operator=(const DialogConnection &) = delete;
     DialogConnection(DialogConnection &&) = delete;
     DialogConnection &operator=(DialogConnection &&) = delete;
-    void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
-        int32_t resultCode) override;
+    void OnAbilityConnectDone(
+        const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int32_t resultCode) override;
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int32_t resultCode) override;
 
 private:
     PasteBoardDialog::Cancel cancel_;
 };
 
-void DialogConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
-    const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
+void DialogConnection::OnAbilityConnectDone(
+    const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int32_t resultCode)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "dialog ability connected");
 }

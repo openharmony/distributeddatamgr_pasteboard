@@ -20,12 +20,13 @@
 
 namespace OHOS {
 namespace MiscServices {
-template<typename T>
-class StatisticReporter {
+template<typename T> class StatisticReporter {
 public:
     virtual ReportStatus Report(const T &stat) = 0;
-    virtual ~StatisticReporter() {}
+    virtual ~StatisticReporter()
+    {
+    }
 };
-}  // namespace MiscServices
-}  // namespace OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // MISCSERVICES_PASTEBOARD_STATISTIC_REPORTER_H

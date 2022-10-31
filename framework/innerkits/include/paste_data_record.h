@@ -19,14 +19,14 @@
 #include <memory>
 #include <string>
 
+#include "message_parcel.h"
 #include "parcel.h"
 #include "pixel_map.h"
 #include "string_ex.h"
 #include "tlv_object.h"
 #include "uri.h"
-#include "want.h"
 #include "uri_handler.h"
-#include "message_parcel.h"
+#include "want.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -40,7 +40,9 @@ const std::string MIMETYPE_TEXT_WANT = "text/want";
 
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
 
-class MineCustomData : public Parcelable, public TLVObject {
+class MineCustomData
+    : public Parcelable
+    , public TLVObject {
 public:
     MineCustomData() = default;
     std::map<std::string, std::vector<uint8_t>> GetItemData();
@@ -66,7 +68,9 @@ private:
     int32_t fd_ = -1;
 };
 
-class PasteDataRecord : public Parcelable, public TLVObject {
+class PasteDataRecord
+    : public Parcelable
+    , public TLVObject {
 public:
     PasteDataRecord();
     PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
@@ -78,8 +82,8 @@ public:
     static std::shared_ptr<PasteDataRecord> NewPlaintTextRecord(const std::string &text);
     static std::shared_ptr<PasteDataRecord> NewPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     static std::shared_ptr<PasteDataRecord> NewUriRecord(const OHOS::Uri &uri);
-    static std::shared_ptr<PasteDataRecord> NewKvRecord(const std::string &mimeType,
-        const std::vector<uint8_t> &arrayBuffer);
+    static std::shared_ptr<PasteDataRecord> NewKvRecord(
+        const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
     std::string GetMimeType() const;
     std::shared_ptr<std::string> GetHtmlText() const;
@@ -121,8 +125,7 @@ public:
 private:
     static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
     static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
-    template<typename T>
-    static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
+    template<typename T> static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
     static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
     inline static bool CheckResult(ResultCode resultCode)
     {

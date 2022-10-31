@@ -17,6 +17,6 @@
 #define OHOS_DISTRIBUTED_API_VISIBILITY_H
 
 #ifndef API_EXPORT
-#define API_EXPORT __attribute__((visibility ("default")))
+#define API_EXPORT __attribute__((visibility("default")))
 #endif
 #endif // OHOS_DISTRIBUTED_API_VISIBILITY_H

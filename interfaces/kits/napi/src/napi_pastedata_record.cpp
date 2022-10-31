@@ -12,14 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "pastedata_record_napi.h"
-#include "pastedata_napi.h"
-#include "pasteboard_common.h"
-#include "napi_common.h"
-#include "pasteboard_hilog.h"
-#include "paste_data_record.h"
 #include "async_call.h"
+#include "napi_common.h"
+#include "paste_data_record.h"
+#include "pasteboard_common.h"
+#include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
+#include "pastedata_napi.h"
+#include "pastedata_record_napi.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
@@ -28,7 +28,7 @@ namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
 const size_t ARGC_TYPE_SET1 = 1;
-constexpr int32_t  MIMETYPE_MAX_SIZE = 1024;
+constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
 PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
 {
@@ -313,22 +313,14 @@ napi_value PasteDataRecordNapi::ConvertToTextV9(napi_env env, napi_callback_info
 
 napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exports)
 {
-    napi_property_descriptor properties[] = {
-        DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
-        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9)
-    };
+    napi_property_descriptor properties[] = { DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
+        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9) };
 
     napi_status status = napi_ok;
 
     napi_value constructor;
-    status = napi_define_class(env,
-        "PasteDataRecord",
-        NAPI_AUTO_LENGTH,
-        New,
-        nullptr,
-        sizeof(properties) / sizeof(napi_property_descriptor),
-        properties,
-        &constructor);
+    status = napi_define_class(env, "PasteDataRecord", NAPI_AUTO_LENGTH, New, nullptr,
+        sizeof(properties) / sizeof(napi_property_descriptor), properties, &constructor);
     if (status != napi_ok) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to define class at PasteDataRecordInit");
         return nullptr;
@@ -352,7 +344,7 @@ void PasteDataRecordNapi::Destructor(napi_env env, void *nativeObject, void *fin
 napi_value PasteDataRecordNapi::New(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
 

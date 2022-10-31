@@ -16,24 +16,20 @@
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_CLIPS_PLUGIN_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_CLIPS_PLUGIN_H
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
+
 #include "api/visibility.h"
 namespace OHOS::MiscServices {
 class API_EXPORT ClipPlugin {
 public:
-    enum EventStatus : uint32_t {
-        EVT_UNKNOWN,
-        EVT_INVALID,
-        EVT_NORMAL,
-        EVT_BUTT
-    };
+    enum EventStatus : uint32_t { EVT_UNKNOWN, EVT_INVALID, EVT_NORMAL, EVT_BUTT };
 
     struct GlobalEvent {
         uint8_t version = 0;
-        uint8_t frameNum  = 0;
-        uint16_t user  = 0;
+        uint8_t frameNum = 0;
+        uint16_t user = 0;
         uint32_t seqId = 0;
         uint64_t expiration = 0;
         uint16_t status = EVT_UNKNOWN;

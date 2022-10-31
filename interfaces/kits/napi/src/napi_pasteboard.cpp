@@ -18,8 +18,8 @@
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "pasteboard_napi.h"
-#include "systempasteboard_napi.h"
 #include "pixel_map_napi.h"
+#include "systempasteboard_napi.h"
 #include "uri.h"
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
@@ -102,7 +102,7 @@ napi_value PasteboardNapi::CreateWantRecord(napi_env env, napi_value in)
 }
 
 // common function of CreateHtmlData, CreatePlainTextData, CreateUriData
-PasteDataNapi* PasteboardNapi::CreateDataCommon(napi_env env, napi_value in, std::string &str, napi_value &instance)
+PasteDataNapi *PasteboardNapi::CreateDataCommon(napi_env env, napi_value in, std::string &str, napi_value &instance)
 {
     bool ret = GetValue(env, in, str);
     if (!ret) {
@@ -123,7 +123,7 @@ napi_value PasteboardNapi::CreateHtmlData(napi_env env, napi_value in)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlData is called!");
     std::string str;
     napi_value instance = nullptr;
-    PasteDataNapi* obj = CreateDataCommon(env, in, str, instance);
+    PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
     if (obj == nullptr) {
         return nullptr;
     }
@@ -444,8 +444,7 @@ napi_value PasteboardNapi::PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createWantData", JScreateWantData),
         DECLARE_NAPI_FUNCTION("createPlainTextData", JScreatePlainTextData),
         DECLARE_NAPI_FUNCTION("createPixelMapData", JScreatePixelMapData),
-        DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData),
-        DECLARE_NAPI_FUNCTION("createData", JSCreateData),
+        DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData), DECLARE_NAPI_FUNCTION("createData", JSCreateData),
         DECLARE_NAPI_FUNCTION("createHtmlTextRecord", JScreateHtmlTextRecord),
         DECLARE_NAPI_FUNCTION("createWantRecord", JScreateWantRecord),
         DECLARE_NAPI_FUNCTION("createPlainTextRecord", JScreatePlainTextRecord),

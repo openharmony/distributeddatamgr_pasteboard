@@ -34,7 +34,8 @@ bool UriHandler::IsFile(const std::string &uri) const
     if (uri.empty()) {
         return false;
     }
-    struct stat fileInfo {};
+    struct stat fileInfo {
+    };
     if (stat(uri.c_str(), &fileInfo) == 0 && (fileInfo.st_mode & S_IFREG)) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "valid uri");
         return true;

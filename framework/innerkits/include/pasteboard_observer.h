@@ -25,6 +25,6 @@ public:
     ~PasteboardObserver();
     void OnPasteboardChanged() override;
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_BOARD_OBSERVER_H

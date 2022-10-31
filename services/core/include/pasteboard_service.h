@@ -41,10 +41,7 @@
 namespace OHOS {
 namespace MiscServices {
 const std::int32_t ERROR_USERID = -1;
-enum class ServiceRunningState {
-    STATE_NOT_START,
-    STATE_RUNNING
-};
+enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 struct AppInfo {
     std::string bundleName = "com.pasteboard.default";
     int32_t tokenType = -1;
@@ -59,22 +56,24 @@ struct HistoryInfo {
     std::string remote;
 };
 
-class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
+class PasteboardService final
+    : public SystemAbility
+    , public PasteboardServiceStub {
     DECLARE_SYSTEM_ABILITY(PasteboardService)
 
 public:
     API_EXPORT PasteboardService();
     API_EXPORT ~PasteboardService();
     virtual void Clear() override;
-    virtual int32_t GetPasteData(PasteData& data) override;
+    virtual int32_t GetPasteData(PasteData &data) override;
     virtual bool HasPasteData() override;
-    virtual int32_t SetPasteData(PasteData& pasteData) override;
-    virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
-    virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
+    virtual int32_t SetPasteData(PasteData &pasteData) override;
+    virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemoveAllChangedObserver() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
-    size_t GetDataSize(PasteData& data) const;
+    size_t GetDataSize(PasteData &data) const;
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
 
@@ -86,7 +85,7 @@ private:
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     struct classcomp {
-        bool operator() (const sptr<IPasteboardChangedObserver>& l, const sptr<IPasteboardChangedObserver>& r) const
+        bool operator()(const sptr<IPasteboardChangedObserver> &l, const sptr<IPasteboardChangedObserver> &r) const
         {
             return l->AsObject() < r->AsObject();
         }
@@ -102,13 +101,13 @@ private:
 
     void SetPasteDataDot(PasteData &pasteData);
     void GetPasteDataDot(PasteData &pasteData, const std::string &pop, uint32_t tokenId);
-    bool GetPasteData(PasteData& data, uint32_t tokenId, bool isFocusedApp);
+    bool GetPasteData(PasteData &data, uint32_t tokenId, bool isFocusedApp);
     std::string GetAppLabel(uint32_t tokenId);
     std::string GetDeviceName();
     void SetDeviceName(const std::string &device = "");
 
     std::shared_ptr<PasteData> GetDistributedData(int32_t user);
-    bool SetDistributedData(int32_t user, PasteData& data);
+    bool SetDistributedData(int32_t user, PasteData &data);
     bool HasDistributedData(int32_t user);
     bool GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, int32_t user, Event &event);
     bool CleanDistributedData(int32_t user);
@@ -146,6 +145,6 @@ private:
     std::string fromDevice_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_BOARD_SERVICE_H
