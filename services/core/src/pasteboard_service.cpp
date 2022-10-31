@@ -245,17 +245,17 @@ bool PasteboardService::HasPastePermission(uint32_t tokenId, bool isFocusedApp,
         return false;
     }
     switch (pasteData->GetShareOption()) {
-        case ShareOption::InApp: {
+        case ShareOption::IN_APP: {
             if (pasteData->GetTokenId() != tokenId) {
                 PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "InApp check failed.");
                 return false;
             }
             break;
         }
-        case ShareOption::LocalDevice: {
+        case ShareOption::LOCAL_DEVICE: {
             break;
         }
-        case ShareOption::CrossDevice: {
+        case ShareOption::CROSS_DEVICE: {
             break;
         }
         default: {
@@ -623,6 +623,19 @@ std::string PasteboardService::DumpHistory() const
     return result;
 }
 
+std::string PasteboardService::ShareOptionToString(ShareOption shareOption)
+{
+    std::string option;
+    if (shareOption == ShareOption::IN_APP) {
+        option = "InAPP";
+    } else if (shareOption == ShareOption::LOCAL_DEVICE) {
+        option = "LocalDevice";
+    } else {
+        option = "CrossDevice";
+    }
+    return option;
+}
+
 std::string PasteboardService::DumpData()
 {
     std::vector<int32_t> ids;
@@ -638,14 +651,7 @@ std::string PasteboardService::DumpData()
     if (it != clips_.end() && it->second != nullptr) {
         size_t recordCounts = it->second->GetRecordCount();
         auto property = it->second->GetProperty();
-        std::string shareOption;
-        if (property.shareOption == 0) {
-            shareOption = "InAPP";
-        } else if (property.shareOption == 1) {
-            shareOption = "LocalDevice";
-        } else {
-            shareOption = "CrossDevice";
-        }
+        auto shareOption = ShareOptionToString(property.shareOption);
         std::string sourceDevice;
         if (property.isRemote) {
             sourceDevice = "remote";

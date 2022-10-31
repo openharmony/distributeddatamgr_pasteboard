@@ -799,8 +799,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
     auto shareOption = pasteData->GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::CrossDevice);
-    pasteData->SetShareOption(ShareOption::InApp);
+    ASSERT_TRUE(shareOption == ShareOption::CROSS_DEVICE);
+    pasteData->SetShareOption(ShareOption::IN_APP);
     auto tokenId = pasteData->GetTokenId();
     ASSERT_TRUE(tokenId == 0);
     pasteData->SetTokenId(1);
@@ -815,7 +815,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     shareOption = newPasteData.GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::InApp);
+    ASSERT_TRUE(shareOption == ShareOption::IN_APP);
     tokenId = pasteData->GetTokenId();
     ASSERT_TRUE(tokenId != 0);
 }
@@ -943,7 +943,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
     EXPECT_EQ(property.mimeTypes.size(), 1);
     EXPECT_EQ(property.mimeTypes[0], MIMETYPE_TEXT_PLAIN);
     EXPECT_TRUE(property.tag.empty());
-    EXPECT_EQ(property.shareOption, ShareOption::CrossDevice);
+    EXPECT_EQ(property.shareOption, ShareOption::CROSS_DEVICE);
     EXPECT_TRUE(property.tokenId != 0);
     auto tag = newPasteData.GetTag();
     EXPECT_TRUE(tag.empty());
@@ -1062,7 +1062,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
     pasteData->SetRemote(true);
-    pasteData->SetShareOption(ShareOption::CrossDevice);
+    pasteData->SetShareOption(ShareOption::CROSS_DEVICE);
     PasteboardClient::GetInstance()->Clear();
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
@@ -1089,7 +1089,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
-    pasteData->SetShareOption(ShareOption::LocalDevice);
+    pasteData->SetShareOption(ShareOption::LOCAL_DEVICE);
     PasteboardClient::GetInstance()->Clear();
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
@@ -1116,7 +1116,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
-    pasteData->SetShareOption(ShareOption::InApp);
+    pasteData->SetShareOption(ShareOption::IN_APP);
     PasteboardClient::GetInstance()->Clear();
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
