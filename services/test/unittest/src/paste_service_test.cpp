@@ -101,26 +101,23 @@ bool PasteboardServiceTest::ExecuteCmd(std::string &result)
 void PasteboardServiceTest::SetSelfTokenId()
 {
     tokenId_ = GetSelfTokenID();
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "tokenId_ = 0x%{public}llx", tokenId_);
 
     std::vector<int32_t> ids;
     auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
     if (ret != ERR_OK || ids.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode = %{public}d", ret);
         return;
     }
     auto tokenID = AccessTokenKit::GetHapTokenID(ids[0], SETTING_BUNDLENAME, 0);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ids[0] = %{public}d, token = 0x%{public}x", ids[0], tokenID);
-
     ret = SetSelfTokenID(tokenID);
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SetSelfTokenID ret = %{public}d!", ret);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ids[0] = %{public}d, token = 0x%{public}x, ret = %{public}d!",
+        ids[0], tokenID, ret);
 }
 
 void PasteboardServiceTest::RestoreSelfTokenId()
 {
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start.");
     auto ret = SetSelfTokenID(tokenId_);
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SetSelfTokenID ret = %{public}d!", ret);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "token = 0x%{public}llx, ret = %{public}d!", tokenId_, ret);
 }
 
 /**
