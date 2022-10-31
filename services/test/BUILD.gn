@@ -39,14 +39,17 @@ ohos_unittest("PasteboardServiceTest") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "multimedia_image_framework:image_native",
+    "os_account:os_account_innerkits",
   ]
 
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     "//third_party/googletest:gtest_main",
   ]
 }

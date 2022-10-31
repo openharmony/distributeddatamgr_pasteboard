@@ -625,10 +625,15 @@ std::string PasteboardService::DumpHistory() const
 
 std::string PasteboardService::DumpData()
 {
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto userId = GetUserIdByToken(tokenId);
+    std::vector<int32_t> ids;
+    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
+        return "";
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}d", ids[0]);
     std::lock_guard<std::mutex> lock(clipMutex_);
-    auto it = clips_.find(userId);
+    auto it = clips_.find(ids[0]);
     std::string result;
     if (it != clips_.end() && it->second != nullptr) {
         size_t recordCounts = it->second->GetRecordCount();

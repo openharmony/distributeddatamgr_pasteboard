@@ -17,11 +17,15 @@
 
 #include <cstdint>
 #include <vector>
+
+#include "accesstoken_kit.h"
+#include "os_account_manager.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_callback.h"
 #include "pixel_map.h"
+#include "token_setproc.h"
 #include "uri.h"
 #include "want.h"
 namespace OHOS::MiscServices {
@@ -29,22 +33,26 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
+using namespace OHOS::Security::AccessToken;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
+constexpr const char *SETTING_BUNDLENAME = "com.ohos.settings";
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    static bool ExecuteCmd(std::string &output);
-
+    static bool ExecuteCmd(std::string &result);
+    static void SetSelfTokenId();
+    static void RestoreSelfTokenId();
     static sptr<PasteboardObserver> pasteboardObserver_;
     static std::atomic_bool pasteboardChangedFlag_;
+    static uint64_t tokenId_;
 };
 
 std::atomic_bool PasteboardServiceTest::pasteboardChangedFlag_ = false;
 sptr<PasteboardObserver> PasteboardServiceTest::pasteboardObserver_ = nullptr;
-
+uint64_t PasteboardServiceTest::tokenId_ = 0;
 void PasteboardServiceTest::SetUpTestCase(void)
 {
 }
@@ -86,8 +94,33 @@ bool PasteboardServiceTest::ExecuteCmd(std::string &result)
     } else {
         return false;
     }
-    result = std::string(std::move(output));
+    result = std::string(output);
     return true;
+}
+
+void PasteboardServiceTest::SetSelfTokenId()
+{
+    tokenId_ = GetSelfTokenID();
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "tokenId_ = 0x%{public}llx", tokenId_);
+
+    std::vector<int32_t> ids;
+    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
+        return;
+    }
+    auto tokenID = AccessTokenKit::GetHapTokenID(ids[0], SETTING_BUNDLENAME, 0);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ids[0] = %{public}d, token = 0x%{public}x", ids[0], tokenID);
+
+    ret = SetSelfTokenID(tokenID);
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SetSelfTokenID ret = %{public}d!", ret);
+}
+
+void PasteboardServiceTest::RestoreSelfTokenId()
+{
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start.");
+    auto ret = SetSelfTokenID(tokenId_);
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SetSelfTokenID ret = %{public}d!", ret);
 }
 
 /**
@@ -1027,6 +1060,7 @@ HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
 {
+    PasteboardServiceTest::SetSelfTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
@@ -1041,6 +1075,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
     ASSERT_TRUE(ret);
     EXPECT_TRUE(result.find("CrossDevice") != std::string::npos);
     EXPECT_TRUE(result.find("remote") != std::string::npos);
+    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1052,6 +1087,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
 {
+    PasteboardServiceTest::SetSelfTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
@@ -1065,6 +1101,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
     ASSERT_TRUE(ret);
     EXPECT_TRUE(result.find("LocalDevice") != std::string::npos);
     EXPECT_TRUE(result.find("local") != std::string::npos);
+    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1076,6 +1113,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
 {
+    PasteboardServiceTest::SetSelfTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
@@ -1089,6 +1127,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
     ASSERT_TRUE(ret);
     EXPECT_TRUE(result.find("InAPP") != std::string::npos);
     EXPECT_TRUE(result.find("local") != std::string::npos);
+    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1100,6 +1139,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
 {
+    PasteboardServiceTest::SetSelfTokenId();
     PasteboardClient::GetInstance()->Clear();
 
     std::string result;
@@ -1107,5 +1147,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
     ASSERT_TRUE(ret);
     EXPECT_EQ(result.find("Share"), std::string::npos);
     EXPECT_EQ(result.find("Option"), std::string::npos);
+    PasteboardServiceTest::RestoreSelfTokenId();
 }
 } // namespace OHOS::MiscServices
