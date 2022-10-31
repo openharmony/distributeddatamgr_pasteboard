@@ -166,7 +166,7 @@ public:
         return Write(buffer, type, *value);
     }
     bool ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head);
-    bool ReadValue(const std::vector<std::uint8_t> &buffer, bool &value, const TLVHead &head);74
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, bool &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int8_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int16_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int32_t &value, const TLVHead &head);
