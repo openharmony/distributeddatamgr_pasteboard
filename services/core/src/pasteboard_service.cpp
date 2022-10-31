@@ -245,17 +245,17 @@ bool PasteboardService::HasPastePermission(uint32_t tokenId, bool isFocusedApp,
         return false;
     }
     switch (pasteData->GetShareOption()) {
-        case ShareOption::InApp: {
+        case ShareOption::IN_APP: {
             if (pasteData->GetTokenId() != tokenId) {
                 PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "InApp check failed.");
                 return false;
             }
             break;
         }
-        case ShareOption::LocalDevice: {
+        case ShareOption::LOCAL_DEVICE: {
             break;
         }
-        case ShareOption::CrossDevice: {
+        case ShareOption::CROSS_DEVICE: {
             break;
         }
         default: {
@@ -623,24 +623,35 @@ std::string PasteboardService::DumpHistory() const
     return result;
 }
 
+std::string PasteboardService::ShareOptionToString(ShareOption shareOption)
+{
+    std::string option;
+    if (shareOption == ShareOption::IN_APP) {
+        option = "InAPP";
+    } else if (shareOption == ShareOption::LOCAL_DEVICE) {
+        option = "LocalDevice";
+    } else {
+        option = "CrossDevice";
+    }
+    return option;
+}
+
 std::string PasteboardService::DumpData()
 {
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto userId = GetUserIdByToken(tokenId);
+    std::vector<int32_t> ids;
+    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
+        return "";
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}d", ids[0]);
     std::lock_guard<std::mutex> lock(clipMutex_);
-    auto it = clips_.find(userId);
+    auto it = clips_.find(ids[0]);
     std::string result;
     if (it != clips_.end() && it->second != nullptr) {
         size_t recordCounts = it->second->GetRecordCount();
         auto property = it->second->GetProperty();
-        std::string shareOption;
-        if (property.shareOption == 0) {
-            shareOption = "InAPP";
-        } else if (property.shareOption == 1) {
-            shareOption = "LocalDevice";
-        } else {
-            shareOption = "CrossDevice";
-        }
+        auto shareOption = ShareOptionToString(property.shareOption);
         std::string sourceDevice;
         if (property.isRemote) {
             sourceDevice = "remote";

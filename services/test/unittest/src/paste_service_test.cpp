@@ -17,11 +17,15 @@
 
 #include <cstdint>
 #include <vector>
+
+#include "accesstoken_kit.h"
+#include "os_account_manager.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_callback.h"
 #include "pixel_map.h"
+#include "token_setproc.h"
 #include "uri.h"
 #include "want.h"
 namespace OHOS::MiscServices {
@@ -29,22 +33,26 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
+using namespace OHOS::Security::AccessToken;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
+constexpr const char *SETTING_BUNDLENAME = "com.ohos.settings";
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    static bool ExecuteCmd(std::string &output);
-
+    static bool ExecuteCmd(std::string &result);
+    static void SetSelfTokenId();
+    static void RestoreSelfTokenId();
     static sptr<PasteboardObserver> pasteboardObserver_;
     static std::atomic_bool pasteboardChangedFlag_;
+    static uint64_t tokenId_;
 };
 
 std::atomic_bool PasteboardServiceTest::pasteboardChangedFlag_ = false;
 sptr<PasteboardObserver> PasteboardServiceTest::pasteboardObserver_ = nullptr;
-
+uint64_t PasteboardServiceTest::tokenId_ = 0;
 void PasteboardServiceTest::SetUpTestCase(void)
 {
 }
@@ -86,8 +94,30 @@ bool PasteboardServiceTest::ExecuteCmd(std::string &result)
     } else {
         return false;
     }
-    result = std::string(std::move(output));
+    result = std::string(output);
     return true;
+}
+
+void PasteboardServiceTest::SetSelfTokenId()
+{
+    tokenId_ = GetSelfTokenID();
+
+    std::vector<int32_t> ids;
+    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode = %{public}d", ret);
+        return;
+    }
+    auto tokenID = AccessTokenKit::GetHapTokenID(ids[0], SETTING_BUNDLENAME, 0);
+    ret = SetSelfTokenID(tokenID);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ids[0] = %{public}d, token = 0x%{public}x, ret = %{public}d!",
+        ids[0], tokenID, ret);
+}
+
+void PasteboardServiceTest::RestoreSelfTokenId()
+{
+    auto ret = SetSelfTokenID(tokenId_);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "token = 0x%{public}llx, ret = %{public}d!", tokenId_, ret);
 }
 
 /**
@@ -769,8 +799,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
     auto shareOption = pasteData->GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::CrossDevice);
-    pasteData->SetShareOption(ShareOption::InApp);
+    ASSERT_TRUE(shareOption == ShareOption::CROSS_DEVICE);
+    pasteData->SetShareOption(ShareOption::IN_APP);
     auto tokenId = pasteData->GetTokenId();
     ASSERT_TRUE(tokenId == 0);
     pasteData->SetTokenId(1);
@@ -785,7 +815,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     shareOption = newPasteData.GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::InApp);
+    ASSERT_TRUE(shareOption == ShareOption::IN_APP);
     tokenId = pasteData->GetTokenId();
     ASSERT_TRUE(tokenId != 0);
 }
@@ -913,7 +943,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
     EXPECT_EQ(property.mimeTypes.size(), 1);
     EXPECT_EQ(property.mimeTypes[0], MIMETYPE_TEXT_PLAIN);
     EXPECT_TRUE(property.tag.empty());
-    EXPECT_EQ(property.shareOption, ShareOption::CrossDevice);
+    EXPECT_EQ(property.shareOption, ShareOption::CROSS_DEVICE);
     EXPECT_TRUE(property.tokenId != 0);
     auto tag = newPasteData.GetTag();
     EXPECT_TRUE(tag.empty());
@@ -1027,12 +1057,13 @@ HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
 {
+    PasteboardServiceTest::SetSelfTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
-    PasteboardClient::GetInstance()->Clear();
     pasteData->SetRemote(true);
-    pasteData->SetShareOption(ShareOption::CrossDevice);
+    pasteData->SetShareOption(ShareOption::CROSS_DEVICE);
+    PasteboardClient::GetInstance()->Clear();
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
 
@@ -1041,6 +1072,8 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
     ASSERT_TRUE(ret);
     EXPECT_TRUE(result.find("CrossDevice") != std::string::npos);
     EXPECT_TRUE(result.find("remote") != std::string::npos);
+    PasteboardClient::GetInstance()->Clear();
+    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1052,11 +1085,12 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
 {
+    PasteboardServiceTest::SetSelfTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
+    pasteData->SetShareOption(ShareOption::LOCAL_DEVICE);
     PasteboardClient::GetInstance()->Clear();
-    pasteData->SetShareOption(ShareOption::LocalDevice);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
 
@@ -1065,6 +1099,8 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
     ASSERT_TRUE(ret);
     EXPECT_TRUE(result.find("LocalDevice") != std::string::npos);
     EXPECT_TRUE(result.find("local") != std::string::npos);
+    PasteboardClient::GetInstance()->Clear();
+    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1076,11 +1112,12 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
 {
+    PasteboardServiceTest::SetSelfTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
+    pasteData->SetShareOption(ShareOption::IN_APP);
     PasteboardClient::GetInstance()->Clear();
-    pasteData->SetShareOption(ShareOption::InApp);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
 
@@ -1089,6 +1126,8 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
     ASSERT_TRUE(ret);
     EXPECT_TRUE(result.find("InAPP") != std::string::npos);
     EXPECT_TRUE(result.find("local") != std::string::npos);
+    PasteboardClient::GetInstance()->Clear();
+    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1100,6 +1139,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
 {
+    PasteboardServiceTest::SetSelfTokenId();
     PasteboardClient::GetInstance()->Clear();
 
     std::string result;
@@ -1107,5 +1147,30 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
     ASSERT_TRUE(ret);
     EXPECT_EQ(result.find("Share"), std::string::npos);
     EXPECT_EQ(result.find("Option"), std::string::npos);
+    PasteboardServiceTest::RestoreSelfTokenId();
+}
+
+/**
+* @tc.name: HasPastePermissionTest001
+* @tc.desc: HasPastePermission()-if (!pasteData->IsDraggedData() && (!isFocusedApp && !IsDefaultIME(GetAppInfo(tokenId))))
+* @tc.type: FUNC
+* @tc.require: issueshI5YDEV
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteboardServiceTest, HasPastePermissionTest001, TestSize.Level0)
+{
+    PasteboardServiceTest::SetSelfTokenId();
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteData = PasteboardClient::GetInstance()->CreateKvData(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteboardClient::GetInstance()->Clear();
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    EXPECT_FALSE(hasPasteData);
+    PasteboardClient::GetInstance()->Clear();
+    PasteboardServiceTest::RestoreSelfTokenId();
 }
 } // namespace OHOS::MiscServices

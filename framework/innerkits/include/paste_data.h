@@ -32,7 +32,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
+enum ShareOption : int32_t { IN_APP = 0, LOCAL_DEVICE, CROSS_DEVICE };
 struct PasteDataProperty : public TLVObject {
     AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;

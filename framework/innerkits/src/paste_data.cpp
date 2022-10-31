@@ -50,14 +50,14 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : re
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
-    props_.shareOption = ShareOption::CrossDevice;
+    props_.shareOption = ShareOption::CROSS_DEVICE;
 }
 
 PasteData::PasteData()
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
-    props_.shareOption = ShareOption::CrossDevice;
+    props_.shareOption = ShareOption::CROSS_DEVICE;
 }
 
 PasteDataProperty PasteData::GetProperty() const
