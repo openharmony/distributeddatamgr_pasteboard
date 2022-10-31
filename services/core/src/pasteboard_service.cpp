@@ -625,10 +625,14 @@ std::string PasteboardService::DumpHistory() const
 
 std::string PasteboardService::DumpData()
 {
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto userId = GetUserIdByToken(tokenId);
+    std::lock_guard<std::mutex> lock(clipMutex_);
+    auto it = clips_.find(userId);
     std::string result;
-    if (!clips_.empty() && clips_.rbegin()->second != nullptr) {
-        size_t recordCounts = clips_.rbegin()->second->GetRecordCount();
-        auto property = clips_.rbegin()->second->GetProperty();
+    if (it != clips_.end() && it->second != nullptr) {
+        size_t recordCounts = it->second->GetRecordCount();
+        auto property = it->second->GetProperty();
         std::string shareOption;
         if (property.shareOption == 0) {
             shareOption = "InAPP";

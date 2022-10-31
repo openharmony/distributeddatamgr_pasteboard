@@ -13,29 +13,30 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
+#include <unistd.h>
 
 #include <cstdint>
 #include <vector>
-
 #include "pasteboard_client.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_callback.h"
 #include "pixel_map.h"
 #include "uri.h"
 #include "want.h"
-#include "pasteboard_error.h"
-
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
+constexpr const char *CMD = "hidumper -s 3701 -a --data";
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    static bool ExecuteCmd(std::string &output);
 
     static sptr<PasteboardObserver> pasteboardObserver_;
     static std::atomic_bool pasteboardChangedFlag_;
@@ -65,6 +66,28 @@ void PasteboardObserverCallback::OnPasteboardChanged()
 {
     PasteboardServiceTest::pasteboardChangedFlag_ = true;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback.");
+}
+
+bool PasteboardServiceTest::ExecuteCmd(std::string &result)
+{
+    char buff[50] = { 0x00 };
+    char output[500] = { 0x00 };
+    FILE *ptr = NULL;
+    if ((ptr = popen(CMD, "r")) != NULL) {
+        while (fgets(buff, sizeof(buff), ptr) != nullptr) {
+            if (strcat_s(output, sizeof(output), buff) != 0) {
+                pclose(ptr);
+                ptr = NULL;
+                return false;
+            }
+        }
+        pclose(ptr);
+        ptr = NULL;
+    } else {
+        return false;
+    }
+    result = std::string(std::move(output));
+    return true;
 }
 
 /**
@@ -993,5 +1016,96 @@ HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
     PasteData data;
     auto ret = PasteboardClient::GetInstance()->GetPasteData(data);
     EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_ERROR));
+}
+
+/**
+* @tc.name: DumpDataTest001
+* @tc.desc: DumpData()-remote, CrossDevice
+* @tc.type: FUNC
+* @tc.require: issueshI5YDEV
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteboardClient::GetInstance()->Clear();
+    pasteData->SetRemote(true);
+    pasteData->SetShareOption(ShareOption::CrossDevice);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+
+    std::string result;
+    ret = PasteboardServiceTest::ExecuteCmd(result);
+    ASSERT_TRUE(ret);
+    EXPECT_TRUE(result.find("CrossDevice") != std::string::npos);
+    EXPECT_TRUE(result.find("remote") != std::string::npos);
+}
+
+/**
+* @tc.name: DumpDataTest002
+* @tc.desc: DumpData()-local, LocalDevice
+* @tc.type: FUNC
+* @tc.require: issueshI5YDEV
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteboardClient::GetInstance()->Clear();
+    pasteData->SetShareOption(ShareOption::LocalDevice);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+
+    std::string result;
+    ret = PasteboardServiceTest::ExecuteCmd(result);
+    ASSERT_TRUE(ret);
+    EXPECT_TRUE(result.find("LocalDevice") != std::string::npos);
+    EXPECT_TRUE(result.find("local") != std::string::npos);
+}
+
+/**
+* @tc.name: DumpDataTest003
+* @tc.desc: DumpData()-local, InApp
+* @tc.type: FUNC
+* @tc.require: issueshI5YDEV
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteboardClient::GetInstance()->Clear();
+    pasteData->SetShareOption(ShareOption::InApp);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+
+    std::string result;
+    ret = PasteboardServiceTest::ExecuteCmd(result);
+    ASSERT_TRUE(ret);
+    EXPECT_TRUE(result.find("InAPP") != std::string::npos);
+    EXPECT_TRUE(result.find("local") != std::string::npos);
+}
+
+/**
+* @tc.name: DumpDataTest004
+* @tc.desc: DumpData()-no data
+* @tc.type: FUNC
+* @tc.require: issueshI5YDEV
+* @tc.author: chenyu
+*/
+HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
+{
+    PasteboardClient::GetInstance()->Clear();
+
+    std::string result;
+    auto ret = PasteboardServiceTest::ExecuteCmd(result);
+    ASSERT_TRUE(ret);
+    EXPECT_EQ(result.find("Share"), std::string::npos);
+    EXPECT_EQ(result.find("Option"), std::string::npos);
 }
 } // namespace OHOS::MiscServices
