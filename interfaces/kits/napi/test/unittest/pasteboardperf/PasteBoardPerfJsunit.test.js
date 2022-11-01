@@ -216,24 +216,6 @@ describe('PasteBoardPerfJSTest', function () {
         done();
     })
 
-    /**
-     * @tc.name      addHtmlRecord_performance_test_001
-     * @tc.desc      addHtmlRecord interface performance test
-     * @tc.type      PERF
-     * @tc.require   AR000H5HVI
-     */
-    it('addWRecord_performance_test_001', 0, async function (done) {
-        var pixelMap = await image.createPixelMap(buffer, opt);
-        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
-        var htmlText = '<html><head></head><body>Hello!</body></html>';
-        var startTime = new Date().getTime();
-        for (var index = 0; index < BASE_CONUT; index++) {
-            pasteData.addHtmlRecord(htmlText);
-        }
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "addHtmlRecord_performance_test_001 averageTime:");
-        done();
-    })
-
     function computeAverageTime(startTime, baseCount, baseTime, message) {
         var endTime = new Date().getTime();
         var averageTime = ((endTime - startTime) * 1000) / baseCount;
