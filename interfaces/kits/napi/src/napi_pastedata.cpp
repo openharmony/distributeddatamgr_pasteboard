@@ -471,7 +471,7 @@ void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, size_t argc, Paste
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddRecordV9!");
     if (!CheckExpression(env, obj->value_->GetRecordCount() < MAX_RECORD_NUM, JSErrorCode::RECORD_EXCEEDS_LIMIT,
-            "The count of records in PasteData exceeds MAX_RECORD_NUM.")) {
+        "The count of records in PasteData exceeds MAX_RECORD_NUM.")) {
         return;
     }
     std::string mimeType;
@@ -679,7 +679,8 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     }
     uint32_t index = 0;
     NAPI_CALL(env, napi_get_value_uint32(env, argv[0], &index));
-    if (!CheckExpression(env, index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
+    if (!CheckExpression(env, index < obj->value_->GetRecordCount(),
+        JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
 
@@ -688,7 +689,7 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     }
     std::shared_ptr<PasteDataRecord> pasteDataRecord = ParseRecord(env, argv[1]);
     if (!CheckExpression(env, pasteDataRecord != nullptr, JSErrorCode::INVALID_PARAMETERS,
-            "The type of record must be PasteDataRecord.")) {
+        "The type of record must be PasteDataRecord.")) {
         return nullptr;
     }
     obj->value_->ReplaceRecordAt(index, pasteDataRecord);

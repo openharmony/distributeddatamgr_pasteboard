@@ -118,7 +118,7 @@ void PasteboardObserverInstance::OnPasteboardChanged()
 bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool CheckArgsCount, napi_value *argv, size_t argc)
 {
     if (!CheckExpression(
-            env, CheckArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+        env, CheckArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
         !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
@@ -129,7 +129,7 @@ bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool CheckArgsCount
         return false;
     }
     if (!CheckExpression(env, mimeType == STRING_UPDATE, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The value of type must be update")) {
+        "Parameter error. The value of type must be update")) {
         return false;
     }
     return true;
