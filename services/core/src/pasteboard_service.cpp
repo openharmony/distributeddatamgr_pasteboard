@@ -623,17 +623,15 @@ std::string PasteboardService::DumpHistory() const
     return result;
 }
 
-std::string PasteboardService::ShareOptionToString(ShareOption shareOption)
+void PasteboardService::ShareOptionToString(ShareOption shareOption, std::string &out)
 {
-    std::string option;
     if (shareOption == ShareOption::InApp) {
-        option = "InAPP";
+        out = "InAPP";
     } else if (shareOption == ShareOption::LocalDevice) {
-        option = "LocalDevice";
+        out = "LocalDevice";
     } else {
-        option = "CrossDevice";
+        out = "CrossDevice";
     }
-    return option;
 }
 
 std::string PasteboardService::DumpData()
@@ -651,7 +649,8 @@ std::string PasteboardService::DumpData()
     if (it != clips_.end() && it->second != nullptr) {
         size_t recordCounts = it->second->GetRecordCount();
         auto property = it->second->GetProperty();
-        auto shareOption = ShareOptionToString(property.shareOption);
+        std::string shareOption;
+        ShareOptionToString(property.shareOption, shareOption);
         std::string sourceDevice;
         if (property.isRemote) {
             sourceDevice = "remote";

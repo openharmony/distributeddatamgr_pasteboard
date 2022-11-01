@@ -1173,7 +1173,7 @@ HWTEST_F(PasteboardServiceTest, HasPastePermissionTest001, TestSize.Level0)
     EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
 
-    // 非拖拽数据、非默认输入法，如果TopApp为SETTINGS_BUNDLENAME,则为焦点应用
+    // not DraggedData, not DefaultIME, but when FocusedApp == SETTINGS_BUNDLENAME, is FocusedApp
     auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
     if (elementName.GetBundleName() == SETTINGS_BUNDLENAME) {
         EXPECT_TRUE(hasPasteData);
