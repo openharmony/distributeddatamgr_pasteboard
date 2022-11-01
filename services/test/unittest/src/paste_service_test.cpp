@@ -117,7 +117,7 @@ void PasteboardServiceTest::SetSelfTokenId()
 void PasteboardServiceTest::RestoreSelfTokenId()
 {
     auto ret = SetSelfTokenID(tokenId_);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "token = 0x%{public}llx, ret = %{public}d!", tokenId_, ret);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret = %{public}d!", ret);
 }
 
 /**
