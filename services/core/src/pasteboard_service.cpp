@@ -776,7 +776,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         return false;
     }
 
-    if (data.GetShareOption() == CrossDevice && !data.Encode(rawData)) {
+    if (data.GetShareOption() == CROSS_DEVICE && !data.Encode(rawData)) {
         return false;
     }
 
@@ -788,7 +788,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.expiration = expiration;
     event.deviceId = DMAdapter::GetInstance().GetLocalDevice();
     event.account = AccountManager::GetInstance().GetCurrentAccount();
-    event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
+    event.status = (data.GetShareOption() == CROSS_DEVICE) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
     currentEvent_ = event;
     clipPlugin->SetPasteData(event, rawData);
     return true;
