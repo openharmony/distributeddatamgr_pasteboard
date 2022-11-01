@@ -350,8 +350,8 @@ napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecord is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
-    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
-                              "index out of range.")) {
+    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(),
+        JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
     obj->value_->RemoveRecordAt(index);
@@ -830,8 +830,8 @@ napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecord is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
-    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
-                              "index out of range.")) {
+    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(),
+        JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
 
@@ -914,9 +914,10 @@ napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+    if (!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Wrong number of arguments.") ||
         !CheckExpression(env, IsProperty(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The type of property must be PasteDataProperty.")) {
+        "Parameter error. The type of property must be PasteDataProperty.")) {
         return nullptr;
     }
 
