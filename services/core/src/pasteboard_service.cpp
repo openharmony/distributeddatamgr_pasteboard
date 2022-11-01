@@ -245,17 +245,17 @@ bool PasteboardService::HasPastePermission(uint32_t tokenId, bool isFocusedApp,
         return false;
     }
     switch (pasteData->GetShareOption()) {
-        case ShareOption::IN_APP: {
+        case ShareOption::InApp: {
             if (pasteData->GetTokenId() != tokenId) {
                 PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "InApp check failed.");
                 return false;
             }
             break;
         }
-        case ShareOption::LOCAL_DEVICE: {
+        case ShareOption::LocalDevice: {
             break;
         }
-        case ShareOption::CROSS_DEVICE: {
+        case ShareOption::CrossDevice: {
             break;
         }
         default: {
@@ -626,9 +626,9 @@ std::string PasteboardService::DumpHistory() const
 std::string PasteboardService::ShareOptionToString(ShareOption shareOption)
 {
     std::string option;
-    if (shareOption == ShareOption::IN_APP) {
+    if (shareOption == ShareOption::InApp ) {
         option = "InAPP";
-    } else if (shareOption == ShareOption::LOCAL_DEVICE) {
+    } else if (shareOption == ShareOption::LocalDevice) {
         option = "LocalDevice";
     } else {
         option = "CrossDevice";
@@ -776,7 +776,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         return false;
     }
 
-    if (data.GetShareOption() == CROSS_DEVICE && !data.Encode(rawData)) {
+    if (data.GetShareOption() == CrossDevice && !data.Encode(rawData)) {
         return false;
     }
 
@@ -788,7 +788,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.expiration = expiration;
     event.deviceId = DMAdapter::GetInstance().GetLocalDevice();
     event.account = AccountManager::GetInstance().GetCurrentAccount();
-    event.status = (data.GetShareOption() == CROSS_DEVICE) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
+    event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
     currentEvent_ = event;
     clipPlugin->SetPasteData(event, rawData);
     return true;

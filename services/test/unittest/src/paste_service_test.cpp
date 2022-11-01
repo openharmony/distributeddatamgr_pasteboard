@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
 #include "pasteboard_client.h"
@@ -35,7 +36,7 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
 using namespace OHOS::Security::AccessToken;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
-constexpr const char *SETTING_BUNDLENAME = "com.ohos.settings";
+constexpr const char *SETTINGS_BUNDLENAME = "com.ohos.settings";
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -108,7 +109,7 @@ void PasteboardServiceTest::SetSelfTokenId()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode = %{public}d", ret);
         return;
     }
-    auto tokenID = AccessTokenKit::GetHapTokenID(ids[0], SETTING_BUNDLENAME, 0);
+    auto tokenID = AccessTokenKit::GetHapTokenID(ids[0], SETTINGS_BUNDLENAME, 0);
     ret = SetSelfTokenID(tokenID);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ids[0] = %{public}d, token = 0x%{public}x, ret = %{public}d!",
         ids[0], tokenID, ret);
@@ -799,8 +800,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
     auto shareOption = pasteData->GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::CROSS_DEVICE);
-    pasteData->SetShareOption(ShareOption::IN_APP);
+    ASSERT_TRUE(shareOption == ShareOption::CrossDevice);
+    pasteData->SetShareOption(ShareOption::InApp);
     auto tokenId = pasteData->GetTokenId();
     ASSERT_TRUE(tokenId == 0);
     pasteData->SetTokenId(1);
@@ -815,7 +816,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     shareOption = newPasteData.GetShareOption();
-    ASSERT_TRUE(shareOption == ShareOption::IN_APP);
+    ASSERT_TRUE(shareOption == ShareOption::InApp);
     tokenId = pasteData->GetTokenId();
     ASSERT_TRUE(tokenId != 0);
 }
@@ -943,7 +944,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
     EXPECT_EQ(property.mimeTypes.size(), 1);
     EXPECT_EQ(property.mimeTypes[0], MIMETYPE_TEXT_PLAIN);
     EXPECT_TRUE(property.tag.empty());
-    EXPECT_EQ(property.shareOption, ShareOption::CROSS_DEVICE);
+    EXPECT_EQ(property.shareOption, ShareOption::CrossDevice);
     EXPECT_TRUE(property.tokenId != 0);
     auto tag = newPasteData.GetTag();
     EXPECT_TRUE(tag.empty());
@@ -1152,7 +1153,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
 
 /**
 * @tc.name: HasPastePermissionTest001
-* @tc.desc: HasPastePermission()-if (!pasteData->IsDraggedData() && (!isFocusedApp && !IsDefaultIME(GetAppInfo(tokenId))))
+* @tc.desc: if (!pasteData->IsDraggedData() && (!isFocusedApp && !IsDefaultIME(GetAppInfo(tokenId))))
 * @tc.type: FUNC
 * @tc.require: issueshI5YDEV
 * @tc.author: chenyu
@@ -1169,7 +1170,14 @@ HWTEST_F(PasteboardServiceTest, HasPastePermissionTest001, TestSize.Level0)
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    EXPECT_FALSE(hasPasteData);
+
+    // 非拖拽数据,非默认输入法,如果当前topApp为SETTING_BUNDLENAME,则为焦点应用
+    auto elementName = AbilityManagerClient::GetInstance()->GetTopAbility();
+    if (elementName.GetBundleName() == SETTINGS_BUNDLENAME) {
+        EXPECT_TRUE(hasPasteData);
+    } else {
+        EXPECT_FALSE(hasPasteData);
+    }
     PasteboardClient::GetInstance()->Clear();
     PasteboardServiceTest::RestoreSelfTokenId();
 }

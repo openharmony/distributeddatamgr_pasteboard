@@ -39,6 +39,7 @@ ohos_unittest("PasteboardServiceTest") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
