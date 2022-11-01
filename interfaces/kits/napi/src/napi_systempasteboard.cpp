@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <uv.h>
-
 #include <thread>
+#include <uv.h>
 
 #include "common/block_object.h"
 #include "napi_common.h"
@@ -119,8 +118,8 @@ void PasteboardObserverInstance::OnPasteboardChanged()
 bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool CheckArgsCount, napi_value *argv, size_t argc)
 {
     if (!CheckExpression(
-            env, CheckArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
-        || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+            env, CheckArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+        !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
     std::string mimeType;
@@ -145,8 +144,8 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     // on(type: 'update', callback: () => void) has 2 args
-    if (!CheckAgrsOfOnAndOff(env, argc >= 2, argv, argc)
-        || !CheckArgsType(env, argv[1], napi_function, "Parameter error. The type of callback must be function.")) {
+    if (!CheckAgrsOfOnAndOff(env, argc >= 2, argv, argc) ||
+        !CheckArgsType(env, argv[1], napi_function, "Parameter error. The type of callback must be function.")) {
         return nullptr;
     }
 
@@ -201,8 +200,8 @@ napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
     auto context = std::make_shared<AsyncCall::Context>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // clear has 0 or 1 args
-        if (argc > 0
-            && !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
+        if (argc > 0 &&
+            !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
             return napi_invalid_arg;
         }
         return napi_ok;
@@ -229,8 +228,8 @@ napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info i
     auto context = std::make_shared<HasContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // hasPasteData has 0 or 1 args
-        if (argc > 0
-            && !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
+        if (argc > 0 &&
+            !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
             return napi_invalid_arg;
         }
         return napi_ok;
@@ -262,8 +261,8 @@ void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetContextInfo> &contex
 {
     auto input = [](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // 1: GetPasteData has 0 or 1 args
-        if (argc > 0
-            && !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
+        if (argc > 0 &&
+            !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
             return napi_invalid_arg;
         }
         return napi_ok;
@@ -333,13 +332,13 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetContextInfo> &contex
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // setData has 1 or 2 args
         if (!CheckExpression(
-                env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
-            || !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
+                env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+            !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
                 "Parameter error. The Type of data must be pasteData.")) {
             return napi_invalid_arg;
         }
-        if (argc > 1
-            && !CheckArgsType(env, argv[1], napi_function, "Parameter error. The type of callback must be function.")) {
+        if (argc > 1 &&
+            !CheckArgsType(env, argv[1], napi_function, "Parameter error. The type of callback must be function.")) {
             return napi_invalid_arg;
         }
         PasteDataNapi *pasteData = nullptr;

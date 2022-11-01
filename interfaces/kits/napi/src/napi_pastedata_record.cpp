@@ -276,8 +276,8 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
     auto exeContext = std::make_shared<ExeContext>();
     auto input = [exeContext](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // convertToText(callback: AsyncCallback<string>) has 1 args
-        if (argc > 0
-            && !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
+        if (argc > 0 &&
+            !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
             return napi_invalid_arg;
         }
         PasteDataRecordNapi *obj = nullptr;

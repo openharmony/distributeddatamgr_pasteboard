@@ -50,9 +50,7 @@ struct PasteDataProperty : public TLVObject {
     size_t Count() override;
 };
 
-class PasteData
-    : public Parcelable
-    , public TLVObject {
+class PasteData : public Parcelable, public TLVObject {
 public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();

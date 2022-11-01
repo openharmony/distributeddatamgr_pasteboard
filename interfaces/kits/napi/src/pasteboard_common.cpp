@@ -116,8 +116,9 @@ bool CheckExpression(napi_env env, bool flag, MiscServices::JSErrorCode errCode,
 bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeType)
 {
     // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
-    if (!CheckExpression(env, argc >= 2, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
-        || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+    if (!CheckExpression(
+            env, argc >= 2, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+        !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
 
@@ -127,8 +128,8 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         return false;
     }
     if (!CheckExpression(
-            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.")
-        || !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
+            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
+        !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
         return false;
     }

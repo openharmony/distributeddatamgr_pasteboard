@@ -16,9 +16,6 @@
 #ifndef PASTE_BOARD_SERVICE_H
 #define PASTE_BOARD_SERVICE_H
 
-#include <sys/time.h>
-#include <system_ability_definition.h>
-
 #include <atomic>
 #include <condition_variable>
 #include <ctime>
@@ -27,6 +24,8 @@
 #include <mutex>
 #include <set>
 #include <stack>
+#include <sys/time.h>
+#include <system_ability_definition.h>
 #include <thread>
 
 #include "clip/clip_plugin.h"
@@ -56,9 +55,7 @@ struct HistoryInfo {
     std::string remote;
 };
 
-class PasteboardService final
-    : public SystemAbility
-    , public PasteboardServiceStub {
+class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
     DECLARE_SYSTEM_ABILITY(PasteboardService)
 
 public:

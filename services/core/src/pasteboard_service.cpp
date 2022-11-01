@@ -558,8 +558,8 @@ size_t PasteboardService::GetDataSize(PasteData &data) const
 
 bool PasteboardService::SetPasteboardHistory(HistoryInfo &info)
 {
-    std::string history = std::move(info.time) + " " + std::move(info.bundleName) + " " + std::move(info.state) + " "
-                          + " " + std::move(info.pop) + " " + std::move(info.remote);
+    std::string history = std::move(info.time) + " " + std::move(info.bundleName) + " " + std::move(info.state) + " " +
+                          " " + std::move(info.pop) + " " + std::move(info.remote);
     constexpr const size_t DATA_HISTORY_SIZE = 10;
     std::lock_guard<decltype(historyMutex_)> lg(historyMutex_);
     if (dataHistory_.size() == DATA_HISTORY_SIZE) {
@@ -601,10 +601,10 @@ std::string PasteboardService::GetTime()
     struct timeval timeVal = { 0, 0 };
     gettimeofday(&timeVal, nullptr);
 
-    std::string targetTime = std::to_string(nowTime.tm_year + 1900) + "-" + std::to_string(nowTime.tm_mon + 1) + "-"
-                             + std::to_string(nowTime.tm_mday) + " " + std::to_string(nowTime.tm_hour) + ":"
-                             + std::to_string(nowTime.tm_min) + ":" + std::to_string(nowTime.tm_sec) + "."
-                             + std::to_string(timeVal.tv_usec / USEC_TO_MSEC);
+    std::string targetTime = std::to_string(nowTime.tm_year + 1900) + "-" + std::to_string(nowTime.tm_mon + 1) + "-" +
+                             std::to_string(nowTime.tm_mday) + " " + std::to_string(nowTime.tm_hour) + ":" +
+                             std::to_string(nowTime.tm_min) + ":" + std::to_string(nowTime.tm_sec) + "." +
+                             std::to_string(timeVal.tv_usec / USEC_TO_MSEC);
     return targetTime;
 }
 
@@ -833,9 +833,9 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     }
 
     auto &tmpEvent = events[0];
-    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalDevice()
-        || tmpEvent.account != AccountManager::GetInstance().GetCurrentAccount()
-        || (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId)) {
+    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalDevice() ||
+        tmpEvent.account != AccountManager::GetInstance().GetCurrentAccount() ||
+        (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId)) {
         return false;
     }
 

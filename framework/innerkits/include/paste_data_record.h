@@ -40,9 +40,7 @@ const std::string MIMETYPE_TEXT_WANT = "text/want";
 
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
 
-class MineCustomData
-    : public Parcelable
-    , public TLVObject {
+class MineCustomData : public Parcelable, public TLVObject {
 public:
     MineCustomData() = default;
     std::map<std::string, std::vector<uint8_t>> GetItemData();
@@ -68,9 +66,7 @@ private:
     int32_t fd_ = -1;
 };
 
-class PasteDataRecord
-    : public Parcelable
-    , public TLVObject {
+class PasteDataRecord : public Parcelable, public TLVObject {
 public:
     PasteDataRecord();
     PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
@@ -125,7 +121,8 @@ public:
 private:
     static bool Marshalling(Parcel &parcel, std::shared_ptr<std::string> item);
     static bool Marshalling(Parcel &parcel, std::shared_ptr<Parcelable> item);
-    template<typename T> static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
+    template<typename T>
+    static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item);
     static ResultCode UnMarshalling(Parcel &parcel, std::shared_ptr<std::string> &item);
     inline static bool CheckResult(ResultCode resultCode)
     {

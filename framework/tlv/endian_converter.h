@@ -16,9 +16,8 @@
 #ifndef PASTEBOARD_ENDIAN_CONVERTER_H
 #define PASTEBOARD_ENDIAN_CONVERTER_H
 
-#include <endian.h>
-
 #include <cstdint>
+#include <endian.h>
 
 namespace OHOS::MiscServices {
 // use little endian byteorder by default

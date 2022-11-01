@@ -16,9 +16,8 @@
 #ifndef PASTE_BOARD_CLIENT_H
 #define PASTE_BOARD_CLIENT_H
 
-#include <singleton.h>
-
 #include <functional>
+#include <singleton.h>
 
 #include "i_pasteboard_service.h"
 #include "paste_data.h"

@@ -257,7 +257,8 @@ bool PasteDataRecord::Marshalling(Parcel &parcel) const
     return ret;
 }
 
-template<typename T> ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
+template<typename T>
+ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");

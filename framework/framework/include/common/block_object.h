@@ -17,7 +17,8 @@
 #include <condition_variable>
 #include <mutex>
 namespace OHOS {
-template<typename T> class BlockObject {
+template<typename T>
+class BlockObject {
 public:
     explicit BlockObject(uint32_t interval, const T &invalid = T()) : interval_(interval), data_(invalid)
     {

@@ -17,10 +17,9 @@
 
 #include "hiview_adapter.h"
 
-#include <unistd.h>
-
 #include <algorithm>
 #include <thread>
+#include <unistd.h>
 
 #include "def.h"
 #include "pasteboard_hilog.h"
@@ -167,8 +166,8 @@ void HiViewAdapter::ReportTimeConsumingStatistic(const TimeConsumingStat &stat)
         } else {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "wrong data level");
         }
-    } else if ((stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_PASTE_STATE))
-               || (stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_REMOTE_PASTE_STATE))) {
+    } else if ((stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_PASTE_STATE)) ||
+               (stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_REMOTE_PASTE_STATE))) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent pasteboard state is %{public}d", stat.pasteboardState);
         auto iter = dataMap_.find(stat.dataSize);
         if (iter != dataMap_.end()) {

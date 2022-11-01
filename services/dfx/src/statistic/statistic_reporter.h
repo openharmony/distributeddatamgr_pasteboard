@@ -20,7 +20,8 @@
 
 namespace OHOS {
 namespace MiscServices {
-template<typename T> class StatisticReporter {
+template<typename T>
+class StatisticReporter {
 public:
     virtual ReportStatus Report(const T &stat) = 0;
     virtual ~StatisticReporter()

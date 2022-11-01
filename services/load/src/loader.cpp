@@ -15,7 +15,6 @@
 #include "loader.h"
 
 #include <dlfcn.h>
-
 #include <fstream>
 
 #include "pasteboard_hilog.h"

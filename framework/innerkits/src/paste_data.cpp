@@ -304,9 +304,9 @@ void PasteData::RefreshMimeProp()
 bool PasteData::MarshallingProps(Parcel &parcel) const
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "props.shareOption =  %{public}d.", props_.shareOption);
-    return parcel.WriteParcelable(&props_.additions) && parcel.WriteStringVector(props_.mimeTypes)
-           && parcel.WriteString(props_.tag) && parcel.WriteInt64(props_.timestamp)
-           && parcel.WriteInt32(static_cast<int32_t>(props_.shareOption));
+    return parcel.WriteParcelable(&props_.additions) && parcel.WriteStringVector(props_.mimeTypes) &&
+           parcel.WriteString(props_.tag) && parcel.WriteInt64(props_.timestamp) &&
+           parcel.WriteInt32(static_cast<int32_t>(props_.shareOption));
 }
 
 bool PasteData::UnMarshalling(Parcel &parcel, PasteDataProperty &props)
