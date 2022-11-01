@@ -626,7 +626,7 @@ std::string PasteboardService::DumpHistory() const
 std::string PasteboardService::ShareOptionToString(ShareOption shareOption)
 {
     std::string option;
-    if (shareOption == ShareOption::InApp ) {
+    if (shareOption == ShareOption::InApp) {
         option = "InAPP";
     } else if (shareOption == ShareOption::LocalDevice) {
         option = "LocalDevice";
