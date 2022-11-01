@@ -23,7 +23,8 @@ namespace OHOS {
 namespace MiscServices {
 class ParaHandle {
 public:
-    static constexpr const char *DISTRIBUTED_PASTEBOARD_ENABLED_KEY = "persist.pasteboard.distributedPasteboardEnabled";
+    static constexpr const char *DISTRIBUTED_PASTEBOARD_ENABLED_KEY = "persist.pasteboard."
+                                                                      "distributedPasteboardEnabled";
     static ParaHandle &GetInstance();
     std::string GetEnabledStatus() const;
     void Init();

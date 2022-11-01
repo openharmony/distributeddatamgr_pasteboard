@@ -117,6 +117,6 @@ protected:
 
     API_EXPORT static const json &GetSubNode(const json &node, const std::string &name);
 };
-} // namespace MiscServices
+} // namespace DistributedData
 } // namespace OHOS
 #endif // OHOS_DISTRIBUTED_SERIALIZABLE_SERIALIZABLE_H

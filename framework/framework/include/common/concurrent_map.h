@@ -68,7 +68,7 @@ public:
     }
 
     template<typename... _Args>
-    bool Emplace(_Args &&...__args) noexcept
+    bool Emplace(_Args &&... __args) noexcept
     {
         std::lock_guard<decltype(mutex_)> lock(mutex_);
         auto it = entries_.emplace(std::forward<_Args>(__args)...);
@@ -80,10 +80,10 @@ public:
         std::lock_guard<decltype(mutex_)> lock(mutex_);
         auto it = entries_.find(key);
         if (it == entries_.end()) {
-            return std::pair { false, mapped_type() };
+            return std::pair{ false, mapped_type() };
         }
 
-        return std::pair { true, it->second };
+        return std::pair{ true, it->second };
     }
 
     bool Contains(const key_type &key) const noexcept
@@ -92,7 +92,7 @@ public:
         return (entries_.find(key) != entries_.end());
     }
 
-    template <typename _Obj>
+    template<typename _Obj>
     bool InsertOrAssign(const key_type &key, _Obj &&obj) noexcept
     {
         std::lock_guard<decltype(mutex_)> lock(mutex_);
@@ -103,7 +103,7 @@ public:
     bool Insert(const key_type &key, const mapped_type &value) noexcept
     {
         std::lock_guard<decltype(mutex_)> lock(mutex_);
-        auto it = entries_.insert(value_type { key, value });
+        auto it = entries_.insert(value_type{ key, value });
         return it.second;
     }
 
@@ -140,8 +140,8 @@ public:
         }
         std::lock_guard<decltype(mutex_)> lock(mutex_);
 #if __cplusplus > 201703L
-        auto count = std::erase_if(entries_,
-            [&action](value_type &value) -> bool { return action(value.first, value.second); });
+        auto count = std::erase_if(
+            entries_, [&action](value_type &value) -> bool { return action(value.first, value.second); });
 #else
         auto count = entries_.size();
         for (auto it = entries_.begin(); it != entries_.end();) {

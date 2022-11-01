@@ -34,8 +34,8 @@
 #include "native_token_info.h"
 #include "os_account_manager.h"
 #include "para_handle.h"
-#include "pasteboard_error.h"
 #include "pasteboard_dialog.h"
+#include "pasteboard_error.h"
 #include "pasteboard_trace.h"
 #include "reporter.h"
 #ifdef WITH_DLP
@@ -233,8 +233,8 @@ bool PasteboardService::IsFocusedApp(int32_t tokenId)
     return elementName.GetBundleName() == appInfo.bundleName;
 }
 
-bool PasteboardService::HasPastePermission(uint32_t tokenId, bool isFocusedApp,
-    const std::shared_ptr<PasteData> &pasteData)
+bool PasteboardService::HasPastePermission(
+    uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData)
 {
     if (pasteData == nullptr) {
         return false;
@@ -320,7 +320,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     PasteboardTrace tracer("PasteboardService GetPasteData");
 
     bool isFocusedApp = IsFocusedApp(tokenId);
-    auto block =  std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
     std::thread thread([this, block, tokenId, isFocusedApp]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
@@ -507,8 +507,8 @@ void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardCh
         return;
     }
     auto observers = it->second;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers->size: %{public}d.",
-        static_cast<unsigned int>(observers->size()));
+    PASTEBOARD_HILOGD(
+        PASTEBOARD_MODULE_SERVICE, "observers->size: %{public}d.", static_cast<unsigned int>(observers->size()));
     auto eraseNum = observers->erase(observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         " callback = %{public}p, listeners.size = %{public}d,"
@@ -558,8 +558,8 @@ size_t PasteboardService::GetDataSize(PasteData &data) const
 
 bool PasteboardService::SetPasteboardHistory(HistoryInfo &info)
 {
-    std::string history = std::move(info.time) + " " + std::move(info.bundleName) + " " + std::move(info.state) + " "
-                          + " " + std::move(info.pop) + " " + std::move(info.remote);
+    std::string history = std::move(info.time) + " " + std::move(info.bundleName) + " " + std::move(info.state) + " " +
+                          " " + std::move(info.pop) + " " + std::move(info.remote);
     constexpr const size_t DATA_HISTORY_SIZE = 10;
     std::lock_guard<decltype(historyMutex_)> lg(historyMutex_);
     if (dataHistory_.size() == DATA_HISTORY_SIZE) {
@@ -675,10 +675,7 @@ std::string PasteboardService::DumpData()
                 result.append(property.mimeTypes[i]).append(",");
             }
         }
-        result.append("}")
-            .append("\n")
-            .append("|source device:  ")
-            .append(sourceDevice);
+        result.append("}").append("\n").append("|source device:  ").append(sourceDevice);
     } else {
         result.append("No copy data.").append("\n");
     }

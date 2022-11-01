@@ -25,6 +25,6 @@ class PasteboardFaultImpl : public FaultReporter {
 public:
     ReportStatus Report(const PasteboardFaultMsg &msg) override;
 };
-}  // namespace MiscServices
-}  // namespace OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // MISCSERVICES_PASTEBOARD_INITIALIZATION_FAULT_IMPL_H

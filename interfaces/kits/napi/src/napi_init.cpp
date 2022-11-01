@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 #include "napi_init.h"
+
+#include "pasteboard_napi.h"
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 #include "systempasteboard_napi.h"
-#include "pasteboard_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -40,15 +41,13 @@ EXTERN_C_END
 /*
  * Module define
  */
-static napi_module _module = {
-    .nm_version = 1,
+static napi_module _module = { .nm_version = 1,
     .nm_flags = 0,
     .nm_filename = "pasteboard",
     .nm_register_func = NapiInit,
     .nm_modname = "pasteboard",
     .nm_priv = ((void *)0),
-    .reserved = {0}
-};
+    .reserved = { 0 } };
 
 /*
  * Module register function

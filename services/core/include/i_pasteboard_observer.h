@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-class IPasteboardChangedObserver  : public IRemoteBroker {
+class IPasteboardChangedObserver : public IRemoteBroker {
 public:
     enum {
         ON_PASTE_BOARD_CHANGE = 0,
@@ -29,6 +29,6 @@ public:
     virtual ~IPasteboardChangedObserver() = default;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.miscservices.pasteboard.IPasteboardChangedObserver");
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_BOARD_CHANGER_OBSERVER_INTERFACE_H

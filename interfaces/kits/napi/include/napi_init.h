@@ -20,6 +20,6 @@
 
 namespace OHOS {
 namespace MiscServicesNapi {
-} // MiscServicesNapi
-} // OHOS
+} // namespace MiscServicesNapi
+} // namespace OHOS
 #endif

@@ -104,14 +104,16 @@ public:
     {
         return value.Count() + sizeof(TLVHead);
     }
-    template<typename T> inline size_t Count(std::shared_ptr<T> &value)
+    template<typename T>
+    inline size_t Count(std::shared_ptr<T> &value)
     {
         if (value == nullptr) {
             return 0;
         }
         return Count(*value);
     }
-    template<typename T> inline size_t Count(std::vector<T> &value)
+    template<typename T>
+    inline size_t Count(std::vector<T> &value)
     {
         size_t expectSize = sizeof(TLVHead);
         for (auto &item : value) {
@@ -144,7 +146,8 @@ public:
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::string &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const RawMem &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value);
-    template<typename T> bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<T> &value)
+    template<typename T>
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<T> &value)
     {
         if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
             return false;
@@ -158,7 +161,8 @@ public:
     }
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<uint8_t> &value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::map<std::string, std::vector<uint8_t>> &value);
-    template<typename T> bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::shared_ptr<T> &value)
+    template<typename T>
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::shared_ptr<T> &value)
     {
         if (value == nullptr) {
             return true;
@@ -232,7 +236,8 @@ private:
         tlvHead->tag = HostToNet(type);
         tlvHead->len = HostToNet(len);
     }
-    template<typename T> bool WriteBasic(std::vector<std::uint8_t> &buffer, uint16_t type, T value)
+    template<typename T>
+    bool WriteBasic(std::vector<std::uint8_t> &buffer, uint16_t type, T value)
     {
         if (!HasExpectBuffer(buffer, sizeof(TLVHead) + sizeof(value))) {
             return false;
@@ -249,7 +254,8 @@ private:
         return true;
     }
 
-    template<typename T> bool WriteValue(std::vector<std::uint8_t> &buffer, std::vector<T> &value)
+    template<typename T>
+    bool WriteValue(std::vector<std::uint8_t> &buffer, std::vector<T> &value)
     {
         // items iterator
         bool ret = true;
@@ -260,7 +266,8 @@ private:
         return ret;
     }
 
-    template<typename T> bool ReadBasicValue(const std::vector<std::uint8_t> &buffer, T &value, const TLVHead &head)
+    template<typename T>
+    bool ReadBasicValue(const std::vector<std::uint8_t> &buffer, T &value, const TLVHead &head)
     {
         if (head.len == 0) {
             return false;

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "device/dm_adapter.h"
+
 #include "device_manager.h"
 #include "device_manager_callback.h"
 #include "dm_device_info.h"
@@ -65,7 +66,6 @@ private:
 
 DMAdapter::DMAdapter()
 {
-
 }
 
 DMAdapter::~DMAdapter()

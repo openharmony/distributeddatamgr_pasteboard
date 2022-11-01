@@ -21,8 +21,8 @@
 #include "parcel_util.h"
 #include "paste_uri_handler.h"
 #include "pasteboard_error.h"
-#include "pixel_map_parcel.h"
 #include "pasteboard_hilog.h"
+#include "pixel_map_parcel.h"
 
 using namespace OHOS::Media;
 
@@ -133,8 +133,8 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &
     return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
 }
 
-std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(const std::string &mimeType,
-    const std::vector<uint8_t> &arrayBuffer)
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
+    const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType, arrayBuffer);
@@ -257,7 +257,8 @@ bool PasteDataRecord::Marshalling(Parcel &parcel) const
     return ret;
 }
 
-template<typename T> ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
+template<typename T>
+ResultCode PasteDataRecord::UnMarshalling(Parcel &parcel, std::shared_ptr<T> &item)
 {
     if (!parcel.ReadBool()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "no data provide.");

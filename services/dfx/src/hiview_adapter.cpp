@@ -17,10 +17,10 @@
 
 #include "hiview_adapter.h"
 
+#include <algorithm>
+#include <thread>
 #include <unistd.h>
 
-#include <thread>
-#include <algorithm>
 #include "def.h"
 #include "pasteboard_hilog.h"
 
@@ -363,18 +363,17 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
         for (auto it = behaviour.begin(); it != behaviour.end(); ++it) {
             vec.push_back(std::pair<std::string, int>(it->first, it->second));
         }
-// sort
-        sort(vec.begin(), vec.end(), [](std::pair<std::string, int>a, std::pair<std::string, int>b) {
-            return a.second > b.second;
-        });
+        // sort
+        sort(vec.begin(), vec.end(),
+            [](std::pair<std::string, int> a, std::pair<std::string, int> b) { return a.second > b.second; });
 
-// init container for report.
+        // init container for report.
         std::vector<std::string> appPackName;
         for (int i = 0; i < TOTAL_APP_NUMBERS; ++i) {
             appPackName.push_back("default");
         }
 
-// push in container.
+        // push in container.
         int j = 0;
         for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
             appPackName[j] = iter->first + " :" + std::to_string(iter->second);
@@ -382,18 +381,10 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour report  ");
         int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR),
-            HiSysEvent::EventType::BEHAVIOR,
-            PASTEBOARD_STATE, pasteboardState,
-            TOP_ONE_APP, appPackName[0],
-            TOP_TOW_APP, appPackName[1],
-            TOP_THREE_APP, appPackName[2],
-            TOP_FOUR_APP, appPackName[3],
-            TOP_FIVE_APP, appPackName[4],
-            TOP_SIX_APP, appPackName[5],
-            TOP_SEVEN_APP, appPackName[6],
-            TOP_EIGHT_APP, appPackName[7],
-            TOP_NINE_APP, appPackName[8],
-            TOP_TEN_APP, appPackName[9]);
+            HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, pasteboardState, TOP_ONE_APP, appPackName[0],
+            TOP_TOW_APP, appPackName[1], TOP_THREE_APP, appPackName[2], TOP_FOUR_APP, appPackName[3], TOP_FIVE_APP,
+            appPackName[4], TOP_SIX_APP, appPackName[5], TOP_SEVEN_APP, appPackName[6], TOP_EIGHT_APP, appPackName[7],
+            TOP_NINE_APP, appPackName[8], TOP_TEN_APP, appPackName[9]);
         if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
         }
@@ -442,7 +433,7 @@ void HiViewAdapter::StartTimerThread()
                 sleep(ONE_HOUR_IN_SECONDS);
                 continue;
             }
-            
+
             tm localTime = { 0 };
             tm *result = localtime_r(&current, &localTime);
             if (result == nullptr) {
@@ -455,10 +446,10 @@ void HiViewAdapter::StartTimerThread()
             if ((EXEC_MIN_TIME - currentMin) != EXEC_MIN_TIME) {
                 int nHours = EXEC_HOUR_TIME - currentHour;
                 int nMin = EXEC_MIN_TIME - currentMin;
-                int nTime = (nMin) * ONE_MINUTE_IN_SECONDS + (nHours) * ONE_HOUR_IN_SECONDS;
+                int nTime = (nMin)*ONE_MINUTE_IN_SECONDS + (nHours)*ONE_HOUR_IN_SECONDS;
                 PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
-                    " StartTimerThread if needHours=%{public}d,needMin=%{public}d,needTime=%{public}d", nHours,
-                    nMin, nTime);
+                    " StartTimerThread if needHours=%{public}d,needMin=%{public}d,needTime=%{public}d", nHours, nMin,
+                    nTime);
                 sleep(nTime);
                 PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "StartTimerThread invoke");
                 InvokePasteBoardBehaviour();
@@ -470,7 +461,7 @@ void HiViewAdapter::StartTimerThread()
                 InvokePasteBoardBehaviour();
                 InvokeTimeConsuming();
             }
-                PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "StartTimerThread end");
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "StartTimerThread end");
         }
     };
     std::thread th = std::thread(fun);

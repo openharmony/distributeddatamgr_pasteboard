@@ -28,7 +28,8 @@ public:
     API_EXPORT static RawMem Parcelable2Raw(const Parcelable *value);
 
     // buffer to parcelable
-    template<typename ParcelableType> static std::shared_ptr<ParcelableType> Raw2Parcelable(const RawMem &rawMem)
+    template<typename ParcelableType>
+    static std::shared_ptr<ParcelableType> Raw2Parcelable(const RawMem &rawMem)
     {
         Parcel parcel(nullptr);
         if (!Raw2Parcel(rawMem, parcel)) {

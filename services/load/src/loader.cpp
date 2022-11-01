@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 #include "loader.h"
+
 #include <dlfcn.h>
 #include <fstream>
+
 #include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
 Loader::Loader()
@@ -36,8 +38,8 @@ void Loader::LoadComponents()
         // no need to close the component, so we don't keep the handles
         auto handle = dlopen(component.lib.c_str(), RTLD_LAZY);
         if (handle == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "dlopen(%{public}s) failed(%{public}d)!",
-                component.lib.c_str(), errno);
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_SERVICE, "dlopen(%{public}s) failed(%{public}d)!", component.lib.c_str(), errno);
             continue;
         }
 

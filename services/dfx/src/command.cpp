@@ -22,7 +22,8 @@ Command::Command(const std::vector<std::string> &argsFormat, const std::string &
 {
 }
 
-Command::Command(const std::vector<std::string> &argsFormat, const std::string &help) : format_(argsFormat), help_(help)
+Command::Command(const std::vector<std::string> &argsFormat, const std::string &help)
+    : format_(argsFormat), help_(help)
 {
 }
 

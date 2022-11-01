@@ -15,11 +15,11 @@
 
 #include "pasteboard_service_proxy.h"
 
+#include "copy_uri_handler.h"
 #include "iremote_broker.h"
+#include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "paste_uri_handler.h"
-#include "copy_uri_handler.h"
 
 namespace OHOS {
 namespace MiscServices {

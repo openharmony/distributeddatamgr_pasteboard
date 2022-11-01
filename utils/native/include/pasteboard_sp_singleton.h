@@ -16,9 +16,10 @@
 #ifndef PASTEBOARD_SP_SINGLETON_H
 #define PASTEBOARD_SP_SINGLETON_H
 
-#include <mutex>
 #include <memory>
+#include <mutex>
 #include <refbase.h>
+
 #include "nocopyable.h"
 
 namespace OHOS {

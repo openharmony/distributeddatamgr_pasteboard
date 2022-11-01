@@ -15,21 +15,21 @@
 #ifndef PASTE_SERVICE_TEST_H
 #define PASTE_SERVICE_TEST_H
 
-#include "pasteboard_observer_stub.h"
-#include "pasteboard_observer.h"
 #include "pasteboard_error.h"
+#include "pasteboard_observer.h"
+#include "pasteboard_observer_stub.h"
 
 namespace OHOS {
 namespace MiscServices {
 class PasteboardObserverCallback : public PasteboardObserver {
 public:
-    PasteboardObserverCallback() {};
+    PasteboardObserverCallback(){};
     ~PasteboardObserverCallback()
     {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deconstructor.");
     };
     void OnPasteboardChanged() override;
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_SERVICE_TEST_H

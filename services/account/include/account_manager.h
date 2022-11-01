@@ -26,5 +26,5 @@ private:
     AccountManager() = default;
     ~AccountManager() = default;
 };
-}
+} // namespace OHOS::MiscServices
 #endif // OHOS_PASTEBOARD_SERVICES_ACCOUNT_ACCOUNT_MANAGER_H

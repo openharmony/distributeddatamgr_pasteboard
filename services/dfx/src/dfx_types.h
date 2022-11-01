@@ -16,9 +16,9 @@
 #ifndef MISCSERVICES_PASTEBOARD_DFX_TYPES_H
 #define MISCSERVICES_PASTEBOARD_DFX_TYPES_H
 
-#include <string>
-#include <memory>
 #include <map>
+#include <memory>
+#include <string>
 
 namespace OHOS {
 namespace MiscServices {
@@ -80,6 +80,6 @@ enum class ReportStatus {
     SUCCESS = 0,
     ERROR = 1,
 };
-}  // namespace MiscServices
-}  // namespace OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // MISCSERVICES_PASTEBOARD_DFX_TYPES_H

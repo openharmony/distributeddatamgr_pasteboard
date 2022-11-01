@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 #include "pasteboard_common.h"
-#include "pasteboard_js_err.h"
-#include "pasteboard_hilog.h"
-#include "pixel_map_napi.h"
-#include "paste_data_record.h"
+
 #include "napi_common.h"
+#include "paste_data_record.h"
+#include "pasteboard_hilog.h"
+#include "pasteboard_js_err.h"
+#include "pixel_map_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -115,8 +116,9 @@ bool CheckExpression(napi_env env, bool flag, MiscServices::JSErrorCode errCode,
 bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeType)
 {
     // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
-    if (!CheckExpression(env, argc >= 2, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
-        || !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+    if (!CheckExpression(env, argc >= ARGC_TYPE_SET2, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Wrong number of arguments.") ||
+        !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
 
@@ -126,8 +128,8 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         return false;
     }
     if (!CheckExpression(
-            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.")
-        || !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
+            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
+        !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
         return false;
     }

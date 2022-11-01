@@ -16,11 +16,10 @@
 #ifndef MISCSERVICES_PASTEBOARD_HI_VIEW_ADAPTER_H
 #define MISCSERVICES_PASTEBOARD_HI_VIEW_ADAPTER_H
 
-#include <sys/time.h>
-
 #include <map>
 #include <mutex>
 #include <string>
+#include <sys/time.h>
 #include <vector>
 
 #include "dfx_code_constant.h"
@@ -85,24 +84,25 @@ private:
     static std::map<std::string, int> copyPasteboardBehaviour_;
     static std::map<std::string, int> pastePasteboardBehaviour_;
     static std::map<std::string, int> remotePastePasteboardBehaviour_;
-    
+
     static std::map<int, int> dataMap_;
     static std::map<int, int> timeMap_;
 
     static std::string CoverEventID(int dfxCode);
+
 private:
     static std::mutex runMutex_;
     static bool running_;
-    
-    static inline constexpr int ONE_DAY_IN_HOURS  = 24;
+
+    static inline constexpr int ONE_DAY_IN_HOURS = 24;
     static inline constexpr int EXEC_HOUR_TIME = 23;
     static inline constexpr int EXEC_MIN_TIME = 60;
-    static inline constexpr int ONE_MINUTE_IN_SECONDS  = 60;
+    static inline constexpr int ONE_MINUTE_IN_SECONDS = 60;
     static inline constexpr int ONE_HOUR_IN_SECONDS = 1 * 60 * 60; // 1 hour
 
-// statistic key
+    // statistic key
     static inline const char *PASTEBOARD_STATE = "PASTEBOARD_STATE";
-    
+
     static inline const char *ZERO_TO_HUNDRED_KB = "ZERO_TO_HUNDRED_KB";
     static inline const char *HUNDRED_TO_FIVE_HUNDREDS_KB = "HUNDRED_TO_FIVE_HUNDREDS_KB";
     static inline const char *FIVE_HUNDREDS_TO_THOUSAND_KB = "FIVE_HUNDREDS_TO_THOUSAND_KB";
@@ -113,7 +113,7 @@ private:
     static inline const char *CONSUMING_DATA = "CONSUMING_DATA";
     static inline const char *DATA_LEVEL = "DATA_LEVEL";
     static inline constexpr const char *NET_TYPE = "NET_TYPE";
-// behaviour key
+    // behaviour key
     static inline const char *TOP_ONE_APP = "TOP_ONE_APP";
     static inline const char *TOP_TOW_APP = "TOP_TOW_APP";
     static inline const char *TOP_THREE_APP = "TOP_THREE_APP";
@@ -124,15 +124,15 @@ private:
     static inline const char *TOP_EIGHT_APP = "TOP_EIGHT_APP";
     static inline const char *TOP_NINE_APP = "TOP_NINE_APP";
     static inline const char *TOP_TEN_APP = "TOP_TEN_APP";
-    
+
     static inline const char *COPY_STATE = "COPY_STATE";
     static inline const char *PASTE_STATE = "PASTE_STATE";
     static inline constexpr const char *REMOTE_PASTE_STATE = "REMOTE_PASTE_STATE";
-    
+
     static inline const int INIT_COPY_TIME_SONSUMING = 7;
     static inline const int INIT_PASTE_TIME_SONSUMING = 8;
     static inline constexpr const int INIT_REMOTE_PASTE_TIME_SONSUMING = 9;
 };
-}  // namespace MiscServices
-}  // namespace OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // MISCSERVICES_PASTEBOARD_HI_VIEW_ADAPTER_H

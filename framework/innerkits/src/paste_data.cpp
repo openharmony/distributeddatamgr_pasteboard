@@ -28,12 +28,7 @@ using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServices {
-enum TAG_PASTEBOARD : uint16_t {
-    TAG_PROPS = TAG_BUFF + 1,
-    TAG_RECORDS,
-    TAG_DRAGGED_DATA_FLAG,
-    TAG_LOCAL_PASTE_FLAG
-};
+enum TAG_PASTEBOARD : uint16_t { TAG_PROPS = TAG_BUFF + 1, TAG_RECORDS, TAG_DRAGGED_DATA_FLAG, TAG_LOCAL_PASTE_FLAG };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
     TAG_MIMETYPES,
@@ -126,7 +121,7 @@ std::vector<std::string> PasteData::GetMimeTypes()
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
     for (const auto &item : records_) {
-        if (item->GetHtmlText() != nullptr)  {
+        if (item->GetHtmlText() != nullptr) {
             return item->GetHtmlText();
         }
     }

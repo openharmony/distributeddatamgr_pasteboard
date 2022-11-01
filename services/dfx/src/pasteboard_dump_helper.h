@@ -29,12 +29,12 @@ class PasteboardDumpHelper {
 public:
     static PasteboardDumpHelper &GetInstance();
     void RegisterCommand(std::shared_ptr<Command> &cmd);
-    bool Dump(int fd, const std::vector<std::string>& args) const;
+    bool Dump(int fd, const std::vector<std::string> &args) const;
 
 private:
     std::map<std::string, std::shared_ptr<Command>> cmdHandler;
 };
-}  // namespace MiscServices
-}  // namespace OHOS
+} // namespace MiscServices
+} // namespace OHOS
 
-#endif  // MISCSERVICES_PASTEBOARD_DUMPE_HELPER_H
+#endif // MISCSERVICES_PASTEBOARD_DUMPE_HELPER_H

@@ -32,7 +32,7 @@ using namespace MiscServices;
 
 std::atomic_bool PasteboardTrace::isSetBytraceEnabled_ = false;
 
-PasteboardTrace::PasteboardTrace(const std::string& value)
+PasteboardTrace::PasteboardTrace(const std::string &value)
 {
     SetBytraceEnable();
     StartTrace(BYTRACE_LABEL, value);

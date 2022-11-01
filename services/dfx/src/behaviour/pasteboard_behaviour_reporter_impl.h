@@ -25,7 +25,6 @@ class PasteboardBehaviourReporterImpl : public BehaviourReporter {
 public:
     ReportStatus Report(const struct PasteboardBehaviourMsg &msg) override;
 };
-}  // namespace MiscServices
-}  // namespace OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // MISCSERVICES_PASTEBOARD_BEHAVIOUR_REPORTER_IMPL_H
-

@@ -16,6 +16,7 @@
 #define N_NAPI_PASTEBOARD_COMMON_H
 
 #include <string>
+
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "pasteboard_js_err.h"
@@ -30,6 +31,6 @@ bool GetValue(napi_env env, napi_value in, std::string &out);
 bool CheckArgsType(napi_env env, napi_value in, napi_valuetype expectedType, const char *message);
 bool CheckExpression(napi_env env, bool expression, MiscServices::JSErrorCode errCode, const char *message);
 bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeType);
-}  // namespace MiscServicesNapi
-}  // namespace OHOS
+} // namespace MiscServicesNapi
+} // namespace OHOS
 #endif

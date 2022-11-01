@@ -24,11 +24,11 @@
 
 #include "parcel.h"
 #include "paste_data_record.h"
+#include "pasteboard_hilog.h"
 #include "tlv_object.h"
 #include "uri.h"
 #include "want.h"
 #include "want_params.h"
-#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -103,6 +103,7 @@ public:
 
     bool IsValid() const;
     void SetInvalid();
+
 private:
     bool MarshallingProps(Parcel &parcel) const;
     static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);
@@ -112,7 +113,7 @@ private:
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
     bool valid_ = true;
     bool isDraggedData_ = false;
-    bool isLocalPaste_ = false;  // local in app paste
+    bool isLocalPaste_ = false; // local in app paste
 };
 } // namespace MiscServices
 } // namespace OHOS

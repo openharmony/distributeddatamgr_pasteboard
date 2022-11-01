@@ -19,14 +19,14 @@
 #include <memory>
 #include <string>
 
+#include "message_parcel.h"
 #include "parcel.h"
 #include "pixel_map.h"
 #include "string_ex.h"
 #include "tlv_object.h"
 #include "uri.h"
-#include "want.h"
 #include "uri_handler.h"
-#include "message_parcel.h"
+#include "want.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -78,8 +78,8 @@ public:
     static std::shared_ptr<PasteDataRecord> NewPlaintTextRecord(const std::string &text);
     static std::shared_ptr<PasteDataRecord> NewPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     static std::shared_ptr<PasteDataRecord> NewUriRecord(const OHOS::Uri &uri);
-    static std::shared_ptr<PasteDataRecord> NewKvRecord(const std::string &mimeType,
-        const std::vector<uint8_t> &arrayBuffer);
+    static std::shared_ptr<PasteDataRecord> NewKvRecord(
+        const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
     std::string GetMimeType() const;
     std::shared_ptr<std::string> GetHtmlText() const;

@@ -13,12 +13,13 @@
  * limitations under the License.
  */
 #include <cstddef>
-#include "pastedata_napi.h"
-#include "pastedata_record_napi.h"
+
+#include "napi_common.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
-#include "napi_common.h"
 #include "pasteboard_js_err.h"
+#include "pastedata_napi.h"
+#include "pastedata_record_napi.h"
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
 
@@ -33,7 +34,7 @@ constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 constexpr int32_t MAX_TEXT_LEN = 20 * 1024 * 1024;
 constexpr size_t STR_TAIL_LENGTH = 1;
 constexpr size_t MAX_RECORD_NUM = 512;
-}  // namespace
+} // namespace
 static thread_local napi_ref g_pasteData = nullptr;
 
 PasteDataNapi::PasteDataNapi() : env_(nullptr), wrapper_(nullptr)
@@ -50,7 +51,7 @@ napi_value PasteDataNapi::AddHtmlRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddHtmlRecord is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -107,7 +108,7 @@ napi_value PasteDataNapi::AddTextRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddTextRecord is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -134,7 +135,7 @@ napi_value PasteDataNapi::AddUriRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddUriRecord is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -161,7 +162,7 @@ napi_value PasteDataNapi::GetPrimaryHtml(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryHtml is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -216,7 +217,7 @@ napi_value PasteDataNapi::GetPrimaryText(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryText is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -244,7 +245,7 @@ napi_value PasteDataNapi::GetPrimaryUri(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryUri is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -278,8 +279,8 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if ((!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. Wrong number of arguments."))
-        || (!CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string."))) {
+        "Parameter error. Wrong number of arguments.")) ||
+        (!CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string."))) {
         return nullptr;
     }
 
@@ -308,16 +309,16 @@ napi_value PasteDataNapi::HasType(napi_env env, napi_callback_info info)
     return HasMimeType(env, info);
 }
 
-PasteDataNapi* PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callback_info info, uint32_t &index)
+PasteDataNapi *PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callback_info info, uint32_t &index)
 {
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
 
     if ((!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. Wrong number of arguments."))
-        || (!CheckArgsType(env, argv[0], napi_number, "Parameter error. The type of mimeType must be number."))) {
+        "Parameter error. Wrong number of arguments.")) ||
+        (!CheckArgsType(env, argv[0], napi_number, "Parameter error. The type of mimeType must be number."))) {
         return nullptr;
     }
     PasteDataNapi *obj = nullptr;
@@ -349,9 +350,8 @@ napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecord is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
-    if (obj == nullptr
-        || !CheckExpression(env, index < obj->value_->GetRecordCount(),
-            JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
+    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(),
+        JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
     obj->value_->RemoveRecordAt(index);
@@ -362,7 +362,7 @@ napi_value PasteDataNapi::GetPrimaryMimeType(napi_env env, napi_callback_info in
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryMimeType is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -389,7 +389,7 @@ napi_value PasteDataNapi::GetRecordCount(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecordCount is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -413,7 +413,7 @@ napi_value PasteDataNapi::GetTag(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetTag is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -436,7 +436,7 @@ napi_value PasteDataNapi::GetMimeTypes(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetMimeTypes is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -666,8 +666,8 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_TYPE_SET2] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc > ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS, "Wrong number of arguments.")
-        || !CheckArgsType(env, argv[0], napi_number, "The type of mimeType must be number.")) {
+    if (!CheckExpression(env, argc > ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS, "Wrong number of arguments.") ||
+        !CheckArgsType(env, argv[0], napi_number, "The type of mimeType must be number.")) {
         return nullptr;
     }
 
@@ -700,7 +700,7 @@ napi_value PasteDataNapi::AddWantRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddWantRecord is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -729,7 +729,7 @@ napi_value PasteDataNapi::GetPrimaryWant(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryWant is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -789,7 +789,7 @@ napi_value PasteDataNapi::GetProperty(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetProperty is called!");
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -830,9 +830,8 @@ napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecord is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
-    if (obj == nullptr
-        || !CheckExpression(env, index < obj->value_->GetRecordCount(),
-            JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
+    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(),
+        JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
         return nullptr;
     }
 
@@ -915,9 +914,10 @@ napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")
-        || !CheckExpression(env, IsProperty(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The type of property must be PasteDataProperty.")) {
+    if (!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Wrong number of arguments.") ||
+        !CheckExpression(env, IsProperty(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. The type of property must be PasteDataProperty.")) {
         return nullptr;
     }
 
@@ -934,33 +934,21 @@ napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
 napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
 {
     napi_status status = napi_ok;
-    napi_property_descriptor descriptors[] = {
-        DECLARE_NAPI_FUNCTION("addHtmlRecord", AddHtmlRecord),
-        DECLARE_NAPI_FUNCTION("addWantRecord", AddWantRecord),
-        DECLARE_NAPI_FUNCTION("addRecord", AddRecord),
-        DECLARE_NAPI_FUNCTION("addTextRecord", AddTextRecord),
-        DECLARE_NAPI_FUNCTION("addUriRecord", AddUriRecord),
+    napi_property_descriptor descriptors[] = { DECLARE_NAPI_FUNCTION("addHtmlRecord", AddHtmlRecord),
+        DECLARE_NAPI_FUNCTION("addWantRecord", AddWantRecord), DECLARE_NAPI_FUNCTION("addRecord", AddRecord),
+        DECLARE_NAPI_FUNCTION("addTextRecord", AddTextRecord), DECLARE_NAPI_FUNCTION("addUriRecord", AddUriRecord),
         DECLARE_NAPI_FUNCTION("addPixelMapRecord", AddPixelMapRecord),
-        DECLARE_NAPI_FUNCTION("getMimeTypes", GetMimeTypes),
-        DECLARE_NAPI_FUNCTION("getPrimaryHtml", GetPrimaryHtml),
+        DECLARE_NAPI_FUNCTION("getMimeTypes", GetMimeTypes), DECLARE_NAPI_FUNCTION("getPrimaryHtml", GetPrimaryHtml),
         DECLARE_NAPI_FUNCTION("getPrimaryWant", GetPrimaryWant),
         DECLARE_NAPI_FUNCTION("getPrimaryMimeType", GetPrimaryMimeType),
-        DECLARE_NAPI_FUNCTION("getPrimaryText", GetPrimaryText),
-        DECLARE_NAPI_FUNCTION("getPrimaryUri", GetPrimaryUri),
+        DECLARE_NAPI_FUNCTION("getPrimaryText", GetPrimaryText), DECLARE_NAPI_FUNCTION("getPrimaryUri", GetPrimaryUri),
         DECLARE_NAPI_FUNCTION("getPrimaryPixelMap", GetPrimaryPixelMap),
-        DECLARE_NAPI_FUNCTION("getProperty", GetProperty),
-        DECLARE_NAPI_FUNCTION("getRecordAt", GetRecordAt),
-        DECLARE_NAPI_FUNCTION("getRecord", GetRecord),
-        DECLARE_NAPI_FUNCTION("getRecordCount", GetRecordCount),
-        DECLARE_NAPI_FUNCTION("getTag", GetTag),
-        DECLARE_NAPI_FUNCTION("hasMimeType", HasMimeType),
-        DECLARE_NAPI_FUNCTION("hasType", HasType),
-        DECLARE_NAPI_FUNCTION("removeRecordAt", RemoveRecordAt),
-        DECLARE_NAPI_FUNCTION("removeRecord", RemoveRecord),
-        DECLARE_NAPI_FUNCTION("replaceRecordAt", ReplaceRecordAt),
-        DECLARE_NAPI_FUNCTION("replaceRecord", ReplaceRecord),
-        DECLARE_NAPI_FUNCTION("setProperty", SetProperty)
-    };
+        DECLARE_NAPI_FUNCTION("getProperty", GetProperty), DECLARE_NAPI_FUNCTION("getRecordAt", GetRecordAt),
+        DECLARE_NAPI_FUNCTION("getRecord", GetRecord), DECLARE_NAPI_FUNCTION("getRecordCount", GetRecordCount),
+        DECLARE_NAPI_FUNCTION("getTag", GetTag), DECLARE_NAPI_FUNCTION("hasMimeType", HasMimeType),
+        DECLARE_NAPI_FUNCTION("hasType", HasType), DECLARE_NAPI_FUNCTION("removeRecordAt", RemoveRecordAt),
+        DECLARE_NAPI_FUNCTION("removeRecord", RemoveRecord), DECLARE_NAPI_FUNCTION("replaceRecordAt", ReplaceRecordAt),
+        DECLARE_NAPI_FUNCTION("replaceRecord", ReplaceRecord), DECLARE_NAPI_FUNCTION("setProperty", SetProperty) };
 
     napi_value constructor;
     napi_define_class(env, "PasteData", NAPI_AUTO_LENGTH, New, nullptr,
@@ -988,7 +976,7 @@ void PasteDataNapi::Destructor(napi_env env, void *nativeObject, void *finalize_
 napi_value PasteDataNapi::New(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
 
@@ -996,8 +984,8 @@ napi_value PasteDataNapi::New(napi_env env, napi_callback_info info)
     PasteDataNapi *obj = new PasteDataNapi();
     obj->env_ = env;
     NAPI_CALL(env, napi_wrap(env, thisVar, obj, PasteDataNapi::Destructor,
-        nullptr, // finalize_hint
-        &obj->wrapper_));
+                       nullptr, // finalize_hint
+                       &obj->wrapper_));
     return thisVar;
 }
 
