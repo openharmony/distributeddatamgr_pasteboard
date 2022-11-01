@@ -623,20 +623,34 @@ std::string PasteboardService::DumpHistory() const
     return result;
 }
 
+void PasteboardService::ShareOptionToString(ShareOption shareOption, std::string &out)
+{
+    if (shareOption == ShareOption::InApp) {
+        out = "InAPP";
+    } else if (shareOption == ShareOption::LocalDevice) {
+        out = "LocalDevice";
+    } else {
+        out = "CrossDevice";
+    }
+}
+
 std::string PasteboardService::DumpData()
 {
+    std::vector<int32_t> ids;
+    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    if (ret != ERR_OK || ids.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
+        return "";
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}d", ids[0]);
+    std::lock_guard<std::mutex> lock(clipMutex_);
+    auto it = clips_.find(ids[0]);
     std::string result;
-    if (!clips_.empty() && clips_.rbegin()->second != nullptr) {
-        size_t recordCounts = clips_.rbegin()->second->GetRecordCount();
-        auto property = clips_.rbegin()->second->GetProperty();
+    if (it != clips_.end() && it->second != nullptr) {
+        size_t recordCounts = it->second->GetRecordCount();
+        auto property = it->second->GetProperty();
         std::string shareOption;
-        if (property.shareOption == 0) {
-            shareOption = "InAPP";
-        } else if (property.shareOption == 1) {
-            shareOption = "LocalDevice";
-        } else {
-            shareOption = "CrossDevice";
-        }
+        ShareOptionToString(property.shareOption, shareOption);
         std::string sourceDevice;
         if (property.isRemote) {
             sourceDevice = "remote";
