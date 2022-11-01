@@ -124,6 +124,7 @@ private:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DevManagerInit();
     void DevProfileInit();
+    static void ShareOptionToString(ShareOption shareOption, std::string &out);
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::mutex clipMutex_;
