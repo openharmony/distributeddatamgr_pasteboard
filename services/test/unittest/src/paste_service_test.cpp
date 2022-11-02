@@ -33,7 +33,7 @@ namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace OHOS::Media;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
-constexpr const char *SYSTEMUI_BUNDLENAME = " com.ohos.systemui";
+constexpr const char *SYSTEMUI_BUNDLENAME = "com.ohos.systemui";
 constexpr const uint16_t EACH_LINE_LENGTH = 50;
 constexpr const uint16_t TOTAL_LENGTH = 500;
 class PasteboardServiceTest : public testing::Test {
