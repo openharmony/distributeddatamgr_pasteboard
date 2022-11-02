@@ -33,7 +33,7 @@ namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace OHOS::Media;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
-constexpr const char *SYSTEMUI_BUNDLENAME = "com.ohos.camera";
+constexpr const char *TEST_BUNDLENAME = "com.ohos.camera";
 constexpr const uint16_t EACH_LINE_LENGTH = 50;
 constexpr const uint16_t TOTAL_LENGTH = 500;
 class PasteboardServiceTest : public testing::Test {
@@ -108,7 +108,7 @@ void PasteboardServiceTest::SetSelfTokenId()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode = %{public}d", ret);
         return;
     }
-    auto tokenID = Security::AccessToken::AccessTokenKit::GetHapTokenID(ids[0], SYSTEMUI_BUNDLENAME, 0);
+    auto tokenID = Security::AccessToken::AccessTokenKit::GetHapTokenID(ids[0], TEST_BUNDLENAME, 0);
     ret = SetSelfTokenID(tokenID);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ids[0] = %{public}d, token = 0x%{public}x, ret = %{public}d!",
         ids[0], tokenID, ret);
@@ -1166,9 +1166,9 @@ HWTEST_F(PasteboardServiceTest, HasPastePermissionTest001, TestSize.Level0)
     EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
 
-    // not DraggedData, not DefaultIME, but when FocusedApp == SYSTEMUI_BUNDLENAME, is FocusedApp
+    // not DraggedData, not DefaultIME, but when FocusedApp == TEST_BUNDLENAME, is FocusedApp
     auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
-    if (elementName.GetBundleName() == SYSTEMUI_BUNDLENAME) {
+    if (elementName.GetBundleName() == TEST_BUNDLENAME) {
         EXPECT_TRUE(hasPasteData);
     } else {
         EXPECT_FALSE(hasPasteData);
