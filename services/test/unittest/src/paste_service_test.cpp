@@ -62,6 +62,7 @@ AccessTokenID PasteboardServiceTest::testTokenId_ = 0;
 
 void PasteboardServiceTest::SetUpTestCase(void)
 {
+    selfTokenId_ = GetSelfTokenID();
     AllocTestTokenId();
 }
 
@@ -150,7 +151,6 @@ void PasteboardServiceTest::DeleteTestTokenId()
 
 void PasteboardServiceTest::SetTestTokenId()
 {
-    selfTokenId_ = GetSelfTokenID();
     auto ret = SetSelfTokenID(testTokenId_);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "testTokenId = 0x%{public}x, ret = %{public}d!", testTokenId_, ret);
 }
