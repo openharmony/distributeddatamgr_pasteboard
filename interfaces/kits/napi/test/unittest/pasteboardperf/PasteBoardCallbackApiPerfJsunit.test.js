@@ -27,10 +27,7 @@ describe('PasteBoardPerfJSTest', function () {
     })
 
     const BASE_CONUT = 500;
-    const BASELINE = 5000;
-
     const htmlText = '<html><head></head><body>Hello!</body></html>';
-
 
     /**
      * @tc.name      clearData_Callback_performance_test_001
@@ -48,7 +45,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     clearDataCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "clearData_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "clearData_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -71,7 +68,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     clearCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "clear_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "clear_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -95,7 +92,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     setDataCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "setData_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "setData_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -119,7 +116,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     setPasteDataCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "setPasteData_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "setPasteData_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -142,7 +139,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     hasDataCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "hasData_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "hasData_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -165,7 +162,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     hasPasteDataCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "hasPasteData_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "hasPasteData_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -191,7 +188,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     getDataCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "getData_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "getData_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -217,7 +214,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     getPasteDataCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPasteData_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "getPasteData_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -240,7 +237,7 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     convertToTextCallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "convertToText_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "convertToText_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -263,18 +260,17 @@ describe('PasteBoardPerfJSTest', function () {
                 if (index < BASE_CONUT) {
                     convertToTextV9CallbackPerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "convertToTextV9_Callback_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_CONUT, "convertToTextV9_Callback_performance_test_001 averageTime:");
                     done();
                 }
             });
         }
     })
 
-    function computeAverageTime(startTime, baseCount, baseTime, message) {
+    function computeAverageTime(startTime, baseCount, message) {
         var endTime = new Date().getTime();
         var averageTime = ((endTime - startTime) * 1000) / baseCount;
         console.info(message + averageTime);
-        expect(averageTime < baseTime).assertTrue();
     }
 
 });

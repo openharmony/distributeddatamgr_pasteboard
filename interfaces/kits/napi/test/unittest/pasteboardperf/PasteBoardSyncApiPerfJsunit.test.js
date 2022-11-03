@@ -27,8 +27,6 @@ describe('PasteBoardPerfJSTest', function () {
     })
 
     const BASE_CONUT = 500;
-    const BASELINE = 5000;
-
     const pixelMapBuffer = new ArrayBuffer(10000);
     const opt = {
         size: {height: 50, width: 50},
@@ -37,7 +35,6 @@ describe('PasteBoardPerfJSTest', function () {
         alphaType: 1,
         scaleMode: 1
     };
-    const kvBuffer = new ArrayBuffer(256);
     const htmlText = '<html><head></head><body>Hello!</body></html>';
     const uriText = 'https://www.baidu.com/';
     const plainText = 'Hello World!';
@@ -55,7 +52,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('getSystemPasteboard_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithNoparam(pasteboard.getSystemPasteboard, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getSystemPasteboard_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getSystemPasteboard_performance_test_001 averageTime:");
         done();
     })
 
@@ -69,7 +66,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pixelMap = await image.createPixelMap(pixelMapBuffer, opt);
         var startTime = new Date().getTime();
         funcWithTwoparam(pasteboard.createData, pasteboard.MIMETYPE_PIXELMAP, pixelMap, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createData_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createData_performance_test_001 averageTime:");
         done();
     })
 
@@ -83,7 +80,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pixelMap = await image.createPixelMap(pixelMapBuffer, opt);
         var startTime = new Date().getTime();
         funcWithTwoparam(pasteboard.createRecord, pasteboard.MIMETYPE_PIXELMAP, pixelMap, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -96,7 +93,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('createHtmlData_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithOneparam(pasteboard.createHtmlData, htmlText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createHtmlData_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createHtmlData_performance_test_001 averageTime:");
         done();
     })
 
@@ -109,7 +106,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('createWantData_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithOneparam(pasteboard.createWantData, wantText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createWantData_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createWantData_performance_test_001 averageTime:");
         done();
     })
 
@@ -122,7 +119,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('createPlainTextData_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithOneparam(pasteboard.createPlainTextData, plainText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createPlainTextData_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createPlainTextData_performance_test_001 averageTime:");
         done();
     })
 
@@ -135,7 +132,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('createUriData_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithOneparam(pasteboard.createUriData, uriText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createUriData_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createUriData_performance_test_001 averageTime:");
         done();
     })
 
@@ -148,7 +145,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('createHtmlTextRecord_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithOneparam(pasteboard.createHtmlTextRecord, htmlText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createHtmlTextRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createHtmlTextRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -161,7 +158,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('createWantRecord_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithOneparam(pasteboard.createWantRecord, wantText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createWantRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createWantRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -174,7 +171,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('createPlainTextRecord_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithOneparam(pasteboard.createPlainTextRecord, plainText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createPlainTextRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createPlainTextRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -187,7 +184,7 @@ describe('PasteBoardPerfJSTest', function () {
     it('createUriRecord_performance_test_001', 0, async function (done) {
         var startTime = new Date().getTime();
         funcWithOneparam(pasteboard.createUriRecord, uriText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "createUriRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "createUriRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -202,7 +199,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithTwoparam(pasteData.addRecord, pasteboard.MIMETYPE_PIXELMAP, pixelMap, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "addRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "addRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -216,7 +213,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.getRecord, 0, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -230,7 +227,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.hasType, pasteboard.MIMETYPE_PIXELMAP, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "hasType_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "hasType_performance_test_001 averageTime:");
         done();
     })
 
@@ -245,7 +242,7 @@ describe('PasteBoardPerfJSTest', function () {
         funcWithOneparam(pasteData.addHtmlRecord, htmlText, BASE_CONUT);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.removeRecord, 0, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "removeRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "removeRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -260,7 +257,7 @@ describe('PasteBoardPerfJSTest', function () {
         var dataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithTwoparam(pasteData.replaceRecord, 0, dataRecord, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "replaceRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "replaceRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -274,7 +271,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.addHtmlRecord, htmlText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "addHtmlRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "addHtmlRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -288,7 +285,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.addWantRecord, wantText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "addWantRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "addWantRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -303,7 +300,7 @@ describe('PasteBoardPerfJSTest', function () {
         var dataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.addRecord, dataRecord, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "addRecord_performance_test_002 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "addRecord_performance_test_002 averageTime:");
         done();
     })
 
@@ -317,7 +314,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.addTextRecord, plainText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "addTextRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "addTextRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -331,7 +328,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.addUriRecord, uriText, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "addUriRecord_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "addUriRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -345,7 +342,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getMimeTypes, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getMimeTypes_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getMimeTypes_performance_test_001 averageTime:");
         done();
     })
 
@@ -359,7 +356,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getPrimaryHtml, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPrimaryHtml_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getPrimaryHtml_performance_test_001 averageTime:");
         done();
     })
 
@@ -373,7 +370,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText);
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getPrimaryWant, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPrimaryWant_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getPrimaryWant_performance_test_001 averageTime:");
         done();
     })
 
@@ -387,7 +384,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText);
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getPrimaryMimeType, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPrimaryMimeType_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getPrimaryMimeType_performance_test_001 averageTime:");
         done();
     })
 
@@ -401,7 +398,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getPrimaryUri, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPrimaryUri_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getPrimaryUri_performance_test_001 averageTime:");
         done();
     })
 
@@ -416,7 +413,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getPrimaryPixelMap, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPrimaryPixelMap_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getPrimaryPixelMap_performance_test_001 averageTime:");
         done();
     })
 
@@ -430,7 +427,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getProperty, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getProperty_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getProperty_performance_test_001 averageTime:");
         done();
     })
 
@@ -445,7 +442,7 @@ describe('PasteBoardPerfJSTest', function () {
         var property = pasteData.getProperty();
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.setProperty, property, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "setProperty_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "setProperty_performance_test_001 averageTime:");
         done();
     })
 
@@ -459,7 +456,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.getRecordAt, 0, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getRecordAt_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getRecordAt_performance_test_001 averageTime:");
         done();
     })
 
@@ -473,7 +470,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getRecordCount, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getRecordCount_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "getRecordCount_performance_test_001 averageTime:");
         done();
     })
 
@@ -487,7 +484,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.hasMimeType, pasteboard.MIMETYPE_TEXT_URI, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "hasMimeType_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "hasMimeType_performance_test_001 averageTime:");
         done();
     })
 
@@ -501,7 +498,7 @@ describe('PasteBoardPerfJSTest', function () {
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
         funcWithOneparam(pasteData.removeRecordAt, 0, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "removeRecordAt_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "removeRecordAt_performance_test_001 averageTime:");
         done();
     })
 
@@ -516,7 +513,7 @@ describe('PasteBoardPerfJSTest', function () {
         var dataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
         var startTime = new Date().getTime();
         funcWithTwoparam(pasteData.replaceRecordAt, 0, dataRecord, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "replaceRecordAt_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "replaceRecordAt_performance_test_001 averageTime:");
         done();
     })
 
@@ -530,7 +527,7 @@ describe('PasteBoardPerfJSTest', function () {
         var systemPasteboard = pasteboard.getSystemPasteboard();
         var startTime = new Date().getTime();
         funcWithTwoparam(systemPasteboard.on, 'update', contentChanges, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "on_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "on_performance_test_001 averageTime:");
         done();
     })
 
@@ -544,7 +541,7 @@ describe('PasteBoardPerfJSTest', function () {
         var systemPasteboard = pasteboard.getSystemPasteboard();
         var startTime = new Date().getTime();
         funcWithTwoparam(systemPasteboard.off, 'update', contentChanges, BASE_CONUT);
-        computeAverageTime(startTime, BASE_CONUT, BASELINE, "off_performance_test_001 averageTime:");
+        computeAverageTime(startTime, BASE_CONUT, "off_performance_test_001 averageTime:");
         done();
     })
 
@@ -566,11 +563,10 @@ describe('PasteBoardPerfJSTest', function () {
         }
     }
 
-    function computeAverageTime(startTime, baseCount, baseTime, message) {
+    function computeAverageTime(startTime, baseCount, message) {
         var endTime = new Date().getTime();
         var averageTime = ((endTime - startTime) * 1000) / baseCount;
         console.info(message + averageTime);
-        expect(averageTime < baseTime).assertTrue();
     }
 
     function contentChanges() {
