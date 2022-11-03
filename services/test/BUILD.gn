@@ -21,6 +21,7 @@ config("module_private_config") {
     "${pasteboard_innerkits_path}/include",
     "include",
     "unittest/include",
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri",
   ]
@@ -39,7 +40,6 @@ ohos_unittest("PasteboardServiceTest") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
