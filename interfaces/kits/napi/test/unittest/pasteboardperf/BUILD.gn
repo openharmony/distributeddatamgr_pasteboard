@@ -15,15 +15,15 @@ import("//build/test.gni")
 
 module_output_path = "distributeddatamgr/pasteboard"
 
-ohos_js_unittest("PasteBoardJSTest") {
+ohos_js_unittest("PasteBoardPerfJSTest") {
   module_out_path = module_output_path
 
-  hap_profile = "./config.json"
+  hap_profile = "../config.json"
 
-  certificate_profile = "./signature/openharmony_sx.p7b"
+  certificate_profile = "../openharmony_sx.p7b"
 }
 
 group("unittest") {
   testonly = true
-  deps = [ ":PasteBoardJSTest" ]
+  deps = [ ":PasteBoardPerfJSTest" ]
 }
