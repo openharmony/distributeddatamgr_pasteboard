@@ -26,7 +26,7 @@ describe('PasteBoardPerfJSTest', function () {
         console.info('afterAll');
     })
 
-    const BASE_CONUT = 1000;
+    const BASE_CONUT = 500;
     const BASELINE = 5000;
 
     const htmlText = '<html><head></head><body>Hello!</body></html>';
@@ -224,6 +224,51 @@ describe('PasteBoardPerfJSTest', function () {
         }
     })
 
+    /**
+     * @tc.name      convertToText_Callback_performance_test_001
+     * @tc.desc      convertToText interface Callback performance test
+     * @tc.type      PERF
+     * @tc.require   I5YP4X
+     */
+    it('convertToText_Callback_performance_test_001', 0, async function (done) {
+        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        var startTime = new Date().getTime();
+        convertToTextCallbackPerfTest(0);
+
+        function convertToTextCallbackPerfTest(index) {
+            pasteDataRecord.convertToText(() => {
+                if (index < BASE_CONUT) {
+                    convertToTextCallbackPerfTest(index + 1);
+                } else {
+                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "convertToText_Callback_performance_test_001 averageTime:");
+                    done();
+                }
+            });
+        }
+    })
+
+    /**
+     * @tc.name      convertToTextV9_Callback_performance_test_001
+     * @tc.desc      convertToTextV9 interface Callback performance test
+     * @tc.type      PERF
+     * @tc.require   I5YP4X
+     */
+    it('convertToTextV9_Callback_performance_test_001', 0, async function (done) {
+        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        var startTime = new Date().getTime();
+        convertToTextV9CallbackPerfTest(0);
+
+        function convertToTextV9CallbackPerfTest(index) {
+            pasteDataRecord.convertToTextV9(() => {
+                if (index < BASE_CONUT) {
+                    convertToTextV9CallbackPerfTest(index + 1);
+                } else {
+                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "convertToTextV9_Callback_performance_test_001 averageTime:");
+                    done();
+                }
+            });
+        }
+    })
 
     function computeAverageTime(startTime, baseCount, baseTime, message) {
         var endTime = new Date().getTime();

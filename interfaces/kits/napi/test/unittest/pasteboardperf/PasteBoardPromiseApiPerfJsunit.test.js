@@ -26,7 +26,7 @@ describe('PasteBoardPerfJSTest', function () {
         console.info('afterAll');
     })
 
-    const BASE_CONUT = 1000;
+    const BASE_CONUT = 500;
     const BASELINE = 5000;
 
     const htmlText = '<html><head></head><body>Hello!</body></html>';
@@ -218,6 +218,52 @@ describe('PasteBoardPerfJSTest', function () {
                     getPasteDataPromisePerfTest(index + 1);
                 } else {
                     computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPasteData_Promise_performance_test_001 averageTime:");
+                    done();
+                }
+            });
+        }
+    })
+
+    /**
+     * @tc.name      convertToText_Promise_performance_test_001
+     * @tc.desc      convertToText interface promise performance test
+     * @tc.type      PERF
+     * @tc.require   I5YP4X
+     */
+    it('convertToText_Promise_performance_test_001', 0, async function (done) {
+        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        var startTime = new Date().getTime();
+        convertToTextPromisePerfTest(0);
+
+        function convertToTextPromisePerfTest(index) {
+            pasteDataRecord.convertToText().then(() => {
+                if (index < BASE_CONUT) {
+                    convertToTextPromisePerfTest(index + 1);
+                } else {
+                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "convertToText_Promise_performance_test_001 averageTime:");
+                    done();
+                }
+            });
+        }
+    })
+
+    /**
+     * @tc.name      convertToTextV9_Promise_performance_test_001
+     * @tc.desc      convertToTextV9 interface promise performance test
+     * @tc.type      PERF
+     * @tc.require   I5YP4X
+     */
+    it('convertToTextV9_Promise_performance_test_001', 0, async function (done) {
+        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        var startTime = new Date().getTime();
+        convertToTextV9PromisePerfTest(0);
+
+        function convertToTextV9PromisePerfTest(index) {
+            pasteDataRecord.convertToTextV9().then(() => {
+                if (index < BASE_CONUT) {
+                    convertToTextV9PromisePerfTest(index + 1);
+                } else {
+                    computeAverageTime(startTime, BASE_CONUT, BASELINE, "convertToTextV9_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });

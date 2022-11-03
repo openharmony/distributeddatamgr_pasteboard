@@ -26,8 +26,7 @@ describe('PasteBoardPerfJSTest', function () {
         console.info('afterAll');
     })
 
-    const BASE_CONUT = 1000;
-    const ADDRECORD_COUNT = 500;
+    const BASE_CONUT = 500;
     const BASELINE = 5000;
 
     const pixelMapBuffer = new ArrayBuffer(10000);
@@ -202,8 +201,8 @@ describe('PasteBoardPerfJSTest', function () {
         var pixelMap = await image.createPixelMap(pixelMapBuffer, opt);
         var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
         var startTime = new Date().getTime();
-        funcWithTwoparam(pasteData.addRecord, pasteboard.MIMETYPE_PIXELMAP, pixelMap, ADDRECORD_COUNT);
-        computeAverageTime(startTime, ADDRECORD_COUNT, BASELINE, "addRecord_performance_test_001 averageTime:");
+        funcWithTwoparam(pasteData.addRecord, pasteboard.MIMETYPE_PIXELMAP, pixelMap, BASE_CONUT);
+        computeAverageTime(startTime, BASE_CONUT, BASELINE, "addRecord_performance_test_001 averageTime:");
         done();
     })
 
@@ -375,6 +374,20 @@ describe('PasteBoardPerfJSTest', function () {
         var startTime = new Date().getTime();
         funcWithNoparam(pasteData.getPrimaryWant, BASE_CONUT);
         computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPrimaryWant_performance_test_001 averageTime:");
+        done();
+    })
+
+    /**
+     * @tc.name      getPrimaryMimeType_performance_test_001
+     * @tc.desc      getPrimaryMimeType interface performance test
+     * @tc.type      PERF
+     * @tc.require   I5YP4X
+     */
+    it('getPrimaryMimeType_performance_test_001', 0, async function (done) {
+        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText);
+        var startTime = new Date().getTime();
+        funcWithNoparam(pasteData.getPrimaryMimeType, BASE_CONUT);
+        computeAverageTime(startTime, BASE_CONUT, BASELINE, "getPrimaryMimeType_performance_test_001 averageTime:");
         done();
     })
 
