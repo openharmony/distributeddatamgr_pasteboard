@@ -424,6 +424,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     CalculateTimeConsuming::SetBeginTime();
     auto appInfo = GetAppInfo(tokenId);
     if (appInfo.userId == ERROR_USERID) {
+        setting_.store(false);
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
     pasteData.SetBundleName(appInfo.bundleName);
