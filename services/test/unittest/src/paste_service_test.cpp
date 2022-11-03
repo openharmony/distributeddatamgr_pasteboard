@@ -13,46 +13,32 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
-#include <unistd.h>
 
 #include <cstdint>
 #include <vector>
 
-#include "ability_manager_client.h"
-#include "accesstoken_kit.h"
-#include "os_account_manager.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_callback.h"
 #include "pixel_map.h"
-#include "token_setproc.h"
 #include "uri.h"
 #include "want.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace OHOS::Media;
-constexpr const char *CMD = "hidumper -s 3701 -a --data";
-constexpr const char *TEST_BUNDLENAME = "com.ohos.camera";
-constexpr const uint16_t EACH_LINE_LENGTH = 50;
-constexpr const uint16_t TOTAL_LENGTH = 500;
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    static bool ExecuteCmd(std::string &result);
-    static void SetSelfTokenId();
-    static void RestoreSelfTokenId();
     static sptr<PasteboardObserver> pasteboardObserver_;
     static std::atomic_bool pasteboardChangedFlag_;
-    static uint64_t tokenId_;
 };
 
 std::atomic_bool PasteboardServiceTest::pasteboardChangedFlag_ = false;
 sptr<PasteboardObserver> PasteboardServiceTest::pasteboardObserver_ = nullptr;
-uint64_t PasteboardServiceTest::tokenId_ = 0;
 void PasteboardServiceTest::SetUpTestCase(void)
 {
 }
@@ -74,50 +60,6 @@ void PasteboardObserverCallback::OnPasteboardChanged()
 {
     PasteboardServiceTest::pasteboardChangedFlag_ = true;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback.");
-}
-
-bool PasteboardServiceTest::ExecuteCmd(std::string &result)
-{
-    char buff[EACH_LINE_LENGTH] = { 0x00 };
-    char output[TOTAL_LENGTH] = { 0x00 };
-    FILE *ptr = NULL;
-    if ((ptr = popen(CMD, "r")) != NULL) {
-        while (fgets(buff, sizeof(buff), ptr) != nullptr) {
-            if (strcat_s(output, sizeof(output), buff) != 0) {
-                pclose(ptr);
-                ptr = NULL;
-                return false;
-            }
-        }
-        pclose(ptr);
-        ptr = NULL;
-    } else {
-        return false;
-    }
-    result = std::string(output);
-    return true;
-}
-
-void PasteboardServiceTest::SetSelfTokenId()
-{
-    tokenId_ = GetSelfTokenID();
-
-    std::vector<int32_t> ids;
-    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
-    if (ret != ERR_OK || ids.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode = %{public}d", ret);
-        return;
-    }
-    auto tokenID = Security::AccessToken::AccessTokenKit::GetHapTokenID(ids[0], TEST_BUNDLENAME, 0);
-    ret = SetSelfTokenID(tokenID);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ids[0] = %{public}d, token = 0x%{public}x, ret = %{public}d!",
-        ids[0], tokenID, ret);
-}
-
-void PasteboardServiceTest::RestoreSelfTokenId()
-{
-    auto ret = SetSelfTokenID(tokenId_);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret = %{public}d!", ret);
 }
 
 /**
@@ -1049,131 +991,5 @@ HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
     PasteData data;
     auto ret = PasteboardClient::GetInstance()->GetPasteData(data);
     EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_ERROR));
-}
-
-/**
-* @tc.name: DumpDataTest001
-* @tc.desc: DumpData()-remote, CrossDevice
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
-{
-    PasteboardServiceTest::SetSelfTokenId();
-    std::string plainText = "plain text";
-    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    pasteData->SetRemote(true);
-    pasteData->SetShareOption(ShareOption::CrossDevice);
-    PasteboardClient::GetInstance()->Clear();
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-
-    std::string result;
-    ret = PasteboardServiceTest::ExecuteCmd(result);
-    EXPECT_TRUE(ret);
-    EXPECT_TRUE(result.find("CrossDevice") != std::string::npos);
-    EXPECT_TRUE(result.find("remote") != std::string::npos);
-    PasteboardClient::GetInstance()->Clear();
-    PasteboardServiceTest::RestoreSelfTokenId();
-}
-
-/**
-* @tc.name: DumpDataTest002
-* @tc.desc: DumpData()-local, LocalDevice
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
-{
-    PasteboardServiceTest::SetSelfTokenId();
-    std::string plainText = "plain text";
-    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    pasteData->SetShareOption(ShareOption::LocalDevice);
-    PasteboardClient::GetInstance()->Clear();
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-
-    std::string result;
-    ret = PasteboardServiceTest::ExecuteCmd(result);
-    EXPECT_TRUE(ret);
-    EXPECT_TRUE(result.find("LocalDevice") != std::string::npos);
-    EXPECT_TRUE(result.find("local") != std::string::npos);
-    PasteboardClient::GetInstance()->Clear();
-    PasteboardServiceTest::RestoreSelfTokenId();
-}
-
-/**
-* @tc.name: DumpDataTest003
-* @tc.desc: DumpData()-local, InApp
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
-{
-    PasteboardServiceTest::SetSelfTokenId();
-    std::string plainText = "plain text";
-    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    pasteData->SetShareOption(ShareOption::InApp);
-    PasteboardClient::GetInstance()->Clear();
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-
-    std::string result;
-    ret = PasteboardServiceTest::ExecuteCmd(result);
-    EXPECT_TRUE(ret);
-    EXPECT_TRUE(result.find("InAPP") != std::string::npos);
-    EXPECT_TRUE(result.find("local") != std::string::npos);
-    PasteboardClient::GetInstance()->Clear();
-    PasteboardServiceTest::RestoreSelfTokenId();
-}
-
-/**
-* @tc.name: DumpDataTest004
-* @tc.desc: DumpData()-no data
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
-{
-    PasteboardServiceTest::SetSelfTokenId();
-    PasteboardClient::GetInstance()->Clear();
-
-    std::string result;
-    auto ret = PasteboardServiceTest::ExecuteCmd(result);
-    EXPECT_TRUE(ret);
-    EXPECT_EQ(result.find("Share"), std::string::npos);
-    EXPECT_EQ(result.find("Option"), std::string::npos);
-    PasteboardServiceTest::RestoreSelfTokenId();
-}
-
-/**
-* @tc.name: HasPastePermissionTest001
-* @tc.desc: if (!pasteData->IsDraggedData() && (!isFocusedApp && !IsDefaultIME(GetAppInfo(tokenId))))
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteboardServiceTest, HasPastePermissionTest001, TestSize.Level0)
-{
-    PasteboardServiceTest::SetSelfTokenId();
-    std::vector<uint8_t> arrayBuffer(46);
-    arrayBuffer = { 2, 7, 6, 8, 9 };
-    std::string mimeType = "image/jpg";
-    auto pasteData = PasteboardClient::GetInstance()->CreateKvData(mimeType, arrayBuffer);
-    PasteboardClient::GetInstance()->Clear();
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-
-    // not DraggedData, not DefaultIME, but when FocusedApp == TEST_BUNDLENAME, is FocusedApp
-    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
-    if (elementName.GetBundleName() == TEST_BUNDLENAME) {
-        EXPECT_TRUE(hasPasteData);
-    } else {
-        EXPECT_FALSE(hasPasteData);
-    }
-    PasteboardClient::GetInstance()->Clear();
-    PasteboardServiceTest::RestoreSelfTokenId();
 }
 } // namespace OHOS::MiscServices
