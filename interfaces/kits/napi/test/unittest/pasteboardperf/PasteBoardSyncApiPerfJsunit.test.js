@@ -26,7 +26,7 @@ describe('PasteBoardPerfJSTest', function () {
         console.info('afterAll');
     })
 
-    const BASE_CONUT = 500;
+    const BASE_CONUT = 200;
     const pixelMapBuffer = new ArrayBuffer(10000);
     const opt = {
         size: {height: 50, width: 50},

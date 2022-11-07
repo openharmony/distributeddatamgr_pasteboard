@@ -26,7 +26,7 @@ describe('PasteBoardPerfJSTest', function () {
         console.info('afterAll');
     })
 
-    const BASE_CONUT = 500;
+    const BASE_CONUT = 100;
     const htmlText = '<html><head></head><body>Hello!</body></html>';
 
     /**
