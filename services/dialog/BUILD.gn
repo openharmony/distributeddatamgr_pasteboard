@@ -13,9 +13,38 @@
 
 import("//build/ohos.gni")
 
-ohos_prebuilt_etc("pasteboard_dialog_hap") {
-  module_install_dir = "app/cn.openharmony.pasteboarddialog"
-  source = "pasteboard_dialog.hap"
-  part_name = "prebuilt_hap"
+group("pasteboard_dialog") {
+  deps = [ ":pasteboard_dialog_hap" ]
+}
+
+ohos_hap("pasteboard_dialog_hap") {
+  hap_profile = "PasteboardDialog/entry/src/main/module.json"
+
+  deps = [
+    ":pasteboard_dialog_js_assets",
+    ":pasteboard_dialog_resources",
+  ]
+
+  certificate_profile = "PasteboardDialog/signature/openharmony_sx.p7b"
+  hap_name = "pasteboard_dialog"
   subsystem_name = "application"
+  part_name = "prebuilt_hap"
+  module_install_dir = "app/cn.openharmony.pasteboarddialog"
+}
+
+ohos_js_assets("pasteboard_dialog_js_assets") {
+  hap_profile = "PasteboardDialog/entry/src/main/module.json"
+  ets2abc = true
+  source_dir = "PasteboardDialog/entry/src/main/ets"
+}
+
+ohos_app_scope("pasteboard_dialog_app_profile") {
+  app_profile = "PasteboardDialog/AppScope/app.json"
+  sources = [ "PasteboardDialog/AppScope/resources" ]
+}
+
+ohos_resources("pasteboard_dialog_resources") {
+  sources = [ "PasteboardDialog/entry/src/main/resources" ]
+  deps = [ ":pasteboard_dialog_app_profile" ]
+  hap_profile = "PasteboardDialog/entry/src/main/module.json"
 }
