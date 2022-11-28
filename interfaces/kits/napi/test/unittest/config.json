@@ -17,8 +17,7 @@
     "name": ".MyApplication",
     "deviceType": [
       "tablet",
-      "default",
-      "phone"
+      "default"
     ],
     "distro": {
       "deliveryWithInstall": true,
