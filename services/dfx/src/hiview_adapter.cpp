@@ -33,7 +33,6 @@ const std::map<int, std::string> EVENT_COVERT_TABLE = {
     { DfxCodeConstant::TIME_CONSUMING_STATISTIC, "TIME_CONSUMING_STATISTIC" },
     { DfxCodeConstant::PASTEBOARD_BEHAVIOUR, "PASTEBOARD_BEHAVIOUR" },
 };
-const std::string DOMAIN_STR = std::string(HiviewDFX::HiSysEvent::Domain::PASTEBOARD);
 } // namespace
 
 bool HiViewAdapter::running_ = false;
@@ -103,7 +102,7 @@ void HiViewAdapter::ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg 
 {
     constexpr const char *USER_ID = "USER_ID";
     constexpr const char *ERROR_TYPE = "ERROR_TYPE";
-    int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(dfxCode), HiSysEvent::EventType::FAULT, USER_ID, msg.userId,
+    int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD, CoverEventID(dfxCode), HiSysEvent::EventType::FAULT, USER_ID, msg.userId,
         ERROR_TYPE, msg.errorCode);
     if (ret != 0) {
         PASTEBOARD_HILOGD(
@@ -337,11 +336,11 @@ void HiViewAdapter::ReportStatisticEvent(
         int ret = -1;
         if (pasteboardState == REMOTE_PASTE_STATE) {
             std::string netType = "WIFI";
-            ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
+            ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
                 HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, NET_TYPE, netType, DATA_LEVEL,
                 GetDataLevel(i), CONSUMING_DATA, buffMsg);
         } else {
-            ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
+            ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD, CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
                 HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, DATA_LEVEL, GetDataLevel(i),
                 CONSUMING_DATA, buffMsg);
         }
@@ -380,7 +379,7 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
             ++j;
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour report  ");
-        int ret = HiSysEvent::Write(DOMAIN_STR, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR),
+        int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR),
             HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, pasteboardState, TOP_ONE_APP, appPackName[0],
             TOP_TOW_APP, appPackName[1], TOP_THREE_APP, appPackName[2], TOP_FOUR_APP, appPackName[3], TOP_FIVE_APP,
             appPackName[4], TOP_SIX_APP, appPackName[5], TOP_SEVEN_APP, appPackName[6], TOP_EIGHT_APP, appPackName[7],
