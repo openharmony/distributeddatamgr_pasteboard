@@ -196,6 +196,22 @@ private:
     static std::mutex instanceLock_;
 
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
+
+    class StaticDestoryMonitor {
+        public:
+            StaticDestoryMonitor() : destoryed_(false) {}
+            ~StaticDestoryMonitor() {
+                destoryed_ = true;
+        }
+
+        bool IsDestoryed() const {
+            return destoryed_;
+        }
+
+        private:
+            bool destoryed_;
+    };
+    static StaticDestoryMonitor staticDestoryMonitor_;
 };
 } // namespace MiscServices
 } // namespace OHOS
