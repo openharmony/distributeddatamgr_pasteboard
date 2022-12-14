@@ -17,7 +17,7 @@ import hilog from '@ohos.hilog';
 import window from '@ohos.window'
 import display from '@ohos.display';
 import rpc from '@ohos.rpc'
-import ServiceExtensionAbility from '@ohos.application.ServiceExtensionAbility'
+import ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility'
 
 const TAG = 'DialogExtensionAbility'
 
