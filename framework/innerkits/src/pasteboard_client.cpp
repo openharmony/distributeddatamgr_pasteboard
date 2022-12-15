@@ -33,11 +33,12 @@ namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
+PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
-PasteboardClient::PasteboardClient() {};
+PasteboardClient::PasteboardClient(){};
 PasteboardClient::~PasteboardClient()
 {
-    if (pasteboardServiceProxy_ != nullptr) {
+    if (pasteboardServiceProxy_ != nullptr && !staticDestoryMonitor_.IsDestoryed()) {
         auto remoteObject = pasteboardServiceProxy_->AsObject();
         if (remoteObject != nullptr) {
             remoteObject->RemoveDeathRecipient(deathRecipient_);

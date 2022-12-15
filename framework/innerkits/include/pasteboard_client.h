@@ -186,15 +186,32 @@ public:
     void RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback);
 
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
+
 private:
     void ConnectService();
-    static void RetainUri(PasteData &pasteData) ;
+    static void RetainUri(PasteData &pasteData);
 
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
 
-    sptr<IRemoteObject::DeathRecipient> deathRecipient_ {nullptr};
+    sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
+
+    class StaticDestoryMonitor {
+        public:
+            StaticDestoryMonitor() : destoryed_(false) {}
+            ~StaticDestoryMonitor() {
+                destoryed_ = true;
+        }
+
+        bool IsDestoryed() const {
+            return destoryed_;
+        }
+
+        private:
+            bool destoryed_;
+    };
+    static StaticDestoryMonitor staticDestoryMonitor_;
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_BOARD_CLIENT_H
