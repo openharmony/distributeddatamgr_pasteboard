@@ -203,7 +203,7 @@ private:
             ~StaticDestoryMonitor()
             {
                 destoryed_ = true;
-            } 
+            }
 
             bool IsDestoryed() const
             {   
