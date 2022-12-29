@@ -216,13 +216,15 @@ private:
     class StaticDestoryMonitor {
         public:
             StaticDestoryMonitor() : destoryed_(false) {}
-            ~StaticDestoryMonitor() {
+            ~StaticDestoryMonitor()
+            {
                 destoryed_ = true;
-        }
+            }
 
-        bool IsDestoryed() const {
-            return destoryed_;
-        }
+            bool IsDestoryed() const
+            {   
+                return destoryed_;
+            } 
 
         private:
             bool destoryed_;
