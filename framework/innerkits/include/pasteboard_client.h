@@ -179,12 +179,28 @@ public:
     void AddPasteboardChangedObserver(sptr<PasteboardObserver> callback);
 
     /**
+     * AddPasteboardEventObserver
+     * @descrition
+     * @param observer pasteboard event(read or change) callback.
+     * @return void.
+     */
+    void AddPasteboardEventObserver(sptr<PasteboardObserver> callback);
+
+    /**
      * RemovePasteboardChangedObserver
      * @descrition
      * @param observer pasteboard change callback.
      * @return void.
      */
     void RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback);
+
+    /**
+     * RemovePasteboardEventObserver
+     * @descrition
+     * @param observer pasteboard event callback.
+     * @return void.
+     */
+    void RemovePasteboardEventObserver(sptr<PasteboardObserver> callback);
 
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
 

@@ -23,6 +23,7 @@ namespace MiscServices {
 PasteboardObserverStub::PasteboardObserverStub()
 {
     memberFuncMap_[static_cast<uint32_t>(ON_PASTE_BOARD_CHANGE)] = &PasteboardObserverStub::OnPasteboardChangedStub;
+    memberFuncMap_[static_cast<uint32_t>(ON_PASTE_BOARD_EVENT)] = &PasteboardObserverStub::OnPasteboardEventStub;
 }
 
 int32_t PasteboardObserverStub::OnRemoteRequest(
@@ -55,6 +56,16 @@ int32_t PasteboardObserverStub::OnPasteboardChangedStub(MessageParcel &data, Mes
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     OnPasteboardChanged();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    return ERR_OK;
+}
+
+int32_t PasteboardObserverStub::OnPasteboardEventStub(MessageParcel &data, MessageParcel &reply)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
+    std::string bundleName = data.ReadString();
+    int32_t status = data.ReadInt32();
+    OnPasteboardEvent(bundleName, status);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }

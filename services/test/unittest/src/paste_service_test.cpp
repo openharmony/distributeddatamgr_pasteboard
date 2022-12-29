@@ -52,12 +52,16 @@ public:
     static void SetTestTokenId();
     static void RestoreSelfTokenId();
     static sptr<PasteboardObserver> pasteboardObserver_;
+    static sptr<PasteboardObserver> pasteboardEventObserver_;
     static std::atomic_bool pasteboardChangedFlag_;
+    static std::atomic_int32_t pasteboardEventStatus_;
     static uint64_t selfTokenId_;
     static AccessTokenID testTokenId_;
 };
 std::atomic_bool PasteboardServiceTest::pasteboardChangedFlag_ = false;
+std::atomic_int32_t PasteboardServiceTest::pasteboardEventStatus_ = -1;
 sptr<PasteboardObserver> PasteboardServiceTest::pasteboardObserver_ = nullptr;
+sptr<PasteboardObserver> PasteboardServiceTest::pasteboardEventObserver_ = nullptr;
 uint64_t PasteboardServiceTest::selfTokenId_ = 0;
 AccessTokenID PasteboardServiceTest::testTokenId_ = 0;
 
@@ -78,13 +82,27 @@ void PasteboardServiceTest::SetUp(void)
 
 void PasteboardServiceTest::TearDown(void)
 {
+    if (PasteboardServiceTest::pasteboardObserver_ != nullptr) {
+        PasteboardClient::GetInstance()->RemovePasteboardEventObserver(PasteboardServiceTest::pasteboardObserver_);
+    }
+    if (PasteboardServiceTest::pasteboardEventObserver_ != nullptr) {
+        PasteboardClient::GetInstance()->RemovePasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
+    }
     PasteboardClient::GetInstance()->Clear();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "TearDown.");
 }
 
 void PasteboardObserverCallback::OnPasteboardChanged()
 {
     PasteboardServiceTest::pasteboardChangedFlag_ = true;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback.");
+}
+
+void PasteboardEventObserverCallback::OnPasteboardEvent(std::string bundleName, int32_t status)
+{
+    PasteboardServiceTest::pasteboardEventStatus_ = status;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "event callback bundleName: %{public}s,status:%{public}d", 
+        bundleName.c_str(), status);
 }
 
 bool PasteboardServiceTest::ExecuteCmd(std::string &result)
@@ -1040,6 +1058,63 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData);
+}
+
+
+/**
+ * @tc.name: PasteDataTest0019
+ * @tc.desc: AddPasteboardEventObserver RemovePasteboardEventObserver OnRemoteDied OnRemoteSaDied test.
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
+{
+    if (PasteboardServiceTest::pasteboardEventObserver_ == nullptr) {
+        PasteboardServiceTest::pasteboardEventObserver_ = new PasteboardEventObserverCallback();
+    }
+    ASSERT_TRUE(PasteboardServiceTest::pasteboardObserver_ != nullptr);
+    PasteboardClient::GetInstance()->AddPasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
+    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
+    const wptr<IRemoteObject> object;
+    PasteboardSaDeathRecipient death;
+    death.OnRemoteDied(object);
+    PasteboardClient::GetInstance()->OnRemoteSaDied(object);
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteboardClient::GetInstance()->Clear();
+    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_FALSE(hasPasteData);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
+        static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_WRITE));
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData);
+    PasteData newPasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
+        static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_READ));
+    PasteboardClient::GetInstance()->Clear();
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
+        static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_CLEAR));
+    PasteboardServiceTest::pasteboardEventStatus_ = -1;
+    PasteboardClient::GetInstance()->RemovePasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
+    PasteboardClient::GetInstance()->Clear();
+    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
 }
 
 /**
