@@ -206,9 +206,9 @@ private:
             }
 
             bool IsDestoryed() const
-            {   
+            {
                 return destoryed_;
-            } 
+            }
 
         private:
             bool destoryed_;
