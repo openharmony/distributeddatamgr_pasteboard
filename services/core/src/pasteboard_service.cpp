@@ -868,9 +868,16 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     }
 
     auto &tmpEvent = events[0];
-    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalDevice() ||
-        tmpEvent.account != AccountManager::GetInstance().GetCurrentAccount() ||
-        (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId)) {
+    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalDevice()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data.");
+        return false;
+    }
+    if (tmpEvent.account != AccountManager::GetInstance().GetCurrentAccount()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "account error.");
+        return false;
+    }
+    if (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data.");
         return false;
     }
 

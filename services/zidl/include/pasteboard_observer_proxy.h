@@ -32,7 +32,7 @@ public:
     ~PasteboardObserverProxy() = default;
     DISALLOW_COPY_AND_MOVE(PasteboardObserverProxy);
     void OnPasteboardChanged() override;
-    void OnPasteboardEvent(std::string bundleName, int32_t status) override;   
+    void OnPasteboardEvent(std::string bundleName, int32_t status) override;
 private:
     static inline BrokerDelegator<PasteboardObserverProxy> delegator_;
 };

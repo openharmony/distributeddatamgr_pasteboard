@@ -1072,7 +1072,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     if (PasteboardServiceTest::pasteboardEventObserver_ == nullptr) {
         PasteboardServiceTest::pasteboardEventObserver_ = new PasteboardEventObserverCallback();
     }
-    ASSERT_TRUE(PasteboardServiceTest::pasteboardObserver_ != nullptr);
+    ASSERT_TRUE(PasteboardServiceTest::pasteboardEventObserver_ != nullptr);
     PasteboardClient::GetInstance()->AddPasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
