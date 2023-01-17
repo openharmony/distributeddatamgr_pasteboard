@@ -196,7 +196,8 @@ void PasteboardService::InitServiceHandler()
 void PasteboardService::Clear()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto userId = GetUserIdByToken(tokenId);
     if (userId == ERROR_USERID) {
         return;
     }
@@ -204,7 +205,8 @@ void PasteboardService::Clear()
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
         clips_.erase(it);
-        NotifyObservers();
+        std::string bundleName = GetAppBundleName(tokenId);
+        NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
     }
     CleanDistributedData(userId);
 }
@@ -300,6 +302,19 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
     return info;
 }
 
+std::string PasteboardService::GetAppBundleName(uint32_t tokenId)
+{
+    auto appInfo = GetAppInfo(tokenId);
+    std::string bundleName;
+    if (appInfo.userId != ERROR_USERID) {
+        bundleName = appInfo.bundleName;
+    } else {
+        bundleName = "error";
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetAppInfo error");
+    }
+    return bundleName;
+}
+
 void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData)
 {
     pasteData.SetLocalPasteFlag(!isCrossPaste && tokenId == pasteData.GetTokenId());
@@ -349,6 +364,8 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
         result = value->IsValid();
         data = std::move(*value);
     }
+    std::string bundleName = GetAppBundleName(tokenId);
+    NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_READ);    
     GetPasteDataDot(data, pop, tokenId);
     pasting_.store(false);
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
@@ -438,7 +455,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     }
     clips_.insert_or_assign(appInfo.userId, std::make_shared<PasteData>(pasteData));
     SetDistributedData(appInfo.userId, pasteData);
-    NotifyObservers();
+    NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(pasteData);
     setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
@@ -532,14 +549,17 @@ void PasteboardService::RemoveAllChangedObserver()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
 }
 
-void PasteboardService::NotifyObservers()
+void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventStatus status)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     std::lock_guard<std::mutex> lock(observerMutex_);
     for (auto &observers : observerMap_) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d.", observers.first);
         for (const auto &observer : *(observers.second)) {
-            observer->OnPasteboardChanged();
+            if (status != PasteboardEventStatus::PASTEBOARD_READ) {
+                observer->OnPasteboardChanged();
+            }
+            observer->OnPasteboardEvent(bundleName, static_cast<int32_t>(status));
         }
     }
 }

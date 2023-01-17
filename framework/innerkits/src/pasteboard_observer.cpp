@@ -21,13 +21,16 @@ PasteboardObserver::PasteboardObserver()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "New Pasteboard Observer.");
 }
 
-PasteboardObserver::~PasteboardObserver()
-{
-}
+PasteboardObserver::~PasteboardObserver() {}
 
 void PasteboardObserver::OnPasteboardChanged()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "call back.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "changed callback.");
 }
-} // MiscServices
-} // OHOS
+
+void PasteboardObserver::OnPasteboardEvent(std::string bundleName, int32_t status)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "event callback.");
+}
+} // namespace MiscServices
+} // namespace OHOS

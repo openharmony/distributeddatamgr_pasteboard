@@ -44,5 +44,24 @@ void PasteboardObserverProxy::OnPasteboardChanged()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return;
 }
+
+void PasteboardObserverProxy::OnPasteboardEvent(std::string bundleName, int32_t status)
+{
+    MessageParcel data, reply;
+    MessageOption option;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write descriptor failed!");
+        return;
+    }
+    data.WriteString(bundleName);
+    data.WriteInt32(status);
+    int ret = Remote()->SendRequest(static_cast<int>(ON_PASTE_BOARD_EVENT), data, reply, option);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    return;
+}
 } // namespace MiscServices
 } // namespace OHOS

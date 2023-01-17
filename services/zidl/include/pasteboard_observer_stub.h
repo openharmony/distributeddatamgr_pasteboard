@@ -34,6 +34,7 @@ private:
     using PasteboardObserverFunc = int32_t (PasteboardObserverStub::*)(MessageParcel &data, MessageParcel &reply);
 
     virtual int32_t OnPasteboardChangedStub(MessageParcel &data, MessageParcel &reply);
+    virtual int32_t OnPasteboardEventStub(MessageParcel &data, MessageParcel &reply);    
     std::map<uint32_t, PasteboardObserverFunc> memberFuncMap_;
 };
 } // namespace MiscServices

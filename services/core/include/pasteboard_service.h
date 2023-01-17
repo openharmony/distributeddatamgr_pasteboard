@@ -96,7 +96,7 @@ private:
     int32_t GetUserIdByToken(uint32_t tokenId);
     std::string DumpHistory() const;
     std::string DumpData();
-    void NotifyObservers();
+    void NotifyObservers(std::string bundleName, PasteboardEventStatus status);
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
 
@@ -118,6 +118,7 @@ private:
     std::string GetTime();
     static bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
     static AppInfo GetAppInfo(uint32_t tokenId);
+    static std::string GetAppBundleName(uint32_t tokenId);
     static bool IsDefaultIME(const AppInfo &appInfo);
     static bool IsFocusedApp(int32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);

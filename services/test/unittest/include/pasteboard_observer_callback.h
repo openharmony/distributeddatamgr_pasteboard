@@ -30,6 +30,16 @@ public:
     };
     void OnPasteboardChanged() override;
 };
+
+class PasteboardEventObserverCallback : public PasteboardObserver {
+public:
+    PasteboardEventObserverCallback() {};
+    ~PasteboardEventObserverCallback()
+    {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deconstructor.");
+    };
+    void OnPasteboardEvent(std::string bundleName, int32_t status) override;
+};
 } // MiscServices
 } // OHOS
 #endif // PASTE_SERVICE_TEST_H

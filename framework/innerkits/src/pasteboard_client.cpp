@@ -235,6 +235,11 @@ void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> cal
     return;
 }
 
+void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callback)
+{
+    this->AddPasteboardChangedObserver(callback);
+}
+
 void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
@@ -256,6 +261,11 @@ void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> 
     pasteboardServiceProxy_->RemovePasteboardChangedObserver(callback);
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
     return;
+}
+
+void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> callback)
+{
+    this->RemovePasteboardChangedObserver(callback);
 }
 
 void PasteboardClient::ConnectService()

@@ -20,15 +20,22 @@
 
 namespace OHOS {
 namespace MiscServices {
-class IPasteboardChangedObserver  : public IRemoteBroker {
+enum class PasteboardEventStatus {
+    PASTEBOARD_CLEAR = 1,
+    PASTEBOARD_READ = 2,
+    PASTEBOARD_WRITE = 3
+};
+class IPasteboardChangedObserver : public IRemoteBroker {
 public:
     enum {
         ON_PASTE_BOARD_CHANGE = 0,
+        ON_PASTE_BOARD_EVENT = 1,
     };
     virtual void OnPasteboardChanged() = 0;
+    virtual void OnPasteboardEvent(std::string bundleName, int32_t status) = 0;
     virtual ~IPasteboardChangedObserver() = default;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.miscservices.pasteboard.IPasteboardChangedObserver");
 };
-} // MiscServices
-} // OHOS
+} // namespace MiscServices
+} // namespace OHOS
 #endif // PASTE_BOARD_CHANGER_OBSERVER_INTERFACE_H
