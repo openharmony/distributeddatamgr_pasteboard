@@ -279,7 +279,7 @@ private:
 
     inline bool HasExpectBuffer(const std::vector<std::uint8_t> &buffer, uint32_t expectLen) const
     {
-        return buffer.size() <= cursor_ || buffer.size() - cursor_ >= expectLen;
+        return buffer.size() >= cursor_ && buffer.size() - cursor_ >= expectLen;
     }
 
     size_t cursor_ = 0;

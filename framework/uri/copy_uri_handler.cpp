@@ -38,7 +38,7 @@ std::string CopyUriHandler::ToUri(int32_t fd)
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fd: %{public}d, user:%{public}d", fd, ids[0]);
     ret = RemoteFileShare::CreateSharePath(fd, uri_, ids[0]);
-    if (ret != 0) {
+    if (ret != 0 && ret != FILE_EXIST) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " create share path failed, %{public}d ", ret);
         return uri_;
     }

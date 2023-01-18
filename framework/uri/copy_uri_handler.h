@@ -20,6 +20,9 @@ class CopyUriHandler : public UriHandler {
 public:
     CopyUriHandler();
     std::string ToUri(int32_t fd) override;
+    Unable to create a backup file (copy_uri_handler.h~).
+private:
+    static constexpr int32_t FILE_EXIST = 17;
 };
 } // namespace OHOS::MiscServices
 #endif // DISTRIBUTEDDATAMGR_PASTEBOARD_COPY_URI_HANDLER_H
