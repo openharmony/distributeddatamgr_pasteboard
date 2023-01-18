@@ -525,14 +525,19 @@ RawMem PasteDataRecord::PixelMap2Raw(const std::shared_ptr<PixelMap> &pixelMap)
     return rawMem;
 }
 
-bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler)
+bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, bool isClient)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "isClient: %{public}d", isClient);
     if (fd_->GetFd() >= 0) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write fd_, fd_ is %{public}d", fd_->GetFd());
         return parcel.WriteFileDescriptor(fd_->GetFd());
     }
     std::string tempUri = GetPassUri();
     if (tempUri.empty()) {
+        return false;
+    }
+    if(!isClient && tempUri.rfind("/mnt/hmdfs/", 0) != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "server open uri error");
         return false;
     }
     bool ret = true;
