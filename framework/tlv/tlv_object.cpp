@@ -132,7 +132,8 @@ bool TLVObject::ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head)
         return false;
     }
     const auto *pHead = reinterpret_cast<const TLVHead *>(buffer.data() + cursor_);
-    if (!HasExpectBuffer(buffer, NetToHost(pHead->len) + sizeof(TLVHead))) {
+    if (!HasExpectBuffer(buffer, NetToHost(pHead->len)) &&
+        !HasExpectBuffer(buffer, NetToHost(pHead->len)  + sizeof(TLVHead))) {
         return false;
     }
     head.tag = NetToHost(pHead->tag);
