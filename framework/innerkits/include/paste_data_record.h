@@ -96,7 +96,7 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteFd(MessageParcel &parcel, UriHandler &uriHandler);
+    bool WriteFd(MessageParcel &parcel, UriHandler &uriHandler, bool isClient);
     bool ReadFd(MessageParcel &parcel, UriHandler &uriHandler);
     bool NeedFd(const UriHandler &uriHandler);
     void ReplaceShareUri(int32_t userId);

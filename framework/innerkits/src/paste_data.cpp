@@ -547,7 +547,7 @@ size_t PasteDataProperty::Count()
     return expectedSize;
 }
 
-bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler)
+bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool isClient)
 {
     std::vector<uint32_t> uriIndexList;
     for (size_t i = 0; i < GetRecordCount(); ++i) {
@@ -571,7 +571,7 @@ bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler)
     }
     for (auto index : uriIndexList) {
         auto record = GetRecordAt(index);
-        if (record == nullptr || !record->WriteFd(parcel, uriHandler)) {
+        if (record == nullptr || !record->WriteFd(parcel, uriHandler, isClient)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write fd");
             return false;
         }
