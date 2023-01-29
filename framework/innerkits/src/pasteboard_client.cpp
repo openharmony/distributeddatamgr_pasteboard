@@ -162,10 +162,10 @@ int32_t PasteboardClient::GetPasteData(PasteData& pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
     RetainUri(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return ret;
 }
 void PasteboardClient::RetainUri(PasteData &pasteData)
