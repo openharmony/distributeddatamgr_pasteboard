@@ -337,14 +337,14 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     bool isFocusedApp = IsFocusedApp(tokenId);
     auto block =  std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
     std::thread thread([this, block, tokenId, isFocusedApp]() mutable {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData Begin");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
         auto success = GetPasteData(*pasteData, tokenId, isFocusedApp);
         if (!success) {
             pasteData->SetInvalid();
         }
         block->SetValue(pasteData);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData End");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData End");
     });
     thread.detach();
     auto value = block->GetValue();
