@@ -128,9 +128,9 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         return false;
     }
     if (!CheckExpression(
-            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
+        env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
         !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
+        "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
         return false;
     }
     const char *message = "Parameter error. The value does not match mimeType correctly.";
@@ -141,7 +141,7 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         }
     } else if (mimeType == MIMETYPE_PIXELMAP) {
         if (!CheckExpression(env, Media::PixelMapNapi::GetPixelMap(env, argv[1]) != nullptr,
-                JSErrorCode::INVALID_PARAMETERS, message)) {
+            JSErrorCode::INVALID_PARAMETERS, message)) {
             return false;
         }
     } else if (mimeType == MIMETYPE_TEXT_WANT) {

@@ -140,7 +140,7 @@ private:
     static napi_value GetData(napi_env env, napi_callback_info info);
     static napi_value SetData(napi_env env, napi_callback_info info);
     static napi_value HasData(napi_env env, napi_callback_info info);
-    static bool CheckAgrsOfOnAndOff(napi_env env, bool CheckArgsCount, napi_value *argv, size_t argc);
+    static bool CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc);
     static void SetObserver(napi_ref ref, std::shared_ptr<PasteboardObserverInstance> observer);
     static std::shared_ptr<PasteboardObserverInstance> GetObserver(napi_env env, napi_value observer);
     static void GetDataCommon(std::shared_ptr<GetContextInfo> &context);

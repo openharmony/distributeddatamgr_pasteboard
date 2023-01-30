@@ -115,10 +115,10 @@ void PasteboardObserverInstance::OnPasteboardChanged()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "OnPasteboardChanged end");
 }
 
-bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool CheckArgsCount, napi_value *argv, size_t argc)
+bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc)
 {
     if (!CheckExpression(
-        env, CheckArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+        env, checkArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
         !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
@@ -332,9 +332,9 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetContextInfo> &contex
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // setData has 1 or 2 args
         if (!CheckExpression(
-                env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+            env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
             !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
-                "Parameter error. The Type of data must be pasteData.")) {
+            "Parameter error. The Type of data must be pasteData.")) {
             return napi_invalid_arg;
         }
         if (argc > 1 &&
