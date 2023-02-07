@@ -99,6 +99,7 @@ ohos_shared_library("pasteboard_service") {
     "imf:inputmethod_client",
     "init:libbeget_proxy",
     "init:libbegetutil",
+    "input:libmmi-client",
     "ipc:ipc_core",
     "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",
