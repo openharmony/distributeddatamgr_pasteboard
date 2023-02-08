@@ -536,7 +536,7 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, boo
     if (tempUri.empty()) {
         return false;
     }
-    if(!isClient && tempUri.rfind("/mnt/hmdfs/", 0) != 0) {
+    if (!isClient && tempUri.rfind("/mnt/hmdfs/", 0) != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "server open uri error");
         return false;
     }
