@@ -53,7 +53,7 @@ public:
     static sptr<PasteboardObserver> pasteboardObserver_;
     static sptr<PasteboardObserver> pasteboardEventObserver_;
     static std::atomic_bool pasteboardChangedFlag_;
-    static std::atomic_int32_t pasteboardEventStatus_;    
+    static std::atomic_int32_t pasteboardEventStatus_;
     static uint64_t selfTokenId_;
     static AccessTokenID testTokenId_;
 };

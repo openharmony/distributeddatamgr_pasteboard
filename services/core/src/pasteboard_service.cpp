@@ -365,7 +365,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
         data = std::move(*value);
     }
     std::string bundleName = GetAppBundleName(tokenId);
-    NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_READ);    
+    NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_READ);
     GetPasteDataDot(data, pop, tokenId);
     pasting_.store(false);
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
