@@ -240,12 +240,15 @@ napi_value PasteboardNapi::JScreateShareOption(napi_env env, napi_callback_info 
 
     napi_value jsInApp = CreateNapiNumber(env, static_cast<int32_t>(ShareOption::InApp));
     NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "InApp", jsInApp));
+    NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "INAPPA", jsInApp));
 
     napi_value jsLocalDevice = CreateNapiNumber(env, static_cast<int32_t>(ShareOption::LocalDevice));
     NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "LocalDevice", jsLocalDevice));
+    NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "LOCALDEVICE", jsLocalDevice));
 
     napi_value jsCrossDevice = CreateNapiNumber(env, static_cast<int32_t>(ShareOption::CrossDevice));
     NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "CrossDevice", jsCrossDevice));
+    NAPI_CALL(env, napi_set_named_property(env, jsShareOption, "CROSSDEVICE", jsCrossDevice));
 
     return jsShareOption;
 }
