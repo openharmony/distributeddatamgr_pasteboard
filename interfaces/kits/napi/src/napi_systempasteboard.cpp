@@ -68,7 +68,6 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
 
     napi_value callback = nullptr;
     napi_value resultout = nullptr;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker ref = %{public}p", ref);
     napi_get_reference_value(env, ref, &callback);
     napi_value result = NapiGetNull(env);
     napi_call_function(env, undefined, callback, 0, &result, &resultout);
