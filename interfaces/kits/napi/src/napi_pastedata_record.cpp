@@ -313,7 +313,7 @@ napi_value PasteDataRecordNapi::ConvertToTextV9(napi_env env, napi_callback_info
 
 napi_value PasteDataRecordNapi::CoerceToText(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CoerceToTextV9 is called!");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CoerceToText is called!");
     return ConvertToText(env, info);
 }
 
