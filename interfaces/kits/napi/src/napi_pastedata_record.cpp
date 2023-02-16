@@ -311,11 +311,18 @@ napi_value PasteDataRecordNapi::ConvertToTextV9(napi_env env, napi_callback_info
     return ConvertToText(env, info);
 }
 
+napi_value PasteDataRecordNapi::CoerceToText(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CoerceToText is called!");
+    return ConvertToText(env, info);
+}
+
 napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
-        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9)
+        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9),
+        DECLARE_NAPI_FUNCTION("coerceToText", CoerceToText)
     };
 
     napi_status status = napi_ok;
@@ -336,7 +343,7 @@ napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exp
 
     status = napi_create_reference(env, constructor, 1, &g_pasteDataRecord);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "PasteDataRecordInit create referece failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "PasteDataRecordInit create reference failed");
         return nullptr;
     }
     napi_set_named_property(env, exports, "PasteDataRecord", constructor);
@@ -370,7 +377,7 @@ napi_status PasteDataRecordNapi::NewInstance(napi_env env, napi_value &instance)
     napi_value constructor;
     status = napi_get_reference_value(env, g_pasteDataRecord, &constructor);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get referece failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get reference failed");
         return status;
     }
 
