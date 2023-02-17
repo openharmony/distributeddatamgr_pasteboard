@@ -960,7 +960,7 @@ napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
 
     status = napi_create_reference(env, constructor, 1, &g_pasteData);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "PasteDataNapi Init create reference failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "PasteDataNapi Init create referece failed");
         return nullptr;
     }
     napi_set_named_property(env, exports, "PasteData", constructor);
@@ -996,7 +996,7 @@ napi_status PasteDataNapi::NewInstance(napi_env env, napi_value &instance)
     napi_value constructor;
     status = napi_get_reference_value(env, g_pasteData, &constructor);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get reference failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get referece failed");
         return status;
     }
 

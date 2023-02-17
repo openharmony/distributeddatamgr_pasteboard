@@ -67,10 +67,10 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
     napi_get_undefined(env, &undefined);
 
     napi_value callback = nullptr;
-    napi_value resultOut = nullptr;
+    napi_value resultout = nullptr;
     napi_get_reference_value(env, ref, &callback);
     napi_value result = NapiGetNull(env);
-    napi_call_function(env, undefined, callback, 0, &result, &resultOut);
+    napi_call_function(env, undefined, callback, 0, &result, &resultout);
 
     delete pasteboardDataWorker;
     pasteboardDataWorker = nullptr;
@@ -471,7 +471,7 @@ napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance
     napi_value constructor;
     status = napi_get_reference_value(env, g_systemPasteboard, &constructor);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get reference failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get referece failed");
         return status;
     }
 

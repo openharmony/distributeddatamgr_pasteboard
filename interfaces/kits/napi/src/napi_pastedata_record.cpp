@@ -311,17 +311,10 @@ napi_value PasteDataRecordNapi::ConvertToTextV9(napi_env env, napi_callback_info
     return ConvertToText(env, info);
 }
 
-napi_value PasteDataRecordNapi::CoerceToText(napi_env env, napi_callback_info info)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CoerceToText is called!");
-    return ConvertToText(env, info);
-}
-
 napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = { DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
-        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9),
-        DECLARE_NAPI_FUNCTION("coerceToText", CoerceToText) };
+        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9) };
 
     napi_status status = napi_ok;
 
