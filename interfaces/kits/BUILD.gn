@@ -48,7 +48,7 @@ ohos_shared_library("pasteboard_napi") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "ability_runtime:napi_common",
+    "ability_runtime:abilitykit_native",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
