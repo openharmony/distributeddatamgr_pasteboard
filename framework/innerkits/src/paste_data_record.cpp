@@ -499,21 +499,21 @@ size_t PasteDataRecord::Count()
 
 std::shared_ptr<PixelMap> PasteDataRecord::Vector2PixelMap(std::vector<std::uint8_t> &value)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Vector2PixelMap, size is %{public}lu", value.size());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Vector2PixelMap, size is %{public}u", value.size());
     if (value.size() == 0) {
         return nullptr;
     }
     return std::shared_ptr<PixelMap> (PixelMap::DecodeTlv(value));
 }
 
-std::vector<std::uint8_t> PasteDataRecord::PixelMap2Vector(const std::shared_ptr<PixelMap> &pixelMap)
+std::vector<std::uint8_t> PasteDataRecord::PixelMap2Vector(std::shared_ptr<PixelMap> &pixelMap)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PixelMap2Vector");
     if (pixelMap == nullptr) {
         return {};
     }
     std::vector<std::uint8_t> value;
-    if (!PixelMap->EncodeTlv(value)) {
+    if (!pixelMap->EncodeTlv(value)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pixelMap encode failed");
         return {};
     }
