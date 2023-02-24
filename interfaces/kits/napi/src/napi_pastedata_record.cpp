@@ -322,7 +322,7 @@ napi_value PasteDataRecordNapi::ToPlainText(napi_env env, napi_callback_info inf
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
 
-    PasteDataNapi *obj = nullptr;
+    PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ToPlainText object failed");
