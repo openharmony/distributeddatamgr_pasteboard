@@ -289,20 +289,11 @@ declare namespace pasteboard {
 
     /**
      * Converts data in PasteData to text format.
-     * @param { AsyncCallback<string> } callback - the callback of convertToTextV9.
-     * @throws { BusinessError } 401 - if type of callback is not AsyncCallback<string>.
+     * @returns { string } the string returned by the function.
      * @syscap SystemCapability.MiscServices.Pasteboard
      * @since 9
      */
-    coerceToText(callback: AsyncCallback<string>): void;
-
-    /**
-     * Converts data in PasteData to text format.
-     * @returns { Promise<string> } the promise returned by the function.
-     * @syscap SystemCapability.MiscServices.Pasteboard
-     * @since 9
-     */
-    coerceToText(): Promise<string>;
+    toPlainText(): string;
   }
 
   interface PasteData {

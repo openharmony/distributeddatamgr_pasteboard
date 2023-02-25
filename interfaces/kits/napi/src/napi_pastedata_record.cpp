@@ -27,7 +27,8 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
-const size_t ARGC_TYPE_SET1 = 1;
+const int ARGC_TYPE_SET0 = 0;
+const int ARGC_TYPE_SET1 = 1;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
 PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
@@ -311,17 +312,36 @@ napi_value PasteDataRecordNapi::ConvertToTextV9(napi_env env, napi_callback_info
     return ConvertToText(env, info);
 }
 
-napi_value PasteDataRecordNapi::CoerceToText(napi_env env, napi_callback_info info)
+napi_value PasteDataRecordNapi::ToPlainText(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CoerceToText is called!");
-    return ConvertToText(env, info);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ToPlainText is called!");
+    size_t argc = 1;
+    napi_value argv[1] = { 0 };
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    NAPI_ASSERT(env, argc >= ARGC_TYPE_SET0, "Wrong number of arguments");
+
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ToPlainText object failed");
+        return nullptr;
+    }
+
+    std::string str = obj->value_->ConvertToText();
+    napi_value result = nullptr;
+    napi_create_string_utf8(env, str.c_str(), NAPI_AUTO_LENGTH, &result);
+    return result;
 }
 
 napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exports)
 {
-    napi_property_descriptor properties[] = { DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
+    napi_property_descriptor properties[] = {
+        DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
         DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9),
-        DECLARE_NAPI_FUNCTION("coerceToText", CoerceToText) };
+        DECLARE_NAPI_FUNCTION("toPlainText", ToPlainText)
+    };
 
     napi_status status = napi_ok;
 
@@ -335,7 +355,7 @@ napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exp
 
     status = napi_create_reference(env, constructor, 1, &g_pasteDataRecord);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "PasteDataRecordInit create referece failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "PasteDataRecordInit create reference failed");
         return nullptr;
     }
     napi_set_named_property(env, exports, "PasteDataRecord", constructor);
@@ -369,7 +389,7 @@ napi_status PasteDataRecordNapi::NewInstance(napi_env env, napi_value &instance)
     napi_value constructor;
     status = napi_get_reference_value(env, g_pasteDataRecord, &constructor);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get referece failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get reference failed");
         return status;
     }
 
