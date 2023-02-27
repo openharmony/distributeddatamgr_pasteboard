@@ -41,7 +41,6 @@
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
-#include "bundle_mgr_interface.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -890,17 +889,12 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
 
 std::string PasteboardService::GetAppLabel(uint32_t tokenId)
 {
-    AppInfo info = GetAppInfo(tokenId);
-    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
-        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    OHOS::sptr<OHOS::IRemoteObject> remoteObject =
-        systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-
-    sptr<AppExecFwk::IBundleMgr> iBundleMgr = OHOS::iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+    auto iBundleMgr = GetAppBundleManager();
     if (iBundleMgr == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, " permission check failed, cannot get IBundleMgr.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " Failed to cast bundle mgr service.");
         return PasteBoardDialog::DEFAULT_LABEL;
     }
+    AppInfo info = GetAppInfo(tokenId);
     AppExecFwk::ApplicationInfo appInfo;
     auto result = iBundleMgr->GetApplicationInfo(info.bundleName, 0, info.userId, appInfo);
     if (!result) {
@@ -909,6 +903,21 @@ std::string PasteboardService::GetAppLabel(uint32_t tokenId)
     auto &resource = appInfo.labelResource;
     auto label = iBundleMgr->GetStringById(resource.bundleName, resource.moduleName, resource.id, info.userId);
     return label.empty() ? PasteBoardDialog::DEFAULT_LABEL : label;
+}
+
+sptr<AppExecFwk::IBundleMgr> PasteboardService::GetAppBundleManager()
+{
+    auto systemAbilityManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " Failed to get SystemAbilityManager.");
+        return nullptr;
+    }
+    auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObject == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " Failed to get bundle mgr service.");
+        return nullptr;
+    }
+    return OHOS::iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
 }
 
 std::string PasteboardService::GetDeviceName()

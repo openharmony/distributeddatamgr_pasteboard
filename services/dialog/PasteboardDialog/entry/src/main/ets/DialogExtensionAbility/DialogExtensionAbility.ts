@@ -49,7 +49,7 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
                 width: display.width,
                 height: display.height - 72,
             }
-            this.createWindow("PasteboardDialog" + new Date().getTime(), window.WindowType.TYPE_DIALOG, dialogRect)
+            this.createFloatWindow("PasteboardDialog" + new Date().getTime(), dialogRect)
         }).catch((err) => {
             hilog.info(0, TAG, "getDefaultDisplay err: " + JSON.stringify(err));
         })
@@ -63,29 +63,50 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
 
     onDestroy() {
         hilog.info(0, TAG, "onDestroy")
-        globalThis.extensionWin.destroy()
+        globalThis.extensionWin.destroyWindow()
         globalThis.context.terminateSelf()
     }
 
-    private async createWindow(name: string, windowType: number, rect: any) {
+    private async createFloatWindow(name: string, rect: any) {
         hilog.info(0, TAG, "create window begin")
+
+        if (globalThis.windowNum > 0) {
+            globalThis.windowNum = 0
+            this.onDestroy()
+        }
+        let windowClass = null;
+        let config = {
+            name, windowType: window.WindowType.TYPE_FLOAT, ctx: this.context
+        };
         try {
-            if (globalThis.windowNum > 0) {
-                globalThis.windowNum = 0
-                globalThis.extensionWin.destroy()
-                this.onDestroy()
-            }
-            const win = await window.create(this.context, name, windowType)
-            globalThis.extensionWin = win
-            await win.moveTo(rect.left, rect.top)
-            await win.resetSize(rect.width, rect.height)
-            await win.loadContent('pages/index')
-            await win.setBackgroundColor('#00000000')
-            await win.show()
-            globalThis.windowNum++
-            hilog.info(0, TAG, "create window successfully")
-        } catch {
-            hilog.info(0, TAG, "create window failed")
+            window.createWindow(config, (err, data) => {
+                if (err.code) {
+                    hilog.error(0, TAG, 'Failed to create the window. Cause: ' + JSON.stringify(err));
+                    return;
+                }
+                windowClass = data;
+                globalThis.extensionWin = data;
+                hilog.info(0, TAG, 'Succeeded in creating the window. Data: ' + JSON.stringify(data));
+                try {
+                    windowClass.setUIContent('pages/index', (err) => {
+                        if (err.code) {
+                            hilog.error(0, TAG, 'Failed to load the content. Cause:' + JSON.stringify(err));
+                            return;
+                        }
+                        windowClass.moveWindowTo(rect.left, rect.top)
+                        windowClass.resize(rect.width, rect.height)
+                        windowClass.loadContent('pages/index')
+                        windowClass.setBackgroundColor('#00000000')
+                        windowClass.showWindow()
+                        globalThis.windowNum++
+                        hilog.info(0, TAG, "Create window successfully")
+                    });
+                } catch (exception) {
+                    hilog.error(0, TAG, 'Failed to load the content. Cause:' + JSON.stringify(exception));
+                }
+            });
+        } catch (exception) {
+            hilog.error(0, TAG, 'Failed to create the window. Cause: ' + JSON.stringify(exception));
         }
     }
 }
