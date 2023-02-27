@@ -47,6 +47,26 @@ enum class PasteboardError : int32_t {
     E_BUTT,
 };
 
+const std::map<PasteboardError, const char *> PasteboardErrorMap = {
+    {PasteboardError::E_OK, "E_OK"},
+    {PasteboardError::E_INVALID_VALUE, "E_INVALID_VALUE"},
+    {PasteboardError::E_INVALID_OPTION, "E_INVALID_OPTION"},
+    {PasteboardError::E_WRITE_PARCEL_ERROR, "E_WRITE_PARCEL_ERROR"},
+    {PasteboardError::E_READ_PARCEL_ERROR, "E_READ_PARCEL_ERROR"},
+    {PasteboardError::E_SA_DIED, "E_SA_DIED"},
+    {PasteboardError::E_ERROR, "E_ERROR"},
+    {PasteboardError::E_OUT_OF_RANGE, "E_OUT_OF_RANGE"},
+    {PasteboardError::E_NO_PERMISSION, "E_NO_PERMISSION"},
+    {PasteboardError::E_INVALID_PARAMETERS, "E_INVALID_PARAMETERS"},
+    {PasteboardError::E_TIMEOUT, "E_TIMEOUT"},
+    {PasteboardError::E_CANCELED, "E_CANCELED"},
+    {PasteboardError::E_EXCEEDS_LIMIT, "E_EXCEEDS_LIMIT"},
+    {PasteboardError::E_IS_BEGING_PROCESSED, "E_IS_BEGING_PROCESSED"},
+    {PasteboardError::E_COPY_FORBIDDEN, "E_COPY_FORBIDDEN"},
+    {PasteboardError::E_UNKNOWN, "E_UNKNOWN"},
+    {PasteboardError::E_BUTT, "E_BUTT"},
+};
+
 } // namespace MiscServices
 } // namespace OHOS
 #endif // PASTEBOARD_ERROR_H

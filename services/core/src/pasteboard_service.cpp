@@ -643,17 +643,6 @@ std::string PasteboardService::DumpHistory() const
     return result;
 }
 
-void PasteboardService::ShareOptionToString(ShareOption shareOption, std::string &out)
-{
-    if (shareOption == ShareOption::InApp) {
-        out = "InAPP";
-    } else if (shareOption == ShareOption::LocalDevice) {
-        out = "LocalDevice";
-    } else {
-        out = "CrossDevice";
-    }
-}
-
 std::string PasteboardService::DumpData()
 {
     std::vector<int32_t> ids;
@@ -670,7 +659,7 @@ std::string PasteboardService::DumpData()
         size_t recordCounts = it->second->GetRecordCount();
         auto property = it->second->GetProperty();
         std::string shareOption;
-        ShareOptionToString(property.shareOption, shareOption);
+        PasteData::ShareOptionToString(property.shareOption, shareOption);
         std::string sourceDevice;
         if (property.isRemote) {
             sourceDevice = "remote";

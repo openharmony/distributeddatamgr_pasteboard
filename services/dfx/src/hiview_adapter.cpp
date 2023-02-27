@@ -23,6 +23,8 @@
 
 #include "def.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_error.h"
+#include "time_service_client.h"
 
 namespace OHOS {
 using namespace HiviewDFX;
@@ -32,6 +34,7 @@ const std::map<int, std::string> EVENT_COVERT_TABLE = {
     { DfxCodeConstant::PASTEBOARD_FAULT, "PASTEBOARD_FAULT" },
     { DfxCodeConstant::TIME_CONSUMING_STATISTIC, "TIME_CONSUMING_STATISTIC" },
     { DfxCodeConstant::PASTEBOARD_BEHAVIOUR, "PASTEBOARD_BEHAVIOUR" },
+    { DfxCodeConstant::USE_BEHAVIOUR, "USE_BEHAVIOUR" },
 };
 } // namespace
 
@@ -468,6 +471,36 @@ void HiViewAdapter::StartTimerThread()
     };
     std::thread th = std::thread(fun);
     th.detach();
+}
+
+void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, int32_t result)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    auto iter = PasteboardErrorMap.find(PasteboardError(result));
+    const char *appRet;
+    if (iter != PasteboardErrorMap.end()) {
+        appRet = iter->second;
+    } else {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Match error result: %{public}d.", result);
+        appRet = "MATCH ERROR";
+    }
+    std::string shareOption;
+    PasteData::ShareOptionToString(pastData.GetShareOption(), shareOption);
+    int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
+        CoverEventID(DfxCodeConstant::USE_BEHAVIOUR),
+        HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, state,
+        BOOTTIME, TimeServiceClient::GetInstance()->GetBootTimeMs(),
+        WALLTIME, TimeServiceClient::GetInstance()->GetWallTimeMs(),
+        RESULT, appRet,
+        OPERATE_APP, pastData.GetProperty().bundleName,
+        PRI_MIME_TYPE, *pastData.GetPrimaryMimeType(),
+        ISLOCALPASTE, pastData.IsLocalPaste(),
+        ISREMOTE, pastData.IsRemote(),
+        SHAREOPTION, shareOption);
+    if (ret != HiviewDFX::SUCCESS) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
 }
 
 std::string HiViewAdapter::CoverEventID(int dfxCode)

@@ -65,3 +65,15 @@ PASTEBOARD_BEHAVIOUR:
   TOP_EIGHT_APP: {type: STRING, desc: The counts of top eight calling pasteboard }
   TOP_NINE_APP: {type: STRING, desc: The counts of top nine calling pasteboard }
   TOP_TEN_APP: {type: STRING, desc: The counts of top ten calling pasteboard }
+
+USE_BEHAVIOUR:
+  __BASE: {type: BEHAVIOR, level: MINOR, desc: The event is behaviour record of access }
+  PASTEBOARD_STATE: {type: STRING, desc: Pasteboard state }
+  BOOTTIME: {type: STRING, desc: Boot time }
+  WALLTIME: {type: STRING, desc: Access pasteboard time}
+  RESULT: {type: INT32, desc: The result of access pasteboard }
+  OPERATE_APP: {type: STRING, desc: The app to access pasteboard }
+  PRI_MIME_TYPE: {type: STRING, desc: Primary mime type }
+  ISLOCALPASTE: {type: INT32, desc: IsLocalPaste}
+  ISREMOTE: {type: INT32, desc: IsRemote }
+  SHAREOPTION: {type: STRING, desc: ShareOption }

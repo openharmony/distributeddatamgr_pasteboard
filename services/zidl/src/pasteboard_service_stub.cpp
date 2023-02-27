@@ -17,6 +17,7 @@
 
 #include "copy_uri_handler.h"
 #include "errors.h"
+#include "hiview_adapter.h"
 #include "paste_data.h"
 #include "paste_uri_handler.h"
 #include "pasteboard_error.h"
@@ -135,6 +136,7 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
     int32_t result = SetPasteData(pasteData);
+    HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::COPY_STATE, result);
     if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write SetPasteData result");
         return ERR_INVALID_VALUE;

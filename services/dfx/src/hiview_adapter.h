@@ -25,6 +25,7 @@
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "hisysevent.h"
+#include "paste_data.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -54,12 +55,19 @@ enum TimeConsumingLevel : std::int32_t {
 class HiViewAdapter {
 public:
     ~HiViewAdapter();
+
+    static inline const char *PASTEBOARD_STATE = "PASTEBOARD_STATE";
+    static inline const char *COPY_STATE = "COPY_STATE";
+    static inline const char *PASTE_STATE = "PASTE_STATE";
+
     static void ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg &msg);
     static void ReportTimeConsumingStatistic(const TimeConsumingStat &stat);
     static void ReportPasteboardBehaviour(const PasteboardBehaviourMsg &msg);
     static void StartTimerThread();
     static std::map<int, int> InitDataMap();
     static std::map<int, int> InitTimeMap();
+
+    static void ReportUseBehaviour(PasteData& pastData, const char* state, int32_t result);
 
 private:
     static void InvokePasteBoardBehaviour();
@@ -101,8 +109,6 @@ private:
     static inline constexpr int ONE_HOUR_IN_SECONDS = 1 * 60 * 60; // 1 hour
 
     // statistic key
-    static inline const char *PASTEBOARD_STATE = "PASTEBOARD_STATE";
-
     static inline const char *ZERO_TO_HUNDRED_KB = "ZERO_TO_HUNDRED_KB";
     static inline const char *HUNDRED_TO_FIVE_HUNDREDS_KB = "HUNDRED_TO_FIVE_HUNDREDS_KB";
     static inline const char *FIVE_HUNDREDS_TO_THOUSAND_KB = "FIVE_HUNDREDS_TO_THOUSAND_KB";
@@ -125,9 +131,17 @@ private:
     static inline const char *TOP_NINE_APP = "TOP_NINE_APP";
     static inline const char *TOP_TEN_APP = "TOP_TEN_APP";
 
-    static inline const char *COPY_STATE = "COPY_STATE";
-    static inline const char *PASTE_STATE = "PASTE_STATE";
     static inline constexpr const char *REMOTE_PASTE_STATE = "REMOTE_PASTE_STATE";
+
+    // use behaviour key
+    static inline const char *BOOTTIME = "BOOTTIME";
+    static inline const char *WALLTIME = "WALLTIME";
+    static inline const char *RESULT = "RESULT";
+    static inline const char *OPERATE_APP = "OPERATE_APP";
+    static inline const char *PRI_MIME_TYPE = "PRI_MIME_TYPE";
+    static inline const char *ISLOCALPASTE = "ISLOCALPASTE";
+    static inline const char *ISREMOTE = "ISREMOTE";
+    static inline const char *SHAREOPTION = "SHAREOPTION";
 
     static inline const int INIT_COPY_TIME_SONSUMING = 7;
     static inline const int INIT_PASTE_TIME_SONSUMING = 8;

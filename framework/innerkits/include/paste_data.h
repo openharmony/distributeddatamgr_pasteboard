@@ -90,6 +90,7 @@ public:
 
     void SetBundleName(const std::string &bundleName);
     void SetRemote(bool isRemote);
+    bool IsRemote();
     void SetTime(const std::string &time);
 
     virtual bool Marshalling(Parcel &parcel) const override;
@@ -104,6 +105,7 @@ public:
     bool IsValid() const;
     void SetInvalid();
 
+    static void ShareOptionToString(ShareOption shareOption, std::string &out);
 private:
     bool MarshallingProps(Parcel &parcel) const;
     static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);

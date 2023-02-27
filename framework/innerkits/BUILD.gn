@@ -19,6 +19,7 @@ config("pasteboard_client_config") {
   include_dirs = [
     "include",
     "${pasteboard_service_path}/core/include",
+    "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_utils_path}/native/include",
     "//commonlibrary/c_utils/base/include",
@@ -31,6 +32,7 @@ config("pasteboard_client_config") {
 
 ohos_shared_library("pasteboard_client") {
   sources = [
+    "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_service_proxy.cpp",
     "src/paste_data.cpp",
@@ -50,12 +52,15 @@ ohos_shared_library("pasteboard_client") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:wantagent_innerkits",
     "c_utils:utils",
+    "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "multimedia_image_framework:image_native",
     "samgr:samgr_proxy",
+    "time_service:time_client",
   ]
 
   subsystem_name = "distributeddatamgr"

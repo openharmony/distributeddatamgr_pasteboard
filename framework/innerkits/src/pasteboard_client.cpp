@@ -18,6 +18,7 @@
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
 
+#include "hiview_adapter.h"
 #include "hitrace_meter.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
@@ -163,6 +164,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
     RetainUri(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
+    HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::PASTE_STATE, ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end.");
     return ret;
 }

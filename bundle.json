@@ -35,7 +35,8 @@
           "ability_runtime",
           "libuv",
           "safwk",
-          "c_utils"
+          "c_utils",
+          "time_service"
         ],
         "third_party": [
         ]

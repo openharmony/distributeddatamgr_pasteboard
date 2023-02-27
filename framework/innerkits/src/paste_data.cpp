@@ -279,6 +279,11 @@ void PasteData::SetRemote(bool isRemote)
     props_.isRemote = isRemote;
 }
 
+bool PasteData::IsRemote()
+{
+    return props_.isRemote;
+}
+
 void PasteData::SetBundleName(const std::string &bundleName)
 {
     props_.bundleName = bundleName;
@@ -603,6 +608,17 @@ void PasteData::ReplaceShareUri(int32_t userId)
             continue;
         }
         record->ReplaceShareUri(userId);
+    }
+}
+
+void PasteData::ShareOptionToString(ShareOption shareOption, std::string &out)
+{
+    if (shareOption == ShareOption::InApp) {
+        out = "InAPP";
+    } else if (shareOption == ShareOption::LocalDevice) {
+        out = "LocalDevice";
+    } else {
+        out = "CrossDevice";
     }
 }
 } // namespace MiscServices
