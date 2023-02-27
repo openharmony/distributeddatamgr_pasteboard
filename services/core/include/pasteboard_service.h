@@ -29,6 +29,8 @@
 #include <stack>
 #include <thread>
 
+#include "bundle_mgr_interface.h"
+#include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
 #include "event_handler.h"
 #include "i_pasteboard_observer.h"
@@ -104,6 +106,7 @@ private:
     void GetPasteDataDot(PasteData &pasteData, const std::string &pop, uint32_t tokenId);
     bool GetPasteData(PasteData& data, uint32_t tokenId, bool isFocusedApp);
     std::string GetAppLabel(uint32_t tokenId);
+    sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     std::string GetDeviceName();
     void SetDeviceName(const std::string &device = "");
 
