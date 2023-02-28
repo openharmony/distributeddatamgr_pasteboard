@@ -50,7 +50,7 @@ public:
 
     static napi_value ConvertToText(napi_env env, napi_callback_info info);
     static napi_value ConvertToTextV9(napi_env env, napi_callback_info info);
-    static napi_value CoerceToText(napi_env env, napi_callback_info info);
+    static napi_value ToPlainText(napi_env env, napi_callback_info info);
 
     std::shared_ptr<MiscServices::PasteDataRecord> value_;
 
