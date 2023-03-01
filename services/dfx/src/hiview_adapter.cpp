@@ -18,8 +18,9 @@
 #include "hiview_adapter.h"
 
 #include <algorithm>
-#include <thread>
 #include <unistd.h>
+#include <pthread.h>
+#include <thread>
 
 #include "def.h"
 #include "pasteboard_hilog.h"
@@ -470,6 +471,7 @@ void HiViewAdapter::StartTimerThread()
         }
     };
     std::thread th = std::thread(fun);
+    pthread_setname_np(th.native_handle(), "HiViewReport");
     th.detach();
 }
 
