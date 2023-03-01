@@ -495,7 +495,7 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
         WALLTIME, TimeServiceClient::GetInstance()->GetWallTimeMs(),
         RESULT, appRet,
         OPERATE_APP, pastData.GetProperty().bundleName,
-        PRI_MIME_TYPE, pastData.GetPrimaryMimeType() !=nullptr? *pastData.GetPrimaryMimeType(): "null",
+        PRI_MIME_TYPE, pastData.GetPrimaryMimeType() != nullptr? *pastData.GetPrimaryMimeType() : "null",
         ISLOCALPASTE, pastData.IsLocalPaste(),
         ISREMOTE, pastData.IsRemote(),
         SHAREOPTION, shareOption);
