@@ -65,7 +65,7 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
 
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(env, &scope);
-    if(scope == nullptr) {
+    if (scope == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "scope null");
         return;
     }
