@@ -63,6 +63,8 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
     auto env = pasteboardDataWorker->observer->GetEnv();
     auto ref = pasteboardDataWorker->observer->GetRef();
 
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
     napi_value undefined = nullptr;
     napi_get_undefined(env, &undefined);
 
@@ -72,6 +74,7 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
     napi_value result = NapiGetNull(env);
     napi_call_function(env, undefined, callback, 0, &result, &resultOut);
 
+    napi_close_handle_scope(env, scope);
     delete pasteboardDataWorker;
     pasteboardDataWorker = nullptr;
     delete work;
