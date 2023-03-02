@@ -719,7 +719,7 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
     auto appInfo = GetAppInfo(tokenId);
     HistoryInfo info{ time, appInfo.bundleName, "get", pop, remote };
     SetPasteboardHistory(info);
-
+    pasteData.SetBundleName(appInfo.bundleName);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     int pState = StatisticPasteboardState::SPS_INVALID_STATE;
     int bState = BehaviourPasteboardState::BPS_INVALID_STATE;
