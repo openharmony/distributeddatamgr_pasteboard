@@ -14,6 +14,8 @@
 */
 
 #include "parcel_util.h"
+#include "pasteboard_hilog.h"
+
 namespace OHOS::MiscServices {
 RawMem ParcelUtil::Parcelable2Raw(const Parcelable *value)
 {
@@ -24,6 +26,7 @@ RawMem ParcelUtil::Parcelable2Raw(const Parcelable *value)
     rawMem.parcel = std::make_shared<Parcel>(nullptr);
     bool ret = value->Marshalling(*rawMem.parcel);
     if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Marshalling failed.");
         return rawMem;
     }
     rawMem.buffer = rawMem.parcel->GetData();
