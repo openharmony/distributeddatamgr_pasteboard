@@ -103,6 +103,12 @@ public:
 
     bool IsValid() const;
     void SetInvalid();
+
+    static void ShareOptionToString(ShareOption shareOption, std::string &out);
+    static std::string sharePath;
+    static const std::string SHARE_PATH_PREFIX;
+    static const std::string SHARE_PATH_PREFIX_ACCOUNT;
+
 private:
     bool MarshallingProps(Parcel &parcel) const;
     static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);

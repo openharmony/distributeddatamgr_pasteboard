@@ -535,16 +535,10 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, boo
     if (tempUri.empty()) {
         return false;
     }
-    if (!isClient && tempUri.rfind("/mnt/hmdfs/", 0) != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "server open uri error");
-        return false;
-    }
-    bool ret = true;
-    if (uriHandler.IsFile(tempUri)) {
-        int32_t fd = uriHandler.ToFd(tempUri);
-        ret = parcel.WriteFileDescriptor(fd);
-        uriHandler.ReleaseFd(fd);
-    }
+    int32_t fd = uriHandler.ToFd(tempUri, isClient);
+    bool ret = parcel.WriteFileDescriptor(fd);
+    uriHandler.ReleaseFd(fd);
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ret is %{public}d", ret);
     return ret;
 }
@@ -569,7 +563,7 @@ bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
         return false;
     }
     if (!uriHandler.IsFile(tempUri) && fd_->GetFd() < 0) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid file uri");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "invalid file uri, fd:%{public}d", fd_->GetFd());
         return false;
     }
     return true;

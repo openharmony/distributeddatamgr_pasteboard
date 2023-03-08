@@ -15,6 +15,8 @@
 #include "uri_handler.h"
 
 #include "pasteboard_hilog.h"
+#include "paste_data.h"
+
 namespace OHOS::MiscServices {
 bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealPath)
 {
@@ -42,13 +44,22 @@ bool UriHandler::IsFile(const std::string &uri) const
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "not file");
     return false;
 }
-int32_t UriHandler::ToFd(const std::string &uri)
+int32_t UriHandler::ToFd(const std::string &uri, bool isClient)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri: %{public}s", uri.c_str());
     std::string fileRealPath;
     if (!GetRealPath(uri, fileRealPath)) {
         return INVALID_FD;
     }
+    if (!IsFile(fileRealPath)) {
+        return INVALID_FD;
+    }
+    if (!isClient && (PasteData::sharePath.size() == 0 || fileRealPath.rfind(PasteData::sharePath, 0) != 0)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "uri error, sharePath: %{public}s, fileRealPath: %{public}s",
+            PasteData::sharePath.c_str(), fileRealPath.c_str());
+        return INVALID_FD;
+    }
+    
     int32_t fd = open(fileRealPath.c_str(), O_RDONLY);
     if (fd < 0) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "open file failed, maybe its not a legal file path %{public}s",
