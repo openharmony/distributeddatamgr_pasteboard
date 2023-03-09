@@ -26,9 +26,8 @@ interface IRect {
   height: number;
 }
 
-const TAG = 'DialogExtensionAbility';
-
 const RECT_NUMBER = 72;
+const TAG = 'DialogExtensionAbility';
 
 class DialogStub extends rpc.RemoteObject {
   constructor(des: string) {
