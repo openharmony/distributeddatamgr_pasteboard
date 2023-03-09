@@ -27,6 +27,7 @@ interface IRect {
 }
 
 const TAG = 'DialogExtensionAbility';
+
 const RECT_NUMBER = 72;
 
 class DialogStub extends rpc.RemoteObject {
