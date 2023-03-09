@@ -27,14 +27,12 @@ public:
     virtual int32_t ToFd(const std::string &uri);
     virtual void ReleaseFd(int32_t fd);
     bool IsPaste() const;
+    static bool GetRealPath(const std::string &inOriPath, std::string &outRealPath);
 
 protected:
     static constexpr int32_t INVALID_FD = -1;
     std::string uri_;
     bool isPaste_ = false;
-
-private:
-    static bool GetRealPath(const std::string &inOriPath, std::string &outRealPath);
 };
 } // namespace OHOS::MiscServices
 #endif // DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H
