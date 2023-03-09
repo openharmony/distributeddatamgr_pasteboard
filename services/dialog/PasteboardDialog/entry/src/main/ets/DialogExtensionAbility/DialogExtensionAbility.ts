@@ -45,8 +45,8 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
   onConnect(want: Want): DialogStub {
     hilog.info(0, TAG, 'onConnect');
     globalThis.dialogInfo = {
-      appName: want.parameters['appName'],
-      deviceType: want.parameters['deviceType'],
+      appName: want.parameters.appName,
+      deviceType: want.parameters.deviceType,
     };
     display
       .getDefaultDisplay()
