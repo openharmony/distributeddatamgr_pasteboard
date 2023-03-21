@@ -55,7 +55,7 @@ public:
     virtual ~UriHandlerMock() = default;
 
     MOCK_METHOD1(ToUri, std::string(int32_t fd));
-    MOCK_METHOD1(ToFd, int32_t(const std::string &uri));
+    MOCK_METHOD2(ToFd, int32_t(const std::string &uri, bool isClient));
     MOCK_CONST_METHOD1(IsFile, bool(const std::string &uri));
 };
 /**
@@ -78,7 +78,7 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
     UriHandlerMock mock;
     std::string mockUri = "/mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt";
     EXPECT_CALL(mock, ToUri(_)).WillRepeatedly(Return(mockUri));
-    EXPECT_CALL(mock, ToFd(_)).WillRepeatedly(Return(2));
+    EXPECT_CALL(mock, ToFd(_, _)).WillRepeatedly(Return(2));
     EXPECT_CALL(mock, IsFile(_)).WillRepeatedly(Return(true));
 
     data.AddRecord(record);
@@ -142,7 +142,7 @@ HWTEST_F(PasteDataTest, GetRealPathFailed001, TestSize.Level0)
 {
     std::string uriStr = "/data/storage/100/haps/caches/xxx.txt";
     PasteUriHandler pasteHandler;
-    auto ret = pasteHandler.ToFd(uriStr);
+    auto ret = pasteHandler.ToFd(uriStr, true);
     EXPECT_EQ(ret, INVALID_FD);
 }
 
@@ -157,7 +157,7 @@ HWTEST_F(PasteDataTest, GetRealPathFailed002, TestSize.Level0)
 {
     std::string uriStr(PATH_MAX + 2, '*');
     PasteUriHandler pasteHandler;
-    auto ret = pasteHandler.ToFd(uriStr);
+    auto ret = pasteHandler.ToFd(uriStr, true);
     EXPECT_EQ(ret, INVALID_FD);
 }
 
