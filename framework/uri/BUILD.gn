@@ -21,6 +21,7 @@ config("module_public_config") {
     "//foundation/distributeddatamgr/pasteboard/framework/uri",
     "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "./",
+    "../innerkits/include",
   ]
 }
 
@@ -44,6 +45,7 @@ ohos_static_library("pasteboard_uri") {
     "file_api:remote_uri_native",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",
   ]
   subsystem_name = "distributeddatamgr"

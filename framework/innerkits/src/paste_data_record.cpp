@@ -19,7 +19,6 @@
 
 #include "copy_uri_handler.h"
 #include "parcel_util.h"
-#include "paste_data.h"
 #include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
@@ -532,21 +531,10 @@ bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, boo
     if (tempUri.empty()) {
         return false;
     }
-    std::string fileRealPath;
-    if (!UriHandler::GetRealPath(tempUri, fileRealPath)) {
-        return false;
-    }
-    if (!isClient && (PasteData::sharePath.size() == 0 || fileRealPath.rfind(PasteData::sharePath, 0) != 0)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "uri error, sharePath: %{public}s, fileRealPath: %{public}s",
-            PasteData::sharePath.c_str(), fileRealPath.c_str());
-        return false;
-    }
-    bool ret = true;
-    if (uriHandler.IsFile(fileRealPath)) {
-        int32_t fd = uriHandler.ToFd(fileRealPath);
-        ret = parcel.WriteFileDescriptor(fd);
-        uriHandler.ReleaseFd(fd);
-    }
+    int32_t fd = uriHandler.ToFd(tempUri, isClient);
+    bool ret = parcel.WriteFileDescriptor(fd);
+    uriHandler.ReleaseFd(fd);
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ret is %{public}d", ret);
     return ret;
 }
@@ -571,7 +559,7 @@ bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
         return false;
     }
     if (!uriHandler.IsFile(tempUri) && fd_->GetFd() < 0) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "no valid file uri");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "invalid file uri, fd:%{public}d", fd_->GetFd());
         return false;
     }
     return true;

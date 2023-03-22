@@ -24,7 +24,7 @@ class UriHandler {
 public:
     virtual bool IsFile(const std::string &uri) const;
     virtual std::string ToUri(int32_t fd) = 0;
-    virtual int32_t ToFd(const std::string &uri);
+    virtual int32_t ToFd(const std::string &uri, bool isClient);
     virtual void ReleaseFd(int32_t fd);
     bool IsPaste() const;
     static bool GetRealPath(const std::string &inOriPath, std::string &outRealPath);
