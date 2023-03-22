@@ -62,6 +62,7 @@ bool DistributedModuleConfig::GetEnabledStatus()
     for (auto &id : deviceIds) {
         DevProfile::GetInstance().GetEnabledStatus(id, remoteEnabledStatus);
         if (remoteEnabledStatus == "true") {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus true.");
             return true;
         }
     }

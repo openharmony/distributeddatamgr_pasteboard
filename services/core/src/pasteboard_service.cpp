@@ -756,11 +756,13 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
 {
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return nullptr;
     }
     ClipPlugin::GlobalEvent event;
     auto isEffective = GetDistributedEvent(clipPlugin, user, event);
     if (event.status == ClipPlugin::EVT_UNKNOWN) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EVT_UNKNOWN.");
         return nullptr;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
@@ -791,10 +793,12 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     std::vector<uint8_t> rawData;
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return false;
     }
 
     if (data.GetShareOption() == CrossDevice && !data.Encode(rawData)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "encode failed.");
         return false;
     }
 
@@ -816,6 +820,7 @@ bool PasteboardService::HasDistributedData(int32_t user)
 {
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return false;
     }
     Event event;
@@ -846,6 +851,7 @@ bool PasteboardService::CleanDistributedData(int32_t user)
 {
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return true;
     }
     clipPlugin->Clear(user);
@@ -854,6 +860,7 @@ bool PasteboardService::CleanDistributedData(int32_t user)
 
 void PasteboardService::OnConfigChange(bool isOn)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConfigChange isOn: %{public}d.", isOn);
     if (isOn) {
         return;
     }
@@ -865,6 +872,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
 {
     auto events = plugin->GetTopEvents(1, user);
     if (events.empty()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "events empty.");
         return false;
     }
 
