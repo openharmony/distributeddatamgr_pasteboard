@@ -376,9 +376,11 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, bool isF
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
     auto userId = GetUserIdByToken(tokenId);
     if (userId == ERROR_USERID) {
+        PasteData::sharePath = "";
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId error.");
         return false;
     }
-
+    PasteData::sharePath = PasteData::SHARE_PATH_PREFIX + std::to_string(userId) + PasteData::SHARE_PATH_PREFIX_ACCOUNT;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     bool isRemote = false;
     std::lock_guard<std::mutex> lock(clipMutex_);

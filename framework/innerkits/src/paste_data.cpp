@@ -46,6 +46,10 @@ enum TAG_PROPERTY : uint16_t {
     TAG_SETTIME,
 };
 
+std::string PasteData::sharePath = "";
+const std::string PasteData::SHARE_PATH_PREFIX = "/mnt/hmdfs/";
+const std::string PasteData::SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
+
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
