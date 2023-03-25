@@ -49,11 +49,8 @@ void DistributedModuleConfig::Notify()
 bool DistributedModuleConfig::GetEnabledStatus()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
-
-    std::string localEnabledStatus = "false";
-    DevProfile::GetInstance().GetEnabledStatus("", localEnabledStatus);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "localEnabledStatus = %{public}s.", localEnabledStatus.c_str());
-    if (localEnabledStatus == "false") {
+    if (!DevProfile::GetInstance().GetLocalEnable()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false.");
         return false;
     }
 

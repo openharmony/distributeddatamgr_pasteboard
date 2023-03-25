@@ -84,8 +84,10 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     profile.SetServiceType(SERVICE_ID);
     nlohmann::json jsonObject;
     jsonObject[CHARACTER_ID] = NOT_SUPPORT;
+    localEnable_ = false;
     if (enabledStatus == "true") {
         jsonObject[CHARACTER_ID] = SUPPORT;
+        localEnable_ = true;
     }
     profile.SetCharacteristicProfileJson(jsonObject.dump());
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutDeviceProfile(profile);
@@ -189,5 +191,11 @@ void DevProfile::UnsubscribeAllProfileEvents()
         it = callback_.erase(it);
     }
 }
+
+bool DevProfile::GetLocalEnable()
+{
+    return localEnable_;
+}
+
 } // namespace MiscServices
 } // namespace OHOS

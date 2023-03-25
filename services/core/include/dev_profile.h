@@ -29,6 +29,7 @@ public:
     void SubscribeProfileEvent(const std::string &deviceId);
     void UnSubscribeProfileEvent(const std::string &deviceId);
     void UnsubscribeAllProfileEvents();
+    bool GetLocalEnable();
 
     class PasteboardProfileEventCallback : public DeviceProfile::IProfileEventCallback {
     public:
@@ -43,6 +44,7 @@ private:
     void SyncEnabledStatus();
     std::mutex callbackMutex_;
     std::map<std::string, std::shared_ptr<PasteboardProfileEventCallback>> callback_;
+    bool localEnable_ = false;
 };
 } // namespace MiscServices
 } // namespace OHOS
