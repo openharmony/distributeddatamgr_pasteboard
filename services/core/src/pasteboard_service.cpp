@@ -506,8 +506,8 @@ void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChang
         observerMap_.insert(std::make_pair(userId, observers));
     }
     observers->insert(observer);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, " observer = %{public}p, observers->size = %{public}d,",
-        observer.GetRefPtr(), static_cast<unsigned int>(observerMap_.size()));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, " observers->size = %{public}d,",
+        static_cast<unsigned int>(observerMap_.size()));
 }
 void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
@@ -529,9 +529,7 @@ void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardCh
         static_cast<unsigned int>(observers->size()));
     auto eraseNum = observers->erase(observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
-        " callback = %{public}p, listeners.size = %{public}d,"
-        " eraseNum = %{public}zu",
-        observer.GetRefPtr(), static_cast<unsigned int>(observers->size()), eraseNum);
+        " listeners.size = %{public}d, eraseNum = %{public}zu", static_cast<unsigned int>(observers->size()), eraseNum);
 }
 
 void PasteboardService::RemoveAllChangedObserver()
