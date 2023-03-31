@@ -31,13 +31,12 @@ const int ARGC_TYPE_SET0 = 0;
 const int ARGC_TYPE_SET1 = 1;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
-PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr), wrapper_(nullptr)
+PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr)
 {
 }
 
 PasteDataRecordNapi::~PasteDataRecordNapi()
 {
-    napi_delete_reference(env_, wrapper_);
 }
 
 bool PasteDataRecordNapi::NewInstanceByRecord(
@@ -364,6 +363,7 @@ napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exp
 
 void PasteDataRecordNapi::Destructor(napi_env env, void *nativeObject, void *finalize_hint)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Destructor");
     PasteDataRecordNapi *obj = static_cast<PasteDataRecordNapi *>(nativeObject);
     delete obj;
 }
@@ -378,7 +378,7 @@ napi_value PasteDataRecordNapi::New(napi_env env, napi_callback_info info)
     // get native object
     PasteDataRecordNapi *obj = new PasteDataRecordNapi();
     obj->env_ = env;
-    NAPI_CALL(env, napi_wrap(env, thisVar, obj, PasteDataRecordNapi::Destructor, nullptr, &obj->wrapper_));
+    NAPI_CALL(env, napi_wrap(env, thisVar, obj, PasteDataRecordNapi::Destructor, nullptr, nullptr));
     return thisVar;
 }
 

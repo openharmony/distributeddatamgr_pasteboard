@@ -73,7 +73,6 @@ private:
     static bool IsProperty(napi_env env, napi_value in);
     static bool SetNapiProperty(napi_env env, const MiscServices::PasteDataProperty &property, napi_value &nProperty);
     napi_env env_;
-    napi_ref wrapper_;
 };
 } // namespace MiscServicesNapi
 } // namespace OHOS

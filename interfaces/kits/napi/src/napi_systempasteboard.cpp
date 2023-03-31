@@ -434,18 +434,18 @@ napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value e
     return exports;
 }
 
-SystemPasteboardNapi::SystemPasteboardNapi() : env_(nullptr), wrapper_(nullptr)
+SystemPasteboardNapi::SystemPasteboardNapi() : env_(nullptr)
 {
     value_ = std::make_shared<PasteDataNapi>();
 }
 
 SystemPasteboardNapi::~SystemPasteboardNapi()
 {
-    napi_delete_reference(env_, wrapper_);
 }
 
 void SystemPasteboardNapi::Destructor(napi_env env, void *nativeObject, void *finalize_hint)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Destructor");
     SystemPasteboardNapi *obj = static_cast<SystemPasteboardNapi *>(nativeObject);
     delete obj;
 }
@@ -466,7 +466,7 @@ napi_value SystemPasteboardNapi::New(napi_env env, napi_callback_info info)
     obj->env_ = env;
     NAPI_CALL(env, napi_wrap(env, thisVar, obj, SystemPasteboardNapi::Destructor,
                        nullptr, // finalize_hint
-                       &obj->wrapper_));
+                       nullptr));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return thisVar;
 }

@@ -149,7 +149,6 @@ private:
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
-    napi_ref wrapper_;
     static thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
 };
 } // namespace MiscServicesNapi
