@@ -37,14 +37,13 @@ constexpr size_t MAX_RECORD_NUM = 512;
 } // namespace
 static thread_local napi_ref g_pasteData = nullptr;
 
-PasteDataNapi::PasteDataNapi() : env_(nullptr), wrapper_(nullptr)
+PasteDataNapi::PasteDataNapi() : env_(nullptr)
 {
     value_ = std::make_shared<PasteData>();
 }
 
 PasteDataNapi::~PasteDataNapi()
 {
-    napi_delete_reference(env_, wrapper_);
 }
 
 napi_value PasteDataNapi::AddHtmlRecord(napi_env env, napi_callback_info info)
@@ -969,6 +968,7 @@ napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
 
 void PasteDataNapi::Destructor(napi_env env, void *nativeObject, void *finalize_hint)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Destructor");
     PasteDataNapi *obj = static_cast<PasteDataNapi *>(nativeObject);
     delete obj;
 }
@@ -985,7 +985,7 @@ napi_value PasteDataNapi::New(napi_env env, napi_callback_info info)
     obj->env_ = env;
     NAPI_CALL(env, napi_wrap(env, thisVar, obj, PasteDataNapi::Destructor,
                        nullptr, // finalize_hint
-                       &obj->wrapper_));
+                       nullptr));
     return thisVar;
 }
 
