@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AsyncCallback } from './basic';
-import Want from './@ohos.app.ability.Want';
-import image from './@ohos.multimedia.image';
+import type { AsyncCallback } from './basic';
+import type Want from './@ohos.app.ability.Want';
+import type image from './@ohos.multimedia.image';
 
 /**
  * systemPasteboard
@@ -193,7 +193,7 @@ declare namespace pasteboard {
      * @syscap SystemCapability.MiscServices.Pasteboard
      * @since 9
      */
-    CROSSDEVICE
+    CROSSDEVICE,
   }
 
   interface PasteDataProperty {
@@ -202,8 +202,8 @@ declare namespace pasteboard {
      * @since 7
      */
     additions: {
-      [key: string]: object
-    }
+      [key: string]: object;
+    };
     /**
      * non-repeating MIME types of all records in PasteData.
      * @since 7
@@ -274,8 +274,8 @@ declare namespace pasteboard {
      * @since 9
      */
     data: {
-      [mimeType: string]: ArrayBuffer
-    }
+      [mimeType: string]: ArrayBuffer;
+    };
 
     /**
      * Converts data in PasteData to text format.
