@@ -846,7 +846,7 @@ void PasteDataNapi::SetProperty(napi_env env, napi_value in, PasteDataNapi *obj)
     NAPI_CALL_RETURN_VOID(env, napi_get_property_names(env, in, &propertyNames));
     uint32_t propertyNamesNum = 0;
     NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, propertyNames, &propertyNamesNum));
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "propertyNamesNum = %{public}d", propertyNamesNum);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "propertyNamesNum = %{public}d", propertyNamesNum);
 
     for (uint32_t i = 0; i < propertyNamesNum; i++) {
         napi_value propertyNameNapi = nullptr;
@@ -855,15 +855,29 @@ void PasteDataNapi::SetProperty(napi_env env, napi_value in, PasteDataNapi *obj)
         char str[STR_MAX_SIZE] = { 0 };
         NAPI_CALL_RETURN_VOID(env, napi_get_value_string_utf8(env, propertyNameNapi, str, STR_MAX_SIZE, &len));
         std::string propertyName = str;
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "shareOptionName = %{public}s,", propertyName.c_str());
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "propertyName = %{public}s,", propertyName.c_str());
+        napi_value propertyNameValueNapi = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_named_property(env, in, str, &propertyNameValueNapi));
         if (propertyName == "shareOption") {
-            napi_value shareOptionValueNapi = nullptr;
-            NAPI_CALL_RETURN_VOID(env, napi_get_named_property(env, in, str, &shareOptionValueNapi));
             int32_t shareOptionValue = 0;
-            NAPI_CALL_RETURN_VOID(env, napi_get_value_int32(env, shareOptionValueNapi, &shareOptionValue));
+            NAPI_CALL_RETURN_VOID(env, napi_get_value_int32(env, propertyNameValueNapi, &shareOptionValue));
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOptionValue = %{public}d,", shareOptionValue);
             obj->value_->SetShareOption(static_cast<ShareOption>(shareOptionValue));
-            break;
+        }
+        if (propertyName == "tag") {
+            char tagValue[STR_MAX_SIZE] = { 0 };
+            size_t tagValueLen = 0;
+            NAPI_CALL_RETURN_VOID(env,
+                napi_get_value_string_utf8(env, propertyNameValueNapi, tagValue, STR_MAX_SIZE, &tagValueLen));
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "tagValue = %{public}s,", tagValue);
+            std::string tagValueStr = tagValue;
+            obj->value_->SetTag(tagValueStr);
+        }
+        if (propertyName == "additions") {
+            AAFwk::WantParams additions;
+            bool ret = OHOS::AppExecFwk::UnwrapWantParams(env, propertyNameValueNapi, additions);
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "additions ret = %{public}d,", ret);
+            obj->value_->SetAdditions(additions);
         }
     }
 }

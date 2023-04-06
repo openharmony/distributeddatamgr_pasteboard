@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 
 #include <functional>
 #include <singleton.h>
-
+#include <condition_variable>
 #include "i_pasteboard_service.h"
 #include "paste_data.h"
 #include "paste_data_record.h"
@@ -202,7 +202,28 @@ public:
      */
     void RemovePasteboardEventObserver(sptr<PasteboardObserver> callback);
 
+    /**
+     * OnRemoteSaDied
+     * @descrition
+     * @param object systemAbility proxy object
+     * @return void.
+     */
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
+
+    /**
+     * LoadSystemAbilitySuccess
+     * @descrition inherit SystemAbilityLoadCallbackStub override LoadSystemAbilitySuccess
+     * @param remoteObject systemAbility proxy object.
+     * @return void.
+     */
+    void LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
+
+    /**
+     * LoadSystemAbilityFail
+     * @descrition inherit SystemAbilityLoadCallbackStub override LoadSystemAbilityFail
+     * @return void.
+     */
+    void LoadSystemAbilityFail();
 
 private:
     void ConnectService();
@@ -212,6 +233,9 @@ private:
     static std::mutex instanceLock_;
 
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
+
+    std::condition_variable proxyConVar_;
+    bool LoadPasteboardService();
 
     class StaticDestoryMonitor {
         public:
