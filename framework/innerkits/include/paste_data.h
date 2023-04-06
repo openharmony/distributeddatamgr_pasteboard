@@ -73,7 +73,6 @@ public:
     std::shared_ptr<OHOS::AAFwk::Want> GetPrimaryWant();
     std::shared_ptr<PasteDataRecord> GetRecordAt(std::size_t index);
     std::size_t GetRecordCount();
-    std::string GetTag();
     bool RemoveRecordAt(std::size_t number);
     bool ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRecord> record);
     bool HasMimeType(const std::string &mimeType);
@@ -92,6 +91,9 @@ public:
     void SetRemote(bool isRemote);
     bool IsRemote();
     void SetTime(const std::string &time);
+    void SetTag(std::string &tag);
+    std::string GetTag();
+    void SetAdditions(AAFwk::WantParams &additions);
 
     virtual bool Marshalling(Parcel &parcel) const override;
     static PasteData *Unmarshalling(Parcel &parcel);
