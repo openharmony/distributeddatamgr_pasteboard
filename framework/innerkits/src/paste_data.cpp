@@ -253,11 +253,6 @@ bool PasteData::HasMimeType(const std::string &mimeType)
     return false;
 }
 
-std::string PasteData::GetTag()
-{
-    return props_.tag;
-}
-
 std::vector<std::shared_ptr<PasteDataRecord>> PasteData::AllRecords() const
 {
     return this->records_;
@@ -296,6 +291,19 @@ void PasteData::SetBundleName(const std::string &bundleName)
 void PasteData::SetTime(const std::string &setTime)
 {
     props_.setTime = setTime;
+}
+
+void PasteData::SetTag(std::string &tag)
+{
+    props_.tag = tag;
+}
+std::string PasteData::GetTag()
+{
+    return props_.tag;
+}
+void PasteData::SetAdditions(AAFwk::WantParams &additions)
+{
+    props_.additions = additions;
 }
 
 void PasteData::RefreshMimeProp()
