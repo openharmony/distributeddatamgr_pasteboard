@@ -27,12 +27,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test1
+   * @tc.name      pasteboard_exception_test1
    * @tc.desc      自定义数据测试
    * @tc.type      Function
    * @tc.require   AR000HEECB
    */
-  it('pasteboard_function_test1', 0, async function (done) {
+  it('pasteboard_exception_test1', 0, async function (done) {
     var systemPasteBoard = pasteboard.getSystemPasteboard();
     await systemPasteBoard.clear().then(async () => {
       var pasteData = undefined;
@@ -63,12 +63,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test2
+   * @tc.name      pasteboard_exception_test2
    * @tc.desc      自定义数据测试
    * @tc.type      Function
    * @tc.require   AR000HEECB
    */
-  it('pasteboard_function_test2', 0, async function (done) {
+  it('pasteboard_exception_test2', 0, async function (done) {
     var systemPasteBoard = pasteboard.getSystemPasteboard();
     await systemPasteBoard.clear().then(async () => {
       console.info('systemPasteBoard clear data success');
@@ -105,19 +105,20 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test3
+   * @tc.name      pasteboard_exception_test3
    * @tc.desc      自定义数据异常测试
    * @tc.type      Function
    * @tc.require   AR000HEECB
    */
-  it('pasteboard_function_test3', 0, async function (done) {
-    console.info('pasteboard_function_test1 start');
+  it('pasteboard_exception_test3', 0, async function (done) {
+    console.info('pasteboard_exception_test1 start');
     var systemPasteBoard = pasteboard.getSystemPasteboard();
     await systemPasteBoard.clear().then(async () => {
       console.info('systemPasteBoard clear data success');
       var pasteData = undefined;
       var pasteRecord = undefined;
 
+      // test createData
       var dataHtml = new ArrayBuffer(256);
       try {
         pasteData = pasteboard.createData('x'.repeat(1025), dataHtml);
@@ -131,8 +132,19 @@ describe('PasteBoardJSTest', function () {
       pasteData = pasteboard.createData('x'.repeat(1024), dataHtml);
       expect(pasteData != undefined).assertTrue();
 
+      // test addRecord
+      try {
+        pasteData.addRecord('x'.repeat(1025), dataHtml);
+        expect(true === false).assertTrue();
+      } catch (error) {
+        console.info(error.code);
+        console.info(error.message);
+      }
+      expect(pasteData.getRecordCount()).assertEqual(1);
+      pasteData.addRecord('x'.repeat(1024), dataHtml);
+      expect(pasteData.getRecordCount()).assertEqual(2);
+      
       var addHtml = new ArrayBuffer(128);
-
       try {
         pasteData.addRecord('x'.repeat(1025), addHtml);
         expect(true === false).assertTrue();
@@ -140,9 +152,9 @@ describe('PasteBoardJSTest', function () {
         console.info(error.code);
         console.info(error.message);
       }
-      expect(pasteData.getRecordCount()).assertEqual(1);
-      pasteData.addRecord('x'.repeat(1024), addHtml);
       expect(pasteData.getRecordCount()).assertEqual(2);
+      pasteData.addRecord('x'.repeat(1024), addHtml);
+      expect(pasteData.getRecordCount()).assertEqual(3);
 
       var recordHtml = new ArrayBuffer(64);
       try {
@@ -156,7 +168,7 @@ describe('PasteBoardJSTest', function () {
       pasteRecord = pasteboard.createRecord('x'.repeat(1024), recordHtml);
       expect(pasteRecord != undefined).assertTrue();
       pasteData.addRecord(pasteRecord);
-      expect(pasteData.getRecordCount()).assertEqual(3);
+      expect(pasteData.getRecordCount()).assertEqual(4);
       await systemPasteBoard.setPasteData(pasteData).then(async () => {
         console.info('set pastedata success');
         await systemPasteBoard.hasPasteData().then(async (data) => {
@@ -164,7 +176,7 @@ describe('PasteBoardJSTest', function () {
           expect(data).assertTrue();
           await systemPasteBoard.getPasteData().then(async (data) => {
             console.info('get paste data success');
-            expect(data.getRecordCount()).assertEqual(3);
+            expect(data.getRecordCount()).assertEqual(4);
             done();
           });
         });
@@ -173,77 +185,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test4
-   * @tc.desc      自定义数据异常测试
-   * @tc.type      Function
-   * @tc.require   AR000HEECB
-   */
-  it('pasteboard_function_test4', 0, async function (done) {
-    console.info('pasteboard_function_test2 start');
-    var systemPasteBoard = pasteboard.getSystemPasteboard();
-    await systemPasteBoard.clear().then(async () => {
-      console.info('systemPasteBoard clear data success');
-      var pasteData = undefined;
-      var pasteRecord = undefined;
-
-      var dataHtml = new ArrayBuffer(256);
-      try {
-        pasteData = pasteboard.createData('x'.repeat(1025), dataHtml);
-        expect(true === false).assertTrue();
-      } catch (error) {
-        console.info(error.code);
-        console.info(error.message);
-      }
-      expect(pasteData).assertEqual(undefined);
-      pasteData = pasteboard.createData('x'.repeat(1024), dataHtml);
-      expect(pasteData != undefined).assertTrue();
-
-      try {
-        pasteData.addRecord('x'.repeat(1025), dataHtml);
-        expect(true === false).assertTrue();
-      } catch (error) {
-        console.info(error.code);
-        console.info(error.message);
-      }
-      expect(pasteData.getRecordCount()).assertEqual(1);
-      pasteData.addRecord('x'.repeat(1024), dataHtml);
-      expect(pasteData.getRecordCount()).assertEqual(2);
-
-      try {
-        pasteRecord = pasteboard.createRecord('x'.repeat(1025), dataHtml);
-        expect(true === false).assertTrue();
-      } catch (error) {
-        console.info(error.code);
-        console.info(error.message);
-      }
-      expect(pasteRecord).assertEqual(undefined);
-      pasteRecord = pasteboard.createRecord('x'.repeat(1024), dataHtml);
-      expect(pasteRecord != undefined).assertTrue();
-
-      pasteData.addRecord(pasteRecord);
-      expect(pasteData.getRecordCount()).assertEqual(3);
-      await systemPasteBoard.setPasteData(pasteData).then(async () => {
-        console.info('set pastedata success');
-        await systemPasteBoard.hasPasteData().then(async (data) => {
-          console.info('Check pastedata has data success, result: ' + data);
-          expect(data).assertTrue();
-          await systemPasteBoard.getPasteData().then(async (data) => {
-            console.info('get paste data success');
-            expect(data.getRecordCount()).assertEqual(3);
-            done();
-          });
-        });
-      });
-    });
-  });
-
-  /**
-   * @tc.name      pasteboard_function_test5
+   * @tc.name      pasteboard_exception_test5
    * @tc.desc      一个record中多个数据类型：get primary html、pixelMap、want、text、uri
    * @tc.type      Function
    * @tc.require   AR000HEECB
    */
-  it('pasteboard_function_test5', 0, async function (done) {
+  it('pasteboard_exception_test5', 0, async function (done) {
     var systemPasteBoard = pasteboard.getSystemPasteboard();
     systemPasteBoard.clear().then(() => {
       var dataHtml = new ArrayBuffer(256);
@@ -296,12 +243,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test6
+   * @tc.name      pasteboard_exception_test6
    * @tc.desc      Test CreateRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test6', 0, async function (done) {
+  it('pasteboard_exception_test6', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var uriText = 'https://www.baidu.com/';
@@ -329,12 +276,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test7
+   * @tc.name      pasteboard_exception_test7
    * @tc.desc      Test CreateRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test7', 0, async function (done) {
+  it('pasteboard_exception_test7', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
       var uriText = 'https://www.baidu.com/';
@@ -389,12 +336,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test8
+   * @tc.name      pasteboard_exception_test8
    * @tc.desc      Test CreateRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test8', 0, async function (done) {
+  it('pasteboard_exception_test8', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
       var uriText = 'https://www.baidu.com/';
@@ -414,12 +361,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test9
+   * @tc.name      pasteboard_exception_test9
    * @tc.desc      Test Create Uri Data
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test9', 0, async function (done) {
+  it('pasteboard_exception_test9', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
     var uriText = 'https://www.baidu.com/';
@@ -443,12 +390,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test10
+   * @tc.name      pasteboard_exception_test10
    * @tc.desc      Test Create htmlText Data
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test10', 0, async function (done) {
+  it('pasteboard_exception_test10', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
     var htmlText = '<html><head></head><body>Hello World!</body></html>';
@@ -472,12 +419,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test11
+   * @tc.name      pasteboard_exception_test11
    * @tc.desc      Test Create wantText Data
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test11', 0, async function (done) {
+  it('pasteboard_exception_test11', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
     var wantText = {
@@ -505,12 +452,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test12
+   * @tc.name      pasteboard_exception_test12
    * @tc.desc      Test Create pixelMap Data
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test12', 0, async function (done) {
+  it('pasteboard_exception_test12', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
     var buffer = new ArrayBuffer(128);
@@ -546,12 +493,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test13
+   * @tc.name      pasteboard_exception_test13
    * @tc.desc      Test CreateData throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test13', 0, async function (done) {
+  it('pasteboard_exception_test13', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
     var dataHtml = new ArrayBuffer(256);
@@ -567,12 +514,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test14
+   * @tc.name      pasteboard_exception_test14
    * @tc.desc      Test Create KV Data
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test14', 0, async function (done) {
+  it('pasteboard_exception_test14', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
     var dataHtml = new ArrayBuffer(256);
@@ -588,12 +535,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test15
+   * @tc.name      pasteboard_exception_test15
    * @tc.desc      Test addRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test15', 0, async function (done) {
+  it('pasteboard_exception_test15', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
       var uriText = 'https://www.baidu.com/';
@@ -643,12 +590,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test16
+   * @tc.name      pasteboard_exception_test16
    * @tc.desc      Test addRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test16', 0, async function (done) {
+  it('pasteboard_exception_test16', 0, async function (done) {
     var uriText = 'https://www.baidu.com/';
     var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
@@ -661,12 +608,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test17
+   * @tc.name      pasteboard_exception_test17
    * @tc.desc      Test addRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test17', 0, async function (done) {
+  it('pasteboard_exception_test17', 0, async function (done) {
     var uriText = 'https://www.baidu.com/';
     var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
@@ -681,12 +628,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test18
+   * @tc.name      pasteboard_exception_test18
    * @tc.desc      Test getRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test18', 0, async function (done) {
+  it('pasteboard_exception_test18', 0, async function (done) {
     var uriText = 'https://www.baidu.com/';
     var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
@@ -699,12 +646,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test19
+   * @tc.name      pasteboard_exception_test19
    * @tc.desc      Test getRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test19', 0, async function (done) {
+  it('pasteboard_exception_test19', 0, async function (done) {
     var uriText = 'https://www.baidu.com/';
     var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
@@ -717,12 +664,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test20
+   * @tc.name      pasteboard_exception_test20
    * @tc.desc      Test replaceRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test20', 0, async function (done) {
+  it('pasteboard_exception_test20', 0, async function (done) {
     var uriText = 'https://www.baidu.com/';
     var uriText1 = 'https://www.baidu1.com/';
     var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
@@ -738,33 +685,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test21
+   * @tc.name      pasteboard_exception_test22
    * @tc.desc      Test replaceRecord throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test21', 0, async function (done) {
-    var uriText = 'https://www.baidu.com/';
-    var uriText1 = 'https://www.baidu1.com/';
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
-    var dataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText1);
-    try {
-      pasteData.replaceRecord(0, dataRecord);
-      var record = pasteData.getRecord(0);
-      expect(record.uri).assertEqual(uriText1);
-    } catch (e) {
-      expect(true === false).assertTrue();
-    }
-    done();
-  });
-
-  /**
-   * @tc.name      pasteboard_function_test22
-   * @tc.desc      Test replaceRecord throw error
-   * @tc.type      Function
-   * @tc.require   I5TYVJ
-   */
-  it('pasteboard_function_test22', 0, async function (done) {
+  it('pasteboard_exception_test22', 0, async function (done) {
     var uriText = 'https://www.baidu.com/';
     var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
@@ -777,12 +703,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test23
+   * @tc.name      pasteboard_exception_test23
    * @tc.desc      Test setData
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test23', 0, async function (done) {
+  it('pasteboard_exception_test23', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clearData().then(() => {
       var uriText = 'Hello//';
@@ -802,12 +728,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test24
+   * @tc.name      pasteboard_exception_test24
    * @tc.desc      Test setData throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test24', 0, async function (done) {
+  it('pasteboard_exception_test24', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     try {
       systemPasteboard.setData('xxxxx');
@@ -820,12 +746,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test25
+   * @tc.name      pasteboard_exception_test25
    * @tc.desc      Test setproperty throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test25', 0, async function (done) {
+  it('pasteboard_exception_test25', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
       var textData = 'Hello World!';
@@ -840,12 +766,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test26
+   * @tc.name      pasteboard_exception_test26
    * @tc.desc      Test setproperty throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test26', 0, async function (done) {
+  it('pasteboard_exception_test26', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
       var textData = 'Hello World!';
@@ -863,12 +789,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test27
+   * @tc.name      pasteboard_exception_test27
    * @tc.desc      Test createData throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test27', 0, async function (done) {
+  it('pasteboard_exception_test27', 0, async function (done) {
     var textData = 'Hello World!';
     var dataXml = new ArrayBuffer(512);
     try {
@@ -882,12 +808,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test28
+   * @tc.name      pasteboard_exception_test28
    * @tc.desc      Test createData throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test28', 0, async function (done) {
+  it('pasteboard_exception_test28', 0, async function (done) {
     var textData = 'Hello World!';
     var dataXml = new ArrayBuffer(512);
     try {
@@ -901,12 +827,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test29
+   * @tc.name      pasteboard_exception_test29
    * @tc.desc      Test createData throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
-  it('pasteboard_function_test29', 0, async function (done) {
+  it('pasteboard_exception_test29', 0, async function (done) {
     try {
       var pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, {});
       expect(true === false).assertTrue();

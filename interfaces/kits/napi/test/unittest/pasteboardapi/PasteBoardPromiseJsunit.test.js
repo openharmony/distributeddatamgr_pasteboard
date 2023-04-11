@@ -27,12 +27,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test1
+   * @tc.name      pasteboard_promise_test1
    * @tc.desc      Adds PlainTextData
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test1', 0, async function (done) {
+  it('pasteboard_promise_test1', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -57,12 +57,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test2
+   * @tc.name      pasteboard_promise_test2
    * @tc.desc      Adds PlainTextData = ''
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test2', 0, async function (done) {
+  it('pasteboard_promise_test2', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = '';
@@ -81,12 +81,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test3
+   * @tc.name      pasteboard_promise_test3
    * @tc.desc      Adds PlainTextData = 'Hello 中国!@#$%^&*()_+{}\?.'
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test3', 0, async function (done) {
+  it('pasteboard_promise_test3', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello 中国!@#$%^&*()_+{}?.';
@@ -108,12 +108,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test4
+   * @tc.name      pasteboard_promise_test4
    * @tc.desc      Adds 300K PlainTextData
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test4', 0, async function (done) {
+  it('pasteboard_promise_test4', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = '';
@@ -139,12 +139,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test5
+   * @tc.name      pasteboard_promise_test5
    * @tc.desc      Adds htmlText
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test5', 0, async function (done) {
+  it('pasteboard_promise_test5', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var htmlText = '<html><head></head><body>Hello World!</body></html>';
@@ -167,12 +167,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test6
+   * @tc.name      pasteboard_promise_test6
    * @tc.desc      Adds htmlText = ''
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test6', 0, async function (done) {
+  it('pasteboard_promise_test6', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var htmlText = '';
@@ -194,12 +194,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test7
+   * @tc.name      pasteboard_promise_test7
    * @tc.desc      Adds htmlText = 'Hello 中国!@#$%^&*()_+{}\?.'
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test7', 0, async function (done) {
+  it('pasteboard_promise_test7', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var htmlText = 'Hello 中国!@#$%^&*()_+{}?.';
@@ -220,12 +220,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test8
+   * @tc.name      pasteboard_promise_test8
    * @tc.desc      Adds uriText
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test8', 0, async function (done) {
+  it('pasteboard_promise_test8', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var uriText = 'https://www.baidu.com/';
@@ -247,12 +247,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test9
+   * @tc.name      pasteboard_promise_test9
    * @tc.desc      Adds uriText = ''
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test9', 0, async function (done) {
+  it('pasteboard_promise_test9', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var uriText = '';
@@ -272,12 +272,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test10
+   * @tc.name      pasteboard_promise_test10
    * @tc.desc      Set uriText = 'Hello //'
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test10', 0, async function (done) {
+  it('pasteboard_promise_test10', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var uriText = 'Hello//';
@@ -298,12 +298,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test11
+   * @tc.name      pasteboard_promise_test11
    * @tc.desc      Adds want
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test11', 0, async function (done) {
+  it('pasteboard_promise_test11', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var want = {
@@ -329,12 +329,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test12
+   * @tc.name      pasteboard_promise_test12
    * @tc.desc      Adds one record(s)
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test12', 0, async function (done) {
+  it('pasteboard_promise_test12', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -355,12 +355,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test13
+   * @tc.name      pasteboard_promise_test13
    * @tc.desc      Adds 2 record(s)
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test13', 0, async function (done) {
+  it('pasteboard_promise_test13', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData0 = 'Hello World!';
@@ -384,12 +384,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test14
+   * @tc.name      pasteboard_promise_test14
    * @tc.desc      Adds 15 record(s)
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test14', 0, async function (done) {
+  it('pasteboard_promise_test14', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData0 = 'Hello World!';
@@ -416,12 +416,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test15
+   * @tc.name      pasteboard_promise_test15
    * @tc.desc      Adds 30 record(s)
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test15', 0, async function (done) {
+  it('pasteboard_promise_test15', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData0 = 'Hello World!';
@@ -448,12 +448,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test16
+   * @tc.name      pasteboard_promise_test16
    * @tc.desc      Adds 31 record(s)
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test16', 0, async function (done) {
+  it('pasteboard_promise_test16', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData0 = 'Hello World!';
@@ -481,12 +481,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test17
+   * @tc.name      pasteboard_promise_test17
    * @tc.desc      Adds PlainText,HtmlText,UriText
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test17', 0, async function (done) {
+  it('pasteboard_promise_test17', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -517,12 +517,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test18
+   * @tc.name      pasteboard_promise_test18
    * @tc.desc      Delete one PlainTextData
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test18', 0, async function (done) {
+  it('pasteboard_promise_test18', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -549,12 +549,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test19
+   * @tc.name      pasteboard_promise_test19
    * @tc.desc      Delete one htmlText
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test19', 0, async function (done) {
+  it('pasteboard_promise_test19', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var htmlText = '<html><head></head><body>Hello World!</body></html>';
@@ -581,12 +581,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test20
+   * @tc.name      pasteboard_promise_test20
    * @tc.desc      Delete one uriText
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_function_test20', 0, async function (done) {
+  it('pasteboard_promise_test20', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var uriText = 'https://www.baidu.com/';
@@ -613,12 +613,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test21
+   * @tc.name      pasteboard_promise_test21
    * @tc.desc      Delete one want
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test21', 0, async function (done) {
+  it('pasteboard_promise_test21', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var want = {
@@ -648,12 +648,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test22
+   * @tc.name      pasteboard_promise_test22
    * @tc.desc      Deletes 300K PlainTextData
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test22', 0, async function (done) {
+  it('pasteboard_promise_test22', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = '';
@@ -683,12 +683,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test23
+   * @tc.name      pasteboard_promise_test23
    * @tc.desc      Deletes 30 record(s)
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test23', 0, async function (done) {
+  it('pasteboard_promise_test23', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData0 = 'Hello World';
@@ -724,12 +724,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test24
+   * @tc.name      pasteboard_promise_test24
    * @tc.desc      Deletes replaced record
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test24', 0, async function (done) {
+  it('pasteboard_promise_test24', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -765,12 +765,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test25
+   * @tc.name      pasteboard_promise_test25
    * @tc.desc      Deletes 文本、uri、html
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test25', 0, async function (done) {
+  it('pasteboard_promise_test25', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -803,12 +803,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test26
+   * @tc.name      pasteboard_promise_test26
    * @tc.desc      Replaces 文本 record
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test26', 0, async function (done) {
+  it('pasteboard_promise_test26', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -833,12 +833,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test27
+   * @tc.name      pasteboard_promise_test27
    * @tc.desc      Replaces htmlText record
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test27', 0, async function (done) {
+  it('pasteboard_promise_test27', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var htmlText = '<html><head></head><body>Hello World!</body></html>';
@@ -866,12 +866,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test28
+   * @tc.name      pasteboard_promise_test28
    * @tc.desc      Replaces uri record
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test28', 0, async function (done) {
+  it('pasteboard_promise_test28', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var uriText = 'https://www.baidu.com/';
@@ -899,12 +899,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test29
+   * @tc.name      pasteboard_promise_test29
    * @tc.desc      Replaces want record
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test29', 0, async function (done) {
+  it('pasteboard_promise_test29', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var wantText0 = {
@@ -936,12 +936,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test30
+   * @tc.name      pasteboard_promise_test30
    * @tc.desc      Replaces 300k文本 record
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test30', 0, async function (done) {
+  it('pasteboard_promise_test30', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = '';
@@ -969,12 +969,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test31
+   * @tc.name      pasteboard_promise_test31
    * @tc.desc      Clears pasteBoard, gets record count
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test31', 0, async function (done) {
+  it('pasteboard_promise_test31', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -999,12 +999,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test32
+   * @tc.name      pasteboard_promise_test32
    * @tc.desc      Adds Property
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test32', 0, async function (done) {
+  it('pasteboard_promise_test32', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -1028,12 +1028,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test33
+   * @tc.name      pasteboard_promise_test33
    * @tc.desc      Clears pasteBoard and check property
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test33', 0, async function (done) {
+  it('pasteboard_promise_test33', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -1054,12 +1054,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test34
+   * @tc.name      pasteboard_promise_test34
    * @tc.desc      打开内容变化通知功能
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test34', 0, async function (done) {
+  it('pasteboard_promise_test34', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       systemPasteboard.on('update', contentChanges);
@@ -1081,12 +1081,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test35
+   * @tc.name      pasteboard_promise_test35
    * @tc.desc      清除剪切板内的文本数据项
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test35', 0, async function (done) {
+  it('pasteboard_promise_test35', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -1111,12 +1111,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test36
+   * @tc.name      pasteboard_promise_test36
    * @tc.desc      清除剪切板内的uri数据项
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test36', 0, async function (done) {
+  it('pasteboard_promise_test36', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var uriText = 'https://www.baidu.com/';
@@ -1141,12 +1141,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test37
+   * @tc.name      pasteboard_promise_test37
    * @tc.desc      清除剪切板内的html数据项
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test37', 0, async function (done) {
+  it('pasteboard_promise_test37', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var htmlText = '<html><head></head><body>Hello World!</body></html>';
@@ -1171,12 +1171,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test38
+   * @tc.name      pasteboard_promise_test38
    * @tc.desc      清除剪切板内的want数据项
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test38', 0, async function (done) {
+  it('pasteboard_promise_test38', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var myWant = {
@@ -1204,12 +1204,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test39
+   * @tc.name      pasteboard_promise_test39
    * @tc.desc      向剪切板内增加30条数据项，然后清除
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test39', 0, async function (done) {
+  it('pasteboard_promise_test39', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData0 = 'Hello World!';
@@ -1240,12 +1240,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test40
+   * @tc.name      pasteboard_promise_test40
    * @tc.desc      向剪贴板数据各增加5条文本、uri、html数据，然后清除
    * @tc.type      Function
    * @tc.require   AR000H5I1D
    */
-  it('pasteboard_function_test40', 0, async function (done) {
+  it('pasteboard_promise_test40', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData0 = 'Hello World0';
@@ -1288,12 +1288,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test41
+   * @tc.name      pasteboard_promise_test41
    * @tc.desc      更新剪贴板数据，查询剪贴板存在剪贴板数据
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test41', 0, async function (done) {
+  it('pasteboard_promise_test41', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -1324,12 +1324,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test42
+   * @tc.name      pasteboard_promise_test42
    * @tc.desc      删除所有的剪贴板数据，查询剪贴板不存在剪贴板数据
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test42', 0, async function (done) {
+  it('pasteboard_promise_test42', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -1353,12 +1353,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test43
+   * @tc.name      pasteboard_promise_test43
    * @tc.desc      将文本数据强制转换为文本
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test43', 0, async function (done) {
+  it('pasteboard_promise_test43', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello World!';
@@ -1380,12 +1380,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test44
+   * @tc.name      pasteboard_promise_test44
    * @tc.desc      将一条含有特殊字符、中英混杂的文本数据强制转换为文本
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test44', 0, async function (done) {
+  it('pasteboard_promise_test44', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = 'Hello 中国!@#$%^&*()_+{}?.';
@@ -1412,12 +1412,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test45
+   * @tc.name      pasteboard_promise_test45
    * @tc.desc      将一条超长文本数据 (大小为301K)强制转换为文本
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test45', 0, async function (done) {
+  it('pasteboard_promise_test45', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData = '';
@@ -1447,12 +1447,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test46
+   * @tc.name      pasteboard_promise_test46
    * @tc.desc      将uri数据强制转换为文本
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test46', 0, async function (done) {
+  it('pasteboard_promise_test46', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var uriText = 'https://www.baidu.com/';
@@ -1480,12 +1480,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test47
+   * @tc.name      pasteboard_promise_test47
    * @tc.desc      复制文本、uri格式
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test47', 0, async function (done) {
+  it('pasteboard_promise_test47', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var textData0 = 'Hello World0';
@@ -1510,12 +1510,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test48
+   * @tc.name      pasteboard_promise_test48
    * @tc.desc      关闭内容变化通知功能：向剪贴板数据增加、删除等html数据项
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test48', 0, async function (done) {
+  it('pasteboard_promise_test48', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       systemPasteboard.off('update', contentChanges);
@@ -1537,12 +1537,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test49
+   * @tc.name      pasteboard_promise_test49
    * @tc.desc      创建pixelMap
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test49', 0, async function (done) {
+  it('pasteboard_promise_test49', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var buffer = new ArrayBuffer(128);
@@ -1577,12 +1577,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test50
+   * @tc.name      pasteboard_promise_test50
    * @tc.desc      创建kv Record
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test50', 0, async function (done) {
+  it('pasteboard_promise_test50', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var dataXml = new ArrayBuffer(512);
@@ -1622,12 +1622,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test51
+   * @tc.name      pasteboard_promise_test51
    * @tc.desc      测试addPixelMapRecord
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test51', 0, async function (done) {
+  it('pasteboard_promise_test51', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var buffer = new ArrayBuffer(128);
@@ -1665,12 +1665,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test52
+   * @tc.name      pasteboard_promise_test52
    * @tc.desc      支持512个record
    * @tc.type      Function
    * @tc.require   AR000HEECB
    */
-  it('pasteboard_function_test52', 0, async function (done) {
+  it('pasteboard_promise_test52', 0, async function (done) {
     var systemPasteBoard = pasteboard.getSystemPasteboard();
     systemPasteBoard.clear().then(() => {
       var dataHtml = new ArrayBuffer(256);
