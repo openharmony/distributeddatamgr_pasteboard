@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -178,6 +178,16 @@ void PasteboardServiceTest::RestoreSelfTokenId()
 {
     auto ret = SetSelfTokenID(selfTokenId_);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret = %{public}d!", ret);
+}
+
+string GetTime() {
+    time_t curtime;
+    time(&curtime);
+    tm *nowtime = localtime(&curtime);
+    std::string targetTime = std::to_string(1900 + nowtime->tm_year) + "-" + std::to_string(1 + nowtime->tm_mon) + "-" +
+                             std::to_string(nowtime->tm_mday) + " " + std::to_string(nowtime->tm_hour) + ":" +
+                             std::to_string(nowtime->tm_min) + ":" + std::to_string(nowtime->tm_sec);
+    return targetTime;
 }
 
 /**
@@ -1116,6 +1126,30 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
 }
+
+
+/**
+* @tc.name: PasteDataTest0020
+* @tc.desc: Create paste board test set bundleName and time.
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0020, TestSize.Level0)
+{
+    std::string text = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(text);
+    ASSERT_TRUE(pasteData != nullptr);
+
+    std::string bundleName="ohos.acts.distributeddatamgr.pasteboard";
+    pasteData->SetBundleName(bundleName);
+    std::string time = GetTime();
+    pasteData->SetTime(time);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+}
+
 
 /**
 * @tc.name: BigPixelMap001
