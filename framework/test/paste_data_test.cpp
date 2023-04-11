@@ -132,6 +132,19 @@ HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
 }
 
 /**
+* @tc.name: uriConvertTest002
+* @tc.desc: uri convert(in same app)
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteDataTest, uriConvertTest002, TestSize.Level0)
+{
+    PasteUriHandler pasteHandler;
+    int32_t fd = -100;
+    std::string convertUri = pasteHandler.ToUri(fd);
+    EXPECT_TRUE(convertUri == "");
+}
+
+/**
 * @tc.name: GetRealPathFailed001
 * @tc.desc: GetRealPath Failed(realpath(inOriPath.c_str(), realPath) == nullptr)
 * @tc.type: FUNC
