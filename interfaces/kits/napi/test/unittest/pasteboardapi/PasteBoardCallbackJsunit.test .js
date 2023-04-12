@@ -27,12 +27,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test1
+   * @tc.name      pasteboard_callback_test1
    * @tc.desc      createPlainTextData test
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test1', 0, async function (done) {
+  it('pasteboard_callback_test1', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -71,12 +71,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test2
+   * @tc.name      pasteboard_callback_test2
    * @tc.desc      createHtmlData test
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test2', 0, async function (done) {
+  it('pasteboard_callback_test2', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -115,12 +115,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test3
+   * @tc.name      pasteboard_callback_test3
    * @tc.desc      测试异步callback调用+createHtmlData,htmlText = ''.
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test3', 0, async function (done) {
+  it('pasteboard_callback_test3', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -159,12 +159,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test4
+   * @tc.name      pasteboard_callback_test4
    * @tc.desc      createUriData test
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test4', 0, async function (done) {
+  it('pasteboard_callback_test4', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -203,12 +203,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test5
+   * @tc.name      pasteboard_callback_test5
    * @tc.desc      createWantData test
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test5', 0, async function (done) {
+  it('pasteboard_callback_test5', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -250,12 +250,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test6
+   * @tc.name      pasteboard_callback_test6
    * @tc.desc      addTextRecord test
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test6', 0, async function (done) {
+  it('pasteboard_callback_test6', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -295,12 +295,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test7
+   * @tc.name      pasteboard_callback_test7
    * @tc.desc      addTextRecord test
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test7', 0, async function (done) {
+  it('pasteboard_callback_test7', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -344,12 +344,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test8
+   * @tc.name      pasteboard_callback_test8
    * @tc.desc      addHtmlRecord+addUriRecord+addWantRecord
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test8', 0, async function (done) {
+  it('pasteboard_callback_test8', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -397,12 +397,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test9
+   * @tc.name      pasteboard_callback_test9
    * @tc.desc      addHtmlRecord+addUriRecord+removeRecordAt
    * @tc.type      Function
    * @tc.require   AR000HEECD
    */
-  it('pasteboard_function_test9', 0, async function (done) {
+  it('pasteboard_callback_test9', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -455,12 +455,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test10
+   * @tc.name      pasteboard_callback_test10
    * @tc.desc      Add 30 TextRecords
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test10', 0, async function (done) {
+  it('pasteboard_callback_test10', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -517,12 +517,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test11
+   * @tc.name      pasteboard_callback_test11
    * @tc.desc      Replcae textRecord
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test11', 0, async function (done) {
+  it('pasteboard_callback_test11', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -562,12 +562,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test12
+   * @tc.name      pasteboard_callback_test12
    * @tc.desc      Replcae htmlRecord
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test12', 0, async function (done) {
+  it('pasteboard_callback_test12', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -608,12 +608,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test13
+   * @tc.name      pasteboard_callback_test13
    * @tc.desc      Replcae wantRecord
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test13', 0, async function (done) {
+  it('pasteboard_callback_test13', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -661,12 +661,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test14
+   * @tc.name      pasteboard_callback_test14
    * @tc.desc      get pasteData after clear wantData
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test14', 0, async function (done) {
+  it('pasteboard_callback_test14', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -716,11 +716,11 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test15
+   * @tc.name      pasteboard_callback_test15
    * @tc.desc      getProperty and setProperty test
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test15', 0, async function (done) {
+  it('pasteboard_callback_test15', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -760,12 +760,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test16
+   * @tc.name      pasteboard_callback_test16
    * @tc.desc      on test
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test16', 0, async function (done) {
+  it('pasteboard_callback_test16', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -802,12 +802,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test17
+   * @tc.name      pasteboard_callback_test17
    * @tc.desc      off test
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test17', 0, async function (done) {
+  it('pasteboard_callback_test17', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -844,12 +844,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test18
+   * @tc.name      pasteboard_callback_test18
    * @tc.desc      createRecord test
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test18', 0, async function (done) {
+  it('pasteboard_callback_test18', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
       var buffer = new ArrayBuffer(128);
@@ -888,12 +888,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test19
+   * @tc.name      pasteboard_callback_test19
    * @tc.desc      Add plainText、htmlText、uriText record
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test19', 0, async function (done) {
+  it('pasteboard_callback_test19', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -948,12 +948,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test20
+   * @tc.name      pasteboard_callback_test20
    * @tc.desc      convertToText test
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test20', 0, async function (done) {
+  it('pasteboard_callback_test20', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -990,12 +990,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test21
+   * @tc.name      pasteboard_callback_test21
    * @tc.desc      convertToText test
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test21', 0, async function (done) {
+  it('pasteboard_callback_test21', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -1037,12 +1037,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test22
+   * @tc.name      pasteboard_callback_test22
    * @tc.desc      convertToText test
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test22', 0, async function (done) {
+  it('pasteboard_callback_test22', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
@@ -1079,12 +1079,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_function_test23
+   * @tc.name      pasteboard_callback_test23
    * @tc.desc      convertToText test
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
-  it('pasteboard_function_test23', 0, async function (done) {
+  it('pasteboard_callback_test23', 0, async function (done) {
     var systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear((err, data) => {
       if (err) {
