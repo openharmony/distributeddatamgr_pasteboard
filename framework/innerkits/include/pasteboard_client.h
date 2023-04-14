@@ -234,7 +234,6 @@ private:
 
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
 
-    std::condition_variable proxyConVar_;
     bool LoadPasteboardService();
 
     class StaticDestoryMonitor {
