@@ -34,9 +34,13 @@ public:
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemoveAllChangedObserver() override;
+    virtual void AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void RemoveAllEventObserver() override;
 
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;
+    void ProcessObserver(uint32_t code, const sptr<IPasteboardChangedObserver> &observer);
 };
 } // namespace MiscServices
 } // namespace OHOS

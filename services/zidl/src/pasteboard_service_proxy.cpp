@@ -44,68 +44,6 @@ void PasteboardServiceProxy::Clear()
     }
 }
 
-void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (observer == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer nullptr");
-        return;
-    }
-    MessageParcel data, reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return;
-    }
-    if (!data.WriteRemoteObject(observer->AsObject())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return;
-    }
-    int32_t result = Remote()->SendRequest(ADD_OBSERVER, data, reply, option);
-    if (result != ERR_NONE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-}
-
-void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (observer == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer nullptr");
-        return;
-    }
-    MessageParcel data, reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return;
-    }
-    if (!data.WriteRemoteObject(observer->AsObject())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return;
-    }
-    int32_t result = Remote()->SendRequest(DELETE_OBSERVER, data, reply, option);
-    if (result != ERR_NONE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-}
-void PasteboardServiceProxy::RemoveAllChangedObserver()
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    MessageParcel data, reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return;
-    }
-    int32_t result = Remote()->SendRequest(DELETE_ALL_OBSERVER, data, reply, option);
-    if (result != ERR_NONE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-}
 bool PasteboardServiceProxy::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
@@ -204,5 +142,86 @@ int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return reply.ReadInt32();
 }
+
+void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    ProcessObserver(ADD_CHANGED_OBSERVER, observer);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+
+void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    ProcessObserver(DELETE_CHANGED_OBSERVER, observer);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+void PasteboardServiceProxy::RemoveAllChangedObserver()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    MessageParcel data, reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    int32_t result = Remote()->SendRequest(DELETE_ALL_CHANGED_OBSERVER, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+
+void PasteboardServiceProxy::AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    ProcessObserver(ADD_EVENT_OBSERVER, observer);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+
+void PasteboardServiceProxy::RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    ProcessObserver(DELETE_EVENT_OBSERVER, observer);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+void PasteboardServiceProxy::RemoveAllEventObserver()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    MessageParcel data, reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    int32_t result = Remote()->SendRequest(DELETE_ALL_EVENT_OBSERVER, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+
+void PasteboardServiceProxy::ProcessObserver(uint32_t code, const sptr<IPasteboardChangedObserver> &observer)
+{
+    if (observer == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer nullptr");
+        return;
+    }
+    MessageParcel data, reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    if (!data.WriteRemoteObject(observer->AsObject())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    int32_t result = Remote()->SendRequest(code, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+}
+
 } // namespace MiscServices
 } // namespace OHOS

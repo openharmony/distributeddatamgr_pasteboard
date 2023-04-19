@@ -204,6 +204,7 @@ public:
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
 
 private:
+    inline bool IsServiceAvailable();
     void ConnectService();
     static void RetainUri(PasteData &pasteData);
 
