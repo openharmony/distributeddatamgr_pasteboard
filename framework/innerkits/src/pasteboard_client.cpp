@@ -162,7 +162,7 @@ void PasteboardClient::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remot
     if (deathRecipient_ == nullptr) {
         deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
     }
-    if (remoteObject != nullptr && pasteboardServiceProxy_ = nullptr) {
+    if (remoteObject != nullptr && pasteboardServiceProxy_ == nullptr) {
         remoteObject->AddDeathRecipient(deathRecipient_);
         pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
     }
@@ -334,7 +334,7 @@ void PasteboardClient::ConnectService()
         remoteObject->AddDeathRecipient(deathRecipient_);
         pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
         return;
-    } 
+    }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
     LoadPasteboardService()
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Load Pasteboard Service failed.");
