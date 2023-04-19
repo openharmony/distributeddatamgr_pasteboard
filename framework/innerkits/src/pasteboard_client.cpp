@@ -336,8 +336,8 @@ void PasteboardClient::ConnectService()
         return;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
-    LoadPasteboardService()
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Load Pasteboard Service failed.");
+    LoadPasteboardService();
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
 }
 
 void PasteboardClient::OnRemoteSaDied(const wptr<IRemoteObject> &remote)
