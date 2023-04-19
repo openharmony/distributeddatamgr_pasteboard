@@ -489,76 +489,143 @@ bool PasteboardService::IsCopyable(uint32_t tokenId) const
 void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    if (observer == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "nullptr.");
-        return;
-    }
-    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
-    if (userId == ERROR_USERID) {
-        return;
-    }
-    std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap_.find(userId);
-    std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>> observers;
-    if (it != observerMap_.end()) {
-        observers = it->second;
-    } else {
-        observers = std::make_shared<std::set<sptr<IPasteboardChangedObserver>, classcomp>>();
-        observerMap_.insert(std::make_pair(userId, observers));
-    }
-    observers->insert(observer);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, " observers->size = %{public}d,",
-        static_cast<unsigned int>(observerMap_.size()));
+    AddObserver(observer, observerChangedMap_);
 }
+
 void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    if (observer == nullptr) {
-        return;
-    }
-    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
-    if (userId == ERROR_USERID) {
-        return;
-    }
-    std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap_.find(userId);
-    if (it == observerMap_.end()) {
-        return;
-    }
-    auto observers = it->second;
-    PASTEBOARD_HILOGD(
-        PASTEBOARD_MODULE_SERVICE, "observers->size: %{public}d.", static_cast<unsigned int>(observers->size()));
-    auto eraseNum = observers->erase(observer);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
-        " listeners.size = %{public}d, eraseNum = %{public}zu", static_cast<unsigned int>(observers->size()), eraseNum);
+    RemoveSingleObserver(observer, observerChangedMap_);
 }
 
 void PasteboardService::RemoveAllChangedObserver()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    RemoveAllObserver(observerChangedMap_);
+}
+
+void PasteboardService::AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    if (!IsCallerUidValid()) {
+        return;
+    }
+    AddObserver(observer, observerEventMap_);
+}
+
+void PasteboardService::RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    if (!IsCallerUidValid()) {
+        return;
+    }
+    RemoveSingleObserver(observer, observerEventMap_);
+}
+
+void PasteboardService::RemoveAllEventObserver()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    if (!IsCallerUidValid()) {
+        return;
+    }
+    RemoveAllObserver(observerEventMap_);
+}
+
+void PasteboardService::AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap)
+{
+    if (observer == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
+        return;
+    }
     auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
     if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap_.find(userId);
-    if (it == observerMap_.end()) {
+    auto it = observerMap.find(userId);
+    std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>> observers;
+    if (it != observerMap.end()) {
+        observers = it->second;
+    } else {
+        observers = std::make_shared<std::set<sptr<IPasteboardChangedObserver>, classcomp>>();
+        observerMap.insert(std::make_pair(userId, observers));
+    }
+    observers->insert(observer);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, " observers->size = %{public}u.",
+        static_cast<unsigned int>(observers->size()));
+}
+
+void PasteboardService::RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap)
+{
+    if (observer == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
         return;
     }
-    observerMap_.erase(userId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
+    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
+    if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
+        return;
+    }
+    std::lock_guard<std::mutex> lock(observerMutex_);
+    auto it = observerMap.find(userId);
+    if (it == observerMap.end()) {
+        return;
+    }
+    auto observers = it->second;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers->size: %{public}u.",
+        static_cast<unsigned int>(observers->size()));
+    auto eraseNum = observers->erase(observer);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "listeners.size = %{public}u, eraseNum = %{public}zu",
+        static_cast<unsigned int>(observers->size()), eraseNum);
+}
+
+void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
+{
+    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
+    if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
+        return;
+    }
+    std::lock_guard<std::mutex> lock(observerMutex_);
+    auto it = observerMap.find(userId);
+    if (it == observerMap.end()) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observer empty.");
+        return;
+    }
+    observerMap.erase(userId);
+    auto observers = it->second;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers->size:%{public}u.",
+        static_cast<unsigned int>(observers->size()));
+}
+
+inline bool PasteboardService::IsCallerUidValid()
+{
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid == EDM_UID || callingUid == ROOT_UID) {
+        return true;
+    }
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callingUid error: %{public}d.", callingUid);
+    return false;
 }
 
 void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventStatus status)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     std::lock_guard<std::mutex> lock(observerMutex_);
-    for (auto &observers : observerMap_) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d.", observers.first);
+    for (auto &observers : observerChangedMap_) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d, changed observers size: %{public}u",
+            observers.first, static_cast<unsigned int>(observers.second->size()));
         for (const auto &observer : *(observers.second)) {
             if (status != PasteboardEventStatus::PASTEBOARD_READ) {
                 observer->OnPasteboardChanged();
             }
+        }
+    }
+    for (auto &observers : observerEventMap_) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d, event observers size: %{public}u",
+            observers.first, static_cast<unsigned int>(observers.second->size()));
+        for (const auto &observer : *(observers.second)) {
             observer->OnPasteboardEvent(bundleName, static_cast<int32_t>(status));
         }
     }
