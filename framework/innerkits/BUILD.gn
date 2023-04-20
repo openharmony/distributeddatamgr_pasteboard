@@ -16,6 +16,7 @@ import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 config("pasteboard_client_config") {
   visibility = [ ":*" ]
+  visibility += [ "//foundation/distributeddatamgr/pasteboard/test/fuzztest/pasteboardclient_fuzzer/*" ]
   include_dirs = [
     "include",
     "${pasteboard_service_path}/core/include",
