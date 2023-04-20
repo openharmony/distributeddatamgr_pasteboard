@@ -281,7 +281,21 @@ void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> cal
 
 void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
-    this->AddPasteboardChangedObserver(callback);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
+        return;
+    }
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
+        ConnectService();
+    }
+
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "proxy null.");
+        return;
+    }
+    pasteboardServiceProxy_->AddPasteboardEventObserver(callback);
 }
 
 void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback)
@@ -297,19 +311,36 @@ void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> 
         return;
     }
     if (callback == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remove all.");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
         pasteboardServiceProxy_->RemoveAllChangedObserver();
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
         return;
     }
     pasteboardServiceProxy_->RemovePasteboardChangedObserver(callback);
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return;
 }
 
 void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
-    this->RemovePasteboardChangedObserver(callback);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
+        ConnectService();
+    }
+
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "quit.");
+        return;
+    }
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
+        pasteboardServiceProxy_->RemoveAllEventObserver();
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+        return;
+    }
+    pasteboardServiceProxy_->RemovePasteboardEventObserver(callback);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
 void PasteboardClient::ConnectService()
