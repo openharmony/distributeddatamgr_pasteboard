@@ -802,11 +802,11 @@ describe('PasteBoardJSTest', function () {
             let pasteDataRecord = pasteboard.createHtmlTextRecord(htmlText1);
             let replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
             expect(replace).assertEqual(true);
-            let primaryHtml = pasteData1.getPrimaryHtml();
-            expect(primaryHtml).assertEqual(htmlText1);
+            let primaryHtml1 = pasteData1.getPrimaryHtml();
+            expect(primaryHtml1).assertEqual(htmlText1);
             expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
-            let primaryHtml = pasteData1.getPrimaryHtml();
-            expect(primaryHtml).assertEqual(htmlText1);
+            let primaryHtml2 = pasteData1.getPrimaryHtml();
+            expect(primaryHtml2).assertEqual(htmlText1);
             done();
           });
         });
