@@ -37,8 +37,8 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('clearData_Promise_performance_test_001', 0, async function (done) {
-        var systemPasteboard = pasteboard.getSystemPasteboard();
-        var startTime = new Date().getTime();
+        let systemPasteboard = pasteboard.getSystemPasteboard();
+        let startTime = new Date().getTime();
         clearDataPromisePerfTest(0);
 
         function clearDataPromisePerfTest(index) {
@@ -60,8 +60,8 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('clear_Promise_performance_test_001', 0, async function (done) {
-        var systemPasteboard = pasteboard.getSystemPasteboard();
-        var startTime = new Date().getTime();
+        let systemPasteboard = pasteboard.getSystemPasteboard();
+        let startTime = new Date().getTime();
         clearPromisePerfTest(0);
 
         function clearPromisePerfTest(index) {
@@ -83,9 +83,9 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('setData_Promise_performance_test_001', 0, async function (done) {
-        var systemPasteboard = pasteboard.getSystemPasteboard();
-        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-        var startTime = new Date().getTime();
+        let systemPasteboard = pasteboard.getSystemPasteboard();
+        let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        let startTime = new Date().getTime();
         setDataPromisePerfTest(0);
 
         function setDataPromisePerfTest(index) {
@@ -107,9 +107,9 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('setPasteData_Promise_performance_test_001', 0, async function (done) {
-        var systemPasteboard = pasteboard.getSystemPasteboard();
-        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-        var startTime = new Date().getTime();
+        let systemPasteboard = pasteboard.getSystemPasteboard();
+        let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        let startTime = new Date().getTime();
         setPasteDataPromisePerfTest(0);
 
         function setPasteDataPromisePerfTest(index) {
@@ -131,8 +131,8 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('hasData_Promise_performance_test_001', 0, async function (done) {
-        var systemPasteboard = pasteboard.getSystemPasteboard();
-        var startTime = new Date().getTime();
+        let systemPasteboard = pasteboard.getSystemPasteboard();
+        let startTime = new Date().getTime();
         hasDataPromisePerfTest(0);
 
         function hasDataPromisePerfTest(index) {
@@ -154,8 +154,8 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('hasPasteData_Promise_performance_test_001', 0, async function (done) {
-        var systemPasteboard = pasteboard.getSystemPasteboard();
-        var startTime = new Date().getTime();
+        let systemPasteboard = pasteboard.getSystemPasteboard();
+        let startTime = new Date().getTime();
         hasPasteDataPromisePerfTest(0);
 
         function hasPasteDataPromisePerfTest(index) {
@@ -177,11 +177,11 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('getData_Promise_performance_test_001', 0, async function (done) {
-        var systemPasteboard = pasteboard.getSystemPasteboard();
-        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        let systemPasteboard = pasteboard.getSystemPasteboard();
+        let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
         await systemPasteboard.clearData();
         await systemPasteboard.setData(pasteData);
-        var startTime = new Date().getTime();
+        let startTime = new Date().getTime();
         getDataPromisePerfTest(0);
 
         function getDataPromisePerfTest(index) {
@@ -203,11 +203,11 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('getPasteData_Promise_performance_test_001', 0, async function (done) {
-        var systemPasteboard = pasteboard.getSystemPasteboard();
-        var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        let systemPasteboard = pasteboard.getSystemPasteboard();
+        let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
         await systemPasteboard.clearData();
         await systemPasteboard.setData(pasteData);
-        var startTime = new Date().getTime();
+        let startTime = new Date().getTime();
         getPasteDataPromisePerfTest(0);
 
         function getPasteDataPromisePerfTest(index) {
@@ -229,8 +229,8 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('convertToText_Promise_performance_test_001', 0, async function (done) {
-        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-        var startTime = new Date().getTime();
+        let pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        let startTime = new Date().getTime();
         convertToTextPromisePerfTest(0);
 
         function convertToTextPromisePerfTest(index) {
@@ -252,8 +252,8 @@ describe('PasteBoardPerfJSTest', function () {
      * @tc.require   I5YP4X
      */
     it('convertToTextV9_Promise_performance_test_001', 0, async function (done) {
-        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-        var startTime = new Date().getTime();
+        let pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+        let startTime = new Date().getTime();
         convertToTextV9PromisePerfTest(0);
 
         function convertToTextV9PromisePerfTest(index) {
@@ -269,8 +269,8 @@ describe('PasteBoardPerfJSTest', function () {
     })
 
     function computeAverageTime(startTime, baseCount, message) {
-        var endTime = new Date().getTime();
-        var averageTime = ((endTime - startTime) * 1000) / baseCount;
+        let endTime = new Date().getTime();
+        let averageTime = ((endTime - startTime) * 1000) / baseCount;
         console.info(message + averageTime);
     }
 

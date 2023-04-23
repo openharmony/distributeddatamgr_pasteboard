@@ -180,7 +180,8 @@ void PasteboardServiceTest::RestoreSelfTokenId()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret = %{public}d!", ret);
 }
 
-string GetTime() {
+string GetTime() 
+{
     time_t curtime;
     time(&curtime);
     tm *nowtime = localtime(&curtime);
@@ -1138,13 +1139,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0020, TestSize.Level0)
     std::string text = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(text);
     ASSERT_TRUE(pasteData != nullptr);
-
     std::string bundleName="ohos.acts.distributeddatamgr.pasteboard";
     pasteData->SetBundleName(bundleName);
     std::string time = GetTime();
     pasteData->SetTime(time);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto has = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(has == true);
@@ -1164,7 +1163,6 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
     auto color = std::make_unique<uint32_t[]>(COLOR_SIZE);
     InitializationOptions opts = { { 1024, 1960 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color.get(), COLOR_SIZE, opts);
-
     auto pasteData1 = PasteboardClient::GetInstance()->CreatePixelMapData(std::move(pixelMap));
     PasteboardClient::GetInstance()->Clear();
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
@@ -1173,11 +1171,9 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData);
-
     PasteData pasteData2;
     ret = PasteboardClient::GetInstance()->GetPasteData(pasteData2);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-
     auto pixelMap2 = pasteData2.GetPrimaryPixelMap();
     ASSERT_TRUE(pixelMap2 != nullptr);
     ImageInfo imageInfo{};

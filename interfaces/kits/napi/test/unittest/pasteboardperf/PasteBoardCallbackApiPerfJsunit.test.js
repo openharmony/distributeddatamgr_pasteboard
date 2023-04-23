@@ -36,8 +36,8 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('clearData_Callback_performance_test_001', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
-    var startTime = new Date().getTime();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
+    let startTime = new Date().getTime();
     clearDataCallbackPerfTest(0);
 
     function clearDataCallbackPerfTest(index) {
@@ -59,8 +59,8 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('clear_Callback_performance_test_001', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
-    var startTime = new Date().getTime();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
+    let startTime = new Date().getTime();
     clearCallbackPerfTest(0);
 
     function clearCallbackPerfTest(index) {
@@ -82,9 +82,9 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('setData_Callback_performance_test_001', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-    var startTime = new Date().getTime();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    let startTime = new Date().getTime();
     setDataCallbackPerfTest(0);
 
     function setDataCallbackPerfTest(index) {
@@ -106,9 +106,9 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('setPasteData_Callback_performance_test_001', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-    var startTime = new Date().getTime();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    let startTime = new Date().getTime();
     setPasteDataCallbackPerfTest(0);
 
     function setPasteDataCallbackPerfTest(index) {
@@ -130,8 +130,8 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('hasData_Callback_performance_test_001', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
-    var startTime = new Date().getTime();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
+    let startTime = new Date().getTime();
     hasDataCallbackPerfTest(0);
 
     function hasDataCallbackPerfTest(index) {
@@ -153,8 +153,8 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('hasPasteData_Callback_performance_test_001', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
-    var startTime = new Date().getTime();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
+    let startTime = new Date().getTime();
     hasPasteDataCallbackPerfTest(0);
 
     function hasPasteDataCallbackPerfTest(index) {
@@ -176,11 +176,11 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('getData_Callback_performance_test_001', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    let systemPasteboard = pasteboard.getSystemPasteboard();
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
     await systemPasteboard.clearData();
     await systemPasteboard.setData(pasteData);
-    var startTime = new Date().getTime();
+    let startTime = new Date().getTime();
     getDataCallbackPerfTest(0);
 
     function getDataCallbackPerfTest(index) {
@@ -202,11 +202,11 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('getPasteData_Callback_performance_test_001', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    let systemPasteboard = pasteboard.getSystemPasteboard();
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
     await systemPasteboard.clearData();
     await systemPasteboard.setData(pasteData);
-    var startTime = new Date().getTime();
+    let startTime = new Date().getTime();
     getPasteDataCallbackPerfTest(0);
 
     function getPasteDataCallbackPerfTest(index) {
@@ -228,8 +228,8 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('convertToText_Callback_performance_test_001', 0, async function (done) {
-    var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-    var startTime = new Date().getTime();
+    let pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    let startTime = new Date().getTime();
     convertToTextCallbackPerfTest(0);
 
     function convertToTextCallbackPerfTest(index) {
@@ -251,8 +251,8 @@ describe('PasteBoardPerfJSTest', function () {
    * @tc.require   I5YP4X
    */
   it('convertToTextV9_Callback_performance_test_001', 0, async function (done) {
-    var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-    var startTime = new Date().getTime();
+    let pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    let startTime = new Date().getTime();
     convertToTextV9CallbackPerfTest(0);
 
     function convertToTextV9CallbackPerfTest(index) {
@@ -268,8 +268,8 @@ describe('PasteBoardPerfJSTest', function () {
   });
 
   function computeAverageTime(startTime, baseCount, message) {
-    var endTime = new Date().getTime();
-    var averageTime = ((endTime - startTime) * 1000) / baseCount;
+    let endTime = new Date().getTime();
+    let averageTime = ((endTime - startTime) * 1000) / baseCount;
     console.info(message + averageTime);
   }
 });
