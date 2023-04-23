@@ -835,11 +835,11 @@ describe('PasteBoardJSTest', function () {
             let pasteDataRecord = pasteboard.createUriRecord(uriText1);
             let replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
             expect(replace).assertEqual(true);
-            let primaryUri = pasteData1.getPrimaryUri();
-            expect(primaryUri).assertEqual(uriText1);
+            let primaryUri1 = pasteData1.getPrimaryUri();
+            expect(primaryUri1).assertEqual(uriText1);
             expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-            let primaryUri = pasteData1.getPrimaryUri();
-            expect(primaryUri).assertEqual(uriText1);
+            let primaryUri2 = pasteData1.getPrimaryUri();
+            expect(primaryUri2).assertEqual(uriText1);
             done();
           });
         });
