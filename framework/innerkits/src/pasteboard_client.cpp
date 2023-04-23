@@ -187,13 +187,7 @@ void PasteboardClient::LoadSystemAbilityFail()
 void PasteboardClient::Clear()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Clear start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
     pasteboardServiceProxy_->Clear();
@@ -205,13 +199,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
+    if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
@@ -241,13 +229,7 @@ void PasteboardClient::RetainUri(PasteData &pasteData)
 bool PasteboardClient::HasPasteData()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasPasteData start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "HasPasteData quit.");
+    if (!IsServiceAvailable()) {
         return false;
     }
     return pasteboardServiceProxy_->HasPasteData();
@@ -256,13 +238,7 @@ bool PasteboardClient::HasPasteData()
 int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SetPasteData quit.");
+    if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     return pasteboardServiceProxy_->SetPasteData(pasteData);
@@ -275,16 +251,9 @@ void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> cal
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
         return;
     }
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "AddPasteboardChangedObserver quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
-
     pasteboardServiceProxy_->AddPasteboardChangedObserver(callback);
     return;
 }
@@ -296,13 +265,7 @@ void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callb
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
         return;
     }
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "proxy null.");
+    if (!IsServiceAvailable()) {
         return;
     }
     pasteboardServiceProxy_->AddPasteboardEventObserver(callback);
@@ -311,13 +274,7 @@ void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callb
 void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
     if (callback == nullptr) {
@@ -334,13 +291,7 @@ void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> 
 void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
     if (callback == nullptr) {
@@ -351,6 +302,20 @@ void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> ca
     }
     pasteboardServiceProxy_->RemovePasteboardEventObserver(callback);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+
+inline bool PasteboardClient::IsServiceAvailable()
+{
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
+        ConnectService();
+    }
+
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Service proxy null.");
+        return false;
+    }
+    return true;
 }
 
 void PasteboardClient::ConnectService()
