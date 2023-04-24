@@ -32,9 +32,11 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
+constexpr int32_t LOADSA_TIMEOUT_MS = 10000;
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
+std::condition_variable PasteboardClient::proxyConVar_;
 PasteboardClient::PasteboardClient(){};
 PasteboardClient::~PasteboardClient()
 {
@@ -132,58 +134,10 @@ std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
     return pasteData;
 }
 
-
-bool PasteboardClient::LoadPasteboardService()
-{
-    sptr<PasteboardLoadCallback> loadCallback = new PasteboardLoadCallback();
-    if (loadCallback == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "loadCallback is nullptr.");
-        return false;
-    }
-
-    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrProxy == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Get SystemAbilityManager failed");
-        return false;
-    }
-
-    int32_t ret = samgrProxy->LoadSystemAbility(PASTEBOARD_SERVICE_ID, loadCallback);
-    if (ret != ERR_OK) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Failed to load systemAbility");
-        return false;
-    }
-    return true;
-}
-
-void PasteboardClient::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PasteboardClient finish start systemAbility");
-    std::lock_guard<std::mutex> lock(instanceLock_);
-    if (deathRecipient_ == nullptr) {
-        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
-    }
-    if (remoteObject != nullptr && pasteboardServiceProxy_ == nullptr) {
-        remoteObject->AddDeathRecipient(deathRecipient_);
-        pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
-    }
-}
-
-void PasteboardClient::LoadSystemAbilityFail()
-{
-    std::lock_guard<std::mutex> lock(instanceLock_);
-    pasteboardServiceProxy_ = nullptr;
-}
-
 void PasteboardClient::Clear()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Clear start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
     pasteboardServiceProxy_->Clear();
@@ -195,13 +149,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
+    if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
@@ -231,13 +179,7 @@ void PasteboardClient::RetainUri(PasteData &pasteData)
 bool PasteboardClient::HasPasteData()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasPasteData start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "HasPasteData quit.");
+    if (!IsServiceAvailable()) {
         return false;
     }
     return pasteboardServiceProxy_->HasPasteData();
@@ -246,13 +188,7 @@ bool PasteboardClient::HasPasteData()
 int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SetPasteData quit.");
+    if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     return pasteboardServiceProxy_->SetPasteData(pasteData);
@@ -265,16 +201,9 @@ void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> cal
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
         return;
     }
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "AddPasteboardChangedObserver quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
-
     pasteboardServiceProxy_->AddPasteboardChangedObserver(callback);
     return;
 }
@@ -286,13 +215,7 @@ void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callb
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
         return;
     }
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "proxy null.");
+    if (!IsServiceAvailable()) {
         return;
     }
     pasteboardServiceProxy_->AddPasteboardEventObserver(callback);
@@ -301,13 +224,7 @@ void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callb
 void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
     if (callback == nullptr) {
@@ -324,13 +241,7 @@ void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> 
 void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
     if (callback == nullptr) {
@@ -343,9 +254,23 @@ void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> ca
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
+inline bool PasteboardClient::IsServiceAvailable()
+{
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
+        ConnectService();
+    }
+
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Service proxy null.");
+        return false;
+    }
+    return true;
+}
+
 void PasteboardClient::ConnectService()
 {
-    std::lock_guard<std::mutex> lock(instanceLock_);
+    std::unique_lock<std::mutex> lock(instanceLock_);
     if (pasteboardServiceProxy_ != nullptr) {
         return;
     }
@@ -367,8 +292,43 @@ void PasteboardClient::ConnectService()
         return;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
-    LoadPasteboardService();
+    sptr<PasteboardLoadCallback> loadCallback = new PasteboardLoadCallback();
+    if (loadCallback == nullptr) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "loadCallback is nullptr.");
+        return;
+    }
+    int32_t ret = samgrProxy->LoadSystemAbility(PASTEBOARD_SERVICE_ID, loadCallback);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Failed to load systemAbility.");
+        return;
+    }
+    auto waitStatus = proxyConVar_.wait_for(lock, std::chrono::milliseconds(LOADSA_TIMEOUT_MS),
+        [this]() { return pasteboardServiceProxy_ != nullptr; });
+    if (!waitStatus) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Load systemAbility timeout.");
+        return;
+    }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
+}
+
+void PasteboardClient::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
+{
+    std::lock_guard<std::mutex> lock(instanceLock_);
+    if (deathRecipient_ == nullptr) {
+        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
+    }
+    if (remoteObject != nullptr) {
+        remoteObject->AddDeathRecipient(deathRecipient_);
+        pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
+    }
+    proxyConVar_.notify_one();
+}
+
+void PasteboardClient::LoadSystemAbilityFail()
+{
+    std::lock_guard<std::mutex> lock(instanceLock_);
+    pasteboardServiceProxy_ = nullptr;
+    proxyConVar_.notify_one();
 }
 
 void PasteboardClient::OnRemoteSaDied(const wptr<IRemoteObject> &remote)

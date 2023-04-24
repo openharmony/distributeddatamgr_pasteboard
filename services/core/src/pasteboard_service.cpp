@@ -593,10 +593,10 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observer empty.");
         return;
     }
-    observerMap.erase(userId);
     auto observers = it->second;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers->size:%{public}u.",
-        static_cast<unsigned int>(observers->size()));
+    auto eraseNum = observerMap.erase(userId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "listeners.size = %{public}u, eraseNum = %{public}zu",
+        static_cast<unsigned int>(observers->size()), eraseNum);
 }
 
 inline bool PasteboardService::IsCallerUidValid()
