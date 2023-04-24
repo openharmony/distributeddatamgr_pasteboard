@@ -33,16 +33,16 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   AR000HEECB
    */
   it('pasteboard_exception_test1', 0, async function (done) {
-    var systemPasteBoard = pasteboard.getSystemPasteboard();
+    let systemPasteBoard = pasteboard.getSystemPasteboard();
     await systemPasteBoard.clear().then(async () => {
-      var pasteData = undefined;
+      let pasteData = undefined;
       console.info('systemPasteBoard clear data success');
-      var dataUri = new ArrayBuffer(256);
+      let dataUri = new ArrayBuffer(256);
       pasteData = pasteboard.createData('xxx', dataUri);
-      var addUri = new ArrayBuffer(128);
+      let addUri = new ArrayBuffer(128);
       pasteData.addRecord('xxx', addUri);
-      var recordUri = new ArrayBuffer(96);
-      var pasteDataRecord = pasteboard.createRecord('xxx', recordUri);
+      let recordUri = new ArrayBuffer(96);
+      let pasteDataRecord = pasteboard.createRecord('xxx', recordUri);
       pasteData.addRecord(pasteDataRecord);
       await systemPasteBoard.setPasteData(pasteData).then(async () => {
         console.info('Set pastedata success');
@@ -69,13 +69,13 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   AR000HEECB
    */
   it('pasteboard_exception_test2', 0, async function (done) {
-    var systemPasteBoard = pasteboard.getSystemPasteboard();
+    let systemPasteBoard = pasteboard.getSystemPasteboard();
     await systemPasteBoard.clear().then(async () => {
       console.info('systemPasteBoard clear data success');
-      var pasteData = undefined;
-      var pasteRecord = undefined;
+      let pasteData = undefined;
+      let pasteRecord = undefined;
 
-      var dataHtml = new ArrayBuffer(256);
+      let dataHtml = new ArrayBuffer(256);
       pasteData = pasteboard.createData('xy', dataHtml);
       expect(pasteData != undefined).assertTrue();
 
@@ -112,14 +112,14 @@ describe('PasteBoardJSTest', function () {
    */
   it('pasteboard_exception_test3', 0, async function (done) {
     console.info('pasteboard_exception_test1 start');
-    var systemPasteBoard = pasteboard.getSystemPasteboard();
+    let systemPasteBoard = pasteboard.getSystemPasteboard();
     await systemPasteBoard.clear().then(async () => {
       console.info('systemPasteBoard clear data success');
-      var pasteData = undefined;
-      var pasteRecord = undefined;
+      let pasteData = undefined;
+      let pasteRecord = undefined;
 
       // test createData
-      var dataHtml = new ArrayBuffer(256);
+      let dataHtml = new ArrayBuffer(256);
       try {
         pasteData = pasteboard.createData('x'.repeat(1025), dataHtml);
         expect(true === false).assertTrue();
@@ -144,7 +144,7 @@ describe('PasteBoardJSTest', function () {
       pasteData.addRecord('x'.repeat(1024), dataHtml);
       expect(pasteData.getRecordCount()).assertEqual(2);
       
-      var addHtml = new ArrayBuffer(128);
+      let addHtml = new ArrayBuffer(128);
       try {
         pasteData.addRecord('x'.repeat(1025), addHtml);
         expect(true === false).assertTrue();
@@ -156,7 +156,7 @@ describe('PasteBoardJSTest', function () {
       pasteData.addRecord('x'.repeat(1024), addHtml);
       expect(pasteData.getRecordCount()).assertEqual(3);
 
-      var recordHtml = new ArrayBuffer(64);
+      let recordHtml = new ArrayBuffer(64);
       try {
         pasteRecord = pasteboard.createRecord('x'.repeat(1025), recordHtml);
         expect(true === false).assertTrue();
@@ -191,24 +191,24 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   AR000HEECB
    */
   it('pasteboard_exception_test5', 0, async function (done) {
-    var systemPasteBoard = pasteboard.getSystemPasteboard();
+    let systemPasteBoard = pasteboard.getSystemPasteboard();
     systemPasteBoard.clear().then(() => {
-      var dataHtml = new ArrayBuffer(256);
-      var htmlText = '<html><head></head><body>Hello!</body></html>';
-      var uriText = 'https://www.baidu.com/';
-      var wantText = {
+      let dataHtml = new ArrayBuffer(256);
+      let htmlText = '<html><head></head><body>Hello!</body></html>';
+      let uriText = 'https://www.baidu.com/';
+      let wantText = {
         bundleName: 'com.example.myapplication3',
         abilityName: 'com.example.myapplication3.MainAbility',
       };
-      var plainText = '';
-      var pasteData = pasteboard.createData('x'.repeat(1024), dataHtml);
-      var record = pasteData.getRecordAt(0);
+      let plainText = '';
+      let pasteData = pasteboard.createData('x'.repeat(1024), dataHtml);
+      let record = pasteData.getRecordAt(0);
       record.htmlText = htmlText;
       record.plainText = plainText;
       record.uri = uriText;
       record.want = wantText;
-      var buffer = new ArrayBuffer(128);
-      var opt = {
+      let buffer = new ArrayBuffer(128);
+      let opt = {
         size: { height: 5, width: 5 },
         pixelFormat: 3,
         editable: true,
@@ -226,7 +226,7 @@ describe('PasteBoardJSTest', function () {
               expect(data.getRecordAt(0).mimeType).assertEqual('x'.repeat(1024));
               expect(data.getPrimaryWant().bundleName).assertEqual(wantText.bundleName);
               expect(data.getPrimaryWant().abilityName).assertEqual(wantText.abilityName);
-              var newPixelMap = data.getPrimaryPixelMap();
+              let newPixelMap = data.getPrimaryPixelMap();
               newPixelMap.getImageInfo().then((imageInfo) => {
                 expect(imageInfo.size.height).assertEqual(opt.size.height);
                 expect(imageInfo.size.width).assertEqual(opt.size.width);
@@ -249,25 +249,25 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test6', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(() => {
-      var uriText = 'https://www.baidu.com/';
-      var pasteData = pasteboard.createUriData(uriText);
+      let uriText = 'https://www.baidu.com/';
+      let pasteData = pasteboard.createUriData(uriText);
       systemPasteboard.setPasteData(pasteData).then(() => {
         systemPasteboard.hasPasteData().then((data) => {
           expect(data).assertEqual(true);
           systemPasteboard.getPasteData().then((data) => {
-            var pasteData1 = data;
+            let pasteData1 = data;
             expect(pasteData1.getRecordCount()).assertEqual(1);
-            var uriText1 = 'https://www.baidu.com/1';
-            var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText1);
-            var replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
+            let uriText1 = 'https://www.baidu.com/1';
+            let pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText1);
+            let replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
             expect(replace).assertEqual(true);
-            var primaryUri = pasteData1.getPrimaryUri();
-            expect(primaryUri).assertEqual(uriText1);
+            let primaryUri1 = pasteData1.getPrimaryUri();
+            expect(primaryUri1).assertEqual(uriText1);
             expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-            var primaryUri = pasteData1.getPrimaryUri();
-            expect(primaryUri).assertEqual(uriText1);
+            let primaryUri2 = pasteData1.getPrimaryUri();
+            expect(primaryUri2).assertEqual(uriText1);
             done();
           });
         });
@@ -282,29 +282,29 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test7', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
-      var uriText = 'https://www.baidu.com/';
-      var textData = 'Hello World!';
-      var htmlText = '<html><head></head><body>Hello World!</body></html>';
-      var wantText = {
+      let uriText = 'https://www.baidu.com/';
+      let textData = 'Hello World!';
+      let htmlText = '<html><head></head><body>Hello World!</body></html>';
+      let wantText = {
         bundleName: 'com.example.myapplication3',
         abilityName: 'com.example.myapplication3.MainAbility',
       };
-      var dataHtml = new ArrayBuffer(256);
-      var buffer = new ArrayBuffer(128);
-      var opt = {
+      let dataHtml = new ArrayBuffer(256);
+      let buffer = new ArrayBuffer(128);
+      let opt = {
         size: { height: 5, width: 5 },
         pixelFormat: 3,
         editable: true,
         alphaType: 1,
         scaleMode: 1,
       };
-      var pixelMap = await image.createPixelMap(buffer, opt);
-      var pasteData = pasteboard.createUriData(uriText);
+      let pixelMap = await image.createPixelMap(buffer, opt);
+      let pasteData = pasteboard.createUriData(uriText);
 
       try {
-        var pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
+        let pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
         pasteData.addRecord(pasteDataRecord);
         pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
         pasteData.addRecord(pasteDataRecord);
@@ -326,7 +326,7 @@ describe('PasteBoardJSTest', function () {
           expect(data).assertEqual(true);
           systemPasteboard.getPasteData().then((data) => {
             expect(data.getRecordCount()).assertEqual(7);
-            var dataRecord = data.getRecordAt(3);
+            let dataRecord = data.getRecordAt(3);
             expect(dataRecord.htmlText).assertEqual(htmlText);
             done();
           });
@@ -342,14 +342,14 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test8', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
-      var uriText = 'https://www.baidu.com/';
-      var htmlText = '<html><head></head><body>Hello World!</body></html>';
-      var pasteData = pasteboard.createUriData(uriText);
+      let uriText = 'https://www.baidu.com/';
+      let htmlText = '<html><head></head><body>Hello World!</body></html>';
+      let pasteData = pasteboard.createUriData(uriText);
 
       try {
-        var pasteDataRecord = pasteboard.createRecord('xxddxx', htmlText);
+        let pasteDataRecord = pasteboard.createRecord('xxddxx', htmlText);
         pasteData.addRecord(pasteDataRecord);
         expect(true === false).assertTrue();
       } catch (error) {
@@ -367,10 +367,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test9', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
-    var uriText = 'https://www.baidu.com/';
-    var pasteData = undefined;
+    let uriText = 'https://www.baidu.com/';
+    let pasteData = undefined;
     try {
       pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     } catch (e) {
@@ -381,7 +381,7 @@ describe('PasteBoardJSTest', function () {
         expect(data).assertEqual(true);
         systemPasteboard.getPasteData().then((data) => {
           expect(data.getRecordCount()).assertEqual(1);
-          var dataRecord = data.getRecordAt(0);
+          let dataRecord = data.getRecordAt(0);
           expect(dataRecord.uri).assertEqual(uriText);
           done();
         });
@@ -396,10 +396,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test10', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
-    var htmlText = '<html><head></head><body>Hello World!</body></html>';
-    var pasteData = undefined;
+    let htmlText = '<html><head></head><body>Hello World!</body></html>';
+    let pasteData = undefined;
     try {
       pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
     } catch (e) {
@@ -410,7 +410,7 @@ describe('PasteBoardJSTest', function () {
         expect(data).assertEqual(true);
         systemPasteboard.getPasteData().then((data) => {
           expect(data.getRecordCount()).assertEqual(1);
-          var dataRecord = data.getRecordAt(0);
+          let dataRecord = data.getRecordAt(0);
           expect(dataRecord.htmlText).assertEqual(htmlText);
           done();
         });
@@ -425,13 +425,13 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test11', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
-    var wantText = {
+    let wantText = {
       bundleName: 'com.example.myapplication3',
       abilityName: 'com.example.myapplication3.MainAbility',
     };
-    var pasteData = undefined;
+    let pasteData = undefined;
     try {
       pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText);
     } catch (e) {
@@ -442,7 +442,7 @@ describe('PasteBoardJSTest', function () {
         expect(data).assertEqual(true);
         systemPasteboard.getPasteData().then((data) => {
           expect(data.getRecordCount()).assertEqual(1);
-          var primaryWant = data.getPrimaryWant();
+          let primaryWant = data.getPrimaryWant();
           expect(primaryWant.bundleName).assertEqual(wantText.bundleName);
           expect(primaryWant.abilityName).assertEqual(wantText.abilityName);
           done();
@@ -458,18 +458,18 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test12', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
-    var buffer = new ArrayBuffer(128);
-    var opt = {
+    let buffer = new ArrayBuffer(128);
+    let opt = {
       size: { height: 5, width: 5 },
       pixelFormat: 3,
       editable: true,
       alphaType: 1,
       scaleMode: 1,
     };
-    var pasteData = undefined;
-    var pixelMap = await image.createPixelMap(buffer, opt);
+    let pasteData = undefined;
+    let pixelMap = await image.createPixelMap(buffer, opt);
     try {
       pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
     } catch (e) {
@@ -480,8 +480,8 @@ describe('PasteBoardJSTest', function () {
         expect(data).assertEqual(true);
         systemPasteboard.getPasteData().then((data) => {
           expect(data.getRecordCount()).assertEqual(1);
-          var primaryPixelMap = data.getPrimaryPixelMap();
-          var PixelMapBytesNumber = primaryPixelMap.getPixelBytesNumber();
+          let primaryPixelMap = data.getPrimaryPixelMap();
+          let PixelMapBytesNumber = primaryPixelMap.getPixelBytesNumber();
           expect(PixelMapBytesNumber).assertEqual(100);
           primaryPixelMap.getImageInfo().then((imageInfo) => {
             expect(imageInfo.size.height === 5 && imageInfo.size.width === 5).assertEqual(true);
@@ -499,10 +499,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test13', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
-    var dataHtml = new ArrayBuffer(256);
-    var pasteData = undefined;
+    let dataHtml = new ArrayBuffer(256);
+    let pasteData = undefined;
     try {
       pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, dataHtml);
       expect(true === false).assertTrue();
@@ -520,10 +520,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test14', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clear();
-    var dataHtml = new ArrayBuffer(256);
-    var pasteData = undefined;
+    let dataHtml = new ArrayBuffer(256);
+    let pasteData = undefined;
     try {
       pasteData = pasteboard.createData('x'.repeat(1034), dataHtml);
       expect(true === false).assertTrue();
@@ -541,26 +541,26 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test15', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
-      var uriText = 'https://www.baidu.com/';
-      var textData = 'Hello World!';
-      var htmlText = '<html><head></head><body>Hello World!</body></html>';
-      var wantText = {
+      let uriText = 'https://www.baidu.com/';
+      let textData = 'Hello World!';
+      let htmlText = '<html><head></head><body>Hello World!</body></html>';
+      let wantText = {
         bundleName: 'com.example.myapplication3',
         abilityName: 'com.example.myapplication3.MainAbility',
       };
-      var dataHtml = new ArrayBuffer(256);
-      var buffer = new ArrayBuffer(128);
-      var opt = {
+      let dataHtml = new ArrayBuffer(256);
+      let buffer = new ArrayBuffer(128);
+      let opt = {
         size: { height: 5, width: 5 },
         pixelFormat: 3,
         editable: true,
         alphaType: 1,
         scaleMode: 1,
       };
-      var pixelMap = await image.createPixelMap(buffer, opt);
-      var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+      let pixelMap = await image.createPixelMap(buffer, opt);
+      let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
 
       try {
         pasteData.addRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
@@ -577,10 +577,10 @@ describe('PasteBoardJSTest', function () {
           expect(data).assertEqual(true);
           systemPasteboard.getPasteData().then((data) => {
             expect(data.getRecordCount()).assertEqual(7);
-            var dataRecord = data.getRecordAt(6);
+            let dataRecord = data.getRecordAt(6);
             expect(dataRecord.uri).assertEqual(uriText);
-            var primaryPixelMap = data.getPrimaryPixelMap();
-            var PixelMapBytesNumber = primaryPixelMap.getPixelBytesNumber();
+            let primaryPixelMap = data.getPrimaryPixelMap();
+            let PixelMapBytesNumber = primaryPixelMap.getPixelBytesNumber();
             expect(PixelMapBytesNumber).assertEqual(100);
             done();
           });
@@ -596,8 +596,8 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test16', 0, async function (done) {
-    var uriText = 'https://www.baidu.com/';
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    let uriText = 'https://www.baidu.com/';
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
       pasteData.addRecord('xxxx', uriText);
       expect(true === false).assertTrue();
@@ -614,10 +614,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test17', 0, async function (done) {
-    var uriText = 'https://www.baidu.com/';
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    let uriText = 'https://www.baidu.com/';
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
-      for (var i = 0; i < 600; i++) {
+      for (let i = 0; i < 600; i++) {
         pasteData.addRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
       }
       expect(true === false).assertTrue();
@@ -634,10 +634,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test18', 0, async function (done) {
-    var uriText = 'https://www.baidu.com/';
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    let uriText = 'https://www.baidu.com/';
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
-      var dataRecord = pasteData.getRecord(0);
+      let dataRecord = pasteData.getRecord(0);
       expect(dataRecord.uri).assertEqual(uriText);
     } catch (e) {
       expect(true === false).assertTrue();
@@ -652,10 +652,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test19', 0, async function (done) {
-    var uriText = 'https://www.baidu.com/';
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    let uriText = 'https://www.baidu.com/';
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
-      var dataRecord = pasteData.getRecord(5);
+      let dataRecord = pasteData.getRecord(5);
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code === '12900001').assertTrue();
@@ -670,13 +670,13 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test20', 0, async function (done) {
-    var uriText = 'https://www.baidu.com/';
-    var uriText1 = 'https://www.baidu1.com/';
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
-    var dataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText1);
+    let uriText = 'https://www.baidu.com/';
+    let uriText1 = 'https://www.baidu1.com/';
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    let dataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText1);
     try {
       pasteData.replaceRecord(0, dataRecord);
-      var record = pasteData.getRecord(0);
+      let record = pasteData.getRecord(0);
       expect(record.uri).assertEqual(uriText1);
     } catch (e) {
       expect(true === false).assertTrue();
@@ -691,8 +691,8 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test22', 0, async function (done) {
-    var uriText = 'https://www.baidu.com/';
-    var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    let uriText = 'https://www.baidu.com/';
+    let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
     try {
       pasteData.replaceRecord(0, 'xxxxxx');
       expect(true === false).assertTrue();
@@ -709,10 +709,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test23', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clearData().then(() => {
-      var uriText = 'Hello//';
-      var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+      let uriText = 'Hello//';
+      let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
       systemPasteboard.setData(pasteData).then(() => {
         systemPasteboard.hasData().then((data) => {
           expect(data).assertEqual(true);
@@ -734,7 +734,7 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test24', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     try {
       systemPasteboard.setData('xxxxx');
       expect(true === false).assertTrue();
@@ -752,11 +752,11 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test25', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
-      var textData = 'Hello World!';
-      var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
-      var pasteDataProperty = pasteData.getProperty();
+      let textData = 'Hello World!';
+      let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
+      let pasteDataProperty = pasteData.getProperty();
       expect(pasteDataProperty.shareOption).assertEqual(pasteboard.ShareOption.CrossDevice);
       pasteDataProperty.shareOption = pasteboard.ShareOption.InApp;
       pasteData.setProperty(pasteDataProperty);
@@ -772,12 +772,12 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test26', 0, async function (done) {
-    var systemPasteboard = pasteboard.getSystemPasteboard();
+    let systemPasteboard = pasteboard.getSystemPasteboard();
     systemPasteboard.clear().then(async () => {
-      var textData = 'Hello World!';
-      var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
+      let textData = 'Hello World!';
+      let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
       try {
-        var obj = { shareOption: 1 };
+        let obj = { shareOption: 1 };
         pasteData.setProperty(obj);
         expect(true === false).assertTrue();
       } catch (e) {
@@ -795,10 +795,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test27', 0, async function (done) {
-    var textData = 'Hello World!';
-    var dataXml = new ArrayBuffer(512);
+    let textData = 'Hello World!';
+    let dataXml = new ArrayBuffer(512);
     try {
-      var pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, dataXml);
+      let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_PLAIN, dataXml);
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code === '401').assertTrue();
@@ -814,10 +814,10 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   I5TYVJ
    */
   it('pasteboard_exception_test28', 0, async function (done) {
-    var textData = 'Hello World!';
-    var dataXml = new ArrayBuffer(512);
+    let textData = 'Hello World!';
+    let dataXml = new ArrayBuffer(512);
     try {
-      var pasteData = pasteboard.createData('xxxxx', textData);
+      let pasteData = pasteboard.createData('xxxxx', textData);
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code === '401').assertTrue();
@@ -834,7 +834,7 @@ describe('PasteBoardJSTest', function () {
    */
   it('pasteboard_exception_test29', 0, async function (done) {
     try {
-      var pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, {});
+      let pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, {});
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code === '401').assertTrue();
