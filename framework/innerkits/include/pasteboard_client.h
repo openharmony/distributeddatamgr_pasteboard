@@ -226,6 +226,7 @@ public:
     void LoadSystemAbilityFail();
 
 private:
+    inline bool IsServiceAvailable();
     void ConnectService();
     static void RetainUri(PasteData &pasteData);
 
