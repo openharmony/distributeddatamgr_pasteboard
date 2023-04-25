@@ -160,6 +160,7 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
     napi_get_undefined(env, &result);
     auto observer = GetObserver(env, argv[1]);
     if (observer != nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "observer exist.");
         return result;
     }
     napi_ref ref = nullptr;
@@ -495,7 +496,7 @@ napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance
 
 std::shared_ptr<PasteboardObserverInstance> SystemPasteboardNapi::GetObserver(napi_env env, napi_value observer)
 {
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetObserver start");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetObserver start");
     for (auto &[refKey, observerValue] : observers_) {
         napi_value callback = nullptr;
         napi_get_reference_value(env, refKey, &callback);

@@ -74,6 +74,9 @@ public:
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver>& observer) override;
     virtual void RemoveAllChangedObserver() override;
+    virtual void AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void RemoveAllEventObserver() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
     size_t GetDataSize(PasteData& data) const;
@@ -86,6 +89,8 @@ private:
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
         DISTRIBUTED_DEVICE_PROFILE_SA_ID, WINDOW_MANAGER_SERVICE_ID };
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
+    static constexpr const pid_t EDM_UID = 3057;
+    static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     struct classcomp {
         bool operator() (const sptr<IPasteboardChangedObserver>& l, const sptr<IPasteboardChangedObserver>& r) const
@@ -93,6 +98,7 @@ private:
             return l->AsObject() < r->AsObject();
         }
     };
+    using ObserverMap = std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
     void AddSysAbilityListener();
     int32_t Init();
     int32_t GetUserIdByToken(uint32_t tokenId);
@@ -133,7 +139,8 @@ private:
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::mutex clipMutex_;
     std::mutex observerMutex_;
-    std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>> observerMap_;
+    ObserverMap observerChangedMap_;
+    ObserverMap observerEventMap_;
     ClipPlugin::GlobalEvent currentEvent_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
@@ -150,6 +157,11 @@ private:
     std::mutex deviceMutex_;
     std::string fromDevice_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
+
+    void AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
+    void RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
+    void RemoveAllObserver(ObserverMap &observerMap);
+    inline bool IsCallerUidValid();
 };
 } // MiscServices
 } // OHOS

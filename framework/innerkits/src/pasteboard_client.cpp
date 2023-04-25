@@ -134,14 +134,8 @@ std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
 
 void PasteboardClient::Clear()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Clear start.");
+    if (!IsServiceAvailable()) {
         return;
     }
     pasteboardServiceProxy_->Clear();
@@ -152,14 +146,8 @@ void PasteboardClient::Clear()
 int32_t PasteboardClient::GetPasteData(PasteData& pasteData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteData quit.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
+    if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
@@ -186,14 +174,8 @@ void PasteboardClient::RetainUri(PasteData &pasteData)
 
 bool PasteboardClient::HasPasteData()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "HasPasteData quit");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasPasteData start.");
+    if (!IsServiceAvailable()) {
         return false;
     }
     return pasteboardServiceProxy_->HasPasteData();
@@ -201,14 +183,8 @@ bool PasteboardClient::HasPasteData()
 
 int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SetPasteData quit.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
+    if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     return pasteboardServiceProxy_->SetPasteData(pasteData);
@@ -221,51 +197,70 @@ void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> cal
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
         return;
     }
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
-        ConnectService();
-    }
-
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "AddPasteboardChangedObserver quit.");
+    if (!IsServiceAvailable()) {
         return;
     }
-
     pasteboardServiceProxy_->AddPasteboardChangedObserver(callback);
     return;
 }
 
 void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
-    this->AddPasteboardChangedObserver(callback);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
+        return;
+    }
+    if (!IsServiceAvailable()) {
+        return;
+    }
+    pasteboardServiceProxy_->AddPasteboardEventObserver(callback);
 }
 
 void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    if (!IsServiceAvailable()) {
+        return;
+    }
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
+        pasteboardServiceProxy_->RemoveAllChangedObserver();
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+        return;
+    }
+    pasteboardServiceProxy_->RemovePasteboardChangedObserver(callback);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    return;
+}
+
+void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> callback)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    if (!IsServiceAvailable()) {
+        return;
+    }
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
+        pasteboardServiceProxy_->RemoveAllEventObserver();
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+        return;
+    }
+    pasteboardServiceProxy_->RemovePasteboardEventObserver(callback);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+
+inline bool PasteboardClient::IsServiceAvailable() {
     if (pasteboardServiceProxy_ == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Redo ConnectService");
         ConnectService();
     }
 
     if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "quit.");
-        return;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Service proxy null.");
+        return false;
     }
-    if (callback == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remove all.");
-        pasteboardServiceProxy_->RemoveAllChangedObserver();
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
-        return;
-    }
-    pasteboardServiceProxy_->RemovePasteboardChangedObserver(callback);
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "end.");
-    return;
-}
-
-void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> callback)
-{
-    this->RemovePasteboardChangedObserver(callback);
+    return true;
 }
 
 void PasteboardClient::ConnectService()
