@@ -51,6 +51,7 @@ public:
     static void DeleteTestTokenId();
     static void SetTestTokenId();
     static void RestoreSelfTokenId();
+    static void CommonTest(PasteData &oldPasteData, PasteData &newPasteData);
     static sptr<PasteboardObserver> pasteboardObserver_;
     static sptr<PasteboardObserver> pasteboardEventObserver_;
     static std::atomic_bool pasteboardChangedFlag_;
@@ -178,6 +179,21 @@ void PasteboardServiceTest::RestoreSelfTokenId()
 {
     auto ret = SetSelfTokenID(selfTokenId_);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret = %{public}d!", ret);
+}
+
+void PasteboardServiceTest::CommonTest(PasteData &oldPasteData, PasteData &newPasteData)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData != true);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(oldPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasPasteData == true);
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
 }
 
 string GetTime() 
@@ -510,16 +526,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
                                                            .SetCustomData(customData)
                                                            .Build();
     pasteData->AddRecord(pasteDataRecord);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     auto primaryHtml = newPasteData.GetPrimaryHtml();
     ASSERT_TRUE(primaryHtml != nullptr);
     ASSERT_TRUE(*primaryHtml == htmlText);
@@ -560,16 +568,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest006, TestSize.Level0)
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
         builder.SetWant(std::make_shared<Want>(wantIn)).SetPlainText(std::make_shared<std::string>(plainText)).Build();
     pasteData->AddRecord(pasteDataRecord);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     auto firstRecord = newPasteData.GetRecordAt(0);
     ASSERT_TRUE(firstRecord != nullptr);
     ASSERT_TRUE(firstRecord->GetMimeType() == MIMETYPE_TEXT_WANT);
@@ -602,16 +602,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
         builder.SetUri(std::make_shared<OHOS::Uri>(uri)).SetPixelMap(pixelMapIn).Build();
     pasteData->AddRecord(pasteDataRecord);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     auto firstRecord = newPasteData.GetRecordAt(0);
     ASSERT_TRUE(firstRecord != nullptr);
     ASSERT_TRUE(firstRecord->GetMimeType() == MIMETYPE_TEXT_URI);
@@ -641,16 +633,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
     ASSERT_TRUE(pasteData != nullptr);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     auto primaryPixelMap = newPasteData.GetPrimaryPixelMap();
     ASSERT_TRUE(primaryPixelMap != nullptr);
     ImageInfo imageInfo = {};
@@ -676,16 +660,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     pasteData->AddPixelMapRecord(pixelMapIn);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     auto primaryPlainText = newPasteData.GetPrimaryText();
     ASSERT_TRUE(primaryPlainText != nullptr);
     ASSERT_TRUE(*primaryPlainText == plainText);
@@ -711,16 +687,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0010, TestSize.Level0)
     std::string mimeType = "image/jpg";
     auto pasteData = PasteboardClient::GetInstance()->CreateKvData(mimeType, arrayBuffer);
     ASSERT_TRUE(pasteData != nullptr);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     auto firstRecord = newPasteData.GetRecordAt(0);
     auto customData = firstRecord->GetCustomData();
     ASSERT_TRUE(customData != nullptr);
@@ -746,16 +714,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0011, TestSize.Level0)
     arrayBuffer = { 2, 7, 6, 8, 9 };
     std::string mimeType = "image/jpg";
     pasteData->AddKvRecord(mimeType, arrayBuffer);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     auto firstRecord = newPasteData.GetRecordAt(0);
     auto customData = firstRecord->GetCustomData();
     ASSERT_TRUE(customData != nullptr);
@@ -792,16 +752,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0012, TestSize.Level0)
     auto customData = record->GetCustomData();
     ASSERT_TRUE(customData != nullptr);
     customData->AddItemData(mimeType1, arrayBuffer1);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     auto firstRecord = newPasteData.GetRecordAt(0);
     ASSERT_TRUE(firstRecord != nullptr);
     customData = firstRecord->GetCustomData();
@@ -878,16 +830,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
     auto tokenId = pasteData->GetTokenId();
     ASSERT_TRUE(tokenId == 0);
     pasteData->SetTokenId(1);
-    PasteboardClient::GetInstance()->Clear();
-    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData != true);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(hasPasteData == true);
     PasteData newPasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
     shareOption = newPasteData.GetShareOption();
     ASSERT_TRUE(shareOption == ShareOption::InApp);
     tokenId = pasteData->GetTokenId();
@@ -1074,7 +1018,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
 
 /**
  * @tc.name: PasteDataTest0019
- * @tc.desc: AddPasteboardEventObserver RemovePasteboardEventObserver OnRemoteDied OnRemoteSaDied test.
+ * @tc.desc: AddPasteboardEventObserver RemovePasteboardEventObserver test.
  * @tc.type: FUNC
  * @tc.require: AROOOH5R5G
  */
@@ -1087,15 +1031,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     PasteboardClient::GetInstance()->AddPasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
-    const wptr<IRemoteObject> object;
-    PasteboardSaDeathRecipient death;
-    death.OnRemoteDied(object);
-    PasteboardClient::GetInstance()->OnRemoteSaDied(object);
-    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
-    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
-    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
-    auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData("hello");
     ASSERT_TRUE(pasteData != nullptr);
     PasteboardClient::GetInstance()->Clear();
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
@@ -1149,6 +1085,29 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0020, TestSize.Level0)
     ASSERT_TRUE(has == true);
 }
 
+/**
+* @tc.name: PasteDataTest0021
+* @tc.desc: AddPasteboardEventObserver RemovePasteboardEventObserver test.
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0021, TestSize.Level0)
+{
+    PasteboardClient::GetInstance()->AddPasteboardEventObserver(new PasteboardEventObserverCallback());
+    PasteboardClient::GetInstance()->AddPasteboardEventObserver(new PasteboardEventObserverCallback());
+    PasteboardClient::GetInstance()->AddPasteboardEventObserver(new PasteboardEventObserverCallback());
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData("hello");
+    ASSERT_TRUE(pasteData != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto hasData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasData == true);
+    PasteData newPasteData;
+    PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    PasteboardClient::GetInstance()->Clear();
+    PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
+    hasData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(hasData == false);
+}
 
 /**
 * @tc.name: BigPixelMap001
