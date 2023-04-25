@@ -32,9 +32,11 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
+constexpr int32_t LOADSA_TIMEOUT_MS = 10000;
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
+std::condition_variable PasteboardClient::proxyConVar_;
 PasteboardClient::PasteboardClient(){};
 PasteboardClient::~PasteboardClient()
 {
@@ -130,48 +132,6 @@ std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddKvRecord(mimeType, arrayBuffer);
     return pasteData;
-}
-
-
-bool PasteboardClient::LoadPasteboardService()
-{
-    sptr<PasteboardLoadCallback> loadCallback = new PasteboardLoadCallback();
-    if (loadCallback == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "loadCallback is nullptr.");
-        return false;
-    }
-
-    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrProxy == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Get SystemAbilityManager failed");
-        return false;
-    }
-
-    int32_t ret = samgrProxy->LoadSystemAbility(PASTEBOARD_SERVICE_ID, loadCallback);
-    if (ret != ERR_OK) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Failed to load systemAbility");
-        return false;
-    }
-    return true;
-}
-
-void PasteboardClient::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PasteboardClient finish start systemAbility");
-    std::lock_guard<std::mutex> lock(instanceLock_);
-    if (deathRecipient_ == nullptr) {
-        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
-    }
-    if (remoteObject != nullptr && pasteboardServiceProxy_ == nullptr) {
-        remoteObject->AddDeathRecipient(deathRecipient_);
-        pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
-    }
-}
-
-void PasteboardClient::LoadSystemAbilityFail()
-{
-    std::lock_guard<std::mutex> lock(instanceLock_);
-    pasteboardServiceProxy_ = nullptr;
 }
 
 void PasteboardClient::Clear()
@@ -310,7 +270,7 @@ inline bool PasteboardClient::IsServiceAvailable()
 
 void PasteboardClient::ConnectService()
 {
-    std::lock_guard<std::mutex> lock(instanceLock_);
+    std::unique_lock<std::mutex> lock(instanceLock_);
     if (pasteboardServiceProxy_ != nullptr) {
         return;
     }
@@ -332,8 +292,43 @@ void PasteboardClient::ConnectService()
         return;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
-    LoadPasteboardService();
+    sptr<PasteboardLoadCallback> loadCallback = new PasteboardLoadCallback();
+    if (loadCallback == nullptr) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "loadCallback is nullptr.");
+        return;
+    }
+    int32_t ret = samgrProxy->LoadSystemAbility(PASTEBOARD_SERVICE_ID, loadCallback);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Failed to load systemAbility.");
+        return;
+    }
+    auto waitStatus = proxyConVar_.wait_for(lock, std::chrono::milliseconds(LOADSA_TIMEOUT_MS),
+        [this]() { return pasteboardServiceProxy_ != nullptr; });
+    if (!waitStatus) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Load systemAbility timeout.");
+        return;
+    }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
+}
+
+void PasteboardClient::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
+{
+    std::lock_guard<std::mutex> lock(instanceLock_);
+    if (deathRecipient_ == nullptr) {
+        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
+    }
+    if (remoteObject != nullptr) {
+        remoteObject->AddDeathRecipient(deathRecipient_);
+        pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
+    }
+    proxyConVar_.notify_one();
+}
+
+void PasteboardClient::LoadSystemAbilityFail()
+{
+    std::lock_guard<std::mutex> lock(instanceLock_);
+    pasteboardServiceProxy_ = nullptr;
+    proxyConVar_.notify_one();
 }
 
 void PasteboardClient::OnRemoteSaDied(const wptr<IRemoteObject> &remote)

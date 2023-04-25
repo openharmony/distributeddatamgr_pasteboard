@@ -229,14 +229,10 @@ private:
     inline bool IsServiceAvailable();
     void ConnectService();
     static void RetainUri(PasteData &pasteData);
-
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
-
+    static std::condition_variable proxyConVar_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
-
-    bool LoadPasteboardService();
-
     class StaticDestoryMonitor {
         public:
             StaticDestoryMonitor() : destoryed_(false) {}

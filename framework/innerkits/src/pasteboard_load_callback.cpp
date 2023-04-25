@@ -23,7 +23,7 @@ void PasteboardLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Load system ability success!");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Load system ability successed!");
 }
 
 void PasteboardLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
