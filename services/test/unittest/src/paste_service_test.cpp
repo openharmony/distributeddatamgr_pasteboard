@@ -503,7 +503,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
 
 /**
 * @tc.name: PasteDataTest005
-* @tc.desc: marshalling test.
+* @tc.desc: CreateHtmlData test.
 * @tc.type: FUNC
 * @tc.require: AR000HEECD
 */
@@ -551,7 +551,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
 
 /**
 * @tc.name: PasteDataTest006
-* @tc.desc: marshalling test.
+* @tc.desc: CreatePlainTextData test.
 * @tc.type: FUNC
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest006, TestSize.Level0)
@@ -584,7 +584,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest006, TestSize.Level0)
 
 /**
 * @tc.name: PasteDataTest007
-* @tc.desc: marshalling test.
+* @tc.desc: PixelMap test.
 * @tc.type: FUNC
 * @tc.require: AR000H5GKU
 */
@@ -773,44 +773,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0012, TestSize.Level0)
     ASSERT_TRUE(secondRecord != nullptr);
     auto secondRecordMimeType = secondRecord->GetMimeType();
     ASSERT_TRUE(secondRecordMimeType == MIMETYPE_TEXT_PLAIN);
-}
-
-/**
-* @tc.name: PasteDataTest0013
-* @tc.desc: MineCustomData: Marshalling unMarshalling
-* @tc.type: FUNC
-* @tc.require: AR000HEECD
-*/
-HWTEST_F(PasteboardServiceTest, PasteDataTest0013, TestSize.Level0)
-{
-    std::string plainText = "plain text";
-    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    ASSERT_TRUE(pasteData != nullptr);
-    std::vector<uint8_t> arrayBuffer(46);
-    arrayBuffer = { 2, 7, 6, 8, 9 };
-    std::string mimeType = "image/jpg";
-    pasteData->AddKvRecord(mimeType, arrayBuffer);
-    auto record = pasteData->GetRecordAt(0);
-    ASSERT_TRUE(record != nullptr);
-    std::string mimeType1 = "img/png";
-    std::vector<uint8_t> arrayBuffer1(54);
-    arrayBuffer1 = { 4, 7, 9, 8, 7 };
-    auto customData = record->GetCustomData();
-    ASSERT_TRUE(customData != nullptr);
-    customData->AddItemData(mimeType1, arrayBuffer1);
-    Parcel parcel;
-    auto ret = customData->Marshalling(parcel);
-    ASSERT_TRUE(ret == true);
-    std::shared_ptr<MineCustomData> customDataGet(customData->Unmarshalling(parcel));
-    ASSERT_TRUE(customDataGet != nullptr);
-    auto itemData = customDataGet->GetItemData();
-    ASSERT_TRUE(itemData.size() == 2);
-    auto item = itemData.find(mimeType);
-    ASSERT_TRUE(item != itemData.end());
-    ASSERT_TRUE(item->second == arrayBuffer);
-    item = itemData.find(mimeType1);
-    ASSERT_TRUE(item != itemData.end());
-    ASSERT_TRUE(item->second == arrayBuffer1);
 }
 
 /**

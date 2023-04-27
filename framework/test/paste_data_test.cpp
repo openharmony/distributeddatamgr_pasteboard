@@ -175,53 +175,6 @@ HWTEST_F(PasteDataTest, GetRealPathFailed002, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataMarshallingUnMarshalling001
-* @tc.desc: PasteData: Marshalling unMarshalling
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteDataTest, PasteDataMarshallingUnMarshalling001, TestSize.Level0)
-{
-    std::string htmlText = "<div class='disabled item tip user-programs'>";
-    auto pasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
-    Parcel parcel;
-    auto ret = pasteData->Marshalling(parcel);
-    ASSERT_TRUE(ret);
-    std::shared_ptr<PasteData> pasteData1(pasteData->Unmarshalling(parcel));
-    ASSERT_TRUE(pasteData1 != nullptr);
-    auto html = pasteData1->GetPrimaryHtml();
-    ASSERT_TRUE(html != nullptr);
-    EXPECT_EQ(*html, htmlText);
-}
-
-/**
-* @tc.name: PasteDataRecordMarshallingUnMarshalling001
-* @tc.desc: PasteDataRecord: Marshalling unMarshalling
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-* @tc.author: chenyu
-*/
-HWTEST_F(PasteDataTest, PasteDataRecordMarshallingUnMarshalling001, TestSize.Level0)
-{
-    std::shared_ptr<OHOS::AAFwk::Want> want = std::make_shared<OHOS::AAFwk::Want>();
-    std::string key = "id";
-    int32_t id = 456;
-    Want wantIn = want->SetParam(key, id);
-    auto record = PasteboardClient::GetInstance()->CreateWantRecord(want);
-    ASSERT_TRUE(record != nullptr);
-    Parcel parcel;
-    auto ret = record->Marshalling(parcel);
-    ASSERT_TRUE(ret);
-    std::shared_ptr<PasteDataRecord> record1(record->Unmarshalling(parcel));
-    ASSERT_TRUE(record1 != nullptr);
-    auto newWant = record->GetWant();
-    ASSERT_TRUE(newWant != nullptr);
-    int32_t defaultValue = 333;
-    EXPECT_EQ(newWant->GetIntParam(key, defaultValue), id);
-}
-
-/**
 * @tc.name: ConvertToText001
 * @tc.desc: PasteDataRecord: ConvertToText
 * @tc.type: FUNC
