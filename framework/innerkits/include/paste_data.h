@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 
-#include "parcel.h"
 #include "paste_data_record.h"
 #include "pasteboard_hilog.h"
 #include "tlv_object.h"
@@ -50,7 +49,7 @@ struct PasteDataProperty : public TLVObject {
     size_t Count() override;
 };
 
-class PasteData : public Parcelable, public TLVObject {
+class PasteData : public TLVObject {
 public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();
@@ -95,8 +94,6 @@ public:
     std::string GetTag();
     void SetAdditions(AAFwk::WantParams &additions);
 
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static PasteData *Unmarshalling(Parcel &parcel);
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
@@ -113,8 +110,6 @@ public:
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
 
 private:
-    bool MarshallingProps(Parcel &parcel) const;
-    static bool UnMarshalling(Parcel &parcel, PasteDataProperty &props);
     void RefreshMimeProp();
 
     PasteDataProperty props_;
