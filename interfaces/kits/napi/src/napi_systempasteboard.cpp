@@ -515,13 +515,20 @@ void SystemPasteboardNapi::DeleteObserver(const std::shared_ptr<PasteboardObserv
     std::vector<std::shared_ptr<PasteboardObserverInstance>> observers;
     {
         for (auto it = observers_.begin(); it != observers_.end();) {
-            observers.push_back(it->second);
-            observers_.erase(it++);
             if (it->second == observer) {
+                observers.push_back(observer);
+                observers_.erase(it++);
                 break;
+            }
+            if (observer == nullptr) {
+                observers.push_back(it->second);
+                observers_.erase(it++);
+            } else {
+                it++;
             }
         }
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "delete observer size: %{public}zu", observers.size());
     for (auto &delObserver : observers) {
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(delObserver->GetStub());
     }
