@@ -334,6 +334,7 @@ void PasteboardClient::LoadSystemAbilityFail()
 void PasteboardClient::OnRemoteSaDied(const wptr<IRemoteObject> &remote)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnRemoteSaDied start.");
+    pasteboardServiceProxy_ = nullptr;
     ConnectService();
 }
 
