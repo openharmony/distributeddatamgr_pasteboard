@@ -14,14 +14,6 @@
             "value": "on"
           }
         ]
-      },
-      "stop-on-demand": {
-        "deviceonline": [
-          {
-            "name": "deviceonline",
-            "value": "off"
-          }
-        ]
       }
     }
   ]
