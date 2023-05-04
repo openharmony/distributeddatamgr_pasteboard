@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define LOG_TAG "AsyncCall"
+#define LOG_TAG "PasteBoardAsyncCall"
 #include "async_call.h"
 
 #include "pasteboard_hilog.h"
@@ -72,7 +72,7 @@ napi_value AsyncCall::Call(napi_env env, Context::ExecAction exec)
     }
     napi_async_work work = context_->work;
     napi_value resource = nullptr;
-    napi_create_string_utf8(env, "AsyncCall", NAPI_AUTO_LENGTH, &resource);
+    napi_create_string_utf8(env, LOG_TAG, NAPI_AUTO_LENGTH, &resource);
     napi_create_async_work(env, nullptr, resource, AsyncCall::OnExecute, AsyncCall::OnComplete, context_, &work);
     context_->work = work;
     context_ = nullptr;
