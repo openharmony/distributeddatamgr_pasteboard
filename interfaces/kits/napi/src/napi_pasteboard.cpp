@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "napi_common.h"
+#include "napi_common_want.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
@@ -96,7 +96,7 @@ napi_value PasteboardNapi::CreateWantRecord(napi_env env, napi_value in)
         return nullptr;
     }
     napi_value instance = nullptr;
-    PasteDataRecordNapi::NewWantRecordInstance(env, std::make_shared<Want>(want), instance);
+    PasteDataRecordNapi::NewWantRecordInstance(env, std::make_shared<AAFwk::Want>(want), instance);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return instance;
 }
@@ -197,7 +197,7 @@ napi_value PasteboardNapi::CreateWantData(napi_env env, napi_value in)
     if ((status != napi_ok) || (obj == nullptr)) {
         return nullptr;
     }
-    obj->value_ = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(want));
+    obj->value_ = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<AAFwk::Want>(want));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return instance;
 }
