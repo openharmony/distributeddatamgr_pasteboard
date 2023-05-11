@@ -467,7 +467,7 @@ int32_t PasteboardService::GetCurrentAccountId()
 {
     std::vector<int32_t> accountIds;
     auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(accountIds);
-    if (ret != ERR_OK || ids.empty()) {
+    if (ret != ERR_OK || accountIds.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
         return ERROR_USERID;
     }
