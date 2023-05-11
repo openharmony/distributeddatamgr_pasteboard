@@ -75,7 +75,7 @@ int32_t PasteboardService::Init()
 {
     if (!Publish(this)) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStart register to system ability manager failed.");
-        auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
+        auto userId = GetCurrentAccountId();
         Reporter::GetInstance().PasteboardFault().Report({ userId, "ERR_INVALID_OPTION" });
         return static_cast<int32_t>(PasteboardError::E_INVALID_OPTION);
     }
@@ -195,8 +195,7 @@ void PasteboardService::InitServiceHandler()
 void PasteboardService::Clear()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto userId = GetUserIdByToken(tokenId);
+    auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         return;
     }
@@ -204,7 +203,7 @@ void PasteboardService::Clear()
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
         clips_.erase(it);
-        std::string bundleName = GetAppBundleName(tokenId);
+        std::string bundleName = GetAppBundleName(IPCSkeleton::GetCallingTokenID());
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
     }
     CleanDistributedData(userId);
@@ -374,7 +373,7 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, bool isF
 {
     PasteboardTrace tracer("GetPasteData inner");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
-    auto userId = GetUserIdByToken(tokenId);
+    auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         PasteData::sharePath = "";
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId error.");
@@ -413,8 +412,7 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, bool isF
 bool PasteboardService::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto userId = GetUserIdByToken(tokenId);
+    auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         return false;
     }
@@ -424,6 +422,7 @@ bool PasteboardService::HasPasteData()
         return HasDistributedData(userId);
     }
 
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
     return HasPastePermission(tokenId, IsFocusedApp(tokenId), it->second);
 }
 
@@ -464,12 +463,15 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-int32_t PasteboardService::GetUserIdByToken(uint32_t tokenId)
+int32_t PasteboardService::GetCurrentAccountId()
 {
-    auto appInfo = GetAppInfo(tokenId);
-    PASTEBOARD_HILOGD(
-        PASTEBOARD_MODULE_SERVICE, "tokenId = 0x%{public}x, userId = %{public}d.", tokenId, appInfo.userId);
-    return appInfo.userId;
+    std::vector<int32_t> accountIds;
+    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(accountIds);
+    if (ret != ERR_OK || ids.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
+        return ERROR_USERID;
+    }
+    return accountIds.front();
 }
 
 bool PasteboardService::IsCopyable(uint32_t tokenId) const
@@ -537,7 +539,7 @@ void PasteboardService::AddObserver(const sptr<IPasteboardChangedObserver> &obse
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
         return;
     }
-    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
+    auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
@@ -562,7 +564,7 @@ void PasteboardService::RemoveSingleObserver(const sptr<IPasteboardChangedObserv
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
         return;
     }
-    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
+    auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
@@ -582,7 +584,7 @@ void PasteboardService::RemoveSingleObserver(const sptr<IPasteboardChangedObserv
 
 void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
 {
-    auto userId = GetUserIdByToken(IPCSkeleton::GetCallingTokenID());
+    auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
@@ -712,15 +714,14 @@ std::string PasteboardService::DumpHistory() const
 
 std::string PasteboardService::DumpData()
 {
-    std::vector<int32_t> ids;
-    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
-    if (ret != ERR_OK || ids.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
+    auto userId = GetCurrentAccountId();
+    if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed.");
         return "";
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}d", ids[0]);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}d", userId);
     std::lock_guard<std::mutex> lock(clipMutex_);
-    auto it = clips_.find(ids[0]);
+    auto it = clips_.find(userId);
     std::string result;
     if (it != clips_.end() && it->second != nullptr) {
         size_t recordCounts = it->second->GetRecordCount();

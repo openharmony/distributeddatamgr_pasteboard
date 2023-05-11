@@ -97,7 +97,7 @@ private:
     using ObserverMap = std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
     void AddSysAbilityListener();
     int32_t Init();
-    int32_t GetUserIdByToken(uint32_t tokenId);
+    static int32_t GetCurrentAccountId();
     std::string DumpHistory() const;
     std::string DumpData();
     void NotifyObservers(std::string bundleName, PasteboardEventStatus status);
