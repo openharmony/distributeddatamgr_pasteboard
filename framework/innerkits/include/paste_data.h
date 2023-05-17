@@ -46,6 +46,7 @@ struct PasteDataProperty : public TLVObject {
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    bool DecodeTag(const std::vector<std::uint8_t> &buffer);
     size_t Count() override;
 };
 
@@ -93,6 +94,8 @@ public:
     void SetTag(std::string &tag);
     std::string GetTag();
     void SetAdditions(AAFwk::WantParams &additions);
+    void SetLocalOnly(bool localOnly);
+    bool GetLocalOnly();
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;

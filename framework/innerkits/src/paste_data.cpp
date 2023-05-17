@@ -33,6 +33,7 @@ enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
     TAG_MIMETYPES,
     TAG_TAG,
+    TAG_LOCAL_ONLY,
     TAG_TIMESTAMP,
     TAG_SHAREOPTION,
     TAG_TOKENID,
@@ -306,6 +307,16 @@ void PasteData::SetAdditions(AAFwk::WantParams &additions)
     props_.additions = additions;
 }
 
+void PasteData::SetLocalOnly(bool localOnly)
+{
+    props_.localOnly = localOnly;
+}
+
+bool PasteData::GetLocalOnly()
+{
+    return props_.localOnly;
+}
+
 void PasteData::RefreshMimeProp()
 {
     std::vector<std::string> mimeTypes;
@@ -388,6 +399,7 @@ bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
     bool ret = Write(buffer, TAG_ADDITIONS, ParcelUtil::Parcelable2Raw(&additions));
     ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
     ret = Write(buffer, TAG_TAG, tag) && ret;
+    ret = Write(buffer, TAG_LOCAL_ONLY, localOnly) && ret;
     ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
     ret = Write(buffer, TAG_SHAREOPTION, (int32_t &)shareOption) && ret;
     ret = Write(buffer, TAG_TOKENID, tokenId) && ret;
@@ -399,58 +411,68 @@ bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
 {
     for (; IsEnough();) {
-        TLVHead head{};
-        bool ret = ReadHead(buffer, head);
-        switch (head.tag) {
-            case TAG_ADDITIONS: {
-                RawMem rawMem{};
-                ret = ret && ReadValue(buffer, rawMem, head);
-                auto buff = ParcelUtil::Raw2Parcelable<AAFwk::WantParams>(rawMem);
-                if (buff != nullptr) {
-                    additions = *buff;
-                }
-                break;
-            }
-            case TAG_MIMETYPES:
-                ret = ret && ReadValue(buffer, mimeTypes, head);
-                break;
-            case TAG_TAG:
-                ret = ret && ReadValue(buffer, tag, head);
-                break;
-            case TAG_TIMESTAMP:
-                ret = ret && ReadValue(buffer, timestamp, head);
-                break;
-            case TAG_SHAREOPTION:
-                ret = ret && ReadValue(buffer, (int32_t &)shareOption, head);
-                break;
-            case TAG_TOKENID:
-                ret = ret && ReadValue(buffer, tokenId, head);
-                break;
-            case TAG_ISREMOTE:
-                ret = ret && ReadValue(buffer, isRemote, head);
-                break;
-            case TAG_BUNDLENAME:
-                ret = ret && ReadValue(buffer, bundleName, head);
-                break;
-            case TAG_SETTIME:
-                ret = ret && ReadValue(buffer, setTime, head);
-                break;
-            default:
-                ret = ret && Skip(head.len, buffer.size());
-                break;
-        }
-        if (!ret) {
+        if (!DecodeTag(buffer)) {
             return false;
         }
     }
     return true;
 }
+
+bool PasteDataProperty::DecodeTag(const std::vector<std::uint8_t> &buffer)
+{
+    TLVHead head{};
+    bool ret = ReadHead(buffer, head);
+    switch (head.tag) {
+        case TAG_ADDITIONS: {
+            RawMem rawMem{};
+            ret = ret && ReadValue(buffer, rawMem, head);
+            auto buff = ParcelUtil::Raw2Parcelable<AAFwk::WantParams>(rawMem);
+            if (buff != nullptr) {
+                additions = *buff;
+            }
+            break;
+        }
+        case TAG_MIMETYPES:
+            ret = ret && ReadValue(buffer, mimeTypes, head);
+            break;
+        case TAG_TAG:
+            ret = ret && ReadValue(buffer, tag, head);
+            break;
+        case TAG_LOCAL_ONLY:
+            ret = ret && ReadValue(buffer, localOnly, head);
+            break;
+        case TAG_TIMESTAMP:
+            ret = ret && ReadValue(buffer, timestamp, head);
+            break;
+        case TAG_SHAREOPTION:
+            ret = ret && ReadValue(buffer, (int32_t &)shareOption, head);
+            break;
+        case TAG_TOKENID:
+            ret = ret && ReadValue(buffer, tokenId, head);
+            break;
+        case TAG_ISREMOTE:
+            ret = ret && ReadValue(buffer, isRemote, head);
+            break;
+        case TAG_BUNDLENAME:
+            ret = ret && ReadValue(buffer, bundleName, head);
+            break;
+        case TAG_SETTIME:
+            ret = ret && ReadValue(buffer, setTime, head);
+            break;
+        default:
+            ret = ret && Skip(head.len, buffer.size());
+            break;
+    }
+    return ret;
+}
+
 size_t PasteDataProperty::Count()
 {
     size_t expectedSize = 0;
     expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(&additions));
     expectedSize += TLVObject::Count(mimeTypes);
     expectedSize += TLVObject::Count(tag);
+    expectedSize += TLVObject::Count(localOnly);
     expectedSize += TLVObject::Count(timestamp);
     expectedSize += TLVObject::Count(shareOption);
     expectedSize += TLVObject::Count(tokenId);
