@@ -65,7 +65,7 @@ describe('PasteBoardPerfJSTest', function () {
         clearPromisePerfTest(0);
 
         function clearPromisePerfTest(index) {
-            systemPasteboard.clear().then(() => {
+            systemPasteboard.clearData().then(() => {
                 if (index < BASE_CONUT) {
                     clearPromisePerfTest(index + 1);
                 } else {
