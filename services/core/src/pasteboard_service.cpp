@@ -279,7 +279,7 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
                 return info;
             }
             info.bundleName = hapInfo.bundleName;
-            info.userId = hapInfo.userID;
+            info.userId = GetCurrentAccountId();
             break;
         }
         case ATokenTypeEnum::TOKEN_NATIVE:
@@ -290,7 +290,7 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
                 return info;
             }
             info.bundleName = tokenInfo.processName;
-            info.userId = 0;
+            info.userId = GetCurrentAccountId();
             break;
         }
         default: {
