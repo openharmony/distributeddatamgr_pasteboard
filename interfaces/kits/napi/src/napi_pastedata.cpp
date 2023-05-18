@@ -846,8 +846,8 @@ void PasteDataNapi::SetProperty(napi_env env, napi_value in, PasteDataNapi *obj)
     NAPI_CALL_RETURN_VOID(env, napi_get_property_names(env, in, &propertyNames));
     uint32_t propertyNamesNum = 0;
     NAPI_CALL_RETURN_VOID(env, napi_get_array_length(env, propertyNames, &propertyNamesNum));
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "propertyNamesNum = %{public}d", propertyNamesNum);
-
+    bool localOnlyValue = false;
+    int32_t shareOptionValue = ShareOption::CrossDevice;
     for (uint32_t i = 0; i < propertyNamesNum; i++) {
         napi_value propertyNameNapi = nullptr;
         NAPI_CALL_RETURN_VOID(env, napi_get_element(env, propertyNames, i, &propertyNameNapi));
@@ -855,31 +855,36 @@ void PasteDataNapi::SetProperty(napi_env env, napi_value in, PasteDataNapi *obj)
         char str[STR_MAX_SIZE] = { 0 };
         NAPI_CALL_RETURN_VOID(env, napi_get_value_string_utf8(env, propertyNameNapi, str, STR_MAX_SIZE, &len));
         std::string propertyName = str;
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "propertyName = %{public}s,", propertyName.c_str());
         napi_value propertyNameValueNapi = nullptr;
         NAPI_CALL_RETURN_VOID(env, napi_get_named_property(env, in, str, &propertyNameValueNapi));
+        if (propertyName == "localOnly") {
+            NAPI_CALL_RETURN_VOID(env, napi_get_value_bool(env, propertyNameValueNapi, &localOnlyValue));
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "localOnlyValue = %{public}d", localOnlyValue);
+        }
         if (propertyName == "shareOption") {
-            int32_t shareOptionValue = 0;
             NAPI_CALL_RETURN_VOID(env, napi_get_value_int32(env, propertyNameValueNapi, &shareOptionValue));
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOptionValue = %{public}d,", shareOptionValue);
-            obj->value_->SetShareOption(static_cast<ShareOption>(shareOptionValue));
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOptionValue = %{public}d", shareOptionValue);
         }
         if (propertyName == "tag") {
             char tagValue[STR_MAX_SIZE] = { 0 };
             size_t tagValueLen = 0;
             NAPI_CALL_RETURN_VOID(env,
                 napi_get_value_string_utf8(env, propertyNameValueNapi, tagValue, STR_MAX_SIZE, &tagValueLen));
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "tagValue = %{public}s,", tagValue);
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "tagValue = %{public}s", tagValue);
             std::string tagValueStr = tagValue;
             obj->value_->SetTag(tagValueStr);
         }
         if (propertyName == "additions") {
             AAFwk::WantParams additions;
             bool ret = OHOS::AppExecFwk::UnwrapWantParams(env, propertyNameValueNapi, additions);
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "additions ret = %{public}d,", ret);
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "additions ret = %{public}d", ret);
             obj->value_->SetAdditions(additions);
         }
     }
+    localOnlyValue = shareOptionValue == ShareOption::CrossDevice ? false : true;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "localOnly final Value = %{public}d", localOnlyValue);
+    obj->value_->SetLocalOnly(localOnlyValue);
+    obj->value_->SetShareOption(static_cast<ShareOption>(shareOptionValue));
 }
 
 bool PasteDataNapi::IsProperty(napi_env env, napi_value in)
