@@ -1,110 +1,109 @@
 {
-  "name": "@ohos/pasteboard",
-  "description": "Allowing paste/copy functions",
-  "version": "3.0",
-  "license": "Apache License 2.0",
-  "publishAs": "code-segment",
-  "segment": {
-    "destPath": "foundation/distributeddatamgr/pasteboard"
-  },
-  "dirs": {},
-  "scripts": {},
-  "component": {
-    "name": "pasteboard",
-    "subsystem": "distributeddatamgr",
-    "syscap": [
-      "SystemCapability.MiscServices.Pasteboard"
-    ],
-    "features": [
-    ],
-    "adapted_system_type": [
-      "standard"
-    ],
-    "rom":"300KB",
-    "ram":"1024KB",
-    "deps": {
-      "components": [
-        "ability_base",
-        "ability_runtime",
-        "access_token",
-        "app_file_service",
-        "ability_base",
-        "c_utils",
-        "device_info_manager",
-        "device_manager",
-        "dlp_permission_service",
-        "eventhandler",
-        "file_api",
-        "hisysevent_native",
-        "hitrace_native",
-        "hiviewdfx_hilog_native",
-        "init",
-        "input",
-        "imf",
-        "ipc",
-        "libuv",
-        "multimedia_image_framework",
-        "napi",
-        "os_account",
-        "safwk",
-        "samgr",
-        "time_service"
-      ],
-      "third_party": [
-        "libuv"
-      ]
+    "name": "@ohos/pasteboard",
+    "description": "Allowing paste/copy functions",
+    "version": "3.0",
+    "license": "Apache License 2.0",
+    "publishAs": "code-segment",
+    "segment": {
+      "destPath": "foundation/distributeddatamgr/pasteboard"
     },
-    "build": {
-      "group_type": {
-        "base_group": [
+    "dirs": {},
+    "scripts": {},
+    "component": {
+      "name": "pasteboard",
+      "subsystem": "distributeddatamgr",
+      "syscap": [
+        "SystemCapability.MiscServices.Pasteboard"
+      ],
+      "features": [
+      ],
+      "adapted_system_type": [
+        "standard"
+      ],
+      "rom":"300KB",
+      "ram":"1024KB",
+      "deps": {
+        "components": [
+          "ability_base",
+          "ability_runtime",
+          "access_token",
+          "app_file_service",
+          "ability_base",
+          "c_utils",
+          "device_info_manager",
+          "device_manager",
+          "dlp_permission_service",
+          "eventhandler",
+          "file_api",
+          "hisysevent_native",
+          "hitrace_native",
+          "hiviewdfx_hilog_native",
+          "init",
+          "input",
+          "imf",
+          "ipc",
+          "libuv",
+          "multimedia_image_framework",
+          "napi",
+          "os_account",
+          "safwk",
+          "samgr",
+          "time_service"
         ],
-        "fwk_group": [
-          "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
-          "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
-          "//foundation/distributeddatamgr/pasteboard/interfaces/declaration:pasteboard_js",
-          "//foundation/distributeddatamgr/pasteboard/interfaces/kits:pasteboard_napi"
+        "third_party": [
+        ]
+        },
+      "build": {
+        "group_type": {
+            "base_group": [
+            ],
+            "fwk_group": [
+                "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
+                "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
+                "//foundation/distributeddatamgr/pasteboard/interfaces/declaration:pasteboard_js",
+                "//foundation/distributeddatamgr/pasteboard/interfaces/kits:pasteboard_napi"
+            ],
+            "service_group": [
+                "//foundation/distributeddatamgr/pasteboard/etc/init:pasteboardservice.cfg",
+                "//foundation/distributeddatamgr/pasteboard/profile:distributeddatamgr_pasteboard_sa_profiles",
+                "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service",
+                "//foundation/distributeddatamgr/pasteboard/services/etc:pasteboard.para.dac"
+            ]
+        },
+        "inner_kits": [
+          {
+            "name": "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
+            "header": {
+              "header_files": [
+                "pasteboard_client.h",
+                "paste_data.h",
+                "paste_data_record.h"
+              ],
+            "header_base":"//foundation/distributeddatamgr/pasteboard/framework/innerkits/include"
+            }
+          },
+          {
+            "name": "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
+            "header": {
+              "header_files": [
+                "clip/clip_plugin.h",
+                "device/dm_adapter.h",
+                "common/block_object.h"
+              ],
+              "header_base":"//foundation/distributeddatamgr/pasteboard/framework/framework/include"
+            }
+          }
         ],
-        "service_group": [
-          "//foundation/distributeddatamgr/pasteboard/etc/init:pasteboardservice.cfg",
-          "//foundation/distributeddatamgr/pasteboard/profile:distributeddatamgr_pasteboard_sa_profiles",
-          "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service",
-          "//foundation/distributeddatamgr/pasteboard/services/etc:pasteboard.para.dac"
+        "test": [
+          "//foundation/distributeddatamgr/pasteboard/framework/test:PasteboardFrameworkTest",
+          "//foundation/distributeddatamgr/pasteboard/services/test:PasteboardServiceTest",
+          "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest",
+          "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardapi:unittest",
+          "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardperf:unittest"
         ]
       },
-      "inner_kits": [
-        {
-          "name": "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
-          "header": {
-            "header_files": [
-              "pasteboard_client.h",
-              "paste_data.h",
-              "paste_data_record.h"
-            ],
-            "header_base":"//foundation/distributeddatamgr/pasteboard/framework/innerkits/include"
-          }
-        },
-        {
-          "name": "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
-          "header": {
-            "header_files": [
-              "clip/clip_plugin.h",
-              "device/dm_adapter.h",
-              "common/block_object.h"
-            ],
-            "header_base":"//foundation/distributeddatamgr/pasteboard/framework/framework/include"
-          }
-        }
-      ],
-      "test": [
-        "//foundation/distributeddatamgr/pasteboard/framework/test:PasteboardFrameworkTest",
-        "//foundation/distributeddatamgr/pasteboard/services/test:PasteboardServiceTest",
-        "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest",
-        "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardapi:unittest",
-        "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardperf:unittest"
+        "hisysevent_config": [
+        "//foundation/distributeddatamgr/pasteboard/pasteboardEvent.yaml"
       ]
-    },
-    "hisysevent_config": [
-      "//foundation/distributeddatamgr/pasteboard/pasteboardEvent.yaml"
-    ]
-  }
+    }
 }
