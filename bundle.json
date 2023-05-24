@@ -24,18 +24,19 @@
       "ram":"1024KB",
       "deps": {
         "components": [
-          "hisysevent_native",
-          "napi",
-          "samgr",
-          "os_account",
-          "ipc",
-          "eventhandler",
           "ability_base",
-          "hiviewdfx_hilog_native",
           "ability_runtime",
-          "libuv",
-          "safwk",
           "c_utils",
+          "eventhandler",
+          "hisysevent_native",
+          "hiviewdfx_hilog_native",
+          "input",
+          "ipc",
+          "libuv",
+          "napi",
+          "os_account",
+          "safwk",
+          "samgr",
           "time_service"
         ],
         "third_party": [
