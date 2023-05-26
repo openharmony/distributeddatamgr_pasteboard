@@ -28,7 +28,7 @@
           "ability_runtime",
           "access_token",
           "app_file_service",
-          "ability_base",
+          "bundle_framework",
           "c_utils",
           "device_info_manager",
           "device_manager",
@@ -42,7 +42,6 @@
           "input",
           "imf",
           "ipc",
-          "libuv",
           "multimedia_image_framework",
           "napi",
           "os_account",
@@ -51,6 +50,7 @@
           "time_service"
         ],
         "third_party": [
+          "libuv"
         ]
         },
       "build": {
