@@ -16,6 +16,7 @@
 #include "pasteboard_dialog.h"
 
 #include "ability_connect_callback_stub.h"
+#include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
 #include "pasteboard_hilog.h"
 #include "system_ability_definition.h"
@@ -76,7 +77,7 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
 
     std::lock_guard<std::mutex> lock(connectionLock_);
     connection_ = new DialogConnection(cancel);
-    int32_t result = abilityManager->ConnectAbility(want, connection_, nullptr);
+    int32_t result = IN_PROCESS_CALL(abilityManager->ConnectAbility(want, connection_, nullptr));
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog failed, result:%{public}d", result);
         return -1;
@@ -94,7 +95,7 @@ void PasteBoardDialog::CancelDialog()
         return;
     }
     std::lock_guard<std::mutex> lock(connectionLock_);
-    int result = abilityManager->DisconnectAbility(connection_);
+    int result = IN_PROCESS_CALL(abilityManager->DisconnectAbility(connection_));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect dialog ability:%{public}d", result);
 }
 
