@@ -20,7 +20,7 @@
         "description": "$string:ExtensionAbility_desc",
         "icon": "$media:icon",
         "label": "$string:ExtensionAbility_label",
-        "visible": true,
+        "visible": false,
         "type": "service"
       }
     ]
