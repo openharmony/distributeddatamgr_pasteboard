@@ -66,5 +66,6 @@ ohos_shared_library("pasteboard_client") {
   ]
 
   subsystem_name = "distributeddatamgr"
+  innerapi_tags = [ "platformsdk" ]
   part_name = "pasteboard"
 }
