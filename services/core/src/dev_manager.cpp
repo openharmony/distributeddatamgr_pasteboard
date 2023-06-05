@@ -43,13 +43,13 @@ public:
 void PasteboardDevStateCallback::OnDeviceOnline(const DmDeviceInfo &deviceInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    DevManager::GetInstance().Online(deviceInfo.deviceId);
+    DevManager::GetInstance().Online(deviceInfo.networkId);
 }
 
 void PasteboardDevStateCallback::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    DevManager::GetInstance().Offline(deviceInfo.deviceId);
+    DevManager::GetInstance().Offline(deviceInfo.networkId);
 }
 void PasteboardDevStateCallback::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
 {
@@ -101,17 +101,17 @@ DevManager &DevManager::GetInstance()
     return instance;
 }
 
-void DevManager::Online(const std::string &deviceId)
+void DevManager::Online(const std::string &networkId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    DevProfile::GetInstance().SubscribeProfileEvent(deviceId);
+    DevProfile::GetInstance().SubscribeProfileEvent(networkId);
     DistributedModuleConfig::Notify();
 }
 
-void DevManager::Offline(const std::string &deviceId)
+void DevManager::Offline(const std::string &networkId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    DevProfile::GetInstance().UnSubscribeProfileEvent(deviceId);
+    DevProfile::GetInstance().UnSubscribeProfileEvent(networkId);
     DistributedModuleConfig::Notify();
 }
 void DevManager::RetryInBlocking(DevManager::Function func) const
@@ -140,11 +140,11 @@ std::vector<std::string> DevManager::GetDeviceIds()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
         return {};
     }
-    std::vector<std::string> deviceIds;
+    std::vector<std::string> networkIds;
     for (auto &item : devices) {
-        deviceIds.emplace_back(item.deviceId);
+        networkIds.emplace_back(item.networkId);
     }
-    return deviceIds;
+    return networkIds;
 }
 } // namespace MiscServices
 } // namespace OHOS
