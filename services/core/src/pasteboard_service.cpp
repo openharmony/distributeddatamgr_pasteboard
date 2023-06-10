@@ -321,17 +321,12 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 
 int32_t PasteboardService::GetPasteData(PasteData &data)
 {
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
-    if (pasting_.exchange(true)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is passing.");
-        return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);
-    }
-
     CalculateTimeConsuming::SetBeginTime();
 
     SetDeviceName();
     PasteboardTrace tracer("PasteboardService GetPasteData");
 
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
     bool isFocusedApp = IsFocusedApp(tokenId);
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
     std::thread thread([this, block, tokenId, isFocusedApp]() mutable {
@@ -365,7 +360,6 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     std::string bundleName = GetAppBundleName(tokenId);
     NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_READ);
     GetPasteDataDot(data, pop, tokenId);
-    pasting_.store(false);
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 

@@ -147,7 +147,6 @@ private:
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
-    std::atomic<bool> pasting_ = false;
     std::atomic<bool> setting_ = false;
     std::mutex deviceMutex_;
     std::string fromDevice_;
