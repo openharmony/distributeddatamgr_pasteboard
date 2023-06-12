@@ -30,22 +30,32 @@ public:
         std::string appName{ "unknown" };
         std::string deviceType{ "unknown" };
     };
+    struct ToastMessageInfo {
+        std::string fromAppName{ "unknown" };
+        std::string toAppName{ "unknown" };
+    };
     static constexpr uint32_t POPUP_INTERVAL = 1;  // seconds
     static constexpr uint32_t MAX_LIFE_TIME = 300; // seconds
+    static constexpr uint32_t SHOW_TOAST_TIME = 2000; // milliseconds
     static constexpr const char *DEFAULT_LABEL = "unknown";
     using Cancel = std::function<void()>;
     static PasteBoardDialog &GetInstance();
     int32_t ShowDialog(const MessageInfo &message, const Cancel &cancel);
+    int32_t ShowToast(const ToastMessageInfo &message);
     void CancelDialog();
+    void CancelToast();
 
 private:
     static sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerService();
 
     static constexpr const char *PASTEBOARD_DIALOG_APP = "cn.openharmony.pasteboarddialog";
     static constexpr const char *PASTEBOARD_DIALOG_ABILITY = "DialogExtensionAbility";
+    static constexpr const char *PASTEBOARD_TOAST_ABILITY = "ToastExtensionAbility";
 
     std::mutex connectionLock_;
+    std::mutex toastConnectionLock_;
     sptr<DialogConnection> connection_;
+    sptr<DialogConnection> toastConnection_;
 };
 } // namespace OHOS::MiscServices
 #endif // PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H

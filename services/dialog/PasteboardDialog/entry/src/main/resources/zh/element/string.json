@@ -5,12 +5,10 @@
       "value": "Pasteboard dialog"
     },
     {
-      "name": "ExtensionAbility_desc",
       "name": "DialogExtensionAbility_desc",
       "value": "Pasteboard dialog extension"
     },
     {
-      "name": "ExtensionAbility_label",
       "name": "DialogExtensionAbility_label",
       "value": "Pasteboard Dialog"
     },
@@ -23,32 +21,32 @@
       "value": "Pasteboard Toast"
     },
     {
-      "name": "title",
-      "value": "pasting to"
-    },
-    {
       "name": "typeface",
       "value": "HarmonyHeiTi"
     },
     {
+      "name": "title",
+      "value": "正在粘贴到"
+    },
+    {
       "name": "from",
-      "value": "from"
+      "value": "从"
     },
     {
       "name": "done",
-      "value": "pasted to"
+      "value": "已粘贴到"
     },
     {
       "name": "cancel",
-      "value": "canceled"
+      "value": "取消"
     },
     {
       "name": "read",
-      "value": "has read"
+      "value": "已读取"
     },
     {
       "name": "info",
-      "value": "pasteboard information"
+      "value": "剪贴板信息"
     }
   ]
 }

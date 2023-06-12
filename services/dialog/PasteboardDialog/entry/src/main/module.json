@@ -16,10 +16,19 @@
     "extensionAbilities": [
       {
         "name": "DialogExtensionAbility",
-        "srcEntrance": "./ets/DialogExtensionAbility/DialogExtensionAbility.ts",
-        "description": "$string:ExtensionAbility_desc",
+        "srcEntrance": "./ets/ServiceExtAbility/DialogExtensionAbility.ts",
+        "description": "$string:DialogExtensionAbility_desc",
         "icon": "$media:icon",
-        "label": "$string:ExtensionAbility_label",
+        "label": "$string:DialogExtensionAbility_label",
+        "visible": false,
+        "type": "service"
+      },
+      {
+        "name": "ToastExtensionAbility",
+        "srcEntrance": "./ets/ServiceExtAbility/ToastExtensionAbility.ts",
+        "description": "$string:ToastExtensionAbility_desc",
+        "icon": "$media:icon",
+        "label":"$string:ToastExtensionAbility_label",
         "visible": false,
         "type": "service"
       }

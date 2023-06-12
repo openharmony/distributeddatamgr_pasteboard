@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -206,6 +206,11 @@ void PasteboardService::Clear()
         std::string bundleName = GetAppBundleName(IPCSkeleton::GetCallingTokenID());
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
     }
+    std::lock_guard<std::mutex> lck(hintMutex_);
+    auto hintItem = hints_.find(userId);
+    if (hintItem != hints_.end()) {
+        hints_.erase(hintItem);
+    }
     CleanDistributedData(userId);
 }
 
@@ -360,7 +365,44 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     std::string bundleName = GetAppBundleName(tokenId);
     NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_READ);
     GetPasteDataDot(data, pop, tokenId);
+    ShowHintToast(result, tokenId, std::make_shared<PasteData>(data));
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
+}
+
+void PasteboardService::ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "show hint toast start");
+    if (!isValid || pasteData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is invalid");
+        return;
+    }
+    auto dataTokenId = pasteData->GetTokenId();
+    if (IsDefaultIME(GetAppInfo(tokenId)) || dataTokenId == tokenId || pasteData->IsRemote()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "not need show hint toast");
+        return;
+    }
+    auto userId = GetCurrentAccountId();
+    std::lock_guard<std::mutex> lck(hintMutex_);
+    auto hintItem = hints_.find(userId);
+    if (hintItem != hints_.end()) {
+        auto hintTokenId = std::find(hintItem->second.begin(), hintItem->second.end(), tokenId);
+        if (hintTokenId != hintItem->second.end()) {
+            return;
+        }
+    }
+    hints_[userId].emplace_back(tokenId);
+
+    PasteBoardDialog::ToastMessageInfo message;
+    message.fromAppName = GetAppLabel(dataTokenId);
+    message.toAppName = GetAppLabel(tokenId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "toast should show, fromName=%{public}s, toName = %{public}s",
+        message.fromAppName.c_str(), message.toAppName.c_str());
+    std::thread thread([this, message]() mutable {
+        PasteBoardDialog::GetInstance().ShowToast(message);
+        std::this_thread::sleep_for(std::chrono::milliseconds(PasteBoardDialog::SHOW_TOAST_TIME));
+        PasteBoardDialog::GetInstance().CancelToast();
+    });
+    thread.detach();
 }
 
 bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, bool isFocusedApp)
@@ -452,6 +494,11 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     SetDistributedData(appInfo.userId, pasteData);
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(pasteData);
+    std::lock_guard<std::mutex> lck(hintMutex_);
+    auto hintItem = hints_.find(appInfo.userId);
+    if (hintItem != hints_.end()) {
+        hints_.erase(hintItem);
+    }
     setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     return static_cast<int32_t>(PasteboardError::E_OK);
