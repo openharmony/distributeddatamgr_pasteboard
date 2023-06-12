@@ -64,7 +64,7 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
     return new DialogStub('PasteboardDialog');
   }
 
-  onRequest(want: Want, startId:number): void {
+  onRequest(want: Want, startId: number): void {
     hilog.info(0, TAG, 'onRequest');
     this.onConnect(want);
   }
