@@ -64,6 +64,22 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
     return new DialogStub('PasteboardDialog');
   }
 
+  onRequest(want: Want, startId:number): void {
+    hilog.info(0, TAG, 'onRequest');
+    this.onConnect(want);
+  }
+
+  onDisconnet(): void {
+    hilog.info(0, TAG, 'onDisconnet');
+    this.onDestroy();
+  }
+
+  onDestroy(): void {
+    hilog.info(0, TAG, 'onDestroy');
+    globalThis.extensionWin.destroyWindow();
+    globalThis.context.terminateSelf();
+  }
+
   private async createFloatWindow(name: string, rect: IRect): Promise<void> {
     hilog.info(0, TAG, 'create window begin');
 
