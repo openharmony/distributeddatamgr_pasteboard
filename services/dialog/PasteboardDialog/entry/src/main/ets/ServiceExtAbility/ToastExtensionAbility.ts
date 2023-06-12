@@ -65,7 +65,7 @@ export default class ToastExtensionAbility extends ServiceExtensionAbility {
     return new ToastStub('PasteboardToast');
   }
 
-  onRequest(want: Want, startId:number): void {
+  onRequest(want: Want, startId: number): void {
     hilog.info(0, TAG, 'onRequest');
     this.onConnect(want);
   }
