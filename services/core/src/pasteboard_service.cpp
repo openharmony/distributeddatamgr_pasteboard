@@ -396,7 +396,7 @@ void PasteboardService::ShowHintToast(bool isValid, uint32_t tokenId, const std:
     message.fromAppName = GetAppLabel(dataTokenId);
     message.toAppName = GetAppLabel(tokenId);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "toast should show, fromName=%{public}s, toName = %{public}s",
-                      message.fromAppName.c_str(), message.toAppName.c_str());
+        message.fromAppName.c_str(), message.toAppName.c_str());
     std::thread thread([this, message]() mutable {
         PasteBoardDialog::GetInstance().ShowToast(message);
         std::this_thread::sleep_for(std::chrono::milliseconds(PasteBoardDialog::SHOW_TOAST_TIME));
