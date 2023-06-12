@@ -88,8 +88,8 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
 
 int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin, fromApp:%{public}s, toApp:%{public}s", message.fromAppName.c_str(),
-        message.toAppName.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin, fromApp:%{public}s, toApp:%{public}s",
+        message.fromAppName.c_str(), message.toAppName.c_str());
     auto abilityManager = GetAbilityManagerService();
     if (abilityManager == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
