@@ -127,18 +127,22 @@ private:
     static bool IsDefaultIME(const AppInfo &appInfo);
     static bool IsFocusedApp(int32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
+    void ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData);
+
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DevManagerInit();
     void DevProfileInit();
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::mutex clipMutex_;
+    std::mutex hintMutex_;
     std::mutex observerMutex_;
     ObserverMap observerChangedMap_;
     ObserverMap observerEventMap_;
     ClipPlugin::GlobalEvent currentEvent_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
+    std::map<int32_t, std::vector<int32_t>> hints_;
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;

@@ -86,6 +86,32 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
     return 0;
 }
 
+int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin, fromApp:%{public}s, toApp:%{public}s", message.fromAppName.c_str(),
+                      message.toAppName.c_str());
+    auto abilityManager = GetAbilityManagerService();
+    if (abilityManager == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
+        return -1;
+    }
+    Want want;
+    want.SetAction("");
+    want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_TOAST_ABILITY);
+    want.SetParam("fromAppName", message.fromAppName);
+    want.SetParam("toAppName", message.toAppName);
+
+    std::lock_guard<std::mutex> lock(toastConnectionLock_);
+    toastConnection_ = new DialogConnection(nullptr);
+    int32_t result = IN_PROCESS_CALL(abilityManager->ConnectAbility(want, toastConnection_, nullptr));
+    if (result != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast failed, result:%{public}d", result);
+        return -1;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast success.");
+    return 0;
+}
+
 void PasteBoardDialog::CancelDialog()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin");
@@ -97,6 +123,19 @@ void PasteBoardDialog::CancelDialog()
     std::lock_guard<std::mutex> lock(connectionLock_);
     int result = IN_PROCESS_CALL(abilityManager->DisconnectAbility(connection_));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect dialog ability:%{public}d", result);
+}
+
+void PasteBoardDialog::CancelToast()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin");
+    auto abilityManager = GetAbilityManagerService();
+    if (abilityManager == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
+        return;
+    }
+    std::lock_guard<std::mutex> lock(toastConnectionLock_);
+    int result = IN_PROCESS_CALL(abilityManager->DisconnectAbility(toastConnection_));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect toast ability:%{public}d", result);
 }
 
 sptr<IAbilityManager> PasteBoardDialog::GetAbilityManagerService()

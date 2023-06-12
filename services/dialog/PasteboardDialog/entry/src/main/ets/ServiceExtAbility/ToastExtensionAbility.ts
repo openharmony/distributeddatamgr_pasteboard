@@ -26,48 +26,53 @@ interface IRect {
   height: number;
 }
 
-const RECT_NUMBER = 72;
-const TAG = 'DialogExtensionAbility';
+const DISTANCE_NUMBER = 68;
+const TAG = 'ToastExtensionAbility';
 
-class DialogStub extends rpc.RemoteObject {
+class ToastStub extends rpc.RemoteObject {
   constructor(des: string) {
     super(des);
   }
-  onConnect(code, data, reply, option): void {}
 }
 
-export default class DialogExtensionAbility extends ServiceExtensionAbility {
+export default class ToastExtensionAbility extends ServiceExtensionAbility {
   onCreate(want: Want): void {
     hilog.info(0, TAG, 'onCreate');
     globalThis.context = this.context;
   }
 
-  onConnect(want: Want): DialogStub {
+  onConnect(want: Want): ToastStub {
     hilog.info(0, TAG, 'onConnect');
-    globalThis.dialogInfo = {
-      appName: want.parameters.appName,
-      deviceType: want.parameters.deviceType,
-    };
     display
       .getDefaultDisplay()
       .then((display: display.Display) => {
-        const dialogRect = {
+        const toastRect = {
           left: 0,
-          top: 72,
+          top: 0,
           width: display.width,
-          height: display.height - RECT_NUMBER,
+          height: display.height,
         };
-        this.createFloatWindow('PasteboardDialog' + new Date().getTime(), dialogRect);
+        globalThis.toastInfo = {
+          fromAppName: want.parameters.fromAppName,
+          toAppName: want.parameters.toAppName,
+          displayHeight:display.height / display.densityPixels - DISTANCE_NUMBER,
+        };
+        this.createToastWindow('PasteboardToast' + new Date().getTime(), toastRect);
       })
       .catch((err) => {
         hilog.info(0, TAG, 'getDefaultDisplay err: ' + JSON.stringify(err));
       });
-    return new DialogStub('PasteboardDialog');
+    return new ToastStub('PasteboardToast');
   }
 
-  onReconnect(want: Want): void {
-    hilog.info(0, TAG, 'onReconnect');
+  onRequest(want: Want, startId:number): void {
+    hilog.info(0, TAG, 'onRequest');
     this.onConnect(want);
+  }
+
+  onDisconnet(): void {
+    hilog.info(0, TAG, 'onDisconnet');
+    this.onDestroy();
   }
 
   onDestroy(): void {
@@ -76,8 +81,8 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
     globalThis.context.terminateSelf();
   }
 
-  private async createFloatWindow(name: string, rect: IRect): Promise<void> {
-    hilog.info(0, TAG, 'create window begin');
+  private async createToastWindow(name: string, rect: IRect): Promise<void> {
+    hilog.info(0, TAG, 'create toast begin');
 
     if (globalThis.windowNum > 0) {
       globalThis.windowNum = 0;
@@ -99,15 +104,15 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
         globalThis.extensionWin = data;
         hilog.info(0, TAG, 'Succeeded in creating the window. Data: ' + JSON.stringify(data));
         try {
-          windowClass.setUIContent('pages/index', (err) => {
+          windowClass.setUIContent('pages/toastIndex', (err) => {
             if (err.code) {
               hilog.error(0, TAG, 'Failed to load the content. Cause:' + JSON.stringify(err));
               return;
             }
             windowClass.moveWindowTo(rect.left, rect.top);
             windowClass.resize(rect.width, rect.height);
-            windowClass.loadContent('pages/index');
             windowClass.setBackgroundColor('#00000000');
+            windowClass.setWindowTouchable(false);
             windowClass.showWindow();
             globalThis.windowNum++;
             hilog.info(0, TAG, 'Create window successfully');
