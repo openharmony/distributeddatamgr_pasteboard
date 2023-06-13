@@ -49,6 +49,7 @@ private:
 
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
     std::mutex encodeLock_;
+    std::mutex decodeLock_;
 };
 } // namespace MiscServices
 } // namespace OHOS

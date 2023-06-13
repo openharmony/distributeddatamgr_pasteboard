@@ -135,6 +135,7 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
     }
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
     PasteData pasteData;
+    std::lock_guard<std::mutex> lock(encodeLock_);
     bool ret = pasteData.Decode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
