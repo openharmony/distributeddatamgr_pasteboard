@@ -40,7 +40,6 @@ ohos_shared_library("pasteboard_napi") {
   ]
 
   deps = [
-    "//foundation/arkui/napi/:ace_napi",
     "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
     "//third_party/libuv:uv",
   ]
@@ -53,6 +52,7 @@ ohos_shared_library("pasteboard_napi") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "multimedia_image_framework:image",
+    "napi:ace_napi",
   ]
 
   relative_install_dir = "module"

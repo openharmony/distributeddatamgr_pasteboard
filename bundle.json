@@ -1,7 +1,7 @@
 {
     "name": "@ohos/pasteboard",
     "description": "Allowing paste/copy functions",
-    "version": "3.1",
+    "version": "3.0",
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
@@ -24,21 +24,33 @@
       "ram":"1024KB",
       "deps": {
         "components": [
-          "hisysevent_native",
-          "napi",
-          "samgr",
-          "os_account",
-          "ipc",
-          "eventhandler",
           "ability_base",
-          "hiviewdfx_hilog_native",
           "ability_runtime",
-          "libuv",
-          "safwk",
+          "access_token",
+          "app_file_service",
+          "bundle_framework",
           "c_utils",
+          "device_info_manager",
+          "device_manager",
+          "dlp_permission_service",
+          "eventhandler",
+          "file_api",
+          "hisysevent_native",
+          "hitrace_native",
+          "hiviewdfx_hilog_native",
+          "init",
+          "input",
+          "imf",
+          "ipc",
+          "multimedia_image_framework",
+          "napi",
+          "os_account",
+          "safwk",
+          "samgr",
           "time_service"
         ],
         "third_party": [
+          "libuv"
         ]
         },
       "build": {
@@ -68,6 +80,17 @@
                 "paste_data_record.h"
               ],
             "header_base":"//foundation/distributeddatamgr/pasteboard/framework/innerkits/include"
+            }
+          },
+          {
+            "name": "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
+            "header": {
+              "header_files": [
+                "clip/clip_plugin.h",
+                "device/dm_adapter.h",
+                "common/block_object.h"
+              ],
+              "header_base":"//foundation/distributeddatamgr/pasteboard/framework/framework/include"
             }
           }
         ],
