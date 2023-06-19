@@ -372,7 +372,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 void PasteboardService::ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "show hint toast start");
-    if (!isValid || pasteData == nullptr) {
+    if (!isValid || pasteData == nullptr || pasteData->IsDraggedData()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is invalid");
         return;
     }
