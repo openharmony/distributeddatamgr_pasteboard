@@ -365,7 +365,6 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     std::string bundleName = GetAppBundleName(tokenId);
     NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_READ);
     GetPasteDataDot(data, pop, tokenId);
-    ShowHintToast(result, tokenId, std::make_shared<PasteData>(data));
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
