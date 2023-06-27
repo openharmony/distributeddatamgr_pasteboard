@@ -19,18 +19,12 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("PasteboardServiceFuzzTest") {
+ohos_fuzztest("UriHandlerFuzzTest") {
   module_out_path = "distributeddatamgr/pasteboard"
 
-  fuzz_config_file = "//foundation/distributeddatamgr/pasteboard/test/fuzztest/pasteboardservice_fuzzer"
+  fuzz_config_file = "${pasteboard_root_path}/test/fuzztest/urihandler_fuzzer"
 
-  configs = [ "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service_config" ]
-
-  include_dirs = [
-    "${pasteboard_root_path}/framework/uri",
-    "${pasteboard_service_path}/zidl/include",
-    "${pasteboard_service_path}/core/include",
-  ]
+  include_dirs = [ "${pasteboard_root_path}/framework/uri" ]
 
   cflags = [
     "-g",
@@ -41,24 +35,19 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
 
   sources = [
     "${pasteboard_root_path}/framework/uri/copy_uri_handler.cpp",
-    "pasteboardservice_fuzzer.cpp",
+    "urihandler_fuzzer.cpp",
   ]
 
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_root_path}/framework/uri:pasteboard_uri",
-    "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
-    "//foundation/distributeddatamgr/pasteboard/services:pasteboard_service",
   ]
 
   external_deps = [
-    "ability_base:want",
     "ability_base:zuri",
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
@@ -69,9 +58,6 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
 group("fuzztest") {
   testonly = true
   deps = []
-  deps += [
-    # deps file
-    ":PasteboardServiceFuzzTest",
-  ]
+  deps += [ ":UriHandlerFuzzTest" ]
 }
 ###############################################################################
