@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,10 +27,6 @@ enum class PasteboardEventStatus {
 };
 class IPasteboardChangedObserver : public IRemoteBroker {
 public:
-    enum {
-        ON_PASTE_BOARD_CHANGE = 0,
-        ON_PASTE_BOARD_EVENT = 1,
-    };
     virtual void OnPasteboardChanged() = 0;
     virtual void OnPasteboardEvent(std::string bundleName, int32_t status) = 0;
     virtual ~IPasteboardChangedObserver() = default;

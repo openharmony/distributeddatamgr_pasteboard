@@ -42,7 +42,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:want",
     "ability_base:zuri",
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "multimedia_image_framework:image_native",
   ]

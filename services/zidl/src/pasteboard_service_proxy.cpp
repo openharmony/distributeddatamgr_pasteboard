@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,9 @@
 #include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_serv_ipc_interface_code.h"
 
+using namespace OHOS::Security::PasteboardServ;
 namespace OHOS {
 namespace MiscServices {
 PasteboardServiceProxy::PasteboardServiceProxy(const sptr<IRemoteObject> &object)
@@ -38,7 +40,7 @@ void PasteboardServiceProxy::Clear()
         return;
     }
 
-    int32_t result = Remote()->SendRequest(CLEAR_ALL, data, reply, option);
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::CLEAR_ALL, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
@@ -55,7 +57,7 @@ bool PasteboardServiceProxy::HasPasteData()
         return false;
     }
 
-    int32_t result = Remote()->SendRequest(HAS_PASTE_DATA, data, reply, option);
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::HAS_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return false;
@@ -94,7 +96,7 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
         return ERR_INVALID_VALUE;
     }
 
-    int32_t result = Remote()->SendRequest(SET_PASTE_DATA, data, reply, option);
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::SET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return ERR_INVALID_OPERATION;
@@ -112,7 +114,7 @@ int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = Remote()->SendRequest(GET_PASTE_DATA, data, reply, option);
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return ERR_INVALID_OPERATION;
@@ -146,14 +148,14 @@ int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
 void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    ProcessObserver(ADD_CHANGED_OBSERVER, observer);
+    ProcessObserver(PasteboardServiceInterfaceCode::ADD_CHANGED_OBSERVER, observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
 void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    ProcessObserver(DELETE_CHANGED_OBSERVER, observer);
+    ProcessObserver(PasteboardServiceInterfaceCode::DELETE_CHANGED_OBSERVER, observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 void PasteboardServiceProxy::RemoveAllChangedObserver()
@@ -165,7 +167,7 @@ void PasteboardServiceProxy::RemoveAllChangedObserver()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
-    int32_t result = Remote()->SendRequest(DELETE_ALL_CHANGED_OBSERVER, data, reply, option);
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::DELETE_ALL_CHANGED_OBSERVER, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
@@ -175,14 +177,14 @@ void PasteboardServiceProxy::RemoveAllChangedObserver()
 void PasteboardServiceProxy::AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    ProcessObserver(ADD_EVENT_OBSERVER, observer);
+    ProcessObserver(PasteboardServiceInterfaceCode::ADD_EVENT_OBSERVER, observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
 void PasteboardServiceProxy::RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    ProcessObserver(DELETE_EVENT_OBSERVER, observer);
+    ProcessObserver(PasteboardServiceInterfaceCode::DELETE_EVENT_OBSERVER, observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 void PasteboardServiceProxy::RemoveAllEventObserver()
@@ -194,7 +196,7 @@ void PasteboardServiceProxy::RemoveAllEventObserver()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
-    int32_t result = Remote()->SendRequest(DELETE_ALL_EVENT_OBSERVER, data, reply, option);
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::DELETE_ALL_EVENT_OBSERVER, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }

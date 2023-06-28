@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,26 +23,31 @@
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_proxy.h"
+#include "pasteboard_serv_ipc_interface_code.h"
 
+using namespace OHOS::Security::PasteboardServ;
 namespace OHOS {
 namespace MiscServices {
 PasteboardServiceStub::PasteboardServiceStub()
 {
-    memberFuncMap_[static_cast<uint32_t>(GET_PASTE_DATA)] = &PasteboardServiceStub::OnGetPasteData;
-    memberFuncMap_[static_cast<uint32_t>(HAS_PASTE_DATA)] = &PasteboardServiceStub::OnHasPasteData;
-    memberFuncMap_[static_cast<uint32_t>(SET_PASTE_DATA)] = &PasteboardServiceStub::OnSetPasteData;
-    memberFuncMap_[static_cast<uint32_t>(CLEAR_ALL)] = &PasteboardServiceStub::OnClear;
-    memberFuncMap_[static_cast<uint32_t>(ADD_CHANGED_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_PASTE_DATA)] =
+        &PasteboardServiceStub::OnGetPasteData;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::HAS_PASTE_DATA)] =
+        &PasteboardServiceStub::OnHasPasteData;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_PASTE_DATA)] =
+        &PasteboardServiceStub::OnSetPasteData;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::CLEAR_ALL)] = &PasteboardServiceStub::OnClear;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::ADD_CHANGED_OBSERVER)] =
         &PasteboardServiceStub::OnAddPasteboardChangedObserver;
-    memberFuncMap_[static_cast<uint32_t>(DELETE_CHANGED_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_CHANGED_OBSERVER)] =
         &PasteboardServiceStub::OnRemovePasteboardChangedObserver;
-    memberFuncMap_[static_cast<uint32_t>(DELETE_ALL_CHANGED_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_ALL_CHANGED_OBSERVER)] =
         &PasteboardServiceStub::OnRemoveAllChangedObserver;
-    memberFuncMap_[static_cast<uint32_t>(ADD_EVENT_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::ADD_EVENT_OBSERVER)] =
         &PasteboardServiceStub::OnAddPasteboardEventObserver;
-    memberFuncMap_[static_cast<uint32_t>(DELETE_EVENT_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_EVENT_OBSERVER)] =
         &PasteboardServiceStub::OnRemovePasteboardEventObserver;
-    memberFuncMap_[static_cast<uint32_t>(DELETE_ALL_EVENT_OBSERVER)] =
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_ALL_EVENT_OBSERVER)] =
         &PasteboardServiceStub::OnRemoveAllEventObserver;
 }
 

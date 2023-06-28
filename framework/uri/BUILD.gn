@@ -43,7 +43,7 @@ ohos_static_library("pasteboard_uri") {
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
     "file_api:remote_uri_native",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",

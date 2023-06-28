@@ -24,7 +24,9 @@
 #include "message_parcel.h"
 #include "paste_data.h"
 #include "pasteboard_service.h"
+#include "pasteboard_serv_ipc_interface_code.h"
 
+using namespace OHOS::Security::PasteboardServ;
 using namespace OHOS::MiscServices;
 
 namespace OHOS {
@@ -94,7 +96,7 @@ bool FuzzPasteboardServiceOnSetPasteData(const uint8_t *rawData, size_t size)
     pasteData.WriteUriFd(data, copyHandler);
 
     std::make_shared<PasteboardService>()->OnRemoteRequest(
-        static_cast<uint32_t>(IPasteboardService::SET_PASTE_DATA), data, reply, option);
+        static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_PASTE_DATA), data, reply, option);
 
     return true;
 }

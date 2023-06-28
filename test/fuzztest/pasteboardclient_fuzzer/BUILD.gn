@@ -49,7 +49,7 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
     "ability_base:zuri",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "multimedia_image_framework:image_native",
   ]
 }

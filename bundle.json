@@ -13,7 +13,7 @@
       "name": "pasteboard",
       "subsystem": "distributeddatamgr",
       "syscap": [
-        "SystemCapability.MiscServices.Pasteboard"
+        "SystemCapability.Miscservices.Pasteboard"
       ],
       "features": [
       ],
@@ -35,9 +35,9 @@
           "dlp_permission_service",
           "eventhandler",
           "file_api",
-          "hisysevent_native",
-          "hitrace_native",
-          "hiviewdfx_hilog_native",
+          "hisysevent",
+          "hitrace",
+          "hilog",
           "init",
           "input",
           "imf",
