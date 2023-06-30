@@ -57,7 +57,7 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
     "eventhandler:libeventhandler",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +19,9 @@
 #include "message_option.h"
 #include "message_parcel.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_serv_ipc_interface_code.h"
 
+using namespace OHOS::Security::PasteboardServ;
 namespace OHOS {
 namespace MiscServices {
 PasteboardObserverProxy::PasteboardObserverProxy(const sptr<IRemoteObject> &object)
@@ -37,7 +39,8 @@ void PasteboardObserverProxy::OnPasteboardChanged()
         return;
     }
 
-    int ret = Remote()->SendRequest(static_cast<int>(ON_PASTE_BOARD_CHANGE), data, reply, option);
+    int ret = Remote()->SendRequest(
+        static_cast<int>(PasteboardObserverInterfaceCode::ON_PASTE_BOARD_CHANGE), data, reply, option);
     if (ret != ERR_OK) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }
@@ -56,7 +59,8 @@ void PasteboardObserverProxy::OnPasteboardEvent(std::string bundleName, int32_t 
     }
     data.WriteString(bundleName);
     data.WriteInt32(status);
-    int ret = Remote()->SendRequest(static_cast<int>(ON_PASTE_BOARD_EVENT), data, reply, option);
+    int ret = Remote()->SendRequest(
+        static_cast<int>(PasteboardObserverInterfaceCode::ON_PASTE_BOARD_EVENT), data, reply, option);
     if (ret != ERR_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }

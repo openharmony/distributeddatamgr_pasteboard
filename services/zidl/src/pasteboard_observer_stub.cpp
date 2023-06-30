@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,13 +17,17 @@
 
 #include "i_pasteboard_observer.h"
 #include "pasteboard_error.h"
+#include "pasteboard_serv_ipc_interface_code.h"
 
+using namespace OHOS::Security::PasteboardServ;
 namespace OHOS {
 namespace MiscServices {
 PasteboardObserverStub::PasteboardObserverStub()
 {
-    memberFuncMap_[static_cast<uint32_t>(ON_PASTE_BOARD_CHANGE)] = &PasteboardObserverStub::OnPasteboardChangedStub;
-    memberFuncMap_[static_cast<uint32_t>(ON_PASTE_BOARD_EVENT)] = &PasteboardObserverStub::OnPasteboardEventStub;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardObserverInterfaceCode::ON_PASTE_BOARD_CHANGE)] =
+        &PasteboardObserverStub::OnPasteboardChangedStub;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardObserverInterfaceCode::ON_PASTE_BOARD_EVENT)] =
+        &PasteboardObserverStub::OnPasteboardEventStub;
 }
 
 int32_t PasteboardObserverStub::OnRemoteRequest(
