@@ -21,6 +21,8 @@ config("module_private_config") {
     "${pasteboard_innerkits_path}/include",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
+    "${pasteboard_root_path}/framework/framework/include/serializable",
+    "${pasteboard_service_path}/load/include",
   ]
 }
 
@@ -31,7 +33,10 @@ ohos_unittest("PasteboardFrameworkTest") {
   module_out_path = module_output_path
 
   sources = [
+    "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
+    "${pasteboard_service_path}/load/src/config.cpp",
     "paste_data_test.cpp",
+    "serializable_test.cpp",
     "tlv_object_test.cpp",
   ]
   configs = [
