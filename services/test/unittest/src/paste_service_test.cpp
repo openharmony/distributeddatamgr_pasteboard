@@ -89,6 +89,8 @@ void PasteboardServiceTest::TearDown(void)
     if (PasteboardServiceTest::pasteboardEventObserver_ != nullptr) {
         PasteboardClient::GetInstance()->RemovePasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
     }
+    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
+    PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
     PasteboardClient::GetInstance()->Clear();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "TearDown.");
 }
