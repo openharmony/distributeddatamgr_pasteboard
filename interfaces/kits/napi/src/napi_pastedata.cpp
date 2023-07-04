@@ -33,7 +33,6 @@ const int32_t STR_MAX_SIZE = 256;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 constexpr int32_t MAX_TEXT_LEN = 20 * 1024 * 1024;
 constexpr size_t STR_TAIL_LENGTH = 1;
-constexpr size_t MAX_RECORD_NUM = 512;
 } // namespace
 static thread_local napi_ref g_pasteData = nullptr;
 
@@ -469,10 +468,6 @@ napi_value PasteDataNapi::GetMimeTypes(napi_env env, napi_callback_info info)
 void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, size_t argc, PasteDataNapi *obj)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddRecordV9!");
-    if (!CheckExpression(env, obj->value_->GetRecordCount() < MAX_RECORD_NUM, JSErrorCode::RECORD_EXCEEDS_LIMIT,
-        "The count of records in PasteData exceeds MAX_RECORD_NUM.")) {
-        return;
-    }
     std::string mimeType;
     if (!CheckArgs(env, argv, argc, mimeType)) {
         return;

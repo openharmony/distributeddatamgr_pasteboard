@@ -83,6 +83,7 @@ public:
     std::shared_ptr<std::string> GetPlainText() const;
     std::shared_ptr<OHOS::Media::PixelMap> GetPixelMap() const;
     std::shared_ptr<OHOS::Uri> GetUri() const;
+    std::shared_ptr<OHOS::Uri> GetOrginUri() const;
     std::shared_ptr<OHOS::AAFwk::Want> GetWant() const;
     std::shared_ptr<MineCustomData> GetCustomData() const;
 
