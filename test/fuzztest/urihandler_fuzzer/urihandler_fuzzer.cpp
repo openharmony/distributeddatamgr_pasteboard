@@ -33,10 +33,10 @@ uint32_t ConvertToUint32(const uint8_t *ptr)
 
 bool FuzzUriToFd(const uint8_t *rawData, size_t size)
 {
-    std::string uri(rawData, rawData + size);
+    uint32_t value = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
-    uint32_t value = ConvertToUint32(rawData);
+    std::string uri(reinterpret_cast<const char *>(rawData), size);
     bool isClient = value % 2;
     CopyUriHandler uriHandler;
     uriHandler.ToFd(uri, isClient);
