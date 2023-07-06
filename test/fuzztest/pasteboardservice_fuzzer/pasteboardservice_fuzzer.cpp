@@ -66,7 +66,6 @@ bool FuzzPasteboardService(const uint8_t *rawData, size_t size)
 bool FuzzPasteboardServiceOnSetPasteData(const uint8_t *rawData, size_t size)
 {
     PasteData pasteData;
-    std::shared_ptr<PasteDataRecord> pasteDataRecord = std::make_shared<PasteDataRecord>();
     uint32_t code = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
