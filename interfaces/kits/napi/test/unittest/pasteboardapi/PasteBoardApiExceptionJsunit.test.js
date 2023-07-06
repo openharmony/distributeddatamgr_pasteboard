@@ -579,11 +579,12 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_exception_test16', 0, async function (done) {
     const uriText = 'https://www.baidu.com/';
     const pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    const num = 600;
     try {
-      for (let i = 0; i < 600; i++) {
+      for (let i = 0; i < num-1; i++) {
         pasteData.addRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
       }
-      expect(true === false).assertTrue();
+      expect(pasteData.getRecordCount()).assertEqual(num);
     } catch (e) {
       expect(e.code === '12900002').assertTrue();
     }

@@ -101,10 +101,6 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
         return;
     }
     records_.insert(records_.begin(), std::move(record));
-    if (records_.size() > MAX_RECORD_NUM) {
-        std::vector<std::shared_ptr<PasteDataRecord>> new_records(records_.begin(), records_.end() - 1);
-        this->records_ = new_records;
-    }
     RefreshMimeProp();
 }
 
@@ -287,6 +283,16 @@ bool PasteData::IsRemote()
 void PasteData::SetBundleName(const std::string &bundleName)
 {
     props_.bundleName = bundleName;
+}
+
+void PasteData::SetOrginAuthority(const std::string &bundleName)
+{
+    orginAuthority_ = bundleName;
+}
+
+std::string PasteData::GetOrginAuthority() const
+{
+    return orginAuthority_;
 }
 
 void PasteData::SetTime(const std::string &setTime)

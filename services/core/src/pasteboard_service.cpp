@@ -38,6 +38,7 @@
 #include "pasteboard_error.h"
 #include "pasteboard_trace.h"
 #include "reporter.h"
+#include "uri_permission_manager_client.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
@@ -334,10 +335,11 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     bool isFocusedApp = IsFocusedApp(tokenId);
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
-    std::thread thread([this, block, tokenId, isFocusedApp]() mutable {
+    std::string targetBundleName = GetAppBundleName(tokenId);
+    std::thread thread([this, block, tokenId, isFocusedApp, targetBundleName]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-        auto success = GetPasteData(*pasteData, tokenId, isFocusedApp);
+        auto success = GetPasteData(*pasteData, tokenId, isFocusedApp, targetBundleName);
         if (!success) {
             pasteData->SetInvalid();
         }
@@ -362,10 +364,58 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
         result = value->IsValid();
         data = std::move(*value);
     }
-    std::string bundleName = GetAppBundleName(tokenId);
-    NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_READ);
+    NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     GetPasteDataDot(data, pop, tokenId);
+    GrantUriPermission(data, targetBundleName);
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
+}
+
+void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
+{
+    auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
+    for (size_t i = 0; i < data.GetRecordCount(); i++) {
+        auto item = data.GetRecordAt(i);
+        if (item == nullptr || item->GetOrginUri() == nullptr
+            || targetBundleName.compare(data.GetOrginAuthority()) == 0) {
+            continue;
+        }
+        Uri uri = *(item->GetOrginUri());
+        if (!isBundleOwnUriPermission(data.GetOrginAuthority(), uri)) {
+            continue;
+        }
+        auto permissionCode = permissionClient.GrantUriPermission(uri, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
+            targetBundleName, 1);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+    }
+}
+
+void PasteboardService::RevokeUriPermission(PasteData &lastData)
+{
+    auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
+    std::string targetBundleName = lastData.GetProperty().bundleName;
+    for (size_t i = 0; i < lastData.GetRecordCount(); i++) {
+        auto item = lastData.GetRecordAt(i);
+        if (item == nullptr || item->GetOrginUri() == nullptr) {
+            continue;
+        }
+        Uri uri = *(item->GetOrginUri());
+        if (!isBundleOwnUriPermission(lastData.GetOrginAuthority(), uri)) {
+            continue;
+        }
+        auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, targetBundleName);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+    }
+}
+
+bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, Uri &uri)
+{
+    auto authority = uri.GetAuthority();
+    if (bundleName.compare(authority) != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "grant error, uri:%{public}s, orgin:%{public}s",
+            authority.c_str(), bundleName.c_str());
+        return false;
+    }
+    return true;
 }
 
 void PasteboardService::ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData)
@@ -404,7 +454,8 @@ void PasteboardService::ShowHintToast(bool isValid, uint32_t tokenId, const std:
     thread.detach();
 }
 
-bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, bool isFocusedApp)
+bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId,
+    bool isFocusedApp, const std::string &bundleName)
 {
     PasteboardTrace tracer("GetPasteData inner");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
@@ -436,7 +487,7 @@ bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId, bool isF
         return false;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
-
+    it->second->SetBundleName(bundleName);
     data = *(it->second);
     data.SetRemote(isRemote);
 
@@ -479,16 +530,18 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
         setting_.store(false);
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
+    std::lock_guard<std::mutex> lock(clipMutex_);
+    auto it = clips_.find(appInfo.userId);
+    if (it != clips_.end()) {
+        RevokeUriPermission(*(it->second));
+        clips_.erase(it);
+    }
     pasteData.SetBundleName(appInfo.bundleName);
+    pasteData.SetOrginAuthority(appInfo.bundleName);
     std::string time = GetTime();
     pasteData.SetTime(time);
     pasteData.SetTokenId(tokenId);
 
-    std::lock_guard<std::mutex> lock(clipMutex_);
-    auto it = clips_.find(appInfo.userId);
-    if (it != clips_.end()) {
-        clips_.erase(it);
-    }
     clips_.insert_or_assign(appInfo.userId, std::make_shared<PasteData>(pasteData));
     SetDistributedData(appInfo.userId, pasteData);
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
@@ -827,7 +880,6 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
     auto appInfo = GetAppInfo(tokenId);
     HistoryInfo info{ time, appInfo.bundleName, "get", pop, remote };
     SetPasteboardHistory(info);
-    pasteData.SetBundleName(appInfo.bundleName);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     int pState = StatisticPasteboardState::SPS_INVALID_STATE;
     int bState = BehaviourPasteboardState::BPS_INVALID_STATE;

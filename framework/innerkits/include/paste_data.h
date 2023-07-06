@@ -88,6 +88,8 @@ public:
     void SetLocalPasteFlag(bool isLocalPaste);
 
     void SetBundleName(const std::string &bundleName);
+    void SetOrginAuthority(const std::string &bundleName);
+    std::string GetOrginAuthority() const;
     void SetRemote(bool isRemote);
     bool IsRemote();
     void SetTime(const std::string &time);
@@ -117,6 +119,7 @@ private:
 
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
+    std::string orginAuthority_;
     bool valid_ = true;
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste

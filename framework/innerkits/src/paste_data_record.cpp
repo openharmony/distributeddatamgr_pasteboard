@@ -181,6 +181,11 @@ std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
     return std::make_shared<OHOS::Uri>(convertUri_);
 }
 
+std::shared_ptr<OHOS::Uri> PasteDataRecord::GetOrginUri() const
+{
+    return uri_;
+}
+
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
 {
     return this->want_;
