@@ -54,8 +54,8 @@ ohos_unittest("PasteboardServiceTest") {
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
-    "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",
   ]
 

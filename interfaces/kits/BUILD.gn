@@ -50,8 +50,8 @@ ohos_shared_library("pasteboard_napi") {
     "ability_runtime:napi_common",
     "c_utils:utils",
     "hilog:libhilog",
+    "image_framework:image",
     "ipc:ipc_core",
-    "multimedia_image_framework:image",
     "napi:ace_napi",
   ]
 

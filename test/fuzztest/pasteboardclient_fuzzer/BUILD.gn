@@ -50,7 +50,7 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
-    "multimedia_image_framework:image_native",
+    "image_framework:image_native",
   ]
 }
 

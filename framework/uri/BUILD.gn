@@ -44,8 +44,8 @@ ohos_static_library("pasteboard_uri") {
     "c_utils:utils",
     "file_api:remote_uri_native",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
-    "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",
   ]
   subsystem_name = "distributeddatamgr"

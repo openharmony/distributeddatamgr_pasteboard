@@ -58,8 +58,8 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
-    "multimedia_image_framework:image_native",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
   ]

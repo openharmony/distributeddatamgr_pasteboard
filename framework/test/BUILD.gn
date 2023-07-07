@@ -48,8 +48,8 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
-    "multimedia_image_framework:image_native",
   ]
 
   deps = [
