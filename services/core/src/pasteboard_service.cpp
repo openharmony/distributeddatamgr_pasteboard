@@ -203,6 +203,7 @@ void PasteboardService::Clear()
     std::lock_guard<std::mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
+        RevokeUriPermission(*(it->second));
         clips_.erase(it);
         std::string bundleName = GetAppBundleName(IPCSkeleton::GetCallingTokenID());
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
@@ -385,14 +386,19 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         }
         auto permissionCode = permissionClient.GrantUriPermission(uri, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
             targetBundleName, 1);
+        if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
+            readBundles_.insert(targetBundleName);
+        }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
     }
 }
 
 void PasteboardService::RevokeUriPermission(PasteData &lastData)
 {
+    if (readBundles_.size() == 0) {
+        return;
+    }
     auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    std::string targetBundleName = lastData.GetProperty().bundleName;
     for (size_t i = 0; i < lastData.GetRecordCount(); i++) {
         auto item = lastData.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
@@ -402,9 +408,12 @@ void PasteboardService::RevokeUriPermission(PasteData &lastData)
         if (!isBundleOwnUriPermission(lastData.GetOrginAuthority(), uri)) {
             continue;
         }
-        auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, targetBundleName);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+        for (std::set<std::string>::iterator it = readBundles_.begin(); it != readBundles_.end(); it++) {
+            auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, *it);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+        }
     }
+    readBundles_.clear();
 }
 
 bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, Uri &uri)
