@@ -146,6 +146,7 @@ private:
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
     std::map<int32_t, std::vector<int32_t>> hints_;
+    std::set<std::string> readBundles_;
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
