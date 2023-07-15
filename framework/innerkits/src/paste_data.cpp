@@ -45,6 +45,7 @@ enum TAG_PROPERTY : uint16_t {
 std::string PasteData::sharePath = "";
 const std::string PasteData::SHARE_PATH_PREFIX = "/mnt/hmdfs/";
 const std::string PasteData::SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
+const std::string PasteData::REMOTE_FILE_SIZE = "remoteFileSize";
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
@@ -285,6 +286,11 @@ void PasteData::SetBundleName(const std::string &bundleName)
     props_.bundleName = bundleName;
 }
 
+std::string PasteData::GetBundleName() const
+{
+    return props_.bundleName;
+}
+
 void PasteData::SetOrginAuthority(const std::string &bundleName)
 {
     orginAuthority_ = bundleName;
@@ -304,13 +310,20 @@ void PasteData::SetTag(std::string &tag)
 {
     props_.tag = tag;
 }
+
 std::string PasteData::GetTag()
 {
     return props_.tag;
 }
+
 void PasteData::SetAdditions(AAFwk::WantParams &additions)
 {
     props_.additions = additions;
+}
+
+void PasteData::SetAddition(const std::string &key, AAFwk::IInterface *value)
+{
+    props_.additions.SetParam(key, value);
 }
 
 void PasteData::SetLocalOnly(bool localOnly)

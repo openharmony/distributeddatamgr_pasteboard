@@ -31,12 +31,14 @@
 #include "input_method_controller.h"
 #include "iservice_registry.h"
 #include "loader.h"
+#include "int_wrapper.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
 #include "para_handle.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_error.h"
 #include "pasteboard_trace.h"
+#include "remote_file_share.h"
 #include "reporter.h"
 #include "uri_permission_manager_client.h"
 #ifdef WITH_DLP
@@ -54,6 +56,7 @@ const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
 using namespace Security::AccessToken;
+using namespace OHOS::AppFileService::ModuleRemoteFileShare;
 std::mutex PasteboardService::historyMutex_;
 std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
@@ -376,15 +379,23 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
     auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
-        if (item == nullptr || item->GetOrginUri() == nullptr
-            || targetBundleName.compare(data.GetOrginAuthority()) == 0) {
+        if (item == nullptr || targetBundleName.compare(data.GetOrginAuthority()) == 0) {
             continue;
         }
-        Uri uri = *(item->GetOrginUri());
-        if (!isBundleOwnUriPermission(data.GetOrginAuthority(), uri)) {
+        std::shared_ptr<OHOS::Uri> uri = nullptr;
+        if (!item->isConvertUriFromRemote && !item->GetConvertUri().empty()) {
+            item->SetConvertUri("");
+        }
+        if (item->isConvertUriFromRemote && !item->GetConvertUri().empty()) {
+            uri = std::make_shared<OHOS::Uri>(item->GetConvertUri());
+        } else if (!item->isConvertUriFromRemote && item->GetOrginUri() != nullptr) {
+            uri = item->GetOrginUri();
+        }
+        if (uri == nullptr || !isBundleOwnUriPermission(data.GetOrginAuthority(), *uri)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "uri error.");
             continue;
         }
-        auto permissionCode = permissionClient.GrantUriPermission(uri, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
+        auto permissionCode = permissionClient.GrantUriPermission(*uri, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
             targetBundleName, 1);
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
@@ -941,6 +952,17 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     pasteData->Decode(rawData);
     pasteData->ReplaceShareUri(user);
+    pasteData->SetOrginAuthority(pasteData->GetBundleName());
+    int fileSize = pasteData->GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remote bundle: %{public}s", pasteData->GetBundleName().c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remote file size: %{public}d", fileSize);
+    for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
+        auto item = pasteData->GetRecordAt(i);
+        if (item == nullptr || item->GetConvertUri().empty()) {
+            continue;
+        }
+        item->isConvertUriFromRemote = true;
+    }
     return pasteData;
 }
 
@@ -952,7 +974,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return false;
     }
-
+    GenerateDistributedUri(data);
     if (data.GetShareOption() == CrossDevice && !data.Encode(rawData)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "encode failed.");
         return false;
@@ -970,6 +992,35 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     currentEvent_ = event;
     clipPlugin->SetPasteData(event, rawData);
     return true;
+}
+
+void PasteboardService::GenerateDistributedUri(PasteData &data)
+{
+    auto userId = GetCurrentAccountId();
+    if (userId == ERROR_USERID) {
+        return;
+    }
+    size_t fileSize = 0;
+    for (size_t i = 0; i < data.GetRecordCount(); i++) {
+        auto item = data.GetRecordAt(i);
+        if (item == nullptr || item->GetOrginUri() == nullptr) {
+            continue;
+        }
+        Uri uri = *(item->GetOrginUri());
+        if (!isBundleOwnUriPermission(data.GetOrginAuthority(), uri)) {
+            continue;
+        }
+        HmdfsUriInfo hui;
+        auto ret = RemoteFileShare::GetDfsUriFromLocal(uri.ToString(), userId, hui);
+        if (ret != 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "creat uri failed: %{public}d", ret);
+            continue;
+        }
+        item->SetConvertUri(hui.uriStr);
+        fileSize += hui.fileSize;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
+    data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
 }
 
 bool PasteboardService::HasDistributedData(int32_t user)
