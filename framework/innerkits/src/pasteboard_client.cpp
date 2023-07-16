@@ -26,6 +26,7 @@
 #include "pasteboard_observer.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+#include "pasteboard_web_controller.h"
 
 using namespace OHOS::Media;
 
@@ -153,11 +154,37 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
+    RebuildWebviewPasteData(pasteData);
     RetainUri(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::PASTE_STATE, ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
     return ret;
+}
+
+void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
+{
+    if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || pasteData.GetPrimaryHtml() == nullptr) {
+        return;
+    }
+    auto PasteboardWebController = PasteboardWebController::GetInstance();
+    std::string bundleName = pasteData.GetProperty().bundleName;
+    for (auto& item : pasteData.AllRecords()) {
+        if (item->GetUri() == nullptr) {
+            continue;
+        }
+        std::shared_ptr<Uri> uri = item->GetUri();
+        std::string puri = uri->ToString();
+        std::string authority = uri->GetAuthority();
+        std::string path = uri->GetPath();
+        std::string newUriStr = PasteData::FILE_SCHEME_PREFIX + path;
+        if (bundleName != authority && !authority.empty() &&
+            puri.find(PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
+            newUriStr = PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE + authority + path;
+        }
+        item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
+    }
+    PasteboardWebController.RebuildHtml(std::make_shared<PasteData>(pasteData));
 }
 
 void PasteboardClient::RetainUri(PasteData &pasteData)
@@ -191,7 +218,22 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
     if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
-    return pasteboardServiceProxy_->SetPasteData(pasteData);
+    std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
+    if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
+        return pasteboardServiceProxy_->SetPasteData(pasteData);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteData from webview start.");
+    std::shared_ptr<std::string> primaryText = pasteData.GetRecordAt(0)->GetPlainText();
+    auto PasteboardWebController = PasteboardWebController::GetInstance();
+    std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
+    webPasteData->RemoveRecordAt(webPasteData->GetRecordCount() - 1);
+    std::string mimeType = MIMETYPE_TEXT_PLAIN;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord =
+        builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
+    webPasteData->AddRecord(pasteDataRecord);
+    webPasteData->SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    return pasteboardServiceProxy_->SetPasteData(*webPasteData);
 }
 
 void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)

@@ -550,7 +550,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     std::string time = GetTime();
     pasteData.SetTime(time);
     pasteData.SetTokenId(tokenId);
-
+    SetWebViewPasteData(pasteData, appInfo.bundleName);
     clips_.insert_or_assign(appInfo.userId, std::make_shared<PasteData>(pasteData));
     SetDistributedData(appInfo.userId, pasteData);
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
@@ -563,6 +563,27 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardService::SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName)
+{
+    if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG) {
+        return;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardService for webview.");
+    for (auto& item : pasteData.AllRecords()) {
+        if (item->GetUri() == nullptr) {
+            continue;
+        }
+        std::shared_ptr<Uri> uri = item->GetUri();
+        std::string puri = uri->ToString();
+        if (puri.substr(0, PasteData::IMG_LOCAL_URI.size()) == PasteData::IMG_LOCAL_URI &&
+            puri.find(PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
+            std::string path = uri->GetPath();
+            std::string newUriStr = PasteData::FILE_SCHEME_PREFIX + bundleName + path;
+            item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
+        }
+    }
 }
 
 int32_t PasteboardService::GetCurrentAccountId()

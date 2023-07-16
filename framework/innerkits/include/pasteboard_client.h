@@ -250,6 +250,7 @@ private:
             bool destoryed_;
     };
     static StaticDestoryMonitor staticDestoryMonitor_;
+    void RebuildWebviewPasteData(PasteData &pasteData);
 };
 } // namespace MiscServices
 } // namespace OHOS
