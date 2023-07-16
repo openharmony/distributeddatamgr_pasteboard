@@ -97,6 +97,7 @@ PasteDataRecord::Builder::Builder(const std::string &mimeType)
         record_->want_ = nullptr;
         record_->plainText_ = nullptr;
         record_->uri_ = nullptr;
+        record_->convertUri_ = "";
         record_->pixelMap_ = nullptr;
         record_->customData_ = nullptr;
     }
@@ -428,6 +429,10 @@ void PasteDataRecord::ReplaceShareUri(int32_t userId)
 void PasteDataRecord::SetConvertUri(const std::string &value)
 {
     convertUri_ = value;
+}
+std::string PasteDataRecord::GetConvertUri() const
+{
+    return convertUri_;
 }
 FileDescriptor::~FileDescriptor()
 {

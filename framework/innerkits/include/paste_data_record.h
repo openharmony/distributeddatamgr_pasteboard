@@ -78,6 +78,7 @@ public:
     static std::shared_ptr<PasteDataRecord> NewKvRecord(
         const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
+    bool isConvertUriFromRemote = false;
     std::string GetMimeType() const;
     std::shared_ptr<std::string> GetHtmlText() const;
     std::shared_ptr<std::string> GetPlainText() const;
@@ -97,6 +98,7 @@ public:
     bool NeedFd(const UriHandler &uriHandler);
     void ReplaceShareUri(int32_t userId);
     void SetConvertUri(const std::string &value);
+    std::string GetConvertUri() const;
 
     class Builder {
     public:

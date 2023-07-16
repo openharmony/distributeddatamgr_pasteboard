@@ -88,6 +88,7 @@ public:
     void SetLocalPasteFlag(bool isLocalPaste);
 
     void SetBundleName(const std::string &bundleName);
+    std::string GetBundleName() const;
     void SetOrginAuthority(const std::string &bundleName);
     std::string GetOrginAuthority() const;
     void SetRemote(bool isRemote);
@@ -96,6 +97,7 @@ public:
     void SetTag(std::string &tag);
     std::string GetTag();
     void SetAdditions(AAFwk::WantParams &additions);
+    void SetAddition(const std::string &key, AAFwk::IInterface *value);
     void SetLocalOnly(bool localOnly);
     bool GetLocalOnly();
 
@@ -113,6 +115,7 @@ public:
     static std::string sharePath;
     static const std::string SHARE_PATH_PREFIX;
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
+    static const std::string REMOTE_FILE_SIZE;
 
 private:
     void RefreshMimeProp();

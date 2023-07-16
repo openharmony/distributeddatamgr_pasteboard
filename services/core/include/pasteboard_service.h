@@ -109,6 +109,7 @@ private:
     bool GetPasteData(PasteData &data, uint32_t tokenId, bool isFocusedApp, const std::string &bundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(PasteData &lastData);
+    void GenerateDistributedUri(PasteData &data);
     bool isBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
