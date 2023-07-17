@@ -41,6 +41,7 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_client.cpp",
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
+    "src/pasteboard_web_controller.cpp",
   ]
   configs = [ ":pasteboard_client_config" ]
   public_configs = [ ":pasteboard_client_config" ]

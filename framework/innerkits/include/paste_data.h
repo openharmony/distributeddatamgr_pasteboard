@@ -113,6 +113,10 @@ public:
 
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
     static std::string sharePath;
+    static std::string WEBVIEW_PASTEDATA_TAG;
+    static const std::string PATH_SHARE;
+    static const std::string FILE_SCHEME_PREFIX;
+    static const std::string IMG_LOCAL_URI;
     static const std::string SHARE_PATH_PREFIX;
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
     static const std::string REMOTE_FILE_SIZE;
