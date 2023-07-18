@@ -324,7 +324,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
         }
         if (!ret) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u",
-                              head.tag, head.len);
+                head.tag, head.len);
             return false;
         }
     }
