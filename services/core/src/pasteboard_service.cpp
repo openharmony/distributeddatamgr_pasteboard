@@ -782,7 +782,7 @@ size_t PasteboardService::GetDataSize(PasteData &data) const
 bool PasteboardService::SetPasteboardHistory(HistoryInfo &info)
 {
     std::string history = std::move(info.time) + " " + std::move(info.bundleName) + " " + std::move(info.state) + " " +
-                          " " + std::move(info.pop) + " " + std::move(info.remote);
+        " " + std::move(info.pop) + " " + std::move(info.remote);
     constexpr const size_t DATA_HISTORY_SIZE = 10;
     std::lock_guard<decltype(historyMutex_)> lg(historyMutex_);
     if (dataHistory_.size() == DATA_HISTORY_SIZE) {
