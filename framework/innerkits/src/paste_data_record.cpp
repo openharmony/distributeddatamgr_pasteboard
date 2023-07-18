@@ -152,6 +152,46 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
 PasteDataRecord::PasteDataRecord()
 {
     fd_ = std::make_shared<FileDescriptor>();
+    decodeMap = {
+        {TAG_MIMETYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, mimeType_, head);
+            }
+        },
+        {TAG_HTMLTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, htmlText_, head);
+            }
+        },
+        {TAG_WANT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            RawMem rawMem{};
+            ret = ret && ReadValue(buffer, rawMem, head);
+            want_ = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);
+            }
+        },
+        {TAG_PLAINTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, plainText_, head);
+            }
+        },
+        {TAG_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            RawMem rawMem{};
+            ret = ret && ReadValue(buffer, rawMem, head);
+            uri_ = ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem);
+            }
+        },
+        {TAG_CONVERT_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, convertUri_, head);
+            }
+        },
+        {TAG_PIXELMAP, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            std::vector<std::uint8_t> value;
+            ret = ret && ReadValue(buffer, value, head);
+            pixelMap_ = Vector2PixelMap(value);
+            }
+        },
+        {TAG_CUSTOM_DATA, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, customData_, head);
+            }
+        },
+    };
 }
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
@@ -275,48 +315,16 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
-        switch (head.tag) {
-            case TAG_MIMETYPE:
-                ret = ret && ReadValue(buffer, mimeType_, head);
-                break;
-            case TAG_HTMLTEXT:
-                ret = ret && ReadValue(buffer, htmlText_, head);
-                break;
-            case TAG_WANT: {
-                RawMem rawMem{};
-                ret = ret && ReadValue(buffer, rawMem, head);
-                want_ = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);
-                break;
-            }
-            case TAG_PLAINTEXT:
-                ret = ret && ReadValue(buffer, plainText_, head);
-                break;
-            case TAG_URI: {
-                RawMem rawMem{};
-                ret = ret && ReadValue(buffer, rawMem, head);
-                uri_ = ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem);
-                break;
-            }
-            case TAG_CONVERT_URI: {
-                ret = ret && ReadValue(buffer, convertUri_, head);
-                break;
-            }
-            case TAG_PIXELMAP: {
-                std::vector<std::uint8_t> value;
-                ret = ret && ReadValue(buffer, value, head);
-                pixelMap_ = Vector2PixelMap(value);
-                break;
-            }
-            case TAG_CUSTOM_DATA:
-                ret = ret && ReadValue(buffer, customData_, head);
-                break;
-            default:
-                ret = ret && Skip(head.len, buffer.size());
-                break;
+        auto it = decodeMap.find(head.tag);
+        if (it == decodeMap.end()) {
+            ret = ret && Skip(head.len, buffer.size());
+        } else {
+            auto func = it->second;
+            func(ret, buffer, head);
         }
         if (!ret) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u",
-                head.tag, head.len);
+                              head.tag, head.len);
             return false;
         }
     }

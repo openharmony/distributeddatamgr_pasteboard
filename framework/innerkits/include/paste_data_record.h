@@ -135,6 +135,8 @@ private:
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
     std::shared_ptr<FileDescriptor> fd_;
+    using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
+    std::map<uint16_t, Func> decodeMap;
 };
 } // namespace MiscServices
 } // namespace OHOS
