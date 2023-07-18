@@ -60,7 +60,6 @@
             "fwk_group": [
                 "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
                 "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
-                "//foundation/distributeddatamgr/pasteboard/interfaces/declaration:pasteboard_js",
                 "//foundation/distributeddatamgr/pasteboard/interfaces/kits:pasteboard_napi"
             ],
             "service_group": [
