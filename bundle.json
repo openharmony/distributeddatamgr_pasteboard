@@ -42,7 +42,7 @@
           "input",
           "imf",
           "ipc",
-          "multimedia_image_framework",
+          "image_framework",
           "napi",
           "os_account",
           "safwk",
