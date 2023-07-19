@@ -167,7 +167,8 @@ void PasteboardServiceProxy::RemoveAllChangedObserver()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
-    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::DELETE_ALL_CHANGED_OBSERVER, data, reply, option);
+    int32_t result =
+        Remote()->SendRequest(PasteboardServiceInterfaceCode::DELETE_ALL_CHANGED_OBSERVER, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
@@ -196,7 +197,8 @@ void PasteboardServiceProxy::RemoveAllEventObserver()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
-    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::DELETE_ALL_EVENT_OBSERVER, data, reply, option);
+    int32_t result =
+       Remote()->SendRequest(PasteboardServiceInterfaceCode::DELETE_ALL_EVENT_OBSERVER, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
