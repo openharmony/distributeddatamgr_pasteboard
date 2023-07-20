@@ -44,6 +44,7 @@ enum TAG_PROPERTY : uint16_t {
 
 std::string PasteData::sharePath = "";
 std::string PasteData::WEBVIEW_PASTEDATA_TAG = "WebviewPasteDataTag";
+const std::string PasteData::DISTRIBUTEDFILES_TAG = "distributedfiles";
 const std::string PasteData::PATH_SHARE = "/data/storage/el2/share/r/";
 const std::string PasteData::FILE_SCHEME_PREFIX = "file://";
 const std::string PasteData::IMG_LOCAL_URI = "file:///";

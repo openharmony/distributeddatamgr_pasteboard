@@ -182,7 +182,11 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
             puri.find(PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
             newUriStr = PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE + authority + path;
         }
-        item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
+        if (newUriStr.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
+            item->SetConvertUri(newUriStr);
+        } else {
+            item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
+        }
     }
     PasteboardWebController.RebuildHtml(std::make_shared<PasteData>(pasteData));
 }
