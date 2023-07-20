@@ -132,7 +132,6 @@ private:
     static bool IsFocusedApp(int32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData);
-    
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DevManagerInit();
