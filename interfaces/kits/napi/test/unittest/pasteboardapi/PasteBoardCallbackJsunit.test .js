@@ -619,11 +619,11 @@ describe('PasteBoardJSTest', function () {
       if (err) {
         console.error('f_test13: systemPasteboard.clear callback error:' + err);
       } else {
-        let wantText0 = {
+        let wantText130 = {
           bundleName: 'com.example.myapplication3',
           abilityName: 'com.example.myapplication3.MainAbility',
         };
-        let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText0);
+        let pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText130);
         systemPasteboard.setPasteData(pasteData, (err, data) => {
           if (err) {
             console.error('f_test13: systemPasteboard.setPasteData callback error:' + err);

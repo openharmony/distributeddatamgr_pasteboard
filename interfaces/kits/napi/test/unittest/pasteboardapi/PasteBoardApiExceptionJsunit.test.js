@@ -179,47 +179,47 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_exception_test4', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const dataHtml = new ArrayBuffer(256);
-    const htmlText = '<html><head></head><body>Hello!</body></html>';
-    const uriText = 'https://www.baidu.com/';
-    const wantText = {
+    const dataHtml4 = new ArrayBuffer(256);
+    const htmlText4 = '<html><head></head><body>Hello!</body></html>';
+    const uriText4 = 'https://www.baidu.com/';
+    const wantText4 = {
       bundleName: 'com.example.myapplication3',
       abilityName: 'com.example.myapplication3.MainAbility',
     };
-    let plainText = '';
-    const pasteData = pasteboard.createData('x'.repeat(1024), dataHtml);
-    const record = pasteData.getRecordAt(0);
-    record.htmlText = htmlText;
-    record.plainText = plainText;
-    record.uri = uriText;
-    record.want = wantText;
-    const buffer = new ArrayBuffer(128);
-    const opt = {
+    let plainText4 = '';
+    const pasteData4 = pasteboard.createData('x'.repeat(1024), dataHtml4);
+    const record4 = pasteData4.getRecordAt(0);
+    record4.htmlText = htmlText4;
+    record4.plainText = plainText4;
+    record4.uri = uriText4;
+    record4.want = wantText4;
+    const buffer4 = new ArrayBuffer(128);
+    const opt4 = {
       size: { height: 5, width: 5 },
       pixelFormat: 3,
       editable: true,
       alphaType: 1,
       scaleMode: 1,
     };
-    const pixelMap = await image.createPixelMap(buffer, opt);
-    record.pixelMap = pixelMap;
-    pasteData.replaceRecordAt(0, record);
-    await systemPasteboard.setPasteData(pasteData);
-    const hasData = await systemPasteboard.hasPasteData();
-    expect(hasData).assertTrue();
-    systemPasteboard.getPasteData().then((data) => {
+    const pixelMap4 = await image.createPixelMap(buffer4, opt4);
+    record4.pixelMap = pixelMap4;
+    pasteData4.replaceRecordAt(0, record4);
+    await systemPasteboard4.setPasteData(pasteData4);
+    const hasData4 = await systemPasteboard4.hasPasteData();
+    expect(hasData4).assertTrue();
+    systemPasteboard4.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
       expect(data.getRecordAt(0).mimeType).assertEqual('x'.repeat(1024));
-      expect(data.getPrimaryWant().bundleName).assertEqual(wantText.bundleName);
-      expect(data.getPrimaryWant().abilityName).assertEqual(wantText.abilityName);
-      let newPixelMap = data.getPrimaryPixelMap();
-      newPixelMap.getImageInfo().then((imageInfo) => {
-        expect(imageInfo.size.height).assertEqual(opt.size.height);
-        expect(imageInfo.size.width).assertEqual(opt.size.width);
+      expect(data.getPrimaryWant().bundleName).assertEqual(wantText4.bundleName);
+      expect(data.getPrimaryWant().abilityName).assertEqual(wantText4.abilityName);
+      const newPixelMap4 = data.getPrimaryPixelMap();
+      newPixelMap4.getImageInfo().then((imageInfo) => {
+        expect(imageInfo.size.height).assertEqual(opt4.size.height);
+        expect(imageInfo.size.width).assertEqual(opt4.size.width);
       });
-      expect(data.getPrimaryUri()).assertEqual(uriText);
-      expect(data.getPrimaryText()).assertEqual(plainText);
-      expect(data.getPrimaryHtml()).assertEqual(htmlText);
+      expect(data.getPrimaryUri()).assertEqual(uriText4);
+      expect(data.getPrimaryText()).assertEqual(plainText4);
+      expect(data.getPrimaryHtml()).assertEqual(htmlText4);
       done();
     });
   });
