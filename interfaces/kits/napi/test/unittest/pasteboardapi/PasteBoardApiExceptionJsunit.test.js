@@ -263,35 +263,35 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_exception_test6', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = 'https://www.baidu.com/';
-    const textData = 'Hello World!';
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    const wantText = {
+    const uriText6 = 'https://www.baidu.com/';
+    const textData6 = 'Hello World!';
+    const htmlText6 = '<html><head></head><body>Hello World!</body></html>';
+    const wantText6 = {
       bundleName: 'com.example.myapplication3',
       abilityName: 'com.example.myapplication3.MainAbility',
     };
-    const dataHtml = new ArrayBuffer(256);
-    const buffer = new ArrayBuffer(128);
-    const opt = {
+    const dataHtml6 = new ArrayBuffer(256);
+    const buffer6 = new ArrayBuffer(128);
+    const opt6 = {
       size: { height: 5, width: 5 },
       pixelFormat: 3,
       editable: true,
       alphaType: 1,
       scaleMode: 1,
     };
-    const pixelMap = await image.createPixelMap(buffer, opt);
-    const pasteData = pasteboard.createUriData(uriText);
+    const pixelMap = await image.createPixelMap(buffer6, opt6);
+    const pasteData = pasteboard.createUriData(uriText6);
 
     try {
-      let pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
+      let pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_URI, uriText6);
       pasteData.addRecord(pasteDataRecord);
-      pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
+      pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_PLAIN, textData6);
       pasteData.addRecord(pasteDataRecord);
-      pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+      pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText6);
       pasteData.addRecord(pasteDataRecord);
-      pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText);
+      pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText6);
       pasteData.addRecord(pasteDataRecord);
-      pasteDataRecord = pasteboard.createRecord('x'.repeat(1022), dataHtml);
+      pasteDataRecord = pasteboard.createRecord('x'.repeat(1022), dataHtml6);
       pasteData.addRecord(pasteDataRecord);
       pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
       pasteData.addRecord(pasteDataRecord);
@@ -306,7 +306,7 @@ describe('PasteBoardJSTest', function () {
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(7);
       let dataRecord = data.getRecordAt(3);
-      expect(dataRecord.htmlText).assertEqual(htmlText);
+      expect(dataRecord.htmlText).assertEqual(htmlText6);
       done();
     });
   });
@@ -509,32 +509,32 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_exception_test14', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = 'https://www.baidu.com/';
-    const textData = 'Hello World!';
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    const wantText = {
+    const uriText14 = 'https://www.baidu.com/';
+    const textData14 = 'Hello World!';
+    const htmlText14 = '<html><head></head><body>Hello World!</body></html>';
+    const wantText14 = {
       bundleName: 'com.example.myapplication3',
       abilityName: 'com.example.myapplication3.MainAbility',
     };
-    const dataHtml = new ArrayBuffer(256);
-    const buffer = new ArrayBuffer(128);
-    const opt = {
+    const dataHtml14 = new ArrayBuffer(256);
+    const buffer14 = new ArrayBuffer(128);
+    const opt14 = {
       size: { height: 5, width: 5 },
       pixelFormat: 3,
       editable: true,
       alphaType: 1,
       scaleMode: 1,
     };
-    const pixelMap = await image.createPixelMap(buffer, opt);
-    const pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    const pixelMap = await image.createPixelMap(buffer14, opt14);
+    const pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_URI, uriText14);
 
     try {
-      pasteData.addRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
-      pasteData.addRecord(pasteboard.MIMETYPE_TEXT_URI, uriText);
-      pasteData.addRecord(pasteboard.MIMETYPE_TEXT_PLAIN, textData);
+      pasteData.addRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText14);
+      pasteData.addRecord(pasteboard.MIMETYPE_TEXT_URI, uriText14);
+      pasteData.addRecord(pasteboard.MIMETYPE_TEXT_PLAIN, textData14);
       pasteData.addRecord(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
-      pasteData.addRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText);
-      pasteData.addRecord('x'.repeat(100), dataHtml);
+      pasteData.addRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText14);
+      pasteData.addRecord('x'.repeat(100), dataHtml14);
     } catch (error) {
       expect(true === false).assertTrue();
     }
@@ -544,7 +544,7 @@ describe('PasteBoardJSTest', function () {
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(7);
       let dataRecord = data.getRecordAt(6);
-      expect(dataRecord.uri).assertEqual(uriText);
+      expect(dataRecord.uri).assertEqual(uriText14);
       let primaryPixelMap = data.getPrimaryPixelMap();
       let PixelMapBytesNumber = primaryPixelMap.getPixelBytesNumber();
       expect(PixelMapBytesNumber).assertEqual(100);
