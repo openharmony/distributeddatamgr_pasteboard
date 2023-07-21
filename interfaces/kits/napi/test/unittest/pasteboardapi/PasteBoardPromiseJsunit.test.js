@@ -35,8 +35,8 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test1', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData1 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData1);
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
@@ -46,7 +46,7 @@ describe('PasteBoardJSTest', function () {
       const pasteData1 = data;
       expect(pasteData1.getRecordCount()).assertEqual(1);
       const primaryText = pasteData1.getPrimaryText();
-      expect(primaryText).assertEqual(textData);
+      expect(primaryText).assertEqual(textData1);
       expect(pasteboard.MAX_RECORD_NUM).assertEqual(512);
       expect(pasteData1.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
       done();
@@ -62,14 +62,14 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test2', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = '';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData2 = '';
+    const pasteData = pasteboard.createPlainTextData(textData2);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res2 = await systemPasteboard.hasPasteData();
+    expect(res2).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(1);
+      const recordCount2 = data.getRecordCount();
+      expect(recordCount2).assertEqual(1);
       done();
     });
   });
@@ -83,17 +83,17 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test3', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello 中国!@#$%^&*()_+{}?.';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData3 = 'Hello 中国!@#$%^&*()_+{}?.';
+    const pasteData = pasteboard.createPlainTextData(textData3);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res3 = await systemPasteboard.hasPasteData();
+    expect(res3).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const primaryText = pasteData1.getPrimaryText();
-      expect(primaryText).assertEqual(textData);
-      expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_PLAIN)).assertEqual(true);
+      const pasteData3 = data;
+      expect(pasteData3.getRecordCount()).assertEqual(1);
+      const primaryText = pasteData3.getPrimaryText();
+      expect(primaryText).assertEqual(textData3);
+      expect(pasteData3.hasMimeType(pasteboard.MIMETYPE_TEXT_PLAIN)).assertEqual(true);
       done();
     });
   });
@@ -107,21 +107,21 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test4', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    let textData = '';
+    let textData4 = '';
     for (let i = 0; i < 300; i++) {
-      textData = textData + 'A';
+      textData4 = textData4 + 'A';
     }
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const pasteData = pasteboard.createPlainTextData(textData4);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res4 = await systemPasteboard.hasPasteData();
+    expect(res4).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const primaryText = pasteData1.getPrimaryText();
-      expect(primaryText).assertEqual(textData);
-      expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_PLAIN)).assertEqual(true);
-      expect(pasteData1.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
+      const pasteData4 = data;
+      expect(pasteData4.getRecordCount()).assertEqual(1);
+      const primaryText = pasteData4.getPrimaryText();
+      expect(primaryText).assertEqual(textData4);
+      expect(pasteData4.hasMimeType(pasteboard.MIMETYPE_TEXT_PLAIN)).assertEqual(true);
+      expect(pasteData4.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
       done();
     });
   });
@@ -135,18 +135,18 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test5', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    const pasteData = pasteboard.createHtmlData(htmlText);
+    const htmlText5 = '<html><head></head><body>Hello World!</body></html>';
+    const pasteData = pasteboard.createHtmlData(htmlText5);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res5 = await systemPasteboard.hasPasteData();
+    expect(res5).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const primaryHtml = pasteData1.getPrimaryHtml();
-      expect(primaryHtml).assertEqual(htmlText);
-      expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
-      expect(pasteData1.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
+      const pasteData5 = data;
+      expect(pasteData5.getRecordCount()).assertEqual(1);
+      const primaryHtml6 = pasteData5.getPrimaryHtml();
+      expect(primaryHtml6).assertEqual(htmlText5);
+      expect(pasteData5.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
+      expect(pasteData5.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
       done();
     });
   });
@@ -160,15 +160,15 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test6', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const htmlText = '';
-    const pasteData = pasteboard.createHtmlData(htmlText);
+    const htmlText6 = '';
+    const pasteData = pasteboard.createHtmlData(htmlText6);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res6 = await systemPasteboard.hasPasteData();
+    expect(res6).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
-      const primaryHtml = data.getPrimaryHtml();
-      expect(primaryHtml).assertEqual(htmlText);
+      const primaryHtml6 = data.getPrimaryHtml();
+      expect(primaryHtml6).assertEqual(htmlText6);
       expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
       expect(data.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
       done();
@@ -207,15 +207,15 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test8', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = 'https://www.baidu.com/';
-    const pasteData = pasteboard.createUriData(uriText);
+    const uriText8 = 'https://www.baidu.com/';
+    const pasteData = pasteboard.createUriData(uriText8);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res8 = await systemPasteboard.hasPasteData();
+    expect(res8).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
-      const primaryUri = data.getPrimaryUri();
-      expect(primaryUri).assertEqual(uriText);
+      const primaryUri8 = data.getPrimaryUri();
+      expect(primaryUri8).assertEqual(uriText8);
       expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
       done();
     });
@@ -230,14 +230,14 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test9', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = '';
-    const pasteData = pasteboard.createUriData(uriText);
+    const uriText9 = '';
+    const pasteData = pasteboard.createUriData(uriText9);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res9 = await systemPasteboard.hasPasteData();
+    expect(res9).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
-      expect(data.getPrimaryUri()).assertEqual(uriText);
+      expect(data.getPrimaryUri()).assertEqual(uriText9);
       done();
     });
   });
@@ -251,15 +251,15 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test10', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = 'Hello//';
-    const pasteData = pasteboard.createUriData(uriText);
+    const uriText10 = 'Hello//';
+    const pasteData = pasteboard.createUriData(uriText10);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res10 = await systemPasteboard.hasPasteData();
+    expect(res10).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
       expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-      expect(data.getPrimaryUri()).assertEqual(uriText);
+      expect(data.getPrimaryUri()).assertEqual(uriText10);
       done();
     });
   });
@@ -273,19 +273,19 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test11', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const want = {
+    const want11 = {
       bundleName: 'com.example.myapplication8',
       abilityName: 'com.example.myapplication8.MainAbility',
     };
-    const pasteData = pasteboard.createWantData(want);
+    const pasteData = pasteboard.createWantData(want11);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res11 = await systemPasteboard.hasPasteData();
+    expect(res11).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
       const primaryWant = data.getPrimaryWant();
-      expect(want.bundleName).assertEqual(primaryWant.bundleName);
-      expect(want.abilityName).assertEqual(primaryWant.abilityName);
+      expect(want11.bundleName).assertEqual(primaryWant.bundleName);
+      expect(want11.abilityName).assertEqual(primaryWant.abilityName);
       expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_WANT)).assertEqual(true);
       done();
     });
@@ -300,15 +300,15 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test12', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData12 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData12);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res12 = await systemPasteboard.hasPasteData();
+    expect(res12).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
-      let recordText = data.getRecordAt(0).plainText;
-      expect(recordText).assertEqual(textData);
+      let recordText12 = data.getRecordAt(0).plainText;
+      expect(recordText12).assertEqual(textData12);
       done();
     });
   });
@@ -320,21 +320,21 @@ describe('PasteBoardJSTest', function () {
    * @tc.require   AR000H5HVI
    */
   it('pasteboard_promise_test13', 0, async function (done) {
-    let systemPasteboard = pasteboard.getSystemPasteboard();
+    const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    let textData0 = 'Hello World!';
-    let pasteData = pasteboard.createPlainTextData(textData0);
-    let textData1 = 'Hello World1';
-    pasteData.addTextRecord(textData1);
+    const textData130 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData130);
+    const textData131 = 'Hello World1';
+    pasteData.addTextRecord(textData131);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res13 = await systemPasteboard.hasPasteData();
+    expect(res13).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(2);
-      let dataRecord0 = data.getRecordAt(0);
-      let dataRecord1 = data.getRecordAt(1);
-      expect(dataRecord0.plainText).assertEqual(textData1);
-      expect(dataRecord1.plainText).assertEqual(textData0);
+      const dataRecord130 = data.getRecordAt(0);
+      const dataRecord131 = data.getRecordAt(1);
+      expect(dataRecord130.plainText).assertEqual(textData131);
+      expect(dataRecord131.plainText).assertEqual(textData130);
       done();
     });
   });
@@ -348,21 +348,21 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test14', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData0 = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData0);
-    let textData = '';
+    const textData140 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData140);
+    let textData14 = '';
     for (let i = 1; i < 15; i++) {
-      textData = 'Hello World';
-      textData = textData + i;
-      pasteData.addTextRecord(textData);
+      textData14 = 'Hello World';
+      textData14 = textData14 + i;
+      pasteData.addTextRecord(textData14);
     }
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res14 = await systemPasteboard.hasPasteData();
+    expect(res14).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(15);
-      let dataRecord = data.getRecordAt(14);
-      expect(dataRecord.plainText).assertEqual(textData0);
+      const dataRecord14 = data.getRecordAt(14);
+      expect(dataRecord14.plainText).assertEqual(textData140);
       done();
     });
   });
@@ -376,21 +376,21 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test15', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData0 = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData0);
-    let textData = '';
+    const textData150 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData150);
+    let textData15 = '';
     for (let i = 1; i < 30; i++) {
-      textData = 'Hello World';
-      textData = textData + i;
-      pasteData.addTextRecord(textData);
+      textData15 = 'Hello World';
+      textData15 = textData15 + i;
+      pasteData.addTextRecord(textData15);
     }
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res15 = await systemPasteboard.hasPasteData();
+    expect(res15).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(30);
-      const dataRecord = data.getRecordAt(0);
-      expect(dataRecord.plainText).assertEqual('Hello World29');
+      const dataRecord15 = data.getRecordAt(0);
+      expect(dataRecord15.plainText).assertEqual('Hello World29');
       done();
     });
   });
@@ -404,22 +404,22 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test16', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData0 = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData0);
-    let textData = '';
+    const textData160 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData160);
+    let textData16 = '';
     for (let i = 1; i < 31; i++) {
-      textData = 'Hello World';
-      textData = textData + i;
-      pasteData.addTextRecord(textData);
+      textData16 = 'Hello World';
+      textData16 = textData16 + i;
+      pasteData.addTextRecord(textData16);
     }
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res16 = await systemPasteboard.hasPasteData();
+    expect(res16).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(31);
-      const dataRecord = data.getRecordAt(0);
-      expect(dataRecord.plainText).assertEqual('Hello World30');
+      const recordCount16 = data.getRecordCount();
+      expect(recordCount16).assertEqual(31);
+      const dataRecord16 = data.getRecordAt(0);
+      expect(dataRecord16.plainText).assertEqual('Hello World30');
       done();
     });
   });
@@ -433,25 +433,25 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test17', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    pasteData.addHtmlRecord(htmlText);
-    const uriText = 'https://www.baidu.com/';
-    pasteData.addUriRecord(uriText);
-    const want = {
+    const textData17 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData17);
+    const htmlText17 = '<html><head></head><body>Hello World!</body></html>';
+    pasteData.addHtmlRecord(htmlText17);
+    const uriText17 = 'https://www.baidu.com/';
+    pasteData.addUriRecord(uriText17);
+    const want17 = {
       bundleName: 'com.example.myapplication8',
       abilityName: 'com.example.myapplication8.MainAbility',
     };
-    pasteData.addWantRecord(want);
+    pasteData.addWantRecord(want17);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res17 = await systemPasteboard.hasPasteData();
+    expect(res17).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(4);
-      const wantRecord = data.getPrimaryWant();
-      expect(wantRecord.bundleName).assertEqual(want.bundleName);
-      expect(wantRecord.abilityName).assertEqual(want.abilityName);
+      const wantRecord17 = data.getPrimaryWant();
+      expect(wantRecord17.bundleName).assertEqual(want17.bundleName);
+      expect(wantRecord17.abilityName).assertEqual(want17.abilityName);
       done();
     });
   });
@@ -465,18 +465,18 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test18', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData18 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData18);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    await systemPasteboard.setPasteData(pasteData1);
+    const res18 = await systemPasteboard.hasPasteData();
+    expect(res18).assertEqual(true);
+    const pasteData18 = await systemPasteboard.getPasteData();
+    expect(pasteData18.getRecordCount()).assertEqual(1);
+    expect(pasteData18.removeRecordAt(0)).assertEqual(true);
+    await systemPasteboard.setPasteData(pasteData18);
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount18 = data.getRecordCount();
+      expect(recordCount18).assertEqual(0);
       done();
     });
   });
@@ -490,18 +490,18 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test19', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    const pasteData = pasteboard.createHtmlData(htmlText);
+    const htmlText19 = '<html><head></head><body>Hello World!</body></html>';
+    const pasteData = pasteboard.createHtmlData(htmlText19);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    await systemPasteboard.setPasteData(pasteData1);
+    const res19 = await systemPasteboard.hasPasteData();
+    expect(res19).assertEqual(true);
+    const pasteData19 = await systemPasteboard.getPasteData();
+    expect(pasteData19.getRecordCount()).assertEqual(1);
+    expect(pasteData19.removeRecordAt(0)).assertEqual(true);
+    await systemPasteboard.setPasteData(pasteData19);
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount19 = data.getRecordCount();
+      expect(recordCount19).assertEqual(0);
       done();
     });
   });
@@ -515,18 +515,18 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test20', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = 'https://www.baidu.com/';
-    const pasteData = pasteboard.createUriData(uriText);
+    const uriText20 = 'https://www.baidu.com/';
+    const pasteData = pasteboard.createUriData(uriText20);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    await systemPasteboard.setPasteData(pasteData1);
+    const res20 = await systemPasteboard.hasPasteData();
+    expect(res20).assertEqual(true);
+    const pasteData20 = await systemPasteboard.getPasteData();
+    expect(pasteData20.getRecordCount()).assertEqual(1);
+    expect(pasteData20.removeRecordAt(0)).assertEqual(true);
+    await systemPasteboard.setPasteData(pasteData20);
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount20 = data.getRecordCount();
+      expect(recordCount20).assertEqual(0);
       done();
     });
   });
@@ -540,21 +540,21 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test21', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const want = {
+    const want21 = {
       bundleName: 'com.example.myapplication8',
       abilityName: 'com.example.myapplication8.MainAbility',
     };
-    const pasteData = pasteboard.createWantData(want);
+    const pasteData = pasteboard.createWantData(want21);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    await systemPasteboard.setPasteData(pasteData1);
+    const res21 = await systemPasteboard.hasPasteData();
+    expect(res21).assertEqual(true);
+    const pasteData21 = await systemPasteboard.getPasteData();
+    expect(pasteData21.getRecordCount()).assertEqual(1);
+    expect(pasteData21.removeRecordAt(0)).assertEqual(true);
+    await systemPasteboard.setPasteData(pasteData21);
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount21 = data.getRecordCount();
+      expect(recordCount21).assertEqual(0);
       done();
     });
   });
@@ -568,21 +568,21 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test22', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    let textData = '';
+    let textData22 = '';
     for (let i = 0; i < 300; i++) {
-      textData = textData + 'A';
+      textData22 = textData22 + 'A';
     }
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const pasteData = pasteboard.createPlainTextData(textData22);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    await systemPasteboard.setPasteData(pasteData1);
+    const res22 = await systemPasteboard.hasPasteData();
+    expect(res22).assertEqual(true);
+    const pasteData22 = await systemPasteboard.getPasteData();
+    expect(pasteData22.getRecordCount()).assertEqual(1);
+    expect(pasteData22.removeRecordAt(0)).assertEqual(true);
+    await systemPasteboard.setPasteData(pasteData22);
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount22 = data.getRecordCount();
+      expect(recordCount22).assertEqual(0);
       done();
     });
   });
@@ -596,27 +596,27 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test23', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData0 = 'Hello World';
-    const pasteData = pasteboard.createPlainTextData(textData0);
-    let textData = '';
+    const textData230 = 'Hello World';
+    const pasteData = pasteboard.createPlainTextData(textData230);
+    let textData23 = '';
     for (let i = 1; i < 30; i++) {
-      textData = 'Hello World';
-      textData = textData + i;
-      pasteData.addTextRecord(textData);
+      textData23 = 'Hello World';
+      textData23 = textData23 + i;
+      pasteData.addTextRecord(textData23);
     }
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(30);
+    const res23 = await systemPasteboard.hasPasteData();
+    expect(res23).assertEqual(true);
+    const pasteData23 = await systemPasteboard.getPasteData();
+    expect(pasteData23.getRecordCount()).assertEqual(30);
     for (let i = 0; i < 30; i++) {
-      expect(pasteData1.removeRecordAt(0)).assertEqual(true);
+      expect(pasteData23.removeRecordAt(0)).assertEqual(true);
     }
-    expect(pasteData1.getRecordCount()).assertEqual(0);
-    systemPasteboard.setPasteData(pasteData1).then(() => {
+    expect(pasteData23.getRecordCount()).assertEqual(0);
+    systemPasteboard.setPasteData(pasteData23).then(() => {
       systemPasteboard.getPasteData().then((data) => {
-        let recordCount = data.getRecordCount();
-        expect(recordCount).assertEqual(0);
+        let recordCount23 = data.getRecordCount();
+        expect(recordCount23).assertEqual(0);
         done();
       });
     });
@@ -631,27 +631,27 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test24', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData24 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData24);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    const textData1 = 'Hello World1';
-    const pasteDataRecord = pasteboard.createPlainTextRecord(textData1);
-    const replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
+    const res24 = await systemPasteboard.hasPasteData();
+    expect(res24).assertEqual(true);
+    const pasteData24 = await systemPasteboard.getPasteData();
+    expect(pasteData24.getRecordCount()).assertEqual(1);
+    const textData241 = 'Hello World1';
+    const pasteDataRecord = pasteboard.createPlainTextRecord(textData241);
+    const replace = pasteData24.replaceRecordAt(0, pasteDataRecord);
     expect(replace).assertEqual(true);
-    const primaryText = pasteData1.getPrimaryText();
-    expect(primaryText).assertEqual(textData1);
-    expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_PLAIN)).assertEqual(true);
-    const dataRecord = pasteData1.getRecordAt(0);
-    expect(dataRecord.plainText).assertEqual(textData1);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    systemPasteboard.setPasteData(pasteData1).then(() => {
+    const primaryText = pasteData24.getPrimaryText();
+    expect(primaryText).assertEqual(textData241);
+    expect(pasteData24.hasMimeType(pasteboard.MIMETYPE_TEXT_PLAIN)).assertEqual(true);
+    const dataRecord = pasteData24.getRecordAt(0);
+    expect(dataRecord.plainText).assertEqual(textData241);
+    expect(pasteData24.removeRecordAt(0)).assertEqual(true);
+    systemPasteboard.setPasteData(pasteData24).then(() => {
       systemPasteboard.getPasteData().then((data) => {
-        const recordCount = data.getRecordCount();
-        expect(recordCount).assertEqual(0);
+        const recordCount24 = data.getRecordCount();
+        expect(recordCount24).assertEqual(0);
         done();
       });
     });
@@ -666,24 +666,24 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test25', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    pasteData.addHtmlRecord(htmlText);
-    const uriText = 'https://www.baidu.com/';
-    pasteData.addUriRecord(uriText);
+    const textData25 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData25);
+    const htmlText25 = '<html><head></head><body>Hello World!</body></html>';
+    pasteData.addHtmlRecord(htmlText25);
+    const uriText25 = 'https://www.baidu.com/';
+    pasteData.addUriRecord(uriText25);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(3);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    expect(pasteData1.removeRecordAt(0)).assertEqual(true);
-    systemPasteboard.setPasteData(pasteData1).then(() => {
+    const res25 = await systemPasteboard.hasPasteData();
+    expect(res25).assertEqual(true);
+    const pasteData25 = await systemPasteboard.getPasteData();
+    expect(pasteData25.getRecordCount()).assertEqual(3);
+    expect(pasteData25.removeRecordAt(0)).assertEqual(true);
+    expect(pasteData25.removeRecordAt(0)).assertEqual(true);
+    expect(pasteData25.removeRecordAt(0)).assertEqual(true);
+    systemPasteboard.setPasteData(pasteData25).then(() => {
       systemPasteboard.getPasteData().then((data) => {
-        const recordCount = data.getRecordCount();
-        expect(recordCount).assertEqual(0);
+        const recordCount25 = data.getRecordCount();
+        expect(recordCount25).assertEqual(0);
         done();
       });
     });
@@ -698,20 +698,20 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test26', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData26 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData26);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res26 = await systemPasteboard.hasPasteData();
+    expect(res26).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const textData1 = 'Hello World1';
-      const pasteDataRecord = pasteboard.createPlainTextRecord(textData1);
-      const replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
-      expect(replace).assertEqual(true);
-      const primaryText = pasteData1.getPrimaryText();
-      expect(primaryText).assertEqual(textData1);
+      const pasteData26 = data;
+      expect(pasteData26.getRecordCount()).assertEqual(1);
+      const textData261 = 'Hello World1';
+      const pasteDataRecord = pasteboard.createPlainTextRecord(textData261);
+      const replace26 = pasteData26.replaceRecordAt(0, pasteDataRecord);
+      expect(replace26).assertEqual(true);
+      const primaryText26 = pasteData26.getPrimaryText();
+      expect(primaryText26).assertEqual(textData261);
       done();
     });
   });
@@ -725,23 +725,23 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test27', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    const pasteData = pasteboard.createHtmlData(htmlText);
+    const htmlText27 = '<html><head></head><body>Hello World!</body></html>';
+    const pasteData = pasteboard.createHtmlData(htmlText27);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res27 = await systemPasteboard.hasPasteData();
+    expect(res27).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const htmlText1 = '<html><head></head><body>Hello World 1</body></html>';
-      const pasteDataRecord = pasteboard.createHtmlTextRecord(htmlText1);
-      const replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
-      expect(replace).assertEqual(true);
-      const primaryHtml1 = pasteData1.getPrimaryHtml();
-      expect(primaryHtml1).assertEqual(htmlText1);
-      expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
-      const primaryHtml2 = pasteData1.getPrimaryHtml();
-      expect(primaryHtml2).assertEqual(htmlText1);
+      const pasteData27 = data;
+      expect(pasteData27.getRecordCount()).assertEqual(1);
+      const htmlText27 = '<html><head></head><body>Hello World 1</body></html>';
+      const pasteDataRecord = pasteboard.createHtmlTextRecord(htmlText27);
+      const replace27 = pasteData27.replaceRecordAt(0, pasteDataRecord);
+      expect(replace27).assertEqual(true);
+      const primaryHtml271 = pasteData27.getPrimaryHtml();
+      expect(primaryHtml271).assertEqual(htmlText27);
+      expect(pasteData27.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
+      const primaryHtml272 = pasteData27.getPrimaryHtml();
+      expect(primaryHtml272).assertEqual(htmlText27);
       done();
     });
   });
@@ -755,23 +755,23 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test28', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = 'https://www.baidu.com/';
-    const pasteData = pasteboard.createUriData(uriText);
+    const uriText28 = 'https://www.baidu.com/';
+    const pasteData = pasteboard.createUriData(uriText28);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res28 = await systemPasteboard.hasPasteData();
+    expect(res28).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const uriText1 = 'https://www.baidu.com/1';
-      const pasteDataRecord = pasteboard.createUriRecord(uriText1);
-      const replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
-      expect(replace).assertEqual(true);
-      const primaryUri1 = pasteData1.getPrimaryUri();
-      expect(primaryUri1).assertEqual(uriText1);
-      expect(pasteData1.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-      const primaryUri2 = pasteData1.getPrimaryUri();
-      expect(primaryUri2).assertEqual(uriText1);
+      const pasteData28 = data;
+      expect(pasteData28.getRecordCount()).assertEqual(1);
+      const uriText281 = 'https://www.baidu.com/1';
+      const pasteDataRecord = pasteboard.createUriRecord(uriText281);
+      const replace28 = pasteData28.replaceRecordAt(0, pasteDataRecord);
+      expect(replace28).assertEqual(true);
+      const primaryUri1 = pasteData28.getPrimaryUri();
+      expect(primaryUri1).assertEqual(uriText281);
+      expect(pasteData28.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
+      const primaryUri2 = pasteData28.getPrimaryUri();
+      expect(primaryUri2).assertEqual(uriText281);
       done();
     });
   });
@@ -785,27 +785,27 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test29', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const wantText0 = {
+    const wantText29 = {
       bundleName: 'com.example.myapplication3',
       abilityName: 'com.example.myapplication3.MainAbility',
     };
-    const pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText0);
+    const pasteData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_WANT, wantText29);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res29 = await systemPasteboard.hasPasteData();
+    expect(res29).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const wantText1 = {
+      const pasteData29 = data;
+      expect(pasteData29.getRecordCount()).assertEqual(1);
+      const wantText291 = {
         bundleName: 'com.example.myapplication30',
         abilityName: 'com.example.myapplication30.MainAbility',
       };
-      const pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText1);
-      const replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
-      expect(replace).assertEqual(true);
-      const primaryWant = pasteData1.getPrimaryWant();
-      expect(primaryWant.bundleName).assertEqual(wantText1.bundleName);
-      expect(primaryWant.abilityName).assertEqual(wantText1.abilityName);
+      const pasteDataRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_WANT, wantText291);
+      const replace29 = pasteData29.replaceRecordAt(0, pasteDataRecord);
+      expect(replace29).assertEqual(true);
+      const primaryWant29 = pasteData29.getPrimaryWant();
+      expect(primaryWant29.bundleName).assertEqual(wantText291.bundleName);
+      expect(primaryWant29.abilityName).assertEqual(wantText291.abilityName);
       done();
     });
   });
@@ -819,23 +819,23 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test30', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    let textData = '';
+    let textData30 = '';
     for (let i = 0; i < 300; i++) {
-      textData = textData + 'A';
+      textData30 = textData30 + 'A';
     }
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const pasteData = pasteboard.createPlainTextData(textData30);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res30 = await systemPasteboard.hasPasteData();
+    expect(res30).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const textData1 = 'Hello World1';
-      const pasteDataRecord = pasteboard.createPlainTextRecord(textData1);
-      const replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
+      const pasteData30 = data;
+      expect(pasteData30.getRecordCount()).assertEqual(1);
+      const textData301 = 'Hello World1';
+      const pasteDataRecord = pasteboard.createPlainTextRecord(textData301);
+      const replace = pasteData30.replaceRecordAt(0, pasteDataRecord);
       expect(replace).assertEqual(true);
-      const primaryText = pasteData1.getPrimaryText();
-      expect(primaryText).assertEqual(textData1);
+      const primaryText = pasteData30.getPrimaryText();
+      expect(primaryText).assertEqual(textData301);
       done();
     });
   });
@@ -849,13 +849,13 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test31', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData31 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData31);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
+    const res31 = await systemPasteboard.hasPasteData();
+    expect(res31).assertEqual(true);
+    const pasteData31 = await systemPasteboard.getPasteData();
+    expect(pasteData31.getRecordCount()).assertEqual(1);
     await systemPasteboard.clearData();
     systemPasteboard.getPasteData().then((data) => {
       const pasteData2 = data;
@@ -874,18 +874,18 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test32', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData32 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData32);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    const pasteDataProperty = pasteData1.getProperty();
+    const res32 = await systemPasteboard.hasPasteData();
+    expect(res32).assertEqual(true);
+    const pasteData32 = await systemPasteboard.getPasteData();
+    expect(pasteData32.getRecordCount()).assertEqual(1);
+    const pasteDataProperty = pasteData32.getProperty();
     expect(pasteDataProperty.shareOption).assertEqual(pasteboard.ShareOption.CrossDevice);
     pasteDataProperty.shareOption = pasteboard.ShareOption.InApp;
-    pasteData1.setProperty(pasteDataProperty);
-    expect(pasteData1.getProperty().shareOption).assertEqual(pasteboard.ShareOption.InApp);
+    pasteData32.setProperty(pasteDataProperty);
+    expect(pasteData32.getProperty().shareOption).assertEqual(pasteboard.ShareOption.InApp);
     done();
   });
 
@@ -898,11 +898,11 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test33', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData33 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData33);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res33 = await systemPasteboard.hasPasteData();
+    expect(res33).assertEqual(true);
     systemPasteboard.getPasteData().then(async (data) => {
       expect(data.getRecordCount()).assertEqual(1);
       await systemPasteboard.clearData();
@@ -922,11 +922,11 @@ describe('PasteBoardJSTest', function () {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     systemPasteboard.on('update', contentChanges);
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData34 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData34);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res34 = await systemPasteboard.hasPasteData();
+    expect(res34).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
       expect(data.removeRecordAt(0)).assertEqual(true);
@@ -944,17 +944,17 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test35', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData35 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData35);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
+    const res35 = await systemPasteboard.hasPasteData();
+    expect(res35).assertEqual(true);
+    const pasteData35 = await systemPasteboard.getPasteData();
+    expect(pasteData35.getRecordCount()).assertEqual(1);
     await systemPasteboard.clearData();
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount35 = data.getRecordCount();
+      expect(recordCount35).assertEqual(0);
       done();
     });
   });
@@ -968,17 +968,17 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test36', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = 'https://www.baidu.com/';
-    const pasteData = pasteboard.createUriData(uriText);
+    const uriText36 = 'https://www.baidu.com/';
+    const pasteData = pasteboard.createUriData(uriText36);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
+    const res36 = await systemPasteboard.hasPasteData();
+    expect(res36).assertEqual(true);
+    const pasteData36 = await systemPasteboard.getPasteData();
+    expect(pasteData36.getRecordCount()).assertEqual(1);
     await systemPasteboard.clearData();
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount36 = data.getRecordCount();
+      expect(recordCount36).assertEqual(0);
       done();
     });
   });
@@ -992,17 +992,17 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test37', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    const pasteData = pasteboard.createHtmlData(htmlText);
+    const htmlText37 = '<html><head></head><body>Hello World!</body></html>';
+    const pasteData = pasteboard.createHtmlData(htmlText37);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
+    const res37 = await systemPasteboard.hasPasteData();
+    expect(res37).assertEqual(true);
+    const pasteData37 = await systemPasteboard.getPasteData();
+    expect(pasteData37.getRecordCount()).assertEqual(1);
     await systemPasteboard.clearData();
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount37 = data.getRecordCount();
+      expect(recordCount37).assertEqual(0);
       done();
     });
   });
@@ -1016,20 +1016,20 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test38', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const myWant = {
+    const myWant38 = {
       bundleName: 'com.example.myapplication55',
       abilityName: 'com.example.myapplication55.MainAbility',
     };
-    const pasteData = pasteboard.createWantData(myWant);
-    await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
+    const pasteData381 = pasteboard.createWantData(myWant38);
+    await systemPasteboard.setPasteData(pasteData381);
+    const res38 = await systemPasteboard.hasPasteData();
+    expect(res38).assertEqual(true);
+    const pasteData38 = await systemPasteboard.getPasteData();
+    expect(pasteData38.getRecordCount()).assertEqual(1);
     await systemPasteboard.clearData();
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount38 = data.getRecordCount();
+      expect(recordCount38).assertEqual(0);
       done();
     });
   });
@@ -1043,23 +1043,23 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test39', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData0 = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData0);
-    let textData = '';
+    const textData390 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData390);
+    let textData39 = '';
     for (let i = 1; i < 30; i++) {
-      textData = 'Hello World';
-      textData = textData + i;
-      pasteData.addTextRecord(textData);
+      textData39 = 'Hello World';
+      textData39 = textData39 + i;
+      pasteData.addTextRecord(textData39);
     }
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(30);
+    const res39 = await systemPasteboard.hasPasteData();
+    expect(res39).assertEqual(true);
+    const pasteData39 = await systemPasteboard.getPasteData();
+    expect(pasteData39.getRecordCount()).assertEqual(30);
     await systemPasteboard.clearData();
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount39 = data.getRecordCount();
+      expect(recordCount39).assertEqual(0);
       done();
     });
   });
@@ -1073,35 +1073,35 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test40', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData0 = 'Hello World0';
-    const pasteData = pasteboard.createPlainTextData(textData0);
-    let textData = '';
+    const textData400 = 'Hello World0';
+    const pasteData = pasteboard.createPlainTextData(textData400);
+    let textData40 = '';
     for (let i = 1; i < 5; i++) {
-      textData = 'Hello World';
-      textData = textData + i;
-      pasteData.addTextRecord(textData);
+      textData40 = 'Hello World';
+      textData40 = textData40 + i;
+      pasteData.addTextRecord(textData40);
     }
-    let htmlText = '';
+    let htmlText40 = '';
     for (let i = 0; i < 5; i++) {
-      htmlText = '<html><head></head><body>Hello World!</body></html>';
-      htmlText = htmlText + i;
-      pasteData.addHtmlRecord(htmlText);
+      htmlText40 = '<html><head></head><body>Hello World!</body></html>';
+      htmlText40 = htmlText40 + i;
+      pasteData.addHtmlRecord(htmlText40);
     }
-    let uriText = '';
+    let uriText40 = '';
     for (let i = 0; i < 5; i++) {
-      uriText = 'https://www.baidu.com/';
-      uriText = uriText + i;
-      pasteData.addUriRecord(uriText);
+      uriText40 = 'https://www.baidu.com/';
+      uriText40 = uriText40 + i;
+      pasteData.addUriRecord(uriText40);
     }
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const data = await systemPasteboard.getPasteData();
-    expect(data.getRecordCount()).assertEqual(15);
+    const res40 = await systemPasteboard.hasPasteData();
+    expect(res40).assertEqual(true);
+    const data40 = await systemPasteboard.getPasteData();
+    expect(data40.getRecordCount()).assertEqual(15);
     await systemPasteboard.clearData();
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(0);
+      const recordCount40 = data.getRecordCount();
+      expect(recordCount40).assertEqual(0);
       done();
     });
   });
@@ -1115,24 +1115,24 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test41', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData41 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData41);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    const textData1 = 'Hello World1';
-    const pasteDataRecord = pasteboard.createPlainTextRecord(textData1);
-    const replace = pasteData1.replaceRecordAt(0, pasteDataRecord);
-    expect(replace).assertEqual(true);
-    await systemPasteboard.setPasteData(pasteData1);
+    const res41 = await systemPasteboard.hasPasteData();
+    expect(res41).assertEqual(true);
+    const pasteData41 = await systemPasteboard.getPasteData();
+    expect(pasteData41.getRecordCount()).assertEqual(1);
+    const textData411 = 'Hello World1';
+    const pasteDataRecord = pasteboard.createPlainTextRecord(textData411);
+    const replace41 = pasteData41.replaceRecordAt(0, pasteDataRecord);
+    expect(replace41).assertEqual(true);
+    await systemPasteboard.setPasteData(pasteData41);
     systemPasteboard.hasPasteData().then(async (data) => {
       expect(data).assertEqual(true);
-      const newData = await systemPasteboard.getPasteData();
-      expect(newData.getPrimaryText()).assertEqual(textData1);
-      const newPasteDataRecord = newData.getRecordAt(0);
-      expect(newPasteDataRecord.plainText).assertEqual(textData1);
+      const newData41 = await systemPasteboard.getPasteData();
+      expect(newData41.getPrimaryText()).assertEqual(textData411);
+      const newPasteDataRecord = newData41.getRecordAt(0);
+      expect(newPasteDataRecord.plainText).assertEqual(textData411);
       done();
     });
   });
@@ -1146,18 +1146,18 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test42', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const data = pasteboard.createPlainTextData(textData);
-    await systemPasteboard.setPasteData(data);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData = await systemPasteboard.getPasteData();
-    const recordCount = pasteData.getRecordCount();
+    const textData42 = 'Hello World!';
+    const data42 = pasteboard.createPlainTextData(textData42);
+    await systemPasteboard.setPasteData(data42);
+    const res42 = await systemPasteboard.hasPasteData();
+    expect(res42).assertEqual(true);
+    const pasteData42 = await systemPasteboard.getPasteData();
+    const recordCount = pasteData42.getRecordCount();
     expect(recordCount).assertEqual(1);
-    expect(pasteData.removeRecordAt(0)).assertEqual(true);
-    expect(pasteData.getRecordCount()).assertEqual(0);
-    const newData = await systemPasteboard.getPasteData();
-    expect(newData.getRecordCount()).assertEqual(1);
+    expect(pasteData42.removeRecordAt(0)).assertEqual(true);
+    expect(pasteData42.getRecordCount()).assertEqual(0);
+    const newData42 = await systemPasteboard.getPasteData();
+    expect(newData42.getRecordCount()).assertEqual(1);
     done();
   });
 
@@ -1170,17 +1170,17 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test43', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData43 = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData43);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res43 = await systemPasteboard.hasPasteData();
+    expect(res43).assertEqual(true);
     systemPasteboard.getPasteData().then(async (data) => {
-      const pasteData1 = data;
-      expect(pasteData1.getRecordCount()).assertEqual(1);
-      const pasteDataRecord = pasteData1.getRecordAt(0);
-      const text = await pasteDataRecord.convertToText();
-      expect(text).assertEqual(textData);
+      const pasteData143 = data;
+      expect(pasteData143.getRecordCount()).assertEqual(1);
+      const pasteDataRecord = pasteData143.getRecordAt(0);
+      const text43 = await pasteDataRecord.convertToText();
+      expect(text43).assertEqual(textData43);
       done();
     });
   });
@@ -1194,19 +1194,19 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test44', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = 'Hello 中国!@#$%^&*()_+{}?.';
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const textData44 = 'Hello 中国!@#$%^&*()_+{}?.';
+    const pasteData = pasteboard.createPlainTextData(textData44);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    const pasteDataRecord = pasteData1.getRecordAt(0);
+    const res44 = await systemPasteboard.hasPasteData();
+    expect(res44).assertEqual(true);
+    const pasteData44 = await systemPasteboard.getPasteData();
+    expect(pasteData44.getRecordCount()).assertEqual(1);
+    const pasteDataRecord = pasteData44.getRecordAt(0);
     pasteDataRecord.convertToText((err, text) => {
       if (err) {
         console.info('f_test44 pasteDataRecord.convertToText error: ' + error);
       } else {
-        expect(textData).assertEqual(text);
+        expect(textData44).assertEqual(text);
         done();
       }
     });
@@ -1221,22 +1221,22 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test45', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    let textData = '';
+    let textData45 = '';
     for (let i = 0; i < 301; i++) {
-      textData = textData + 'A';
+      textData45 = textData45 + 'A';
     }
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const pasteData = pasteboard.createPlainTextData(textData45);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    const pasteDataRecord = pasteData1.getRecordAt(0);
+    const res45 = await systemPasteboard.hasPasteData();
+    expect(res45).assertEqual(true);
+    const pasteData45 = await systemPasteboard.getPasteData();
+    expect(pasteData45.getRecordCount()).assertEqual(1);
+    const pasteDataRecord = pasteData45.getRecordAt(0);
     pasteDataRecord.convertToText((err, text) => {
       if (err) {
         console.info('f_test45 pasteDataRecord.convertToText error: ' + error);
       } else {
-        expect(textData).assertEqual(text);
+        expect(textData45).assertEqual(text);
         done();
       }
     });
@@ -1251,18 +1251,18 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test46', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const uriText = 'https://www.baidu.com/';
-    const pasteData = pasteboard.createUriData(uriText);
+    const uriText46 = 'https://www.baidu.com/';
+    const pasteData = pasteboard.createUriData(uriText46);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    let pasteData1 = await systemPasteboard.getPasteData();
-    expect(pasteData1.getRecordCount()).assertEqual(1);
-    let pasteDataRecord = pasteData1.getRecordAt(0);
+    const res46 = await systemPasteboard.hasPasteData();
+    expect(res46).assertEqual(true);
+    let pasteData46 = await systemPasteboard.getPasteData();
+    expect(pasteData46.getRecordCount()).assertEqual(1);
+    let pasteDataRecord = pasteData46.getRecordAt(0);
     pasteDataRecord
       .convertToText()
       .then((text) => {
-        expect(uriText).assertEqual(text);
+        expect(uriText46).assertEqual(text);
         done();
       })
       .catch((error) => {
@@ -1279,20 +1279,20 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test47', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData0 = 'Hello World0';
-    const pasteData = pasteboard.createPlainTextData(textData0);
-    const uriText = pasteboard.createUriRecord('https://www.baidu.com/');
-    pasteData.addRecord(uriText);
+    const textData470 = 'Hello World0';
+    const pasteData = pasteboard.createPlainTextData(textData470);
+    const uriText47 = pasteboard.createUriRecord('https://www.baidu.com/');
+    pasteData.addRecord(uriText47);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res47 = await systemPasteboard.hasPasteData();
+    expect(res47).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
-      const recordCount = data.getRecordCount();
-      expect(recordCount).assertEqual(2);
+      const recordCount47 = data.getRecordCount();
+      expect(recordCount47).assertEqual(2);
       const pasteDataRecord1 = data.getRecordAt(0);
       const pasteDataRecord2 = data.getRecordAt(1);
-      expect(pasteDataRecord1.uri).assertEqual(uriText.uri);
-      expect(pasteDataRecord2.plainText).assertEqual(textData0);
+      expect(pasteDataRecord1.uri).assertEqual(uriText47.uri);
+      expect(pasteDataRecord2.plainText).assertEqual(textData470);
       done();
     });
   });
@@ -1307,11 +1307,11 @@ describe('PasteBoardJSTest', function () {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     systemPasteboard.off('update', contentChanges);
-    const htmlText = '<html><head></head><body>Hello World!</body></html>';
-    const pasteData = pasteboard.createHtmlData(htmlText);
+    const htmlText48 = '<html><head></head><body>Hello World!</body></html>';
+    const pasteData = pasteboard.createHtmlData(htmlText48);
     await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const res48 = await systemPasteboard.hasPasteData();
+    expect(res48).assertEqual(true);
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(1);
       expect(data.removeRecordAt(0)).assertEqual(true);
@@ -1329,27 +1329,27 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test49', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const buffer = new ArrayBuffer(128);
-    const opt = {
+    const buffer49 = new ArrayBuffer(128);
+    const opt49 = {
       size: { height: 5, width: 5 },
       pixelFormat: 3,
       editable: true,
       alphaType: 1,
       scaleMode: 1,
     };
-    const pixelMap = await image.createPixelMap(buffer, opt);
+    const pixelMap = await image.createPixelMap(buffer49, opt49);
     expect(pixelMap.getPixelBytesNumber()).assertEqual(100);
-    const pasteData = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
-    await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    const pasteData49 = pasteboard.createData(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
+    await systemPasteboard.setPasteData(pasteData49);
+    const res49 = await systemPasteboard.hasPasteData();
+    expect(res49).assertEqual(true);
     systemPasteboard.getPasteData().then(async (newPasteData) => {
-      const recordCount = newPasteData.getRecordCount();
-      expect(recordCount).assertEqual(1);
-      const newPixelMap = newPasteData.getPrimaryPixelMap();
-      const PixelMapBytesNumber = newPixelMap.getPixelBytesNumber();
+      const recordCount49 = newPasteData.getRecordCount();
+      expect(recordCount49).assertEqual(1);
+      const newPixelMap49 = newPasteData.getPrimaryPixelMap();
+      const PixelMapBytesNumber = newPixelMap49.getPixelBytesNumber();
       expect(PixelMapBytesNumber).assertEqual(100);
-      const imageInfo = await newPixelMap.getImageInfo();
+      const imageInfo = await newPixelMap49.getImageInfo();
       expect(imageInfo.size.height === 5 && imageInfo.size.width === 5).assertEqual(true);
       done();
     });
@@ -1364,34 +1364,34 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test50', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const dataXml = new ArrayBuffer(512);
-    let int32view = new Int32Array(dataXml);
-    for (let i = 0; i < int32view.length; i++) {
-      int32view[i] = 65535 + i;
+    const dataXml50 = new ArrayBuffer(512);
+    let int32view50 = new Int32Array(dataXml50);
+    for (let i = 0; i < int32view50.length; i++) {
+      int32view50[i] = 65535 + i;
     }
-    const pasteDataRecord = pasteboard.createRecord('app/xml', dataXml);
-    const dataJpg = new ArrayBuffer(256);
-    pasteDataRecord.data['image/ipg'] = dataJpg;
-    const pasteData = pasteboard.createHtmlData('application/xml');
-    const replace = pasteData.replaceRecordAt(0, pasteDataRecord);
+    const pasteDataRecord = pasteboard.createRecord('app/xml', dataXml50);
+    const dataJpg50 = new ArrayBuffer(256);
+    pasteDataRecord.data['image/ipg'] = dataJpg50;
+    const pasteData50 = pasteboard.createHtmlData('application/xml');
+    const replace = pasteData50.replaceRecordAt(0, pasteDataRecord);
     expect(replace).assertEqual(true);
-    await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    await systemPasteboard.setPasteData(pasteData50);
+    const res50 = await systemPasteboard.hasPasteData();
+    expect(res50).assertEqual(true);
     systemPasteboard.getPasteData().then((newPasteData) => {
-      const recordCount = newPasteData.getRecordCount();
-      expect(recordCount).assertEqual(1);
+      const recordCount50 = newPasteData.getRecordCount();
+      expect(recordCount50).assertEqual(1);
       let newPasteDataRecord = newPasteData.getRecordAt(0);
-      let newAppXml = newPasteDataRecord.data['app/xml'];
-      let newImageIpg = newPasteDataRecord.data['image/ipg'];
-      expect(newAppXml.byteLength === 512 && newImageIpg.byteLength === 256).assertEqual(true);
-      let newAppXmlView = new Int32Array(newAppXml);
-      let newImageIpgView = new Int32Array(newImageIpg);
-      for (let i = 0; i < newAppXmlView.length; i++) {
-        console.info('newAppXml[' + i + '] = ' + newAppXmlView[i]);
+      let newAppXml50 = newPasteDataRecord.data['app/xml'];
+      let newImageIpg50 = newPasteDataRecord.data['image/ipg'];
+      expect(newAppXml50.byteLength === 512 && newImageIpg50.byteLength === 256).assertEqual(true);
+      let newAppXmlView50 = new Int32Array(newAppXml50);
+      let newImageIpgView50 = new Int32Array(newImageIpg50);
+      for (let i = 0; i < newAppXmlView50.length; i++) {
+        console.info('newAppXml[' + i + '] = ' + newAppXmlView50[i]);
       }
-      for (let i = 0; i < newImageIpgView.length; i++) {
-        console.info('newImageIpg[' + i + '] = ' + newImageIpg[i]);
+      for (let i = 0; i < newImageIpgView50.length; i++) {
+        console.info('newImageIpg[' + i + '] = ' + newImageIpg50[i]);
       }
       done();
     });
@@ -1406,31 +1406,31 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test51', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const buffer = new ArrayBuffer(128);
-    const opt = {
+    const buffer51 = new ArrayBuffer(128);
+    const opt51 = {
       size: { height: 5, width: 5 },
       pixelFormat: 3,
       editable: true,
       alphaType: 1,
       scaleMode: 1,
     };
-    const pasteData = pasteboard.createHtmlData('application/xml');
-    const pixelMap = await image.createPixelMap(buffer, opt);
+    const pasteData51 = pasteboard.createHtmlData('application/xml');
+    const pixelMap = await image.createPixelMap(buffer51, opt51);
     expect(pixelMap.getPixelBytesNumber() === 100).assertEqual(true);
-    pasteData.addRecord(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
-    await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
+    pasteData51.addRecord(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
+    await systemPasteboard.setPasteData(pasteData51);
+    const res51 = await systemPasteboard.hasPasteData();
+    expect(res51).assertEqual(true);
     systemPasteboard.getPasteData().then(async (newPasteData) => {
-      const recordCount = newPasteData.getRecordCount();
-      expect(recordCount).assertEqual(2);
-      const newPixelMap = newPasteData.getPrimaryPixelMap();
-      const PixelMapBytesNumber = newPixelMap.getPixelBytesNumber();
-      expect(PixelMapBytesNumber).assertEqual(100);
-      const newHtmlData = newPasteData.getRecordAt(1);
-      expect(newHtmlData.htmlText).assertEqual('application/xml');
-      const imageInfo = await newPixelMap.getImageInfo();
-      expect(imageInfo.size.height === 5 && imageInfo.size.width === 5).assertEqual(true);
+      const recordCount51 = newPasteData.getRecordCount();
+      expect(recordCount51).assertEqual(2);
+      const newPixelMap51 = newPasteData.getPrimaryPixelMap();
+      const PixelMapBytesNumber51 = newPixelMap51.getPixelBytesNumber();
+      expect(PixelMapBytesNumber51).assertEqual(100);
+      const newHtmlData51 = newPasteData.getRecordAt(1);
+      expect(newHtmlData51.htmlText).assertEqual('application/xml');
+      const imageInfo51 = await newPixelMap51.getImageInfo();
+      expect(imageInfo51.size.height === 5 && imageInfo51.size.width === 5).assertEqual(true);
       done();
     });
   });
@@ -1452,7 +1452,7 @@ describe('PasteBoardJSTest', function () {
       abilityName: 'com.example.myapplication3.MainAbility',
     };
     const plainText52 = '';
-    const pasteData52 = pasteboard.createData('r'.repeat(1024), dataHtml52);
+    const pasteData52 = pasteboard.createData('x'.repeat(1024), dataHtml52);
     const record52 = pasteData52.getRecordAt(0);
     record52.htmlText = htmlText52;
     record52.plainText = plainText52;
@@ -1466,8 +1466,8 @@ describe('PasteBoardJSTest', function () {
       alphaType: 1,
       scaleMode: 1,
     };
-    const pixelMap52 = await image.createPixelMap(buffer52, opt52);
-    record52.pixelMap = pixelMap52;
+    const pixelMap = await image.createPixelMap(buffer52, opt52);
+    record52.pixelMap = pixelMap;
     pasteData52.replaceRecordAt(0, record52);
     for (let i = 0; i < 511; i++) {
       pasteData52.addRecord(record52);
@@ -1477,7 +1477,7 @@ describe('PasteBoardJSTest', function () {
     expect(res52).assertTrue();
     systemPasteboard.getPasteData().then((data) => {
       expect(data.getRecordCount()).assertEqual(512);
-      expect(data.getRecordAt(0).mimeType).assertEqual('r'.repeat(1024));
+      expect(data.getRecordAt(0).mimeType).assertEqual('x'.repeat(1024));
       expect(data.getPrimaryWant().bundleName).assertEqual(wantText52.bundleName);
       expect(data.getRecordAt(253).htmlText).assertEqual(htmlText52);
       expect(data.getRecordAt(511).plainText).assertEqual(plainText52);
