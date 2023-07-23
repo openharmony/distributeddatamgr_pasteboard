@@ -26,7 +26,7 @@ public:
     static bool IsOn();
     static void Watch(Observer observer);
     static void Notify();
-
+    static void UpdateEnabledStatus();
 private:
     static bool GetEnabledStatus();
     static Observer observer_;

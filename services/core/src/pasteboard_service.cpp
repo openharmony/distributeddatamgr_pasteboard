@@ -208,7 +208,8 @@ void PasteboardService::Clear()
     if (it != clips_.end()) {
         RevokeUriPermission(*(it->second));
         clips_.erase(it);
-        std::string bundleName = GetAppBundleName(IPCSkeleton::GetCallingTokenID());
+        auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
+        std::string bundleName = GetAppBundleName(appInfo);
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
     }
     std::lock_guard<std::mutex> lck(hintMutex_);
@@ -280,6 +281,7 @@ bool PasteboardService::HasPastePermission(
 AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
 {
     AppInfo info;
+    info.tokenId = tokenId;
     info.tokenType = AccessTokenKit::GetTokenTypeFlag(tokenId);
     switch (info.tokenType) {
         case ATokenTypeEnum::TOKEN_HAP: {
@@ -310,9 +312,8 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
     return info;
 }
 
-std::string PasteboardService::GetAppBundleName(uint32_t tokenId)
+std::string PasteboardService::GetAppBundleName(const AppInfo &appInfo)
 {
-    auto appInfo = GetAppInfo(tokenId);
     std::string bundleName;
     if (appInfo.userId != ERROR_USERID) {
         bundleName = appInfo.bundleName;
@@ -326,7 +327,7 @@ std::string PasteboardService::GetAppBundleName(uint32_t tokenId)
 void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData)
 {
     pasteData.SetLocalPasteFlag(!isCrossPaste && tokenId == pasteData.GetTokenId());
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "isLocalPaste = %{public}d.", pasteData.IsLocalPaste());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isLocalPaste = %{public}d.", pasteData.IsLocalPaste());
 }
 
 int32_t PasteboardService::GetPasteData(PasteData &data)
@@ -338,45 +339,98 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     bool isFocusedApp = IsFocusedApp(tokenId);
-    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
-    std::string targetBundleName = GetAppBundleName(tokenId);
-    std::thread thread([this, block, tokenId, isFocusedApp, targetBundleName]() mutable {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
-        std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-        auto success = GetPasteData(*pasteData, tokenId, isFocusedApp, targetBundleName);
-        if (!success) {
-            pasteData->SetInvalid();
-        }
-        block->SetValue(pasteData);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData End");
-    });
-    thread.detach();
-    auto value = block->GetValue();
-    std::string pop;
-    if (value == nullptr) {
-        PasteBoardDialog::MessageInfo message;
-        message.appName = GetAppLabel(tokenId);
-        message.deviceType = GetDeviceName();
-        PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
-        pop = "pop";
-        block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-        value = block->GetValue();
-        PasteBoardDialog::GetInstance().CancelDialog();
-    }
     bool result = false;
-    if (value != nullptr) {
-        result = value->IsValid();
-        data = std::move(*value);
+    std::string pop;
+    auto appInfo = GetAppInfo(tokenId);
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        result = CheckPasteData(appInfo, data, isFocusedApp);
+    } else {
+        auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
+        std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
+            std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+            auto success = GetPasteData(appInfo, *pasteData, isFocusedApp);
+            if (!success) {
+                pasteData->SetInvalid();
+            }
+            block->SetValue(pasteData);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData End");
+        });
+        thread.detach();
+        auto value = block->GetValue();
+        if (value == nullptr) {
+            PasteBoardDialog::MessageInfo message;
+            message.appName = GetAppLabel(tokenId);
+            message.deviceType = GetDeviceName();
+            PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
+            pop = "pop";
+            block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
+            value = block->GetValue();
+            PasteBoardDialog::GetInstance().CancelDialog();
+        }
+        if (value != nullptr) {
+            result = value->IsValid();
+            data = std::move(*value);
+        }
     }
-    NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
-    GetPasteDataDot(data, pop, tokenId);
-    GrantUriPermission(data, targetBundleName);
+    if (observerEventMap_.size() != 0) {
+        std::string targetBundleName = GetAppBundleName(appInfo);
+        NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
+    }
+    GetPasteDataDot(data, pop, appInfo.bundleName);
+    GrantUriPermission(data, appInfo.bundleName);
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
+}
+
+
+bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
+{
+    PasteboardTrace tracer("GetPasteData inner");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
+    if (appInfo.userId == ERROR_USERID) {
+        PasteData::sharePath = "";
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId error.");
+        return false;
+    }
+    PasteData::sharePath = PasteData::SHARE_PATH_PREFIX + std::to_string(appInfo.userId)
+        + PasteData::SHARE_PATH_PREFIX_ACCOUNT;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
+    bool isRemote = false;
+    {
+        std::lock_guard<std::mutex> lock(clipMutex_);
+        auto pastData = GetDistributedData(appInfo.userId);
+        if (pastData != nullptr) {
+            isRemote = true;
+            pastData->SetRemote(isRemote);
+            clips_.insert_or_assign(appInfo.userId, pastData);
+        }
+    }
+    data.SetRemote(isRemote);
+    return CheckPasteData(appInfo, data, isFocusedApp);
+}
+
+bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
+{
+    auto it = clips_.find(appInfo.userId);
+    if (it == clips_.end()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
+        return false;
+    }
+    auto ret = HasPastePermission(appInfo.tokenId, isFocusedApp, it->second);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "don't have paste permission.");
+        return false;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
+    it->second->SetBundleName(appInfo.bundleName);
+    data = *(it->second);
+    SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
+    return true;
 }
 
 void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
 {
-    auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || targetBundleName.compare(data.GetOrginAuthority()) == 0) {
@@ -395,6 +449,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "uri error.");
             continue;
         }
+        auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
         auto permissionCode = permissionClient.GrantUriPermission(*uri, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
             targetBundleName, 1);
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
@@ -472,47 +527,6 @@ void PasteboardService::ShowHintToast(bool isValid, uint32_t tokenId, const std:
         PasteBoardDialog::GetInstance().CancelToast();
     });
     thread.detach();
-}
-
-bool PasteboardService::GetPasteData(PasteData &data, uint32_t tokenId,
-    bool isFocusedApp, const std::string &bundleName)
-{
-    PasteboardTrace tracer("GetPasteData inner");
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
-    auto userId = GetCurrentAccountId();
-    if (userId == ERROR_USERID) {
-        PasteData::sharePath = "";
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId error.");
-        return false;
-    }
-    PasteData::sharePath = PasteData::SHARE_PATH_PREFIX + std::to_string(userId) + PasteData::SHARE_PATH_PREFIX_ACCOUNT;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
-    bool isRemote = false;
-    std::lock_guard<std::mutex> lock(clipMutex_);
-    auto pastData = GetDistributedData(userId);
-    if (pastData != nullptr) {
-        isRemote = true;
-        pastData->SetRemote(isRemote);
-        clips_.insert_or_assign(userId, pastData);
-    }
-    auto it = clips_.find(userId);
-    if (it == clips_.end()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
-        return false;
-    }
-
-    auto ret = HasPastePermission(tokenId, isFocusedApp, it->second);
-    if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "don't have paste permission.");
-        return false;
-    }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
-    it->second->SetBundleName(bundleName);
-    data = *(it->second);
-    data.SetRemote(isRemote);
-
-    SetLocalPasteFlag(isRemote, tokenId, data);
-    return true;
 }
 
 bool PasteboardService::HasPasteData()
@@ -747,24 +761,27 @@ inline bool PasteboardService::IsCallerUidValid()
 
 void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventStatus status)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    std::lock_guard<std::mutex> lock(observerMutex_);
-    for (auto &observers : observerChangedMap_) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d, changed observers size: %{public}u",
-            observers.first, static_cast<unsigned int>(observers.second->size()));
-        for (const auto &observer : *(observers.second)) {
-            if (status != PasteboardEventStatus::PASTEBOARD_READ) {
-                observer->OnPasteboardChanged();
+    std::thread thread([this, bundleName, status] () {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+        std::lock_guard<std::mutex> lock(observerMutex_);
+        for (auto &observers : observerChangedMap_) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d, changed observers size: %{public}u",
+                observers.first, static_cast<unsigned int>(observers.second->size()));
+            for (const auto &observer : *(observers.second)) {
+                if (status != PasteboardEventStatus::PASTEBOARD_READ) {
+                    observer->OnPasteboardChanged();
+                }
             }
         }
-    }
-    for (auto &observers : observerEventMap_) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d, event observers size: %{public}u",
-            observers.first, static_cast<unsigned int>(observers.second->size()));
-        for (const auto &observer : *(observers.second)) {
-            observer->OnPasteboardEvent(bundleName, static_cast<int32_t>(status));
+        for (auto &observers : observerEventMap_) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d, event observers size: %{public}u",
+                observers.first, static_cast<unsigned int>(observers.second->size()));
+            for (const auto &observer : *(observers.second)) {
+                observer->OnPasteboardEvent(bundleName, static_cast<int32_t>(status));
+            }
         }
-    }
+    });
+    thread.detach();
 }
 
 size_t PasteboardService::GetDataSize(PasteData &data) const
@@ -910,21 +927,19 @@ void PasteboardService::SetPasteDataDot(PasteData &pasteData)
     CalculateTimeConsuming timeC(dataSize, state);
 }
 
-void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string &pop, uint32_t tokenId)
+void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string &pop, const std::string &bundleName)
 {
-    auto property = pasteData.GetProperty();
     std::string remote;
-    if (property.isRemote) {
+    if (pasteData.IsRemote()) {
         remote = "remote";
     }
     std::string time = GetTime();
-    auto appInfo = GetAppInfo(tokenId);
-    HistoryInfo info{ time, appInfo.bundleName, "get", pop, remote };
+    HistoryInfo info{ time, bundleName, "get", pop, remote };
     SetPasteboardHistory(info);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     int pState = StatisticPasteboardState::SPS_INVALID_STATE;
     int bState = BehaviourPasteboardState::BPS_INVALID_STATE;
-    if (property.isRemote) {
+    if (pasteData.IsRemote()) {
         pState = static_cast<int>(StatisticPasteboardState::SPS_REMOTE_PASTE_STATE);
         bState = static_cast<int>(BehaviourPasteboardState::BPS_REMOTE_PASTE_STATE);
     } else {
@@ -932,7 +947,7 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
         bState = static_cast<int>(BehaviourPasteboardState::BPS_PASTE_STATE);
     };
 
-    Reporter::GetInstance().PasteboardBehaviour().Report({ bState, appInfo.bundleName });
+    Reporter::GetInstance().PasteboardBehaviour().Report({ bState, bundleName });
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData GetDataSize");
     size_t dataSize = GetDataSize(pasteData);

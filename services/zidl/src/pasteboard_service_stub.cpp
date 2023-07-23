@@ -89,6 +89,7 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
     PasteData pasteData{};
     auto result = GetPasteData(pasteData);
+    HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::PASTE_STATE, result);
     std::vector<uint8_t> pasteDataTlv(0);
     std::lock_guard<std::mutex> lock(encodeLock_);
     bool ret = pasteData.Encode(pasteDataTlv);

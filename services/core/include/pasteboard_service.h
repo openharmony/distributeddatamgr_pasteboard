@@ -47,6 +47,7 @@ struct AppInfo {
     std::string bundleName = "com.pasteboard.default";
     int32_t tokenType = -1;
     int32_t userId = ERROR_USERID;
+    uint32_t tokenId;
 };
 
 struct HistoryInfo {
@@ -105,8 +106,9 @@ private:
     bool IsCopyable(uint32_t tokenId) const;
 
     void SetPasteDataDot(PasteData &pasteData);
-    void GetPasteDataDot(PasteData &pasteData, const std::string &pop, uint32_t tokenId);
-    bool GetPasteData(PasteData &data, uint32_t tokenId, bool isFocusedApp, const std::string &bundleName);
+    void GetPasteDataDot(PasteData &pasteData, const std::string &pop, const std::string &bundleName);
+    bool GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
+    bool CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(PasteData &lastData);
     void GenerateDistributedUri(PasteData &data);
@@ -124,10 +126,10 @@ private:
     void OnConfigChange(bool isOn);
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
-    std::string GetTime();
+    static std::string GetTime();
     static bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
     static AppInfo GetAppInfo(uint32_t tokenId);
-    static std::string GetAppBundleName(uint32_t tokenId);
+    static std::string GetAppBundleName(const AppInfo &appInfo);
     static bool IsDefaultIME(const AppInfo &appInfo);
     static bool IsFocusedApp(int32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);

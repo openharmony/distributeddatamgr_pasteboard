@@ -49,13 +49,16 @@ void PasteboardDevStateCallback::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevManager::GetInstance().Offline(deviceInfo.networkId);
 }
+
 void PasteboardDevStateCallback::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
 {
 }
+
 void PasteboardDevStateCallback::OnDeviceReady(const DmDeviceInfo &deviceInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevManager::GetInstance().Online(deviceInfo.networkId);
+    DistributedModuleConfig::UpdateEnabledStatus();
 }
 
 void PasteboardDmInitCallback::OnRemoteDied()
