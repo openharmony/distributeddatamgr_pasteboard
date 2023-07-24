@@ -159,6 +159,7 @@ private:
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
+    std::atomic<bool> dialogShowing_ = false;
     std::mutex deviceMutex_;
     std::string fromDevice_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
