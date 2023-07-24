@@ -334,7 +334,6 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 {
     CalculateTimeConsuming::SetBeginTime();
 
-    SetDeviceName();
     PasteboardTrace tracer("PasteboardService GetPasteData");
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
