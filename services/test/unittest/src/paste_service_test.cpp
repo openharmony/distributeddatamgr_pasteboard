@@ -15,6 +15,7 @@
 #include <gtest/gtest.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <cstdint>
 #include <vector>
 
@@ -29,6 +30,7 @@
 #include "permission_state_full.h"
 #include "pixel_map.h"
 #include "token_setproc.h"
+#include <thread>
 #include "uri.h"
 #include "want.h"
 
@@ -112,17 +114,17 @@ bool PasteboardServiceTest::ExecuteCmd(std::string &result)
 {
     char buff[EACH_LINE_LENGTH] = { 0x00 };
     char output[TOTAL_LENGTH] = { 0x00 };
-    FILE *ptr = NULL;
-    if ((ptr = popen(CMD, "r")) != NULL) {
+    FILE *ptr = nullptr;
+    if ((ptr = popen(CMD, "r")) != nullptr) {
         while (fgets(buff, sizeof(buff), ptr) != nullptr) {
             if (strcat_s(output, sizeof(output), buff) != 0) {
                 pclose(ptr);
-                ptr = NULL;
+                ptr = nullptr;
                 return false;
             }
         }
         pclose(ptr);
-        ptr = NULL;
+        ptr = nullptr;
     } else {
         return false;
     }
@@ -961,6 +963,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     ASSERT_FALSE(hasPasteData);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     ASSERT_TRUE(PasteboardServiceTest::pasteboardChangedFlag_);
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData);
@@ -974,6 +977,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_FALSE(hasPasteData);
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData);
@@ -1004,6 +1008,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     ASSERT_FALSE(hasPasteData);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
         static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_WRITE));
@@ -1012,6 +1017,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     PasteData newPasteData;
     ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
         static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_READ));
     PasteboardClient::GetInstance()->Clear();
@@ -1021,6 +1027,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     PasteboardServiceTest::pasteboardEventStatus_ = -1;
     PasteboardClient::GetInstance()->RemovePasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
     PasteboardClient::GetInstance()->Clear();
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
@@ -1039,7 +1046,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0020, TestSize.Level0)
     std::string text = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(text);
     ASSERT_TRUE(pasteData != nullptr);
-    std::string bundleName="ohos.acts.distributeddatamgr.pasteboard";
+    std::string bundleName = "ohos.acts.distributeddatamgr.pasteboard";
     pasteData->SetBundleName(bundleName);
     std::string time = GetTime();
     pasteData->SetTime(time);

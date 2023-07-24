@@ -157,7 +157,6 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     RebuildWebviewPasteData(pasteData);
     RetainUri(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
-    HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::PASTE_STATE, ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
     return ret;
 }

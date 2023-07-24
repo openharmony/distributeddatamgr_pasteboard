@@ -347,7 +347,7 @@ size_t PasteDataRecord::Count()
 
 std::shared_ptr<PixelMap> PasteDataRecord::Vector2PixelMap(std::vector<std::uint8_t> &value)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Vector2PixelMap, size is %{public}zu", value.size());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Vector2PixelMap, size is %{public}zu", value.size());
     if (value.size() == 0) {
         return nullptr;
     }
@@ -356,7 +356,7 @@ std::shared_ptr<PixelMap> PasteDataRecord::Vector2PixelMap(std::vector<std::uint
 
 std::vector<std::uint8_t> PasteDataRecord::PixelMap2Vector(std::shared_ptr<PixelMap> &pixelMap)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PixelMap2Vector");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "PixelMap2Vector");
     if (pixelMap == nullptr) {
         return {};
     }
@@ -421,7 +421,7 @@ std::string PasteDataRecord::GetPassUri()
     if (!convertUri_.empty()) {
         tempUri = convertUri_;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "tempUri:%{public}s", tempUri.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "tempUri:%{public}s", tempUri.c_str());
     return tempUri;
 }
 void PasteDataRecord::ReplaceShareUri(int32_t userId)

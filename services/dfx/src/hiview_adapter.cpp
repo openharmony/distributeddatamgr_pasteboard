@@ -477,32 +477,39 @@ void HiViewAdapter::StartTimerThread()
 
 void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, int32_t result)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    auto iter = PasteboardErrorMap.find(PasteboardError(result));
-    const char *appRet;
-    if (iter != PasteboardErrorMap.end()) {
-        appRet = iter->second;
-    } else {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Match error result: %{public}d.", result);
-        appRet = "MATCH ERROR";
-    }
+    std::string bundleName = pastData.GetBundleName();
+    std::string primaryMimeType = pastData.GetPrimaryMimeType() != nullptr? *pastData.GetPrimaryMimeType() : "null";
     std::string shareOption;
     PasteData::ShareOptionToString(pastData.GetShareOption(), shareOption);
-    int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-        CoverEventID(DfxCodeConstant::USE_BEHAVIOUR),
-        HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, state,
-        BOOTTIME, TimeServiceClient::GetInstance()->GetBootTimeMs(),
-        WALLTIME, TimeServiceClient::GetInstance()->GetWallTimeMs(),
-        RESULT, appRet,
-        OPERATE_APP, pastData.GetProperty().bundleName,
-        PRI_MIME_TYPE, pastData.GetPrimaryMimeType() != nullptr? *pastData.GetPrimaryMimeType() : "null",
-        ISLOCALPASTE, pastData.IsLocalPaste(),
-        ISREMOTE, pastData.IsRemote(),
-        SHAREOPTION, shareOption);
-    if (ret != HiviewDFX::SUCCESS) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
+    auto isLocalPaste = pastData.IsLocalPaste();
+    auto isRemote = pastData.IsRemote();
+    std::thread thread([=]() {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+        auto iter = PasteboardErrorMap.find(PasteboardError(result));
+        const char *appRet;
+        if (iter != PasteboardErrorMap.end()) {
+            appRet = iter->second;
+        } else {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Match error result: %{public}d.", result);
+            appRet = "MATCH ERROR";
+        }
+        int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
+            CoverEventID(DfxCodeConstant::USE_BEHAVIOUR),
+            HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, state,
+            BOOTTIME, TimeServiceClient::GetInstance()->GetBootTimeMs(),
+            WALLTIME, TimeServiceClient::GetInstance()->GetWallTimeMs(),
+            RESULT, appRet,
+            OPERATE_APP, bundleName,
+            PRI_MIME_TYPE, primaryMimeType,
+            ISLOCALPASTE, isLocalPaste,
+            ISREMOTE, isRemote,
+            SHAREOPTION, shareOption);
+        if (ret != HiviewDFX::SUCCESS) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
+        }
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
+    });
+    thread.detach();
 }
 
 std::string HiViewAdapter::CoverEventID(int dfxCode)
