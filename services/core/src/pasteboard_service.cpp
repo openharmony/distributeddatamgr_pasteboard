@@ -231,7 +231,7 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     return property != nullptr && property->name == appInfo.bundleName;
 }
 
-bool PasteboardService::IsFocusedApp(int32_t tokenId)
+bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 {
     using namespace OHOS::AAFwk;
     AppInfo appInfo = GetAppInfo(tokenId);
@@ -335,7 +335,6 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 {
     CalculateTimeConsuming::SetBeginTime();
 
-    SetDeviceName();
     PasteboardTrace tracer("PasteboardService GetPasteData");
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -347,33 +346,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     if (clipPlugin == nullptr) {
         result = CheckPasteData(appInfo, data, isFocusedApp);
     } else {
-        auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
-        std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
-            std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-            auto success = GetPasteData(appInfo, *pasteData, isFocusedApp);
-            if (!success) {
-                pasteData->SetInvalid();
-            }
-            block->SetValue(pasteData);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData End");
-        });
-        thread.detach();
-        auto value = block->GetValue();
-        if (value == nullptr) {
-            PasteBoardDialog::MessageInfo message;
-            message.appName = GetAppLabel(tokenId);
-            message.deviceType = GetDeviceName();
-            PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
-            pop = "pop";
-            block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-            value = block->GetValue();
-            PasteBoardDialog::GetInstance().CancelDialog();
-        }
-        if (value != nullptr) {
-            result = value->IsValid();
-            data = std::move(*value);
-        }
+        result = GetRemoteData(appInfo, data, pop, isFocusedApp, tokenId);
     }
     if (observerEventMap_.size() != 0) {
         std::string targetBundleName = GetAppBundleName(appInfo);
@@ -384,6 +357,48 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
+bool PasteboardService::GetRemoteData(
+    AppInfo &appInfo, PasteData &data, std::string &pop, bool isFocusedApp, uint32_t tokenId)
+{
+    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
+    std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
+        std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+        auto success = GetPasteData(appInfo, *pasteData, isFocusedApp);
+        if (!success) {
+            pasteData->SetInvalid();
+        }
+        block->SetValue(pasteData);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData End");
+    });
+    thread.detach();
+    auto value = block->GetValue();
+    if (value == nullptr) {
+        if (dialogShowing_.exchange(true) || IsDefaultIME(appInfo)) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not need show dialog");
+            block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
+            value = block->GetValue();
+        } else {
+            PasteBoardDialog::MessageInfo message;
+            message.appName = GetAppLabel(tokenId);
+            message.deviceType = GetDeviceName();
+            PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
+            dialogShowing_.store(true);
+            pop = "pop";
+            block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
+            value = block->GetValue();
+            PasteBoardDialog::GetInstance().CancelDialog();
+            dialogShowing_.store(false);
+            SetDeviceName();
+        }
+    }
+    if (value != nullptr) {
+        auto ret = value->IsValid();
+        data = std::move(*value);
+        return ret;
+    }
+    return false;
+}
 
 bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
@@ -1017,13 +1032,19 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         return false;
     }
 
+    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    if (networkId.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
+        return false;
+    }
+
     uint64_t expiration =
         duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
     Event event;
     event.user = user;
     event.seqId = ++sequenceId_;
     event.expiration = expiration;
-    event.deviceId = DMAdapter::GetInstance().GetLocalDevice();
+    event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
     event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
     currentEvent_ = event;
@@ -1105,11 +1126,17 @@ bool PasteboardService::CleanDistributedData(int32_t user)
 void PasteboardService::OnConfigChange(bool isOn)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConfigChange isOn: %{public}d.", isOn);
-    if (isOn) {
+    std::lock_guard<decltype(mutex)> lockGuard(mutex);
+    if (!isOn) {
+        clipPlugin_ = nullptr;
         return;
     }
-    std::lock_guard<decltype(mutex)> lockGuard(mutex);
-    clipPlugin_ = nullptr;
+    auto release = [this](ClipPlugin *plugin) {
+        std::lock_guard<decltype(mutex)> lockGuard(mutex);
+        ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
+    };
+
+    clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
 }
 
 bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, int32_t user, Event &event)
@@ -1121,7 +1148,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     }
 
     auto &tmpEvent = events[0];
-    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalDevice()) {
+    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalNetworkId()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data.");
         return false;
     }
@@ -1181,7 +1208,7 @@ std::string PasteboardService::GetDeviceName()
 void PasteboardService::SetDeviceName(const std::string &device)
 {
     std::lock_guard<decltype(deviceMutex_)> lockGuard(deviceMutex_);
-    if (device.empty() || device == DMAdapter::GetInstance().GetLocalDevice()) {
+    if (device.empty() || device == DMAdapter::GetInstance().GetLocalNetworkId()) {
         fromDevice_ = "local";
         return;
     }

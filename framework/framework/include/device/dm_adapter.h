@@ -32,7 +32,8 @@ public:
     static DMAdapter &GetInstance();
     bool Initialize(const std::string &pkgName);
     const std::string &GetLocalDevice();
-    std::string GetDeviceName(const std::string &udid);
+    const std::string GetLocalNetworkId();
+    std::string GetDeviceName(const std::string &networkId);
     void Register(DMObserver *observer);
     void Unregister(DMObserver *observer);
 
@@ -44,6 +45,7 @@ private:
 
     std::string pkgName_;
     const std::string invalidDeviceId_{};
+    const std::string invalidNetworkId_{};
     mutable std::mutex mutex_{};
     std::string localDeviceId_{};
     ConcurrentMap<DMObserver *, DMObserver *> observers_;

@@ -109,6 +109,7 @@ private:
     void GetPasteDataDot(PasteData &pasteData, const std::string &pop, const std::string &bundleName);
     bool GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
     bool CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
+    bool GetRemoteData(AppInfo &appInfo, PasteData &data, std::string &pop, bool isFocusedApp, uint32_t tokenId);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(PasteData &lastData);
     void GenerateDistributedUri(PasteData &data);
@@ -131,7 +132,7 @@ private:
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static bool IsDefaultIME(const AppInfo &appInfo);
-    static bool IsFocusedApp(int32_t tokenId);
+    static bool IsFocusedApp(uint32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData);
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
@@ -159,6 +160,7 @@ private:
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
+    std::atomic<bool> dialogShowing_ = false;
     std::mutex deviceMutex_;
     std::string fromDevice_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
