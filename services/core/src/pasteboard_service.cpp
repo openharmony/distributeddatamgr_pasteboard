@@ -339,6 +339,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     bool isFocusedApp = IsFocusedApp(tokenId);
     bool result = false;
+    std::string pop;
     auto appInfo = GetAppInfo(tokenId);
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
