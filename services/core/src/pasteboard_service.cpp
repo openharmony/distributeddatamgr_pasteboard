@@ -339,48 +339,12 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     bool isFocusedApp = IsFocusedApp(tokenId);
     bool result = false;
-    std::string pop;
     auto appInfo = GetAppInfo(tokenId);
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         result = CheckPasteData(appInfo, data, isFocusedApp);
     } else {
-        auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
-        std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
-            std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-            auto success = GetPasteData(appInfo, *pasteData, isFocusedApp);
-            if (!success) {
-                pasteData->SetInvalid();
-            }
-            block->SetValue(pasteData);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData End");
-        });
-        thread.detach();
-        auto value = block->GetValue();
-        if (value == nullptr) {
-            if (dialogShowing_.exchange(true) || IsDefaultIME(GetAppInfo(tokenId))) {
-                PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not need show dialog");
-                block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-                value = block->GetValue();
-            } else {
-                PasteBoardDialog::MessageInfo message;
-                message.appName = GetAppLabel(tokenId);
-                message.deviceType = GetDeviceName();
-                PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
-                dialogShowing_.store(true);
-                pop = "pop";
-                block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-                value = block->GetValue();
-                PasteBoardDialog::GetInstance().CancelDialog();
-                dialogShowing_.store(false);
-                SetDeviceName();
-            }
-        }
-        if (value != nullptr) {
-            result = value->IsValid();
-            data = std::move(*value);
-        }
+        result = GetRemoteData(appInfo, data, isFocusedApp);
     }
     if (observerEventMap_.size() != 0) {
         std::string targetBundleName = GetAppBundleName(appInfo);
@@ -391,6 +355,48 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
+bool PasteboardService::GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
+{
+    std::string pop;
+    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
+    std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
+        std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+        auto success = GetPasteData(appInfo, *pasteData, isFocusedApp);
+        if (!success) {
+            pasteData->SetInvalid();
+        }
+        block->SetValue(pasteData);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData End");
+    });
+    thread.detach();
+    auto value = block->GetValue();
+    if (value == nullptr) {
+        if (dialogShowing_.exchange(true) || IsDefaultIME(appInfo)) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not need show dialog");
+            block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
+            value = block->GetValue();
+        } else {
+            PasteBoardDialog::MessageInfo message;
+            message.appName = GetAppLabel(tokenId);
+            message.deviceType = GetDeviceName();
+            PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
+            dialogShowing_.store(true);
+            pop = "pop";
+            block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
+            value = block->GetValue();
+            PasteBoardDialog::GetInstance().CancelDialog();
+            dialogShowing_.store(false);
+            SetDeviceName();
+        }
+    }
+    if (value != nullptr) {
+        auto result = value->IsValid();
+        data = std::move(*value);
+        return ret;
+    }
+    return false;
+}
 
 bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
