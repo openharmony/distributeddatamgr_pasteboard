@@ -230,7 +230,7 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     return property != nullptr && property->name == appInfo.bundleName;
 }
 
-bool PasteboardService::IsFocusedApp(int32_t tokenId)
+bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 {
     using namespace OHOS::AAFwk;
     AppInfo appInfo = GetAppInfo(tokenId);
