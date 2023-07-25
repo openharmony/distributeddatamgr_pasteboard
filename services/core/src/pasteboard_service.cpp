@@ -344,7 +344,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     if (clipPlugin == nullptr) {
         result = CheckPasteData(appInfo, data, isFocusedApp);
     } else {
-        result = GetRemoteData(appInfo, data, isFocusedApp);
+        result = GetRemoteData(appInfo, data, pop, isFocusedApp, tokenId);
     }
     if (observerEventMap_.size() != 0) {
         std::string targetBundleName = GetAppBundleName(appInfo);
