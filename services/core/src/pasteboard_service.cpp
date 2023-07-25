@@ -355,9 +355,9 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
-bool PasteboardService::GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
+bool PasteboardService::GetRemoteData(
+    AppInfo &appInfo, PasteData &data, std::string &pop, bool isFocusedApp, uint32_t tokenId)
 {
-    std::string pop;
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
     std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
@@ -391,7 +391,7 @@ bool PasteboardService::GetRemoteData(AppInfo &appInfo, PasteData &data, bool is
         }
     }
     if (value != nullptr) {
-        auto result = value->IsValid();
+        auto ret = value->IsValid();
         data = std::move(*value);
         return ret;
     }
