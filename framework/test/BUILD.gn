@@ -47,6 +47,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
+    "app_file_service:remote_file_share_native",
     "c_utils:utils",
     "hilog:libhilog",
     "image_framework:image_native",
