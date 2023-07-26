@@ -44,6 +44,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     ":module_private_config",
   ]
   external_deps = [
+    "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "c_utils:utils",

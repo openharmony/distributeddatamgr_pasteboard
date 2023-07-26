@@ -189,4 +189,14 @@ HWTEST_F(PasteDataTest, ConvertToText001, TestSize.Level0)
     auto text = record->ConvertToText();
     EXPECT_EQ(text, htmlText);
 }
+
+HWTEST_F(PasteDataTest, ConvertToText001, TestSize.Level0)
+{
+    std::string htmlText = "<div class='disabled item tip user-programs'>";
+    auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
+    ASSERT_TRUE(record != nullptr);
+    auto text = record->ConvertToText();
+    EXPECT_EQ(text, htmlText);
+}
+
 } // namespace OHOS::MiscServices
