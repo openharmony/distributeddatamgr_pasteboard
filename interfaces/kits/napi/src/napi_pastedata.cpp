@@ -47,7 +47,7 @@ PasteDataNapi::~PasteDataNapi()
 
 napi_value PasteDataNapi::AddHtmlRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddHtmlRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddHtmlRecord is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -74,7 +74,7 @@ napi_value PasteDataNapi::AddHtmlRecord(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::AddPixelMapRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddPixelMapRecord is called begin!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddPixelMapRecord is called begin!");
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
@@ -104,7 +104,7 @@ napi_value PasteDataNapi::AddPixelMapRecord(napi_env env, napi_callback_info inf
 
 napi_value PasteDataNapi::AddTextRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddTextRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddTextRecord is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -131,7 +131,7 @@ napi_value PasteDataNapi::AddTextRecord(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::AddUriRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddUriRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddUriRecord is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -158,7 +158,7 @@ napi_value PasteDataNapi::AddUriRecord(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetPrimaryHtml(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryHtml is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryHtml is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -186,7 +186,7 @@ napi_value PasteDataNapi::GetPrimaryHtml(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetPrimaryPixelMap(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryPixelMap is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryPixelMap is called!");
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
@@ -213,7 +213,7 @@ napi_value PasteDataNapi::GetPrimaryPixelMap(napi_env env, napi_callback_info in
 
 napi_value PasteDataNapi::GetPrimaryText(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryText is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryText is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -241,7 +241,7 @@ napi_value PasteDataNapi::GetPrimaryText(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetPrimaryUri(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryUri is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryUri is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -270,7 +270,7 @@ napi_value PasteDataNapi::GetPrimaryUri(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasMimeType is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "HasMimeType is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -303,7 +303,7 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::HasType(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasType is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "HasType is called!");
     return HasMimeType(env, info);
 }
 
@@ -331,7 +331,7 @@ PasteDataNapi *PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callba
 
 napi_value PasteDataNapi::RemoveRecordAt(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecordAt is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecordAt is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr) {
@@ -345,7 +345,7 @@ napi_value PasteDataNapi::RemoveRecordAt(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecord is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(),
@@ -358,7 +358,7 @@ napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetPrimaryMimeType(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryMimeType is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryMimeType is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -385,7 +385,7 @@ napi_value PasteDataNapi::GetPrimaryMimeType(napi_env env, napi_callback_info in
 
 napi_value PasteDataNapi::GetRecordCount(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecordCount is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetRecordCount is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -409,7 +409,7 @@ napi_value PasteDataNapi::GetRecordCount(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetTag(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetTag is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetTag is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -432,7 +432,7 @@ napi_value PasteDataNapi::GetTag(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetMimeTypes(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetMimeTypes is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetMimeTypes is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -467,7 +467,7 @@ napi_value PasteDataNapi::GetMimeTypes(napi_env env, napi_callback_info info)
 
 void PasteDataNapi::AddRecord(napi_env env, napi_value *argv, size_t argc, PasteDataNapi *obj)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddRecordV9!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddRecordV9!");
     std::string mimeType;
     if (!CheckArgs(env, argv, argc, mimeType)) {
         return;
@@ -578,7 +578,7 @@ std::shared_ptr<MiscServices::PasteDataRecord> PasteDataNapi::ParseRecord(napi_e
 
 void PasteDataNapi::AddRecord(napi_env env, napi_value argv, PasteDataNapi *obj)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddPasteDataRecord!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddPasteDataRecord!");
 
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL_RETURN_VOID(env, napi_typeof(env, argv, &valueType));
@@ -594,7 +594,7 @@ void PasteDataNapi::AddRecord(napi_env env, napi_value argv, PasteDataNapi *obj)
 
 napi_value PasteDataNapi::AddRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddRecord is called!");
     size_t argc = ARGC_TYPE_SET2;
     napi_value argv[ARGC_TYPE_SET2] = { 0 };
     napi_value thisVar = nullptr;
@@ -617,7 +617,7 @@ napi_value PasteDataNapi::AddRecord(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::ReplaceRecordAt(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ReplaceRecordAt is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ReplaceRecordAt is called!");
     size_t argc = ARGC_TYPE_SET2;
     napi_value argv[ARGC_TYPE_SET2] = { 0 };
     napi_value thisVar = nullptr;
@@ -655,7 +655,7 @@ napi_value PasteDataNapi::ReplaceRecordAt(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ReplaceRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ReplaceRecord is called!");
     size_t argc = ARGC_TYPE_SET2;
     napi_value argv[ARGC_TYPE_SET2] = { 0 };
     napi_value thisVar = nullptr;
@@ -692,7 +692,7 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::AddWantRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AddWantRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddWantRecord is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -721,7 +721,7 @@ napi_value PasteDataNapi::AddWantRecord(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetPrimaryWant(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryWant is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPrimaryWant is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -781,7 +781,7 @@ bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &prope
 
 napi_value PasteDataNapi::GetProperty(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetProperty is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetProperty is called!");
     size_t argc = 1;
     napi_value argv[1] = { 0 };
     napi_value thisVar = nullptr;
@@ -806,7 +806,7 @@ napi_value PasteDataNapi::GetProperty(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetRecordAt(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecordAt is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetRecordAt is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr) {
@@ -821,7 +821,7 @@ napi_value PasteDataNapi::GetRecordAt(napi_env env, napi_callback_info info)
 
 napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetRecord is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(),
@@ -854,25 +854,25 @@ void PasteDataNapi::SetProperty(napi_env env, napi_value in, PasteDataNapi *obj)
         NAPI_CALL_RETURN_VOID(env, napi_get_named_property(env, in, str, &propertyNameValueNapi));
         if (propertyName == "localOnly") {
             NAPI_CALL_RETURN_VOID(env, napi_get_value_bool(env, propertyNameValueNapi, &localOnlyValue));
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "localOnlyValue = %{public}d", localOnlyValue);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "localOnlyValue = %{public}d", localOnlyValue);
         }
         if (propertyName == "shareOption") {
             NAPI_CALL_RETURN_VOID(env, napi_get_value_int32(env, propertyNameValueNapi, &shareOptionValue));
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "shareOptionValue = %{public}d", shareOptionValue);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "shareOptionValue = %{public}d", shareOptionValue);
         }
         if (propertyName == "tag") {
             char tagValue[STR_MAX_SIZE] = { 0 };
             size_t tagValueLen = 0;
             NAPI_CALL_RETURN_VOID(env,
                 napi_get_value_string_utf8(env, propertyNameValueNapi, tagValue, STR_MAX_SIZE, &tagValueLen));
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "tagValue = %{public}s", tagValue);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "tagValue = %{public}s", tagValue);
             std::string tagValueStr = tagValue;
             obj->value_->SetTag(tagValueStr);
         }
         if (propertyName == "additions") {
             AAFwk::WantParams additions;
             bool ret = OHOS::AppExecFwk::UnwrapWantParams(env, propertyNameValueNapi, additions);
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "additions ret = %{public}d", ret);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "additions ret = %{public}d", ret);
             obj->value_->SetAdditions(additions);
         }
     }
@@ -921,7 +921,7 @@ bool PasteDataNapi::IsProperty(napi_env env, napi_value in)
 
 napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SetProperty is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SetProperty is called!");
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[ARGC_TYPE_SET1] = { 0 };
     napi_value thisVar = nullptr;
