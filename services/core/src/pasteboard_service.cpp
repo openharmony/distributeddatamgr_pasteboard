@@ -231,18 +231,16 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     return property != nullptr && property->name == appInfo.bundleName;
 }
 
-bool PasteboardService::IsFocusedApp(uint32_t tokenId)
+bool PasteboardService::IsFocusedApp(const std::string &bundleName)
 {
-    using namespace OHOS::AAFwk;
-    AppInfo appInfo = GetAppInfo(tokenId);
-    if (appInfo.bundleName.empty()) {
+    if (bundleName.empty()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get bundle name by token failed");
         return false;
     }
-    auto elementName = AbilityManagerClient::GetInstance()->GetTopAbility();
+    auto elementName = OHOS::AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " Top app:%{public}s, caller app:%{public}s",
-        elementName.GetBundleName().c_str(), appInfo.bundleName.c_str());
-    return elementName.GetBundleName() == appInfo.bundleName;
+        elementName.GetBundleName().c_str(), bundleName.c_str());
+    return elementName.GetBundleName() == bundleName;
 }
 
 bool PasteboardService::HasPastePermission(
@@ -338,10 +336,10 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     PasteboardTrace tracer("PasteboardService GetPasteData");
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    bool isFocusedApp = IsFocusedApp(tokenId);
+    auto appInfo = GetAppInfo(tokenId);
+    bool isFocusedApp = IsFocusedApp(appInfo.bundleName);
     bool result = false;
     std::string pop;
-    auto appInfo = GetAppInfo(tokenId);
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         result = CheckPasteData(appInfo, data, isFocusedApp);
@@ -559,7 +557,8 @@ bool PasteboardService::HasPasteData()
     }
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    return HasPastePermission(tokenId, IsFocusedApp(tokenId), it->second);
+    AppInfo appInfo = GetAppInfo(tokenId);
+    return HasPastePermission(tokenId, IsFocusedApp(appInfo.bundleName), it->second);
 }
 
 int32_t PasteboardService::SetPasteData(PasteData &pasteData)
