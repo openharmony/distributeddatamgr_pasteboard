@@ -29,7 +29,7 @@ namespace MiscServicesNapi {
 constexpr size_t MAX_ARGS = 6;
 napi_value PasteboardNapi::CreateHtmlRecord(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlRecord is called!");
     std::string value;
     bool ret = GetValue(env, in, value);
     if (!ret) {
@@ -44,7 +44,7 @@ napi_value PasteboardNapi::CreateHtmlRecord(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::CreatePlainTextRecord(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreatePlainTextRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreatePlainTextRecord is called!");
     std::string value;
     bool ret = GetValue(env, in, value);
     if (!ret) {
@@ -59,7 +59,7 @@ napi_value PasteboardNapi::CreatePlainTextRecord(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::CreateUriRecord(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateUriRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateUriRecord is called!");
     std::string value;
     bool ret = GetValue(env, in, value);
     if (!ret) {
@@ -74,7 +74,7 @@ napi_value PasteboardNapi::CreateUriRecord(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::CreatePixelMapRecord(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreatePixelMapRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreatePixelMapRecord is called!");
     std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, in);
     if (pixelMap == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to get pixelMap!");
@@ -88,7 +88,7 @@ napi_value PasteboardNapi::CreatePixelMapRecord(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::CreateWantRecord(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateWantRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateWantRecord is called!");
     AAFwk::Want want;
     bool ret = OHOS::AppExecFwk::UnwrapWant(env, in, want);
     if (!ret) {
@@ -120,7 +120,7 @@ PasteDataNapi *PasteboardNapi::CreateDataCommon(napi_env env, napi_value in, std
 
 napi_value PasteboardNapi::CreateHtmlData(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlData is called!");
     std::string str;
     napi_value instance = nullptr;
     PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
@@ -134,7 +134,7 @@ napi_value PasteboardNapi::CreateHtmlData(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::CreatePlainTextData(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreatePlainTextData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreatePlainTextData is called!");
     std::string str;
     napi_value instance = nullptr;
     PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
@@ -148,7 +148,7 @@ napi_value PasteboardNapi::CreatePlainTextData(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::CreateUriData(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateUriData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateUriData is called!");
     std::string str;
     napi_value instance = nullptr;
     PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
@@ -162,7 +162,7 @@ napi_value PasteboardNapi::CreateUriData(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::CreatePixelMapData(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreatePixelMapData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreatePixelMapData is called!");
     std::shared_ptr<PixelMap> pixelMap = PixelMapNapi::GetPixelMap(env, in);
     if (pixelMap == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to get pixelMap!");
@@ -183,7 +183,7 @@ napi_value PasteboardNapi::CreatePixelMapData(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::CreateWantData(napi_env env, napi_value in)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "CreateWantData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateWantData is called!");
     AAFwk::Want want;
     bool ret = OHOS::AppExecFwk::UnwrapWant(env, in, want);
     if (!ret) {
@@ -204,7 +204,7 @@ napi_value PasteboardNapi::CreateWantData(napi_env env, napi_value in)
 
 napi_value PasteboardNapi::JScreateHtmlTextRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateHtmlTextRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreateHtmlTextRecord is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;
@@ -217,7 +217,7 @@ napi_value PasteboardNapi::JScreateHtmlTextRecord(napi_env env, napi_callback_in
 
 napi_value PasteboardNapi::JScreateWantRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateWantRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreateWantRecord is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;
@@ -233,7 +233,7 @@ napi_value PasteboardNapi::JScreateWantRecord(napi_env env, napi_callback_info i
 
 napi_value PasteboardNapi::JScreateShareOption(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateShareOption is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreateShareOption is called!");
 
     napi_value jsShareOption = nullptr;
     napi_create_object(env, &jsShareOption);
@@ -255,7 +255,7 @@ napi_value PasteboardNapi::JScreateShareOption(napi_env env, napi_callback_info 
 
 napi_value PasteboardNapi::JScreatePlainTextRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePlainTextRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreatePlainTextRecord is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;
@@ -268,7 +268,7 @@ napi_value PasteboardNapi::JScreatePlainTextRecord(napi_env env, napi_callback_i
 
 napi_value PasteboardNapi::JScreatePixelMapRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePixelMapRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreatePixelMapRecord is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;
@@ -285,7 +285,7 @@ napi_value PasteboardNapi::JScreatePixelMapRecord(napi_env env, napi_callback_in
 
 napi_value PasteboardNapi::JScreateUriRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateUriRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreateUriRecord is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;
@@ -298,7 +298,7 @@ napi_value PasteboardNapi::JScreateUriRecord(napi_env env, napi_callback_info in
 
 napi_value PasteboardNapi::JSCreateRecord(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSCreateRecord is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JSCreateRecord is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;
@@ -323,7 +323,7 @@ napi_value PasteboardNapi::JSCreateRecord(napi_env env, napi_callback_info info)
 
 napi_value PasteboardNapi::JScreateHtmlData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateHtmlData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreateHtmlData is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -334,7 +334,7 @@ napi_value PasteboardNapi::JScreateHtmlData(napi_env env, napi_callback_info inf
 
 napi_value PasteboardNapi::JScreateWantData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateWantData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreateWantData is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -348,7 +348,7 @@ napi_value PasteboardNapi::JScreateWantData(napi_env env, napi_callback_info inf
 
 napi_value PasteboardNapi::JScreatePlainTextData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePlainTextData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreatePlainTextData is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -359,7 +359,7 @@ napi_value PasteboardNapi::JScreatePlainTextData(napi_env env, napi_callback_inf
 
 napi_value PasteboardNapi::JScreatePixelMapData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreatePixelMapData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreatePixelMapData is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -373,7 +373,7 @@ napi_value PasteboardNapi::JScreatePixelMapData(napi_env env, napi_callback_info
 
 napi_value PasteboardNapi::JScreateUriData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JScreateUriData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreateUriData is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
@@ -385,7 +385,7 @@ napi_value PasteboardNapi::JScreateUriData(napi_env env, napi_callback_info info
 napi_value PasteboardNapi::JSCreateKvData(
     napi_env env, const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSCreateKvData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JSCreateKvData is called!");
 
     napi_value instance = nullptr;
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
@@ -402,7 +402,7 @@ napi_value PasteboardNapi::JSCreateKvData(
 
 napi_value PasteboardNapi::JSCreateData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSCreateData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JSCreateData is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;
@@ -425,7 +425,7 @@ napi_value PasteboardNapi::JSCreateData(napi_env env, napi_callback_info info)
 
 napi_value PasteboardNapi::JSgetSystemPasteboard(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "JSgetSystemPasteboard is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JSgetSystemPasteboard is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;

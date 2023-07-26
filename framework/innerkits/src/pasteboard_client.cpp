@@ -51,44 +51,44 @@ PasteboardClient::~PasteboardClient()
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateHtmlTextRecord(const std::string &htmlText)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New text record");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New text record");
     return PasteDataRecord::NewHtmlRecord(htmlText);
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New want record");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New want record");
     return PasteDataRecord::NewWantRecord(std::move(want));
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePlainTextRecord(const std::string &text)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New text record");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New text record");
     return PasteDataRecord::NewPlaintTextRecord(text);
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePixelMapRecord(std::shared_ptr<PixelMap> pixelMap)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New pixelMap record");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New pixelMap record");
     return PasteDataRecord::NewPixelMapRecord(std::move(pixelMap));
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateUriRecord(const OHOS::Uri &uri)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New uri record");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New uri record");
     return PasteDataRecord::NewUriRecord(uri);
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateKvRecord(
     const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New kv record");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New kv record");
     return PasteDataRecord::NewKvRecord(mimeType, arrayBuffer);
 }
 
 std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &htmlText)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New htmlText data");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New htmlText data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddHtmlRecord(htmlText);
     return pasteData;
@@ -96,7 +96,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &h
 
 std::shared_ptr<PasteData> PasteboardClient::CreateWantData(std::shared_ptr<OHOS::AAFwk::Want> want)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New want data");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New want data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddWantRecord(std::move(want));
     return pasteData;
@@ -104,7 +104,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreateWantData(std::shared_ptr<OHOS
 
 std::shared_ptr<PasteData> PasteboardClient::CreatePlainTextData(const std::string &text)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New plain data");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New plain data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddTextRecord(text);
     return pasteData;
@@ -112,7 +112,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreatePlainTextData(const std::stri
 
 std::shared_ptr<PasteData> PasteboardClient::CreatePixelMapData(std::shared_ptr<PixelMap> pixelMap)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New pixelMap data");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New pixelMap data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddPixelMapRecord(std::move(pixelMap));
     return pasteData;
@@ -120,7 +120,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreatePixelMapData(std::shared_ptr<
 
 std::shared_ptr<PasteData> PasteboardClient::CreateUriData(const OHOS::Uri &uri)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New uri data");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New uri data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddUriRecord(uri);
     return pasteData;
@@ -129,7 +129,7 @@ std::shared_ptr<PasteData> PasteboardClient::CreateUriData(const OHOS::Uri &uri)
 std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
     const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "New Kv data");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New Kv data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddKvRecord(mimeType, arrayBuffer);
     return pasteData;
@@ -137,19 +137,19 @@ std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
 
 void PasteboardClient::Clear()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Clear start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Clear start.");
     if (!IsServiceAvailable()) {
         return;
     }
     pasteboardServiceProxy_->Clear();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Clear end.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Clear end.");
     return;
 }
 
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
@@ -157,7 +157,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     RebuildWebviewPasteData(pasteData);
     RetainUri(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
     return ret;
 }
 
@@ -192,7 +192,7 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
 
 void PasteboardClient::RetainUri(PasteData &pasteData)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start");
     if (!pasteData.IsLocalPaste()) {
         return;
     }
@@ -203,12 +203,12 @@ void PasteboardClient::RetainUri(PasteData &pasteData)
             record->SetConvertUri("");
         }
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end");
 }
 
 bool PasteboardClient::HasPasteData()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasPasteData start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "HasPasteData start.");
     if (!IsServiceAvailable()) {
         return false;
     }
@@ -217,7 +217,7 @@ bool PasteboardClient::HasPasteData()
 
 int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
     if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
@@ -225,7 +225,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
         return pasteboardServiceProxy_->SetPasteData(pasteData);
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteData from webview start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData from webview start.");
     std::shared_ptr<std::string> primaryText = pasteData.GetRecordAt(0)->GetPlainText();
     auto PasteboardWebController = PasteboardWebController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
@@ -241,7 +241,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
 
 void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (callback == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
         return;
@@ -255,7 +255,7 @@ void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> cal
 
 void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (callback == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
         return;
@@ -268,7 +268,7 @@ void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callb
 
 void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (!IsServiceAvailable()) {
         return;
     }
