@@ -483,7 +483,7 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
     PasteData::ShareOptionToString(pastData.GetShareOption(), shareOption);
     auto isLocalPaste = pastData.IsLocalPaste();
     auto isRemote = pastData.IsRemote();
-    std::thread thread([=]() {
+    std::thread thread([bundleName, primaryMimeType, shareOption, isLocalPaste, isRemote, state, result]() {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
         auto iter = PasteboardErrorMap.find(PasteboardError(result));
         const char *appRet;

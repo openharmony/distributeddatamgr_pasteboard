@@ -28,6 +28,7 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_systemPasteboard = nullptr;
+static thread_local napi_ref g_systemPasteboard_instance = nullptr;
 thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
 constexpr size_t MAX_ARGS = 6;
 const std::string STRING_UPDATE = "update";
@@ -475,6 +476,14 @@ napi_value SystemPasteboardNapi::New(napi_env env, napi_callback_info info)
 napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance)
 {
     napi_status status;
+    if (g_systemPasteboard_instance != nullptr) {
+        status = napi_get_reference_value(env, g_systemPasteboard_instance, &instance);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get instance failed");
+            return status;
+        }
+        return napi_ok;
+    }
 
     napi_value constructor;
     status = napi_get_reference_value(env, g_systemPasteboard, &constructor);
@@ -488,6 +497,7 @@ napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "new instance failed");
         return status;
     }
+    napi_create_reference(env, instance, 1, &g_systemPasteboard_instance);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "new instance ok");
 
     return napi_ok;
