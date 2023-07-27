@@ -196,8 +196,8 @@ HWTEST_F(PasteDataTest, ConvertToText001, TestSize.Level0)
 * @tc.name: ShareOptionToString001
 * @tc.desc: PasteData: ShareOptionToString
 * @tc.type: FUNC
-* @tc.require: I7O5T1
-* @tc.author: 
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
 */
 HWTEST_F(PasteDataTest, ShareOptionToString001, TestSize.Level0)
 {
@@ -216,8 +216,8 @@ HWTEST_F(PasteDataTest, ShareOptionToString001, TestSize.Level0)
 * @tc.name: SetInvalid001
 * @tc.desc: PasteData: SetInvalid001
 * @tc.type: FUNC
-* @tc.require: I7O5T1
-* @tc.author: 
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
 */
 HWTEST_F(PasteDataTest, SetInvalid001, TestSize.Level0)
 {
@@ -232,8 +232,8 @@ HWTEST_F(PasteDataTest, SetInvalid001, TestSize.Level0)
 * @tc.name: SetLocalOnly001
 * @tc.desc: PasteData: SetLocalOnly
 * @tc.type: FUNC
-* @tc.require: I7O5T1
-* @tc.author: 
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
 */
 HWTEST_F(PasteDataTest, SetLocalOnly001, TestSize.Level0)
 {
@@ -248,8 +248,8 @@ HWTEST_F(PasteDataTest, SetLocalOnly001, TestSize.Level0)
 * @tc.name: SetAddition001
 * @tc.desc: PasteData: SetAddition
 * @tc.type: FUNC
-* @tc.require: I7O5T1
-* @tc.author: 
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
 */
 HWTEST_F(PasteDataTest, SetAddition001, TestSize.Level0)
 {
@@ -266,8 +266,8 @@ HWTEST_F(PasteDataTest, SetAddition001, TestSize.Level0)
 * @tc.name: SetRemote001
 * @tc.desc: PasteData: SetRemote
 * @tc.type: FUNC
-* @tc.require: I7O5T1
-* @tc.author: 
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
 */
 HWTEST_F(PasteDataTest, SetRemote001, TestSize.Level0)
 {
@@ -284,8 +284,8 @@ HWTEST_F(PasteDataTest, SetRemote001, TestSize.Level0)
 * @tc.name: SetOrginAuthority001
 * @tc.desc: PasteData: SetOrginAuthority
 * @tc.type: FUNC
-* @tc.require: I7O5T1
-* @tc.author: 
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
 */
 HWTEST_F(PasteDataTest, SetOrginAuthority001, TestSize.Level0)
 {
@@ -298,5 +298,48 @@ HWTEST_F(PasteDataTest, SetOrginAuthority001, TestSize.Level0)
     std::string getOrginAuthority = pasteData->GetOrginAuthority();
     ASSERT_TRUE(getBundleName == bundleName);
     ASSERT_TRUE(getOrginAuthority == bundleName);
+}
+
+/**
+* @tc.name: GetConvertUri001
+* @tc.desc: PasteDataRecord: GetConvertUri
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, GetConvertUri001, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    std::string convertUri_ = "/mnt/hmdfs/";
+    pasteDataRecord->SetConvertUri(convertUri_);
+    std::string result = pasteDataRecord->GetConvertUri();
+    ASSERT_TRUE(result == convertUri_);
+    std::string newUriStr = "/mnt/hmdfs/test";
+    pasteDataRecord->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
+    std::shared_ptr<Uri> uri = pasteDataRecord->GetUri();
+    ASSERT_TRUE(uri != nullptr);
+    std::shared_ptr<Uri> getOriginUri = pasteDataRecord->GetOrginUri();
+    ASSERT_TRUE(getOriginUri != nullptr);
+}
+
+/**
+* @tc.name: LoadSystemAbilityFail001
+* @tc.desc: PasteDataRecord: LoadSystemAbilityFail
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, LoadSystemAbilityFail001, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    std::string mimeType = "image/jpg";
+    arrayBuffer = { 1, 2, 3, 4, 6 };
+    PasteboardClient::GetInstance()->LoadSystemAbilityFail();
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
 }
 } // namespace OHOS::MiscServices
