@@ -14,10 +14,12 @@
 */
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
 #include "copy_uri_handler.h"
+#include "int_wrapper.h"
 #include "paste_uri_handler.h"
 #include "pasteboard_client.h"
+#include "remote_file_share.h"
+
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
@@ -188,5 +190,156 @@ HWTEST_F(PasteDataTest, ConvertToText001, TestSize.Level0)
     ASSERT_TRUE(record != nullptr);
     auto text = record->ConvertToText();
     EXPECT_EQ(text, htmlText);
+}
+
+/**
+* @tc.name: ShareOptionToString001
+* @tc.desc: PasteData: ShareOptionToString
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, ShareOptionToString001, TestSize.Level0)
+{
+    std::string shareOption1;
+    PasteData::ShareOptionToString(ShareOption::InApp, shareOption1);
+    ASSERT_TRUE(shareOption1 == "InAPP");
+    std::string shareOption2;
+    PasteData::ShareOptionToString(ShareOption::LocalDevice, shareOption2);
+    ASSERT_TRUE(shareOption2 == "LocalDevice");
+    std::string shareOption3;
+    PasteData::ShareOptionToString(ShareOption::CrossDevice, shareOption3);
+    ASSERT_TRUE(shareOption3 == "CrossDevice");
+}
+
+/**
+* @tc.name: SetInvalid001
+* @tc.desc: PasteData: SetInvalid001
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, SetInvalid001, TestSize.Level0)
+{
+    bool result = true;
+    std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+    pasteData->SetInvalid();
+    result = pasteData->IsValid();
+    ASSERT_TRUE(result == false);
+}
+
+/**
+* @tc.name: SetLocalOnly001
+* @tc.desc: PasteData: SetLocalOnly
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, SetLocalOnly001, TestSize.Level0)
+{
+    bool result = false;
+    std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+    pasteData->SetLocalOnly(true);
+    result = pasteData->GetLocalOnly();
+    ASSERT_TRUE(result == true);
+}
+
+/**
+* @tc.name: SetAddition001
+* @tc.desc: PasteData: SetAddition
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, SetAddition001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    size_t fileSize = 0;
+    pasteData->SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
+    AAFwk::WantParams additions;
+    pasteData->SetAdditions(additions);
+    ASSERT_TRUE(pasteData != nullptr);
+}
+
+/**
+* @tc.name: SetRemote001
+* @tc.desc: PasteData: SetRemote
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, SetRemote001, TestSize.Level0)
+{
+    bool isRemote = false;
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    isRemote = true;
+    pasteData->SetRemote(isRemote);
+    bool result =  pasteData->IsRemote();
+    ASSERT_TRUE(result == true);
+}
+
+/**
+* @tc.name: SetOrginAuthority001
+* @tc.desc: PasteData: SetOrginAuthority
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, SetOrginAuthority001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    std::string bundleName = "com.example.myapplication";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    pasteData->SetBundleName(bundleName);
+    pasteData->SetOrginAuthority(bundleName);
+    std::string getBundleName = pasteData->GetBundleName();
+    std::string getOrginAuthority = pasteData->GetOrginAuthority();
+    ASSERT_TRUE(getBundleName == bundleName);
+    ASSERT_TRUE(getOrginAuthority == bundleName);
+}
+
+/**
+* @tc.name: GetConvertUri001
+* @tc.desc: PasteDataRecord: GetConvertUri
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, GetConvertUri001, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    std::string convertUri_ = "/mnt/hmdfs/";
+    pasteDataRecord->SetConvertUri(convertUri_);
+    std::string result = pasteDataRecord->GetConvertUri();
+    ASSERT_TRUE(result == convertUri_);
+    std::string newUriStr = "/mnt/hmdfs/test";
+    pasteDataRecord->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
+    std::shared_ptr<Uri> uri = pasteDataRecord->GetUri();
+    ASSERT_TRUE(uri != nullptr);
+    std::shared_ptr<Uri> getOriginUri = pasteDataRecord->GetOrginUri();
+    ASSERT_TRUE(getOriginUri != nullptr);
+}
+
+/**
+* @tc.name: LoadSystemAbilityFail001
+* @tc.desc: PasteDataRecord: LoadSystemAbilityFail
+* @tc.type: FUNC
+* @tc.require: DTS2023071915769
+* @tc.author: z30043299
+*/
+HWTEST_F(PasteDataTest, LoadSystemAbilityFail001, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    std::string mimeType = "image/jpg";
+    arrayBuffer = { 1, 2, 3, 4, 6 };
+    PasteboardClient::GetInstance()->LoadSystemAbilityFail();
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
 }
 } // namespace OHOS::MiscServices
