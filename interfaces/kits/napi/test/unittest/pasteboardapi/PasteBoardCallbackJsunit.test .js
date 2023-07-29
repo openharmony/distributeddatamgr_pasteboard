@@ -506,7 +506,7 @@ describe('PasteBoardJSTest', function () {
                   console.error('f_test10: systemPasteboard.getPasteData callback error:' + err);
                   return;
                 }
-                expect(data.getRecordCount()).assertEqual(0);
+                expect(data.getRecordCount() == 0).assertEqual(true);
                 done();
               });
             });
@@ -791,9 +791,9 @@ describe('PasteBoardJSTest', function () {
               console.error('f_test16: systemPasteboard.getPasteData callback error:' + err);
               return;
             }
-            expect(data.getRecordCount()).assertEqual(1);
+            expect(data.getRecordCount() == 1).assertEqual(true);
             expect(data.removeRecordAt(0)).assertEqual(true);
-            expect(data.getRecordCount()).assertEqual(0);
+            expect(data.getRecordCount() == 0).assertEqual(true);
             done();
           });
         });

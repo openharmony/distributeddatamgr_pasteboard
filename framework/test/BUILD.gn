@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -23,6 +23,8 @@ config("module_private_config") {
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
     "${pasteboard_root_path}/framework/framework/include/serializable",
     "${pasteboard_service_path}/load/include",
+    "include",
+    "test/include",
   ]
 }
 
@@ -35,9 +37,11 @@ ohos_unittest("PasteboardFrameworkTest") {
   sources = [
     "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
     "${pasteboard_service_path}/load/src/config.cpp",
-    "paste_data_test.cpp",
-    "serializable_test.cpp",
-    "tlv_object_test.cpp",
+    "src/dm_adapter_test.cpp",
+    "src/paste_data_test.cpp",
+    "src/serializable_test.cpp",
+    "src/tlv_object_test.cpp",
+    "src/web_controller_test.cpp",
   ]
   configs = [
     "//commonlibrary/c_utils/base:utils_config",
@@ -55,6 +59,7 @@ ohos_unittest("PasteboardFrameworkTest") {
   ]
 
   deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
     "//third_party/googletest:gmock",
