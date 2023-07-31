@@ -103,6 +103,7 @@ public:
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
+    void CopyData(PasteData &data);
     size_t Count() override;
     bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool isClient = true);
     bool ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler);
