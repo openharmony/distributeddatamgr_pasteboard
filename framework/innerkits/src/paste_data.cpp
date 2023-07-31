@@ -353,6 +353,19 @@ void PasteData::RefreshMimeProp()
     props_.mimeTypes = mimeTypes;
 }
 
+void PasteData::CopyData(PasteData &data)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    data.props_ = this->GetProperty();
+    data.records_ = this->records_;
+    data.orginAuthority_ = this->orginAuthority_;
+    data.valid_ = this->valid_;
+    data.isDraggedData_ = this->isDraggedData_;
+    data.isLocalPaste_ = this->isLocalPaste_;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+
+
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
     Init(buffer);

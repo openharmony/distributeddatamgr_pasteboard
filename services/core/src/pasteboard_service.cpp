@@ -438,7 +438,10 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
     it->second->SetBundleName(appInfo.bundleName);
-    data = *(it->second);
+    {
+        std::lock_guard<std::mutex> lock(clipMutex_);
+        (*(it->second)).CopyData(data);
+    }
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
     return true;
 }
@@ -778,10 +781,7 @@ void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventS
 {
     std::thread thread([this, bundleName, status] () {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-        std::lock_guard<std::mutex> lock(observerMutex_);
         for (auto &observers : observerChangedMap_) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d, changed observers size: %{public}u",
-                observers.first, static_cast<unsigned int>(observers.second->size()));
             for (const auto &observer : *(observers.second)) {
                 if (status != PasteboardEventStatus::PASTEBOARD_READ) {
                     observer->OnPasteboardChanged();
@@ -789,8 +789,6 @@ void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventS
             }
         }
         for (auto &observers : observerEventMap_) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "notify uid : %{public}d, event observers size: %{public}u",
-                observers.first, static_cast<unsigned int>(observers.second->size()));
             for (const auto &observer : *(observers.second)) {
                 observer->OnPasteboardEvent(bundleName, static_cast<int32_t>(status));
             }

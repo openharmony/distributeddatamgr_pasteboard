@@ -401,7 +401,7 @@ bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
 }
 bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start");
     std::string tempUri = GetPassUri();
     if (tempUri.empty()) {
         return false;
