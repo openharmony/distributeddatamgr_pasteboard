@@ -110,7 +110,6 @@ void DevManager::Online(const std::string &networkId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().SubscribeProfileEvent(networkId);
-    DistributedModuleConfig::Notify();
 }
 
 void DevManager::Offline(const std::string &networkId)
@@ -124,6 +123,7 @@ void DevManager::OnReady()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().OnReady();
+    DistributedModuleConfig::Notify();
 }
 
 void DevManager::RetryInBlocking(DevManager::Function func) const
