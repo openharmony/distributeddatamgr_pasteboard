@@ -20,6 +20,8 @@ pasteboard_kits_path = "${pasteboard_root_path}/kits"
 
 pasteboard_innerkits_path = "${pasteboard_root_path}/framework/innerkits"
 
+pasteboard_framework_path = "${pasteboard_root_path}/framework/framework"
+
 pasteboard_utils_path = "${pasteboard_root_path}/utils"
 
 pasteboard_service_path = "${pasteboard_root_path}/services"
