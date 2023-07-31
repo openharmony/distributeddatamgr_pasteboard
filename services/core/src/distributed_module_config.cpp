@@ -65,10 +65,5 @@ bool DistributedModuleConfig::GetEnabledStatus()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus = %{public}s.", remoteEnabledStatus.c_str());
     return false;
 }
-
-void DistributedModuleConfig::UpdateEnabledStatus()
-{
-    status_ = GetEnabledStatus();
-}
 } // namespace MiscServices
 } // namespace OHOS
