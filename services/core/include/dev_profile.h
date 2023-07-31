@@ -25,6 +25,7 @@ public:
     static DevProfile &GetInstance();
     void GetEnabledStatus(const std::string &deviceId, std::string &enabledStatus);
     void Init();
+    void OnReady();
     void PutEnabledStatus(const std::string &enabledStatus);
     void SubscribeProfileEvent(const std::string &deviceId);
     void UnSubscribeProfileEvent(const std::string &deviceId);

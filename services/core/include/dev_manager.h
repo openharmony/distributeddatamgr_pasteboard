@@ -28,6 +28,7 @@ public:
     static DevManager &GetInstance();
     std::vector<std::string> GetDeviceIds();
     int32_t Init();
+    void OnReady();
     void Online(const std::string &networkId);
     void Offline(const std::string &networkId);
     void UnregisterDevCallback();
