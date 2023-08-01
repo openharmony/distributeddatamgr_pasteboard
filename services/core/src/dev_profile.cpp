@@ -60,6 +60,10 @@ DevProfile &DevProfile::GetInstance()
 void DevProfile::Init()
 {
     ParaHandle::GetInstance().WatchEnabledStatus(ParameterChange);
+}
+
+void DevProfile::OnReady()
+{
     auto status = ParaHandle::GetInstance().GetEnabledStatus();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "status = %{public}s.", status.c_str());
     PutEnabledStatus(status);
