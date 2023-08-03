@@ -49,8 +49,8 @@ void WebControllerTest::TearDown(void)
  * @tc.name: SplitHtmlTest_001.
  * @tc.desc: Test did not use local image address HTML with SplitHtml.
  * @tc.type: FUNC.
- * @tc.require: DTS2023071915769
- * @tc.author: z30043299
+ * @tc.require:
+ * @tc.author:
  */
 HWTEST_F(WebControllerTest, SplitHtmlTest_001, TestSize.Level1)
 {
@@ -68,8 +68,8 @@ HWTEST_F(WebControllerTest, SplitHtmlTest_001, TestSize.Level1)
  * @tc.name: SplitHtmlTest_002.
  * @tc.desc: Test contains a local image address HTML with SplitHtml.
  * @tc.type: FUNC.
- * @tc.require: DTS2023071915769
- * @tc.author: z30043299
+ * @tc.require:
+ * @tc.author:
  */
 HWTEST_F(WebControllerTest, SplitHtmlTest_002, TestSize.Level1)
 {
@@ -87,8 +87,8 @@ HWTEST_F(WebControllerTest, SplitHtmlTest_002, TestSize.Level1)
  * @tc.name: SplitHtmlTest_003.
  * @tc.desc: Test contains multiple local image addresses HTML with SplitHtml.
  * @tc.type: FUNC.
- * @tc.require: DTS2023071915769
- * @tc.author: z30043299
+ * @tc.require:
+ * @tc.author:
  */
 HWTEST_F(WebControllerTest, SplitHtmlTest_003, TestSize.Level1)
 {
@@ -107,8 +107,8 @@ HWTEST_F(WebControllerTest, SplitHtmlTest_003, TestSize.Level1)
  * @tc.name: RebuildHtmlTest_004.
  * @tc.desc: Test does not include local image address HTML with RebuildHtml.
  * @tc.type: FUNC.
- * @tc.require: DTS2023071915769
- * @tc.author: z30043299
+ * @tc.require:
+ * @tc.author:
  */
 HWTEST_F(WebControllerTest, RebuildHtmlTest_004, TestSize.Level1)
 {
@@ -126,8 +126,8 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_004, TestSize.Level1)
  * @tc.name: RebuildHtmlTest_005.
  * @tc.desc: Test contains a local image address HTML with RebuildHtml.
  * @tc.type: FUNC.
- * @tc.require: DTS2023071915769
- * @tc.author: z30043299
+ * @tc.require:
+ * @tc.author:
  */
 HWTEST_F(WebControllerTest, RebuildHtmlTest_005, TestSize.Level1)
 {
@@ -163,8 +163,8 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_005, TestSize.Level1)
  * @tc.name: RebuildHtmlTest_006.
  * @tc.desc: Test contains a multiple image address HTML with RebuildHtml.
  * @tc.type: FUNC.
- * @tc.require: DTS2023071915769
- * @tc.author: z30043299
+ * @tc.require:
+ * @tc.author:
  */
 HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
 {
@@ -202,8 +202,8 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
  * @tc.name: SplitHtmlTest_007.
  * @tc.desc: Test contains invalid protocol image link HTML with SplitHtml.
  * @tc.type: FUNC.
- * @tc.require: DTS2023071915769
- * @tc.author: z30043299
+ * @tc.require:
+ * @tc.author:
  */
 HWTEST_F(WebControllerTest, SplitHtmlTest_007, TestSize.Level1)
 {
@@ -221,8 +221,8 @@ HWTEST_F(WebControllerTest, SplitHtmlTest_007, TestSize.Level1)
  * @tc.name: RebuildHtmlTest_008.
  * @tc.desc: Test contains invalid protocol image link HTML with RebuildHtml.
  * @tc.type: FUNC.
- * @tc.require: DTS2023071915769
- * @tc.author: z30043299
+ * @tc.require:
+ * @tc.author:
  */
 HWTEST_F(WebControllerTest, RebuildHtmlTest_008, TestSize.Level1)
 {

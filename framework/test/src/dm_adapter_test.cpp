@@ -45,8 +45,8 @@ void DMAdapterTest::TearDown(void)
 * @tc.name: GetLocalDeviceId
 * @tc.desc: Get the local device id.
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(DMAdapterTest, GetLocalDeviceId, TestSize.Level0)
 {
