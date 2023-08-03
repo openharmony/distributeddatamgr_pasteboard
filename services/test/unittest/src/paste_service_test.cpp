@@ -41,6 +41,7 @@ using namespace OHOS::Security::AccessToken;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
 constexpr const uint16_t EACH_LINE_LENGTH = 50;
 constexpr const uint16_t TOTAL_LENGTH = 500;
+std::string g_webviewPastedataTag = "WebviewPasteDataTag";
 class PasteboardServiceTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -398,6 +399,57 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest008, TestSize.Level0)
     auto item = itemData.find(mimeType1);
     ASSERT_TRUE(item != itemData.end());
     ASSERT_TRUE(item->second == arrayBuffer1);
+}
+
+/**
+* @tc.name: PasteRecordTest009
+* @tc.desc: Create paste board html local url
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest009, TestSize.Level0)
+{
+    std::string htmlText =
+        "<div class='item'><img data-ohos='clipboard' "
+        "src='file:///com.example.webview/data/storage/el1/base/test.png'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(data != nullptr);
+    data->SetTag(g_webviewPastedataTag);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_TRUE(*record == htmlText);
+}
+
+/**
+* @tc.name: PasteRecordTest0010
+* @tc.desc: Create paste board html distributed uri.
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0010, TestSize.Level0)
+{
+    std::string htmlText =
+        "<div class='item'><img data-ohos='clipboard' "
+        "src='file://com.byy.testdpb/data/storage/el2/distributedfiles/"
+        ".remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(data != nullptr);
+    data->SetTag(g_webviewPastedataTag);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData2;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData2);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData2.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_TRUE(*record == htmlText);
 }
 
 /**
@@ -1021,6 +1073,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
         static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_READ));
     PasteboardClient::GetInstance()->Clear();
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
         static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_CLEAR));
@@ -1034,7 +1087,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
 }
-
 
 /**
 * @tc.name: PasteDataTest0020

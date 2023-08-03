@@ -68,6 +68,7 @@ public:
     MOCK_METHOD2(ToFd, int32_t(const std::string &uri, bool isClient));
     MOCK_CONST_METHOD1(IsFile, bool(const std::string &uri));
 };
+
 /**
 * @tc.name: ReplaceShareUri001
 * @tc.desc: replace user id in share path
@@ -101,6 +102,7 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
     std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
     EXPECT_EQ(mockUri2, data.GetPrimaryUri()->ToString());
 }
+
 /**
 * @tc.name: uriConvertTest001
 * @tc.desc: uri convert(in same app)
@@ -155,6 +157,19 @@ HWTEST_F(PasteDataTest, uriConvertTest002, TestSize.Level0)
 }
 
 /**
+* @tc.name: uriConvertTest003
+* @tc.desc: uri convert(in same app)
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteDataTest, uriConvertTest003, TestSize.Level0)
+{
+    CopyUriHandler copyHandler;
+    int32_t fd = -100;
+    std::string convertUri = copyHandler.ToUri(fd);
+    EXPECT_TRUE(convertUri == "");
+}
+
+/**
 * @tc.name: GetRealPathFailed001
 * @tc.desc: GetRealPath Failed(realpath(inOriPath.c_str(), realPath) == nullptr)
 * @tc.type: FUNC
@@ -186,7 +201,7 @@ HWTEST_F(PasteDataTest, GetRealPathFailed002, TestSize.Level0)
 
 /**
 * @tc.name: ConvertToText001
-* @tc.desc: PasteDataRecord: ConvertToText
+* @tc.desc: PasteDataRecord: ConvertToText htmlText
 * @tc.type: FUNC
 * @tc.require: AR000HEECD
 * @tc.author: chenyu
@@ -201,11 +216,94 @@ HWTEST_F(PasteDataTest, ConvertToText001, TestSize.Level0)
 }
 
 /**
+* @tc.name: ConvertToText002
+* @tc.desc: PasteDataRecord: ConvertToText plainText
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, ConvertToText002, TestSize.Level0)
+{
+    std::string plainText = "paste record test";
+    auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord(plainText);
+    ASSERT_TRUE(record != nullptr);
+    auto text = record->ConvertToText();
+    EXPECT_EQ(text, plainText);
+}
+
+/**
+* @tc.name: ConvertToText003
+* @tc.desc: PasteDataRecord: ConvertToText uri
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, ConvertToText003, TestSize.Level0)
+{
+    OHOS::Uri uri("uri");
+    auto record = PasteboardClient::GetInstance()->CreateUriRecord(uri);
+    ASSERT_TRUE(record != nullptr);
+    auto text = record->ConvertToText();
+    EXPECT_EQ(text, uri.ToString());
+}
+
+/**
+* @tc.name: ConvertToText004
+* @tc.desc: PasteDataRecord: ConvertToText uri
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, ConvertToText004, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto record = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(record != nullptr);
+    auto text = record->ConvertToText();
+    EXPECT_EQ(text, "");
+}
+
+
+/**
+* @tc.name: GetPasteDataMsg001
+* @tc.desc: PasteData: GetPrimaryWant is nullptr and so on
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, GetPasteDataMsg001, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto newPasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
+    ASSERT_TRUE(newPasteData != nullptr);
+    auto pixMap = newPasteData->GetPrimaryPixelMap();
+    ASSERT_TRUE(pixMap != nullptr);
+    auto primaryWant = newPasteData->GetPrimaryWant();
+    ASSERT_TRUE(primaryWant == nullptr);
+    auto primaryText = newPasteData->GetPrimaryText();
+    ASSERT_TRUE(primaryText == nullptr);
+    auto primaryUri = newPasteData->GetPrimaryUri();
+    ASSERT_TRUE(primaryUri == nullptr);
+    auto record = newPasteData->GetRecordAt(1);
+    ASSERT_TRUE(record == nullptr);
+    auto res1 =  newPasteData->RemoveRecordAt(1);
+    ASSERT_FALSE(res1);
+    std::string mimeType = "text/plain";
+    ASSERT_FALSE(newPasteData->HasMimeType(mimeType));
+}
+
+/**
 * @tc.name: ShareOptionToString001
 * @tc.desc: PasteData: ShareOptionToString
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, ShareOptionToString001, TestSize.Level0)
 {
@@ -224,8 +322,8 @@ HWTEST_F(PasteDataTest, ShareOptionToString001, TestSize.Level0)
 * @tc.name: SetInvalid001
 * @tc.desc: PasteData: SetInvalid001
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, SetInvalid001, TestSize.Level0)
 {
@@ -240,8 +338,8 @@ HWTEST_F(PasteDataTest, SetInvalid001, TestSize.Level0)
 * @tc.name: SetLocalOnly001
 * @tc.desc: PasteData: SetLocalOnly
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, SetLocalOnly001, TestSize.Level0)
 {
@@ -256,8 +354,8 @@ HWTEST_F(PasteDataTest, SetLocalOnly001, TestSize.Level0)
 * @tc.name: SetAddition001
 * @tc.desc: PasteData: SetAddition
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, SetAddition001, TestSize.Level0)
 {
@@ -274,8 +372,8 @@ HWTEST_F(PasteDataTest, SetAddition001, TestSize.Level0)
 * @tc.name: SetRemote001
 * @tc.desc: PasteData: SetRemote
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, SetRemote001, TestSize.Level0)
 {
@@ -292,8 +390,8 @@ HWTEST_F(PasteDataTest, SetRemote001, TestSize.Level0)
 * @tc.name: SetOrginAuthority001
 * @tc.desc: PasteData: SetOrginAuthority
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, SetOrginAuthority001, TestSize.Level0)
 {
@@ -312,8 +410,8 @@ HWTEST_F(PasteDataTest, SetOrginAuthority001, TestSize.Level0)
 * @tc.name: GetConvertUri001
 * @tc.desc: PasteDataRecord: GetConvertUri
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, GetConvertUri001, TestSize.Level0)
 {
@@ -338,8 +436,8 @@ HWTEST_F(PasteDataTest, GetConvertUri001, TestSize.Level0)
 * @tc.name: LoadSystemAbilityFail001
 * @tc.desc: PasteDataRecord: LoadSystemAbilityFail
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, LoadSystemAbilityFail001, TestSize.Level0)
 {
@@ -355,8 +453,8 @@ HWTEST_F(PasteDataTest, LoadSystemAbilityFail001, TestSize.Level0)
 * @tc.name: SetInterval001
 * @tc.desc: BlockObject: SetInterval
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, SetInterval001, TestSize.Level0)
 {
@@ -373,8 +471,8 @@ HWTEST_F(PasteDataTest, SetInterval001, TestSize.Level0)
 * @tc.name: ClipPlugin001
 * @tc.desc: API_EXPORT: ClipPlugin
 * @tc.type: FUNC
-* @tc.require: DTS2023071915769
-* @tc.author: z30043299
+* @tc.require:
+* @tc.author:
 */
 HWTEST_F(PasteDataTest, ClipPlugin001, TestSize.Level0)
 {
