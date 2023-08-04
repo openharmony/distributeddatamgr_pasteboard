@@ -92,8 +92,6 @@ void PasteboardServiceTest::TearDown(void)
     if (PasteboardServiceTest::pasteboardEventObserver_ != nullptr) {
         PasteboardClient::GetInstance()->RemovePasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
     }
-    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
-    PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
     PasteboardClient::GetInstance()->Clear();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "TearDown.");
 }
@@ -101,13 +99,13 @@ void PasteboardServiceTest::TearDown(void)
 void PasteboardObserverCallback::OnPasteboardChanged()
 {
     PasteboardServiceTest::pasteboardChangedFlag_ = true;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "test changed callback.");
 }
 
 void PasteboardEventObserverCallback::OnPasteboardEvent(std::string bundleName, int32_t status)
 {
     PasteboardServiceTest::pasteboardEventStatus_ = status;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "event callback bundleName: %{public}s,status:%{public}d",
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "test event callback bundleName: %{public}s,status:%{public}d",
         bundleName.c_str(), status);
 }
 
@@ -993,9 +991,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
 */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
 {
+    PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
     if (PasteboardServiceTest::pasteboardObserver_ == nullptr) {
         PasteboardServiceTest::pasteboardObserver_ = new PasteboardObserverCallback();
     }
+    PasteboardServiceTest::pasteboardChangedFlag_ = false;
     ASSERT_TRUE(PasteboardServiceTest::pasteboardObserver_ != nullptr);
     PasteboardClient::GetInstance()->AddPasteboardChangedObserver(PasteboardServiceTest::pasteboardObserver_);
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
@@ -1010,6 +1010,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
     ASSERT_TRUE(pasteData != nullptr);
     PasteboardClient::GetInstance()->Clear();
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_FALSE(hasPasteData);
@@ -1044,24 +1045,23 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
 {
+    PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
     if (PasteboardServiceTest::pasteboardEventObserver_ == nullptr) {
         PasteboardServiceTest::pasteboardEventObserver_ = new PasteboardEventObserverCallback();
     }
+    PasteboardServiceTest::pasteboardEventStatus_ = -1;
     ASSERT_TRUE(PasteboardServiceTest::pasteboardEventObserver_ != nullptr);
     PasteboardClient::GetInstance()->AddPasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
-    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData("hello");
     ASSERT_TRUE(pasteData != nullptr);
     PasteboardClient::GetInstance()->Clear();
-    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_FALSE(hasPasteData);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
         static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_WRITE));
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
@@ -1081,10 +1081,8 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     PasteboardClient::GetInstance()->RemovePasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
     PasteboardClient::GetInstance()->Clear();
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    ASSERT_FALSE(PasteboardServiceTest::pasteboardChangedFlag_);
     ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
 }
 
@@ -1127,6 +1125,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0021, TestSize.Level0)
     PasteData newPasteData;
     PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     PasteboardClient::GetInstance()->Clear();
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
     hasData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasData == false);

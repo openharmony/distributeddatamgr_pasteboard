@@ -49,13 +49,13 @@ sptr<PasteboardObserverInstance::PasteboardObserverImpl> PasteboardObserverInsta
 
 void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "UvQueueWorkOnPasteboardChanged start");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "UvQueueWorkOnPasteboardChanged start");
     if (work == nullptr) {
         return;
     }
     PasteboardDataWorker *pasteboardDataWorker = (PasteboardDataWorker *)work->data;
     if (pasteboardDataWorker == nullptr || pasteboardDataWorker->observer == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker or ref is null");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker or ref is null");
         delete work;
         work = nullptr;
         return;
@@ -87,22 +87,22 @@ void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
 
 void PasteboardObserverInstance::OnPasteboardChanged()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "OnPasteboardChanged is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "OnPasteboardChanged is called!");
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(env_, &loop);
     if (loop == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "loop instance is nullptr");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "loop instance is nullptr");
         return;
     }
 
     uv_work_t *work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "work is null");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "work is null");
         return;
     }
     PasteboardDataWorker *pasteboardDataWorker = new (std::nothrow) PasteboardDataWorker();
     if (pasteboardDataWorker == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker is null");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker is null");
         delete work;
         work = nullptr;
         return;
@@ -119,7 +119,7 @@ void PasteboardObserverInstance::OnPasteboardChanged()
         delete work;
         work = nullptr;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "OnPasteboardChanged end");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "OnPasteboardChanged end");
 }
 
 bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc)
@@ -144,7 +144,7 @@ bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount
 
 napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi on() is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi on() is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = 0;
@@ -169,13 +169,13 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
     observer->GetStub()->SetObserverWrapper(observer);
     PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer->GetStub());
     observers_[ref] = observer;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi on() is end!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi on() is end!");
     return result;
 }
 
 napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi off () is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi off () is called!");
     size_t argc = MAX_ARGS;
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = 0;
@@ -198,13 +198,13 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
     DeleteObserver(observer);
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi off () is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi off () is called!");
     return result;
 }
 
 napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Clear is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Clear is called!");
     auto context = std::make_shared<AsyncCall::Context>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // clear has 0 or 1 args
@@ -226,13 +226,13 @@ napi_value SystemPasteboardNapi::Clear(napi_env env, napi_callback_info info)
 
 napi_value SystemPasteboardNapi::ClearData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ClearData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ClearData is called!");
     return Clear(env, info);
 }
 
 napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasPasteData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "HasPasteData is called!");
     auto context = std::make_shared<HasContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // hasPasteData has 0 or 1 args
@@ -261,7 +261,7 @@ napi_value SystemPasteboardNapi::HasPasteData(napi_env env, napi_callback_info i
 
 napi_value SystemPasteboardNapi::HasData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "HasData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "HasData is called!");
     return HasPasteData(env, info);
 }
 
@@ -294,7 +294,7 @@ void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetContextInfo> &contex
 
 napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetPasteData is called!");
 
     auto context = std::make_shared<GetContextInfo>();
     context->pasteData = std::make_shared<PasteData>();
@@ -314,7 +314,7 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
 
 napi_value SystemPasteboardNapi::GetData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "GetData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData is called!");
 
     auto context = std::make_shared<GetContextInfo>();
     context->pasteData = std::make_shared<PasteData>();
@@ -361,12 +361,12 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetContextInfo> &contex
 
 napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SetPasteData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SetPasteData is called!");
     auto context = std::make_shared<SetContextInfo>();
     SetDataCommon(context);
 
     auto exec = [context](AsyncCall::Context *ctx) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
         if (context->obj != nullptr) {
             PasteboardClient::GetInstance()->SetPasteData(*(context->obj));
             context->obj = nullptr;
@@ -380,12 +380,12 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
 
 napi_value SystemPasteboardNapi::SetData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "SetData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SetData is called!");
     auto context = std::make_shared<SetContextInfo>();
     SetDataCommon(context);
 
     auto exec = [context](AsyncCall::Context *ctx) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
         int32_t ret = static_cast<int32_t>(PasteboardError::E_ERROR);
         if (context->obj != nullptr) {
             ret = PasteboardClient::GetInstance()->SetPasteData(*(context->obj));

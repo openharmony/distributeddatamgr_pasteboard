@@ -94,6 +94,7 @@ public:
     void SetRemote(bool isRemote);
     bool IsRemote();
     void SetTime(const std::string &time);
+    std::string GetTime();
     void SetTag(std::string &tag);
     std::string GetTag();
     void SetAdditions(AAFwk::WantParams &additions);

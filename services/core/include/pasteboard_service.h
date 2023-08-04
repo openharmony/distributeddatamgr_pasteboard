@@ -141,7 +141,7 @@ private:
     void DevProfileInit();
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
-    std::mutex clipMutex_;
+    std::recursive_mutex clipMutex_;
     std::mutex hintMutex_;
     std::mutex observerMutex_;
     ObserverMap observerChangedMap_;
