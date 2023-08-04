@@ -12,6 +12,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #include "copy_uri_handler.h"
 #include "common/block_object.h"
 #include "clip/clip_plugin.h"
@@ -167,6 +168,43 @@ HWTEST_F(PasteDataTest, uriConvertTest003, TestSize.Level0)
     int32_t fd = -100;
     std::string convertUri = copyHandler.ToUri(fd);
     EXPECT_TRUE(convertUri == "");
+}
+
+/**
+* @tc.name: AddRecord001
+* @tc.desc: PasteDataRecord AddRecord
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteDataTest, AddRecord001, TestSize.Level0)
+{
+    PasteData data;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    std::string uriStr = FILE_URI;
+    auto uri = std::make_shared<OHOS::Uri>(uriStr);
+    builder.SetUri(uri);
+    auto record = builder.Build();
+    EXPECT_TRUE(record != nullptr);
+    data.AddRecord(nullptr);
+    auto count = data.GetRecordCount();
+    EXPECT_TRUE(count == 0);
+}
+
+/**
+* @tc.name: AddRecord002
+* @tc.desc: PasteDataRecord AddRecord
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteDataTest, AddRecord002, TestSize.Level0)
+{
+    PasteData data;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    std::string uriStr = FILE_URI;
+    auto uri = std::make_shared<OHOS::Uri>(uriStr);
+    builder.SetUri(uri);
+    auto record = builder.Build();
+    data.AddRecord(*record);
+    auto count = data.GetRecordCount();
+    EXPECT_TRUE(count == 1);
 }
 
 /**
@@ -433,6 +471,29 @@ HWTEST_F(PasteDataTest, GetConvertUri001, TestSize.Level0)
 }
 
 /**
+* @tc.name: GetConvertUri002
+* @tc.desc: PasteDataRecord: GetConvertUri
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, GetConvertUri002, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    std::string convertUri_ = "";
+    pasteDataRecord->SetConvertUri(convertUri_);
+    std::string result = pasteDataRecord->GetConvertUri();
+    ASSERT_TRUE(result == convertUri_);
+    pasteDataRecord->ReplaceShareUri(200);
+    std::string result2 = pasteDataRecord->GetConvertUri();
+    ASSERT_TRUE(result2 == convertUri_);
+}
+
+/**
 * @tc.name: LoadSystemAbilityFail001
 * @tc.desc: PasteDataRecord: LoadSystemAbilityFail
 * @tc.type: FUNC
@@ -490,6 +551,29 @@ HWTEST_F(PasteDataTest, ClipPlugin001, TestSize.Level0)
     auto events2 = clipPlugin_->GetTopEvents(1);
     EXPECT_TRUE(events2.size() == 0);
     clipPlugin_->Clear();
+    clipPlugin_->Clear(userId);
+}
+
+/**
+* @tc.name: ClipPlugin002
+* @tc.desc: API_EXPORT: ClipPlugin
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, ClipPlugin002, TestSize.Level0)
+{
+    std::string PLUGIN_NAME_VAL = "distributed_clip";
+    auto release = [&PLUGIN_NAME_VAL, this](ClipPlugin *plugin) {
+        ClipPlugin::DestroyPlugin(PLUGIN_NAME_VAL, plugin);
+    };
+    auto clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME_VAL), release);
+    ClipPlugin::Factory *factory = new ClipFactory();
+    auto result = ClipPlugin::RegCreator(PLUGIN_NAME_VAL, factory);
+    EXPECT_FALSE(result);
+    auto userId = 3701;
+    auto events1 = clipPlugin_->GetTopEvents(1, userId);
+    EXPECT_TRUE(events1.size() == 0);
     clipPlugin_->Clear(userId);
 }
 } // namespace OHOS::MiscServices

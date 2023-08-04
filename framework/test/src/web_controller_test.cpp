@@ -234,4 +234,4 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_008, TestSize.Level1)
     EXPECT_EQ(pasteData->GetRecordCount(), 1);
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(pasteData);
     EXPECT_EQ(*newHtml, *html);
-} // namespace OHOS::MiscServices
+}
