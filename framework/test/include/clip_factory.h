@@ -16,7 +16,6 @@
 #ifndef PASTE_DATA_TEST_CLIP_FACTORY_H
 #define PASTE_DATA_TEST_CLIP_FACTORY_H
 #include "clip/clip_plugin.h"
-
 namespace OHOS::MiscServices {
 class ClipFactory : public ClipPlugin::Factory {
 public:
@@ -24,6 +23,25 @@ public:
     ~ClipFactory();
     ClipPlugin *Create() override;
     bool Destroy(ClipPlugin *plugin) override;
+
+private:
+    ClipPlugin *clip_ = nullptr;
+    static ClipFactory factory_;
 };
+
+ClipPlugin *ClipFactory::Create()
+{
+    return clip_;
+}
+
+bool ClipFactory::Destroy(ClipPlugin *plugin)
+{
+    if (plugin == clip_) {
+        delete clip_;
+        clip_ = nullptr;
+        return true;
+    }
+    return false;
+}
 }
 #endif // PASTE_DATA_TEST_CLIP_FACTORY_H

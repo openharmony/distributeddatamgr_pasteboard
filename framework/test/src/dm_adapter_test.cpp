@@ -12,7 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "device/dm_adapter.h"
+#include "distributed_clip.h"
 #include <gtest/gtest.h>
 
 using namespace testing::ext;
@@ -58,4 +60,35 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceId, TestSize.Level0)
     std::string device = "deviceTestName";
     auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
     ASSERT_FALSE(fromDevice.empty());
+}
+
+/**
+* @tc.name: GetLocalNetworkId
+* @tc.desc: Get the local network id.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, GetLocalNetworkId, TestSize.Level0)
+{
+    std::string bundleName = "com.example.myapplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    ASSERT_FALSE(res);
+    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    ASSERT_FALSE(networkId.empty());
+}
+
+/**
+* @tc.name: DistributedClipRegister
+* @tc.desc: DistributedClip Register and Unregister.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, DistributedClipRegister, TestSize.Level0)
+{
+    DistributedClip *observer = new DistributedClip();
+    DMAdapter::GetInstance().Register(observer);
+    DMAdapter::GetInstance().Unregister(observer);
+    ASSERT_TRUE(true);
 }
