@@ -311,6 +311,11 @@ void PasteData::SetTime(const std::string &setTime)
     props_.setTime = setTime;
 }
 
+std::string PasteData::GetTime()
+{
+    return props_.setTime;
+}
+
 void PasteData::SetTag(std::string &tag)
 {
     props_.tag = tag;
@@ -357,14 +362,13 @@ void PasteData::CopyData(PasteData &data)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     data.props_ = this->GetProperty();
-    data.records_ = this->records_;
+    std::copy(this->records_.begin(), this->records_.end(), std::back_inserter(data.records_));
     data.orginAuthority_ = this->orginAuthority_;
     data.valid_ = this->valid_;
     data.isDraggedData_ = this->isDraggedData_;
     data.isLocalPaste_ = this->isLocalPaste_;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
-
 
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {

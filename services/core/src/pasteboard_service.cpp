@@ -204,7 +204,7 @@ void PasteboardService::Clear()
     if (userId == ERROR_USERID) {
         return;
     }
-    std::lock_guard<std::mutex> lock(clipMutex_);
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
         RevokeUriPermission(*(it->second));
@@ -213,7 +213,6 @@ void PasteboardService::Clear()
         std::string bundleName = GetAppBundleName(appInfo);
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
     }
-    std::lock_guard<std::mutex> lck(hintMutex_);
     auto hintItem = hints_.find(userId);
     if (hintItem != hints_.end()) {
         hints_.erase(hintItem);
@@ -411,14 +410,12 @@ bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isF
         + PasteData::SHARE_PATH_PREFIX_ACCOUNT;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     bool isRemote = false;
-    {
-        std::lock_guard<std::mutex> lock(clipMutex_);
-        auto pastData = GetDistributedData(appInfo.userId);
-        if (pastData != nullptr) {
-            isRemote = true;
-            pastData->SetRemote(isRemote);
-            clips_.insert_or_assign(appInfo.userId, pastData);
-        }
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
+    auto pastData = GetDistributedData(appInfo.userId);
+    if (pastData != nullptr) {
+        isRemote = true;
+        pastData->SetRemote(isRemote);
+        clips_.insert_or_assign(appInfo.userId, pastData);
     }
     data.SetRemote(isRemote);
     return CheckPasteData(appInfo, data, isFocusedApp);
@@ -426,20 +423,20 @@ bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isF
 
 bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
-    auto it = clips_.find(appInfo.userId);
-    if (it == clips_.end()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
-        return false;
-    }
-    auto ret = HasPastePermission(appInfo.tokenId, isFocusedApp, it->second);
-    if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "don't have paste permission.");
-        return false;
-    }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
-    it->second->SetBundleName(appInfo.bundleName);
     {
-        std::lock_guard<std::mutex> lock(clipMutex_);
+        std::lock_guard<std::recursive_mutex> lock(clipMutex_);
+        auto it = clips_.find(appInfo.userId);
+        if (it == clips_.end()) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
+            return false;
+        }
+        auto ret = HasPastePermission(appInfo.tokenId, isFocusedApp, it->second);
+        if (!ret) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "don't have paste permission.");
+            return false;
+        }
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
+        it->second->SetBundleName(appInfo.bundleName);
         (*(it->second)).CopyData(data);
     }
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
@@ -463,7 +460,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
             uri = item->GetOrginUri();
         }
         if (uri == nullptr || !isBundleOwnUriPermission(data.GetOrginAuthority(), *uri)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "uri error.");
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri error.");
             continue;
         }
         auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
@@ -523,7 +520,6 @@ void PasteboardService::ShowHintToast(bool isValid, uint32_t tokenId, const std:
         return;
     }
     auto userId = GetCurrentAccountId();
-    std::lock_guard<std::mutex> lck(hintMutex_);
     auto hintItem = hints_.find(userId);
     if (hintItem != hints_.end()) {
         auto hintTokenId = std::find(hintItem->second.begin(), hintItem->second.end(), tokenId);
@@ -553,7 +549,7 @@ bool PasteboardService::HasPasteData()
     if (userId == ERROR_USERID) {
         return false;
     }
-    std::lock_guard<std::mutex> lock(clipMutex_);
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it == clips_.end()) {
         return HasDistributedData(userId);
@@ -582,7 +578,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
         setting_.store(false);
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
-    std::lock_guard<std::mutex> lock(clipMutex_);
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto it = clips_.find(appInfo.userId);
     if (it != clips_.end()) {
         RevokeUriPermission(*(it->second));
@@ -598,7 +594,6 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     SetDistributedData(appInfo.userId, pasteData);
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(pasteData);
-    std::lock_guard<std::mutex> lck(hintMutex_);
     auto hintItem = hints_.find(appInfo.userId);
     if (hintItem != hints_.end()) {
         hints_.erase(hintItem);
@@ -884,7 +879,7 @@ std::string PasteboardService::DumpData()
         return "";
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}d", userId);
-    std::lock_guard<std::mutex> lock(clipMutex_);
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     std::string result;
     if (it != clips_.end() && it->second != nullptr) {
@@ -925,13 +920,13 @@ std::string PasteboardService::DumpData()
 
 void PasteboardService::SetPasteDataDot(PasteData &pasteData)
 {
-    auto property = pasteData.GetProperty();
-    HistoryInfo info{ property.setTime, property.bundleName, "set", "", "" };
+    auto bundleName = pasteData.GetBundleName();
+    HistoryInfo info{ pasteData.GetTime(), bundleName, "set", "", "" };
     SetPasteboardHistory(info);
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData Report!");
     Reporter::GetInstance().PasteboardBehaviour().Report(
-        { static_cast<int>(BehaviourPasteboardState::BPS_COPY_STATE), property.bundleName });
+        { static_cast<int>(BehaviourPasteboardState::BPS_COPY_STATE), bundleName });
 
     int state = static_cast<int>(StatisticPasteboardState::SPS_COPY_STATE);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData GetDataSize!");
