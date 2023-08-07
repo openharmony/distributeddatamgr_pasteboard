@@ -82,9 +82,7 @@ int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &c
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog failed, result:%{public}d", result);
         return -1;
     }
-    connectNum_.fetch_add(1);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog success. connectNum = %{public}s",
-        std::to_string(connectNum_).c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog success.");
     return 0;
 }
 
@@ -123,16 +121,8 @@ void PasteBoardDialog::CancelDialog()
         return;
     }
     std::lock_guard<std::mutex> lock(connectionLock_);
-    while (connectNum_ > 0) {
-        int result = IN_PROCESS_CALL(abilityManager->DisconnectAbility(connection_));
-        if (result != 0) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "cancel pasteboard dialog failed, result:%{public}d", result);
-            return;
-        }
-        connectNum_ = connectNum_ > 0 ? connectNum_ - 1 : 0;
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect dialog ability:%{public}d, connectNum = %{public}s",
-            result, std::to_string(connectNum_).c_str());
-    }
+    int result = IN_PROCESS_CALL(abilityManager->DisconnectAbility(connection_));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect dialog ability:%{public}d", result);
 }
 
 void PasteBoardDialog::CancelToast()
