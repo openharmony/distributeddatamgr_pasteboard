@@ -54,6 +54,7 @@ private:
 
     std::mutex connectionLock_;
     std::mutex toastConnectionLock_;
+    std::atomic<uint32_t> connectNum_ = 0;
     sptr<DialogConnection> connection_;
     sptr<DialogConnection> toastConnection_;
 };

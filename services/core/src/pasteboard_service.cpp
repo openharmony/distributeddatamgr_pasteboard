@@ -343,6 +343,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     if (clipPlugin == nullptr) {
         result = CheckPasteData(appInfo, data, isFocusedApp);
     } else {
+        std::lock_guard<std::mutex> lock(remoteMutex_);
         result = GetRemoteData(appInfo, data, pop, isFocusedApp, tokenId);
     }
     if (observerEventMap_.size() != 0) {
@@ -371,7 +372,7 @@ bool PasteboardService::GetRemoteData(
     thread.detach();
     auto value = block->GetValue();
     if (value == nullptr) {
-        if (dialogShowing_.exchange(true) || IsDefaultIME(appInfo)) {
+        if (IsDefaultIME(appInfo)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not need show dialog");
             block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
             value = block->GetValue();
@@ -380,12 +381,10 @@ bool PasteboardService::GetRemoteData(
             message.appName = GetAppLabel(tokenId);
             message.deviceType = GetDeviceName();
             PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
-            dialogShowing_.store(true);
             pop = "pop";
             block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
             value = block->GetValue();
             PasteBoardDialog::GetInstance().CancelDialog();
-            dialogShowing_.store(false);
             SetDeviceName();
         }
     }
@@ -979,7 +978,6 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
         event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
     std::vector<uint8_t> rawData = std::move(event.addition);
-    SetDeviceName(event.deviceId);
     if (!isEffective) {
         currentEvent_.status = ClipPlugin::EVT_INVALID;
         currentEvent_ = std::move(event);
@@ -1148,6 +1146,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "account error.");
         return false;
     }
+    SetDeviceName(tmpEvent.deviceId);
     if (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data.");
         return false;
