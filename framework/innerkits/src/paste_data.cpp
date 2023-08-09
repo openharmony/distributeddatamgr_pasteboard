@@ -52,14 +52,23 @@ const std::string PasteData::SHARE_PATH_PREFIX = "/mnt/hmdfs/";
 const std::string PasteData::SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
 const std::string PasteData::REMOTE_FILE_SIZE = "remoteFileSize";
 
-PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
+PasteData::PasteData()
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
 }
 
-PasteData::PasteData()
+PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthority_), valid_(data.valid_),
+    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_)
+{
+    this->props_ = data.props_;
+    for (const auto &item : data.records_) {
+        this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
+    }
+}
+
+PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
@@ -358,18 +367,6 @@ void PasteData::RefreshMimeProp()
     props_.mimeTypes = mimeTypes;
 }
 
-void PasteData::CopyData(PasteData &data)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    data.props_ = this->GetProperty();
-    std::copy(this->records_.begin(), this->records_.end(), std::back_inserter(data.records_));
-    data.orginAuthority_ = this->orginAuthority_;
-    data.valid_ = this->valid_;
-    data.isDraggedData_ = this->isDraggedData_;
-    data.isLocalPaste_ = this->isLocalPaste_;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-}
-
 bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 {
     Init(buffer);
@@ -435,6 +432,15 @@ void PasteData::SetInvalid()
     valid_ = false;
 }
 
+PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)
+    : tag(property.tag), timestamp(property.timestamp), localOnly(property.localOnly),
+    shareOption(property.shareOption), tokenId(property.tokenId), isRemote(property.isRemote),
+    bundleName(property.bundleName), setTime(property.setTime)
+{
+    this->additions = property.additions;
+    std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
+}
+
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_ADDITIONS, ParcelUtil::Parcelable2Raw(&additions));
@@ -449,6 +455,7 @@ bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_SETTIME, setTime) && ret;
     return ret;
 }
+
 bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
 {
     for (; IsEnough();) {

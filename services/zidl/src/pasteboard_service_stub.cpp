@@ -139,19 +139,19 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
-    PasteData pasteData;
-    bool ret = pasteData.Decode(pasteDataTlv);
+    auto pasteData = std::make_shared<PasteData>();
+    bool ret = pasteData->Decode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
         return ERR_INVALID_VALUE;
     }
     CopyUriHandler copyUriHandler;
-    if (!pasteData.ReadUriFd(data, copyUriHandler)) {
+    if (!pasteData->ReadUriFd(data, copyUriHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = SetPasteData(pasteData);
-    HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::COPY_STATE, result);
+    int32_t result = SavePasteData(pasteData);
+    HiViewAdapter::ReportUseBehaviour(*pasteData, HiViewAdapter::COPY_STATE, result);
     if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write SetPasteData result");
         return ERR_INVALID_VALUE;
