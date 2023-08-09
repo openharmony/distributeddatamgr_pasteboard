@@ -56,6 +56,7 @@ ohos_shared_library("pasteboard_client") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:wantagent_innerkits",
+    "app_file_service:fileuri_native",
     "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",

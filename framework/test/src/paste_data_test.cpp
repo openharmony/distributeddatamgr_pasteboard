@@ -304,15 +304,39 @@ HWTEST_F(PasteDataTest, ConvertToText004, TestSize.Level0)
     EXPECT_EQ(text, "");
 }
 
-
 /**
 * @tc.name: GetPasteDataMsg001
-* @tc.desc: PasteData: GetPrimaryWant is nullptr and so on
+* @tc.desc: PasteData: GetPrimaryMimeType is nullptr and so on
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
 */
 HWTEST_F(PasteDataTest, GetPasteDataMsg001, TestSize.Level0)
+{
+    std::string plainText1 = "helloWorld";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
+    ASSERT_TRUE(pasteData != nullptr);
+    auto newPrimaryPixelMap = pasteData->GetPrimaryPixelMap();
+    ASSERT_TRUE(newPrimaryPixelMap == nullptr);
+    auto newPrimaryMimeType = pasteData->GetPrimaryMimeType();
+    ASSERT_TRUE(newPrimaryMimeType != nullptr);
+    auto newPasteData = std::make_shared<PasteData>();
+    auto newPrimaryMimeType2 = newPasteData->GetPrimaryMimeType();
+    ASSERT_TRUE(newPrimaryMimeType2 == nullptr);
+    std::string plainText2 = "plain text";
+    auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord(plainText2);
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_FALSE(pasteData->ReplaceRecordAt(1000, record));
+}
+
+/**
+* @tc.name: GetPasteDataMsg002
+* @tc.desc: PasteData: GetPrimaryWant is nullptr and so on
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, GetPasteDataMsg002, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
     InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
@@ -442,6 +466,10 @@ HWTEST_F(PasteDataTest, SetOrginAuthority001, TestSize.Level0)
     std::string getOrginAuthority = pasteData->GetOrginAuthority();
     ASSERT_TRUE(getBundleName == bundleName);
     ASSERT_TRUE(getOrginAuthority == bundleName);
+    std::string time = "2023-08-09";
+    pasteData->SetTime(time);
+    std::string getTime = pasteData->GetTime();
+    ASSERT_TRUE(getTime == time);
 }
 
 /**
@@ -506,6 +534,24 @@ HWTEST_F(PasteDataTest, LoadSystemAbilityFail001, TestSize.Level0)
     std::string mimeType = "image/jpg";
     arrayBuffer = { 1, 2, 3, 4, 6 };
     PasteboardClient::GetInstance()->LoadSystemAbilityFail();
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+}
+
+/**
+* @tc.name: LoadSystemAbilitySuccess001
+* @tc.desc: PasteDataRecord: LoadSystemAbilitySuccess
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, LoadSystemAbilitySuccess001, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    std::string mimeType = "image/jpg";
+    arrayBuffer = { 1, 2, 3, 4, 6 };
+    sptr<IRemoteObject> remoteObject = nullptr;
+    PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
     ASSERT_TRUE(pasteDataRecord != nullptr);
 }

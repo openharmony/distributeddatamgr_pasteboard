@@ -14,6 +14,7 @@
  */
 
 #include <regex>
+#include "file_uri.h"
 #include "pasteboard_web_controller.h"
 
 namespace {
@@ -82,7 +83,10 @@ std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(
 
     RemoveAllRecord(pasteData);
     for (auto& replaceUri : replaceUris) {
-        htmlData->replace(replaceUri.first, replaceUri.second.second.size(), replaceUri.second.first);
+        std::string oriPath = replaceUri.second.first;
+        AppFileService::ModuleFileUri::FileUri fileUri(oriPath);
+        std::string path = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
+        htmlData->replace(replaceUri.first, replaceUri.second.second.size(), path);
     }
     pasteData->AddHtmlRecord(*htmlData);
     return htmlData;

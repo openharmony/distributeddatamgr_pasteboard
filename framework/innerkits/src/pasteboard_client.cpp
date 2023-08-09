@@ -167,26 +167,6 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
         return;
     }
     auto PasteboardWebController = PasteboardWebController::GetInstance();
-    std::string bundleName = pasteData.GetProperty().bundleName;
-    for (auto& item : pasteData.AllRecords()) {
-        if (item->GetUri() == nullptr) {
-            continue;
-        }
-        std::shared_ptr<Uri> uri = item->GetUri();
-        std::string puri = uri->ToString();
-        std::string authority = uri->GetAuthority();
-        std::string path = uri->GetPath();
-        std::string newUriStr = PasteData::FILE_SCHEME_PREFIX + path;
-        if (bundleName != authority && !authority.empty() &&
-            puri.find(PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
-            newUriStr = PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE + authority + path;
-        }
-        if (newUriStr.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
-            item->SetConvertUri(newUriStr);
-        } else {
-            item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
-        }
-    }
     PasteboardWebController.RebuildHtml(std::make_shared<PasteData>(pasteData));
 }
 
