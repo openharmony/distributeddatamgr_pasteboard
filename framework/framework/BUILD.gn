@@ -12,6 +12,7 @@
 # limitations under the License.
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
+import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 group("build_module") {
   deps = [ ":pasteboard_framework" ]
@@ -19,9 +20,9 @@ group("build_module") {
 config("module_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "${pasteboard_utils_path}/native/include",
     "include",
     "include/device",
-    "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "//third_party/json/single_include",
   ]
 }
