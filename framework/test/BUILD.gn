@@ -37,6 +37,7 @@ ohos_unittest("PasteboardFrameworkTest") {
   sources = [
     "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
     "${pasteboard_service_path}/load/src/config.cpp",
+    "src/clip_data_test.cpp",
     "src/dm_adapter_test.cpp",
     "src/paste_data_test.cpp",
     "src/serializable_test.cpp",
@@ -53,8 +54,12 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:zuri",
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
+    "device_info_manager:distributed_device_profile_client",
+    "device_manager:devicemanagersdk",
     "hilog:libhilog",
     "image_framework:image_native",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
     "ipc:ipc_core",
   ]
 

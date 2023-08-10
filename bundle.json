@@ -32,6 +32,7 @@
           "c_utils",
           "device_info_manager",
           "device_manager",
+          "dfs_service",
           "dlp_permission_service",
           "eventhandler",
           "file_api",
@@ -86,6 +87,7 @@
             "header": {
               "header_files": [
                 "clip/clip_plugin.h",
+                "device/clip_para.h",
                 "device/dm_adapter.h",
                 "common/block_object.h"
               ],

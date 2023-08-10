@@ -33,8 +33,10 @@ using namespace OHOS::DistributedHardware;
 constexpr const int32_t HANDLE_OK = 0;
 constexpr const uint32_t NOT_SUPPORT = 0;
 constexpr const uint32_t SUPPORT = 1;
+constexpr const uint32_t FIRST_VERSION = 4;
 constexpr const char *SERVICE_ID = "pasteboardService";
 constexpr const char *CHARACTER_ID = "supportDistributedPasteboard";
+constexpr const char *VERSION_ID = "PasteboardVersionId";
 
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
@@ -93,6 +95,7 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
         jsonObject[CHARACTER_ID] = SUPPORT;
         localEnable_ = true;
     }
+    jsonObject[VERSION_ID] = FIRST_VERSION;
     profile.SetCharacteristicProfileJson(jsonObject.dump());
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutDeviceProfile(profile);
     if (errNo != HANDLE_OK) {
@@ -123,6 +126,27 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
         enabledStatus = "true";
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
+}
+
+void DevProfile::GetRemoteDeviceVersion(const std::string &deviceId, uint32_t &versionId)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion start.");
+    ServiceCharacteristicProfile profile;
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(deviceId, SERVICE_ID, profile);
+    if (ret != HANDLE_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", deviceId.c_str());
+        return;
+    }
+    const auto &jsonData = profile.GetCharacteristicProfileJson();
+    nlohmann::json jsonObject = nlohmann::json::parse(jsonData, nullptr, false);
+    if (jsonObject.is_discarded()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
+        return;
+    }
+    if (jsonObject.contains(VERSION_ID) && jsonObject[VERSION_ID] == FIRST_VERSION) {
+        versionId = jsonObject[VERSION_ID];
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion success, versionId = %{public}d.", versionId);
 }
 
 void DevProfile::SubscribeProfileEvent(const std::string &deviceId)
@@ -169,7 +193,7 @@ void DevProfile::SyncEnabledStatus()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus start.");
     SyncOptions syncOptions;
-    auto deviceIds = DevManager::GetInstance().GetDeviceIds();
+    auto deviceIds = DevManager::GetInstance().GetNetworkIds();
     if (deviceIds.empty()) {
         return;
     }

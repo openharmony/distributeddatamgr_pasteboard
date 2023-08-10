@@ -26,6 +26,7 @@
 #include "device/dm_adapter.h"
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
+#include "distributed_file_daemon_manager.h"
 #include "distributed_module_config.h"
 #include "hiview_adapter.h"
 #include "input_method_controller.h"
@@ -48,6 +49,7 @@
 namespace OHOS {
 namespace MiscServices {
 using namespace std::chrono;
+using namespace Storage::DistributedFile;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
@@ -438,8 +440,32 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
         it->second->SetBundleName(appInfo.bundleName);
         (*(it->second)).CopyData(data);
     }
+    auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get remote fileSize %{public}d", fileSize);
+    if (data.IsRemote() && fileSize > 0) {
+        EstablishP2PLink(fileSize);
+        std::this_thread::sleep_for(std::chrono::seconds(OPEN_P2P_SLEEP_TIME));
+    }
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
     return true;
+}
+
+void PasteboardService::EstablishP2PLink(int fileSize)
+{
+    auto keepLinkTime = (fileSize / TRANMISSION_BASELINE) * 3 + MIN_TRANMISSION_TIME;
+    DmDeviceInfo remoteDevice;
+    auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(currentEvent_.deviceId, remoteDevice);
+    if (ret != RESULT_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
+        return;
+    }
+    std::thread thread([this, remoteDevice, keepLinkTime]() mutable {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
+        DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
+        std::this_thread::sleep_for(std::chrono::seconds(keepLinkTime));
+        DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
+    });
+    thread.detach();
 }
 
 void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)

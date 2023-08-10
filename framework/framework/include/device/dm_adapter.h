@@ -20,10 +20,14 @@
 
 #include "api/visibility.h"
 #include "common/concurrent_map.h"
+#include "dm_device_info.h"
+
 namespace OHOS::MiscServices {
+using namespace OHOS::DistributedHardware;
 class API_EXPORT DMAdapter {
 public:
     static constexpr size_t MAX_ID_LEN = 64;
+    static constexpr size_t RESULT_OK = 0;
     class DMObserver {
     public:
         virtual void Online(const std::string &device) = 0;
@@ -33,6 +37,7 @@ public:
     bool Initialize(const std::string &pkgName);
     const std::string &GetLocalDevice();
     const std::string GetLocalNetworkId();
+    int32_t GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice);
     std::string GetDeviceName(const std::string &networkId);
     void Register(DMObserver *observer);
     void Unregister(DMObserver *observer);
