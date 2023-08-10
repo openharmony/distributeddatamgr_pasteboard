@@ -92,3 +92,17 @@ HWTEST_F(DMAdapterTest, DistributedClipRegister, TestSize.Level0)
     DMAdapter::GetInstance().Unregister(observer);
     ASSERT_TRUE(true);
 }
+
+/**
+* @tc.name: GetRemoteDeviceInfo
+* @tc.desc: Get the remote device info.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
+{
+    DmDeviceInfo remoteDevice;
+    auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo("", remoteDevice);
+    ASSERT_TRUE(ret == -1);
+}
