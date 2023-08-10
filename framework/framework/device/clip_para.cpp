@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "clip_para.cpp"
+#include "clip_para.h"
 
 #include <chrono>
 #include "pasteboard_hilog.h"

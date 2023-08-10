@@ -26,15 +26,15 @@ config("pasteboard_service_config") {
     "account/include",
     "core/include",
     "load/include",
+    "${filemanagement_service_path}/distributedfiledaemon/include/ipc",
     "${pasteboard_innerkits_path}/include",
     "${pasteboard_utils_path}/mock/include",
     "${pasteboard_utils_path}/native/include",
     "${pasteboard_utils_path}/system/safwk/native/include",
+    "${pasteboard_framework_path}/framework/include",
+    "${pasteboard_framework_path}/framework/include/device",
     "//commonlibrary/c_utils/base/include",
     "//third_party/json/include",
-    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
-    "//foundation/distributeddatamgr/pasteboard/framework/framework/include/device",
-    "//foundation/filemanagement/dfs_service/services/distributedfiledaemon/include/ipc",
   ]
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
   cflags = [
@@ -74,6 +74,7 @@ ohos_shared_library("pasteboard_service") {
     ":pasteboard_service_config",
   ]
   deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
