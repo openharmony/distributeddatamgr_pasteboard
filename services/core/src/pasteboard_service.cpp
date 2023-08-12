@@ -53,6 +53,7 @@ constexpr const int GET_WRONG_SIZE = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
+const std::string PASTEBOARD_PROXY_AUTHOR_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
 const std::int32_t ANCO_CALL_UID = 5528;
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -446,7 +447,8 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
 {
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
-        if (item == nullptr || targetBundleName.compare(data.GetOrginAuthority()) == 0) {
+        if (item == nullptr || (!data.IsRemote()
+            && targetBundleName.compare(data.GetOrginAuthority()) == 0)) {
             continue;
         }
         std::shared_ptr<OHOS::Uri> uri = nullptr;
@@ -458,8 +460,10 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         } else if (!item->isConvertUriFromRemote && item->GetOrginUri() != nullptr) {
             uri = item->GetOrginUri();
         }
-        if (uri == nullptr || !isBundleOwnUriPermission(data.GetOrginAuthority(), *uri)) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri error.");
+        if (uri == nullptr || (!isBundleOwnUriPermission(data.GetOrginAuthority(), *uri)
+            && !item->HasGrantUriPermission())) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "do not grant permission: %{}d.",
+                item->HasGrantUriPermission());
             continue;
         }
         auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
@@ -468,7 +472,8 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
         }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d, targetBundleName is %{public}s",
+            permissionCode, targetBundleName.c_str());
     }
 }
 
@@ -484,9 +489,6 @@ void PasteboardService::RevokeUriPermission(PasteData &lastData)
             continue;
         }
         Uri uri = *(item->GetOrginUri());
-        if (!isBundleOwnUriPermission(lastData.GetOrginAuthority(), uri)) {
-            continue;
-        }
         for (std::set<std::string>::iterator it = readBundles_.begin(); it != readBundles_.end(); it++) {
             auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, *it);
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
@@ -504,6 +506,23 @@ bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, 
         return false;
     }
     return true;
+}
+
+void PasteboardService::CheckAppUriPermission(PasteData &data)
+{
+    for (size_t i = 0; i < data.GetRecordCount(); i++) {
+        auto item = data.GetRecordAt(i);
+        if (item == nullptr || item->GetOrginUri() == nullptr) {
+            continue;
+        }
+        auto uri = item->GetOrginUri();
+        int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(data.GetTokenId(),
+            PASTEBOARD_PROXY_AUTHOR_URI);
+        if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+            continue;
+        }
+        item->SetGrantUriPermission(true);
+    }
 }
 
 void PasteboardService::ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData)
@@ -594,6 +613,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     std::string time = GetTime();
     pasteData->SetTime(time);
     pasteData->SetTokenId(tokenId);
+    CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.insert_or_assign(appInfo.userId, pasteData);
     SetDistributedData(appInfo.userId, *pasteData);
@@ -1062,7 +1082,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
             continue;
         }
         Uri uri = *(item->GetOrginUri());
-        if (!isBundleOwnUriPermission(data.GetOrginAuthority(), uri)) {
+        if (!isBundleOwnUriPermission(data.GetOrginAuthority(), uri) && !item->HasGrantUriPermission()) {
             continue;
         }
         HmdfsUriInfo hui;
