@@ -66,6 +66,7 @@ private:
 class PasteDataRecord : public TLVObject {
 public:
     PasteDataRecord();
+    PasteDataRecord(const PasteDataRecord &record);
     PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
         std::shared_ptr<OHOS::AAFwk::Want> want, std::shared_ptr<std::string> plainText,
         std::shared_ptr<OHOS::Uri> uri);
@@ -137,6 +138,7 @@ private:
     std::shared_ptr<FileDescriptor> fd_;
     using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
     std::map<uint16_t, Func> decodeMap;
+    void InitDecodeMap();
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -436,9 +436,8 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "don't have paste permission.");
             return false;
         }
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
         it->second->SetBundleName(appInfo.bundleName);
-        (*(it->second)).CopyData(data);
+        data = PasteData(*(it->second));
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get remote fileSize %{public}d", fileSize);
@@ -446,6 +445,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
         EstablishP2PLink(fileSize);
         std::this_thread::sleep_for(std::chrono::seconds(OPEN_P2P_SLEEP_TIME));
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
     return true;
 }
@@ -587,6 +587,12 @@ bool PasteboardService::HasPasteData()
 
 int32_t PasteboardService::SetPasteData(PasteData &pasteData)
 {
+    auto data = std::make_shared<PasteData>(pasteData);
+    return SavePasteData(data);
+}
+
+int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
+{
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -609,16 +615,16 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
         RevokeUriPermission(*(it->second));
         clips_.erase(it);
     }
-    pasteData.SetBundleName(appInfo.bundleName);
-    pasteData.SetOrginAuthority(appInfo.bundleName);
+    pasteData->SetBundleName(appInfo.bundleName);
+    pasteData->SetOrginAuthority(appInfo.bundleName);
     std::string time = GetTime();
-    pasteData.SetTime(time);
-    pasteData.SetTokenId(tokenId);
-    SetWebViewPasteData(pasteData, appInfo.bundleName);
-    clips_.insert_or_assign(appInfo.userId, std::make_shared<PasteData>(pasteData));
-    SetDistributedData(appInfo.userId, pasteData);
+    pasteData->SetTime(time);
+    pasteData->SetTokenId(tokenId);
+    SetWebViewPasteData(*pasteData, appInfo.bundleName);
+    clips_.insert_or_assign(appInfo.userId, pasteData);
+    SetDistributedData(appInfo.userId, *pasteData);
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
-    SetPasteDataDot(pasteData);
+    SetPasteDataDot(*pasteData);
     auto hintItem = hints_.find(appInfo.userId);
     if (hintItem != hints_.end()) {
         hints_.erase(hintItem);
@@ -801,6 +807,7 @@ void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventS
 {
     std::thread thread([this, bundleName, status] () {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+        std::lock_guard<std::mutex> lock(observerMutex_);
         for (auto &observers : observerChangedMap_) {
             for (const auto &observer : *(observers.second)) {
                 if (status != PasteboardEventStatus::PASTEBOARD_READ) {

@@ -109,6 +109,7 @@ private:
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
 
+    virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData) override;
     void SetPasteDataDot(PasteData &pasteData);
     void GetPasteDataDot(PasteData &pasteData, const std::string &pop, const std::string &bundleName);
     bool GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);

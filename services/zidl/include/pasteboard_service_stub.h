@@ -34,7 +34,7 @@ public:
 
 private:
     using PasteboardServiceFunc = int32_t (PasteboardServiceStub::*)(MessageParcel &data, MessageParcel &reply);
-
+    virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData) = 0;
     int32_t OnClear(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetPasteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnHasPasteData(MessageParcel &data, MessageParcel &reply);

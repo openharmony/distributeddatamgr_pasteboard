@@ -152,6 +152,18 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
 PasteDataRecord::PasteDataRecord()
 {
     fd_ = std::make_shared<FileDescriptor>();
+    InitDecodeMap();
+}
+
+PasteDataRecord::PasteDataRecord(const PasteDataRecord &record) : mimeType_(record.mimeType_),
+    htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_), uri_(record.uri_),
+    convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_), fd_(record.fd_)
+{
+    InitDecodeMap();
+}
+
+void PasteDataRecord::InitDecodeMap()
+{
     decodeMap = {
         {TAG_MIMETYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, mimeType_, head);

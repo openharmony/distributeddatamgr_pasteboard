@@ -33,6 +33,8 @@ namespace OHOS {
 namespace MiscServices {
 enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
 struct PasteDataProperty : public TLVObject {
+    PasteDataProperty() = default;
+    PasteDataProperty(const PasteDataProperty &property);
     AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;
     std::string tag;
@@ -54,6 +56,7 @@ class PasteData : public TLVObject {
 public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();
+    PasteData(const PasteData &data);
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
 
     void AddHtmlRecord(const std::string &html);
@@ -104,7 +107,6 @@ public:
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
-    void CopyData(PasteData &data);
     size_t Count() override;
     bool WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool isClient = true);
     bool ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler);
