@@ -53,7 +53,7 @@ bool DistributedModuleConfig::GetEnabledStatus()
         return false;
     }
 
-    auto deviceIds = DevManager::GetInstance().GetDeviceIds();
+    auto deviceIds = DevManager::GetInstance().GetNetworkIds();
     std::string remoteEnabledStatus = "false";
     for (auto &id : deviceIds) {
         DevProfile::GetInstance().GetEnabledStatus(id, remoteEnabledStatus);

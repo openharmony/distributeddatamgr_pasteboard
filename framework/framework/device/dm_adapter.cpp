@@ -16,9 +16,7 @@
 
 #include "device_manager.h"
 #include "device_manager_callback.h"
-#include "dm_device_info.h"
 namespace OHOS::MiscServices {
-using namespace OHOS::DistributedHardware;
 constexpr size_t DMAdapter::MAX_ID_LEN;
 class DmStateObserver : public DeviceStateCallback {
 public:
@@ -128,10 +126,23 @@ const std::string DMAdapter::GetLocalNetworkId()
     DmDeviceInfo info;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(pkgName_, info);
     auto networkId = std::string(info.networkId);
-    if (ret != 0 && networkId.empty()) {
+    if (ret != 0 || networkId.empty()) {
         return invalidNetworkId_;
     }
     return networkId;
+}
+
+int32_t DMAdapter::GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice)
+{
+    std::vector<DmDeviceInfo> devices;
+    (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
+    for (auto &device : devices) {
+        if (device.networkId == networkId) {
+            remoteDevice = device;
+            return RESULT_OK;
+        }
+    }
+    return -1;
 }
 
 void DMAdapter::Register(DMObserver *observer)
