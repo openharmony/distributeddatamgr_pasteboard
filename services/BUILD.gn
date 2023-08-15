@@ -26,14 +26,15 @@ config("pasteboard_service_config") {
     "account/include",
     "core/include",
     "load/include",
+    "${filemanagement_service_path}/distributedfiledaemon/include/ipc",
     "${pasteboard_innerkits_path}/include",
     "${pasteboard_utils_path}/mock/include",
     "${pasteboard_utils_path}/native/include",
     "${pasteboard_utils_path}/system/safwk/native/include",
+    "${pasteboard_framework_path}/framework/include",
+    "${pasteboard_framework_path}/framework/include/device",
     "//commonlibrary/c_utils/base/include",
     "//third_party/json/include",
-    "//foundation/distributeddatamgr/pasteboard/utils/native/include",
-    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
   ]
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
   cflags = [
@@ -52,10 +53,6 @@ ohos_shared_library("pasteboard_service") {
     "${pasteboard_innerkits_path}/src/paste_data.cpp",
     "${pasteboard_innerkits_path}/src/paste_data_record.cpp",
     "account/src/account_manager.cpp",
-    "core/src/dev_manager.cpp",
-    "core/src/dev_profile.cpp",
-    "core/src/distributed_module_config.cpp",
-    "core/src/para_handle.cpp",
     "core/src/pasteboard_dialog.cpp",
     "core/src/pasteboard_service.cpp",
     "dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
@@ -77,6 +74,7 @@ ohos_shared_library("pasteboard_service") {
     ":pasteboard_service_config",
   ]
   deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
@@ -96,6 +94,7 @@ ohos_shared_library("pasteboard_service") {
     "c_utils:utils",
     "device_info_manager:distributed_device_profile_client",
     "device_manager:devicemanagersdk",
+    "dfs_service:distributed_file_daemon_kit_inner",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hisysevent:libhisysevent",

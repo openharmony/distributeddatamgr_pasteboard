@@ -42,6 +42,7 @@
 namespace OHOS {
 namespace MiscServices {
 const std::int32_t ERROR_USERID = -1;
+const std::int32_t RESULT_OK = 0;
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 struct AppInfo {
     std::string bundleName = "com.pasteboard.default";
@@ -89,6 +90,9 @@ private:
     static constexpr const pid_t EDM_UID = 3057;
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
+    static constexpr uint32_t OPEN_P2P_SLEEP_TIME = 5;
+    static constexpr size_t TRANMISSION_BASELINE = 30 * 1024 * 1024;
+    static constexpr size_t MIN_TRANMISSION_TIME = 35;
     struct classcomp {
         bool operator()(const sptr<IPasteboardChangedObserver> &l, const sptr<IPasteboardChangedObserver> &r) const
         {
@@ -120,6 +124,7 @@ private:
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     std::string GetDeviceName();
     void SetDeviceName(const std::string &device = "");
+    void EstablishP2PLink(int fileSize);
 
     std::shared_ptr<PasteData> GetDistributedData(int32_t user);
     bool SetDistributedData(int32_t user, PasteData &data);

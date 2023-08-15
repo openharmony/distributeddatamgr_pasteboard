@@ -25,8 +25,8 @@ namespace MiscServices {
 constexpr const char *PKG_NAME = "pasteboard_service";
 constexpr int32_t DM_OK = 0;
 constexpr const int32_t DELAY_TIME = 200;
+constexpr const uint32_t FIRST_VERSION = 4;
 using namespace OHOS::DistributedHardware;
-
 class PasteboardDevStateCallback : public DistributedHardware::DeviceStateCallback {
 public:
     void OnDeviceOnline(const DistributedHardware::DmDeviceInfo &deviceInfo) override;
@@ -139,7 +139,7 @@ void DevManager::RetryInBlocking(DevManager::Function func) const
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry failed");
 }
-std::vector<std::string> DevManager::GetDeviceIds()
+std::vector<std::string> DevManager::GetNetworkIds()
 {
     std::vector<DmDeviceInfo> devices;
     int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devices);
@@ -157,6 +157,25 @@ std::vector<std::string> DevManager::GetDeviceIds()
         networkIds.emplace_back(item.networkId);
     }
     return networkIds;
+}
+
+std::vector<std::string> DevManager::GetOldNetworkIds()
+{
+    std::vector<std::string> networkIds = GetNetworkIds();
+    if (networkIds.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
+        return {};
+    }
+    std::vector<std::string> oldNetworkIds;
+    for (auto &item : networkIds) {
+        uint32_t versionId = 3;
+        DevProfile::GetInstance().GetRemoteDeviceVersion(item, versionId);
+        if (versionId >= FIRST_VERSION) {
+            continue;
+        }
+        oldNetworkIds.emplace_back(item);
+    }
+    return oldNetworkIds;
 }
 } // namespace MiscServices
 } // namespace OHOS

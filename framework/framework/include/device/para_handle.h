@@ -13,32 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef PASTE_BOARD_DEV_MANAGER_H
-#define PASTE_BOARD_DEV_MANAGER_H
-
+#ifndef PASTE_BOARD_PARA_HANDLE_H
+#define PASTE_BOARD_PARA_HANDLE_H
 #include <string>
-#include <vector>
 
-#include "device_manager_callback.h"
+#include "api/visibility.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace MiscServices {
-class DevManager {
+class API_EXPORT ParaHandle {
 public:
-    static DevManager &GetInstance();
-    std::vector<std::string> GetDeviceIds();
-    int32_t Init();
-    void OnReady();
-    void Online(const std::string &networkId);
-    void Offline(const std::string &networkId);
-    void UnregisterDevCallback();
+    static constexpr const char *DISTRIBUTED_PASTEBOARD_ENABLED_KEY = "persist.pasteboard."
+                                                                      "distributedPasteboardEnabled";
+    static ParaHandle &GetInstance();
+    std::string GetEnabledStatus() const;
+    void Init();
+    void WatchEnabledStatus(ParameterChgPtr ptr) const;
 
 private:
-    using Function = bool (*)();
-    DevManager();
-    ~DevManager() = default;
-    void RetryInBlocking(Function func) const;
+    static constexpr const char *DISTRIBUTED_PASTEBOARD_ENABLED_DEFAULT_VALUE = "true";
+    static constexpr int CONFIG_LEN = 10;
+    ParaHandle();
+    virtual ~ParaHandle() = default;
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_DEV_MANAGER_H
+#endif // PASTE_BOARD_PARA_HANDLE_H
