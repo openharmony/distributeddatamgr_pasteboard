@@ -119,6 +119,7 @@ private:
     void RevokeUriPermission(PasteData &lastData);
     void GenerateDistributedUri(PasteData &data);
     bool isBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
+    void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     std::string GetDeviceName();

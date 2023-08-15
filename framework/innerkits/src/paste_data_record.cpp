@@ -46,6 +46,7 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_PIXELMAP,
     TAG_CUSTOM_DATA,
     TAG_CONVERT_URI,
+    TAG_URI_PERMISSION,
 };
 
 enum TAG_CUSTOMDATA : uint16_t {
@@ -157,7 +158,8 @@ PasteDataRecord::PasteDataRecord()
 
 PasteDataRecord::PasteDataRecord(const PasteDataRecord &record) : mimeType_(record.mimeType_),
     htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_), uri_(record.uri_),
-    convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_), fd_(record.fd_)
+    convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
+    hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_)
 {
     InitDecodeMap();
 }
@@ -201,6 +203,10 @@ void PasteDataRecord::InitDecodeMap()
         },
         {TAG_CUSTOM_DATA, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, customData_, head);
+            }
+        },
+        {TAG_URI_PERMISSION, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, hasGrantUriPermission_, head);
             }
         },
     };
@@ -319,6 +325,7 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     auto pixelVector = PixelMap2Vector(pixelMap_);
     ret = Write(buffer, TAG_PIXELMAP, pixelVector) && ret;
     ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
+    ret = Write(buffer, TAG_URI_PERMISSION, hasGrantUriPermission_) && ret;
     return ret;
 }
 
@@ -354,6 +361,7 @@ size_t PasteDataRecord::Count()
     auto pixelVector = PixelMap2Vector(pixelMap_);
     expectedSize += TLVObject::Count(pixelVector);
     expectedSize += TLVObject::Count(customData_);
+    expectedSize += TLVObject::Count(hasGrantUriPermission_);
     return expectedSize;
 }
 
@@ -458,6 +466,14 @@ void PasteDataRecord::SetConvertUri(const std::string &value)
 std::string PasteDataRecord::GetConvertUri() const
 {
     return convertUri_;
+}
+void PasteDataRecord::SetGrantUriPermission(bool hasPermission)
+{
+    hasGrantUriPermission_ = hasPermission;
+}
+bool PasteDataRecord::HasGrantUriPermission()
+{
+    return hasGrantUriPermission_;
 }
 FileDescriptor::~FileDescriptor()
 {
