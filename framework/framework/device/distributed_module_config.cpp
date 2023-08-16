@@ -25,6 +25,7 @@ bool DistributedModuleConfig::status_ = false;
 DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
+    status_ = GetEnabledStatus();
     return status_;
 }
 
