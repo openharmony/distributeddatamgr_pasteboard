@@ -70,4 +70,8 @@ ohos_unittest("PasteboardFrameworkTest") {
     "//third_party/googletest:gmock",
     "//third_party/googletest:gtest_main",
   ]
+
+  configs += [ "//third_party/cJSON:cJSON_config" ]
+
+  deps += [ "//third_party/cJSON:cjson" ]
 }

@@ -17,11 +17,11 @@
 namespace OHOS::MiscServices {
 bool Config::Component::Marshal(Serializable::json &node) const
 {
-    SetValue(node[GET_NAME(description)], description);
-    SetValue(node[GET_NAME(lib)], lib);
-    SetValue(node[GET_NAME(constructor)], constructor);
-    SetValue(node[GET_NAME(destructor)], destructor);
-    SetValue(node[GET_NAME(params)], params);
+    SetValue(node, description, GET_NAME(description));
+    SetValue(node, lib, GET_NAME(lib));
+    SetValue(node, constructor, GET_NAME(constructor));
+    SetValue(node, destructor, GET_NAME(destructor));
+    SetValue(node, params, GET_NAME(params));
     return true;
 }
 
@@ -37,11 +37,11 @@ bool Config::Component::Unmarshal(const Serializable::json &node)
 
 bool Config::Marshal(Serializable::json &node) const
 {
-    SetValue(node[GET_NAME(processLabel)], processLabel);
-    SetValue(node[GET_NAME(version)], version);
-    SetValue(node[GET_NAME(features)], features);
-    SetValue(node[GET_NAME(plugins)], plugins);
-    SetValue(node[GET_NAME(components)], components);
+    SetValue(node, processLabel, GET_NAME(processLabel));
+    SetValue(node, version, GET_NAME(version));
+    SetValue(node, features, GET_NAME(features));
+    SetValue(node, plugins, GET_NAME(plugins));
+    SetValue(node, components, GET_NAME(components));
     return true;
 }
 

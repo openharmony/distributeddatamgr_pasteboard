@@ -25,162 +25,212 @@ Serializable::json Serializable::Marshall() const
 
 bool Serializable::Unmarshall(const std::string &jsonStr)
 {
-    json jsonObj = json::parse(jsonStr, nullptr, false);
-    if (jsonObj.is_discarded()) {
+    json *jsonObj = cJSON_Parse(jsonStr.c_str());
+    if (jsonObj == nullptr) {
         // if the string size is less than 1, means the string is invalid.
         if (jsonStr.empty()) {
             return false;
         }
-        jsonObj = json::parse(jsonStr.substr(1), nullptr, false); // drop first char to adapt A's value;
-        if (jsonObj.is_discarded()) {
+        jsonObj = cJSON_Parse(jsonStr.substr(1).c_str()); // drop first char to adapt A's value;
+        if (jsonObj == nullptr) {
             return false;
         }
     }
-    return Unmarshal(jsonObj);
+    return Unmarshal(*jsonObj);
 }
 
 Serializable::json Serializable::ToJson(const std::string &jsonStr)
 {
-    json jsonObj = json::parse(jsonStr, nullptr, false);
-    if (jsonObj.is_discarded()) {
+    json *jsonObj = cJSON_Parse(jsonStr.c_str());
+    if (jsonObj == nullptr) {
         // if the string size is less than 1, means the string is invalid.
         if (jsonStr.empty()) {
-            return {};
+            return *cJSON_CreateNull();
         }
-        jsonObj = json::parse(jsonStr.substr(1), nullptr, false); // drop first char to adapt A's value;
-        if (jsonObj.is_discarded()) {
-            return {};
+        jsonObj = cJSON_Parse(jsonStr.substr(1).c_str()); // drop first char to adapt A's value;
+        if (jsonObj == nullptr) {
+            return *cJSON_CreateNull();
         }
     }
-    return jsonObj;
+    return *jsonObj;
 }
 
 bool Serializable::GetValue(const json &node, const std::string &name, std::string &value)
 {
     auto &subNode = GetSubNode(node, name);
-    if (subNode.is_null() || !subNode.is_string()) {
+    if (cJSON_IsNull(&subNode) || !cJSON_IsString(&subNode)) {
         return false;
     }
-    value = subNode;
+    value = cJSON_GetStringValue(&subNode);
     return true;
 }
 
 bool Serializable::GetValue(const json &node, const std::string &name, uint32_t &value)
 {
     auto &subNode = GetSubNode(node, name);
-    if (subNode.is_null() || !subNode.is_number_unsigned()) {
+    if (cJSON_IsNull(&subNode) || !cJSON_IsNumber(&subNode)) {
         return false;
     }
-    subNode.get_to(value);
+    value = cJSON_GetNumberValue(&subNode);
     return true;
 }
 
 bool Serializable::GetValue(const json &node, const std::string &name, int32_t &value)
 {
     auto &subNode = GetSubNode(node, name);
-    if (subNode.is_null() || !subNode.is_number_integer()) {
+    if (cJSON_IsNull(&subNode) || !cJSON_IsNumber(&subNode)) {
         return false;
     }
-    subNode.get_to(value);
+    value = cJSON_GetNumberValue(&subNode);
     return true;
 }
 
 bool Serializable::GetValue(const json &node, const std::string &name, int64_t &value)
 {
     auto &subNode = GetSubNode(node, name);
-    if (subNode.is_null() || !subNode.is_number_integer()) {
+    if (cJSON_IsNull(&subNode) || !cJSON_IsNumber(&subNode)) {
         return false;
     }
-    subNode.get_to(value);
+    value = cJSON_GetNumberValue(&subNode);
     return true;
 }
 
 bool Serializable::GetValue(const json &node, const std::string &name, bool &value)
 {
     auto &subNode = GetSubNode(node, name);
-    if (subNode.is_null() || !subNode.is_boolean()) {
+    if (cJSON_IsNull(&subNode) || !cJSON_IsBool(&subNode)) {
         return false;
     }
-    subNode.get_to(value);
+    value = cJSON_IsTrue(&subNode);
     return true;
 }
 
 bool Serializable::GetValue(const json &node, const std::string &name, std::vector<uint8_t> &value)
 {
     auto &subNode = GetSubNode(node, name);
-    if (subNode.is_null() || !subNode.is_array()) {
+    if (cJSON_IsNull(&subNode) || !cJSON_IsArray(&subNode)) {
         return false;
     }
-    value = std::vector<uint8_t>(subNode);
+    for (int i = 0; i < cJSON_GetArraySize(&subNode); i++) {
+        value.emplace_back(cJSON_GetNumberValue(cJSON_GetArrayItem(&subNode, i)));
+    }
     return true;
 }
 
 bool Serializable::GetValue(const json &node, const std::string &name, Serializable &value)
 {
     auto &subNode = GetSubNode(node, name);
-    if (subNode.is_null() || !subNode.is_object()) {
+    if (cJSON_IsNull(&subNode) || !cJSON_IsObject(&subNode)) {
         return false;
     }
     return value.Unmarshal(subNode);
 }
 
-bool Serializable::SetValue(json &node, const std::string &value)
+bool Serializable::SetValue(json &node, const std::string &value, const std::string &name, const bool &isObject)
 {
-    node = value;
+    json *subNode = cJSON_CreateString(value.c_str());
+    if (!isObject) {
+        node = *subNode;
+        delete subNode;
+        return true;
+    }
+    SetValueCommon(node, *subNode, name);
     return true;
 }
 
-bool Serializable::SetValue(json &node, const uint32_t &value)
+bool Serializable::SetValue(json &node, const uint32_t &value, const std::string &name, const bool &isObject)
 {
-    node = value;
+    json *subNode = cJSON_CreateNumber(value);
+    if (!isObject) {
+        node = *subNode;
+        delete subNode;
+        return true;
+    }
+    SetValueCommon(node, *subNode, name);
     return true;
 }
 
-bool Serializable::SetValue(json &node, const int32_t &value)
+bool Serializable::SetValue(json &node, const int32_t &value, const std::string &name, const bool &isObject)
 {
-    node = value;
+    json *subNode = cJSON_CreateNumber(value);
+    if (!isObject) {
+        node = *subNode;
+        delete subNode;
+        return true;
+    }
+    SetValueCommon(node, *subNode, name);
     return true;
 }
 
-bool Serializable::SetValue(json &node, const int64_t &value)
+bool Serializable::SetValue(json &node, const int64_t &value, const std::string &name, const bool &isObject)
 {
-    node = value;
+    json *subNode = cJSON_CreateNumber(value);
+    if (!isObject) {
+        node = *subNode;
+        delete subNode;
+        return true;
+    }
+    SetValueCommon(node, *subNode, name);
     return true;
 }
 
-bool Serializable::SetValue(json &node, const bool &value)
+bool Serializable::SetValue(json &node, const bool &value, const std::string &name, const bool &isObject)
 {
-    node = value;
+    json *subNode = cJSON_CreateBool(value);
+    if (!isObject) {
+        node = *subNode;
+        delete subNode;
+        return true;
+    }
+    SetValueCommon(node, *subNode, name);
     return true;
 }
 
-bool Serializable::SetValue(json &node, const std::vector<uint8_t> &value)
+bool Serializable::SetValue(
+    json &node, const std::vector<uint8_t> &value, const std::string &name, const bool &isObject)
 {
-    node = value;
+    json *subNode = cJSON_CreateArray();
+    for (const uint8_t &item : value) {
+        cJSON_AddItemToArray(subNode, cJSON_CreateNumber(item));
+    }
+    if (!isObject) {
+        node = *subNode;
+        delete subNode;
+        return true;
+    }
+    SetValueCommon(node, *subNode, name);
     return true;
 }
 
-bool Serializable::SetValue(json &node, const Serializable &value)
+bool Serializable::SetValue(json &node, const Serializable &value, const std::string &name, const bool &isObject)
 {
-    return value.Marshal(node);
+    json *subNode = cJSON_CreateNull();
+    if (!value.Marshal(*subNode)) {
+        return false;
+    }
+    if (!isObject) {
+        node = *subNode;
+        delete subNode;
+        return true;
+    }
+    SetValueCommon(node, *subNode, name);
+    return true;
 }
 
 const Serializable::json &Serializable::GetSubNode(const json &node, const std::string &name)
 {
-    static const json jsonNull = json::value_t::null;
-    if (node.is_discarded() || node.is_null()) {
-        return jsonNull;
+    static const json *jsonNull = cJSON_CreateNull();
+    if (cJSON_IsNull(&node)) {
+        return *jsonNull;
     }
 
     if (name.empty()) {
         return node;
     }
-
-    auto it = node.find(name);
-    if (it == node.end()) {
-        return jsonNull;
+    if (!cJSON_HasObjectItem(&node, name.c_str())) {
+        return *jsonNull;
     }
-    return *it;
+    return *cJSON_GetObjectItem(&node, name.c_str());
 }
 } // namespace DistributedData
 } // namespace OHOS
