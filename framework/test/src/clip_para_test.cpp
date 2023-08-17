@@ -188,16 +188,16 @@ HWTEST_F(ClipParaTest, HasRemoteData_001, TestSize.Level0)
 */
 HWTEST_F(ClipParaTest, UpdateStageValue_001, TestSize.Level0)
 {
-    uint64_t curTime = duration_cast<milliseconds>((system_clock::now() + minutes(2)).time_since_epoch()).count();
+    auto curTime = duration_cast<milliseconds>((system_clock::now() + minutes(2)).time_since_epoch()).count();
     ClipPara::GetInstance().InitMemberVariable();
     ClipPara::GetInstance().SetFirstStageValue(2);
     ClipPara::GetInstance().SetSecondStageValue(0);
-    ClipPara::GetInstance().UpdateStageValue(curTime, false);
+    ClipPara::GetInstance().UpdateStageValue(static_cast<uint64_t>(curTime), false);
     auto firstStageValue1 = ClipPara::GetInstance().GetFirstStageValue();
     ASSERT_TRUE(firstStageValue1 == 2);
     auto secondStageValue1 = ClipPara::GetInstance().GetSecondStageValue();
     ASSERT_TRUE(secondStageValue1 == 0);
-    ClipPara::GetInstance().UpdateStageValue(curTime, true);
+    ClipPara::GetInstance().UpdateStageValue(static_cast<uint64_t>(curTime), true);
     auto firstStageValue = ClipPara::GetInstance().GetFirstStageValue();
     ASSERT_TRUE(firstStageValue == 2);
     auto secondStageValue = ClipPara::GetInstance().GetSecondStageValue();
@@ -215,12 +215,12 @@ HWTEST_F(ClipParaTest, UpdateStageValue_001, TestSize.Level0)
 */
 HWTEST_F(ClipParaTest, UpdateStageValue_002, TestSize.Level0)
 {
-    uint64_t curTime = duration_cast<milliseconds>((system_clock::now() + minutes(2)).time_since_epoch()).count();
+    auto curTime = duration_cast<milliseconds>((system_clock::now() + minutes(2)).time_since_epoch()).count();
     ClipPara::GetInstance().InitMemberVariable();
     ClipPara::GetInstance().SetPasted(true);
     ClipPara::GetInstance().SetFirstStageValue(0);
     ClipPara::GetInstance().SetSecondStageValue(2);
-    ClipPara::GetInstance().UpdateStageValue(curTime, true);
+    ClipPara::GetInstance().UpdateStageValue(static_cast<uint64_t>(curTime), true);
     auto firstStageValue = ClipPara::GetInstance().GetFirstStageValue();
     ASSERT_TRUE(firstStageValue == 0);
     auto secondStageValue = ClipPara::GetInstance().GetSecondStageValue();
@@ -236,11 +236,11 @@ HWTEST_F(ClipParaTest, UpdateStageValue_002, TestSize.Level0)
 */
 HWTEST_F(ClipParaTest, UpdateStageValue_003, TestSize.Level0)
 {
-    uint64_t curTime = duration_cast<milliseconds>((system_clock::now() + minutes(2)).time_since_epoch()).count();
+    auto curTime = duration_cast<milliseconds>((system_clock::now() + minutes(2)).time_since_epoch()).count();
     ClipPara::GetInstance().InitMemberVariable();
     ClipPara::GetInstance().SetFirstStageValue(0);
     ClipPara::GetInstance().SetSecondStageValue(2);
-    ClipPara::GetInstance().UpdateStageValue(curTime, true);
+    ClipPara::GetInstance().UpdateStageValue(static_cast<uint64_t>(curTime), true);
     auto firstStageValue = ClipPara::GetInstance().GetFirstStageValue();
     ASSERT_TRUE(firstStageValue == 2);
     auto secondStageValue = ClipPara::GetInstance().GetSecondStageValue();
@@ -256,13 +256,13 @@ HWTEST_F(ClipParaTest, UpdateStageValue_003, TestSize.Level0)
 */
 HWTEST_F(ClipParaTest, UpdateStageValue_004, TestSize.Level0)
 {
-    uint64_t curTime = duration_cast<milliseconds>((system_clock::now()).time_since_epoch()).count();
+    auto curTime = duration_cast<milliseconds>((system_clock::now()).time_since_epoch()).count();
     ClipPara::GetInstance().InitMemberVariable();
     ClipPara::GetInstance().SetPullEvent(true);
     ClipPara::GetInstance().SetPasted(false);
     ClipPara::GetInstance().SetFirstStageValue(1);
     ClipPara::GetInstance().SetSecondStageValue(0);
-    ClipPara::GetInstance().UpdateStageValue(curTime, true);
+    ClipPara::GetInstance().UpdateStageValue(static_cast<uint64_t>(curTime), true);
     auto firstStageValue = ClipPara::GetInstance().GetFirstStageValue();
     ASSERT_TRUE(firstStageValue == 0);
     auto secondStageValue = ClipPara::GetInstance().GetSecondStageValue();

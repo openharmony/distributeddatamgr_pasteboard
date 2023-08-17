@@ -91,8 +91,8 @@ private:
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     static constexpr uint32_t OPEN_P2P_SLEEP_TIME = 5;
-    static constexpr size_t TRANMISSION_BASELINE = 30 * 1024 * 1024;
-    static constexpr size_t MIN_TRANMISSION_TIME = 35;
+    static constexpr int TRANMISSION_BASELINE = 30 * 1024 * 1024;
+    static constexpr int MIN_TRANMISSION_TIME = 35;
     struct classcomp {
         bool operator()(const sptr<IPasteboardChangedObserver> &l, const sptr<IPasteboardChangedObserver> &r) const
         {

@@ -1081,12 +1081,12 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         return false;
     }
 
-    uint64_t expiration =
+    auto expiration =
         duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
     Event event;
     event.user = user;
     event.seqId = ++sequenceId_;
-    event.expiration = expiration;
+    event.expiration = static_cast<uint64_t>(expiration);
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
     event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
@@ -1206,7 +1206,8 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     }
 
     event = std::move(tmpEvent);
-    uint64_t curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    uint64_t curTime =
+        static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     return ((curTime < event.expiration) && (event.status == ClipPlugin::EVT_NORMAL));
 }
 

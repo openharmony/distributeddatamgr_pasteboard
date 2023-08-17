@@ -44,7 +44,8 @@ void ClipPara::InitMemberVariable()
 
 bool ClipPara::HasRemoteData()
 {
-    uint64_t curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    uint64_t curTime =
+        static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     return sendInformation_ != nullptr && remoteExpiration_ > curTime;
 }
 
@@ -173,7 +174,8 @@ void ClipPara::UpdateStageValue(const uint64_t &expiration, bool isPasting)
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "stage value has been update");
         return;
     }
-    uint64_t curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    uint64_t curTime =
+        static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     if (isPasting && expiration > curTime) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "UpdateStageValue");
         isPasted_ = true;
