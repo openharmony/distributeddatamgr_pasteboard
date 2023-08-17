@@ -238,6 +238,47 @@ HWTEST_F(PasteDataTest, GetRealPathFailed002, TestSize.Level0)
 }
 
 /**
+* @tc.name: MaxLength001
+* @tc.desc: PasteDataRecord: maxLength NewHtmlRecord
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, MaxLength001, TestSize.Level0)
+{
+    int maxLength = 20 * 1024 * 1024;
+    std::string res = "hello";
+    std::string temp = "world";
+    for (int i = 0; i < maxLength; i++)
+    {
+        res += temp;
+    }
+    std::string htmlText = "<div class='disabled'>" + res + "</div>";
+    auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
+    ASSERT_TRUE(record == nullptr);
+}
+
+/**
+* @tc.name: MaxLength002
+* @tc.desc: PasteDataRecord: maxLength NewPlaintTextRecord
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, MaxLength002, TestSize.Level0)
+{
+    int maxLength = 20 * 1024 * 1024;
+    std::string plainText = "hello";
+    std::string temp = "world";
+    for (int i = 0; i < maxLength; i++)
+    {
+        plainText += temp;
+    }
+    auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord(plainText);
+    ASSERT_TRUE(record == nullptr);
+}
+
+/**
 * @tc.name: ConvertToText001
 * @tc.desc: PasteDataRecord: ConvertToText htmlText
 * @tc.type: FUNC
@@ -519,6 +560,25 @@ HWTEST_F(PasteDataTest, GetConvertUri002, TestSize.Level0)
     pasteDataRecord->ReplaceShareUri(200);
     std::string result2 = pasteDataRecord->GetConvertUri();
     ASSERT_TRUE(result2 == convertUri_);
+}
+
+/**
+* @tc.name: HasGrantUriPermission001
+* @tc.desc: PasteDataRecord: HasGrantUriPermission
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, HasGrantUriPermission001, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 1, 2, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    pasteDataRecord->SetGrantUriPermission(true);
+    auto hasGrantUriPermission_ = pasteDataRecord->HasGrantUriPermission();
+    ASSERT_TRUE(hasGrantUriPermission_);
 }
 
 /**
