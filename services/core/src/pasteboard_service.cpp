@@ -239,7 +239,7 @@ bool PasteboardService::IsFocusedApp(const std::string &bundleName)
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get bundle name by token failed");
         return false;
     }
-    auto elementName = OHOS::AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    auto elementName = OHOS::AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(false);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " Top app:%{public}s, caller app:%{public}s",
         elementName.GetBundleName().c_str(), bundleName.c_str());
     return elementName.GetBundleName() == bundleName;
