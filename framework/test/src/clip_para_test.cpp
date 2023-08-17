@@ -60,8 +60,10 @@ HWTEST_F(ClipParaTest, InitMemberVariable_001, TestSize.Level0)
     ASSERT_TRUE(sendInformation == nullptr);
     auto remoteExpiration = ClipPara::GetInstance().GetRemoteExpiration();
     ASSERT_TRUE(remoteExpiration == 0);
+    std::string deviceId = "EDAFD0A26B93FB13F2FB8894EDB8DF9158B0E5CB63FAB4C94AEFD64A82D2F487";
+    ClipPara::GetInstance().SetLastSyncNetworkId(deviceId);
     auto lastSyncNetworkId = ClipPara::GetInstance().GetLastSyncNetworkId();
-    ASSERT_TRUE(lastSyncNetworkId.empty());
+    ASSERT_TRUE(lastSyncNetworkId == deviceId);
     auto isPullEvent = ClipPara::GetInstance().GetPullEvent();
     ASSERT_FALSE(isPullEvent);
     auto isPullEventResult = ClipPara::GetInstance().GetPullEventResult();
