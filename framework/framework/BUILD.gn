@@ -23,7 +23,6 @@ config("module_public_config") {
     "${pasteboard_utils_path}/native/include",
     "include",
     "include/device",
-    "//third_party/json/single_include",
   ]
 }
 
@@ -44,6 +43,10 @@ ohos_shared_library("pasteboard_framework") {
   cflags_cc = [ "-fvisibility=hidden" ]
 
   configs = [ ":module_public_config" ]
+
+  configs += [ "//third_party/cJSON:cJSON_config" ]
+
+  deps = [ "//third_party/cJSON:cjson" ]
 
   public_configs = [ ":module_public_config" ]
 

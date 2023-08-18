@@ -26,6 +26,8 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    void CreateConfig(Config &config);
+    void CreateComponent(Config::Component &component, int32_t index);
 };
 
 void SerializableTest::SetUpTestCase(void)
@@ -44,6 +46,29 @@ void SerializableTest::TearDown(void)
 {
 }
 
+void SerializableTest::CreateComponent(Config::Component &component, int32_t index)
+{
+    component.description = "description" + std::to_string(index);
+    component.lib = "lib" + std::to_string(index);
+    component.constructor = "constructor" + std::to_string(index);
+    component.destructor = "destructor" + std::to_string(index);
+    component.params = "params" + std::to_string(index);
+}
+
+void SerializableTest::CreateConfig(Config &config)
+{
+    config.processLabel = "processLabel";
+    config.version = "version";
+    config.features = { "feature1", "feature2" };
+    config.plugins = { "plugin1", "plugin2" };
+    Config::Component component1;
+    Config::Component component2;
+    int32_t index = 0;
+    CreateComponent(component1, index++);
+    CreateComponent(component2, index++);
+    config.components = { component1, component2 };
+}
+
 /**
 * @tc.name: SerializableTest001
 * @tc.desc: test serializable with invalid jsonStr .
@@ -55,16 +80,16 @@ HWTEST_F(SerializableTest, SerializableTest001, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr;
-    auto json = Config::ToJson(jsonStr);
-    ASSERT_TRUE(json.is_null());
+    auto json = Serializable::ToJson(jsonStr);
+    ASSERT_TRUE(cJSON_IsNull(&json));
 
     Config config;
     auto ret = config.Unmarshall(jsonStr);
     ASSERT_FALSE(ret);
 
     jsonStr = "{ a }";
-    json = Config::ToJson(jsonStr);
-    ASSERT_TRUE(json.is_null());
+    json = Serializable::ToJson(jsonStr);
+    ASSERT_TRUE(cJSON_IsNull(&json));
 
     ret = config.Unmarshall(jsonStr);
     ASSERT_FALSE(ret);
@@ -81,17 +106,42 @@ HWTEST_F(SerializableTest, SerializableTest001, TestSize.Level0)
 HWTEST_F(SerializableTest, SerializableTest002, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
-    std::string jsonStr = R"({"key":"key1", "passwd":"*******"})";
-    auto json = Config::ToJson(jsonStr);
-    ASSERT_TRUE(!json.is_null());
-    std::string value1;
-    auto ret = Config::GetValue(json, "key", value1);
-    ASSERT_TRUE(ret);
-    ASSERT_EQ(value1, "key1");
 
-    ret = Config::GetValue(json, "passwd", value1);
+    std::vector<uint8_t> vec = { 1, 2, 3, 4, 5 };
+    std::string jsonStr = "{\n"
+                          "        \"param1\":       2,                                \n"
+                          "        \"param2\":       3,                                \n"
+                          "        \"param3\":       4,                                \n"
+                          "        \"param4\":       true,                             \n"
+                          "        \"param5\":       [1, 2, 3, 4, 5]                   \n"
+                          "}";
+
+    uint32_t res1;
+    int32_t res2;
+    int64_t res3;
+    bool res4;
+    std::vector<uint8_t> res5;
+
+    auto node = Serializable::ToJson(jsonStr);
+
+    auto ret = Serializable::GetValue(node, GET_NAME(param1), res1);
     ASSERT_TRUE(ret);
-    ASSERT_EQ(value1, "*******");
+    ASSERT_EQ(res1, 2);
+    ret = Serializable::GetValue(node, GET_NAME(param2), res2);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(res2, 3);
+    ret = Serializable::GetValue(node, GET_NAME(param3), res3);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(res3, 4);
+    ret = Serializable::GetValue(node, GET_NAME(param4), res4);
+    ASSERT_TRUE(ret);
+    ASSERT_TRUE(res4);
+    ret = Serializable::GetValue(node, GET_NAME(param5), res5);
+    ASSERT_TRUE(ret);
+    ASSERT_EQ(res5.size(), vec.size());
+    for (uint64_t i = 0; i < res5.size(); i++) {
+        ASSERT_EQ(res5[i], vec[i]);
+    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
 
@@ -106,14 +156,14 @@ HWTEST_F(SerializableTest, SerializableTest003, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
-    auto json = Config::ToJson(jsonStr);
+    auto json = Serializable::ToJson(jsonStr);
     std::string value;
-    auto ret = Config::GetValue(json, "key", value);
+    auto ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
 
     jsonStr = R"({"key":1})";
-    json = Config::ToJson(jsonStr);
-    ret = Config::GetValue(json, "key", value);
+    json = Serializable::ToJson(jsonStr);
+    ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
@@ -131,12 +181,12 @@ HWTEST_F(SerializableTest, SerializableTest004, TestSize.Level0)
     std::string jsonStr = R"({"key":null})";
     auto json = Config::ToJson(jsonStr);
     uint32_t value;
-    auto ret = Config::GetValue(json, "key", value);
+    auto ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
 
-    jsonStr = R"({"key":-1})";
-    json = Config::ToJson(jsonStr);
-    ret = Config::GetValue(json, "key", value);
+    jsonStr = R"({"key":"1"})";
+    json = Serializable::ToJson(jsonStr);
+    ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
@@ -154,12 +204,12 @@ HWTEST_F(SerializableTest, SerializableTest005, TestSize.Level0)
     std::string jsonStr = R"({"key":null})";
     auto json = Config::ToJson(jsonStr);
     int32_t value;
-    auto ret = Config::GetValue(json, "key", value);
+    auto ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
 
     jsonStr = R"({"key":"1"})";
-    json = Config::ToJson(jsonStr);
-    ret = Config::GetValue(json, "key", value);
+    json = Serializable::ToJson(jsonStr);
+    ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
@@ -175,14 +225,14 @@ HWTEST_F(SerializableTest, SerializableTest006, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
-    auto json = Config::ToJson(jsonStr);
+    auto json = Serializable::ToJson(jsonStr);
     int64_t value;
-    auto ret = Config::GetValue(json, "key", value);
+    auto ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
 
     jsonStr = R"({"key":"1"})";
-    json = Config::ToJson(jsonStr);
-    ret = Config::GetValue(json, "key", value);
+    json = Serializable::ToJson(jsonStr);
+    ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
@@ -198,14 +248,14 @@ HWTEST_F(SerializableTest, SerializableTest007, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
-    auto json = Config::ToJson(jsonStr);
+    auto json = Serializable::ToJson(jsonStr);
     bool value;
-    auto ret = Config::GetValue(json, "key", value);
+    auto ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
 
     jsonStr = R"({"key":1})";
-    json = Config::ToJson(jsonStr);
-    ret = Config::GetValue(json, "key", value);
+    json = Serializable::ToJson(jsonStr);
+    ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
@@ -221,21 +271,21 @@ HWTEST_F(SerializableTest, SerializableTest008, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
-    auto json = Config::ToJson(jsonStr);
+    auto json = Serializable::ToJson(jsonStr);
     std::vector<uint8_t> value;
-    auto ret = Config::GetValue(json, "key", value);
+    auto ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
 
     jsonStr = R"({"key":"{1, 2, 3}"})";
-    json = Config::ToJson(jsonStr);
-    ret = Config::GetValue(json, "key", value);
+    json = Serializable::ToJson(jsonStr);
+    ret = Serializable::GetValue(json, "key", value);
     ASSERT_FALSE(ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
 
 /**
 * @tc.name: SerializableTest009
-* @tc.desc: test serializable GetValue and SetValue with valid sub node.
+* @tc.desc: test serializable SetValue with valid value.
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
@@ -243,53 +293,89 @@ HWTEST_F(SerializableTest, SerializableTest008, TestSize.Level0)
 HWTEST_F(SerializableTest, SerializableTest009, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
-    std::string param1 = "test";
-    uint32_t param2 = 2;
-    int32_t param3 = 3;
-    int64_t param4 = 4;
-    bool param5 = false;
-    std::vector<uint8_t> param6 = { 1, 2, 3, 4, 5 };
-    Serializable::json node;
-    auto ret = Config::SetValue(node[GET_NAME(param1)], param1);
-    ASSERT_TRUE(ret);
-    ret = Config::SetValue(node[GET_NAME(param2)], param2);
-    ASSERT_TRUE(ret);
-    ret = Config::SetValue(node[GET_NAME(param3)], param3);
-    ASSERT_TRUE(ret);
-    ret = Config::SetValue(node[GET_NAME(param4)], param4);
-    ASSERT_TRUE(ret);
-    ret = Config::SetValue(node[GET_NAME(param5)], param5);
-    ASSERT_TRUE(ret);
-    ret = Config::SetValue(node[GET_NAME(param6)], param6);
-    ASSERT_TRUE(ret);
+    uint32_t param1 = 2;
+    int32_t param2 = 3;
+    int64_t param3 = 4;
+    bool param4 = false;
+    std::vector<uint8_t> param5 = { 1, 2, 3, 4, 5 };
+    Config config;
+    CreateConfig(config);
 
-    std::string res1;
-    uint32_t res2;
-    int32_t res3;
-    int64_t res4;
-    bool res5;
-    std::vector<uint8_t> res6;
-    ret = Config::GetValue(node, GET_NAME(param1), res1);
+    auto node = config.Marshall();
+    ASSERT_FALSE(cJSON_IsNull(&node));
+
+    auto ret = Serializable::SetValue(node, param1, GET_NAME(param1));
     ASSERT_TRUE(ret);
-    ASSERT_EQ(res1, param1);
-    ret = Config::GetValue(node, GET_NAME(param2), res2);
+    ret = Serializable::SetValue(node, param2, GET_NAME(param2));
     ASSERT_TRUE(ret);
-    ASSERT_EQ(res2, param2);
-    ret = Config::GetValue(node, GET_NAME(param3), res3);
+    ret = Serializable::SetValue(node, param3, GET_NAME(param3));
     ASSERT_TRUE(ret);
-    ASSERT_EQ(res3, param3);
-    ret = Config::GetValue(node, GET_NAME(param4), res4);
+    ret = Serializable::SetValue(node, param4, GET_NAME(param4));
     ASSERT_TRUE(ret);
-    ASSERT_EQ(res4, param4);
-    ret = Config::GetValue(node, GET_NAME(param5), res5);
+    ret = Serializable::SetValue(node, param5, GET_NAME(param5));
     ASSERT_TRUE(ret);
-    ASSERT_EQ(res5, param5);
-    ret = Config::GetValue(node, GET_NAME(param6), res6);
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(processLabel)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(version)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(features)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(plugins)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(components)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(param1)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(param2)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(param3)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(param4)));
+    ASSERT_TRUE(cJSON_HasObjectItem(&node, GET_NAME(param5)));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+}
+
+/**
+* @tc.name: SerializableTest010
+* @tc.desc: test serializable Unmarshall with valid jsonstr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(SerializableTest, SerializableTest010, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
+    std::string jsonStr = "{\n"
+                          "        \"processLabel\": \"processLabel\",                \n"
+                          "        \"version\":      \"version\",                     \n"
+                          "        \"features\":     [\"features1\", \"features2\"], \n"
+                          "        \"plugins\":      [\"plugins1\", \"plugins2\"],   \n"
+                          "        \"components\":   [{                                \n"
+                          "                        \"description\":  \"description1\",\n"
+                          "                        \"lib\":  \"lib1\",                \n"
+                          "                        \"constructor\":  \"constructor1\",\n"
+                          "                        \"destructor\":   \"destructor1\", \n"
+                          "                        \"params\":       \"params1\"      \n"
+                          "                }, {                                      \n"
+                          "                        \"description\":  \"description2\",\n"
+                          "                        \"lib\":  \"lib2\",                \n"
+                          "                        \"constructor\":  \"constructor2\",\n"
+                          "                        \"destructor\":   \"destructor2\", \n"
+                          "                        \"params\":       \"params2\"      \n"
+                          "                }]                                      \n"
+                          "}";
+
+    Config config;
+    auto ret = config.Unmarshall(jsonStr);
     ASSERT_TRUE(ret);
-    ASSERT_EQ(res1.size(), param1.size());
-    for (uint64_t i = 0; i < res1.size(); i++) {
-        ASSERT_EQ(res1[i], param1[i]);
-    }
+    ASSERT_EQ(config.processLabel, "processLabel");
+    ASSERT_EQ(config.version, "version");
+    ASSERT_EQ(config.features[0], "features1");
+    ASSERT_EQ(config.features[1], "features2");
+    ASSERT_EQ(config.plugins[0], "plugins1");
+    ASSERT_EQ(config.plugins[1], "plugins2");
+    ASSERT_EQ(config.components[0].description, "description1");
+    ASSERT_EQ(config.components[0].lib, "lib1");
+    ASSERT_EQ(config.components[0].constructor, "constructor1");
+    ASSERT_EQ(config.components[0].destructor, "destructor1");
+    ASSERT_EQ(config.components[0].params, "params1");
+    ASSERT_EQ(config.components[1].description, "description2");
+    ASSERT_EQ(config.components[1].lib, "lib2");
+    ASSERT_EQ(config.components[1].constructor, "constructor2");
+    ASSERT_EQ(config.components[1].destructor, "destructor2");
+    ASSERT_EQ(config.components[1].params, "params2");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
 } // namespace OHOS::DistributedData

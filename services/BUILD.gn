@@ -34,7 +34,6 @@ config("pasteboard_service_config") {
     "${pasteboard_framework_path}/framework/include",
     "${pasteboard_framework_path}/framework/include/device",
     "//commonlibrary/c_utils/base/include",
-    "//third_party/json/include",
   ]
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
   cflags = [
@@ -79,6 +78,10 @@ ohos_shared_library("pasteboard_service") {
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
   ]
+
+  configs = [ "//third_party/cJSON:cJSON_config" ]
+
+  deps += [ "//third_party/cJSON:cjson" ]
 
   external_deps = [
     "ability_base:base",

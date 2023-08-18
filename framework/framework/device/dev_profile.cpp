@@ -17,11 +17,11 @@
 #include <cstring>
 #include <thread>
 
+#include "cJSON.h"
 #include "dev_manager.h"
 #include "device_manager.h"
 #include "distributed_device_profile_client.h"
 #include "distributed_module_config.h"
-#include "nlohmann/json.hpp"
 #include "para_handle.h"
 #include "pasteboard_hilog.h"
 #include "service_characteristic_profile.h"
@@ -88,15 +88,15 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     ServiceCharacteristicProfile profile;
     profile.SetServiceId(SERVICE_ID);
     profile.SetServiceType(SERVICE_ID);
-    nlohmann::json jsonObject;
-    jsonObject[CHARACTER_ID] = NOT_SUPPORT;
+    cJSON *jsonObject = cJSON_CreateObject();
+    cJSON_AddNumberToObject(jsonObject, CHARACTER_ID, NOT_SUPPORT);
     localEnable_ = false;
     if (enabledStatus == "true") {
-        jsonObject[CHARACTER_ID] = SUPPORT;
+        cJSON_ReplaceItemInObject(jsonObject, CHARACTER_ID, cJSON_CreateNumber(SUPPORT));
         localEnable_ = true;
     }
-    jsonObject[VERSION_ID] = FIRST_VERSION;
-    profile.SetCharacteristicProfileJson(jsonObject.dump());
+    cJSON_AddNumberToObject(jsonObject, VERSION_ID, FIRST_VERSION);
+    profile.SetCharacteristicProfileJson(cJSON_PrintUnformatted(jsonObject));
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutDeviceProfile(profile);
     if (errNo != HANDLE_OK) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile failed, %{public}d", errNo);
@@ -115,14 +115,14 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
         return;
     }
     const auto &jsonData = profile.GetCharacteristicProfileJson();
-    nlohmann::json jsonObject = nlohmann::json::parse(jsonData, nullptr, false);
-    if (jsonObject.is_discarded()) {
+    cJSON *jsonObject = cJSON_Parse(jsonData.c_str());
+    if (jsonObject == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
         return;
     }
 
     enabledStatus = "false";
-    if (jsonObject[CHARACTER_ID] == SUPPORT) {
+    if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, CHARACTER_ID)) == SUPPORT) {
         enabledStatus = "true";
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
@@ -138,13 +138,13 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &deviceId, uint32_t &v
         return;
     }
     const auto &jsonData = profile.GetCharacteristicProfileJson();
-    nlohmann::json jsonObject = nlohmann::json::parse(jsonData, nullptr, false);
-    if (jsonObject.is_discarded()) {
+    cJSON *jsonObject = cJSON_Parse(jsonData.c_str());
+    if (jsonObject == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
         return;
     }
-    if (jsonObject.contains(VERSION_ID) && jsonObject[VERSION_ID] == FIRST_VERSION) {
-        versionId = jsonObject[VERSION_ID];
+    if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, VERSION_ID)) == FIRST_VERSION) {
+        versionId = FIRST_VERSION;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion success, versionId = %{public}d.", versionId);
 }
