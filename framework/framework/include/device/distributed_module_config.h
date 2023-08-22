@@ -31,6 +31,7 @@ private:
     static bool GetEnabledStatus();
     static Observer observer_;
     static bool status_;
+    static size_t deviceNums_;
 };
 } // namespace MiscServices
 } // namespace OHOS

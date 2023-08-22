@@ -161,6 +161,8 @@ PasteDataRecord::PasteDataRecord(const PasteDataRecord &record) : mimeType_(reco
     convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
     hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "copy construct");
+    this->isConvertUriFromRemote = record.isConvertUriFromRemote;
     InitDecodeMap();
 }
 

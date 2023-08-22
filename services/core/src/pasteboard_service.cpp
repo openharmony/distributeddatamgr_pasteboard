@@ -438,7 +438,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
             return false;
         }
         it->second->SetBundleName(appInfo.bundleName);
-        data = PasteData(*(it->second));
+        data = *(it->second);
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get remote fileSize %{public}d", fileSize);
@@ -475,13 +475,16 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         auto item = data.GetRecordAt(i);
         if (item == nullptr || (!data.IsRemote()
             && targetBundleName.compare(data.GetOrginAuthority()) == 0)) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "local dev & local app");
             continue;
         }
         std::shared_ptr<OHOS::Uri> uri = nullptr;
         if (!item->isConvertUriFromRemote && !item->GetConvertUri().empty()) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "clear local disUri");
             item->SetConvertUri("");
         }
         if (item->isConvertUriFromRemote && !item->GetConvertUri().empty()) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get remote disUri");
             uri = std::make_shared<OHOS::Uri>(item->GetConvertUri());
         } else if (!item->isConvertUriFromRemote && item->GetOrginUri() != nullptr) {
             uri = item->GetOrginUri();
