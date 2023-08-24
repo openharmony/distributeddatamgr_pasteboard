@@ -341,25 +341,23 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     auto appInfo = GetAppInfo(tokenId);
     bool isFocusedApp = IsFocusedApp(appInfo.bundleName);
     bool result = false;
-    std::string pop;
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         result = CheckPasteData(appInfo, data, isFocusedApp);
     } else {
         std::lock_guard<std::mutex> lock(remoteMutex_);
-        result = GetRemoteData(appInfo, data, pop, isFocusedApp, tokenId);
+        result = GetRemoteData(appInfo, data, isFocusedApp);
     }
     if (observerEventMap_.size() != 0) {
         std::string targetBundleName = GetAppBundleName(appInfo);
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
-    GetPasteDataDot(data, pop, appInfo.bundleName);
+    GetPasteDataDot(data, appInfo.bundleName);
     GrantUriPermission(data, appInfo.bundleName);
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
-bool PasteboardService::GetRemoteData(
-    AppInfo &appInfo, PasteData &data, std::string &pop, bool isFocusedApp, uint32_t tokenId)
+bool PasteboardService::GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
     std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
@@ -375,21 +373,9 @@ bool PasteboardService::GetRemoteData(
     thread.detach();
     auto value = block->GetValue();
     if (value == nullptr) {
-        if (IsDefaultIME(appInfo)) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not need show dialog");
-            block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-            value = block->GetValue();
-        } else {
-            PasteBoardDialog::MessageInfo message;
-            message.appName = GetAppLabel(tokenId);
-            message.deviceType = GetDeviceName();
-            PasteBoardDialog::GetInstance().ShowDialog(message, [block] { block->SetValue(nullptr); });
-            pop = "pop";
-            block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-            value = block->GetValue();
-            PasteBoardDialog::GetInstance().CancelDialog();
-            SetDeviceName();
-        }
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "continue to get remote data");
+        block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
+        value = block->GetValue();
     }
     if (value != nullptr) {
         auto ret = value->IsValid();
@@ -425,6 +411,7 @@ bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isF
 
 bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
+    auto isRemote = data.IsRemote();
     {
         std::lock_guard<std::recursive_mutex> lock(clipMutex_);
         auto it = clips_.find(appInfo.userId);
@@ -442,7 +429,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get remote fileSize %{public}d", fileSize);
-    if (data.IsRemote() && fileSize > 0) {
+    if (isRemote && fileSize > 0) {
         EstablishP2PLink(fileSize);
         std::this_thread::sleep_for(std::chrono::seconds(OPEN_P2P_SLEEP_TIME));
     }
@@ -862,7 +849,7 @@ size_t PasteboardService::GetDataSize(PasteData &data) const
 bool PasteboardService::SetPasteboardHistory(HistoryInfo &info)
 {
     std::string history = std::move(info.time) + " " + std::move(info.bundleName) + " " + std::move(info.state) + " " +
-        " " + std::move(info.pop) + " " + std::move(info.remote);
+        " " + std::move(info.remote);
     constexpr const size_t DATA_HISTORY_SIZE = 10;
     std::lock_guard<decltype(historyMutex_)> lg(historyMutex_);
     if (dataHistory_.size() == DATA_HISTORY_SIZE) {
@@ -976,7 +963,7 @@ std::string PasteboardService::DumpData()
 void PasteboardService::SetPasteDataDot(PasteData &pasteData)
 {
     auto bundleName = pasteData.GetBundleName();
-    HistoryInfo info{ pasteData.GetTime(), bundleName, "set", "", "" };
+    HistoryInfo info{ pasteData.GetTime(), bundleName, "set", "" };
     SetPasteboardHistory(info);
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData Report!");
@@ -990,14 +977,14 @@ void PasteboardService::SetPasteDataDot(PasteData &pasteData)
     CalculateTimeConsuming timeC(dataSize, state);
 }
 
-void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string &pop, const std::string &bundleName)
+void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string &bundleName)
 {
     std::string remote;
     if (pasteData.IsRemote()) {
         remote = "remote";
     }
     std::string time = GetTime();
-    HistoryInfo info{ time, bundleName, "get", pop, remote };
+    HistoryInfo info{ time, bundleName, "get", remote };
     SetPasteboardHistory(info);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     int pState = StatisticPasteboardState::SPS_INVALID_STATE;
@@ -1202,7 +1189,6 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "account error.");
         return false;
     }
-    SetDeviceName(tmpEvent.deviceId);
     if (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data.");
         return false;
@@ -1245,22 +1231,6 @@ sptr<AppExecFwk::IBundleMgr> PasteboardService::GetAppBundleManager()
         return nullptr;
     }
     return OHOS::iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
-}
-
-std::string PasteboardService::GetDeviceName()
-{
-    std::lock_guard<decltype(deviceMutex_)> lockGuard(deviceMutex_);
-    return fromDevice_;
-}
-
-void PasteboardService::SetDeviceName(const std::string &device)
-{
-    std::lock_guard<decltype(deviceMutex_)> lockGuard(deviceMutex_);
-    if (device.empty() || device == DMAdapter::GetInstance().GetLocalNetworkId()) {
-        fromDevice_ = "local";
-        return;
-    }
-    fromDevice_ = DMAdapter::GetInstance().GetDeviceName(device);
 }
 } // namespace MiscServices
 } // namespace OHOS
