@@ -55,7 +55,6 @@ struct HistoryInfo {
     std::string time;
     std::string bundleName;
     std::string state;
-    std::string pop;
     std::string remote;
 };
 
@@ -111,10 +110,10 @@ private:
 
     virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData) override;
     void SetPasteDataDot(PasteData &pasteData);
-    void GetPasteDataDot(PasteData &pasteData, const std::string &pop, const std::string &bundleName);
+    void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
     bool GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
     bool CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
-    bool GetRemoteData(AppInfo &appInfo, PasteData &data, std::string &pop, bool isFocusedApp, uint32_t tokenId);
+    bool GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(PasteData &lastData);
     void GenerateDistributedUri(PasteData &data);
@@ -122,8 +121,6 @@ private:
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
-    std::string GetDeviceName();
-    void SetDeviceName(const std::string &device = "");
     void EstablishP2PLink(int fileSize);
 
     std::shared_ptr<PasteData> GetDistributedData(int32_t user);
@@ -168,8 +165,6 @@ private:
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
     std::mutex remoteMutex_;
-    std::mutex deviceMutex_;
-    std::string fromDevice_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
 
     void AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
