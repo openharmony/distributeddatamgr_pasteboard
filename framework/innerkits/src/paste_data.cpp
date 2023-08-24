@@ -70,10 +70,30 @@ PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthorit
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "copy construct");
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
 }
+
+PasteData& PasteData::operator=(const PasteData &data)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "PasteData copy");
+    if (this == &data) {
+        return *this;
+    }
+    this->orginAuthority_ = data.orginAuthority_;
+    this->valid_ = data.valid_;
+    this->isDraggedData_ = data.isDraggedData_;
+    this->isLocalPaste_ = data.isLocalPaste_;
+    this->props_ = data.props_;
+    this->records_.clear();
+    for (const auto &item : data.records_) {
+        this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
+    }
+    return *this;
+}
+
 
 PasteDataProperty PasteData::GetProperty() const
 {
@@ -437,9 +457,31 @@ PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)
     shareOption(property.shareOption), tokenId(property.tokenId), isRemote(property.isRemote),
     bundleName(property.bundleName), setTime(property.setTime)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "copy construct");
     this->additions = property.additions;
     std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
 }
+
+PasteDataProperty& PasteDataProperty::operator=(const PasteDataProperty &property)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "PasteDataProperty copy");
+    if (this == &property) {
+        return *this;
+    }
+    this->tag = property.tag;
+    this->timestamp = property.timestamp;
+    this->localOnly = property.localOnly;
+    this->shareOption = property.shareOption;
+    this->tokenId = property.tokenId;
+    this->isRemote = property.isRemote;
+    this->bundleName = property.bundleName;
+    this->setTime = property.setTime;
+    this->additions = property.additions;
+    this->mimeTypes.clear();
+    std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
+    return *this;
+}
+
 
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {

@@ -35,6 +35,7 @@ enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
 struct PasteDataProperty : public TLVObject {
     PasteDataProperty() = default;
     PasteDataProperty(const PasteDataProperty &property);
+    PasteDataProperty& operator=(const PasteDataProperty &property);
     AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;
     std::string tag;
@@ -57,6 +58,7 @@ public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();
     PasteData(const PasteData &data);
+    PasteData& operator=(const PasteData &data);
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
 
     void AddHtmlRecord(const std::string &html);

@@ -22,10 +22,11 @@ namespace OHOS {
 namespace MiscServices {
 using namespace DistributedHardware;
 bool DistributedModuleConfig::status_ = false;
+size_t DistributedModuleConfig::deviceNums_ = 0;
 DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
-    status_ = GetEnabledStatus();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", deviceNums_);
     return status_;
 }
 
@@ -55,6 +56,7 @@ bool DistributedModuleConfig::GetEnabledStatus()
     }
 
     auto deviceIds = DevManager::GetInstance().GetNetworkIds();
+    deviceNums_ = deviceIds.size();
     std::string remoteEnabledStatus = "false";
     for (auto &id : deviceIds) {
         DevProfile::GetInstance().GetEnabledStatus(id, remoteEnabledStatus);
