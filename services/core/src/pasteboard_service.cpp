@@ -963,7 +963,7 @@ std::string PasteboardService::DumpData()
 void PasteboardService::SetPasteDataDot(PasteData &pasteData)
 {
     auto bundleName = pasteData.GetBundleName();
-    HistoryInfo info{ pasteData.GetTime(), bundleName, "set", "", "" };
+    HistoryInfo info{ pasteData.GetTime(), bundleName, "set", "" };
     SetPasteboardHistory(info);
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData Report!");
