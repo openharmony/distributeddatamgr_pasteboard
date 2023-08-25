@@ -235,11 +235,10 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 
 bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 {
-    auto callPid = IPCSkeleton::GetCallingPid();
     FocusChangeInfo info;
     WindowManager::GetInstance().GetFocusWindowInfo(info);
-    focusedPid = info.pid_;
-    if (callPid == focusedPid) {
+    auto callPid = IPCSkeleton::GetCallingPid();
+    if (callPid == info.pid_) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid is same, focused app");
         return true;
     }
