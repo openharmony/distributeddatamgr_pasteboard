@@ -233,10 +233,10 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     return property != nullptr && property->name == appInfo.bundleName;
 }
 
-bool PasteboardService::IsFocusedApp(const std::string &bundleName)
+bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 {
     if (bundleName.empty()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get bundle name by token failed");
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get bunfdshjfhjsd dle name by token failed");
         return false;
     }
     auto elementName = OHOS::AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(false);

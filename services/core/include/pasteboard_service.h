@@ -136,7 +136,7 @@ private:
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static bool IsDefaultIME(const AppInfo &appInfo);
-    static bool IsFocusedApp(const std::string &bundleName);
+    static bool IsFocusedApp(uint32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData);
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);

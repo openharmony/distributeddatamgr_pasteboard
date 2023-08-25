@@ -48,7 +48,8 @@
           "os_account",
           "safwk",
           "samgr",
-          "time_service"
+          "time_service",
+          "window_manager"
         ],
         "third_party": [
           "libuv",

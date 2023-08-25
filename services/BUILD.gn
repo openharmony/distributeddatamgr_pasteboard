@@ -113,6 +113,7 @@ ohos_shared_library("pasteboard_service") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "time_service:time_client",
+    "window_manager:libwm",
   ]
   if (os_dlp_part_enabled) {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
