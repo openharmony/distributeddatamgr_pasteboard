@@ -235,14 +235,18 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 
 bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 {
-    if (bundleName.empty()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get bunfdshjfhjsd dle name by token failed");
-        return false;
+    auto callPid = IPCSkeleton::GetCallingPid();
+    FocusChangeInfo info;
+    WindowManager::GetInstance().GetFocusWindowInfo(info);
+    focusedPid = info.pid_;
+    if (callPid == focusedPid) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid is same, focused app");
+        return true;
     }
-    auto elementName = OHOS::AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(false);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " Top app:%{public}s, caller app:%{public}s",
-        elementName.GetBundleName().c_str(), bundleName.c_str());
-    return elementName.GetBundleName() == bundleName;
+    bool isFocused = false;
+    auto ret = AAFwk::AbilityManagerClient::GetInstance()->CheckUIExtensionIsFocused(tokenId, isFocused);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check result:%{public}d, isFocused:%{public}d", ret, isFocused);
+    return ret == ErrorCode::NO_ERROR && isFocused;
 }
 
 bool PasteboardService::HasPastePermission(
@@ -339,7 +343,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto appInfo = GetAppInfo(tokenId);
-    bool isFocusedApp = IsFocusedApp(appInfo.bundleName);
+    bool isFocusedApp = IsFocusedApp(tokenId);
     bool result = false;
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
@@ -590,8 +594,7 @@ bool PasteboardService::HasPasteData()
     }
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    AppInfo appInfo = GetAppInfo(tokenId);
-    return HasPastePermission(tokenId, IsFocusedApp(appInfo.bundleName), it->second);
+    return HasPastePermission(tokenId, IsFocusedApp(tokenId), it->second);
 }
 
 int32_t PasteboardService::SetPasteData(PasteData &pasteData)
