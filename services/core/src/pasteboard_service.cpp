@@ -42,6 +42,7 @@
 #include "remote_file_share.h"
 #include "reporter.h"
 #include "uri_permission_manager_client.h"
+#include "window_manager.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
