@@ -49,6 +49,7 @@
 
 namespace OHOS {
 namespace MiscServices {
+using namespace Rosen;
 using namespace std::chrono;
 using namespace Storage::DistributedFile;
 namespace {
