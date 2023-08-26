@@ -18,6 +18,7 @@
 #include <iservice_registry.h>
 #include <chrono>
 
+#include "file_uri.h"
 #include "hiview_adapter.h"
 #include "hitrace_meter.h"
 #include "pasteboard_client.h"
@@ -26,7 +27,8 @@
 #include "pasteboard_observer.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#include "pasteboard_web_controller.h"
+#include "web_clipboard_controller.h"
+
 
 using namespace OHOS::Media;
 
@@ -166,8 +168,28 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || pasteData.GetPrimaryHtml() == nullptr) {
         return;
     }
-    auto PasteboardWebController = PasteboardWebController::GetInstance();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData RebuildWebviewPasteData start.");
+    auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
+    for (auto& item : pasteData.AllRecords()) {
+        if (item->GetUri() == nullptr) {
+            continue;
+        }
+        std::shared_ptr<Uri> uri = item->GetUri();
+        std::string puri = uri->ToString();
+        std::string realUri = puri;
+        if (puri.substr(0, PasteData::FILE_SCHEME_PREFIX.size()) == PasteData::FILE_SCHEME_PREFIX) {
+            AppFileService::ModuleFileUri::FileUri fileUri(puri);
+            realUri = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData RebuildWebviewPasteData uri is file uri.");
+        }
+        if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
+            item->SetConvertUri(realUri);
+        } else {
+            item->SetUri(std::make_shared<OHOS::Uri>(realUri));
+        }
+    }
     PasteboardWebController.RebuildHtml(std::make_shared<PasteData>(pasteData));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData RebuildWebviewPasteData end.");
 }
 
 void PasteboardClient::RetainUri(PasteData &pasteData)
@@ -207,7 +229,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData from webview start.");
     std::shared_ptr<std::string> primaryText = pasteData.GetRecordAt(0)->GetPlainText();
-    auto PasteboardWebController = PasteboardWebController::GetInstance();
+    auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
     webPasteData->RemoveRecordAt(webPasteData->GetRecordCount() - 1);
     std::string mimeType = MIMETYPE_TEXT_PLAIN;
@@ -216,6 +238,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
         builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
     webPasteData->AddRecord(pasteDataRecord);
     webPasteData->SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData from webview end.");
     return pasteboardServiceProxy_->SetPasteData(*webPasteData);
 }
 
