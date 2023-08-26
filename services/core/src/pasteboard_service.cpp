@@ -42,12 +42,14 @@
 #include "remote_file_share.h"
 #include "reporter.h"
 #include "uri_permission_manager_client.h"
+#include "window_manager.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
 
 namespace OHOS {
 namespace MiscServices {
+using namespace Rosen;
 using namespace std::chrono;
 using namespace Storage::DistributedFile;
 namespace {
@@ -233,16 +235,19 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     return property != nullptr && property->name == appInfo.bundleName;
 }
 
-bool PasteboardService::IsFocusedApp(const std::string &bundleName)
+bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 {
-    if (bundleName.empty()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get bundle name by token failed");
-        return false;
+    FocusChangeInfo info;
+    WindowManager::GetInstance().GetFocusWindowInfo(info);
+    auto callPid = IPCSkeleton::GetCallingPid();
+    if (callPid == info.pid_) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid is same, focused app");
+        return true;
     }
-    auto elementName = OHOS::AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(false);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " Top app:%{public}s, caller app:%{public}s",
-        elementName.GetBundleName().c_str(), bundleName.c_str());
-    return elementName.GetBundleName() == bundleName;
+    bool isFocused = false;
+    auto ret = AAFwk::AbilityManagerClient::GetInstance()->CheckUIExtensionIsFocused(tokenId, isFocused);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check result:%{public}d, isFocused:%{public}d", ret, isFocused);
+    return ret == ErrorCode::NO_ERROR && isFocused;
 }
 
 bool PasteboardService::HasPastePermission(
@@ -339,7 +344,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto appInfo = GetAppInfo(tokenId);
-    bool isFocusedApp = IsFocusedApp(appInfo.bundleName);
+    bool isFocusedApp = IsFocusedApp(tokenId);
     bool result = false;
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
@@ -590,8 +595,7 @@ bool PasteboardService::HasPasteData()
     }
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    AppInfo appInfo = GetAppInfo(tokenId);
-    return HasPastePermission(tokenId, IsFocusedApp(appInfo.bundleName), it->second);
+    return HasPastePermission(tokenId, IsFocusedApp(tokenId), it->second);
 }
 
 int32_t PasteboardService::SetPasteData(PasteData &pasteData)
