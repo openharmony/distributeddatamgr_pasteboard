@@ -41,13 +41,47 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_client.cpp",
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
-    "src/pasteboard_web_controller.cpp",
   ]
   configs = [ ":pasteboard_client_config" ]
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
-    "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
-    "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
+    "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
+    "${pasteboard_root_path}/framework/uri:pasteboard_uri",
+
+    #    "//third_party/jsoncpp:jsoncpp",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:wantagent_innerkits",
+    "app_file_service:fileuri_native",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "image_framework:image_native",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+    "time_service:time_client",
+    "webview:web_inner_kit",
+  ]
+
+  subsystem_name = "distributeddatamgr"
+  innerapi_tags = [ "platformsdk" ]
+  part_name = "pasteboard"
+}
+
+ohos_shared_library("pasteboard_data") {
+  sources = [
+    "src/paste_data.cpp",
+    "src/paste_data_record.cpp",
+  ]
+  configs = [ ":pasteboard_client_config" ]
+  public_configs = [ ":pasteboard_client_config" ]
+  deps = [
+    "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
+    "${pasteboard_root_path}/framework/uri:pasteboard_uri",
 
     #    "//third_party/jsoncpp:jsoncpp",
   ]
