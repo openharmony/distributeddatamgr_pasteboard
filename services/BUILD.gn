@@ -72,6 +72,13 @@ ohos_shared_library("pasteboard_service") {
     "//commonlibrary/c_utils/base:utils_config",
     ":pasteboard_service_config",
   ]
+
+  cflags_cc = [
+    "-fstack-protector",
+    "-D_FORTIFY_SOURCE=2",
+    "-O2",
+  ]
+
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",

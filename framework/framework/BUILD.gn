@@ -40,7 +40,12 @@ ohos_shared_library("pasteboard_framework") {
   ]
   cflags = [ "-Wno-multichar" ]
 
-  cflags_cc = [ "-fvisibility=hidden" ]
+  cflags_cc = [
+    "-fvisibility=hidden",
+    "-fstack-protector",
+    "-D_FORTIFY_SOURCE=2",
+    "-O2",
+  ]
 
   configs = [ ":module_public_config" ]
 
