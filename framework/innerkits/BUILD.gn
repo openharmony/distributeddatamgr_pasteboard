@@ -42,13 +42,18 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
   ]
+
+  cflags_cc = [
+    "-fstack-protector",
+    "-D_FORTIFY_SOURCE=2",
+    "-O2",
+  ]
+
   configs = [ ":pasteboard_client_config" ]
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
     "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
     "${pasteboard_root_path}/framework/uri:pasteboard_uri",
-
-    #    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -82,8 +87,12 @@ ohos_shared_library("pasteboard_data") {
   deps = [
     "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
     "${pasteboard_root_path}/framework/uri:pasteboard_uri",
+  ]
 
-    #    "//third_party/jsoncpp:jsoncpp",
+  cflags_cc = [
+    "-fstack-protector",
+    "-D_FORTIFY_SOURCE=2",
+    "-O2",
   ]
 
   external_deps = [

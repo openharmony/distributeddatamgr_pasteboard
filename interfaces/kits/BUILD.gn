@@ -29,6 +29,12 @@ ohos_shared_library("pasteboard_napi") {
     "-g3",
   ]
 
+  cflags_cc = [
+    "-fstack-protector",
+    "-D_FORTIFY_SOURCE=2",
+    "-O2",
+  ]
+
   sources = [
     "napi/src/async_call.cpp",
     "napi/src/napi_init.cpp",
