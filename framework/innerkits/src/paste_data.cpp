@@ -97,7 +97,7 @@ PasteData& PasteData::operator=(const PasteData &data)
 
 PasteDataProperty PasteData::GetProperty() const
 {
-    return props_;
+    return PasteDataProperty(props_);
 }
 
 void PasteData::AddHtmlRecord(const std::string &html)
