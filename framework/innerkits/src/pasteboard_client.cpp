@@ -156,8 +156,8 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
-    RebuildWebviewPasteData(pasteData);
     RetainUri(pasteData);
+    RebuildWebviewPasteData(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
     return ret;
@@ -168,8 +168,7 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || pasteData.GetPrimaryHtml() == nullptr) {
         return;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData RebuildWebviewPasteData start.");
-    auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData start.");
     for (auto& item : pasteData.AllRecords()) {
         if (item->GetUri() == nullptr) {
             continue;
@@ -180,7 +179,7 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
         if (puri.substr(0, PasteData::FILE_SCHEME_PREFIX.size()) == PasteData::FILE_SCHEME_PREFIX) {
             AppFileService::ModuleFileUri::FileUri fileUri(puri);
             realUri = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData RebuildWebviewPasteData uri is file uri.");
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Rebuild webview uri is file uri.");
         }
         if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
             item->SetConvertUri(realUri);
@@ -188,24 +187,25 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
             item->SetUri(std::make_shared<OHOS::Uri>(realUri));
         }
     }
+    auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
     PasteboardWebController.RebuildHtml(std::make_shared<PasteData>(pasteData));
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData RebuildWebviewPasteData end.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData end.");
 }
 
 void PasteboardClient::RetainUri(PasteData &pasteData)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "RetainUri start.");
     if (!pasteData.IsLocalPaste()) {
         return;
     }
     // clear convert uri
     for (size_t i = 0; i < pasteData.GetRecordCount(); ++i) {
-        auto record = pasteData.GetRecordAt(0);
+        auto record = pasteData.GetRecordAt(i);
         if (record != nullptr) {
             record->SetConvertUri("");
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "RetainUri end.");
 }
 
 bool PasteboardClient::HasPasteData()

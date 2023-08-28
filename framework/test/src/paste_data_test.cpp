@@ -682,4 +682,36 @@ HWTEST_F(PasteDataTest, ClipPlugin002, TestSize.Level0)
     EXPECT_TRUE(events1.size() == 0);
     clipPlugin_->Clear(userId);
 }
+
+/**
+* @tc.name: PasteDataOperator001
+* @tc.desc: PasteData: operator
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
+{
+    PasteData data1;
+    PasteDataRecord::Builder builder1(MIMETYPE_TEXT_URI);
+    std::string uriStr1 = FILE_URI;
+    auto uri1 = std::make_shared<OHOS::Uri>(uriStr1);
+    builder1.SetUri(uri1);
+    auto record1 = builder1.Build();
+    data1.AddRecord(record1);
+    std::string bundleName1 = "com.example.myapplication";
+    data1.SetOrginAuthority(bundleName1);
+    
+    PasteData data2;
+    PasteDataRecord::Builder builder2(MIMETYPE_TEXT_URI);
+    std::string uriStr2 = FILE_URI;
+    auto uri2 = std::make_shared<OHOS::Uri>(uriStr2);
+    builder2.SetUri(uri2);
+    auto record2 = builder2.Build();
+    data2.AddRecord(record2);
+    std::string bundleName2 = "com.example.myapplication";
+    data2.SetOrginAuthority(bundleName2);
+    
+    ASSERT_TRUE(data1.GetBundleName() == data2.GetBundleName());
+}
 } // namespace OHOS::MiscServices
