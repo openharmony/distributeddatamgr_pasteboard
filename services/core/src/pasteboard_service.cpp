@@ -58,7 +58,7 @@ const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const std::string PASTEBOARD_PROXY_AUTHOR_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
-const std::int32_t ANCO_CALL_UID = 5528;
+const std::int32_t ANCO_CALL_UID = 5557;
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
 using namespace Security::AccessToken;
