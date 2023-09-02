@@ -40,6 +40,8 @@ void ClipPara::InitMemberVariable()
     isPullEvent_ = false;
     isPullEventResult_ = false;
     isPasted_ = false;
+    activeSync_ = false;
+    frameNum_ = 0;
 }
 
 bool ClipPara::HasRemoteData()
@@ -105,6 +107,16 @@ bool ClipPara::GetPasted()
     return isPasted_.load();
 }
 
+bool ClipPara::GetActiveSync()
+{
+    return activeSync_.load();
+}
+
+uint8_t ClipPara::GetFrameNum()
+{
+    return frameNum_.load();
+}
+
 void ClipPara::SetLastLocalSyncKey(const std::string lastSyncKey)
 {
     std::lock_guard<decltype(mutex_)> lockGuard(mutex_);
@@ -159,6 +171,16 @@ void ClipPara::SetPullEventResult(const bool isPullEventResult)
 void ClipPara::SetPasted(const bool isPasted)
 {
     isPasted_.store(isPasted);
+}
+
+void ClipPara::SetActiveSync(const bool activeSync)
+{
+    activeSync_.store(activeSync);
+}
+
+void ClipPara::SetFrameNum(const uint8_t frameNum)
+{
+    frameNum_.store(frameNum);
 }
 
 void ClipPara::UpdateStageValue(const uint64_t &expiration, bool isPasting)

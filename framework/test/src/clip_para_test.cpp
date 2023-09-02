@@ -182,6 +182,42 @@ HWTEST_F(ClipParaTest, HasRemoteData_001, TestSize.Level0)
 }
 
 /**
+* @tc.name: GetActiveSync
+* @tc.desc: test GetActiveSync.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(ClipParaTest, GetActiveSync_001, TestSize.Level0)
+{
+    ClipPara::GetInstance().InitMemberVariable();
+    bool activeSync;
+    activeSync = ClipPara::GetInstance().GetActiveSync();
+    ASSERT_FALSE(activeSync);
+    ClipPara::GetInstance().SetActiveSync(true);
+    activeSync = ClipPara::GetInstance().GetActiveSync();
+    ASSERT_TRUE(activeSync);
+}
+
+/**
+* @tc.name: GetFrameNum
+* @tc.desc: test GetFrameNum.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(ClipParaTest, GetFrameNum_001, TestSize.Level0)
+{
+    ClipPara::GetInstance().InitMemberVariable();
+    uint8_t frameNum;
+    frameNum = ClipPara::GetInstance().GetFrameNum();
+    ASSERT_TRUE(frameNum == 0);
+    ClipPara::GetInstance().SetFrameNum(10);
+    frameNum = ClipPara::GetInstance().GetFrameNum();
+    ASSERT_TRUE(frameNum == 10);
+}
+
+/**
 * @tc.name: UpdateStageValue_001
 * @tc.desc: Update Stage Value.
 * @tc.type: FUNC

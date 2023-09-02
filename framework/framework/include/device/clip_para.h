@@ -53,6 +53,8 @@ public:
     bool GetPullEvent();
     bool GetPullEventResult();
     bool GetPasted();
+    bool GetActiveSync();
+    uint8_t GetFrameNum();
 
     void SetLastLocalSyncKey(const std::string lastSyncKey);
     void SetLastRemoteSyncKey(const std::string lastRemoteSyncKey);
@@ -66,6 +68,8 @@ public:
     void SetPullEventResult(const bool isPullEventResult);
     void SetPasted(const bool isPasted);
     void UpdateStageValue(const uint64_t &expiration, bool isPasting);
+    void SetActiveSync(const bool activeSync);
+    void SetFrameNum(const uint8_t frameNum);
 
 private:
     ClipPara();
@@ -79,6 +83,8 @@ private:
     std::atomic<bool> isPullEvent_ = false;
     std::atomic<bool> isPullEventResult_ = false;
     std::atomic<bool> isPasted_ = false;
+    std::atomic<bool> activeSync_ = false;
+    std::atomic<uint8_t> frameNum_ = 0;
     std::atomic<uint64_t> localExpiration_ = 0;
     std::atomic<uint64_t> remoteExpiration_ = 0;
     std::atomic<uint32_t> firstStageValue_ = 2;
