@@ -182,6 +182,21 @@ HWTEST_F(ClipParaTest, HasRemoteData_001, TestSize.Level0)
 }
 
 /**
+* @tc.name: GetActiveSync
+* @tc.desc: Test GetActiveSync.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(ClipParaTest, GetActiveSync_001, TestSize.Level0)
+{
+    ClipPara::GetInstance().InitMemberVariable();
+    bool activeSync;
+    activeSync = ClipPara::GetInstance().GetActiveSync();
+    ASSERT_FALSE(activeSync);
+}
+
+/**
 * @tc.name: UpdateStageValue_001
 * @tc.desc: Update Stage Value.
 * @tc.type: FUNC

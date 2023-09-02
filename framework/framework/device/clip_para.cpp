@@ -105,6 +105,12 @@ bool ClipPara::GetPasted()
     return isPasted_.load();
 }
 
+bool ClipPara::GetActiveSync()
+{
+    return activeSync_.load();
+}
+
+
 void ClipPara::SetLastLocalSyncKey(const std::string lastSyncKey)
 {
     std::lock_guard<decltype(mutex_)> lockGuard(mutex_);

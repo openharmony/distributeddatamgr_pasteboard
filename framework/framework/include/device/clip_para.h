@@ -79,6 +79,8 @@ private:
     std::atomic<bool> isPullEvent_ = false;
     std::atomic<bool> isPullEventResult_ = false;
     std::atomic<bool> isPasted_ = false;
+    std::atomic<bool> activeSync_ = false;
+    std::atomic<uint8_t> frameNum_ = 0;
     std::atomic<uint64_t> localExpiration_ = 0;
     std::atomic<uint64_t> remoteExpiration_ = 0;
     std::atomic<uint32_t> firstStageValue_ = 2;
