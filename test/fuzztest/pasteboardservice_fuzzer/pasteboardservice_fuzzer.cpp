@@ -32,8 +32,6 @@ using namespace OHOS::MiscServices;
 namespace OHOS {
 constexpr size_t THRESHOLD = 10;
 constexpr int32_t OFFSET = 4;
-constexpr size_t RANDNUM_ZERO = 0;
-constexpr size_t RANDNUM_ONE = 1;
 const std::u16string PASTEBOARDSERVICE_INTERFACE_TOKEN = u"ohos.miscservices.pasteboard.IPasteboardService";
 
 uint32_t ConvertToUint32(const uint8_t *ptr)
@@ -53,6 +51,7 @@ bool FuzzPasteboardService(const uint8_t *rawData, size_t size)
 
     MessageParcel data;
     data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    data.WriteInt32(size);
     data.WriteBuffer(rawData, size);
     data.RewindRead(0);
     MessageParcel reply;
@@ -65,34 +64,16 @@ bool FuzzPasteboardService(const uint8_t *rawData, size_t size)
 
 bool FuzzPasteboardServiceOnSetPasteData(const uint8_t *rawData, size_t size)
 {
-    PasteData pasteData;
-    uint32_t code = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
-    std::string str(reinterpret_cast<const char *>(rawData), size);
-    switch (code) {
-        case RANDNUM_ZERO:
-            pasteData.AddTextRecord(str);
-            break;
-        case RANDNUM_ONE:
-            pasteData.AddHtmlRecord(str);
-            break;
-        default:
-            pasteData.AddUriRecord(Uri(str));
-            break;
-    }
 
     MessageParcel data;
+    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    data.WriteInt32(size);
+    data.WriteBuffer(rawData, size);
+    data.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
-    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
-    std::vector<uint8_t> pasteDataTlv(0);
-    pasteData.Encode(pasteDataTlv);
-    data.WriteInt32(pasteDataTlv.size());
-    data.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size());
-
-    CopyUriHandler copyHandler;
-    pasteData.WriteUriFd(data, copyHandler);
 
     std::make_shared<PasteboardService>()->OnRemoteRequest(
         static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_PASTE_DATA), data, reply, option);
