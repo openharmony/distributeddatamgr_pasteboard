@@ -281,12 +281,34 @@ bool PasteboardService::HasPastePermission(
             return false;
         }
     }
-    return true;
+    auto isDataAged = IsDataAged();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsDataAged = %{public}d", isDataAged);
+    return isDataAged;
 }
 
 bool PasteboardService::IsDataAged()
 {
-    return false;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsDataAging start");
+    auto userId = GetCurrentAccountId();
+    if (userId == ERROR_USERID) {
+        return false;
+    }
+    auto it = copyTime_.find(userId);
+    if (it == copyTime_.end()) {
+        return false;
+    }
+    auto copyTime = it->second;
+    auto curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    if (curTime - copyTime > ONE_HOUR_MILLISECONDS) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
+        auto data = clips_.find(userId);
+        if (data != clips_.end()) {
+            clips_.erase(data);
+        }
+        copyTime_.erase(it);
+        return false;
+    }
+    return true;
 }
 
 AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
@@ -414,6 +436,8 @@ bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isF
         isRemote = true;
         pastData->SetRemote(isRemote);
         clips_.insert_or_assign(appInfo.userId, pastData);
+        auto curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        copyTime_.insert_or_assign(appInfo.userId, curTime);
     }
     data.SetRemote(isRemote);
     return CheckPasteData(appInfo, data, isFocusedApp);
@@ -641,6 +665,8 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.insert_or_assign(appInfo.userId, pasteData);
+    auto curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    copyTime_.insert_or_assign(appInfo.userId, curTime);
     SetDistributedData(appInfo.userId, *pasteData);
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(*pasteData);
