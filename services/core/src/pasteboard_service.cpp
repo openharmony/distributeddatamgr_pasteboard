@@ -284,6 +284,11 @@ bool PasteboardService::HasPastePermission(
     return true;
 }
 
+bool PasteboardService::IsDataAged()
+{
+    return false;
+}
+
 AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
 {
     AppInfo info;

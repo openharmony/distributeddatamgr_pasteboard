@@ -132,7 +132,7 @@ private:
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
     static std::string GetTime();
-    static bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
+    bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static bool IsDefaultIME(const AppInfo &appInfo);
