@@ -288,7 +288,7 @@ bool PasteboardService::HasPastePermission(
 
 bool PasteboardService::IsDataAged()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsDataAging start");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsDataAged start");
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         return false;
