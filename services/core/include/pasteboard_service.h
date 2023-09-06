@@ -92,6 +92,7 @@ private:
     static constexpr uint32_t OPEN_P2P_SLEEP_TIME = 5;
     static constexpr int TRANMISSION_BASELINE = 30 * 1024 * 1024;
     static constexpr int MIN_TRANMISSION_TIME = 35;
+    static constexpr int64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     struct classcomp {
         bool operator()(const sptr<IPasteboardChangedObserver> &l, const sptr<IPasteboardChangedObserver> &r) const
         {
@@ -132,7 +133,8 @@ private:
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
     static std::string GetTime();
-    static bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
+    bool IsDataAged();
+    bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static bool IsDefaultIME(const AppInfo &appInfo);
@@ -154,6 +156,7 @@ private:
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
     std::map<int32_t, std::vector<int32_t>> hints_;
+    std::map<int32_t, int64_t> copyTime_;
     std::set<std::string> readBundles_;
 
     std::recursive_mutex mutex;
