@@ -13,17 +13,19 @@
  * limitations under the License.
  */
 
+ import { ToastInfo } from '../ServiceExtAbility/ToastExtensionAbility';
+
 @Entry
 @Component
 struct Index {
-  @State fromAppName: string = 'Unknown'
-  @State toAppName: string = 'Unknown'
-  @State toastHeight: number = 0
+  @State fromAppName: string = 'Unknown';
+  @State toAppName: string = 'Unknown';
+  @State toastHeight: number = 0;
 
   async aboutToAppear() {
-    this.fromAppName = globalThis.toastInfo.fromAppName
-    this.toAppName = globalThis.toastInfo.toAppName
-    this.toastHeight = globalThis.toastInfo.displayHeight
+    this.fromAppName = ToastInfo.getInstance().fromAppName;
+    this.toAppName = ToastInfo.getInstance().toAppName;
+    this.toastHeight = ToastInfo.getInstance().displayHeight;
   }
 
   build() {

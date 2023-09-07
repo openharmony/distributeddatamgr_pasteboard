@@ -13,27 +13,30 @@
  * limitations under the License.
  */
 import prompt from '@ohos.promptAction';
+import { DialogInfo } from '../ServiceExtAbility/DialogExtensionAbility';
+import GlobalContext from '../ServiceExtAbility/GlobalParam';
+import { GlobalExtensionWindow } from '../ServiceExtAbility/GlobalParam';
 
 @Entry
 @Component
 struct Index {
-  @State appName: string = 'Unknown'
-  @State deviceType: string = 'Unknown'
-  @State progressAngle: number = 0
+  @State appName: string = 'Unknown';
+  @State deviceType: string = 'Unknown';
+  @State progressAngle: number = 0;
 
   async aboutToAppear() {
-    this.appName = globalThis.dialogInfo.appName
-    this.deviceType = globalThis.dialogInfo.deviceType
-    this.playRingAnimation()
+    this.appName = DialogInfo.getInstance().appName;
+    this.deviceType = DialogInfo.getInstance().deviceType;
+    this.playRingAnimation();
   }
 
   playRingAnimation() {
     let action = () => {
-      let keyframeAngle = this.progressAngle + 15
-      this.progressAngle = keyframeAngle > 360 ? keyframeAngle - 360 : keyframeAngle
-      this.playRingAnimation()
+      let keyframeAngle = this.progressAngle + 15;
+      this.progressAngle = keyframeAngle > 360 ? keyframeAngle - 360 : keyframeAngle;
+      this.playRingAnimation();
     }
-    setTimeout(action, 500)
+    setTimeout(action, 500);
   }
 
   build() {
@@ -99,8 +102,8 @@ struct Index {
               duration: 1000
             });
             setTimeout(() => {
-              globalThis.extensionWin.destroy()
-              globalThis.context.terminateSelf()
+              GlobalExtensionWindow.getInstance().extensionWin.destroy()
+              GlobalContext.getInstance().context.terminateSelf()
             }, 1000)
           })
         }

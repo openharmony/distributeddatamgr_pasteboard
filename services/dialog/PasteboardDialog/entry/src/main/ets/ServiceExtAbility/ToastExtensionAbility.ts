@@ -18,6 +18,8 @@ import window from '@ohos.window';
 import display from '@ohos.display';
 import ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility';
 import type Want from '@ohos.application.Want';
+import GlobalContext from './GlobalParam';
+import { GlobalExtensionWindow } from './GlobalParam';
 
 interface IRect {
   left: number;
@@ -35,10 +37,25 @@ class ToastStub extends rpc.RemoteObject {
   }
 }
 
+export class ToastInfo {
+  public fromAppName: string = '';
+  public toAppName: string = '';
+  public displayHeight: number = 0;
+  private static toastInfo: ToastInfo;
+
+  public static getInstance(): ToastInfo {
+    if (ToastInfo.toastInfo == null) {
+      ToastInfo.toastInfo = new ToastInfo();
+    }
+
+    return ToastInfo.toastInfo;
+  }
+}
+
 export default class ToastExtensionAbility extends ServiceExtensionAbility {
   onCreate(want: Want): void {
     hilog.info(0, TAG, 'onCreate');
-    globalThis.context = this.context;
+    GlobalContext.getInstance().context = this.context;
   }
 
   onConnect(want: Want): ToastStub {
@@ -52,11 +69,9 @@ export default class ToastExtensionAbility extends ServiceExtensionAbility {
           width: display.width,
           height: display.height,
         };
-        globalThis.toastInfo = {
-          fromAppName: want.parameters.fromAppName,
-          toAppName: want.parameters.toAppName,
-          displayHeight:display.height / display.densityPixels - DISTANCE_NUMBER,
-        };
+        ToastInfo.getInstance().fromAppName = want.parameters.fromAppName;
+        ToastInfo.getInstance().toAppName = want.parameters.toAppName;
+        ToastInfo.getInstance().displayHeight = display.height / display.densityPixels - DISTANCE_NUMBER;
         this.createToastWindow('PasteboardToast' + new Date().getTime(), toastRect);
       })
       .catch((err) => {
@@ -77,8 +92,8 @@ export default class ToastExtensionAbility extends ServiceExtensionAbility {
 
   onDestroy(): void {
     hilog.info(0, TAG, 'onDestroy');
-    globalThis.extensionWin.destroyWindow();
-    globalThis.context.terminateSelf();
+    GlobalExtensionWindow.getInstance().extensionWin.destroyWindow();
+    GlobalContext.getInstance().context.terminateSelf();
   }
 
   private async createToastWindow(name: string, rect: IRect): Promise<void> {
@@ -101,7 +116,7 @@ export default class ToastExtensionAbility extends ServiceExtensionAbility {
           return;
         }
         windowClass = data;
-        globalThis.extensionWin = data;
+        GlobalExtensionWindow.getInstance().extensionWin = data;
         hilog.info(0, TAG, 'Succeeded in creating the window. Data: ' + JSON.stringify(data));
         try {
           windowClass.setUIContent('pages/toastIndex', (err) => {

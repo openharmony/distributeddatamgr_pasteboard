@@ -18,6 +18,8 @@ import window from '@ohos.window';
 import display from '@ohos.display';
 import ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility';
 import type Want from '@ohos.application.Want';
+import GlobalContext from './GlobalParam';
+import { GlobalExtensionWindow } from './GlobalParam';
 
 interface IRect {
   left: number;
@@ -35,18 +37,30 @@ class DialogStub extends rpc.RemoteObject {
   }
 }
 
+export class DialogInfo {
+  public appName: string = '';
+  public deviceType: string = '';
+  private static dialogInfo: DialogInfo;
+
+  public static getInstance(): DialogInfo {
+    if (DialogInfo.dialogInfo == null) {
+      DialogInfo.dialogInfo = new DialogInfo();
+    }
+
+    return DialogInfo.dialogInfo;
+  }
+}
+
 export default class DialogExtensionAbility extends ServiceExtensionAbility {
   onCreate(want: Want): void {
     hilog.info(0, TAG, 'onCreate');
-    globalThis.context = this.context;
+    GlobalContext.getInstance().context = this.context;
   }
 
   onConnect(want: Want): DialogStub {
     hilog.info(0, TAG, 'onConnect');
-    globalThis.dialogInfo = {
-      appName: want.parameters.appName,
-      deviceType: want.parameters.deviceType,
-    };
+    DialogInfo.getInstance().appName = want.parameters.appName;
+    DialogInfo.getInstance().deviceType = want.parameters.deviceType;
     display
       .getDefaultDisplay()
       .then((display: display.Display) => {
@@ -76,8 +90,8 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
 
   onDestroy(): void {
     hilog.info(0, TAG, 'onDestroy');
-    globalThis.extensionWin.destroyWindow();
-    globalThis.context.terminateSelf();
+    GlobalExtensionWindow.getInstance().extensionWin.destroyWindow();
+    GlobalContext.getInstance().context.terminateSelf();
   }
 
   private async createFloatWindow(name: string, rect: IRect): Promise<void> {
@@ -100,7 +114,7 @@ export default class DialogExtensionAbility extends ServiceExtensionAbility {
           return;
         }
         windowClass = data;
-        globalThis.extensionWin = data;
+        GlobalExtensionWindow.getInstance().extensionWin = data;
         hilog.info(0, TAG, 'Succeeded in creating the window. Data: ' + JSON.stringify(data));
         try {
           windowClass.setUIContent('pages/index', (err) => {
