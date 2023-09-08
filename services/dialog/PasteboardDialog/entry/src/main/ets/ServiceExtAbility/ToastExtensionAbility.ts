@@ -18,8 +18,7 @@ import window from '@ohos.window';
 import display from '@ohos.display';
 import ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility';
 import type Want from '@ohos.application.Want';
-import GlobalContext from './GlobalParam';
-import { GlobalExtensionWindow } from './GlobalParam';
+import GlobalContext, { GlobalExtensionWindow } from './GlobalParam';
 
 interface IRect {
   left: number;

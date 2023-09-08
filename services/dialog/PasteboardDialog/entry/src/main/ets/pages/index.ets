@@ -14,8 +14,7 @@
  */
 import prompt from '@ohos.promptAction';
 import { DialogInfo } from '../ServiceExtAbility/DialogExtensionAbility';
-import GlobalContext from '../ServiceExtAbility/GlobalParam';
-import { GlobalExtensionWindow } from '../ServiceExtAbility/GlobalParam';
+import GlobalContext, { GlobalExtensionWindow } from '../ServiceExtAbility/GlobalParam';
 
 @Entry
 @Component
