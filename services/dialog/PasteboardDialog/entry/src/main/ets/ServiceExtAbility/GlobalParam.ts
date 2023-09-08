@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2023-2023. All rights reserved.
  */
 
-import window from '@ohos.window';
+import type window from '@ohos.window';
 import type ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility';
 
 type ServiceExtensionContext = ServiceExtensionAbility['context'];
