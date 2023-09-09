@@ -514,7 +514,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         }
         auto hasGrantUriPermission = item->HasGrantUriPermission();
         if (uri == nullptr || (!isBundleOwnUriPermission(data.GetOrginAuthority(), *uri) && !hasGrantUriPermission)) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not grant permission: %{public}d.", hasGrantUriPermission());
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not grant permission: %{public}d.", hasGrantUriPermission);
             continue;
         }
         auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
