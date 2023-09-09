@@ -91,7 +91,7 @@ private:
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     static constexpr uint32_t OPEN_P2P_SLEEP_TIME = 5;
     static constexpr int TRANMISSION_BASELINE = 30 * 1024 * 1024;
-    static constexpr int MIN_TRANMISSION_TIME = 35;
+    static constexpr int MIN_TRANMISSION_TIME = 600;
     static constexpr int64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     struct classcomp {
         bool operator()(const sptr<IPasteboardChangedObserver> &l, const sptr<IPasteboardChangedObserver> &r) const
@@ -166,6 +166,7 @@ private:
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
+    static std::atomic<bool> isP2pOpen_;
     std::atomic<bool> setting_ = false;
     std::mutex remoteMutex_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;

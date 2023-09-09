@@ -67,6 +67,7 @@ std::mutex PasteboardService::historyMutex_;
 std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
+std::atomic<bool> PasteboardService::isP2pOpen_ = false;
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
@@ -445,7 +446,6 @@ bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isF
 
 bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
-    auto isRemote = data.IsRemote();
     {
         std::lock_guard<std::recursive_mutex> lock(clipMutex_);
         auto it = clips_.find(appInfo.userId);
@@ -463,7 +463,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get remote fileSize %{public}d", fileSize);
-    if (isRemote && fileSize > 0) {
+    if (data.IsRemote() && fileSize > 0 && isP2pOpen_.exchange(false)) {
         EstablishP2PLink(fileSize);
         std::this_thread::sleep_for(std::chrono::seconds(OPEN_P2P_SLEEP_TIME));
     }
@@ -484,8 +484,10 @@ void PasteboardService::EstablishP2PLink(int fileSize)
     std::thread thread([this, remoteDevice, keepLinkTime]() mutable {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
         DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
+        isP2pOpen_.store(true);
         std::this_thread::sleep_for(std::chrono::seconds(keepLinkTime));
         DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
+        isP2pOpen_.store(false);
     });
     thread.detach();
 }
@@ -510,10 +512,9 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         } else if (!item->isConvertUriFromRemote && item->GetOrginUri() != nullptr) {
             uri = item->GetOrginUri();
         }
-        if (uri == nullptr || (!isBundleOwnUriPermission(data.GetOrginAuthority(), *uri)
-            && !item->HasGrantUriPermission())) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "do not grant permission: %{public}d.",
-                item->HasGrantUriPermission());
+        auto hasGrantUriPermission = item->HasGrantUriPermission();
+        if (uri == nullptr || (!isBundleOwnUriPermission(data.GetOrginAuthority(), *uri) && !hasGrantUriPermission)) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not grant permission: %{public}d.", hasGrantUriPermission());
             continue;
         }
         auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
@@ -1199,6 +1200,7 @@ void PasteboardService::OnConfigChange(bool isOn)
         clipPlugin_ = nullptr;
         return;
     }
+    isP2pOpen_.store(false);
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
