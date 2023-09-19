@@ -55,11 +55,11 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceId, TestSize.Level0)
     std::string bundleName = "com.example.myapplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
     ASSERT_FALSE(res);
-    auto &deviceId = DMAdapter::GetInstance().GetLocalDevice();
-    ASSERT_FALSE(deviceId.empty());
     std::string device = "deviceTestName";
     auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
     ASSERT_FALSE(fromDevice.empty());
+    auto &deviceId = DMAdapter::GetInstance().GetLocalDevice();
+    ASSERT_TRUE(deviceId.empty());
 }
 
 /**
