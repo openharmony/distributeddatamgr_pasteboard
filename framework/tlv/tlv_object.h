@@ -269,7 +269,7 @@ private:
     template<typename T>
     bool ReadBasicValue(const std::vector<std::uint8_t> &buffer, T &value, const TLVHead &head)
     {
-        if (head.len == 0 || head.len != sizeof(T)) {
+        if (head.len != sizeof(T) || head.len == 0) {
             return false;
         }
         if (!HasExpectBuffer(buffer, head.len)) {

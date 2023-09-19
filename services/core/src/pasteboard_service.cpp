@@ -462,8 +462,9 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
         data = *(it->second);
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get remote fileSize %{public}d", fileSize);
-    if (data.IsRemote() && fileSize > 0 && isP2pOpen_.exchange(false)) {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d , fileSize=%{public}d, isP2pOpen_=%{public}d",
+        data.IsRemote(), fileSize, isP2pOpen_.load());
+    if (data.IsRemote() && fileSize > 0 && !isP2pOpen_.load()) {
         EstablishP2PLink(fileSize);
         std::this_thread::sleep_for(std::chrono::seconds(OPEN_P2P_SLEEP_TIME));
     }
@@ -642,7 +643,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     if (!IsCopyable(tokenId)) {
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
     }
-    if (setting_.exchange(true)) {
+    if (setting_.load()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is setting.");
         return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);
     }
