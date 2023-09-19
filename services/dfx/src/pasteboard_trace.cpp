@@ -45,7 +45,7 @@ PasteboardTrace::~PasteboardTrace()
 
 bool PasteboardTrace::SetBytraceEnable() const
 {
-    if (isSetBytraceEnabled_.exchange(true)) {
+    if (isSetBytraceEnabled_.load()) {
         return true;
     }
     UpdateTraceLabel();
