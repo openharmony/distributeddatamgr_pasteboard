@@ -30,7 +30,10 @@ namespace MiscServicesNapi {
 static thread_local napi_ref g_systemPasteboard = nullptr;
 static thread_local napi_ref g_systemPasteboard_instance = nullptr;
 thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
+constexpr int ARGC_TYPE_SET0 = 0;
+constexpr int ARGC_TYPE_SET1 = 1;
 constexpr size_t MAX_ARGS = 6;
+constexpr size_t SYNC_TIMEOUT = 5;
 const std::string STRING_UPDATE = "update";
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref) : env_(env), ref_(ref)
 {
@@ -405,6 +408,108 @@ napi_value SystemPasteboardNapi::SetData(napi_env env, napi_callback_info info)
     return asyncCall.Call(env, exec);
 }
 
+napi_value SystemPasteboardNapi::IsRemoteData(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi IsRemoteData() is called!");
+    size_t argc = MAX_ARGS;
+    napi_value argv[MAX_ARGS] = { 0 };
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    if (!CheckExpression(env, argc >= ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Wrong number of arguments.")) {
+        return nullptr;
+    }
+
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    std::thread thread([block]() {
+        auto ret = PasteboardClient::GetInstance()->IsRemoteData();
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "value=%{public}d", ret);
+        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+        block->SetValue(value);
+    });
+    thread.detach();
+    auto value = block->GetValue();
+    if (value == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out");
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_get_boolean(env, *value, &result);
+    return result;
+}
+
+napi_value SystemPasteboardNapi::GetDataSource(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetDataSource() is called!");
+    size_t argc = MAX_ARGS;
+    napi_value argv[MAX_ARGS] = { 0 };
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    if (!CheckExpression(env, argc >= ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Wrong number of arguments.")) {
+        return nullptr;
+    }
+    std::string bundleName;
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    std::thread thread([block, &bundleName]() mutable {
+        auto ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
+        std::shared_ptr<int> value = std::make_shared<int>(ret);
+        block->SetValue(value);
+    });
+    thread.detach();
+    auto value = block->GetValue();
+    if (value == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSource failed.");
+        return nullptr;
+    }
+
+    if (*value != static_cast<int>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataSource, failed, ret = %{public}d", *value);
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_create_string_utf8(env, bundleName.c_str(), NAPI_AUTO_LENGTH, &result);
+    return result;
+}
+
+napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi HasDataType() is called!");
+    size_t argc = 1;
+    napi_value argv[1] = { 0 };
+    napi_value thisVar = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    if ((!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
+         "Parameter error. Wrong number of arguments.")) ||
+        (!CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string."))) {
+        return nullptr;
+    }
+
+    std::string mimeType;
+    if (!GetValue(env, argv[0], mimeType)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue!");
+        return nullptr;
+    }
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    std::thread thread([block, mimeType]() {
+        auto ret = PasteboardClient::GetInstance()->HasDataType(mimeType);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ret = %{public}d", ret);
+        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+        block->SetValue(value);
+    });
+    thread.detach();
+    auto value = block->GetValue();
+    if (value == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out, hasDataType failed.");
+        return nullptr;
+    }
+    napi_value result = nullptr;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "value = %{public}d", *value);
+    napi_get_boolean(env, *value, &result);
+    return result;
+}
+
 napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value exports)
 {
     napi_status status = napi_ok;
@@ -419,6 +524,9 @@ napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value e
         DECLARE_NAPI_FUNCTION("getData", GetData),
         DECLARE_NAPI_FUNCTION("hasData", HasData),
         DECLARE_NAPI_FUNCTION("setData", SetData),
+        DECLARE_NAPI_FUNCTION("isRemoteData", IsRemoteData),
+        DECLARE_NAPI_FUNCTION("getDataSource", GetDataSource),
+        DECLARE_NAPI_FUNCTION("hasDataType", HasDataType),
     };
     napi_value constructor;
     napi_define_class(env, "SystemPasteboard", NAPI_AUTO_LENGTH, New, nullptr,

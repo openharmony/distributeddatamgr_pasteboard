@@ -14,6 +14,7 @@
  */
 #include "pasteboard_service.h"
 
+#include <bitset>
 #include <unistd.h>
 
 #include "ability_manager_client.h"
@@ -635,6 +636,83 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
     return SavePasteData(data);
 }
 
+bool PasteboardService::HasDataType(const std::string &mimeType)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    auto hasData = HasPasteData();
+    if (!hasData) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is not exist");
+        return false;
+    }
+    auto userId = GetCurrentAccountId();
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
+    auto it = clips_.find(userId);
+    if (it == clips_.end()) {
+        return HasDistributedDataType(mimeType);
+    }
+    if (it->second == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr");
+        return false;
+    }
+    std::vector<std::string> mimeTypes = it->second->GetMimeTypes();
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "type is %{public}s", mimeType.c_str());
+    if (std::find(mimeTypes.begin(), mimeTypes.end(), mimeType) == mimeTypes.end()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "type is not exist");
+        return false;
+    }
+
+    return true;
+}
+
+bool PasteboardService::HasDistributedDataType(const std::string &mimeType)
+{
+    auto value = currentEvent_.dataType;
+    std::bitset<MAX_INDEX_LENGTH> dataType(value);
+    auto it = typeMap_.find(mimeType);
+    if (it == typeMap_.end()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mimetype is not exist");
+        return false;
+    }
+    auto index = it->second;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "index = %{public}d", index);
+    return dataType[index];
+}
+
+bool PasteboardService::IsRemoteData()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    auto userId = GetCurrentAccountId();
+    if (userId == ERROR_USERID) {
+        return false;
+    }
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
+    auto it = clips_.find(userId);
+    if (it == clips_.end()) {
+        return HasDistributedData(userId);
+    }
+    return it->second->IsRemote();
+}
+
+int32_t PasteboardService::GetDataSource(std::string &bundleName)
+{
+    auto userId = GetCurrentAccountId();
+    if (userId == ERROR_USERID) {
+        return static_cast<int32_t>(PasteboardError::E_ERROR);
+    }
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
+    auto it = clips_.find(userId);
+    if (it == clips_.end()) {
+        return static_cast<int32_t>(PasteboardError::E_REMOTE);
+    }
+    auto data = it->second;
+    if (data->IsRemote()) {
+        return static_cast<int32_t>(PasteboardError::E_REMOTE);
+    }
+    auto tokenId = data->GetTokenId();
+    bundleName = GetAppLabel(tokenId);
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
 int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
@@ -643,7 +721,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     if (!IsCopyable(tokenId)) {
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
     }
-    if (setting_.load()) {
+    if (setting_.exchange(true)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is setting.");
         return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);
     }
@@ -1117,9 +1195,30 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
     event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
+    event.dataType = GenerateDataType(data);
     currentEvent_ = event;
     clipPlugin->SetPasteData(event, rawData);
     return true;
+}
+
+uint8_t PasteboardService::GenerateDataType(PasteData &data)
+{
+    std::vector<std::string> mimeTypes = data.GetMimeTypes();
+    if (mimeTypes.empty()) {
+        return 0;
+    }
+    std::bitset<MAX_INDEX_LENGTH> dataType(0);
+    for (size_t i = 0; i < mimeTypes.size(); i++) {
+        auto it = typeMap_.find(mimeTypes[i]);
+        if (it != typeMap_.end()) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist i=%{public}zu", i);
+            dataType.set(it->second);
+        }
+    }
+    auto types = dataType.to_ulong();
+    uint8_t value = types & 0xff;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "value = %{public}d", value);
+    return value;
 }
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)

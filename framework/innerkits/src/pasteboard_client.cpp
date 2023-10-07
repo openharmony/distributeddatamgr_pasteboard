@@ -29,7 +29,6 @@
 #include "system_ability_definition.h"
 #include "web_clipboard_controller.h"
 
-
 using namespace OHOS::Media;
 
 namespace OHOS {
@@ -300,6 +299,44 @@ void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> ca
     }
     pasteboardServiceProxy_->RemovePasteboardEventObserver(callback);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+}
+
+bool PasteboardClient::IsRemoteData()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "IsRemoteData start.");
+    if (!IsServiceAvailable()) {
+        return false;
+    }
+    auto ret = pasteboardServiceProxy_->IsRemoteData();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "IsRemoteData end.");
+    return ret;
+}
+
+int32_t PasteboardClient::GetDataSource(std::string &bundleName)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataSource start.");
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    int32_t ret = pasteboardServiceProxy_->GetDataSource(bundleName);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataSource end.");
+    return ret;
+}
+
+bool PasteboardClient::HasDataType(const std::string &mimeType)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "HasDataType start.");
+    if (!IsServiceAvailable()) {
+        return false;
+    }
+    if (mimeType.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "parameter is invalid");
+        return false;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "type is %{public}s", mimeType.c_str());
+    bool ret = pasteboardServiceProxy_->HasDataType(mimeType);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "HasDataType end.");
+    return ret;
 }
 
 inline bool PasteboardClient::IsServiceAvailable()

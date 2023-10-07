@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,9 +45,13 @@ private:
     int32_t OnAddPasteboardEventObserver(MessageParcel &data, MessageParcel &reply);
     int32_t OnRemovePasteboardEventObserver(MessageParcel &data, MessageParcel &reply);
     int32_t OnRemoveAllEventObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t OnIsRemoteData(MessageParcel &data, MessageParcel &reply);
+    int32_t OnGetDataSource(MessageParcel &data, MessageParcel &reply);
+    int32_t OnHasDataType(MessageParcel &data, MessageParcel &reply);
     inline bool IsObserverValid(MessageParcel &data, sptr<IPasteboardChangedObserver> &callback);
 
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
+    static constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;
 };
 } // namespace MiscServices
 } // namespace OHOS

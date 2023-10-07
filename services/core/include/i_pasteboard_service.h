@@ -28,6 +28,9 @@ public:
     virtual int32_t GetPasteData(PasteData &data) = 0;
     virtual bool HasPasteData() = 0;
     virtual int32_t SetPasteData(PasteData &pasteData) = 0;
+    virtual bool IsRemoteData() = 0;
+    virtual int32_t GetDataSource(std::string &bundleName) = 0;
+    virtual bool HasDataType(const std::string &mimeType) = 0;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) = 0;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) = 0;
     virtual void RemoveAllChangedObserver() = 0;

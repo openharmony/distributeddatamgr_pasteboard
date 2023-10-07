@@ -49,6 +49,12 @@ PasteboardServiceStub::PasteboardServiceStub()
         &PasteboardServiceStub::OnRemovePasteboardEventObserver;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_ALL_EVENT_OBSERVER)] =
         &PasteboardServiceStub::OnRemoveAllEventObserver;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::IS_REMOTE_DATA)] =
+            &PasteboardServiceStub::OnIsRemoteData;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_DATA_SOURCE)] =
+            &PasteboardServiceStub::OnGetDataSource;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::HAS_DATA_TYPE)] =
+            &PasteboardServiceStub::OnHasDataType;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -237,6 +243,46 @@ inline bool PasteboardServiceStub::IsObserverValid(MessageParcel &data, sptr<IPa
         return false;
     }
     return true;
+}
+
+int32_t PasteboardServiceStub::OnIsRemoteData(MessageParcel &data, MessageParcel &reply)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
+    auto result = IsRemoteData();
+    reply.WriteBool(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnGetDataSource(MessageParcel &data, MessageParcel &reply)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
+    std::string bundleName;
+    auto ret = GetDataSource(bundleName);
+    if (bundleName.empty() || bundleName.length() > MAX_BUNDLE_NAME_LENGTH) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get bundleName");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteString(bundleName)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to writeName result");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(ret)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to OnGetResourceApp result");
+        return ERR_INVALID_VALUE;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnHasDataType(MessageParcel &data, MessageParcel &reply)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
+    std::string mimeType = data.ReadString();
+    auto ret = HasDataType(mimeType);
+    reply.WriteBool(ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    return ERR_OK;
 }
 
 PasteboardServiceStub::~PasteboardServiceStub()
