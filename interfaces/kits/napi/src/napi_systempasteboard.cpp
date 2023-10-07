@@ -481,7 +481,7 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if ((!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
-         "Parameter error. Wrong number of arguments.")) ||
+        "Parameter error. Wrong number of arguments.")) ||
         (!CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string."))) {
         return nullptr;
     }
