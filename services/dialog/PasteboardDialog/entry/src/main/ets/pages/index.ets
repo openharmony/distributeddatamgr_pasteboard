@@ -101,8 +101,12 @@ struct Index {
               duration: 1000
             });
             setTimeout(() => {
-              GlobalExtensionWindow.getInstance().extensionWin.destroy()
-              GlobalContext.getInstance().context.terminateSelf()
+              if (GlobalExtensionWindow.getInstance().extensionWin != null) {
+                GlobalExtensionWindow.getInstance().extensionWin.destroy()
+              }
+              if (GlobalContext.getInstance().context != null) {
+                GlobalContext.getInstance().context.terminateSelf()
+              }
             }, 1000)
           })
         }
