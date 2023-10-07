@@ -498,8 +498,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
 {
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
-        if (item == nullptr || (!data.IsRemote()
-            && targetBundleName.compare(data.GetOrginAuthority()) == 0)) {
+        if (item == nullptr || (!data.IsRemote() && targetBundleName.compare(data.GetOrginAuthority()) == 0)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "local dev & local app");
             continue;
         }
