@@ -544,8 +544,8 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
     napi_value thisVar = nullptr;
  
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(
-        env, argc >= 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
+    if (!CheckExpression(env, argc >= 0, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Wrong number of arguments.")) {
         return nullptr;
     }
 
@@ -585,8 +585,8 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
     napi_value thisVar = nullptr;
  
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(
-        env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Wrong number of arguments.") ||
         !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
         "Parameter error. The Type of data must be pasteData.")) {
         return nullptr;
