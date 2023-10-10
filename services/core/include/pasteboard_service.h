@@ -115,6 +115,7 @@ private:
     bool GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
     bool CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
     bool GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
+    void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(PasteData &lastData);
     void GenerateDistributedUri(PasteData &data);

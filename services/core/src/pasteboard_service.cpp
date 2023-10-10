@@ -54,6 +54,7 @@ using namespace std::chrono;
 using namespace Storage::DistributedFile;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
+constexpr const int MAX_URI_COUNT = 500;
 const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
@@ -495,6 +496,53 @@ void PasteboardService::EstablishP2PLink(int fileSize)
 
 void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
 {
+    std::vector<Uri> grantUris;
+    CheckUriPermission(data, grantUris, targetBundleName);
+    if (grantUris.size() == 0) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no uri.");
+        return;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri size: %{public}u, targetBundleName is %{public}s",
+        static_cast<uint32_t>(grantUris.size()), targetBundleName.c_str());
+    auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
+    int index = grantUris.size() / MAX_URI_COUNT;
+    if (index == 0) {
+        auto permissionCode = permissionClient.GrantUriPermission(grantUris, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
+            targetBundleName, 1);
+        if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
+            readBundles_.insert(targetBundleName);
+        }
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+        return;
+    }
+    int remainder = grantUris.size() % MAX_URI_COUNT;
+    for (int i = 0; i <= index; i++) {
+        std::vector<Uri> partUrs;
+        std::vector<Uri>::const_iterator start = grantUris.begin() + i * MAX_URI_COUNT;
+        std::vector<Uri>::const_iterator end;
+        if (i < index) {
+            end = grantUris.begin() + i * MAX_URI_COUNT + MAX_URI_COUNT;
+        } else {
+            end = grantUris.begin() + i * MAX_URI_COUNT + remainder;
+        }
+        if (start == end) {
+            continue;
+        }
+        partUrs.assign(start, end);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "grant uri size:%{public}u",
+            static_cast<uint32_t>(partUrs.size()));
+        auto permissionCode = permissionClient.GrantUriPermission(partUrs, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
+            targetBundleName, 1);
+        if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
+            readBundles_.insert(targetBundleName);
+        }
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+    }
+}
+
+void PasteboardService::CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris,
+    const std::string &targetBundleName)
+{
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || (!data.IsRemote()
@@ -515,17 +563,11 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         }
         auto hasGrantUriPermission = item->HasGrantUriPermission();
         if (uri == nullptr || (!isBundleOwnUriPermission(data.GetOrginAuthority(), *uri) && !hasGrantUriPermission)) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not grant permission: %{public}d.", hasGrantUriPermission);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri is null:%{public}d, not grant permission: %{public}d.",
+                uri == nullptr, hasGrantUriPermission);
             continue;
         }
-        auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-        auto permissionCode = permissionClient.GrantUriPermission(*uri, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
-            targetBundleName, 1);
-        if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
-            readBundles_.insert(targetBundleName);
-        }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d, targetBundleName is %{public}s",
-            permissionCode, targetBundleName.c_str());
+        grantUris.emplace_back(*uri);
     }
 }
 
