@@ -1214,7 +1214,7 @@ uint8_t PasteboardService::GenerateDataType(PasteData &data)
         }
         auto index = it->second;
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist index=%{public}d", index);
-        if (it->second == HTML_INDEX) {
+        if (it->second == HTML_INDEX && data.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG) {
             dataType.reset();
             dataType.set(index);
             break;
