@@ -227,5 +227,65 @@ void PasteboardServiceProxy::ProcessObserver(uint32_t code, const sptr<IPasteboa
     }
 }
 
+bool PasteboardServiceProxy::IsRemoteData()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    MessageParcel data, reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return false;
+    }
+
+    int32_t ret = Remote()->SendRequest(PasteboardServiceInterfaceCode::IS_REMOTE_DATA, data, reply, option);
+    if (ret != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", ret);
+        return false;
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    return reply.ReadBool();
+}
+
+int32_t PasteboardServiceProxy::GetDataSource(std::string &bundleName)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    MessageParcel data, reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_DATA_SOURCE, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+        return ERR_INVALID_OPERATION;
+    }
+    bundleName = reply.ReadString();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    return reply.ReadInt32();
+}
+
+bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    MessageParcel data, reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteString(mimeType)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::HAS_DATA_TYPE, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+        return ERR_INVALID_OPERATION;
+    }
+
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    return reply.ReadBool();
+}
 } // namespace MiscServices
 } // namespace OHOS

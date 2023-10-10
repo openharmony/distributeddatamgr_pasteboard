@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -140,6 +140,13 @@ private:
     static napi_value GetData(napi_env env, napi_callback_info info);
     static napi_value SetData(napi_env env, napi_callback_info info);
     static napi_value HasData(napi_env env, napi_callback_info info);
+    static napi_value IsRemoteData(napi_env env, napi_callback_info info);
+    static napi_value GetDataSource(napi_env env, napi_callback_info info);
+    static napi_value HasDataType(napi_env env, napi_callback_info info);
+    static napi_value ClearDataSync(napi_env env, napi_callback_info info);
+    static napi_value GetDataSync(napi_env env, napi_callback_info info);
+    static napi_value SetDataSync(napi_env env, napi_callback_info info);
+    static napi_value HasDataSync(napi_env env, napi_callback_info info);
     static bool CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc);
     static void SetObserver(napi_ref ref, std::shared_ptr<PasteboardObserverInstance> observer);
     static std::shared_ptr<PasteboardObserverInstance> GetObserver(napi_env env, napi_value observer);

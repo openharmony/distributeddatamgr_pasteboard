@@ -68,6 +68,9 @@ public:
     virtual int32_t GetPasteData(PasteData &data) override;
     virtual bool HasPasteData() override;
     virtual int32_t SetPasteData(PasteData &pasteData) override;
+    virtual bool IsRemoteData() override;
+    virtual bool HasDataType(const std::string &mimeType) override;
+    virtual int32_t GetDataSource(std::string &bundleNme) override;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemoveAllChangedObserver() override;
@@ -86,6 +89,12 @@ private:
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
         DISTRIBUTED_DEVICE_PROFILE_SA_ID, WINDOW_MANAGER_SERVICE_ID };
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
+    static constexpr uint32_t PLAIN_INDEX = 0;
+    static constexpr uint32_t HTML_INDEX = 1;
+    static constexpr uint32_t URI_INDEX = 2;
+    static constexpr uint32_t WANT_INDEX = 3;
+    static constexpr uint32_t PIXELMAP_INDEX = 4;
+    static constexpr uint32_t MAX_INDEX_LENGTH = 8;
     static constexpr const pid_t EDM_UID = 3057;
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
@@ -124,6 +133,8 @@ private:
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void EstablishP2PLink(int fileSize);
+    uint8_t GenerateDataType(PasteData &data);
+    bool HasDistributedDataType(const std::string &mimeType);
 
     std::shared_ptr<PasteData> GetDistributedData(int32_t user);
     bool SetDistributedData(int32_t user, PasteData &data);
@@ -171,6 +182,13 @@ private:
     std::atomic<bool> setting_ = false;
     std::mutex remoteMutex_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
+    std::map<std::string, int> typeMap_ = {
+        { MIMETYPE_TEXT_PLAIN, PLAIN_INDEX },
+        { MIMETYPE_TEXT_HTML, HTML_INDEX },
+        { MIMETYPE_TEXT_URI, URI_INDEX },
+        { MIMETYPE_TEXT_WANT, WANT_INDEX },
+        { MIMETYPE_PIXELMAP, PIXELMAP_INDEX }
+    };
 
     void AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);

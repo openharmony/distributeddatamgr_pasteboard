@@ -143,32 +143,56 @@ public:
 
     /**
      * GetPasteData
-     * @descrition
-     * @return bool.
+     * @descrition get paste data from the pasteboard.
+     * @param pasteData the object of the PasteDate.
+     * @return int32_t.
      */
     int32_t GetPasteData(PasteData &pasteData);
 
     /**
      * HasPasteData
-     * @descrition
-     * @return bool true on success, false on failure.
+     * @descrition check paste data exist in the pasteboard.
+     * @return bool. True exists, false does not exist
      */
     bool HasPasteData();
 
     /**
      * Clear
-     * @descrition Clear Current pasteboard data
-     * @return bool true on success, false on failure.
+     * @descrition Clear Current pasteboard data.
+     * @return void.
      */
     void Clear();
 
     /**
      * SetPasteData
-     * @descrition
-     * @param pasteData .
-     * @return void.
+     * @descrition set paste data to the pasteboard.
+     * @param pasteData the object of the PasteDate.
+     * @return int32_t.
      */
     int32_t SetPasteData(PasteData &pasteData);
+
+    /**
+     * IsRemoteData
+     * @descrition check if remote data.
+     * @return bool. True is remote data, else false.
+     */
+    bool IsRemoteData();
+
+    /**
+     * GetDataSource
+     * @descrition Obtain the package name of the data source application.
+     * @param std::string bundleName The package name of the application.
+     * @return int32_t.
+     */
+    int32_t GetDataSource(std::string &bundleName);
+
+    /**
+     * HasDataType
+     * @descrition Check if there is data of the specified type in the pasteboard.
+     * @param std::string mimeType Specified mimetype.
+     * @return bool. True exists, false does not exist
+     */
+    bool HasDataType(const std::string &mimeType);
 
     /**
      * AddPasteboardChangedObserver

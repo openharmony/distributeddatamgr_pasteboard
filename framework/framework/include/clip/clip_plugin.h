@@ -36,6 +36,7 @@ public:
         std::string deviceId;
         std::string account;
         std::vector<uint8_t> addition;
+        uint8_t dataType = 0;
     };
     class Factory {
     public:

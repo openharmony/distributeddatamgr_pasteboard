@@ -45,6 +45,7 @@ enum class PasteboardError : int32_t {
     E_COPY_FORBIDDEN,
     E_UNKNOWN,
     E_BUTT,
+    E_REMOTE,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -65,6 +66,7 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::E_COPY_FORBIDDEN, "E_COPY_FORBIDDEN"},
     {PasteboardError::E_UNKNOWN, "E_UNKNOWN"},
     {PasteboardError::E_BUTT, "E_BUTT"},
+    {PasteboardError::E_REMOTE, "E_REMOTE"},
 };
 
 } // namespace MiscServices

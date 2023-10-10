@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,9 @@ public:
     virtual int32_t GetPasteData(PasteData &data) override;
     virtual bool HasPasteData() override;
     virtual int32_t SetPasteData(PasteData &pasteData) override;
+    virtual bool IsRemoteData() override;
+    virtual int32_t GetDataSource(std::string &bundleName) override;
+    virtual bool HasDataType(const std::string &mimeType) override;
     virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemoveAllChangedObserver() override;

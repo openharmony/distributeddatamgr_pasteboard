@@ -30,7 +30,10 @@ enum PasteboardServiceInterfaceCode {
     DELETE_ALL_CHANGED_OBSERVER = 6,
     ADD_EVENT_OBSERVER = 7,
     DELETE_EVENT_OBSERVER = 8,
-    DELETE_ALL_EVENT_OBSERVER
+    DELETE_ALL_EVENT_OBSERVER = 9,
+    IS_REMOTE_DATA = 10,
+    GET_DATA_SOURCE = 11,
+    HAS_DATA_TYPE = 12,
 };
 
 enum PasteboardObserverInterfaceCode {
