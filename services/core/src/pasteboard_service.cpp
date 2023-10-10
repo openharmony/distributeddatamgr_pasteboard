@@ -1213,7 +1213,7 @@ uint8_t PasteboardService::GenerateDataType(PasteData &data)
             continue;
         }
         auto index = it->second;
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist index=%{public}zu", index);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist index=%{public}d", index);
         if (it->second == HTML_INDEX) {
             dataType.reset();
             dataType.set(index);
