@@ -654,13 +654,15 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
         return false;
     }
     std::vector<std::string> mimeTypes = it->second->GetMimeTypes();
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "type is %{public}s", mimeType.c_str());
-    if (std::find(mimeTypes.begin(), mimeTypes.end(), mimeType) == mimeTypes.end()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "type is not exist");
-        return false;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "type is %{public}s", mimeType.c_str());
+    auto isWebData = it->second->GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG;
+    auto isExistType = std::find(mimeTypes.begin(), mimeTypes.end(), mimeType) != mimeTypes.end();
+    if (isWebData) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "is Web Data");
+        return mimeType == MIMETYPE_TEXT_HTML && isExistType;
     }
-
-    return true;
+    
+    return isExistType;
 }
 
 bool PasteboardService::HasDistributedDataType(const std::string &mimeType)
