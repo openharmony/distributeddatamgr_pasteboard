@@ -253,6 +253,7 @@ private:
     inline bool IsServiceAvailable();
     void ConnectService();
     static void RetainUri(PasteData &pasteData);
+    static std::shared_ptr<PasteData> SplitWebviewPasteData(PasteData &pasteData);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;

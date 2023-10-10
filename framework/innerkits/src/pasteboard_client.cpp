@@ -238,6 +238,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
 std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData start.");
+    std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     std::shared_ptr<std::string> primaryText = pasteData.GetRecordAt(0)->GetPlainText();
     auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
