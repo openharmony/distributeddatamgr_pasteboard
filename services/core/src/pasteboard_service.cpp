@@ -1209,10 +1209,17 @@ uint8_t PasteboardService::GenerateDataType(PasteData &data)
     std::bitset<MAX_INDEX_LENGTH> dataType(0);
     for (size_t i = 0; i < mimeTypes.size(); i++) {
         auto it = typeMap_.find(mimeTypes[i]);
-        if (it != typeMap_.end()) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist i=%{public}zu", i);
-            dataType.set(it->second);
+        if (it == typeMap_.end()) {
+            continue;
         }
+        auto index = it->second;
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist index=%{public}zu", index);
+        if (it->second == HTML_INDEX) {
+            dataType.reset();
+            dataType.set(index);
+            break;
+        }
+        dataType.set(index);
     }
     auto types = dataType.to_ulong();
     uint8_t value = types & 0xff;
