@@ -231,7 +231,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
     auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
     webPasteData->RemoveRecordAt(webPasteData->GetRecordCount() - 1);
-    std::string mimeType = MIMETYPE_TEXT_PLAIN;
+    std::string mimeType = MIMETYPE_TEXT_HTML;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
         builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
