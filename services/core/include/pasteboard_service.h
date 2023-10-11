@@ -34,6 +34,7 @@
 #include "event_handler.h"
 #include "i_pasteboard_observer.h"
 #include "iremote_object.h"
+#include "pasteboard_common_event_subscriber.h"
 #include "paste_data.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
@@ -79,6 +80,7 @@ public:
     virtual void RemoveAllEventObserver() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
+    static int32_t currentUserId;
     size_t GetDataSize(PasteData &data) const;
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
@@ -170,6 +172,7 @@ private:
     std::map<int32_t, std::vector<int32_t>> hints_;
     std::map<int32_t, int64_t> copyTime_;
     std::set<std::string> readBundles_;
+    std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
