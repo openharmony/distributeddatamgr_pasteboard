@@ -189,7 +189,17 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
     auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
     auto webData = std::make_shared<PasteData>(pasteData);
     PasteboardWebController.RebuildHtml(webData);
+
+    std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
+    std::shared_ptr<std::string> html = webData->GetPrimaryHtml();
+    std::string mimeType = MIMETYPE_TEXT_HTML;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord =
+        builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
+    webData->AddRecord(pasteDataRecord);
+    webData->RemoveRecordAt(webData->GetRecordCount() - 1);
     pasteData = *webData;
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData end.");
 }
 
@@ -239,15 +249,15 @@ std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pa
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData start.");
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
-    std::shared_ptr<std::string> primaryText = pasteData.GetRecordAt(0)->GetPlainText();
+    std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
     auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
-    webPasteData->RemoveRecordAt(webPasteData->GetRecordCount() - 1);
     std::string mimeType = MIMETYPE_TEXT_HTML;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
         builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
     webPasteData->AddRecord(pasteDataRecord);
+    webPasteData->RemoveRecordAt(webPasteData->GetRecordCount() - 1);
     webPasteData->SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData end.");
     return webPasteData;
