@@ -21,6 +21,7 @@
 #include "accesstoken_kit.h"
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
+#include "common_event_manager.h"
 #include "common/block_object.h"
 #include "dev_manager.h"
 #include "dev_profile.h"
@@ -70,6 +71,7 @@ std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
 std::atomic<bool> PasteboardService::isP2pOpen_ = false;
+int32_t PasteboardService::currentUserId = ERROR_USERID;
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
@@ -137,6 +139,13 @@ void PasteboardService::OnStart()
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyHistory);
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyData);
 
+    if (commonEventSubscriber_ == nullptr) {
+        EventFwk::MatchingSkills matchingSkills;
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
+        EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+        commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo);
+        EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
+    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
     return;
@@ -153,6 +162,9 @@ void PasteboardService::OnStop()
 
     ParaHandle::GetInstance().WatchEnabledStatus(nullptr);
     DevManager::GetInstance().UnregisterDevCallback();
+    if (commonEventSubscriber_ != nullptr) {
+        EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
+    }
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }
@@ -210,6 +222,7 @@ void PasteboardService::Clear()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
@@ -294,6 +307,7 @@ bool PasteboardService::IsDataAged()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsDataAged start");
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return false;
     }
     auto it = copyTime_.find(userId);
@@ -319,6 +333,7 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
     AppInfo info;
     info.tokenId = tokenId;
     info.tokenType = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    info.userId = GetCurrentAccountId();
     switch (info.tokenType) {
         case ATokenTypeEnum::TOKEN_HAP: {
             HapTokenInfo hapInfo;
@@ -327,7 +342,6 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
                 return info;
             }
             info.bundleName = hapInfo.bundleName;
-            info.userId = GetCurrentAccountId();
             break;
         }
         case ATokenTypeEnum::TOKEN_NATIVE:
@@ -338,7 +352,6 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
                 return info;
             }
             info.bundleName = tokenInfo.processName;
-            info.userId = GetCurrentAccountId();
             break;
         }
         default: {
@@ -659,6 +672,7 @@ bool PasteboardService::HasPasteData()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return false;
     }
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
@@ -772,6 +786,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     auto appInfo = GetAppInfo(tokenId);
     if (appInfo.userId == ERROR_USERID) {
         setting_.store(false);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
@@ -825,13 +840,17 @@ void PasteboardService::SetWebViewPasteData(PasteData &pasteData, const std::str
 
 int32_t PasteboardService::GetCurrentAccountId()
 {
+    if (currentUserId != ERROR_USERID) {
+        return currentUserId;
+    }
     std::vector<int32_t> accountIds;
     auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(accountIds);
     if (ret != ERR_OK || accountIds.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
         return ERROR_USERID;
     }
-    return accountIds.front();
+    currentUserId = accountIds.front();
+    return currentUserId;
 }
 
 bool PasteboardService::IsCopyable(uint32_t tokenId) const
@@ -1275,6 +1294,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
 {
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
     size_t fileSize = 0;
@@ -1418,6 +1438,18 @@ sptr<AppExecFwk::IBundleMgr> PasteboardService::GetAppBundleManager()
         return nullptr;
     }
     return OHOS::iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
+}
+
+void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
+{
+    auto want = data.GetWant();
+    std::string action = want.GetAction();
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        int32_t userId = data.GetCode();
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id switched: %{public}d", userId);
+        PasteboardService::currentUserId = userId;
+    }
 }
 } // namespace MiscServices
 } // namespace OHOS

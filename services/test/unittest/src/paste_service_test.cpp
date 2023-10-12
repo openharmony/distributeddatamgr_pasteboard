@@ -309,7 +309,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest004, TestSize.Level0)
 HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
@@ -332,12 +332,12 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
 HWTEST_F(PasteboardServiceTest, PasteRecordTest006, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
     ASSERT_TRUE(pasteDataRecord != nullptr);
-    InitializationOptions opts1 = { { 6, 9 }, PixelFormat::RGB_565 };
+    InitializationOptions opts1 = { { 6, 9 }, PixelFormat::RGB_565, PixelFormat::RGB_565 };
     std::unique_ptr<PixelMap> pixelMap1 = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts1);
     std::shared_ptr<PixelMap> pixelMapIn1 = move(pixelMap1);
     pasteDataRecord = pasteDataRecord->NewPixelMapRecord(pixelMapIn1);
@@ -649,7 +649,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
     ASSERT_TRUE(pasteData != nullptr);
     OHOS::Uri uri("uri");
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
@@ -682,7 +682,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
 HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
@@ -710,7 +710,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     pasteData->AddPixelMapRecord(pixelMapIn);
@@ -940,7 +940,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0016, TestSize.Level0)
 HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
@@ -1004,7 +1004,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     death.OnRemoteDied(object);
     PasteboardClient::GetInstance()->OnRemoteSaDied(object);
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
@@ -1142,7 +1142,7 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
 {
     constexpr uint32_t COLOR_SIZE = 1024 * 1960;
     auto color = std::make_unique<uint32_t[]>(COLOR_SIZE);
-    InitializationOptions opts = { { 1024, 1960 }, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 1024, 1960 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color.get(), COLOR_SIZE, opts);
     auto pasteData1 = PasteboardClient::GetInstance()->CreatePixelMapData(std::move(pixelMap));
     PasteboardClient::GetInstance()->Clear();
