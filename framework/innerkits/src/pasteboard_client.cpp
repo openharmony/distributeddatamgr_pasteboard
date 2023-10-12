@@ -187,7 +187,19 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
         }
     }
     auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
-    PasteboardWebController.RebuildHtml(std::make_shared<PasteData>(pasteData));
+    auto webData = std::make_shared<PasteData>(pasteData);
+    PasteboardWebController.RebuildHtml(webData);
+
+    std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
+    std::shared_ptr<std::string> html = webData->GetPrimaryHtml();
+    std::string mimeType = MIMETYPE_TEXT_HTML;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord =
+        builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
+    webData->AddRecord(pasteDataRecord);
+    webData->RemoveRecordAt(webData->GetRecordCount() - 1);
+    pasteData = *webData;
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData end.");
 }
 
@@ -226,19 +238,29 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
         return pasteboardServiceProxy_->SetPasteData(pasteData);
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData from webview start.");
-    std::shared_ptr<std::string> primaryText = pasteData.GetRecordAt(0)->GetPlainText();
+    auto webData = SplitWebviewPasteData(pasteData);
+    if (webData == nullptr) {
+        return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
+    }
+    return pasteboardServiceProxy_->SetPasteData(*webData);
+}
+
+std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pasteData)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData start.");
+    std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
+    std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
     auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
-    webPasteData->RemoveRecordAt(webPasteData->GetRecordCount() - 1);
-    std::string mimeType = MIMETYPE_TEXT_PLAIN;
+    std::string mimeType = MIMETYPE_TEXT_HTML;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
         builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
     webPasteData->AddRecord(pasteDataRecord);
+    webPasteData->RemoveRecordAt(webPasteData->GetRecordCount() - 1);
     webPasteData->SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData from webview end.");
-    return pasteboardServiceProxy_->SetPasteData(*webPasteData);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData end.");
+    return webPasteData;
 }
 
 void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)
