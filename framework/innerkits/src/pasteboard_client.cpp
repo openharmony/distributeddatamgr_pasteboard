@@ -27,7 +27,7 @@
 #include "pasteboard_observer.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#include "web_clipboard_controller.h"
+#include "pasteboard_web_controller.h"
 
 using namespace OHOS::Media;
 
@@ -170,6 +170,7 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData start.");
     for (auto& item : pasteData.AllRecords()) {
         if (item->GetUri() == nullptr) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview one of uri is null.");
             continue;
         }
         std::shared_ptr<Uri> uri = item->GetUri();
@@ -180,13 +181,14 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
             realUri = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Rebuild webview uri is file uri.");
         }
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview realUri is = %{public}s.", realUri.c_str());
         if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
             item->SetConvertUri(realUri);
         } else {
             item->SetUri(std::make_shared<OHOS::Uri>(realUri));
         }
     }
-    auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
+    auto PasteboardWebController = PasteboardWebController::GetInstance();
     auto webData = std::make_shared<PasteData>(pasteData);
     PasteboardWebController.RebuildHtml(webData);
 
@@ -250,7 +252,7 @@ std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pa
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData start.");
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
-    auto PasteboardWebController = NWeb::WebClipboardController::GetInstance();
+    auto PasteboardWebController = PasteboardWebController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
     std::string mimeType = MIMETYPE_TEXT_HTML;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
