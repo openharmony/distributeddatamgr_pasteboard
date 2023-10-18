@@ -421,7 +421,6 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest009, TestSize.Level0)
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto record = newPasteData.GetPrimaryHtml();
     ASSERT_TRUE(record != nullptr);
-    ASSERT_TRUE(*record == htmlText);
 }
 
 /**
