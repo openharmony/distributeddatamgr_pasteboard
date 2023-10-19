@@ -26,6 +26,7 @@ enum class JSErrorCode : int32_t {
     RECORD_EXCEEDS_LIMIT,
     OTHER_COPY_OR_PASTE_IN_PROCESSING,
     COPY_FORBIDDEN,
+    TIME_OUT,
 };
 } // namespace OHOS::MiscServices
 

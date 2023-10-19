@@ -30,7 +30,6 @@ namespace MiscServicesNapi {
 static thread_local napi_ref g_systemPasteboard = nullptr;
 static thread_local napi_ref g_systemPasteboard_instance = nullptr;
 thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
-constexpr int ARGC_TYPE_SET0 = 0;
 constexpr int ARGC_TYPE_SET1 = 1;
 constexpr size_t MAX_ARGS = 6;
 constexpr size_t SYNC_TIMEOUT = 5;
@@ -411,15 +410,6 @@ napi_value SystemPasteboardNapi::SetData(napi_env env, napi_callback_info info)
 napi_value SystemPasteboardNapi::IsRemoteData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi IsRemoteData() is called!");
-    size_t argc = MAX_ARGS;
-    napi_value argv[MAX_ARGS] = { 0 };
-    napi_value thisVar = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    if (!CheckExpression(env, argc >= ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.")) {
-        return nullptr;
-    }
-
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
     std::thread thread([block]() {
         auto ret = PasteboardClient::GetInstance()->IsRemoteData();
@@ -429,8 +419,8 @@ napi_value SystemPasteboardNapi::IsRemoteData(napi_env env, napi_callback_info i
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out");
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::TIME_OUT, "Request time out.")) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, IsRemoteData failed.");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -441,14 +431,6 @@ napi_value SystemPasteboardNapi::IsRemoteData(napi_env env, napi_callback_info i
 napi_value SystemPasteboardNapi::GetDataSource(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetDataSource() is called!");
-    size_t argc = MAX_ARGS;
-    napi_value argv[MAX_ARGS] = { 0 };
-    napi_value thisVar = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    if (!CheckExpression(env, argc >= ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.")) {
-        return nullptr;
-    }
     std::string bundleName;
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
     std::thread thread([block, &bundleName]() mutable {
@@ -458,8 +440,8 @@ napi_value SystemPasteboardNapi::GetDataSource(napi_env env, napi_callback_info 
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSource failed.");
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::TIME_OUT, "Request time out.")) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSource failed.");
         return nullptr;
     }
 
@@ -500,8 +482,8 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out, hasDataType failed.");
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::TIME_OUT, "Request time out.")) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, HasDataType failed.");
         return nullptr;
     }
     napi_value result = nullptr;
@@ -513,14 +495,6 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
 napi_value SystemPasteboardNapi::ClearDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi ClearDataSync() is called!");
-    size_t argc = 1;
-    napi_value argv[1] = { 0 };
-    napi_value thisVar = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    if (!CheckExpression(env, argc >= ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.")) {
-        return nullptr;
-    }
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
     std::thread thread([block]() {
         PasteboardClient::GetInstance()->Clear();
@@ -529,9 +503,8 @@ napi_value SystemPasteboardNapi::ClearDataSync(napi_env env, napi_callback_info 
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out, clearDataSync failed");
-        return nullptr;
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::TIME_OUT, "Request time out.")) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, ClearDataSync failed.");
     }
     return nullptr;
 }
@@ -539,16 +512,6 @@ napi_value SystemPasteboardNapi::ClearDataSync(napi_env env, napi_callback_info 
 napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetDataSync() is called!");
-    size_t argc = 1;
-    napi_value argv[1] = { 0 };
-    napi_value thisVar = nullptr;
- 
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc >= 0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.")) {
-        return nullptr;
-    }
-
     napi_value instance = nullptr;
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
     PasteDataNapi *obj = nullptr;
@@ -564,8 +527,8 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed");
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::TIME_OUT, "request time out.")) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed.");
         return nullptr;
     }
 
@@ -606,8 +569,8 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out, SetDataSync failed");
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::TIME_OUT, "request time out.")) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, SetDataSync failed.");
         return nullptr;
     }
 
@@ -621,16 +584,6 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
 napi_value SystemPasteboardNapi::HasDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi HasDataSync() is called!");
-    size_t argc = 1;
-    napi_value argv[1] = { 0 };
-    napi_value thisVar = nullptr;
- 
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if ((!CheckExpression(env, argc >= ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments."))) {
-        return nullptr;
-    }
-
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
     std::thread thread([block]() {
         auto ret = PasteboardClient::GetInstance()->HasPasteData();
@@ -639,8 +592,8 @@ napi_value SystemPasteboardNapi::HasDataSync(napi_env env, napi_callback_info in
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "time out, hasDataSync failed");
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::TIME_OUT, "request time out.")) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, HasDataSync failed.");
         return nullptr;
     }
     napi_value result = nullptr;
