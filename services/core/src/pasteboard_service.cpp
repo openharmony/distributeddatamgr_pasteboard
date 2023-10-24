@@ -57,6 +57,8 @@ using namespace Storage::DistributedFile;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 constexpr const size_t MAX_URI_COUNT = 500;
+constexpr const unsigned int MAX_URI_COUNT = 500;
+constexpr const int32_t COMMON_USERID = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
@@ -918,22 +920,17 @@ void PasteboardService::AddObserver(const sptr<IPasteboardChangedObserver> &obse
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
         return;
     }
-    auto userId = GetCurrentAccountId();
-    if (userId == ERROR_USERID) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
-        return;
-    }
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(userId);
+    auto it = observerMap.find(COMMON_USERID);
     std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>> observers;
     if (it != observerMap.end()) {
         observers = it->second;
     } else {
         observers = std::make_shared<std::set<sptr<IPasteboardChangedObserver>, classcomp>>();
-        observerMap.insert(std::make_pair(userId, observers));
+        observerMap.insert(std::make_pair(COMMON_USERID, observers));
     }
     observers->insert(observer);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, " observers->size = %{public}u.",
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "observers->size = %{public}u.",
         static_cast<unsigned int>(observers->size()));
 }
 
@@ -943,40 +940,32 @@ void PasteboardService::RemoveSingleObserver(const sptr<IPasteboardChangedObserv
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
         return;
     }
-    auto userId = GetCurrentAccountId();
-    if (userId == ERROR_USERID) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
-        return;
-    }
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(userId);
+    auto it = observerMap.find(COMMON_USERID);
     if (it == observerMap.end()) {
         return;
     }
     auto observers = it->second;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers->size: %{public}u.",
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
         static_cast<unsigned int>(observers->size()));
     auto eraseNum = observers->erase(observer);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "listeners.size = %{public}u, eraseNum = %{public}zu",
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
 }
 
 void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
 {
-    auto userId = GetCurrentAccountId();
-    if (userId == ERROR_USERID) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
-        return;
-    }
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(userId);
+    auto it = observerMap.find(COMMON_USERID);
     if (it == observerMap.end()) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observer empty.");
         return;
     }
     auto observers = it->second;
-    auto eraseNum = observerMap.erase(userId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "listeners.size = %{public}u, eraseNum = %{public}zu",
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
+        static_cast<unsigned int>(observers->size()));
+    auto eraseNum = observerMap.erase(COMMON_USERID);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
 }
 
