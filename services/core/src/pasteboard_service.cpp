@@ -56,7 +56,7 @@ using namespace std::chrono;
 using namespace Storage::DistributedFile;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
-constexpr const unsigned int MAX_URI_COUNT = 500;
+constexpr const size_t MAX_URI_COUNT = 500;
 const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
