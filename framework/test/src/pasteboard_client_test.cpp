@@ -95,7 +95,7 @@ HWTEST_F(PasteboardClientTest, HasDataType001, TestSize.Level0)
     auto ret = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_PLAIN);
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_URI);
-    ASSERT_FASLE(result);
+    ASSERT_FALSE(result);
 }
 
 /**
@@ -113,7 +113,7 @@ HWTEST_F(PasteboardClientTest, HasDataType002, TestSize.Level0)
     auto ret = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_HTML);
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_PLAIN);
-    ASSERT_FASLE(result);
+    ASSERT_FALSE(result);
 }
 
 /**
@@ -131,7 +131,7 @@ HWTEST_F(PasteboardClientTest, HasDataType003, TestSize.Level0)
     auto ret = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_URI);
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_PLAIN);
-    ASSERT_FASLE(result);
+    ASSERT_FALSE(result);
 }
 
 /**
@@ -152,7 +152,7 @@ HWTEST_F(PasteboardClientTest, HasDataType004, TestSize.Level0)
     auto ret = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_PIXELMAP);
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_URI);
-    ASSERT_FASLE(result);
+    ASSERT_FALSE(result);
 }
 
 /**
@@ -169,6 +169,6 @@ HWTEST_F(PasteboardClientTest, GetDataSource001, TestSize.Level0)
     PasteboardClient::GetInstance()->SetPasteData(*newData);
     std::string bundleName;
     auto ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
-    EXPECT_TRUE(value != nullptr);
+    EXPECT_FALSE(bundleName.empty());
 }
 } // namespace OHOS::MiscServices
