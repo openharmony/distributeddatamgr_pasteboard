@@ -168,7 +168,7 @@ HWTEST_F(PasteboardClientTest, GetDataSource001, TestSize.Level0)
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     PasteboardClient::GetInstance()->SetPasteData(*newData);
     std::string bundleName;
-    auto ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
+    (void) PasteboardClient::GetInstance()->GetDataSource(bundleName);
     EXPECT_FALSE(bundleName.empty());
 }
 } // namespace OHOS::MiscServices
