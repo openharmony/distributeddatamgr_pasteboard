@@ -807,9 +807,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     auto curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     copyTime_.insert_or_assign(appInfo.userId, curTime);
     SetDistributedData(appInfo.userId, *pasteData);
-    if (!pasteData->IsDraggedData()) {
-        NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
-    }
+    NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(*pasteData);
     auto hintItem = hints_.find(appInfo.userId);
     if (hintItem != hints_.end()) {
