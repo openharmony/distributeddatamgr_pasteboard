@@ -13,10 +13,7 @@
 * limitations under the License.
 */
 
-#include "common/block_object.h"
-#include "int_wrapper.h"
 #include "pasteboard_client.h"
-#include "remote_file_share.h"
 #include <gtest/gtest.h>
 
 namespace OHOS::MiscServices {
@@ -168,7 +165,7 @@ HWTEST_F(PasteboardClientTest, GetDataSource001, TestSize.Level0)
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     PasteboardClient::GetInstance()->SetPasteData(*newData);
     std::string bundleName;
-    (void) PasteboardClient::GetInstance()->GetDataSource(bundleName);
+    PasteboardClient::GetInstance()->GetDataSource(bundleName);
     EXPECT_FALSE(bundleName.empty());
 }
 } // namespace OHOS::MiscServices
