@@ -37,6 +37,7 @@ public:
     bool Initialize(const std::string &pkgName);
     const std::string &GetLocalDevice();
     const std::string GetLocalNetworkId();
+    std::string GetUdidByNetworkId(const std::string &networkId);
     int32_t GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice);
     std::string GetDeviceName(const std::string &networkId);
     void Register(DMObserver *observer);
@@ -51,6 +52,7 @@ private:
     std::string pkgName_;
     const std::string invalidDeviceId_{};
     const std::string invalidNetworkId_{};
+    const std::string invalidUdid_{};
     mutable std::mutex mutex_{};
     std::string localDeviceId_{};
     ConcurrentMap<DMObserver *, DMObserver *> observers_;

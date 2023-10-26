@@ -22,6 +22,7 @@
 #include "device_manager.h"
 #include "distributed_device_profile_client.h"
 #include "distributed_module_config.h"
+#include "dm_adapter.h"
 #include "para_handle.h"
 #include "pasteboard_hilog.h"
 #include "service_characteristic_profile.h"
@@ -108,6 +109,11 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enabledStatus)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(deviceId);
+    if (udid.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
+        return;
+    }
     ServiceCharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(deviceId, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {

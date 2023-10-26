@@ -106,3 +106,16 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo("", remoteDevice);
     ASSERT_TRUE(ret == -1);
 }
+
+/**
+* @tc.name: GetUdidByNetworkId
+* @tc.desc: Get Udid By NetworkId.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, GetUdidByNetworkId, TestSize.Level0)
+{
+    auto udid = DMAdapter::GetInstance().GetUdidByNetworkId("");
+    ASSERT_TRUE(udid.empty());
+}
