@@ -108,7 +108,11 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enabledStatus)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(deviceId);
+    if (udid.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
+        return;
+    }
     ServiceCharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(deviceId, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {
