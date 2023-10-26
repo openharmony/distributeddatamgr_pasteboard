@@ -145,6 +145,13 @@ int32_t DMAdapter::GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInf
     return -1;
 }
 
+std::string DMAdapter::GetUdidByNetworkId(const std::string &networkId)
+{
+    std::string udid {};
+    int32_t ret = DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, networkId, udid);
+
+}
+
 void DMAdapter::Register(DMObserver *observer)
 {
     observers_.Insert(observer, observer);

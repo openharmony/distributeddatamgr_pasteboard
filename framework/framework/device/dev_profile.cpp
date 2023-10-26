@@ -108,6 +108,7 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enabledStatus)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
     ServiceCharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(deviceId, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {

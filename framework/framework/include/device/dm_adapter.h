@@ -37,6 +37,7 @@ public:
     bool Initialize(const std::string &pkgName);
     const std::string &GetLocalDevice();
     const std::string GetLocalNetworkId();
+    std::string GetUdidByNetworkId(const std::string &networkId);
     int32_t GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice);
     std::string GetDeviceName(const std::string &networkId);
     void Register(DMObserver *observer);
