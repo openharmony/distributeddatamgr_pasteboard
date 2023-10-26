@@ -52,6 +52,7 @@ private:
     std::string pkgName_;
     const std::string invalidDeviceId_{};
     const std::string invalidNetworkId_{};
+    const std::string invalidUdid_{};
     mutable std::mutex mutex_{};
     std::string localDeviceId_{};
     ConcurrentMap<DMObserver *, DMObserver *> observers_;
