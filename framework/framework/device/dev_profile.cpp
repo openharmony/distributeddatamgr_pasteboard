@@ -22,6 +22,7 @@
 #include "device_manager.h"
 #include "distributed_device_profile_client.h"
 #include "distributed_module_config.h"
+#include "dm_adapter.h"
 #include "para_handle.h"
 #include "pasteboard_hilog.h"
 #include "service_characteristic_profile.h"
