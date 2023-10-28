@@ -115,7 +115,7 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
         return;
     }
     ServiceCharacteristicProfile profile;
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(deviceId, SERVICE_ID, profile);
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(udid, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", deviceId.c_str());
         return;
