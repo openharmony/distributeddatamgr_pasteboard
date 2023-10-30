@@ -520,7 +520,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri size: %{public}u, targetBundleName is %{public}s",
         static_cast<uint32_t>(grantUris.size()), targetBundleName.c_str());
     auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    int index = grantUris.size() / MAX_URI_COUNT;
+    size_t index = grantUris.size() / MAX_URI_COUNT;
     if (index == 0) {
         auto permissionCode = permissionClient.GrantUriPermission(grantUris, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
             targetBundleName, 1);
@@ -530,8 +530,8 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
         return;
     }
-    int remainder = grantUris.size() % MAX_URI_COUNT;
-    for (int i = 0; i <= index; i++) {
+    size_t remainder = grantUris.size() % MAX_URI_COUNT;
+    for (size_t i = 0; i <= index; i++) {
         std::vector<Uri> partUrs;
         std::vector<Uri>::const_iterator start = grantUris.begin() + i * MAX_URI_COUNT;
         std::vector<Uri>::const_iterator end;

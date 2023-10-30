@@ -17,8 +17,8 @@
 #include "distributed_clip.h"
 #include <gtest/gtest.h>
 
+namespace OHOS::MiscServices {
 using namespace testing::ext;
-using namespace OHOS::MiscServices;
 class DMAdapterTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -118,4 +118,5 @@ HWTEST_F(DMAdapterTest, GetUdidByNetworkId, TestSize.Level0)
 {
     auto udid = DMAdapter::GetInstance().GetUdidByNetworkId("");
     ASSERT_TRUE(udid.empty());
+}
 }
