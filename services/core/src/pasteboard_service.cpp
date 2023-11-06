@@ -523,7 +523,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
     size_t index = grantUris.size() / MAX_URI_COUNT;
     if (index == 0) {
         auto permissionCode = permissionClient.GrantUriPermission(grantUris, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
-            targetBundleName, 1);
+            targetBundleName);
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
         }
@@ -547,7 +547,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "grant uri size:%{public}u",
             static_cast<uint32_t>(partUrs.size()));
         auto permissionCode = permissionClient.GrantUriPermission(partUrs, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
-            targetBundleName, 1);
+            targetBundleName);
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
         }
