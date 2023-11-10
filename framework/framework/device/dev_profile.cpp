@@ -42,6 +42,7 @@ constexpr const char *VERSION_ID = "PasteboardVersionId";
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnSyncCompleted.");
+    DistributedModuleConfig::Notify();
 }
 
 void DevProfile::PasteboardProfileEventCallback::OnProfileChanged(const ProfileChangeNotification &changeNotification)
@@ -81,7 +82,6 @@ void DevProfile::ParameterChange(const char *key, const char *value, void *conte
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ParameterChange, key = %{public}s, value = %{public}s.", key, value);
     DevProfile::GetInstance().PutEnabledStatus(value);
-    DistributedModuleConfig::Notify();
 }
 
 void DevProfile::PutEnabledStatus(const std::string &enabledStatus)

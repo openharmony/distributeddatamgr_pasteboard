@@ -139,6 +139,7 @@ void DevManager::RetryInBlocking(DevManager::Function func) const
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry failed");
 }
+
 std::vector<std::string> DevManager::GetNetworkIds()
 {
     std::vector<DmDeviceInfo> devices;
