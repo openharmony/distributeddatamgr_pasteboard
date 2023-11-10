@@ -106,16 +106,16 @@ DevManager &DevManager::GetInstance()
     return instance;
 }
 
-void DevManager::Online(const std::string &networkId)
+void DevManager::Online(const std::string &deviceId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    DevProfile::GetInstance().SubscribeProfileEvent(networkId);
+    DevProfile::GetInstance().SubscribeProfileEvent(deviceId);
 }
 
-void DevManager::Offline(const std::string &networkId)
+void DevManager::Offline(const std::string &deviceId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    DevProfile::GetInstance().UnSubscribeProfileEvent(networkId);
+    DevProfile::GetInstance().UnSubscribeProfileEvent(deviceId);
     DistributedModuleConfig::Notify();
 }
 
@@ -123,7 +123,6 @@ void DevManager::OnReady()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().OnReady();
-    DistributedModuleConfig::Notify();
 }
 
 void DevManager::RetryInBlocking(DevManager::Function func) const
