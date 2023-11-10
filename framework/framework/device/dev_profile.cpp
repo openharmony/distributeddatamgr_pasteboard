@@ -41,7 +41,7 @@ constexpr const char *VERSION_ID = "PasteboardVersionId";
 
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnSyncCompleted.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "zzs OnSyncCompleted.");
     DistributedModuleConfig::Notify();
 }
 
@@ -137,8 +137,13 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
 void DevProfile::GetRemoteDeviceVersion(const std::string &deviceId, uint32_t &versionId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion start.");
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(deviceId);
+    if (udid.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
+        return;
+    }
     ServiceCharacteristicProfile profile;
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(deviceId, SERVICE_ID, profile);
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(udid, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", deviceId.c_str());
         return;
@@ -172,32 +177,42 @@ void DevProfile::SubscribeProfileEvent(const std::string &deviceId)
     ExtraInfo extraInfo;
     extraInfo["deviceId"] = deviceId;
     extraInfo["serviceIds"] = serviceIds;
+    
+    std::list<SubscribeInfo> subscribeInfos;
+    SubscribeInfo changeEventInfo;
+    changeEventInfo.profileEvent = ProfileEvent::EVENT_PROFILE_CHANGED;
+    changeEventInfo.extraInfo = std::move(extraInfo);
+    subscribeInfos.emplace_back(changeEventInfo);
 
-    SubscribeInfo subscribeInfo;
-    subscribeInfo.profileEvent = ProfileEvent::EVENT_PROFILE_CHANGED;
-    subscribeInfo.extraInfo = std::move(extraInfo);
+    SubscribeInfo syncEventInfo;
+    syncEventInfo.profileEvent = ProfileEvent::EVENT_SYNC_COMPLETED;
+    subscribeInfos.emplace_back(syncEventInfo);
+
+    std::list<ProfileEvent> failedEvents;
     int32_t errCode =
-        DistributedDeviceProfileClient::GetInstance().SubscribeProfileEvent(subscribeInfo, profileCallback);
+        DistributedDeviceProfileClient::GetInstance().SubscribeProfileEvents(subscribeInfos, profileCallback, failedEvents);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SubscribeProfileEvent result, errCode = %{public}d.", errCode);
 }
 
 void DevProfile::UnSubscribeProfileEvent(const std::string &deviceId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, deviceId = %{public}.5s", deviceId.c_str());
-    ProfileEvent profileEvent = EVENT_PROFILE_CHANGED;
     std::lock_guard<std::mutex> mutexLock(callbackMutex_);
     auto it = callback_.find(deviceId);
     if (it == callback_.end()) {
         return;
     }
-    int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnsubscribeProfileEvent(profileEvent, it->second);
+    std::list<ProfileEvent> profileEvents;
+    profileEvents.emplace_back(ProfileEvent::EVENT_PROFILE_CHANGED);
+    std::list<ProfileEvent> failedEvents;
+    int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnsubscribeProfileEvents(profileEvents, it->second, failedEvents);
     callback_.erase(it);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "UnsubscribeProfileEvent result, errCode = %{public}d.", errCode);
 }
 
 void DevProfile::SyncEnabledStatus()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "zzs SyncEnabledStatus start.");
     SyncOptions syncOptions;
     auto deviceIds = DevManager::GetInstance().GetNetworkIds();
     if (deviceIds.empty()) {
@@ -218,10 +233,11 @@ void DevProfile::UnsubscribeAllProfileEvents()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "UnsubscribeAllProfileEvents start.");
     std::lock_guard<std::mutex> mutexLock(callbackMutex_);
     for (auto it = callback_.begin(); it != callback_.end(); ++it) {
-        ProfileEvent profileEvent = EVENT_PROFILE_CHANGED;
-        int32_t errCode =
-            DistributedDeviceProfileClient::GetInstance().UnsubscribeProfileEvent(profileEvent, it->second);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "errCode = %{public}d.", errCode);
+        std::list<ProfileEvent> profileEvents;
+        profileEvents.emplace_back(ProfileEvent::EVENT_PROFILE_CHANGED);
+        std::list<ProfileEvent> failedEvents;
+        int32_t ret = DistributedDeviceProfileClient::GetInstance().UnsubscribeProfileEvents(profileEvents, it->second, failedEvents);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "errCode = %{public}d.", ret);
         it = callback_.erase(it);
     }
 }
