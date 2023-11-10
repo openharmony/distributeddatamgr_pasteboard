@@ -41,7 +41,7 @@ constexpr const char *VERSION_ID = "PasteboardVersionId";
 
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "zzs OnSyncCompleted.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnSyncCompleted.");
     DistributedModuleConfig::Notify();
 }
 
@@ -212,7 +212,7 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &deviceId)
 
 void DevProfile::SyncEnabledStatus()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "zzs SyncEnabledStatus start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus start.");
     SyncOptions syncOptions;
     auto deviceIds = DevManager::GetInstance().GetNetworkIds();
     if (deviceIds.empty()) {
