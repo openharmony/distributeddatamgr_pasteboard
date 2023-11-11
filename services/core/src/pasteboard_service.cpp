@@ -450,6 +450,7 @@ bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isF
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto pastData = GetDistributedData(appInfo.userId);
     if (pastData != nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pastData != nullptr");
         isRemote = true;
         pastData->SetRemote(isRemote);
         clips_.insert_or_assign(appInfo.userId, pastData);
