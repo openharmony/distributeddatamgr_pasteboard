@@ -26,8 +26,7 @@ size_t DistributedModuleConfig::deviceNums_ = 0;
 DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu, status_:%{public}d",
-         deviceNums_, status_);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu, status_:%{public}d", deviceNums_, status_);
     return status_;
 }
 
@@ -58,6 +57,7 @@ bool DistributedModuleConfig::GetEnabledStatus()
 
     auto networkIds = DevManager::GetInstance().GetNetworkIds();
     deviceNums_ = networkIds.size();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", deviceNums_);
     std::string remoteEnabledStatus = "false";
     for (auto &id : networkIds) {
         DevProfile::GetInstance().GetEnabledStatus(id, remoteEnabledStatus);
