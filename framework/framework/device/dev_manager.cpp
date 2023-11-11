@@ -58,8 +58,7 @@ void PasteboardDevStateCallback::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
 
 void PasteboardDevStateCallback::OnDeviceReady(const DmDeviceInfo &deviceInfo)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-    (void) deviceInfo;
+    (void)deviceInfo;
     DevManager::GetInstance().OnReady();
 }
 
@@ -121,8 +120,8 @@ void DevManager::Offline(const std::string &networkId)
 
 void DevManager::OnReady()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().OnReady();
+    DistributedModuleConfig::Notify();
 }
 
 void DevManager::RetryInBlocking(DevManager::Function func) const
