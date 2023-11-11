@@ -56,10 +56,10 @@ bool DistributedModuleConfig::GetEnabledStatus()
         return false;
     }
 
-    auto deviceIds = DevManager::GetInstance().GetNetworkIds();
-    deviceNums_ = deviceIds.size();
+    auto networkIds = DevManager::GetInstance().GetNetworkIds();
+    deviceNums_ = networkIds.size();
     std::string remoteEnabledStatus = "false";
-    for (auto &id : deviceIds) {
+    for (auto &id : networkIds) {
         DevProfile::GetInstance().GetEnabledStatus(id, remoteEnabledStatus);
         if (remoteEnabledStatus == "true") {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus true.");

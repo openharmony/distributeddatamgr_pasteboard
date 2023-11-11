@@ -90,23 +90,23 @@ bool DMAdapter::Initialize(const std::string &pkgName)
     return false;
 }
 
-const std::string &DMAdapter::GetLocalDevice()
+const std::string &DMAdapter::GetLocalDeviceUdid()
 {
     std::lock_guard<decltype(mutex_)> lockGuard(mutex_);
-    if (!localDeviceId_.empty()) {
-        return localDeviceId_;
+    if (!localDeviceUdid_.empty()) {
+        return localDeviceUdid_;
     }
 
     DmDeviceInfo info;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(pkgName_, info);
     if (ret != 0) {
-        return invalidDeviceId_;
+        return invalidDeviceUdid_;
     }
-    DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceId_);
-    if (localDeviceId_.empty()) {
-        return invalidDeviceId_;
+    DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceUdid_);
+    if (localDeviceUdid_.empty()) {
+        return invalidDeviceUdid_;
     }
-    return localDeviceId_;
+    return localDeviceUdid_;
 }
 
 std::string DMAdapter::GetDeviceName(const std::string &networkId)

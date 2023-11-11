@@ -24,13 +24,13 @@ namespace MiscServices {
 class API_EXPORT DevProfile {
 public:
     static DevProfile &GetInstance();
-    void GetEnabledStatus(const std::string &deviceId, std::string &enabledStatus);
+    void GetEnabledStatus(const std::string &networkId, std::string &enabledStatus);
     void Init();
     void OnReady();
     void PutEnabledStatus(const std::string &enabledStatus);
-    void GetRemoteDeviceVersion(const std::string &deviceId, uint32_t &deviceVersion);
-    void SubscribeProfileEvent(const std::string &deviceId);
-    void UnSubscribeProfileEvent(const std::string &deviceId);
+    void GetRemoteDeviceVersion(const std::string &networkId, uint32_t &deviceVersionetworkIdn);
+    void SubscribeProfileEvent(const std::string &networkId);
+    void UnSubscribeProfileEvent(const std::string &networkId);
     void UnsubscribeAllProfileEvents();
     bool GetLocalEnable();
 

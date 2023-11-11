@@ -106,10 +106,10 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     SyncEnabledStatus();
 }
 
-void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enabledStatus)
+void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &enabledStatus)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
-    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(deviceId);
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
         return;
@@ -117,7 +117,7 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
     ServiceCharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(udid, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", deviceId.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", networkId.c_str());
         return;
     }
     const auto &jsonData = profile.GetCharacteristicProfileJson();
@@ -134,10 +134,10 @@ void DevProfile::GetEnabledStatus(const std::string &deviceId, std::string &enab
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
 }
 
-void DevProfile::GetRemoteDeviceVersion(const std::string &deviceId, uint32_t &versionId)
+void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion start.");
-    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(deviceId);
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
         return;
@@ -145,7 +145,7 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &deviceId, uint32_t &v
     ServiceCharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(udid, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", deviceId.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", networkId.c_str());
         return;
     }
     const auto &jsonData = profile.GetCharacteristicProfileJson();
@@ -160,22 +160,22 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &deviceId, uint32_t &v
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion success, versionId = %{public}d.", versionId);
 }
 
-void DevProfile::SubscribeProfileEvent(const std::string &deviceId)
+void DevProfile::SubscribeProfileEvent(const std::string &networkId)
 {
-    if (deviceId.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "deviceId is empty.");
+    if (networkId.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
         return;
     }
     std::lock_guard<std::mutex> mutexLock(callbackMutex_);
-    if (callback_.find(deviceId) != callback_.end()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "deviceId = %{public}.5s already exists.", deviceId.c_str());
+    if (callback_.find(networkId) != callback_.end()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "networkId = %{public}.5s already exists.", networkId.c_str());
         return;
     }
     auto profileCallback = std::make_shared<PasteboardProfileEventCallback>();
-    callback_[deviceId] = profileCallback;
+    callback_[networkId] = profileCallback;
     std::list<std::string> serviceIds = { SERVICE_ID };
     ExtraInfo extraInfo;
-    extraInfo["deviceId"] = deviceId;
+    extraInfo["deviceId"] = networkId;
     extraInfo["serviceIds"] = serviceIds;
     
     std::list<SubscribeInfo> subscribeInfos;
@@ -194,11 +194,11 @@ void DevProfile::SubscribeProfileEvent(const std::string &deviceId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SubscribeProfileEvent result, errCode = %{public}d.", errCode);
 }
 
-void DevProfile::UnSubscribeProfileEvent(const std::string &deviceId)
+void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, deviceId = %{public}.5s", deviceId.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, networkId = %{public}.5s", networkId.c_str());
     std::lock_guard<std::mutex> mutexLock(callbackMutex_);
-    auto it = callback_.find(deviceId);
+    auto it = callback_.find(networkId);
     if (it == callback_.end()) {
         return;
     }
@@ -214,11 +214,11 @@ void DevProfile::SyncEnabledStatus()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus start.");
     SyncOptions syncOptions;
-    auto deviceIds = DevManager::GetInstance().GetNetworkIds();
-    if (deviceIds.empty()) {
+    auto networkIds = DevManager::GetInstance().GetNetworkIds();
+    if (networkIds.empty()) {
         return;
     }
-    for (auto &id : deviceIds) {
+    for (auto &id : networkIds) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}.5s.", id.c_str());
         syncOptions.AddDevice(id);
     }

@@ -35,7 +35,7 @@ public:
     };
     static DMAdapter &GetInstance();
     bool Initialize(const std::string &pkgName);
-    const std::string &GetLocalDevice();
+    const std::string &GetLocalDeviceUdid();
     const std::string GetLocalNetworkId();
     std::string GetUdidByNetworkId(const std::string &networkId);
     int32_t GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice);
@@ -50,11 +50,11 @@ private:
     ~DMAdapter();
 
     std::string pkgName_;
-    const std::string invalidDeviceId_{};
+    const std::string invalidDeviceUdid_{};
     const std::string invalidNetworkId_{};
     const std::string invalidUdid_{};
     mutable std::mutex mutex_{};
-    std::string localDeviceId_{};
+    std::string localDeviceUdid_{};
     ConcurrentMap<DMObserver *, DMObserver *> observers_;
 };
 } // namespace OHOS::MiscServices

@@ -58,7 +58,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceId, TestSize.Level0)
     std::string device = "deviceTestName";
     auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
     ASSERT_FALSE(fromDevice.empty());
-    auto &deviceId = DMAdapter::GetInstance().GetLocalDevice();
+    auto &deviceId = DMAdapter::GetInstance().GetLocalDeviceUdid();
     ASSERT_TRUE(deviceId.empty());
 }
 

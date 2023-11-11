@@ -49,6 +49,6 @@ void DMAdapterTest::TearDown(void)
 */
 HWTEST_F(DMAdapterTest, GetLocalDeviceId, TestSize.Level0)
 {
-    auto &deviceId = DMAdapter::GetInstance().GetLocalDevice();
+    auto &deviceId = DMAdapter::GetInstance().GetLocalDeviceUdid();
     ASSERT_FALSE(deviceId.empty());
 }
