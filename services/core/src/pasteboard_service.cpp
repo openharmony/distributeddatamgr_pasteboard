@@ -1242,6 +1242,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 
     auto expiration =
         duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}lld", expiration);
     Event event;
     event.user = user;
     event.seqId = ++sequenceId_;
@@ -1251,7 +1252,6 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
     event.dataType = GenerateDataType(data);
     currentEvent_ = event;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}llu", event.expiration);
     clipPlugin->SetPasteData(event, rawData);
     return true;
 }
@@ -1397,8 +1397,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     event = std::move(tmpEvent);
     uint64_t curTime =
         static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "result expiration = %{public}llu, curTime= %{public}llu",
-        event.expiration, curTime);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "result compare time = %{public}d", curTime < event.expiration);
     return ((curTime < event.expiration) && (event.status == ClipPlugin::EVT_NORMAL));
 }
 
