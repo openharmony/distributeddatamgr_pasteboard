@@ -189,8 +189,8 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
     subscribeInfos.emplace_back(syncEventInfo);
 
     std::list<ProfileEvent> failedEvents;
-    int32_t errCode =
-        DistributedDeviceProfileClient::GetInstance().SubscribeProfileEvents(subscribeInfos, profileCallback, failedEvents);
+    int32_t errCode = DistributedDeviceProfileClient::GetInstance().SubscribeProfileEvents(subscribeInfos,
+        profileCallback, failedEvents);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SubscribeProfileEvent result, errCode = %{public}d.", errCode);
 }
 
@@ -205,7 +205,8 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
     std::list<ProfileEvent> profileEvents;
     profileEvents.emplace_back(ProfileEvent::EVENT_PROFILE_CHANGED);
     std::list<ProfileEvent> failedEvents;
-    int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnsubscribeProfileEvents(profileEvents, it->second, failedEvents);
+    int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnsubscribeProfileEvents(profileEvents,
+        it->second, failedEvents);
     callback_.erase(it);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "UnsubscribeProfileEvent result, errCode = %{public}d.", errCode);
 }
@@ -236,7 +237,8 @@ void DevProfile::UnsubscribeAllProfileEvents()
         std::list<ProfileEvent> profileEvents;
         profileEvents.emplace_back(ProfileEvent::EVENT_PROFILE_CHANGED);
         std::list<ProfileEvent> failedEvents;
-        int32_t ret = DistributedDeviceProfileClient::GetInstance().UnsubscribeProfileEvents(profileEvents, it->second, failedEvents);
+        int32_t ret = DistributedDeviceProfileClient::GetInstance().UnsubscribeProfileEvents(profileEvents,
+            it->second, failedEvents);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "errCode = %{public}d.", ret);
         it = callback_.erase(it);
     }
