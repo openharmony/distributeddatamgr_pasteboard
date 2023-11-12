@@ -43,12 +43,12 @@ void DMAdapterTest::TearDown(void)
 }
 
 /**
-* @tc.name: GetLocalDeviceId
-* @tc.desc: Get the local device id.
+* @tc.name: GetLocalDeviceUdid
+* @tc.desc: Get the local device udid.
 * @tc.type: FUNC
 */
-HWTEST_F(DMAdapterTest, GetLocalDeviceId, TestSize.Level0)
+HWTEST_F(DMAdapterTest, GetLocalDeviceUdid, TestSize.Level0)
 {
-    auto &deviceId = DMAdapter::GetInstance().GetLocalDeviceUdid();
-    ASSERT_FALSE(deviceId.empty());
+    auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
+    ASSERT_FALSE(udid.empty());
 }
