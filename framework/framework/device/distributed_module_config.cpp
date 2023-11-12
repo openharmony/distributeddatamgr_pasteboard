@@ -26,7 +26,8 @@ size_t DistributedModuleConfig::deviceNums_ = 0;
 DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu, status_:%{public}d", deviceNums_, status_);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu, status_:%{public}d",
+        deviceNums_, status_);
     return status_;
 }
 
@@ -38,7 +39,8 @@ void DistributedModuleConfig::Watch(Observer observer)
 void DistributedModuleConfig::Notify()
 {
     bool newStatus = GetEnabledStatus();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Notify, status:%{public}d, newStatus:%{public}d", status_, newStatus);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Notify, status:%{public}d, newStatus:%{public}d",
+        status_, newStatus);
     if (newStatus != status_) {
         status_ = newStatus;
         if (observer_ != nullptr) {
