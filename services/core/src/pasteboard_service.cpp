@@ -1251,7 +1251,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
     event.dataType = GenerateDataType(data);
     currentEvent_ = event;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}lu", event.expiration);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}llu", event.expiration);
     clipPlugin->SetPasteData(event, rawData);
     return true;
 }
