@@ -408,7 +408,8 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 
 bool PasteboardService::GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
-    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);\
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
     std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
@@ -1188,6 +1189,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
         event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
     std::vector<uint8_t> rawData = std::move(event.addition);
     if (!isEffective) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is invalid");
         currentEvent_.status = ClipPlugin::EVT_INVALID;
         currentEvent_ = std::move(event);
         Reporter::GetInstance().PasteboardFault().Report({ user, "GET_REMOTE_DATA_FAILED" });
@@ -1195,6 +1197,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     }
 
     if (event.frameNum > 0 && (clipPlugin->GetPasteData(event, rawData) != 0)) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get data failed");
         Reporter::GetInstance().PasteboardFault().Report({ user, "GET_REMOTE_DATA_FAILED" });
         return nullptr;
     }
@@ -1248,6 +1251,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
     event.dataType = GenerateDataType(data);
     currentEvent_ = event;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}lu", event.expiration);
     clipPlugin->SetPasteData(event, rawData);
     return true;
 }
@@ -1393,7 +1397,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     event = std::move(tmpEvent);
     uint64_t curTime =
         static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "result expiration = %{public}lu, curTime= %{public}lu",
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "result expiration = %{public}llu, curTime= %{public}llu",
          event.expiration, curTime);
     return ((curTime < event.expiration) && (event.status == ClipPlugin::EVT_NORMAL));
 }
