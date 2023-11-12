@@ -408,7 +408,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 
 bool PasteboardService::GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
-    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);\
+    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
     std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
