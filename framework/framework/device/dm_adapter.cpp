@@ -127,7 +127,7 @@ const std::string DMAdapter::GetLocalNetworkId()
     DmDeviceInfo info;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(pkgName_, info);
     auto networkId = std::string(info.networkId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "zzszzs ret: %{public}d, networkId:%{public}s", ret, networkId.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret: %{public}d, networkId:%{public}s", ret, networkId.c_str());
     if (ret != 0 || networkId.empty()) {
         return invalidNetworkId_;
     }
