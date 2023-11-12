@@ -1398,7 +1398,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     uint64_t curTime =
         static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "result expiration = %{public}llu, curTime= %{public}llu",
-         event.expiration, curTime);
+        event.expiration, curTime);
     return ((curTime < event.expiration) && (event.status == ClipPlugin::EVT_NORMAL));
 }
 
