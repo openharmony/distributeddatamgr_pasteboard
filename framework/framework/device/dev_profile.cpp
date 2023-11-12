@@ -41,7 +41,7 @@ constexpr const char *VERSION_ID = "PasteboardVersionId";
 
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "zzs OnSyncCompleted.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnSyncCompleted.");
     DistributedModuleConfig::Notify();
 }
 
