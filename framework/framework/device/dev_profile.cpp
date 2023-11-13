@@ -111,13 +111,13 @@ void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &ena
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
         return;
     }
     ServiceCharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(udid, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", networkId.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", udid.c_str());
         return;
     }
     const auto &jsonData = profile.GetCharacteristicProfileJson();
@@ -139,13 +139,13 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion start.");
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed.");
         return;
     }
     ServiceCharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetDeviceProfile(udid, SERVICE_ID, profile);
     if (ret != HANDLE_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", networkId.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetDeviceProfile failed, %{public}.5s.", udid.c_str());
         return;
     }
     const auto &jsonData = profile.GetCharacteristicProfileJson();
@@ -162,20 +162,22 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
 
 void DevProfile::SubscribeProfileEvent(const std::string &networkId)
 {
-    if (networkId.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, networkId = %{public}.5s", networkId.c_str());
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
+    if (udid.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
         return;
     }
     std::lock_guard<std::mutex> mutexLock(callbackMutex_);
-    if (callback_.find(networkId) != callback_.end()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "networkId = %{public}.5s already exists.", networkId.c_str());
+    if (callback_.find(udid) != callback_.end()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "networkId = %{public}.5s already exists.", udid.c_str());
         return;
     }
     auto profileCallback = std::make_shared<PasteboardProfileEventCallback>();
-    callback_[networkId] = profileCallback;
+    callback_[udid] = profileCallback;
     std::list<std::string> serviceIds = { SERVICE_ID };
     ExtraInfo extraInfo;
-    extraInfo["deviceId"] = networkId;
+    extraInfo["deviceId"] = udid;
     extraInfo["serviceIds"] = serviceIds;
     
     std::list<SubscribeInfo> subscribeInfos;
@@ -197,8 +199,13 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
 void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, networkId = %{public}.5s", networkId.c_str());
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
+    if (udid.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
+        return;
+    }
     std::lock_guard<std::mutex> mutexLock(callbackMutex_);
-    auto it = callback_.find(networkId);
+    auto it = callback_.find(udid);
     if (it == callback_.end()) {
         return;
     }
