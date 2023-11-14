@@ -16,6 +16,7 @@
 
 #include "device_manager.h"
 #include "device_manager_callback.h"
+#include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
 constexpr size_t DMAdapter::MAX_ID_LEN;
 class DmStateObserver : public DeviceStateCallback {
@@ -90,23 +91,23 @@ bool DMAdapter::Initialize(const std::string &pkgName)
     return false;
 }
 
-const std::string &DMAdapter::GetLocalDevice()
+const std::string &DMAdapter::GetLocalDeviceUdid()
 {
     std::lock_guard<decltype(mutex_)> lockGuard(mutex_);
-    if (!localDeviceId_.empty()) {
-        return localDeviceId_;
+    if (!localDeviceUdid_.empty()) {
+        return localDeviceUdid_;
     }
 
     DmDeviceInfo info;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(pkgName_, info);
     if (ret != 0) {
-        return invalidDeviceId_;
+        return invalidDeviceUdid_;
     }
-    DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceId_);
-    if (localDeviceId_.empty()) {
-        return invalidDeviceId_;
+    DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceUdid_);
+    if (localDeviceUdid_.empty()) {
+        return invalidDeviceUdid_;
     }
-    return localDeviceId_;
+    return localDeviceUdid_;
 }
 
 std::string DMAdapter::GetDeviceName(const std::string &networkId)
@@ -126,6 +127,7 @@ const std::string DMAdapter::GetLocalNetworkId()
     DmDeviceInfo info;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(pkgName_, info);
     auto networkId = std::string(info.networkId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret: %{public}d, networkId:%{public}s", ret, networkId.c_str());
     if (ret != 0 || networkId.empty()) {
         return invalidNetworkId_;
     }

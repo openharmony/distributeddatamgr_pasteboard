@@ -44,13 +44,13 @@ void DMAdapterTest::TearDown(void)
 }
 
 /**
-* @tc.name: GetLocalDeviceId
-* @tc.desc: Get the local device id.
+* @tc.name: GetLocalDeviceUdid
+* @tc.desc: Get the local device udid.
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
 */
-HWTEST_F(DMAdapterTest, GetLocalDeviceId, TestSize.Level0)
+HWTEST_F(DMAdapterTest, GetLocalDeviceUdid, TestSize.Level0)
 {
     std::string bundleName = "com.example.myapplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
@@ -58,8 +58,8 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceId, TestSize.Level0)
     std::string device = "deviceTestName";
     auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
     ASSERT_FALSE(fromDevice.empty());
-    auto &deviceId = DMAdapter::GetInstance().GetLocalDevice();
-    ASSERT_TRUE(deviceId.empty());
+    auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
+    ASSERT_TRUE(udid.empty());
 }
 
 /**

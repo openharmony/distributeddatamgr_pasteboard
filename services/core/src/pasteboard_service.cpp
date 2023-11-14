@@ -409,6 +409,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 bool PasteboardService::GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp)
 {
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
     std::thread thread([this, block, isFocusedApp, &appInfo]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
@@ -450,6 +451,7 @@ bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isF
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto pastData = GetDistributedData(appInfo.userId);
     if (pastData != nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pastData != nullptr");
         isRemote = true;
         pastData->SetRemote(isRemote);
         clips_.insert_or_assign(appInfo.userId, pastData);
@@ -1187,6 +1189,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
         event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
     std::vector<uint8_t> rawData = std::move(event.addition);
     if (!isEffective) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is invalid");
         currentEvent_.status = ClipPlugin::EVT_INVALID;
         currentEvent_ = std::move(event);
         Reporter::GetInstance().PasteboardFault().Report({ user, "GET_REMOTE_DATA_FAILED" });
@@ -1194,6 +1197,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     }
 
     if (event.frameNum > 0 && (clipPlugin->GetPasteData(event, rawData) != 0)) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get data failed");
         Reporter::GetInstance().PasteboardFault().Report({ user, "GET_REMOTE_DATA_FAILED" });
         return nullptr;
     }
@@ -1238,6 +1242,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 
     auto expiration =
         duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}lld", expiration);
     Event event;
     event.user = user;
     event.seqId = ++sequenceId_;
@@ -1392,6 +1397,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     event = std::move(tmpEvent);
     uint64_t curTime =
         static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "result compare time = %{public}d", curTime < event.expiration);
     return ((curTime < event.expiration) && (event.status == ClipPlugin::EVT_NORMAL));
 }
 
