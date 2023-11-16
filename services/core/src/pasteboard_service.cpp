@@ -315,8 +315,8 @@ bool PasteboardService::IsDataAged()
     if (it == copyTime_.end()) {
         return false;
     }
-    auto copyTime = it->second;
-    auto curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    uint64_t copyTime = it->second;
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     if (curTime - copyTime > ONE_HOUR_MILLISECONDS) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
         auto data = clips_.find(userId);
@@ -455,7 +455,8 @@ bool PasteboardService::GetPasteData(AppInfo &appInfo, PasteData &data, bool isF
         isRemote = true;
         pastData->SetRemote(isRemote);
         clips_.insert_or_assign(appInfo.userId, pastData);
-        auto curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        auto curTime =
+            static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
         copyTime_.insert_or_assign(appInfo.userId, curTime);
     }
     data.SetRemote(isRemote);
@@ -806,7 +807,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.insert_or_assign(appInfo.userId, pasteData);
-    auto curTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     copyTime_.insert_or_assign(appInfo.userId, curTime);
     SetDistributedData(appInfo.userId, *pasteData);
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);

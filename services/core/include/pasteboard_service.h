@@ -103,7 +103,7 @@ private:
     static constexpr uint32_t OPEN_P2P_SLEEP_TIME = 5;
     static constexpr int TRANMISSION_BASELINE = 30 * 1024 * 1024;
     static constexpr int MIN_TRANMISSION_TIME = 600;
-    static constexpr int64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
+    static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     struct classcomp {
         bool operator()(const sptr<IPasteboardChangedObserver> &l, const sptr<IPasteboardChangedObserver> &r) const
         {
@@ -170,7 +170,7 @@ private:
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
     std::map<int32_t, std::vector<int32_t>> hints_;
-    std::map<int32_t, int64_t> copyTime_;
+    std::map<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
 
