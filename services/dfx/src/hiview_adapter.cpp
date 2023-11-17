@@ -372,17 +372,15 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
         sort(vec.begin(), vec.end(),
             [](std::pair<std::string, int> a, std::pair<std::string, int> b) { return a.second > b.second; });
 
-        // init container for report.
         std::vector<std::string> appPackName;
         for (int i = 0; i < TOTAL_APP_NUMBERS; ++i) {
             appPackName.push_back("default");
         }
 
-        // push in container.
-        int j = 0;
+        int index = 0;
         for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
-            appPackName[j] = iter->first + " :" + std::to_string(iter->second);
-            ++j;
+            appPackName[index] = iter->first + " :" + std::to_string(iter->second);
+            ++index;
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour report  ");
         int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
