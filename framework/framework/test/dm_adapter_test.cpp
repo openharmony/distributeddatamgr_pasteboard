@@ -15,8 +15,8 @@
 #include "device/dm_adapter.h"
 
 #include <gtest/gtest.h>
+namespace OHOS::MiscServices {
 using namespace testing::ext;
-using namespace OHOS::MiscServices;
 
 class DMAdapterTest : public testing::Test {
 public:
@@ -51,4 +51,5 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid, TestSize.Level0)
 {
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     ASSERT_FALSE(udid.empty());
+}
 }
