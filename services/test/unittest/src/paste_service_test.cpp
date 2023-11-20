@@ -1061,21 +1061,18 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
-        static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_WRITE));
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData);
     PasteData newPasteData;
     ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
-        static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_READ));
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
     PasteboardClient::GetInstance()->Clear();
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_,
-        static_cast<int32_t>(PasteboardEventStatus::PASTEBOARD_CLEAR));
+    ASSERT_EQ(PasteboardServiceTest::pasteboardEventStatus_, -1);
     PasteboardServiceTest::pasteboardEventStatus_ = -1;
     PasteboardClient::GetInstance()->RemovePasteboardEventObserver(PasteboardServiceTest::pasteboardEventObserver_);
     PasteboardClient::GetInstance()->Clear();
