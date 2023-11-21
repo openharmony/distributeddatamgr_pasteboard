@@ -242,6 +242,11 @@ std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
     return std::make_shared<OHOS::Uri>(convertUri_);
 }
 
+void PasteDataRecord::ClearPixelMap()
+{
+    this->pixelMap_ = nullptr;
+}
+
 void PasteDataRecord::SetUri(std::shared_ptr<OHOS::Uri> uri)
 {
     uri_ = std::move(uri);

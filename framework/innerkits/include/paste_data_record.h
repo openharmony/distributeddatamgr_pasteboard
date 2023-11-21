@@ -84,6 +84,7 @@ public:
     std::shared_ptr<std::string> GetHtmlText() const;
     std::shared_ptr<std::string> GetPlainText() const;
     std::shared_ptr<OHOS::Media::PixelMap> GetPixelMap() const;
+    void ClearPixelMap();
     std::shared_ptr<OHOS::Uri> GetUri() const;
     void SetUri(std::shared_ptr<OHOS::Uri> uri);
     std::shared_ptr<OHOS::Uri> GetOrginUri() const;
