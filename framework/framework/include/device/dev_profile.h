@@ -17,7 +17,10 @@
 #define PASTE_BOARD_DEV_PROFILE_H
 
 #include "api/visibility.h"
+
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLED
 #include "distributed_device_profile_client.h"
+#endif // PB_DEVICE_INFO_MANAGER_ENABLED
 
 namespace OHOS {
 namespace MiscServices {
@@ -34,11 +37,13 @@ public:
     void UnsubscribeAllProfileEvents();
     bool GetLocalEnable();
 
+    #ifdef PB_DEVICE_INFO_MANAGER_ENABLED
     class PasteboardProfileEventCallback : public DeviceProfile::IProfileEventCallback {
     public:
         void OnSyncCompleted(const DeviceProfile::SyncResult &syncResults) override;
         void OnProfileChanged(const DeviceProfile::ProfileChangeNotification &changeNotification) override;
     };
+    #endif
 
 private:
     DevProfile();
@@ -46,8 +51,12 @@ private:
     static void ParameterChange(const char *key, const char *value, void *context);
     void SyncEnabledStatus();
     std::mutex callbackMutex_;
-    std::map<std::string, std::shared_ptr<PasteboardProfileEventCallback>> callback_;
     bool localEnable_ = false;
+
+    #ifdef PB_DEVICE_INFO_MANAGER_ENABLED
+    std::map<std::string, std::shared_ptr<PasteboardProfileEventCallback>> callback_;
+    #endif // PB_DEVICE_INFO_MANAGER_ENABLED
+
 };
 } // namespace MiscServices
 } // namespace OHOS
