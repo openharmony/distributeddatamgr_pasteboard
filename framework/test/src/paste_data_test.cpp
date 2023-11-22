@@ -729,7 +729,7 @@ HWTEST_F(PasteDataTest, GetShareOption001, TestSize.Level0)
     ASSERT_TRUE(pasteData != nullptr);
     ShareOption option = InApp;
     pasteData->SetShareOption(option);
-    auto result = PasteData->GetShareOption();
+    auto result = pasteData->GetShareOption();
     ASSERT_TRUE(result == InApp);
 }
 
@@ -780,7 +780,7 @@ HWTEST_F(PasteDataTest, SetShareOption001, TestSize.Level0)
     ASSERT_TRUE(pasteData != nullptr);
     ShareOption option = LocalDevice;
     pasteData->SetShareOption(option);
-    auto result = PasteData->GetShareOption();
+    auto result = pasteData->GetShareOption();
     ASSERT_TRUE(result == LocalDevice);
 }
 
@@ -797,8 +797,8 @@ HWTEST_F(PasteDataTest, SetTokenId001, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
     uint32_t tokenId = 1;
-    PasteData->SetTokenId(tokenId);
-    PasteData->GetTokenId();
+    pasteData->SetTokenId(tokenId);
+    auto result = pasteData->GetTokenId();
     ASSERT_TRUE(result == 1);
 }
 
@@ -816,7 +816,7 @@ HWTEST_F(PasteDataTest, IsDraggedData001, TestSize.Level0)
     ASSERT_TRUE(pasteData != nullptr);
     bool isDraggedData = false;
     pasteData->SetDraggedDataFlag(isDraggedData);
-    auto result = PasteData->IsDraggedData();
+    auto result = pasteData->IsDraggedData();
     ASSERT_FALSE(result);
 }
 
@@ -834,7 +834,7 @@ HWTEST_F(PasteDataTest, SetDraggedDataFlag001, TestSize.Level0)
     ASSERT_TRUE(pasteData != nullptr);
     bool isDraggedData = true;
     pasteData->SetDraggedDataFlag(isDraggedData);
-    auto result = PasteData->IsDraggedData();
+    auto result = pasteData->IsDraggedData();
     ASSERT_TRUE(result);
 }
 } // namespace OHOS::MiscServices
