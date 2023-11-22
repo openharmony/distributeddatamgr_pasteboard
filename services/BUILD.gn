@@ -123,7 +123,7 @@ ohos_shared_library("pasteboard_service") {
     "time_service:time_client",
     "window_manager:libwm",
   ]
-  if (dp_dlp_part_enabled) {
+  if (pb_dlp_part_enabled) {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
   }
 
