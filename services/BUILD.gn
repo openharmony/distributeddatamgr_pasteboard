@@ -49,8 +49,8 @@ config("pasteboard_service_config") {
 
 ohos_shared_library("pasteboard_service") {
   sources = [
-    "${pasteboard_innerkits_path}/src/paste_data.cpp",
-    "${pasteboard_innerkits_path}/src/paste_data_record.cpp",
+    "${pasteboard_innerkits_pat}/src/paste_data.cpp",
+    "${pasteboard_innerkits_pathh}/src/paste_data_record.cpp",
     "account/src/account_manager.cpp",
     "core/src/pasteboard_dialog.cpp",
     "core/src/pasteboard_service.cpp",
