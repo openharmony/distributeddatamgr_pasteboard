@@ -35,7 +35,6 @@ namespace OHOS {
 namespace MiscServices {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 using namespace OHOS::DeviceProfile;
-#endif
 using namespace OHOS::DistributedHardware;
 constexpr const int32_t HANDLE_OK = 0;
 constexpr const uint32_t NOT_SUPPORT = 0;
@@ -45,7 +44,6 @@ constexpr const char *SERVICE_ID = "pasteboardService";
 constexpr const char *CHARACTER_ID = "supportDistributedPasteboard";
 constexpr const char *VERSION_ID = "PasteboardVersionId";
 
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 void DevProfile::PasteboardProfileEventCallback::OnSyncCompleted(const SyncResult &syncResults)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnSyncCompleted.");
