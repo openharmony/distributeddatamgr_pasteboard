@@ -32,10 +32,12 @@ declare_args() {
   pb_dlp_part_enabled = true
   pb_device_info_manager_part_enabled = true
 
-  if (defined(global_parts_info) && !defined(global_parts_info.security_dlp_permission_service)) {
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.security_dlp_permission_service)) {
     pb_dlp_part_enabled = false
   }
-  if (defined(global_parts_info) && !defined(global_parts_info.deviceprofile_device_info_manager)) {
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.deviceprofile_device_info_manager)) {
     pb_device_info_manager_part_enabled = false
   }
 }
