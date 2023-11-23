@@ -20,15 +20,20 @@
 #include "cJSON.h"
 #include "dev_manager.h"
 #include "device_manager.h"
-#include "distributed_device_profile_client.h"
 #include "distributed_module_config.h"
 #include "dm_adapter.h"
 #include "para_handle.h"
 #include "pasteboard_hilog.h"
 #include "service_characteristic_profile.h"
 #include "subscribe_info.h"
+
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+#include "distributed_device_profile_client.h"
+#endif // PB_DEVICE_INFO_MANAGER_ENABLE
+
 namespace OHOS {
 namespace MiscServices {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 using namespace OHOS::DeviceProfile;
 using namespace OHOS::DistributedHardware;
 constexpr const int32_t HANDLE_OK = 0;
@@ -50,6 +55,7 @@ void DevProfile::PasteboardProfileEventCallback::OnProfileChanged(const ProfileC
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnProfileChanged start.");
     DistributedModuleConfig::Notify();
 }
+#endif
 
 DevProfile::DevProfile()
 {
@@ -86,6 +92,8 @@ void DevProfile::ParameterChange(const char *key, const char *value, void *conte
 
 void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
     ServiceCharacteristicProfile profile;
     profile.SetServiceId(SERVICE_ID);
     profile.SetServiceType(SERVICE_ID);
@@ -104,10 +112,14 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
         return;
     }
     SyncEnabledStatus();
+#endif
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
+    return;
 }
 
 void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &enabledStatus)
 {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
@@ -132,10 +144,14 @@ void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &ena
         enabledStatus = "true";
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
+#endif
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
+    return;
 }
 
 void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)
 {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion start.");
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
@@ -158,10 +174,14 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
         versionId = FIRST_VERSION;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion success, versionId = %{public}d.", versionId);
+#endif
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
+    return;
 }
 
 void DevProfile::SubscribeProfileEvent(const std::string &networkId)
 {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, networkId = %{public}.5s", networkId.c_str());
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
@@ -194,10 +214,14 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
     int32_t errCode = DistributedDeviceProfileClient::GetInstance().SubscribeProfileEvents(subscribeInfos,
         profileCallback, failedEvents);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SubscribeProfileEvent result, errCode = %{public}d.", errCode);
+#endif
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
+    return;
 }
 
 void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
 {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, networkId = %{public}.5s", networkId.c_str());
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
@@ -216,10 +240,14 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
         it->second, failedEvents);
     callback_.erase(it);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "UnsubscribeProfileEvent result, errCode = %{public}d.", errCode);
+#endif
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
+    return;
 }
 
 void DevProfile::SyncEnabledStatus()
 {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus start.");
     SyncOptions syncOptions;
     auto networkIds = DevManager::GetInstance().GetNetworkIds();
@@ -234,10 +262,14 @@ void DevProfile::SyncEnabledStatus()
     auto syncCallback = std::make_shared<PasteboardProfileEventCallback>();
     int32_t errCode = DistributedDeviceProfileClient::GetInstance().SyncDeviceProfile(syncOptions, syncCallback);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus, ret = %{public}d.", errCode);
+#endif
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
+    return;
 }
 
 void DevProfile::UnsubscribeAllProfileEvents()
 {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "UnsubscribeAllProfileEvents start.");
     std::lock_guard<std::mutex> mutexLock(callbackMutex_);
     for (auto it = callback_.begin(); it != callback_.end(); ++it) {
@@ -249,6 +281,9 @@ void DevProfile::UnsubscribeAllProfileEvents()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "errCode = %{public}d.", ret);
         it = callback_.erase(it);
     }
+#endif
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
+    return;
 }
 
 bool DevProfile::GetLocalEnable()
