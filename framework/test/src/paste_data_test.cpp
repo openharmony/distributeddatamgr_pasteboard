@@ -714,4 +714,127 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     
     ASSERT_TRUE(data1.GetBundleName() == data2.GetBundleName());
 }
+
+/**
+* @tc.name: GetShareOption001
+* @tc.desc: 
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, GetShareOption001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    ShareOption option = InApp;
+    pasteData->SetShareOption(option);
+    auto result = pasteData->GetShareOption();
+    ASSERT_TRUE(result == InApp);
+}
+
+/**
+* @tc.name: AddKvRecord001
+* @tc.desc: 
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, AddKvRecord001, TestSize.Level0)
+{
+    PasteData data;
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    data.AddKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(data.GetRecordCount() > 0);
+}
+
+/**
+* @tc.name: GetProperty001
+* @tc.desc: 
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, GetProperty001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteDataProperty property = pasteData->GetProperty();
+    ASSERT_TRUE(property.tokenId == 0);
+}
+
+/**
+* @tc.name: SetShareOption001
+* @tc.desc: 
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, SetShareOption001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    ShareOption option = LocalDevice;
+    pasteData->SetShareOption(option);
+    auto result = pasteData->GetShareOption();
+    ASSERT_TRUE(result == LocalDevice);
+}
+
+/**
+* @tc.name: SetTokenId001
+* @tc.desc: 
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, SetTokenId001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    uint32_t tokenId = 1;
+    pasteData->SetTokenId(tokenId);
+    auto result = pasteData->GetTokenId();
+    ASSERT_TRUE(result == 1);
+}
+
+/**
+* @tc.name: IsDraggedData001
+* @tc.desc: 
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, IsDraggedData001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    bool isDraggedData = false;
+    pasteData->SetDraggedDataFlag(isDraggedData);
+    auto result = pasteData->IsDraggedData();
+    ASSERT_FALSE(result);
+}
+
+/**
+* @tc.name: SetDraggedDataFlag001
+* @tc.desc: 
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, SetDraggedDataFlag001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    bool isDraggedData = true;
+    pasteData->SetDraggedDataFlag(isDraggedData);
+    auto result = pasteData->IsDraggedData();
+    ASSERT_TRUE(result);
+}
 } // namespace OHOS::MiscServices
