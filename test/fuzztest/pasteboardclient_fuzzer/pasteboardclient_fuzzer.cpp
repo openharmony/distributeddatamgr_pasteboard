@@ -85,7 +85,7 @@ void FuzzPasteboardclientTest(const uint8_t *rawData, size_t size)
     std::string str(reinterpret_cast<const char *>(rawData), size);
 
     uint32_t color[100] = { code };
-    InitialzationOptions opts = { { 5, 7}, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = { { 5, 7}, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color)/sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
 
@@ -104,8 +104,8 @@ void FuzzPasteboardclientTest(const uint8_t *rawData, size_t size)
             pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
             break;
         case RANDNUM_ONE:
-            pasteData = PasteboardClient::GetInstance()->CreateWantData(wantIn);
-            pasteDataRecord = PasteboardClient::GetInstance()->CreateWantTextRecord(wantIn);
+            pasteData = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
+            pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
             break;
         default:
             pasteData = PasteboardClient::GetInstance()->CreateKvData(mimetype, arrayBuffer);
@@ -119,9 +119,7 @@ void FuzzPasteboardclientTest(const uint8_t *rawData, size_t size)
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
         PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
         auto pasteboardObserver_ = new PasteboardObserver();
-        auto pasteboardEventObserver_ = new PasteboardObserver();
         PasteboardClient::GetInstance()->AddPasteboardChangedObserver(pasteboardObserver_);
-        PasteboardClient::GetInstance()->AddPasteboardChangedEventObserver(pasteboardEventObserver_);
     }
 
     PasteData pasteData2;
@@ -148,7 +146,7 @@ void FuzzPasteboardclientTest(const uint8_t *rawData, size_t size)
     pasteData2.SetInvalid();
 
     sptr<IRemoteObject> remoteObject = nullptr;
-    PasteboardClient::GetInstance()->LoadSystemAbility(remoteObject);
+    PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
 
     const wptr<IRemoteObject> object;
     PasteboardSaDeathRecipient death;
