@@ -20,7 +20,7 @@ import("//build/test.gni")
 
 ##############################fuzztest##########################################
 ohos_fuzztest("UriHandlerFuzzTest") {
-  module_out_path = "distributeddatamgr/pasteboard"
+  module_out_path = "pasteboard/pasteboard"
 
   fuzz_config_file = "${pasteboard_root_path}/test/fuzztest/urihandler_fuzzer"
 
