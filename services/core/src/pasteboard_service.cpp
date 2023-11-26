@@ -483,9 +483,13 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
         data = *(it->second);
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d, isP2pOpen_=%{public}d",
-        data.IsRemote(), fileSize, isP2pOpen_.load());
-    if (data.IsRemote() && fileSize > 0 && !isP2pOpen_.load()) {
+ 
+    auto it = p2pMap_.find(currentEvent_.deviceId);
+    auto isP2pOpen = it != p2pMap_.end() && it->second == 1;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d, ret=%{public}d",
+        data.IsRemote(), fileSize, isP2pOpen);
+    
+    if (data.IsRemote() && fileSize > 0 && !isP2pOpen) {
         EstablishP2PLink(fileSize);
         std::this_thread::sleep_for(std::chrono::seconds(OPEN_P2P_SLEEP_TIME));
     }
@@ -506,10 +510,14 @@ void PasteboardService::EstablishP2PLink(int fileSize)
     std::thread thread([this, remoteDevice, keepLinkTime]() mutable {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
         DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
-        isP2pOpen_.store(true);
+        p2pMap_.insert_or_assign(currentEvent_.deviceId, 1);
         std::this_thread::sleep_for(std::chrono::seconds(keepLinkTime));
         DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
-        isP2pOpen_.store(false);
+        auto it = p2pMap_.find(currentEvent_.deviceId);
+        if (it == p2pMap_.end()) {
+           return;
+        }
+        p2pMap_.erase(currentEvent_.deviceId);
     });
     thread.detach();
 }
@@ -1234,7 +1242,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     }
     GenerateDistributedUri(data);
     if (data.GetShareOption() != CrossDevice || !data.Encode(rawData)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "encode failed.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Cross-device data is not supported.");
         return false;
     }
 
