@@ -181,7 +181,6 @@ private:
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
-    static std::atomic<bool> isP2pOpen_;
     std::atomic<bool> setting_ = false;
     std::mutex remoteMutex_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
@@ -192,6 +191,8 @@ private:
         { MIMETYPE_TEXT_WANT, WANT_INDEX },
         { MIMETYPE_PIXELMAP, PIXELMAP_INDEX }
     };
+
+    std::map<std::string, int> p2pMap_ = {};
 
     void AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);

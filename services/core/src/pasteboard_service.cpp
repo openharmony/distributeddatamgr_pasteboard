@@ -71,7 +71,6 @@ std::mutex PasteboardService::historyMutex_;
 std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
-std::atomic<bool> PasteboardService::isP2pOpen_ = false;
 int32_t PasteboardService::currentUserId = ERROR_USERID;
 
 PasteboardService::PasteboardService()
@@ -484,7 +483,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
         data = *(it->second);
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d , fileSize=%{public}d, isP2pOpen_=%{public}d",
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d, isP2pOpen_=%{public}d",
         data.IsRemote(), fileSize, isP2pOpen_.load());
     if (data.IsRemote() && fileSize > 0 && !isP2pOpen_.load()) {
         EstablishP2PLink(fileSize);
@@ -1234,7 +1233,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         return false;
     }
     GenerateDistributedUri(data);
-    if (data.GetShareOption() == CrossDevice && !data.Encode(rawData)) {
+    if (data.GetShareOption() != CrossDevice || !data.Encode(rawData)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "encode failed.");
         return false;
     }
