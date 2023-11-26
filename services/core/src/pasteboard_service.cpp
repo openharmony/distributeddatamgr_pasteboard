@@ -1370,7 +1370,7 @@ bool PasteboardService::CleanDistributedData(int32_t user)
 void PasteboardService::OnConfigChange(bool isOn)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConfigChange isOn: %{public}d.", isOn);
-    isP2pOpen_.store(false);
+    p2pMap_.clear();
     std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (!isOn) {
         clipPlugin_ = nullptr;
