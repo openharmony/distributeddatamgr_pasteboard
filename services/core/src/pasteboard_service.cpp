@@ -985,7 +985,7 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
 inline bool PasteboardService::IsCallerUidValid()
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid == EDM_UID || callingUid == ROOT_UID || callingUid == ANCO_CALL_UID) {
+    if (callingUid == EDM_UID || callingUid == ANCO_CALL_UID) {
         return true;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callingUid error: %{public}d.", callingUid);
