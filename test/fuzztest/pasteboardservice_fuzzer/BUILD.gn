@@ -20,7 +20,7 @@ import("//build/test.gni")
 
 ##############################fuzztest##########################################
 ohos_fuzztest("PasteboardServiceFuzzTest") {
-  module_out_path = "distributeddatamgr/pasteboard"
+  module_out_path = "pasteboard/pasteboard"
 
   fuzz_config_file = "//foundation/distributeddatamgr/pasteboard/test/fuzztest/pasteboardservice_fuzzer"
 
