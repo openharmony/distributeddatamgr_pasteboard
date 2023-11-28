@@ -42,7 +42,7 @@ config("pasteboard_service_config") {
     "-fvisibility=hidden",
   ]
   cflags_cc = []
-  if (pb_dlp_part_enabled) {
+  if (os_dlp_part_enabled) {
     cflags_cc += [ "-DWITH_DLP" ]
   }
 }
@@ -85,7 +85,6 @@ ohos_shared_library("pasteboard_service") {
     "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
   ]
-  defines = []
 
   configs = [ "//third_party/cJSON:cJSON_config" ]
 
@@ -104,6 +103,7 @@ ohos_shared_library("pasteboard_service") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "device_info_manager:distributed_device_profile_client",
     "device_manager:devicemanagersdk",
     "dfs_service:distributed_file_daemon_kit_inner",
     "eventhandler:libeventhandler",
@@ -123,13 +123,8 @@ ohos_shared_library("pasteboard_service") {
     "time_service:time_client",
     "window_manager:libwm",
   ]
-  if (pb_dlp_part_enabled) {
+  if (os_dlp_part_enabled) {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
-  }
-
-  if (pb_device_info_manager_part_enabled) {
-    external_deps += [ "device_info_manager:distributed_device_profile_client" ]
-    defines += [ "PB_DEVICE_INFO_MANAGER_ENABLED" ]
   }
   subsystem_name = "distributeddatamgr"
   part_name = "pasteboard"
