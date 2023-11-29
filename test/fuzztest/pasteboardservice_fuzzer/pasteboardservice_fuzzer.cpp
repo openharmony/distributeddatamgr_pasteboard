@@ -92,7 +92,6 @@ bool FuzzPasteboardServiceOnSetPasteData(const uint8_t *rawData, size_t size)
 
 bool FuzzPasteOnIsRemoteData(const uint8_t *rawData, size_t size)
 {
-    uint32_t code = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
 
@@ -118,7 +117,6 @@ bool FuzzPasteOnIsRemoteData(const uint8_t *rawData, size_t size)
 
 bool FuzzPasteOnAddChangedObserver(const uint8_t *rawData, size_t size)
 {
-    uint32_t code = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
 
@@ -144,7 +142,6 @@ bool FuzzPasteOnAddChangedObserver(const uint8_t *rawData, size_t size)
 
 bool FuzzPasteOnAddEventObserver(const uint8_t *rawData, size_t size)
 {
-    uint32_t code = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
 
