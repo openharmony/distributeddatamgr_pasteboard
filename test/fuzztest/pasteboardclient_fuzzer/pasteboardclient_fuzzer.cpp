@@ -47,14 +47,14 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
     rawData = rawData + OFFSET;
     size = size - OFFSET;
     std::string str(reinterpret_cast<const char *>(rawData), size);
+
     if (code == RANDNUM_ZERO) {
         pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(str);
         pasteDataRecord = PasteboardClient::GetInstance()->CreatePlainTextRecord(str);
-    } else {
+    }else {
         pasteData = PasteboardClient::GetInstance()->CreateUriData(Uri(str));
         pasteDataRecord = PasteboardClient::GetInstance()->CreateUriRecord(Uri(str));
     }
-
     pasteData->AddRecord(pasteDataRecord);
     std::vector<uint8_t> buffer;
     pasteData->Encode(buffer);
@@ -87,15 +87,13 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
     if (code == RANDNUM_ZERO) {
         pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
         pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
-    } else {
+    }else {
         pasteData = PasteboardClient::GetInstance()->CreateKvData(mimetype, kvData);
         pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimetype, kvData);
     }
 
     pasteData->AddRecord(pasteDataRecord);
-
-    if (PasteboardClient::GetInstance()->HasPasteData())
-    {
+    if (PasteboardClient::GetInstance()->HasPasteData()) {
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
     }
 }
@@ -110,9 +108,7 @@ void FuzzPastedata(const uint8_t *rawData, size_t size)
     pasteData2.SetBundleName(str);
     pasteData2.SetTag(str);
     pasteData2.SetTime(str);
-    
-    if (pasteData2.IsRemote())
-    {
+    if (pasteData2.IsRemote()) {
         pasteData2.IsValid();
         pasteData2.IsLocalPaste();
         pasteData2.GetLocalOnly();
@@ -126,15 +122,12 @@ void FuzzPastedata(const uint8_t *rawData, size_t size)
         PasteboardClient::GetInstance()->IsRemoteData();
     }
     pasteData2.SetInvalid();
-
     sptr<IRemoteObject> remoteObject = nullptr;
     PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
-
     const wptr<IRemoteObject> object;
     PasteboardSaDeathRecipient death;
     death.OnRemoteDied(object);
     PasteboardClient::GetInstance()->OnRemoteSaDied(object);
-
     PasteboardClient::GetInstance()->Clear();
 }
 
@@ -155,7 +148,7 @@ void FuzzPasteboardclientCreateData(const uint8_t *rawData, size_t size)
     if (code == RANDNUM_ZERO) {
         pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
         pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
-    } else {
+    }else {
         pasteData = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
         pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
     }
