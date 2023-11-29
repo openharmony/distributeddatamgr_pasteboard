@@ -97,7 +97,10 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
         localEnable_ = true;
     }
     cJSON_AddNumberToObject(jsonObject, VERSION_ID, FIRST_VERSION);
-    profile.SetCharacteristicProfileJson(cJSON_PrintUnformatted(jsonObject));
+    char *jsonString = cJSON_PrintUnformatted((jsonObject));
+    profile.SetCharacteristicProfileJson(jsonString);
+    cJSON_Delete(jsonObject);
+    free(jsonString);
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutDeviceProfile(profile);
     if (errNo != HANDLE_OK) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile failed, %{public}d", errNo);
@@ -123,6 +126,7 @@ void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &ena
     const auto &jsonData = profile.GetCharacteristicProfileJson();
     cJSON *jsonObject = cJSON_Parse(jsonData.c_str());
     if (jsonObject == nullptr) {
+        cJSON_Delete(jsonObject);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
         return;
     }
@@ -131,6 +135,7 @@ void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &ena
     if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, CHARACTER_ID)) == SUPPORT) {
         enabledStatus = "true";
     }
+    cJSON_Delete(jsonObject);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
 }
 
@@ -151,12 +156,14 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
     const auto &jsonData = profile.GetCharacteristicProfileJson();
     cJSON *jsonObject = cJSON_Parse(jsonData.c_str());
     if (jsonObject == nullptr) {
+        cJSON_Delete(jsonObject);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
         return;
     }
     if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, VERSION_ID)) == FIRST_VERSION) {
         versionId = FIRST_VERSION;
     }
+    cJSON_Delete(jsonObject);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion success, versionId = %{public}d.", versionId);
 }
 
