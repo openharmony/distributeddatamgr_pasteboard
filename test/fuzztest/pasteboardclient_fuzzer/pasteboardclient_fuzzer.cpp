@@ -28,7 +28,7 @@ using namespace OHOS::AAFwk;
 constexpr size_t THRESHOLD = 10;
 constexpr size_t OFFSET = 4;
 constexpr size_t RANDNUM_ZERO = 0;
-constexpr size_t RANDNUM_ONE = 1;
+constexpr size_t LENGTH = 46;
 
 uint32_t ConvertToUint32(const uint8_t *ptr)
 {
@@ -47,19 +47,13 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
     rawData = rawData + OFFSET;
     size = size - OFFSET;
     std::string str(reinterpret_cast<const char *>(rawData), size);
-    switch (code) {
-        case RANDNUM_ZERO:
-            pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(str);
-            pasteDataRecord = PasteboardClient::GetInstance()->CreatePlainTextRecord(str);
-            break;
-        case RANDNUM_ONE:
-            pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
-            pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
-            break;
-        default:
-            pasteData = PasteboardClient::GetInstance()->CreateUriData(Uri(str));
-            pasteDataRecord = PasteboardClient::GetInstance()->CreateUriRecord(Uri(str));
-            break;
+
+    if (code == RANDNUM_ZERO) {
+        pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(str);
+        pasteDataRecord = PasteboardClient::GetInstance()->CreatePlainTextRecord(str);
+    } else {
+        pasteData = PasteboardClient::GetInstance()->CreateUriData(Uri(str));
+        pasteDataRecord = PasteboardClient::GetInstance()->CreateUriRecord(Uri(str));
     }
     pasteData->AddRecord(pasteDataRecord);
     std::vector<uint8_t> buffer;
@@ -72,11 +66,8 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
     pasteData2.ReplaceRecordAt(code, pasteDataRecord);
 }
 
-void FuzzPasteboardclientTest(const uint8_t *rawData, size_t size)
+void FuzzPasteboard(const uint8_t *rawData, size_t size)
 {
-    if((rawData == nullptr) || (size < sizeof(int32_t))){
-        return;
-    }
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     std::shared_ptr<PasteDataRecord> pasteDataRecord = std::make_shared<PasteDataRecord>();
     uint32_t code = ConvertToUint32(rawData);
@@ -89,71 +80,82 @@ void FuzzPasteboardclientTest(const uint8_t *rawData, size_t size)
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color)/sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
 
-    std::shared_ptr<Want> want = std::make_shared<Want>();
-    std::string key = "id";
-    bool id = static_cast<bool>(*rawData);
-    Want wantIn = want->SetParam(key, id);
-
-    std::vector<uint8_t> arrayBuffer(46);
-    arrayBuffer = { *rawData };
+    std::vector<uint8_t> kvData(LENGTH);
+    kvData = { *rawData };
     std::string mimetype = "image/jpg";
 
-    switch (code) {
-        case RANDNUM_ZERO:
-            pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
-            pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
-            break;
-        case RANDNUM_ONE:
-            pasteData = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
-            pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
-            break;
-        default:
-            pasteData = PasteboardClient::GetInstance()->CreateKvData(mimetype, arrayBuffer);
-            pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimetype, arrayBuffer);
-            break;
+    if (code == RANDNUM_ZERO) {
+        pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
+        pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    } else {
+        pasteData = PasteboardClient::GetInstance()->CreateKvData(mimetype, kvData);
+        pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimetype, kvData);
     }
+
     pasteData->AddRecord(pasteDataRecord);
-
-    if (PasteboardClient::GetInstance()->HasPasteData())
-    {
+    if (PasteboardClient::GetInstance()->HasPasteData()) {
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
-        PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
-        auto pasteboardObserver_ = new PasteboardObserver();
-        PasteboardClient::GetInstance()->AddPasteboardChangedObserver(pasteboardObserver_);
     }
+}
 
+void FuzzPastedata(const uint8_t *rawData, size_t size)
+{
+    std::string str(reinterpret_cast<const char *>(rawData), size);
     PasteData pasteData2;
     pasteData2.SetRemote(static_cast<bool>(*rawData));
     pasteData2.SetOrginAuthority(str);
     pasteData2.SetBundleName(str);
     pasteData2.SetTag(str);
     pasteData2.SetTime(str);
+    pasteData2.IsValid();
+    pasteData2.IsRemote();
+    pasteData2.IsLocalPaste();
+    pasteData2.GetLocalOnly();
+    pasteData2.IsDraggedData();
     
-    if (pasteData2.IsRemote())
-    {
-        pasteData2.IsValid();
-        pasteData2.IsLocalPaste();
-        pasteData2.GetLocalOnly();
-        pasteData2.IsDraggedData();
-        pasteData2.GetBundleName();
-        pasteData2.GetOrginAuthority();
-        pasteData2.GetTag();
-        pasteData2.GetTime();
-        PasteboardClient::GetInstance()->SetPasteData(pasteData2);
-        PasteboardClient::GetInstance()->HasDataType(std::string(reinterpret_cast<const char *>(rawData), size));
-        PasteboardClient::GetInstance()->IsRemoteData();
-    }
-    pasteData2.SetInvalid();
+    pasteData2.GetOrginAuthority();
+    pasteData2.GetTag();
+    pasteData2.GetTime();
+    PasteboardClient::GetInstance()->SetPasteData(pasteData2);
+    PasteboardClient::GetInstance()->HasDataType(std::string(reinterpret_cast<const char *>(rawData), size));
+    PasteboardClient::GetInstance()->IsRemoteData();
 
+    std::string bundlename = pasteData2.GetBundleName();
+    PasteboardClient::GetInstance()->GetPasteData(pasteData2);
+    PasteboardClient::GetInstance()->GetDataSource(bundlename);
+
+    pasteData2.SetInvalid();
     sptr<IRemoteObject> remoteObject = nullptr;
     PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
-
+    PasteboardClient::GetInstance()->LoadSystemAbilityFail();
     const wptr<IRemoteObject> object;
     PasteboardSaDeathRecipient death;
     death.OnRemoteDied(object);
     PasteboardClient::GetInstance()->OnRemoteSaDied(object);
-
     PasteboardClient::GetInstance()->Clear();
+}
+
+void FuzzPasteboardclientCreateData(const uint8_t *rawData, size_t size)
+{
+    std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = std::make_shared<PasteDataRecord>();
+    uint32_t code = ConvertToUint32(rawData);
+    rawData = rawData + OFFSET;
+    size = size - OFFSET;
+    std::string str(reinterpret_cast<const char *>(rawData), size);
+
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    std::string key = "id";
+    bool id = static_cast<bool>(*rawData);
+    Want wantIn = want->SetParam(key, id);
+
+    if (code == RANDNUM_ZERO) {
+        pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
+        pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
+    } else {
+        pasteData = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
+        pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
+    }
 }
 } // namespace OHOS
 /* Fuzzer entry point */
@@ -164,6 +166,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     }
     /* Run your code on data */
     OHOS::FuzzPasteboardclient(data, size);
-    OHOS::FuzzPasteboardclientTest(data, size);
+    OHOS::FuzzPasteboard(data, size);
+    OHOS::FuzzPastedata(data, size);
+    OHOS::FuzzPasteboardclientCreateData(data, size);
     return 0;
 }
