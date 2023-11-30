@@ -51,7 +51,7 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
     if (code == RANDNUM_ZERO) {
         pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(str);
         pasteDataRecord = PasteboardClient::GetInstance()->CreatePlainTextRecord(str);
-    }else {
+    } else {
         pasteData = PasteboardClient::GetInstance()->CreateUriData(Uri(str));
         pasteDataRecord = PasteboardClient::GetInstance()->CreateUriRecord(Uri(str));
     }
@@ -87,7 +87,7 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
     if (code == RANDNUM_ZERO) {
         pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMapIn);
         pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
-    }else {
+    } else {
         pasteData = PasteboardClient::GetInstance()->CreateKvData(mimetype, kvData);
         pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimetype, kvData);
     }
@@ -148,7 +148,7 @@ void FuzzPasteboardclientCreateData(const uint8_t *rawData, size_t size)
     if (code == RANDNUM_ZERO) {
         pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
         pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
-    }else {
+    } else {
         pasteData = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
         pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
     }
