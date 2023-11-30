@@ -486,7 +486,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
     auto it = p2pMap_.find(currentEvent_.deviceId);
     auto isP2pOpen = it != p2pMap_.end() && it->second == 1;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d, ret=%{public}d",
-                      data.IsRemote(), fileSize, isP2pOpen);
+        data.IsRemote(), fileSize, isP2pOpen);
 
     if (data.IsRemote() && fileSize > 0 && !isP2pOpen) {
         EstablishP2PLink(fileSize);
