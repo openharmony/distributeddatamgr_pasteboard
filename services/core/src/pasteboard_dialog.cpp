@@ -95,7 +95,7 @@ void PasteBoardDialog::CancelToast()
         return;
     }
     std::lock_guard<std::mutex> lock(connectionLock_);
-    int result = IN_PROCESS_CALL(abilityManager->DisconnectAbility(toastConnection_));
+    int result = IN_PROCESS_CALL(abilityManager->DisconnectAbility(connection_));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect toast ability:%{public}d", result);
 }
 
