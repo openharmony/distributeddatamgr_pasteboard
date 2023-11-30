@@ -512,7 +512,7 @@ void PasteboardService::EstablishP2PLink(int fileSize)
         p2pMap_.insert_or_assign(currentEvent_.deviceId, 1);
         std::this_thread::sleep_for(std::chrono::seconds(keepLinkTime));
         DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
-        iauto it = p2pMap_.find(currentEvent_.deviceId);
+        auto it = p2pMap_.find(currentEvent_.deviceId);
         if (it == p2pMap_.end()) {
             return;
         }
