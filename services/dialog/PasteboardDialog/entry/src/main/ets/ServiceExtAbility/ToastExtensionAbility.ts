@@ -118,7 +118,7 @@ export default class ToastExtensionAbility extends ServiceExtensionAbility {
         GlobalExtensionWindow.getInstance().extensionWin = data;
         hilog.info(0, TAG, 'Succeeded in creating the window. Data: ' + JSON.stringify(data));
         try {
-          windowClass.setUIContent('pages/toastIndex', (err) => {
+          windowClass.setUIContent('pages/index', (err) => {
             if (err.code) {
               hilog.error(0, TAG, 'Failed to load the content. Cause:' + JSON.stringify(err));
               return;

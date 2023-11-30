@@ -16,15 +16,6 @@
     "abilities": [],
     "extensionAbilities": [
       {
-        "name": "DialogExtensionAbility",
-        "srcEntrance": "./ets/ServiceExtAbility/DialogExtensionAbility.ts",
-        "description": "$string:DialogExtensionAbility_desc",
-        "icon": "$media:icon",
-        "label": "$string:DialogExtensionAbility_label",
-        "visible": false,
-        "type": "service"
-      },
-      {
         "name": "ToastExtensionAbility",
         "srcEntrance": "./ets/ServiceExtAbility/ToastExtensionAbility.ts",
         "description": "$string:ToastExtensionAbility_desc",

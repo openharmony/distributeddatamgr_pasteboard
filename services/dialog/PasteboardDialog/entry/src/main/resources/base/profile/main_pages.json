@@ -1,6 +1,5 @@
 {
   "src": [
-    "pages/index",
-    "pages/toastIndex"
+    "pages/index"
   ]
 }
