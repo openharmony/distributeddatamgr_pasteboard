@@ -60,32 +60,6 @@ PasteBoardDialog &PasteBoardDialog::GetInstance()
     return instance;
 }
 
-int32_t PasteBoardDialog::ShowDialog(const MessageInfo &message, const Cancel &cancel)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin, app:%{public}s, device:%{public}s", message.appName.c_str(),
-        message.deviceType.c_str());
-    auto abilityManager = GetAbilityManagerService();
-    if (abilityManager == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
-        return -1;
-    }
-    Want want;
-    want.SetAction("");
-    want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_DIALOG_ABILITY);
-    want.SetParam("appName", message.appName);
-    want.SetParam("deviceType", message.deviceType);
-
-    std::lock_guard<std::mutex> lock(connectionLock_);
-    connection_ = new DialogConnection(cancel);
-    int32_t result = IN_PROCESS_CALL(abilityManager->ConnectAbility(want, connection_, nullptr));
-    if (result != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog failed, result:%{public}d", result);
-        return -1;
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard dialog success.");
-    return 0;
-}
-
 int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin, fromApp:%{public}s, toApp:%{public}s",
