@@ -35,14 +35,14 @@ FaultReporter &Reporter::PasteboardFault()
 
 StatisticReporter<struct TimeConsumingStat> &Reporter::TimeConsumingStatistic()
 {
-    static TimeConsumingStatisticImpl TimeConsumingStatistic;
-    return TimeConsumingStatistic;
+    static TimeConsumingStatisticImpl timeConsumingStatistic;
+    return timeConsumingStatistic;
 }
 
 BehaviourReporter &Reporter::PasteboardBehaviour()
 {
-    static PasteboardBehaviourReporterImpl PasteboardBehaviourReporter;
-    return PasteboardBehaviourReporter;
+    static PasteboardBehaviourReporterImpl pasteboardBehaviourReporter;
+    return pasteboardBehaviourReporter;
 }
 } // namespace MiscServices
 } // namespace OHOS
