@@ -100,7 +100,7 @@ PasteDataProperty PasteData::GetProperty() const
     return PasteDataProperty(props_);
 }
 
-void PasteData::SetProerty(const PasteDataProperty &property)
+void PasteData::SetProperty(const PasteDataProperty &property)
 {
     this->props_ = property;
 }
