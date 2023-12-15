@@ -17,15 +17,19 @@
 #include <thread>
 
 #include "dev_profile.h"
-#include "device_manager.h"
 #include "distributed_module_config.h"
 #include "pasteboard_hilog.h"
+#ifdef PB_DEVICE_MANAGER_ENABLE
+#include "device_manager.h"
+#include "device_manager_callback.h"
+#endif
 namespace OHOS {
 namespace MiscServices {
 constexpr const char *PKG_NAME = "pasteboard_service";
 constexpr int32_t DM_OK = 0;
 constexpr const int32_t DELAY_TIME = 200;
 constexpr const uint32_t FIRST_VERSION = 4;
+#ifdef PB_DEVICE_MANAGER_ENABLE
 using namespace OHOS::DistributedHardware;
 class PasteboardDevStateCallback : public DistributedHardware::DeviceStateCallback {
 public:
@@ -68,6 +72,7 @@ void PasteboardDmInitCallback::OnRemoteDied()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "dm device manager died, init it again");
     DevManager::GetInstance().Init();
 }
+#endif
 
 DevManager::DevManager()
 {
@@ -84,6 +89,7 @@ void DevManager::UnregisterDevCallback()
 
 int32_t DevManager::Init()
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
     RetryInBlocking([]() -> bool {
         auto initCallback = std::make_shared<PasteboardDmInitCallback>();
@@ -97,6 +103,7 @@ int32_t DevManager::Init()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "RegisterDevStateCallback ret %{public}d", errNo);
         return errNo == DM_OK;
     });
+#endif
     return DM_OK;
 }
 
@@ -141,6 +148,7 @@ void DevManager::RetryInBlocking(DevManager::Function func) const
 
 std::vector<std::string> DevManager::GetNetworkIds()
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     std::vector<DmDeviceInfo> devices;
     int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devices);
     if (ret != 0) {
@@ -157,6 +165,9 @@ std::vector<std::string> DevManager::GetNetworkIds()
         networkIds.emplace_back(item.networkId);
     }
     return networkIds;
+#else
+    return {};
+#endif
 }
 
 std::vector<std::string> DevManager::GetOldNetworkIds()

@@ -19,7 +19,6 @@
 
 #include "cJSON.h"
 #include "dev_manager.h"
-#include "device_manager.h"
 #include "distributed_module_config.h"
 #include "dm_adapter.h"
 #include "para_handle.h"
@@ -35,7 +34,6 @@ namespace OHOS {
 namespace MiscServices {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 using namespace OHOS::DeviceProfile;
-using namespace OHOS::DistributedHardware;
 constexpr const int32_t HANDLE_OK = 0;
 constexpr const uint32_t NOT_SUPPORT = 0;
 constexpr const uint32_t SUPPORT = 1;

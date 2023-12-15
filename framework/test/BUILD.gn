@@ -55,8 +55,6 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:zuri",
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
-    "device_info_manager:distributed_device_profile_client",
-    "device_manager:devicemanagersdk",
     "hilog:libhilog",
     "image_framework:image_native",
     "init:libbeget_proxy",
@@ -71,6 +69,16 @@ ohos_unittest("PasteboardFrameworkTest") {
     "//third_party/googletest:gmock",
     "//third_party/googletest:gtest_main",
   ]
+
+  if (pb_device_info_manager_part_enabled) {
+    external_deps += [ "device_info_manager:distributed_device_profile_client" ]
+    defines += [ "PB_DEVICE_INFO_MANAGER_ENABLE" ]
+  }
+
+  if (pb_device_manager_part_enabled) {
+    external_deps += [ "device_manager:devicemanagersdk" ]
+    defines += [ "PB_DEVICE_MANAGER_ENABLE" ]
+  }
 
   configs += [ "//third_party/cJSON:cJSON_config" ]
 

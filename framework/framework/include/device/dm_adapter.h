@@ -20,10 +20,14 @@
 
 #include "api/visibility.h"
 #include "common/concurrent_map.h"
+#ifdef PB_DEVICE_MANAGER_ENABLE
 #include "dm_device_info.h"
+#endif
 
 namespace OHOS::MiscServices {
+#ifdef PB_DEVICE_MANAGER_ENABLE
 using namespace OHOS::DistributedHardware;
+#endif
 class API_EXPORT DMAdapter {
 public:
     static constexpr size_t MAX_ID_LEN = 64;
@@ -38,7 +42,9 @@ public:
     const std::string &GetLocalDeviceUdid();
     const std::string GetLocalNetworkId();
     std::string GetUdidByNetworkId(const std::string &networkId);
+    #ifdef PB_DEVICE_MANAGER_ENABLE
     int32_t GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice);
+    #endif
     std::string GetDeviceName(const std::string &networkId);
     void Register(DMObserver *observer);
     void Unregister(DMObserver *observer);

@@ -59,7 +59,6 @@ ohos_shared_library("pasteboard_framework") {
 
   external_deps = [
     "c_utils:utils",
-    "device_manager:devicemanagersdk",
     "hilog:libhilog",
     "init:libbeget_proxy",
     "init:libbegetutil",
@@ -68,6 +67,11 @@ ohos_shared_library("pasteboard_framework") {
   if (pb_device_info_manager_part_enabled) {
     external_deps += [ "device_info_manager:distributed_device_profile_client" ]
     defines += [ "PB_DEVICE_INFO_MANAGER_ENABLE" ]
+  }
+
+  if (pb_device_manager_part_enabled) {
+    external_deps += [ "device_manager:devicemanagersdk" ]
+    defines += [ "PB_DEVICE_MANAGER_ENABLE" ]
   }
   subsystem_name = "distributeddatamgr"
   part_name = "pasteboard"
