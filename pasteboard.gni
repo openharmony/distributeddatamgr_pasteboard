@@ -42,7 +42,7 @@ declare_args() {
     pb_device_info_manager_part_enabled = false
   }
   if (defined(global_parts_info) &&
-       !defined(global_parts_info.distributedhardware_device_manager)) {
+      !defined(global_parts_info.distributedhardware_device_manager)) {
     pb_device_manager_part_enabled = false
   }
 }
