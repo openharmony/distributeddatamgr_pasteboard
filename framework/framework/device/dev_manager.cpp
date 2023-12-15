@@ -172,6 +172,7 @@ std::vector<std::string> DevManager::GetNetworkIds()
 
 std::vector<std::string> DevManager::GetOldNetworkIds()
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     std::vector<std::string> networkIds = GetNetworkIds();
     if (networkIds.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
@@ -187,6 +188,9 @@ std::vector<std::string> DevManager::GetOldNetworkIds()
         oldNetworkIds.emplace_back(item);
     }
     return oldNetworkIds;
+#else
+    return {};
+#endif
 }
 } // namespace MiscServices
 } // namespace OHOS
