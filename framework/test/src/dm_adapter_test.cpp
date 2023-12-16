@@ -102,9 +102,13 @@ HWTEST_F(DMAdapterTest, DistributedClipRegister, TestSize.Level0)
 */
 HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo("", remoteDevice);
     ASSERT_TRUE(ret == -1);
+#else
+    ASSERT_TRUE(true);
+#endif
 }
 
 /**

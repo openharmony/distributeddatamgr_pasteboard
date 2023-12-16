@@ -499,6 +499,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
 
 void PasteboardService::EstablishP2PLink(int fileSize)
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     auto keepLinkTime = (fileSize / TRANMISSION_BASELINE) * 3 + MIN_TRANMISSION_TIME;
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(currentEvent_.deviceId, remoteDevice);
@@ -519,6 +520,7 @@ void PasteboardService::EstablishP2PLink(int fileSize)
         p2pMap_.erase(currentEvent_.deviceId);
     });
     thread.detach();
+#endif
 }
 
 void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)

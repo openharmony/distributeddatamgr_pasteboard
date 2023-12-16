@@ -14,11 +14,14 @@
  */
 #include "device/dm_adapter.h"
 
+#include "pasteboard_hilog.h"
+#ifdef PB_DEVICE_MANAGER_ENABLE
 #include "device_manager.h"
 #include "device_manager_callback.h"
-#include "pasteboard_hilog.h"
+#endif
 namespace OHOS::MiscServices {
 constexpr size_t DMAdapter::MAX_ID_LEN;
+#ifdef PB_DEVICE_MANAGER_ENABLE
 class DmStateObserver : public DeviceStateCallback {
 public:
     DmStateObserver(std::function<void(const DmDeviceInfo &)> action) : online_(std::move(action))
@@ -62,6 +65,7 @@ private:
     std::shared_ptr<DmStateObserver> observer_;
     std::string pkgName_;
 };
+#endif
 
 DMAdapter::DMAdapter()
 {
@@ -79,6 +83,7 @@ DMAdapter &DMAdapter::GetInstance()
 
 bool DMAdapter::Initialize(const std::string &pkgName)
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     auto stateObserver = std::make_shared<DmStateObserver>([this](const DmDeviceInfo &deviceInfo) {
         observers_.ForEach([&deviceInfo](auto &key, auto &value) {
             value->Online(deviceInfo.networkId);
@@ -88,11 +93,13 @@ bool DMAdapter::Initialize(const std::string &pkgName)
     pkgName_ = pkgName + NAME_EX;
     auto deathObserver = std::make_shared<DmDeath>(stateObserver, pkgName_);
     deathObserver->OnRemoteDied();
+#endif
     return false;
 }
 
 const std::string &DMAdapter::GetLocalDeviceUdid()
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     std::lock_guard<decltype(mutex_)> lockGuard(mutex_);
     if (!localDeviceUdid_.empty()) {
         return localDeviceUdid_;
@@ -104,14 +111,16 @@ const std::string &DMAdapter::GetLocalDeviceUdid()
         return invalidDeviceUdid_;
     }
     DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceUdid_);
-    if (localDeviceUdid_.empty()) {
-        return invalidDeviceUdid_;
+    if (!localDeviceUdid_.empty()) {
+        return localDeviceUdid_;
     }
-    return localDeviceUdid_;
+#endif
+    return invalidDeviceUdid_;
 }
 
 std::string DMAdapter::GetDeviceName(const std::string &networkId)
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     std::vector<DmDeviceInfo> devices;
     (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
     for (auto &device : devices) {
@@ -119,23 +128,27 @@ std::string DMAdapter::GetDeviceName(const std::string &networkId)
             return device.deviceName;
         }
     }
+#endif
     return DEVICE_INVALID_NAME;
 }
 
 const std::string DMAdapter::GetLocalNetworkId()
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(pkgName_, info);
     auto networkId = std::string(info.networkId);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret: %{public}d, networkId:%{public}s", ret, networkId.c_str());
-    if (ret != 0 || networkId.empty()) {
-        return invalidNetworkId_;
+    if (ret == 0 && !networkId.empty()) {
+        return networkId;
     }
-    return networkId;
+#endif
+    return invalidNetworkId_;
 }
 
 int32_t DMAdapter::GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice)
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     std::vector<DmDeviceInfo> devices;
     (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
     for (auto &device : devices) {
@@ -144,17 +157,20 @@ int32_t DMAdapter::GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInf
             return RESULT_OK;
         }
     }
+#endif
     return -1;
 }
 
 std::string DMAdapter::GetUdidByNetworkId(const std::string &networkId)
 {
+#ifdef PB_DEVICE_MANAGER_ENABLE
     std::string udid;
     int32_t ret = DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, networkId, udid);
-    if (ret != 0 || udid.empty()) {
-        return invalidUdid_;
+    if (ret == 0 && !udid.empty()) {
+        return udid;
     }
-    return udid;
+#endif
+    return invalidUdid_;
 }
 
 void DMAdapter::Register(DMObserver *observer)

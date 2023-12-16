@@ -20,7 +20,6 @@
 
 namespace OHOS {
 namespace MiscServices {
-using namespace DistributedHardware;
 bool DistributedModuleConfig::status_ = false;
 size_t DistributedModuleConfig::deviceNums_ = 0;
 DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
