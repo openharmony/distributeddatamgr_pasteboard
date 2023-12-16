@@ -493,7 +493,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
     return true;
 }
 
-void PasteboardService::EstablishP2PLink(int fileSize)
+void PasteboardService::EstablishP2PLink()
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
