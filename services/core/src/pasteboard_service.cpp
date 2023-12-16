@@ -486,7 +486,7 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d",
         data.IsRemote(), fileSize);
     if (data.IsRemote() && fileSize > 0) {
-        EstablishP2PLink(fileSize);
+        EstablishP2PLink();
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
