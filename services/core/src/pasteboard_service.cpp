@@ -483,14 +483,10 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
         data = *(it->second);
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    auto it = p2pMap_.find(currentEvent_.deviceId);
-    auto isP2pOpen = it != p2pMap_.end() && it->second == 1;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d, ret=%{public}d",
-        data.IsRemote(), fileSize, isP2pOpen);
-
-    if (data.IsRemote() && fileSize > 0 && !isP2pOpen) {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d",
+        data.IsRemote(), fileSize);
+    if (data.IsRemote() && fileSize > 0) {
         EstablishP2PLink(fileSize);
-        std::this_thread::sleep_for(std::chrono::seconds(OPEN_P2P_SLEEP_TIME));
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
@@ -500,23 +496,23 @@ bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data, bool i
 void PasteboardService::EstablishP2PLink(int fileSize)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    auto keepLinkTime = (fileSize / TRANMISSION_BASELINE) * 3 + MIN_TRANMISSION_TIME;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(currentEvent_.deviceId, remoteDevice);
     if (ret != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
         return;
     }
-    std::thread thread([this, remoteDevice, keepLinkTime]() mutable {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
-        DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
-        p2pMap_.insert_or_assign(currentEvent_.deviceId, 1);
-        std::this_thread::sleep_for(std::chrono::seconds(keepLinkTime));
+    DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
+    auto it = p2pMap_.find(currentEvent_.deviceId);
+    if (it != p2pMap_.end() && it->second == 1) {
+        return;
+    }
+    p2pMap_.insert_or_assign(currentEvent_.deviceId, 1);
+    std::thread thread([this, remoteDevice]() mutable {
+        std::this_thread::sleep_for(std::chrono::seconds(MIN_TRANMISSION_TIME));
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
         DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
-        auto it = p2pMap_.find(currentEvent_.deviceId);
-        if (it == p2pMap_.end()) {
-            return;
-        }
         p2pMap_.erase(currentEvent_.deviceId);
     });
     thread.detach();
