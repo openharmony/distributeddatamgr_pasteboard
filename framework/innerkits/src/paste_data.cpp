@@ -100,11 +100,6 @@ PasteDataProperty PasteData::GetProperty() const
     return PasteDataProperty(props_);
 }
 
-void PasteData::SetProperty(const PasteDataProperty &property)
-{
-    this->props_ = property;
-}
-
 void PasteData::AddHtmlRecord(const std::string &html)
 {
     this->AddRecord(PasteDataRecord::NewHtmlRecord(html));

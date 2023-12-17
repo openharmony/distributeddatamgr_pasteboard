@@ -254,7 +254,6 @@ std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pa
     std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
     auto PasteboardWebController = PasteboardWebController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
-    webPasteData->SetProperty(pasteData.GetProperty());
     std::string mimeType = MIMETYPE_TEXT_HTML;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
