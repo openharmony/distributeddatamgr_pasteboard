@@ -100,8 +100,6 @@ private:
     static constexpr const pid_t EDM_UID = 3057;
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
-    static constexpr uint32_t OPEN_P2P_SLEEP_TIME = 5;
-    static constexpr int TRANMISSION_BASELINE = 30 * 1024 * 1024;
     static constexpr int MIN_TRANMISSION_TIME = 600;
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     struct classcomp {
@@ -134,7 +132,7 @@ private:
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
-    void EstablishP2PLink(int fileSize);
+    void EstablishP2PLink();
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
