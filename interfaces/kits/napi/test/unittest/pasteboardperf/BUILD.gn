@@ -20,7 +20,7 @@ ohos_js_unittest("PasteBoardPerfJSTest") {
 
   hap_profile = "../config.json"
 
-  certificate_profile = "../openharmony_sx.p7b"
+  certificate_profile = "../com.ohos.pastboarddialog.p7b"
 }
 
 group("unittest") {

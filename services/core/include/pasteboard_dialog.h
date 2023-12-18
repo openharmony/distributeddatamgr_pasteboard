@@ -42,7 +42,7 @@ public:
 private:
     static sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerService();
 
-    static constexpr const char *PASTEBOARD_DIALOG_APP = "cn.openharmony.pasteboarddialog";
+    static constexpr const char *PASTEBOARD_DIALOG_APP = "com.ohos.pasteboarddialog";
     static constexpr const char *PASTEBOARD_TOAST_ABILITY = "ToastExtensionAbility";
 
     std::mutex connectionLock_;
