@@ -82,7 +82,6 @@ public:
     bool ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRecord> record);
     bool HasMimeType(const std::string &mimeType);
     PasteDataProperty GetProperty() const;
-    void SetProperty(const PasteDataProperty &property);
     ShareOption GetShareOption();
     void SetShareOption(ShareOption shareOption);
     uint32_t GetTokenId();
