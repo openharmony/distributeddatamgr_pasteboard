@@ -318,7 +318,7 @@ bool PasteboardService::IsDataAged()
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "copyTime = %{public}" PRIu64, copyTime);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
-    if (curTime - copyTime > ONE_HOUR_MILLISECONDS) {
+    if (curTime > copyTime && curTime - copyTime > ONE_HOUR_MILLISECONDS) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
         auto data = clips_.find(userId);
         if (data != clips_.end()) {
