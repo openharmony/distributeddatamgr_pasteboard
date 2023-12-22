@@ -32,7 +32,7 @@ PasteboardObserverProxy::PasteboardObserverProxy(const sptr<IRemoteObject> &obje
 void PasteboardObserverProxy::OnPasteboardChanged()
 {
     MessageParcel data, reply;
-    MessageOption option;
+    MessageOption option = { MessageOption::TF_ASYNC };
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "write descriptor failed!");
@@ -51,7 +51,7 @@ void PasteboardObserverProxy::OnPasteboardChanged()
 void PasteboardObserverProxy::OnPasteboardEvent(std::string bundleName, int32_t status)
 {
     MessageParcel data, reply;
-    MessageOption option;
+    MessageOption option = { MessageOption::TF_ASYNC };
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write descriptor failed!");
