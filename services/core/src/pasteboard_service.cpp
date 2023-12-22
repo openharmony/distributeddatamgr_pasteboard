@@ -44,7 +44,12 @@
 #include "remote_file_share.h"
 #include "reporter.h"
 #include "uri_permission_manager_client.h"
+#ifdef SCENE_BOARD_ENABLE
+#include "window_manager_lite.h"
+#else
 #include "window_manager.h"
+#endif
+
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
@@ -254,7 +259,11 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 {
     FocusChangeInfo info;
+#ifdef SCENE_BOARD_ENABLE
+    WindowManagerLite::GetInstance().GetFocusWindowInfo(info);
+#else
     WindowManager::GetInstance().GetFocusWindowInfo(info);
+#endif
     auto callPid = IPCSkeleton::GetCallingPid();
     if (callPid == info.pid_) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid is same, focused app");

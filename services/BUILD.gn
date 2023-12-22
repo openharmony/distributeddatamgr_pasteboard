@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
+import("//foundation/window/window_manager/windowmanager_aafwk.gni")
 
 config("pasteboard_service_config") {
   visibility = [ ":*" ]
@@ -118,6 +119,12 @@ ohos_shared_library("pasteboard_service") {
     "time_service:time_client",
     "window_manager:libwm",
   ]
+  if (scene_board_enabled) {
+    external_deps += [ "window_manager:libwm_lite" ]
+    defines += [ "SCENE_BOARD_ENABLE" ]
+  } else {
+    external_deps += [ "window_manager:libwm" ]
+  }
   if (pb_dlp_part_enabled) {
     external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
     defines += [ "WITH_DLP" ]
