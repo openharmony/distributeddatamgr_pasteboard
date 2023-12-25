@@ -767,6 +767,25 @@ HWTEST_F(PasteDataTest, GetProperty001, TestSize.Level0)
 }
 
 /**
+* @tc.name: SetProperty001
+* @tc.desc:
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, GetProperty001, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteDataProperty property;
+    property.tokenId = 1;
+    pasteData->SetPropety(property);
+    PasteDataProperty pasteDataProperty = pasteData->GetProperty();
+    ASSERT_TRUE(pasteDataProperty.tokenId == 1);
+}
+
+/**
 * @tc.name: SetShareOption001
 * @tc.desc: 
 * @tc.type: FUNC
