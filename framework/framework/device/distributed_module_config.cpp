@@ -25,7 +25,7 @@ size_t DistributedModuleConfig::deviceNums_ = 0;
 DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
-    if (deviceNums_ != 0 && !status_) {
+    if (deviceNums_ != 0) {
         Notify();
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu, status_:%{public}d",
