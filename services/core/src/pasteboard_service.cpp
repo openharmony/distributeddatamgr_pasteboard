@@ -320,7 +320,7 @@ bool PasteboardService::IsPermissionGranted(const std::string& perm, uint32_t to
 {
     ATokenTypeEnum type = AccessTokenKit::GetTokenTypeFlag(tokenId);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check grant permission, perm=%{public}s type=%{public}d",
-                      perm.c_str(), type);
+        perm.c_str(), type);
     int32_t result = PermissionState::PERMISSION_DENIED;
     switch (type) {
         case ATokenTypeEnum::TOKEN_HAP:
