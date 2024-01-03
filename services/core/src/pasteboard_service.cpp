@@ -43,6 +43,7 @@
 #include "pasteboard_trace.h"
 #include "remote_file_share.h"
 #include "reporter.h"
+#include "tokenid_kit.h"
 #include "uri_permission_manager_client.h"
 #ifdef SCENE_BOARD_ENABLE
 #include "window_manager_lite.h"
@@ -67,6 +68,7 @@ const std::int32_t INIT_INTERVAL = 10000L;
 const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const std::string PASTEBOARD_PROXY_AUTHOR_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
+const std::string SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
 const std::int32_t ANCO_CALL_UID = 5557;
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -278,9 +280,12 @@ bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 bool PasteboardService::HasPastePermission(
     uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData)
 {
-    if (pasteData == nullptr) {
+    if (pasteData == nullptr || pasteData->IsDraggedData() || !pasteData->IsValid()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "data is invalid");
         return false;
     }
+    auto isPrivilegeApp = IsDefaultIME(GetAppInfo(tokenId));
+    auto isGrantPermission = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
 
     if (!pasteData->IsDraggedData() && (!isFocusedApp && !IsDefaultIME(GetAppInfo(tokenId)))) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "token:0x%{public}x", tokenId);
@@ -309,6 +314,33 @@ bool PasteboardService::HasPastePermission(
     auto isDataAged = IsDataAged();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsDataAged = %{public}d", isDataAged);
     return isDataAged;
+}
+
+bool PasteboardService::IsPermissionGranted(const std::string& perm, uint32_t tokenId)
+{
+    ATokenTypeEnum type = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check grant permission, perm=%{public}s type=%{public}d",
+                      perm.c_str(), type);
+    int32_t result = PermissionState::PERMISSION_DENIED;
+    switch (type) {
+        case ATokenTypeEnum::TOKEN_HAP:
+            result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
+            break;
+        case ATokenTypeEnum::TOKEN_NATIVE:
+        case ATokenTypeEnum::TOKEN_SHELL:
+            result = PermissionState::PERMISSION_GRANTED;
+            break;
+        case ATokenTypeEnum::TOKEN_INVALID:
+        case ATokenTypeEnum::TOKEN_TYPE_BUTT:
+            break;
+        default:
+            break;
+    }
+    if (result == PermissionState::PERMISSION_DENIED) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "permission denied");
+        return false;
+    }
+    return true;
 }
 
 bool PasteboardService::IsDataAged()
