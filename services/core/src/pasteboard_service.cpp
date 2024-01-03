@@ -287,7 +287,7 @@ bool PasteboardService::HasPastePermission(
     auto isPrivilegeApp = IsDefaultIME(GetAppInfo(tokenId));
     auto isGrantPermission = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
 
-    if (!pasteData->IsDraggedData() && (!isFocusedApp && !IsDefaultIME(GetAppInfo(tokenId)))) {
+    if (!isFocusedApp && !isPrivilegeApp && !isGrantPermission) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "token:0x%{public}x", tokenId);
         return false;
     }
