@@ -774,7 +774,7 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
 
 bool PasteboardService::HasDistributedDataType(const std::string &mimeType)
 {
-    auto value = currentEvent_.dataType;
+    auto value = remoteEvent_.dataType;
     std::bitset<MAX_INDEX_LENGTH> dataType(value);
     auto it = typeMap_.find(mimeType);
     if (it == typeMap_.end()) {
@@ -1371,6 +1371,7 @@ bool PasteboardService::HasDistributedData(int32_t user)
     }
     Event event;
     auto has = GetDistributedEvent(clipPlugin, user, event);
+    remoteEvent_ = std::move(event);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
         event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
     return has;

@@ -166,6 +166,7 @@ private:
     ObserverMap observerChangedMap_;
     ObserverMap observerEventMap_;
     ClipPlugin::GlobalEvent currentEvent_;
+    ClipPlugin::GlobalEvent remoteEvent_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
     std::map<int32_t, std::vector<int32_t>> hints_;
