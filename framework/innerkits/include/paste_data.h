@@ -34,6 +34,7 @@ namespace MiscServices {
 enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
 struct PasteDataProperty : public TLVObject {
     PasteDataProperty() = default;
+    ~PasteDataProperty();
     explicit PasteDataProperty(const PasteDataProperty &property);
     PasteDataProperty& operator=(const PasteDataProperty &property);
     AAFwk::WantParams additions;
@@ -57,6 +58,7 @@ class PasteData : public TLVObject {
 public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();
+    ~PasteData();
     explicit PasteData(const PasteData &data);
     PasteData& operator=(const PasteData &data);
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);

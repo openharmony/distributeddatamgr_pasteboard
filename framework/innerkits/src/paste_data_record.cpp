@@ -156,6 +156,12 @@ PasteDataRecord::PasteDataRecord()
     InitDecodeMap();
 }
 
+PasteDataRecord::~PasteDataRecord()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "copy destruct");
+    decodeMap.clear();
+}
+
 PasteDataRecord::PasteDataRecord(const PasteDataRecord &record) : mimeType_(record.mimeType_),
     htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_), uri_(record.uri_),
     convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
