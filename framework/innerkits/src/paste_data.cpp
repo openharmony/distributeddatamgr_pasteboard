@@ -59,6 +59,11 @@ PasteData::PasteData()
     props_.shareOption = ShareOption::CrossDevice;
 }
 
+PasteData::~PasteData()
+{
+    records_.clear();
+}
+
 PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthority_), valid_(data.valid_),
     isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_)
 {
@@ -70,7 +75,6 @@ PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthorit
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "copy construct");
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
@@ -462,9 +466,13 @@ PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)
     shareOption(property.shareOption), tokenId(property.tokenId), isRemote(property.isRemote),
     bundleName(property.bundleName), setTime(property.setTime)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "copy construct");
     this->additions = property.additions;
     std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
+}
+
+PasteDataProperty::~PasteDataProperty()
+{
+    mimeTypes.clear();
 }
 
 PasteDataProperty& PasteDataProperty::operator=(const PasteDataProperty &property)

@@ -66,6 +66,7 @@ private:
 class PasteDataRecord : public TLVObject {
 public:
     PasteDataRecord();
+    ~PasteDataRecord();
     PasteDataRecord(const PasteDataRecord &record);
     PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
         std::shared_ptr<OHOS::AAFwk::Want> want, std::shared_ptr<std::string> plainText,
