@@ -701,7 +701,7 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     data1.AddRecord(record1);
     std::string bundleName1 = "com.example.myapplication";
     data1.SetOrginAuthority(bundleName1);
-    
+
     PasteData data2;
     PasteDataRecord::Builder builder2(MIMETYPE_TEXT_URI);
     std::string uriStr2 = FILE_URI;
@@ -711,13 +711,13 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     data2.AddRecord(record2);
     std::string bundleName2 = "com.example.myapplication";
     data2.SetOrginAuthority(bundleName2);
-    
+
     ASSERT_TRUE(data1.GetBundleName() == data2.GetBundleName());
 }
 
 /**
 * @tc.name: GetShareOption001
-* @tc.desc: 
+* @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
@@ -735,7 +735,7 @@ HWTEST_F(PasteDataTest, GetShareOption001, TestSize.Level0)
 
 /**
 * @tc.name: AddKvRecord001
-* @tc.desc: 
+* @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
@@ -752,7 +752,7 @@ HWTEST_F(PasteDataTest, AddKvRecord001, TestSize.Level0)
 
 /**
 * @tc.name: GetProperty001
-* @tc.desc: 
+* @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
@@ -787,7 +787,7 @@ HWTEST_F(PasteDataTest, SetProperty001, TestSize.Level0)
 
 /**
 * @tc.name: SetShareOption001
-* @tc.desc: 
+* @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
@@ -805,7 +805,7 @@ HWTEST_F(PasteDataTest, SetShareOption001, TestSize.Level0)
 
 /**
 * @tc.name: SetTokenId001
-* @tc.desc: 
+* @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
@@ -823,7 +823,7 @@ HWTEST_F(PasteDataTest, SetTokenId001, TestSize.Level0)
 
 /**
 * @tc.name: IsDraggedData001
-* @tc.desc: 
+* @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
@@ -841,7 +841,7 @@ HWTEST_F(PasteDataTest, IsDraggedData001, TestSize.Level0)
 
 /**
 * @tc.name: SetDraggedDataFlag001
-* @tc.desc: 
+* @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
