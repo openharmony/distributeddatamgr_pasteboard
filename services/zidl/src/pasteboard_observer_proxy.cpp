@@ -31,7 +31,8 @@ PasteboardObserverProxy::PasteboardObserverProxy(const sptr<IRemoteObject> &obje
 
 void PasteboardObserverProxy::OnPasteboardChanged()
 {
-    MessageParcel data, reply;
+    MessageParcel data;
+    MessageParcel reply;
     MessageOption option = { MessageOption::TF_ASYNC };
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
@@ -50,7 +51,8 @@ void PasteboardObserverProxy::OnPasteboardChanged()
 
 void PasteboardObserverProxy::OnPasteboardEvent(std::string bundleName, int32_t status)
 {
-    MessageParcel data, reply;
+    MessageParcel data;
+    MessageParcel reply;
     MessageOption option = { MessageOption::TF_ASYNC };
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
