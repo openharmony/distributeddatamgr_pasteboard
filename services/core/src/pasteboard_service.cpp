@@ -745,6 +745,25 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
 bool PasteboardService::HasDataType(const std::string &mimeType)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
+        return HasLocalDataType(mimeType);
+    }
+    auto userId = GetCurrentAccountId();
+    ClipPlugin::GlobalEvent event;
+    auto isEffective = GetDistributedEvent(clipPlugin, userId, event);
+    if (!isEffective || event == currentEvent_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EVT_UNKNOWN.");
+        return HasLocalDataType(mimeType);
+    }
+    HasDistributedData(userId);
+    return HasDistributedDataType(mimeType);
+}
+
+bool PasteboardService::HasLocalDataType(const std::string &mimeType)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto hasData = HasPasteData();
     if (!hasData) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is not exist");
@@ -754,7 +773,8 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it == clips_.end()) {
-        return HasDistributedDataType(mimeType);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "can not find data");
+        return false;
     }
     if (it->second == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr");
@@ -768,7 +788,6 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "is Web Data");
         return mimeType == MIMETYPE_TEXT_HTML && isExistType;
     }
-    
     return isExistType;
 }
 
