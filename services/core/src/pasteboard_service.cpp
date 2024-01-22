@@ -750,16 +750,18 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return HasLocalDataType(mimeType);
     }
+    auto userId = GetCurrentAccountId();
     ClipPlugin::GlobalEvent event;
-    auto isEffective = GetDistributedEvent(clipPlugin, user, event);
+    auto isEffective = GetDistributedEvent(clipPlugin, userId, event);
     if (!isEffective || event == currentEvent_) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EVT_UNKNOWN.");
         return HasLocalDataType(mimeType);
     }
+    HasDistributedData(userId);
     return HasDistributedDataType(mimeType);
 }
 
-bool HasLocalDataType(const std::string &mimeType)
+bool PasteboardService::HasLocalDataType(const std::string &mimeType)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto hasData = HasPasteData();
