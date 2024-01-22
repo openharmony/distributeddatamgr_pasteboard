@@ -198,6 +198,7 @@ private:
     void RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveAllObserver(ObserverMap &observerMap);
     inline bool IsCallerUidValid();
+    bool HasLocalDataType(const std::string &mimeType);
 };
 } // namespace MiscServices
 } // namespace OHOS

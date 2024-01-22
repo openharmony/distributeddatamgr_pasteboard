@@ -37,6 +37,10 @@ public:
         std::string account;
         std::vector<uint8_t> addition;
         uint8_t dataType = 0;
+        bool operator == (const GlobalEvent globalEvent)
+        {
+            return globalEvent.seqId == this->seqId && globalEvent.deviceId == this->deviceId;
+        }
     };
     class Factory {
     public:
