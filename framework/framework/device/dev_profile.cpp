@@ -111,11 +111,6 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile failed, %{public}d", errNo);
         return;
     }
-    auto networkIds = DevManager::GetInstance().GetNetworkIds();
-    if (networkIds.empty()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "networkIds is empty");
-        return;
-    }
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
     return;
