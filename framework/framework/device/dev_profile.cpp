@@ -111,7 +111,11 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile failed, %{public}d", errNo);
         return;
     }
-    SyncEnabledStatus();
+    auto networkIds = DevManager::GetInstance().GetNetworkIds();
+    if (networkIds.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "networkIds is empty");
+        return;
+    }
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
     return;
@@ -250,19 +254,6 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "UnsubscribeProfileEvent result, errCode = %{public}d.", errCode);
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
-#endif
-}
-
-void DevProfile::SyncEnabledStatus()
-{
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus start.");
-    auto networkIds = DevManager::GetInstance().GetNetworkIds();
-    if (networkIds.empty()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "networkIds is empty");
-    }
-#else
     return;
 #endif
 }
