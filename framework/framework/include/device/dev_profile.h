@@ -49,7 +49,6 @@ private:
     DevProfile();
     ~DevProfile() = default;
     static void ParameterChange(const char *key, const char *value, void *context);
-    void SyncEnabledStatus();
     std::mutex callbackMutex_;
     bool localEnable_ = false;
 

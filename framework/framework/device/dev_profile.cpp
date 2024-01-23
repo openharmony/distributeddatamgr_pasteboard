@@ -111,7 +111,6 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutDeviceProfile failed, %{public}d", errNo);
         return;
     }
-    SyncEnabledStatus();
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
     return;
@@ -248,29 +247,6 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
         it->second, failedEvents);
     callback_.erase(it);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "UnsubscribeProfileEvent result, errCode = %{public}d.", errCode);
-#else
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
-#endif
-}
-
-void DevProfile::SyncEnabledStatus()
-{
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus start.");
-    SyncOptions syncOptions;
-    auto networkIds = DevManager::GetInstance().GetNetworkIds();
-    if (networkIds.empty()) {
-        return;
-    }
-    for (auto &id : networkIds) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}.5s.", id.c_str());
-        syncOptions.AddDevice(id);
-    }
-    syncOptions.SetSyncMode(SyncMode::PUSH_PULL);
-    auto syncCallback = std::make_shared<PasteboardProfileEventCallback>();
-    int32_t errCode = DistributedDeviceProfileClient::GetInstance().SyncDeviceProfile(syncOptions, syncCallback);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus, ret = %{public}d.", errCode);
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
     return;
