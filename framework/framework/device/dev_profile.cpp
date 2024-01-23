@@ -258,21 +258,11 @@ void DevProfile::SyncEnabledStatus()
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus start.");
-    SyncOptions syncOptions;
     auto networkIds = DevManager::GetInstance().GetNetworkIds();
     if (networkIds.empty()) {
-        return;
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "networkIds is empty");
     }
-    for (auto &id : networkIds) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}.5s.", id.c_str());
-        syncOptions.AddDevice(id);
-    }
-    syncOptions.SetSyncMode(SyncMode::PUSH_PULL);
-    auto syncCallback = std::make_shared<PasteboardProfileEventCallback>();
-    int32_t errCode = DistributedDeviceProfileClient::GetInstance().SyncDeviceProfile(syncOptions, syncCallback);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SyncEnabledStatus, ret = %{public}d.", errCode);
 #else
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
     return;
 #endif
 }
