@@ -37,7 +37,7 @@ using namespace OHOS::DeviceProfile;
 constexpr const int32_t HANDLE_OK = 0;
 constexpr const uint32_t NOT_SUPPORT = 0;
 constexpr const uint32_t SUPPORT = 1;
-constexpr const uint32_t FIRST_VERSION = 4;
+
 constexpr const char *SERVICE_ID = "pasteboardService";
 constexpr const char *CHARACTER_ID = "supportDistributedPasteboard";
 constexpr const char *VERSION_ID = "PasteboardVersionId";
@@ -70,9 +70,6 @@ void DevProfile::Init()
 
 void DevProfile::OnReady()
 {
-    auto status = ParaHandle::GetInstance().GetEnabledStatus();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "status = %{public}s.", status.c_str());
-    PutEnabledStatus(status);
     DistributedModuleConfig::Notify();
 }
 
