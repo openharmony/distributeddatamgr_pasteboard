@@ -36,7 +36,7 @@ public:
     void UnSubscribeProfileEvent(const std::string &networkId);
     void UnsubscribeAllProfileEvents();
     bool GetLocalEnable();
-
+    static constexpr const uint32_t FIRST_VERSION = 4;
     #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     class PasteboardProfileEventCallback : public DeviceProfile::IProfileEventCallback {
     public:
