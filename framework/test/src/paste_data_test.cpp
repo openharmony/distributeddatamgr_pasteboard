@@ -684,6 +684,66 @@ HWTEST_F(PasteDataTest, ClipPlugin002, TestSize.Level0)
 }
 
 /**
+* @tc.name: ClipPlugin003
+* @tc.desc: API_EXPORT: ClipPlugin
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, ClipPlugin003, TestSize.Level0)
+{
+    ClipPlugin::GlobalEvent event1;
+    event1.seq = 0;
+    event1.deviceId = "test_device_id";
+    event1.user = 0;
+    ClipPlugin::GlobalEvent event2;
+    event2.seq = 0;
+    event2.deviceId = "test_device_id";
+    event2.user = 1;
+    EXPECT_TRUE(event1 == event2);
+}
+
+/**
+* @tc.name: ClipPlugin004
+* @tc.desc: API_EXPORT: ClipPlugin
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, ClipPlugin004, TestSize.Level0)
+{
+    ClipPlugin::GlobalEvent event1;
+    event1.seq = 0;
+    event1.deviceId = "test_device_id";
+    event1.user = 0;
+    ClipPlugin::GlobalEvent event2;
+    event2.seq = 0;
+    event2.deviceId = "test_device_id1";
+    event2.user = 1;
+    EXPECT_FALSE(event1 == event2);
+}
+
+/**
+* @tc.name: ClipPlugin005
+* @tc.desc: API_EXPORT: ClipPlugin
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, ClipPlugin005, TestSize.Level0)
+{
+    ClipPlugin::GlobalEvent event1;
+    event1.seq = 0;
+    event1.deviceId = "test_device_id";
+    event1.user = 0;
+    ClipPlugin::GlobalEvent event2;
+    event2.seq = 1;
+    event2.deviceId = "test_device_id";
+    event2.user = 1;
+    EXPECT_FALSE(event1 == event2);
+}
+
+/**
 * @tc.name: PasteDataOperator001
 * @tc.desc: PasteData: operator
 * @tc.type: FUNC
