@@ -69,7 +69,7 @@ const std::string PASTEBOARD_SERVICE_NAME = "PasteboardService";
 const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const std::string PASTEBOARD_PROXY_AUTHOR_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
 const std::string SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
-const std::int32_t ANCO_CALL_UID = 5557;
+const std::int32_t CALL_UID = 5557;
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
 using namespace Security::AccessToken;
@@ -1041,7 +1041,7 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
 inline bool PasteboardService::IsCallerUidValid()
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid == EDM_UID || callingUid == ANCO_CALL_UID) {
+    if (callingUid == EDM_UID || callingUid == CALL_UID) {
         return true;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callingUid error: %{public}d.", callingUid);
