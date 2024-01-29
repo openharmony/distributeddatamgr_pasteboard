@@ -34,5 +34,9 @@ void DistributedClip::Online(const std::string &device)
 void DistributedClip::Offline(const std::string &device)
 {
 }
+
+void DistributedClip::OnReady(const std::string &device)
+{
+}
 } // namespace OHOS::MiscServices
 #endif // DISTRIBUTED_PASTEBOARD_FRAMEWORK_DISTRIBUTED_CLIP_H
