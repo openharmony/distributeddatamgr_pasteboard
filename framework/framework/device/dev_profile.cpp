@@ -70,7 +70,6 @@ void DevProfile::Init()
 
 void DevProfile::OnReady()
 {
-    DistributedModuleConfig::Notify();
 }
 
 void DevProfile::ParameterChange(const char *key, const char *value, void *context)

@@ -38,6 +38,13 @@ void DistributedModuleConfig::Watch(Observer observer)
     observer_ = std::move(observer);
 }
 
+void DistributedModuleConfig::ForceNotify()
+{
+    if (observer_ != nullptr) {
+        observer_(true);
+    }
+}
+
 void DistributedModuleConfig::Notify()
 {
     bool newStatus = GetEnabledStatus();
