@@ -26,9 +26,10 @@ class DmStateObserver : public DeviceStateCallback {
 public:
     DmStateObserver(const std::function<void(const DmDeviceInfo &)> onLine,
         const std::function<void(const DmDeviceInfo &)> onReady)
-		: online_(std::move(onLine)), onReady_(std::move(onReady))
+        : online_(std::move(onLine)), onReady_(std::move(onReady))
     {
     }
+
     void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override
     {
         if (online_ == nullptr) {
