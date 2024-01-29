@@ -24,9 +24,9 @@ constexpr size_t DMAdapter::MAX_ID_LEN;
 #ifdef PB_DEVICE_MANAGER_ENABLE
 class DmStateObserver : public DeviceStateCallback {
 public:
-    DmStateObserver(const std::function<void(const DmDeviceInfo &)> onLine,
+    DmStateObserver(const std::function<void(const DmDeviceInfo &)> online,
         const std::function<void(const DmDeviceInfo &)> onReady)
-        : online_(std::move(onLine)), onReady_(std::move(onReady))
+        :online_(std::move(online)), onReady_(std::move(onReady))
     {
     }
 
@@ -99,7 +99,7 @@ bool DMAdapter::Initialize(const std::string &pkgName)
         });
     }, [this](const DmDeviceInfo &deviceInfo) {
         observers_.ForEach([&deviceInfo](auto &key, auto &value) {
-            value->Online(deviceInfo.networkId);
+            value->OnReady(deviceInfo.networkId);
             return false;
         });
     });
