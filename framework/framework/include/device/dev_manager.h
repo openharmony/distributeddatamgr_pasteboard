@@ -33,7 +33,6 @@ public:
     void Online(const std::string &networkId);
     void Offline(const std::string &networkId);
     void UnregisterDevCallback();
-    bool ConvertOsType(const std::string &jsonStr, const std::string &key, int32_t value);
 
 private:
     using Function = bool (*)();
