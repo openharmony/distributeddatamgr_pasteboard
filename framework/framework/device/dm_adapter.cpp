@@ -24,7 +24,9 @@ constexpr size_t DMAdapter::MAX_ID_LEN;
 #ifdef PB_DEVICE_MANAGER_ENABLE
 class DmStateObserver : public DeviceStateCallback {
 public:
-    DmStateObserver(std::function<void(const DmDeviceInfo &)> action) : online_(std::move(action))
+    DmStateObserver(const std::function<void(const DmDeviceInfo &)> onLine,
+        const std::function<void(const DmDeviceInfo &)> onReady) :
+        online_(std::move(onLine)), onReady_(std::move(onReady))
     {
     }
     void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override
@@ -43,10 +45,15 @@ public:
     }
     void OnDeviceReady(const DmDeviceInfo &deviceInfo) override
     {
+        if (onReady_ == nullptr) {
+            return;
+        }
+        onReady_(deviceInfo);
     }
 
 private:
     std::function<void(const DmDeviceInfo &)> online_;
+    std::function<void(const DmDeviceInfo &)> onReady_;
 };
 
 class DmDeath : public DmInitCallback, public std::enable_shared_from_this<DmDeath> {
@@ -85,6 +92,11 @@ bool DMAdapter::Initialize(const std::string &pkgName)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     auto stateObserver = std::make_shared<DmStateObserver>([this](const DmDeviceInfo &deviceInfo) {
+        observers_.ForEach([&deviceInfo](auto &key, auto &value) {
+            value->Online(deviceInfo.networkId);
+            return false;
+        });
+    }, [this](const DmDeviceInfo &deviceInfo) {
         observers_.ForEach([&deviceInfo](auto &key, auto &value) {
             value->Online(deviceInfo.networkId);
             return false;

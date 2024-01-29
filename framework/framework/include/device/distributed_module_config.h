@@ -26,6 +26,7 @@ public:
     using Observer = std::function<void(bool isOn)>;
     static bool IsOn();
     static void Watch(Observer observer);
+    static void ForceNotify();
     static void Notify();
 private:
     static bool GetEnabledStatus();

@@ -36,6 +36,7 @@ public:
     public:
         virtual void Online(const std::string &device) = 0;
         virtual void Offline(const std::string &device) = 0;
+        virtual void OnReady(const std::string &device) = 0;
     };
     static DMAdapter &GetInstance();
     bool Initialize(const std::string &pkgName);

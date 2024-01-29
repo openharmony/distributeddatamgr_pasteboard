@@ -1433,6 +1433,9 @@ void PasteboardService::OnConfigChange(bool isOn)
         clipPlugin_ = nullptr;
         return;
     }
+    if (clipPlugin_ != nullptr) {
+        return;
+    }
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);

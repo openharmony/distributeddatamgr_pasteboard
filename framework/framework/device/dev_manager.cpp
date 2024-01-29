@@ -15,6 +15,7 @@
 #include "dev_manager.h"
 
 #include <thread>
+#include <nlohmann/json.hpp>
 
 #include "dev_profile.h"
 #include "distributed_module_config.h"
@@ -29,8 +30,11 @@ constexpr const char *PKG_NAME = "pasteboard_service";
 constexpr int32_t DM_OK = 0;
 constexpr const int32_t DELAY_TIME = 200;
 constexpr const uint32_t FIRST_VERSION = 4;
+static constexpr int32_t OH_OS_TYPE_VERSION = 10;
+static constexpr const char *DEVICE_OS_TYPE = "OS_TYPE";
 #ifdef PB_DEVICE_MANAGER_ENABLE
 using namespace OHOS::DistributedHardware;
+using json = nlohmann::json;
 class PasteboardDevStateCallback : public DistributedHardware::DeviceStateCallback {
 public:
     void OnDeviceOnline(const DistributedHardware::DmDeviceInfo &deviceInfo) override;
@@ -47,12 +51,30 @@ public:
 void PasteboardDevStateCallback::OnDeviceOnline(const DmDeviceInfo &deviceInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    int32_t osType = 0;
+    if (!DevManager::GetInstance().ConvertOsType(deviceInfo.extraData, DEVICE_OS_TYPE, osType)) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get os type fail");
+        return;
+    }
+    if (osType != OH_OS_TYPE_VERSION) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "not oh device");
+        return;
+    }
     DevManager::GetInstance().Online(deviceInfo.networkId);
 }
 
 void PasteboardDevStateCallback::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    int32_t osType = 0;
+    if (!DevManager::GetInstance().ConvertOsType(deviceInfo.extraData, DEVICE_OS_TYPE, osType)) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get os type fail");
+        return;
+    }
+    if (osType != OH_OS_TYPE_VERSION) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "not oh device");
+        return;
+    }
     DevManager::GetInstance().Offline(deviceInfo.networkId);
 }
 
@@ -63,6 +85,15 @@ void PasteboardDevStateCallback::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
 void PasteboardDevStateCallback::OnDeviceReady(const DmDeviceInfo &deviceInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    int32_t osType = 0;
+    if (!DevManager::GetInstance().ConvertOsType(deviceInfo.extraData, DEVICE_OS_TYPE, osType)) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get os type fail");
+        return;
+    }
+    if (osType != OH_OS_TYPE_VERSION) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "not oh device");
+        return;
+    }
     (void)deviceInfo;
     DevManager::GetInstance().OnReady();
 }
@@ -117,6 +148,8 @@ void DevManager::Online(const std::string &networkId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().SubscribeProfileEvent(networkId);
+    DistributedModuleConfig::ForceNotify();
+    DistributedModuleConfig::Notify();
 }
 
 void DevManager::Offline(const std::string &networkId)
@@ -144,6 +177,31 @@ void DevManager::RetryInBlocking(DevManager::Function func) const
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_TIME));
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry failed");
+}
+
+bool DevManager::ConvertOsType(const std::string &jsonStr, const std::string &key, int32_t value)
+{
+    json jsonObj = json::parse(jsonStr, nullptr, false);
+    if (jsonObj.is_discarded()) {
+        // if the string size is less than 1, means the string is invalid.
+        if (jsonStr.empty()) {
+            return false;
+        }
+        // drop first char to adapt A's value;
+        jsonObj = json::parse(jsonStr.substr(1), nullptr, false);
+        if (jsonObj.is_discarded()) {
+            return false;
+        }
+    }
+    if (key.empty()) {
+        return false;
+    }
+    auto it = jsonObj.find(key);
+    if (it == jsonObj.end() || it->is_null() || !it->is_number_integer()) {
+        return false;
+    }
+    it->get_to(value);
+    return true;
 }
 
 std::vector<std::string> DevManager::GetNetworkIds()
