@@ -25,8 +25,8 @@ constexpr size_t DMAdapter::MAX_ID_LEN;
 class DmStateObserver : public DeviceStateCallback {
 public:
     DmStateObserver(const std::function<void(const DmDeviceInfo &)> onLine,
-        const std::function<void(const DmDeviceInfo &)> onReady) :
-        online_(std::move(onLine)), onReady_(std::move(onReady))
+        const std::function<void(const DmDeviceInfo &)> onReady)
+		: online_(std::move(onLine)), onReady_(std::move(onReady))
     {
     }
     void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override
