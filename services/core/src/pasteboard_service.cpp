@@ -677,6 +677,7 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
         int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(data.GetTokenId(),
             PASTEBOARD_PROXY_AUTHOR_URI);
         if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+            item->SetGrantUriPermission(false);
             continue;
         }
         item->SetGrantUriPermission(true);
