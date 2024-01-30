@@ -24,6 +24,7 @@ class DistributedClip : public DMAdapter::DMObserver {
 public:
     void Online(const std::string &device) override;
     void Offline(const std::string &device) override;
+    void OnReady(const std::string &device) override;
 };
 
 void DistributedClip::Online(const std::string &device)
@@ -31,6 +32,10 @@ void DistributedClip::Online(const std::string &device)
 }
 
 void DistributedClip::Offline(const std::string &device)
+{
+}
+
+void DistributedClip::OnReady(const std::string &device)
 {
 }
 } // namespace OHOS::MiscServices
