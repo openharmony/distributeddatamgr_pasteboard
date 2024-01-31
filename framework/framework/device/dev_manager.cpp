@@ -31,6 +31,7 @@ constexpr const int32_t DELAY_TIME = 200;
 constexpr const uint32_t FIRST_VERSION = 4;
 #ifdef PB_DEVICE_MANAGER_ENABLE
 using namespace OHOS::DistributedHardware;
+
 class PasteboardDevStateCallback : public DistributedHardware::DeviceStateCallback {
 public:
     void OnDeviceOnline(const DistributedHardware::DmDeviceInfo &deviceInfo) override;
@@ -117,6 +118,8 @@ void DevManager::Online(const std::string &networkId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().SubscribeProfileEvent(networkId);
+    DistributedModuleConfig::ForceNotify();
+    DistributedModuleConfig::Notify();
 }
 
 void DevManager::Offline(const std::string &networkId)
