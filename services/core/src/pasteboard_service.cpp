@@ -1321,7 +1321,10 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.dataType = GenerateDataType(data);
     currentEvent_ = event;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
-    clipPlugin->SetPasteData(event, rawData);
+    std::thread thread([this, clipPlugin, event, &rawData]() mutable {
++        clipPlugin->SetPasteData(event, rawData);
++    });
++    thread.detach();
     return true;
 }
 
