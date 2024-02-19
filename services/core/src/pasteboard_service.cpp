@@ -1291,14 +1291,14 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
 
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
-    std::vector<uint8_t> rawData;
+    std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return false;
     }
     GenerateDistributedUri(data);
-    if (data.GetShareOption() != CrossDevice || !data.Encode(rawData)) {
+    if (data.GetShareOption() != CrossDevice || !data.Encode(*rawData)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Cross-device data is not supported.");
         return false;
     }
@@ -1321,7 +1321,10 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.dataType = GenerateDataType(data);
     currentEvent_ = event;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
-    clipPlugin->SetPasteData(event, rawData);
+    std::thread thread([clipPlugin, event, rawData]() mutable {
+        clipPlugin->SetPasteData(event, *rawData);
+    });
+    thread.detach();
     return true;
 }
 
