@@ -13,7 +13,7 @@
       "name": "pasteboard",
       "subsystem": "distributeddatamgr",
       "syscap": [
-        "SystemCapability.Miscservices.Pasteboard"
+        "SystemCapability.MiscServices.Pasteboard"
       ],
       "features": [
       ],
