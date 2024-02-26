@@ -855,7 +855,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
 
 /**
 * @tc.name: PasteDataTest0015
-* @tc.desc: isLocalPaste and isDraggedData test.
+* @tc.desc: isLocalPaste test.
 * @tc.type: FUNC
 * @tc.require: AROOOH5R5G
 */
@@ -864,9 +864,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(pasteData != nullptr);
-    auto isDraggedData = pasteData->IsDraggedData();
-    ASSERT_FALSE(isDraggedData);
-    pasteData->SetDraggedDataFlag(true);
     auto isLocalPaste = pasteData->IsLocalPaste();
     ASSERT_FALSE(isLocalPaste);
     pasteData->SetLocalPasteFlag(true);
@@ -885,8 +882,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
     PasteData newPasteData;
     ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    isDraggedData = newPasteData.IsDraggedData();
-    ASSERT_TRUE(isDraggedData);
     isLocalPaste = newPasteData.IsLocalPaste();
     ASSERT_TRUE(isLocalPaste);
 }
@@ -1125,6 +1120,35 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0021, TestSize.Level0)
     PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
     hasData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasData == false);
+}
+
+/**
+* @tc.name: PasteDataTest0022
+* @tc.desc: isDraggedData test.
+* @tc.type: FUNC
+* @tc.require: AROOOH5R5G
+*/
+HWTEST_F(PasteboardServiceTest, PasteDataTest0022, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(pasteData != nullptr);
+    auto isDraggedData = pasteData->IsDraggedData();
+    ASSERT_FALSE(isDraggedData);
+    pasteData->SetDraggedDataFlag(true);
+    ASSERT_TRUE(pasteData->IsDraggedData());
+    PasteboardClient::GetInstance()->Clear();
+    auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_FALSE(hasPasteData);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_FALSE(hasPasteData);
+    PasteData newPasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_FALSE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    isDraggedData = newPasteData.IsDraggedData();
+    ASSERT_FALSE(isDraggedData);
 }
 
 /**
