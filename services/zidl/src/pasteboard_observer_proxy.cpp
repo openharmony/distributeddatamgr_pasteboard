@@ -50,7 +50,8 @@ void PasteboardObserverProxy::OnPasteboardChanged()
 
 void PasteboardObserverProxy::OnPasteboardEvent(std::string bundleName, int32_t status)
 {
-    MessageParcel data, reply;
+    MessageParcel data;
+    MessageParcel reply;
     MessageOption option;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {

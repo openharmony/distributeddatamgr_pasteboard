@@ -33,7 +33,8 @@ PasteboardServiceProxy::PasteboardServiceProxy(const sptr<IRemoteObject> &object
 void PasteboardServiceProxy::Clear()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    MessageParcel data, reply;
+    MessageParcel data; 
+    MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
@@ -49,7 +50,8 @@ void PasteboardServiceProxy::Clear()
 bool PasteboardServiceProxy::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    MessageParcel data, reply;
+    MessageParcel data; 
+    MessageParcel reply;
     MessageOption option;
 
     if (!data.WriteInterfaceToken(GetDescriptor())) {
@@ -108,7 +110,8 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
 int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    MessageParcel data, reply;
+    MessageParcel data; 
+    MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
@@ -161,7 +164,8 @@ void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPastebo
 void PasteboardServiceProxy::RemoveAllChangedObserver()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    MessageParcel data, reply;
+    MessageParcel data; 
+    MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
@@ -191,7 +195,8 @@ void PasteboardServiceProxy::RemovePasteboardEventObserver(const sptr<IPasteboar
 void PasteboardServiceProxy::RemoveAllEventObserver()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    MessageParcel data, reply;
+    MessageParcel data; 
+    MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
@@ -211,7 +216,8 @@ void PasteboardServiceProxy::ProcessObserver(uint32_t code, const sptr<IPasteboa
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer nullptr");
         return;
     }
-    MessageParcel data, reply;
+    MessageParcel data; 
+    MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
