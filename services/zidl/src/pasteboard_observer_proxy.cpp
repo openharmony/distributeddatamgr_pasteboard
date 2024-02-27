@@ -31,7 +31,8 @@ PasteboardObserverProxy::PasteboardObserverProxy(const sptr<IRemoteObject> &obje
 
 void PasteboardObserverProxy::OnPasteboardChanged()
 {
-    MessageParcel data, reply;
+    MessageParcel data;
+    MessageParcel reply;
     MessageOption option;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
