@@ -5,14 +5,6 @@
       "value": "Pasteboard dialog"
     },
     {
-      "name": "DialogExtensionAbility_desc",
-      "value": "Pasteboard dialog extension"
-    },
-    {
-      "name": "DialogExtensionAbility_label",
-      "value": "Pasteboard Dialog"
-    },
-    {
       "name": "ToastExtensionAbility_desc",
       "value": "Pasteboard toast extension"
     },
@@ -25,28 +17,8 @@
       "value": "HarmonyHeiTi"
     },
     {
-      "name": "title",
-      "value": "正在粘贴到"
-    },
-    {
-      "name": "from",
-      "value": "从"
-    },
-    {
-      "name": "done",
-      "value": "已粘贴到"
-    },
-    {
-      "name": "cancel",
-      "value": "取消"
-    },
-    {
-      "name": "read",
-      "value": "已读取"
-    },
-    {
       "name": "info",
-      "value": "剪贴板信息"
+      "value": "读取了剪贴板信息"
     }
   ]
 }

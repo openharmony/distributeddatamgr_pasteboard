@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import type window from '@ohos.window';
 import type ServiceExtensionAbility from '@ohos.app.ability.ServiceExtensionAbility';
 
 type ServiceExtensionContext = ServiceExtensionAbility['context'];
@@ -28,18 +27,5 @@ export default class GlobalContext {
     }
 
     return GlobalContext.globalContext;
-  }
-}
-
-export class GlobalExtensionWindow {
-  public extensionWin: window.Window;
-  private static globalExtensionWindow: GlobalExtensionWindow;
-
-  public static getInstance(): GlobalExtensionWindow {
-    if (GlobalExtensionWindow.globalExtensionWindow == null) {
-      GlobalExtensionWindow.globalExtensionWindow = new GlobalExtensionWindow();
-    }
-
-    return GlobalExtensionWindow.globalExtensionWindow;
   }
 }

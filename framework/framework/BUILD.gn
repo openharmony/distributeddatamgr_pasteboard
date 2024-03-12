@@ -43,6 +43,7 @@ ohos_shared_library("pasteboard_framework") {
     "device/dm_adapter.cpp",
     "device/para_handle.cpp",
     "serializable/serializable.cpp",
+    "event/key_event_adapter.cpp"
   ]
   cflags = [ "-Wno-multichar" ]
 
@@ -68,6 +69,7 @@ ohos_shared_library("pasteboard_framework") {
     "hilog:libhilog",
     "init:libbeget_proxy",
     "init:libbegetutil",
+    "input:libmmi-client"
   ]
 
   if (pb_device_info_manager_part_enabled) {

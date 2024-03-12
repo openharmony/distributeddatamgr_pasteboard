@@ -18,6 +18,7 @@
 #include <functional>
 #include <mutex>
 #include <string>
+#include <thread>
 
 #include "ability_manager_interface.h"
 #include "refbase.h"
@@ -27,12 +28,13 @@ class DialogConnection;
 class PasteBoardDialog {
 public:
     struct ToastMessageInfo {
-        std::string fromAppName{ "unknown" };
-        std::string toAppName{ "unknown" };
+
+        std::string appName{ "unknown" };
     };
     static constexpr uint32_t POPUP_INTERVAL = 1;  // seconds
     static constexpr uint32_t MAX_LIFE_TIME = 300; // seconds
     static constexpr uint32_t SHOW_TOAST_TIME = 2000; // milliseconds
+    static constexpr uint64_t THREE_SECOND_MILLISECONDS = 3000;
     static constexpr const char *DEFAULT_LABEL = "unknown";
     using Cancel = std::function<void()>;
     static PasteBoardDialog &GetInstance();

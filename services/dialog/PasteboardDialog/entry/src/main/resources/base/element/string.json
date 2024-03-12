@@ -5,16 +5,6 @@
       "value": "Pasteboard dialog"
     },
     {
-      "name": "ExtensionAbility_desc",
-      "name": "DialogExtensionAbility_desc",
-      "value": "Pasteboard dialog extension"
-    },
-    {
-      "name": "ExtensionAbility_label",
-      "name": "DialogExtensionAbility_label",
-      "value": "Pasteboard Dialog"
-    },
-    {
       "name": "ToastExtensionAbility_desc",
       "value": "Pasteboard toast extension"
     },
@@ -23,32 +13,12 @@
       "value": "Pasteboard Toast"
     },
     {
-      "name": "title",
-      "value": "pasting to"
-    },
-    {
       "name": "typeface",
       "value": "HarmonyHeiTi"
     },
     {
-      "name": "from",
-      "value": "from"
-    },
-    {
-      "name": "done",
-      "value": "pasted to"
-    },
-    {
-      "name": "cancel",
-      "value": "canceled"
-    },
-    {
-      "name": "read",
-      "value": "has read"
-    },
-    {
       "name": "info",
-      "value": "pasteboard information"
+      "value": "has read pasteboard information"
     }
   ]
 }
