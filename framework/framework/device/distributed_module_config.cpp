@@ -58,6 +58,13 @@ void DistributedModuleConfig::Notify()
     }
 }
 
+void DistributedModuleConfig::GetDeviceNum()
+{
+    auto networkIds = DevManager::GetInstance().GetNetworkIds();
+    deviceNums_ = networkIds.size();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetDeviceNum devicesNum = %{public}zu.", deviceNums_);
+}
+
 bool DistributedModuleConfig::GetEnabledStatus()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
