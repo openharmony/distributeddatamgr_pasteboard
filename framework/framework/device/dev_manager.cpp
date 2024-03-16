@@ -104,6 +104,7 @@ int32_t DevManager::Init()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "RegisterDevStateCallback ret %{public}d", errNo);
         return errNo == DM_OK;
     });
+    DistributedModuleConfig::GetDeviceNum();
 #endif
     return DM_OK;
 }

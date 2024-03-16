@@ -28,6 +28,7 @@ public:
     static void Watch(Observer observer);
     static void ForceNotify();
     static void Notify();
+    static void GetDeviceNum();
 private:
     static bool GetEnabledStatus();
     static Observer observer_;
