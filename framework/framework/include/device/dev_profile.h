@@ -20,6 +20,7 @@
 
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 #include "distributed_device_profile_client.h"
+#include "profile_change_listener_stub.h"
 #endif // PB_DEVICE_INFO_MANAGER_ENABLE
 
 namespace OHOS {
@@ -38,10 +39,26 @@ public:
     bool GetLocalEnable();
     static constexpr const uint32_t FIRST_VERSION = 4;
     #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    class PasteboardProfileEventCallback : public DeviceProfile::IProfileEventCallback {
+    class SubscribeDPChangeListener : public DistributedDeviceProfile::ProfileChangeListenerStub {
     public:
-        void OnSyncCompleted(const DeviceProfile::SyncResult &syncResults) override;
-        void OnProfileChanged(const DeviceProfile::ProfileChangeNotification &changeNotification) override;
+        SubscribeDPChangeListener();
+        ~SubscribeDPChangeListener();
+        int32_t OnTrustDeviceProfileAdd(const DistributedDeviceProfile::TrustDeviceProfile &profile) override;
+        int32_t OnTrustDeviceProfileDelete(const DistributedDeviceProfile::TrustDeviceProfile &profile) override;
+        int32_t OnTrustDeviceProfileUpdate(const DistributedDeviceProfile::TrustDeviceProfile &oldProfile,
+            const DistributedDeviceProfile::TrustDeviceProfile &newProfile) override;
+        int32_t OnDeviceProfileAdd(const DistributedDeviceProfile::DeviceProfile &profile) override;
+        int32_t OnDeviceProfileDelete(const DistributedDeviceProfile::DeviceProfile &profile) override;
+        int32_t OnDeviceProfileUpdate(const DistributedDeviceProfile::DeviceProfile &oldProfile,
+            const DistributedDeviceProfile::DeviceProfile &newProfile) override;
+        int32_t OnServiceProfileAdd(const DistributedDeviceProfile::ServiceProfile &profile) override;
+        int32_t OnServiceProfileDelete(const DistributedDeviceProfile::ServiceProfile &profile) override;
+        int32_t OnServiceProfileUpdate(const DistributedDeviceProfile::ServiceProfile &oldProfile,
+            const DistributedDeviceProfile::ServiceProfile &newProfile) override;
+        int32_t OnCharacteristicProfileAdd(const DistributedDeviceProfile::CharacteristicProfile &profile) override;
+        int32_t OnCharacteristicProfileDelete(const DistributedDeviceProfile::CharacteristicProfile &profile) override;
+        int32_t OnCharacteristicProfileUpdate(const DistributedDeviceProfile::CharacteristicProfile &oldProfile,
+            const DistributedDeviceProfile::CharacteristicProfile &newProfile) override;
     };
     #endif
 
@@ -53,7 +70,7 @@ private:
     bool localEnable_ = false;
 
     #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    std::map<std::string, std::shared_ptr<PasteboardProfileEventCallback>> callback_;
+    std::map<std::string, DistributedDeviceProfile::SubscribeInfo> subscribeInfoCache_;
     #endif // PB_DEVICE_INFO_MANAGER_ENABLE
 
 };
