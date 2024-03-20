@@ -128,7 +128,6 @@ void PasteboardService::OnStart()
     loader.LoadComponents();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
     DistributedModuleConfig::Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
-    InitKeyEvent();
     AddSysAbilityListener();
 
     if (Init() != ERR_OK) {
@@ -160,6 +159,10 @@ void PasteboardService::OnStart()
         EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
         commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo);
         EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
+    }
+    if (!SubscribeKeyboardEvent()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SubscribeKeyboardEvent failed.");
+        return;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
@@ -480,10 +483,10 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     return ret;
 }
 
-void PasteboardService::AddPermissionRecord(uint32_t tokenId, std::string &permissionName)
+void PasteboardService::AddPermissionRecord(uint32_t tokenId,const std::string &permissionName)
 {
-    auto permUsedType = Accesstokenkit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
-    Accesstokenkit::AddPermissionParamInfo info;
+    auto permUsedType = AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
+    AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = permissionName;
     info.successCount = 1;
@@ -1568,20 +1571,20 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
     }
 }
 
-void PasteboardService::SubscribeKeyboardEvent()
+bool PasteboardService::SubscribeKeyboardEvent()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start subscribeKeyboardEvent.");
     std::shared_ptr<InputEventCallback> callback = std::make_shared<InputEventCallback>();
     int32_t monitorId =
-            InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(callback));
+            MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(callback));
     if (monitorId < 0) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor failed, id: %{public}d", monitorId);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "add monitor failed, id: %{public}d", monitorId);
         return false;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor success, id: %{public}d", monitorId);
     CombinationKeyCallBack combinationKeyCallBack = [callback](std::shared_ptr<MMI::KeyEvent> keyEvent) {
         if (callback == nullptr) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback is nullptr.");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callback is nullptr.");
         }
         callback->OnInputEvent(keyEvent);
     };
@@ -1591,11 +1594,11 @@ void PasteboardService::SubscribeKeyboardEvent()
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start OnInputEvent.");
-    auto keyItems = keyEvent.getItems();
+    auto keyItems = keyEvent.GetKeyItems();
     if (keyItems.size() != CTRLV_EVENT_SIZE) {
         return;
     }
-    if (((keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_LEFR) ||
+    if (((keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_LEFT) ||
         (keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_RIGHT)) &&
         keyItems[1].GetKeyCode() == MMI::KeyEvent::KEYCODE_V) {
         int32_t windowId = keyEvent->GetTargetWindowId();

@@ -203,7 +203,6 @@ private:
     void RemoveAllObserver(ObserverMap &observerMap);
     inline bool IsCallerUidValid();
     bool HasLocalDataType(const std::string &mimeType);
-    void InitKeyEvent();
     void AddPermissionRecord(uint32_t tokenId, const std::string &permissionName);
     bool SubscribeKeyboardEvent();
 };
