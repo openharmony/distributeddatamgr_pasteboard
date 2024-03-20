@@ -28,7 +28,6 @@ class DialogConnection;
 class PasteBoardDialog {
 public:
     struct ToastMessageInfo {
-
         std::string appName{ "unknown" };
     };
     static constexpr uint32_t POPUP_INTERVAL = 1;  // seconds

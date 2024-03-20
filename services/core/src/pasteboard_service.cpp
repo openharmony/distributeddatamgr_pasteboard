@@ -73,6 +73,8 @@ const std::string PASTEBOARD_PROXY_AUTHOR_URI = "ohos.permission.PROXY_AUTHORIZA
 const std::string SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
 const std::string READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBOARD";
 const std::int32_t CALL_UID = 5557;
+const std::int32_t INVAILD_VERSION = -1;
+const std::int32_t VERSION_TWELVE = 12;
 const std::int32_t CTRLV_EVENT_SIZE = 2;
 bool isCtrlVAction = false;
 int32_t windowPid = 0;
@@ -454,15 +456,15 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     auto isGrant = isReadGrant || isSecureGrant || isCtrlVAction;
     auto callPid = IPCSkeleton::GetCallingPid();
     auto version = GetHapSdkVersion(tokenId);
-    if (version == -1) {
+    if (version == INVAILD_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get hap version failed.");
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
-    if (!isSecureGrant && version > 12 && callPid != windowPid && !isCtrlVAction) {
+    if (!isSecureGrant && version > VERSION_TWELVE && callPid != windowPid && !isCtrlVAction) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "show toast.");
         ShowHintToast(tokenId);
     }
-    if (!isGrant && version > 12) {
+    if (!isGrant && version > VERSION_TWELVE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion.");
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
@@ -483,7 +485,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     return ret;
 }
 
-void PasteboardService::AddPermissionRecord(uint32_t tokenId,const std::string &permissionName)
+void PasteboardService::AddPermissionRecord(uint32_t tokenId, const std::string &permissionName)
 {
     auto permUsedType = AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
     AddPermParamInfo info;
@@ -1594,7 +1596,7 @@ bool PasteboardService::SubscribeKeyboardEvent()
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start OnInputEvent.");
-    auto keyItems = keyEvent.GetKeyItems();
+    auto keyItems = keyEvent->GetKeyItems();
     if (keyItems.size() != CTRLV_EVENT_SIZE) {
         return;
     }

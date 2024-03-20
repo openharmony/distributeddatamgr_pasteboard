@@ -75,7 +75,8 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
 
     std::lock_guard<std::mutex> lock(connectionLock_);
     connection_ = new DialogConnection(nullptr);
-    int32_t result = IN_PROCESS_CALL(abilityManager->ConnectAbility(want, iface_cast<AAFwk::IAbilityConnection>(connection_), nullptr));
+    int32_t result = IN_PROCESS_CALL(abilityManager->ConnectAbility(want, iface_cast<AAFwk::IAbilityConnection>(
+        connection_), nullptr));
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast failed, result:%{public}d", result);
         return -1;
