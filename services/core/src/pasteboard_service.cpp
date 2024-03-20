@@ -46,7 +46,7 @@
 #include "tokenid_kit.h"
 #include "uri_permission_manager_client.h"
 #include "input_manager.h"
-#include "i_accesstoken_manager.h"
+#include "input_event_callback.h"
 #ifdef SCENE_BOARD_ENABLE
 #include "window_manager_lite.h"
 #else
@@ -72,12 +72,16 @@ const std::string FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 const std::string PASTEBOARD_PROXY_AUTHOR_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
 const std::string SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
 const std::string READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBOARD";
-
 const std::int32_t CALL_UID = 5557;
+const std::int32_t CTRLV_EVENT_SIZE = 2;
+bool isCtrlVAction = false;
+int32_t windowPid = 0;
+
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
 using namespace Security::AccessToken;
 using namespace OHOS::AppFileService::ModuleRemoteFileShare;
+using CombinationKeyCallBack = std::function<void(std::shared_ptr<MMI::KeyEvent> keyEvent)>;
 std::mutex PasteboardService::historyMutex_;
 std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
@@ -451,7 +455,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get hap version failed.");
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
-    if (!isSecureGrant && version > 12 && callPid != windowPid && isCtrlVAction) {
+    if (!isSecureGrant && version > 12 && callPid != windowPid && !isCtrlVAction) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "show toast.");
         ShowHintToast(tokenId);
     }
@@ -476,18 +480,18 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     return ret;
 }
 
-void AddPermissionRecord(uint32_t tokenId, std::string &permissionName)
+void PasteboardService::AddPermissionRecord(uint32_t tokenId, std::string &permissionName)
 {
-    PermUsedTypeEnum permUsedTypeEnum = Accesstokenkit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
+    auto permUsedType = Accesstokenkit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
     Accesstokenkit::AddPermissionParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = permissionName;
-    info.successCount = successCount;
-    info.failCount = failCount;
-    info.type = permUsedTypeEnum;
-    int32_t result = Accesstokenkit::AddPermissionUsedRecord(info);
+    info.successCount = 1;
+    info.failCount = 1;
+    info.type = static_cast<PermissionUsedType>(permUsedType);
+    int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
     if (result != RET_SUCCESS) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "AddPermissionUsedRecord failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "AddPermissionUsedRecord failed, result is %{public}d", result);
         return;
     }
 }
@@ -1564,21 +1568,50 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
     }
 }
 
-void PasteboardService::InitKeyEvent()
+void PasteboardService::SubscribeKeyboardEvent()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "enter.");
-    std::vector<int32_t> keyCodes = {
-        MMI::KeyEvent::KEYCODE_CTRL_LEFT,
-        MMI::KeyEvent::KEYCODE_CTRL_RIGHT,
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start subscribeKeyboardEvent.");
+    std::shared_ptr<InputEventCallback> callback = std::make_shared<InputEventCallback>();
+    int32_t monitorId =
+            InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(callback));
+    if (monitorId < 0) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor failed, id: %{public}d", monitorId);
+        return false;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor success, id: %{public}d", monitorId);
+    CombinationKeyCallBack combinationKeyCallBack = [callback](std::shared_ptr<MMI::KeyEvent> keyEvent) {
+        if (callback == nullptr) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback is nullptr.");
+        }
+        callback->OnInputEvent(keyEvent);
     };
-    KeyEventAdapter::GetInstance().SubscribePasteEvent(keyCodes, [this](const auto& keyEvent) {
-        std::lock_guard<std::mutex> lock(keyEventMutex_);
+    return true;
+}
+
+void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start OnInputEvent.");
+    auto keyItems = keyEvent.getItems();
+    if (keyItems.size() != CTRLV_EVENT_SIZE) {
+        return;
+    }
+    if (((keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_LEFR) ||
+        (keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_RIGHT)) &&
+        keyItems[1].GetKeyCode() == MMI::KeyEvent::KEYCODE_V) {
         int32_t windowId = keyEvent->GetTargetWindowId();
         windowPid = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
         isCtrlVAction = true;
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "windowId is %{public}d, windowPid is %{public}d.", windowId,
-            windowPid);
-    });
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "is ctrlV action, windowPid is %{public}d.", windowPid);
+    }
 }
+
+void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
+{
+}
+
+void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const
+{
+}
+
 } // namespace MiscServices
 } // namespace OHOS

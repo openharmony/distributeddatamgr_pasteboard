@@ -39,7 +39,7 @@
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
 #include "system_ability.h"
-#include "event/key_event_adapter.h"
+#include "privacy_kit.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -204,10 +204,8 @@ private:
     inline bool IsCallerUidValid();
     bool HasLocalDataType(const std::string &mimeType);
     void InitKeyEvent();
-    void AddPermissionRecord(uint32_t tokenId, std::string &permissionName);
-    std::mutex keyEventMutex_;
-    bool isCtrlVAction = false;
-    int32_t windowPid = 0;
+    void AddPermissionRecord(uint32_t tokenId, const std::string &permissionName);
+    bool SubscribeKeyboardEvent();
 };
 } // namespace MiscServices
 } // namespace OHOS

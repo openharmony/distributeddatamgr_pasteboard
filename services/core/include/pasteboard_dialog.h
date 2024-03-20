@@ -34,7 +34,7 @@ public:
     static constexpr uint32_t POPUP_INTERVAL = 1;  // seconds
     static constexpr uint32_t MAX_LIFE_TIME = 300; // seconds
     static constexpr uint32_t SHOW_TOAST_TIME = 2000; // milliseconds
-    static constexpr uint64_t THREE_SECOND_MILLISECONDS = 3000;
+    static constexpr uint32_t THREE_SECOND_MILLISECONDS = 3000; // milliseconds
     static constexpr const char *DEFAULT_LABEL = "unknown";
     using Cancel = std::function<void()>;
     static PasteBoardDialog &GetInstance();

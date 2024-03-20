@@ -20,6 +20,7 @@ import type Want from '@ohos.application.Want';
 import GlobalContext from './GlobalParam';
 
 const TAG = 'ToastExtensionAbility';
+const INFO = '读取了剪贴板信息';
 
 class ToastStub extends rpc.RemoteObject {
   constructor(des: string) {
@@ -35,7 +36,7 @@ export default class ToastExtensionAbility extends ServiceExtensionAbility {
 
   onConnect(want: Want): ToastStub {
     hilog.info(0, TAG, 'onConnect');
-    let showInfo = want.parameters.appName + $r('app.string.info');
+    let showInfo = want.parameters.appName + INFO;
     promptAction.showToast({message:showInfo});
     return new ToastStub('PasteboardToast');
   }
