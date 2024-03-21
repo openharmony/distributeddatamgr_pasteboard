@@ -36,7 +36,7 @@ export default class ToastExtensionAbility extends ServiceExtensionAbility {
 
   onConnect(want: Want): ToastStub {
     hilog.info(0, TAG, 'onConnect');
-    let showInfo = want.parameters.appName + INFO;
+    let showInfo: string = want.parameters.appName + INFO;
     promptAction.showToast({message:showInfo});
     return new ToastStub('PasteboardToast');
   }

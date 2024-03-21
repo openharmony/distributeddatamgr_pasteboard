@@ -122,12 +122,12 @@ private:
     virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData) override;
     void SetPasteDataDot(PasteData &pasteData);
 
-    int32_t GetHapSdkVersion(uint32_t tokenId);
+    int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
-    int32_t GetData(PasteData &data, uint32_t tokenId);
+    int32_t GetData(uint32_t tokenId, PasteData &data);
 
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
-    bool GetPasteData(AppInfo &appInfo, PasteData &data);
+    bool GetPasteData(const AppInfo &appInfo, PasteData &data);
     bool CheckPasteData(AppInfo &appInfo, PasteData &data);
     bool GetRemoteData(AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
@@ -203,8 +203,16 @@ private:
     void RemoveAllObserver(ObserverMap &observerMap);
     inline bool IsCallerUidValid();
     bool HasLocalDataType(const std::string &mimeType);
-    void AddPermissionRecord(uint32_t tokenId, const std::string &permissionName);
+    void AddPermissionRecord(uint32_t tokenId, const std::string &permissionName, bool status);
     bool SubscribeKeyboardEvent();
+    class InputEventCallback : public MMI::IInputEventConsumer {
+    public:
+        void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
+        void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
+        void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
+    };
+    static bool isCtrlVAction = false;
+    static int32_t windowPid = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

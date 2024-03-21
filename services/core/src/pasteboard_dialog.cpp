@@ -83,10 +83,8 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast success.");
     std::thread thread([this]() mutable {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "DisconnectAbility Begin");
-        std::this_thread::sleep_for(std::chrono::milliseconds(THREE_SECOND_MILLISECONDS));
+        std::this_thread::sleep_for(std::chrono::milliseconds(SHOW_TOAST_TIME));
         CancelToast();
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "DisconnectAbility End");
     });
     thread.detach();
     return 0;
