@@ -45,8 +45,6 @@
 #include "reporter.h"
 #include "tokenid_kit.h"
 #include "uri_permission_manager_client.h"
-#include "input_manager.h"
-#include "input_event_callback.h"
 #ifdef SCENE_BOARD_ENABLE
 #include "window_manager_lite.h"
 #else
@@ -468,7 +466,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
         ShowHintToast(tokenId);
     }
     if (!isGrant && version > ADD_PERMISSION_CHECK_SDK_VERSION) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}s, version is %{public}d",
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}d, version is %{public}d",
             callPid, version);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
@@ -478,7 +476,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
             "don't have paste permission, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
-    auto ret = GetData(data, tokenId);
+    auto ret = GetData(tokenId, data);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is invalid, callPid is %{public}d, tokenId is %{public}d",
             callPid, tokenId);
@@ -516,7 +514,7 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, const std::string 
     }
 }
 
-int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data);
+int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
 {
     CalculateTimeConsuming::SetBeginTime();
     auto appInfo = GetAppInfo(tokenId);
@@ -538,7 +536,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data);
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
-bool PasteboardService::GetRemoteData(const AppInfo &appInfo, PasteData &data)
+bool PasteboardService::GetRemoteData(AppInfo &appInfo, PasteData &data)
 {
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
@@ -596,7 +594,7 @@ bool PasteboardService::GetPasteData(const AppInfo &appInfo, PasteData &data)
     return CheckPasteData(appInfo, data);
 }
 
-bool PasteboardService::CheckPasteData(AppInfo &appInfo, PasteData &data)
+bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
 {
     {
         std::lock_guard<std::recursive_mutex> lock(clipMutex_);
@@ -1608,7 +1606,7 @@ bool PasteboardService::SubscribeKeyboardEvent()
     return true;
 }
 
-void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
+void PasteboardService::InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start OnInputEvent.");
     auto keyItems = keyEvent->GetKeyItems();
@@ -1625,11 +1623,11 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) c
     }
 }
 
-void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
+void PasteboardService::InputEventCallback::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
 {
 }
 
-void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const
+void PasteboardService::InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const
 {
 }
 

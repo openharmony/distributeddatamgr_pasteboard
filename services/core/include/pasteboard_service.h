@@ -40,6 +40,7 @@
 #include "pasteboard_service_stub.h"
 #include "system_ability.h"
 #include "privacy_kit.h"
+#include "input_manager.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -128,7 +129,7 @@ private:
 
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
     bool GetPasteData(const AppInfo &appInfo, PasteData &data);
-    bool CheckPasteData(AppInfo &appInfo, PasteData &data);
+    bool CheckPasteData(const AppInfo &appInfo, PasteData &data);
     bool GetRemoteData(AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
@@ -211,8 +212,8 @@ private:
         void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
         void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
     };
-    static bool isCtrlVAction = false;
-    static int32_t windowPid = 0;
+    static bool isCtrlVAction;
+    static int32_t windowPid;
 };
 } // namespace MiscServices
 } // namespace OHOS
