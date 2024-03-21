@@ -499,13 +499,8 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, const std::string 
     AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = permissionName;
-    if (status == true) {
-        info.successCount = 1;
-        info.failCount = 0;
-    } else {
-        info.successCount = 0;
-        info.failCount = 1;
-    }
+    info.successCount = status ? 1 : 0;
+    info.failCount = status ? 0 : 1;
     info.type = static_cast<PermissionUsedType>(permUsedType);
     int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
     if (result != RET_SUCCESS) {
