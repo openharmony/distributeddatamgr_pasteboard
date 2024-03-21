@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-#include "pasteboard_dialog.h"
+#include <thread>
 
+#include "pasteboard_dialog.h"
 #include "ability_connect_callback_stub.h"
 #include "in_process_call_wrapper.h"
 #include "iservice_registry.h"

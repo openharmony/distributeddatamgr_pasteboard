@@ -130,7 +130,7 @@ private:
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
     bool GetPasteData(const AppInfo &appInfo, PasteData &data);
     bool CheckPasteData(const AppInfo &appInfo, PasteData &data);
-    bool GetRemoteData(AppInfo &appInfo, PasteData &data);
+    bool GetRemoteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(PasteData &lastData);
@@ -154,12 +154,12 @@ private:
     static std::string GetTime();
     bool IsDataAged();
     bool HasPastePermission(PasteData &pasteData, uint32_t tokenId);
+    bool IsDataVaild(PasteData &pasteData, uint32_t tokenId);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static bool IsDefaultIME(const AppInfo &appInfo);
-    static bool IsFocusedApp(uint32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
-    void ShowHintToast(uint32_t tokenId);
+    void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DevManagerInit();
@@ -204,16 +204,21 @@ private:
     void RemoveAllObserver(ObserverMap &observerMap);
     inline bool IsCallerUidValid();
     bool HasLocalDataType(const std::string &mimeType);
-    void AddPermissionRecord(uint32_t tokenId, const std::string &permissionName, bool status);
+    void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
     bool SubscribeKeyboardEvent();
     class InputEventCallback : public MMI::IInputEventConsumer {
     public:
         void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
         void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
         void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
+        bool IsCtrlVProcess(uint32_t callingPid);
+        void Clear();
+    private:
+        static constexpr uint32_t EVENT_TIME_OUT = 2000;
+        uint32_t windowPid;
+        uint64_t actionTime;
+        std::mutex inputEventMutex_;
     };
-    static bool isCtrlVAction;
-    static int32_t windowPid;
 };
 } // namespace MiscServices
 } // namespace OHOS

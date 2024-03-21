@@ -18,7 +18,6 @@
 #include <functional>
 #include <mutex>
 #include <string>
-#include <thread>
 
 #include "ability_manager_interface.h"
 #include "refbase.h"
