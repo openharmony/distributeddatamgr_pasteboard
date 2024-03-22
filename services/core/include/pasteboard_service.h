@@ -206,19 +206,19 @@ private:
     bool HasLocalDataType(const std::string &mimeType);
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
     bool SubscribeKeyboardEvent();
-    class InputEventCallback : public MMI::IInputEventConsumer {
-    public:
-        void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
-        void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
-        void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
-        bool IsCtrlVProcess(uint32_t callingPid);
-        void Clear();
-    private:
-        static constexpr uint32_t EVENT_TIME_OUT = 2000;
-        uint32_t windowPid;
-        uint64_t actionTime;
-        std::mutex inputEventMutex_;
-    };
+};
+class InputEventCallback : public MMI::IInputEventConsumer {
+public:
+    void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
+    void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
+    void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
+    bool IsCtrlVProcess(uint32_t callingPid);
+    void Clear();
+private:
+    static constexpr uint32_t EVENT_TIME_OUT = 2000;
+    static uint32_t windowPid;
+    static uint64_t actionTime;
+    std::mutex inputEventMutex_;
 };
 } // namespace MiscServices
 } // namespace OHOS
