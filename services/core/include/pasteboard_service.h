@@ -216,8 +216,8 @@ public:
     void Clear();
 private:
     static constexpr uint32_t EVENT_TIME_OUT = 2000;
-    static uint32_t windowPid;
-    static uint64_t actionTime;
+    mutable uint32_t windowPid;
+    mutable uint64_t actionTime;
     std::mutex inputEventMutex_;
 };
 } // namespace MiscServices

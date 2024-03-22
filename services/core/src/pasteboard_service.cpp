@@ -85,8 +85,6 @@ std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
 int32_t PasteboardService::currentUserId = ERROR_USERID;
-uint32_t InputEventCallback::windowPid = 0;
-uint64_t InputEventCallback::actionTime = 0;
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
