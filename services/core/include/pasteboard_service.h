@@ -61,6 +61,20 @@ struct HistoryInfo {
     std::string remote;
 };
 
+class InputEventCallback : public MMI::IInputEventConsumer {
+public:
+    void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
+    void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
+    void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
+    bool IsCtrlVProcess(uint32_t callingPid);
+    void Clear();
+private:
+    static constexpr uint32_t EVENT_TIME_OUT = 2000;
+    mutable uint32_t windowPid;
+    mutable uint64_t actionTime;
+    std::mutex inputEventMutex_;
+};
+
 class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
     DECLARE_SYSTEM_ABILITY(PasteboardService)
 
@@ -206,19 +220,7 @@ private:
     bool HasLocalDataType(const std::string &mimeType);
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
     bool SubscribeKeyboardEvent();
-};
-class InputEventCallback : public MMI::IInputEventConsumer {
-public:
-    void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
-    void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
-    void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
-    bool IsCtrlVProcess(uint32_t callingPid);
-    void Clear();
-private:
-    static constexpr uint32_t EVENT_TIME_OUT = 2000;
-    mutable uint32_t windowPid;
-    mutable uint64_t actionTime;
-    std::mutex inputEventMutex_;
+    std::shared_ptr<InputEventCallback> callback;
 };
 } // namespace MiscServices
 } // namespace OHOS

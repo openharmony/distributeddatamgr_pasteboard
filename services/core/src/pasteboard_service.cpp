@@ -269,7 +269,6 @@ bool PasteboardService::HasPastePermission(PasteData &pasteData, uint32_t tokenI
     auto version = GetSdkVersion(tokenId);
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
-    std::shared_ptr<InputEventCallback> callback = std::make_shared<InputEventCallback>();
     auto isCtrlVAction = callback->IsCtrlVProcess(callPid);
     AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
     auto isPrivilegeApp = IsDefaultIME(GetAppInfo(tokenId));
@@ -282,11 +281,13 @@ bool PasteboardService::HasPastePermission(PasteData &pasteData, uint32_t tokenI
             "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
         return false;
     }
-
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}d, version is %{public}d",
             callPid, version);
         return false;
+    }
+    if (!isSecureGrant && !isCtrlVAction) {
+        ShowHintToast(tokenId, callPid);
     }
     return true;
 }
@@ -457,7 +458,6 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, callingPid is %{public}d", callPid);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
-    ShowHintToast(tokenId, callPid);
     auto ret = GetData(tokenId, data);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is invalid, callPid is %{public}d, tokenId is %{public}d",
@@ -470,14 +470,11 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
 
 void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant)
 {
-    std::string permissionName = "";
-    bool status = true;
+    std::string permissionName = READ_PASTEBOARD_PERMISSION;
+    bool status = isReadGrant;
     if (isSecureGrant) {
         permissionName = SECURE_PASTE_PERMISSION;
         status = isSecureGrant;
-    } else {
-        permissionName = READ_PASTEBOARD_PERMISSION;
-        status = isReadGrant;
     }
     auto permUsedType = AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
     AddPermParamInfo info;
@@ -758,7 +755,6 @@ void PasteboardService::ShowHintToast(uint32_t tokenId, uint32_t pid)
     PasteBoardDialog::ToastMessageInfo message;
     message.appName = GetAppLabel(tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
-    std::shared_ptr<InputEventCallback> callback = std::make_shared<InputEventCallback>();
     auto IsCtrlV = callback->IsCtrlVProcess(pid);
     if (!IsCtrlV && !isSecureGrant) {
         PasteBoardDialog::GetInstance().ShowToast(message);
@@ -1568,7 +1564,7 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 bool PasteboardService::SubscribeKeyboardEvent()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start subscribeKeyboardEvent.");
-    std::shared_ptr<InputEventCallback> callback = std::make_shared<InputEventCallback>();
+    callback = std::make_shared<InputEventCallback>();
     int32_t monitorId =
             MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(callback));
     if (monitorId < 0) {
@@ -1576,7 +1572,7 @@ bool PasteboardService::SubscribeKeyboardEvent()
         return false;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor success, id: %{public}d", monitorId);
-    CombinationKeyCallBack combinationKeyCallBack = [callback](std::shared_ptr<MMI::KeyEvent> keyEvent) {
+    CombinationKeyCallBack combinationKeyCallBack = [this](std::shared_ptr<MMI::KeyEvent> keyEvent) {
         if (callback == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callback is nullptr.");
         }
