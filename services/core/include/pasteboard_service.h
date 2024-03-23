@@ -70,9 +70,9 @@ public:
     void Clear();
 private:
     static constexpr uint32_t EVENT_TIME_OUT = 2000;
-    mutable uint32_t windowPid;
-    mutable uint64_t actionTime;
-    std::mutex inputEventMutex_;
+    mutable uint32_t windowPid_;
+    mutable uint64_t actionTime_;
+    std::shared_mutex inputEventMutex_;
 };
 
 class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
@@ -167,7 +167,7 @@ private:
 
     static std::string GetTime();
     bool IsDataAged();
-    bool HasPastePermission(PasteData &pasteData, uint32_t tokenId);
+    bool VerifyPermission(PasteData &pasteData, uint32_t tokenId);
     bool IsDataVaild(PasteData &pasteData, uint32_t tokenId);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
@@ -220,7 +220,7 @@ private:
     bool HasLocalDataType(const std::string &mimeType);
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
     bool SubscribeKeyboardEvent();
-    std::shared_ptr<InputEventCallback> callback;
+    std::shared_ptr<InputEventCallback> inputEventCallback_;
 };
 } // namespace MiscServices
 } // namespace OHOS

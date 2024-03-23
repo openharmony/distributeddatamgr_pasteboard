@@ -79,7 +79,6 @@ const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new Pastebo
 } // namespace
 using namespace Security::AccessToken;
 using namespace OHOS::AppFileService::ModuleRemoteFileShare;
-using CombinationKeyCallBack = std::function<void(std::shared_ptr<MMI::KeyEvent> keyEvent)>;
 std::mutex PasteboardService::historyMutex_;
 std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
@@ -235,7 +234,6 @@ void PasteboardService::InitServiceHandler()
 
 void PasteboardService::Clear()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
@@ -255,7 +253,6 @@ void PasteboardService::Clear()
 
 bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     if (appInfo.tokenType != ATokenTypeEnum::TOKEN_HAP) {
         return true;
     }
@@ -263,13 +260,13 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     return property != nullptr && property->name == appInfo.bundleName;
 }
 
-bool PasteboardService::HasPastePermission(PasteData &pasteData, uint32_t tokenId)
+bool PasteboardService::VerifyPermission(PasteData &pasteData, uint32_t tokenId)
 {
     auto callPid = IPCSkeleton::GetCallingPid();
     auto version = GetSdkVersion(tokenId);
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
-    auto isCtrlVAction = callback->IsCtrlVProcess(callPid);
+    auto isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
     AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
     auto isPrivilegeApp = IsDefaultIME(GetAppInfo(tokenId));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
@@ -333,7 +330,7 @@ int32_t PasteboardService::GetSdkVersion(uint32_t tokenId)
     }
     HapTokenInfo hapTokenInfo;
     auto ret = AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
-    if (AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo) != 0) {
+    if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetHapTokenInfo fail, tokenid is %{public}d, ret is %{public}d.",
             tokenId, ret);
         return INVAILD_VERSION;
@@ -450,11 +447,10 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 
 int32_t PasteboardService::GetPasteData(PasteData &data)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData start");
     PasteboardTrace tracer("PasteboardService GetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto callPid = IPCSkeleton::GetCallingPid();
-    if (!HasPastePermission(data, tokenId)) {
+    if (!VerifyPermission(data, tokenId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, callingPid is %{public}d", callPid);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
@@ -462,32 +458,30 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is invalid, callPid is %{public}d, tokenId is %{public}d",
             callPid, tokenId);
-        return ret;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData end");
     return ret;
 }
 
 void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant)
 {
     std::string permissionName = READ_PASTEBOARD_PERMISSION;
-    bool status = isReadGrant;
+    bool isGrant = isReadGrant;
     if (isSecureGrant) {
         permissionName = SECURE_PASTE_PERMISSION;
-        status = isSecureGrant;
+        isGrant = isSecureGrant;
     }
     auto permUsedType = AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
     AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = permissionName;
-    info.successCount = status ? 1 : 0;
-    info.failCount = status ? 0 : 1;
+    info.successCount = isGrant ? 1 : 0;
+    info.failCount = isGrant ? 0 : 1;
     info.type = static_cast<PermissionUsedType>(permUsedType);
     int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
     if (result != RET_SUCCESS) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "AddPermissionUsedRecord failed, result is %{public}d", result);
-        return;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "add record failed, result is %{public}d", result);
     }
+    return;
 }
 
 int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
@@ -515,7 +509,6 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
 bool PasteboardService::GetRemoteData(const AppInfo &appInfo, PasteData &data)
 {
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start");
     std::thread thread([this, block, &appInfo]() mutable {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
         std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
@@ -751,20 +744,14 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
 
 void PasteboardService::ShowHintToast(uint32_t tokenId, uint32_t pid)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "show hint toast start");
     PasteBoardDialog::ToastMessageInfo message;
     message.appName = GetAppLabel(tokenId);
-    auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
-    auto isCtrlV = callback->IsCtrlVProcess(pid);
-    if (!isCtrlV && !isSecureGrant) {
-        PasteBoardDialog::GetInstance().ShowToast(message);
-        callback->Clear();
-    }
+    PasteBoardDialog::GetInstance().ShowToast(message);
+    inputEventCallback_->Clear();
 }
 
 bool PasteboardService::HasPasteData()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
@@ -788,7 +775,6 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData)
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
@@ -807,7 +793,6 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
 
 bool PasteboardService::HasLocalDataType(const std::string &mimeType)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto hasData = HasPasteData();
     if (!hasData) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is not exist");
@@ -851,7 +836,6 @@ bool PasteboardService::HasDistributedDataType(const std::string &mimeType)
 
 bool PasteboardService::IsRemoteData()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         return false;
@@ -887,7 +871,6 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
 int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsCopyable(tokenId)) {
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
@@ -980,25 +963,21 @@ bool PasteboardService::IsCopyable(uint32_t tokenId) const
 
 void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     AddObserver(observer, observerChangedMap_);
 }
 
 void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     RemoveSingleObserver(observer, observerChangedMap_);
 }
 
 void PasteboardService::RemoveAllChangedObserver()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     RemoveAllObserver(observerChangedMap_);
 }
 
 void PasteboardService::AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!IsCallerUidValid()) {
         return;
     }
@@ -1007,7 +986,6 @@ void PasteboardService::AddPasteboardEventObserver(const sptr<IPasteboardChanged
 
 void PasteboardService::RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!IsCallerUidValid()) {
         return;
     }
@@ -1016,7 +994,6 @@ void PasteboardService::RemovePasteboardEventObserver(const sptr<IPasteboardChan
 
 void PasteboardService::RemoveAllEventObserver()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!IsCallerUidValid()) {
         return;
     }
@@ -1091,7 +1068,6 @@ inline bool PasteboardService::IsCallerUidValid()
 void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventStatus status)
 {
     std::thread thread([this, bundleName, status] () {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
         std::lock_guard<std::mutex> lock(observerMutex_);
         for (auto &observers : observerChangedMap_) {
             for (const auto &observer : *(observers.second)) {
@@ -1564,26 +1540,15 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 bool PasteboardService::SubscribeKeyboardEvent()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start subscribeKeyboardEvent.");
-    callback = std::make_shared<InputEventCallback>();
+    inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId =
             MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(callback));
-    if (monitorId < 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "add monitor failed, id: %{public}d", monitorId);
-        return false;
-    }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor success, id: %{public}d", monitorId);
-    CombinationKeyCallBack combinationKeyCallBack = [this](std::shared_ptr<MMI::KeyEvent> keyEvent) {
-        if (callback == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callback is nullptr.");
-        }
-        callback->OnInputEvent(keyEvent);
-    };
-    return true;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor ret is: %{public}d", monitorId);
+    return monitorId >= 0;
 }
 
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start OnInputEvent.");
     auto keyItems = keyEvent->GetKeyItems();
     if (keyItems.size() != CTRLV_EVENT_SIZE) {
         return;
@@ -1592,9 +1557,10 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) c
         (keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_RIGHT)) &&
         keyItems[1].GetKeyCode() == MMI::KeyEvent::KEYCODE_V) {
         int32_t windowId = keyEvent->GetTargetWindowId();
-        windowPid = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
-        actionTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "is ctrlV action, windowPid is %{public}d.", windowPid);
+        windowPid_ = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
+        actionTime_ = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+            .count());
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "is ctrlV action, windowPid is %{public}d.", windowPid_);
     }
 }
 
@@ -1608,17 +1574,16 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent)
 
 bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid)
 {
-    std::lock_guard<std::mutex> lock(inputEventMutex_);
+    std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    return callingPid == windowPid && curTime - actionTime < EVENT_TIME_OUT;
+    return callingPid == windowPid_ && curTime - actionTime_ < EVENT_TIME_OUT;
 }
 
 void InputEventCallback::Clear()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Clear start.");
-    std::lock_guard<std::mutex> lock(inputEventMutex_);
-    actionTime = 0;
-    windowPid = 0;
+    std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
+    actionTime_ = 0;
+    windowPid_ = 0;
 }
 
 } // namespace MiscServices
