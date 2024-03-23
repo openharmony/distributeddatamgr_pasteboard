@@ -299,7 +299,7 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
         return false;
     }
     if (IsDataAged()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IsDataAged = %{public}d", isDataAged);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is aged");
         return false;
     }
     switch (pasteData.GetShareOption()) {
@@ -453,7 +453,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData start");
     PasteboardTrace tracer("PasteboardService GetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto callpid = IPCSkeleton::GetCallingPid();
+    auto callPid = IPCSkeleton::GetCallingPid();
     if (!HasPastePermission(data, tokenId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, callingPid is %{public}d", callPid);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
@@ -755,8 +755,8 @@ void PasteboardService::ShowHintToast(uint32_t tokenId, uint32_t pid)
     PasteBoardDialog::ToastMessageInfo message;
     message.appName = GetAppLabel(tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
-    auto IsCtrlV = callback->IsCtrlVProcess(pid);
-    if (!IsCtrlV && !isSecureGrant) {
+    auto isCtrlV = callback->IsCtrlVProcess(pid);
+    if (!isCtrlV && !isSecureGrant) {
         PasteBoardDialog::GetInstance().ShowToast(message);
         callback->Clear();
     }

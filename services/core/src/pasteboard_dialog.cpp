@@ -17,6 +17,7 @@
 
 #include "pasteboard_dialog.h"
 #include "ability_connect_callback_stub.h"
+#include "ability_manager_proxy.h"
 #include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
 #include "pasteboard_hilog.h"
