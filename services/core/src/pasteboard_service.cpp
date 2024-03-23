@@ -242,7 +242,7 @@ void PasteboardService::Clear()
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto it = clips_.find(userId);
     if (it != clips_.end()) {
-        RevokeUriPermission(*(it->second));
+        RevokeUriPermission(it->second);
         clips_.erase(it);
         auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
         std::string bundleName = GetAppBundleName(appInfo);
@@ -693,24 +693,28 @@ void PasteboardService::CheckUriPermission(PasteData &data, std::vector<Uri> &gr
     }
 }
 
-void PasteboardService::RevokeUriPermission(PasteData &lastData)
+void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData)
 {
-    if (readBundles_.size() == 0) {
+    if (readBundles_.size() == 0 || pasteData == nullptr) {
         return;
     }
-    auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    for (size_t i = 0; i < lastData.GetRecordCount(); i++) {
-        auto item = lastData.GetRecordAt(i);
-        if (item == nullptr || item->GetOrginUri() == nullptr) {
-            continue;
-        }
-        Uri uri = *(item->GetOrginUri());
-        for (std::set<std::string>::iterator it = readBundles_.begin(); it != readBundles_.end(); it++) {
-            auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, *it);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
-        }
-    }
+    decltype(readBundles_) bundles(std::move(readBundles_));
     readBundles_.clear();
+    std::thread thread([pasteData, bundles] () {
+        auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
+        for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
+            auto item = pasteData->GetRecordAt(i);
+            if (item == nullptr || item->GetOrginUri() == nullptr) {
+                continue;
+            }
+            Uri &uri = *(item->GetOrginUri());
+            for (std::set<std::string>::iterator it = bundles.begin(); it != bundles.end(); it++) {
+                auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, *it);
+                PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+            }
+        }
+    });
+    thread.detach();
 }
 
 bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, Uri &uri)
@@ -888,7 +892,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto it = clips_.find(appInfo.userId);
     if (it != clips_.end()) {
-        RevokeUriPermission(*(it->second));
+        RevokeUriPermission(it->second);
         clips_.erase(it);
     }
     pasteData->SetBundleName(appInfo.bundleName);

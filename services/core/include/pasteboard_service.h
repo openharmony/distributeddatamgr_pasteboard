@@ -148,7 +148,7 @@ private:
     bool GetRemoteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
-    void RevokeUriPermission(PasteData &lastData);
+    void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
     bool isBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
     void CheckAppUriPermission(PasteData &data);
