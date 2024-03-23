@@ -23,6 +23,7 @@
 #include <memory>
 #include <mutex>
 #include <set>
+#include <shared_mutex>
 #include <stack>
 #include <sys/time.h>
 #include <system_ability_definition.h>
@@ -39,6 +40,8 @@
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
 #include "system_ability.h"
+#include "privacy_kit.h"
+#include "input_manager.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -57,6 +60,20 @@ struct HistoryInfo {
     std::string bundleName;
     std::string state;
     std::string remote;
+};
+
+class InputEventCallback : public MMI::IInputEventConsumer {
+public:
+    void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
+    void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
+    void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
+    bool IsCtrlVProcess(uint32_t callingPid);
+    void Clear();
+private:
+    static constexpr uint32_t EVENT_TIME_OUT = 2000;
+    mutable uint32_t windowPid_;
+    mutable uint64_t actionTime_;
+    mutable std::shared_mutex inputEventMutex_;
 };
 
 class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
@@ -120,15 +137,19 @@ private:
 
     virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData) override;
     void SetPasteDataDot(PasteData &pasteData);
+
+    int32_t GetSdkVersion(uint32_t tokenId);
+    bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
+    int32_t GetData(uint32_t tokenId, PasteData &data);
+
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
-    bool GetPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
-    bool CheckPasteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
-    bool GetRemoteData(AppInfo &appInfo, PasteData &data, bool isFocusedApp);
+    bool GetPasteData(const AppInfo &appInfo, PasteData &data);
+    bool CheckPasteData(const AppInfo &appInfo, PasteData &data);
+    bool GetRemoteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(PasteData &lastData);
     void GenerateDistributedUri(PasteData &data);
-    bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
     bool isBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
@@ -147,21 +168,21 @@ private:
 
     static std::string GetTime();
     bool IsDataAged();
-    bool HasPastePermission(uint32_t tokenId, bool isFocusedApp, const std::shared_ptr<PasteData> &pasteData);
+    bool VerifyPermission(uint32_t tokenId);
+    bool IsDataVaild(PasteData &pasteData, uint32_t tokenId);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static bool IsDefaultIME(const AppInfo &appInfo);
-    static bool IsFocusedApp(uint32_t tokenId);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
-    void ShowHintToast(bool isValid, uint32_t tokenId, const std::shared_ptr<PasteData> &pasteData);
+    void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DevManagerInit();
     void DevProfileInit();
+
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::recursive_mutex clipMutex_;
-    std::mutex hintMutex_;
     std::mutex observerMutex_;
     ObserverMap observerChangedMap_;
     ObserverMap observerEventMap_;
@@ -169,7 +190,6 @@ private:
     ClipPlugin::GlobalEvent remoteEvent_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
-    std::map<int32_t, std::vector<int32_t>> hints_;
     std::map<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
@@ -199,6 +219,9 @@ private:
     void RemoveAllObserver(ObserverMap &observerMap);
     inline bool IsCallerUidValid();
     bool HasLocalDataType(const std::string &mimeType);
+    void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
+    bool SubscribeKeyboardEvent();
+    std::shared_ptr<InputEventCallback> inputEventCallback_;
 };
 } // namespace MiscServices
 } // namespace OHOS

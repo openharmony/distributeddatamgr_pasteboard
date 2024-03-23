@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
-#include "pasteboard_dialog.h"
+#include <thread>
 
+#include "pasteboard_dialog.h"
 #include "ability_connect_callback_stub.h"
+#include "ability_manager_proxy.h"
 #include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
 #include "pasteboard_hilog.h"
@@ -62,8 +64,7 @@ PasteBoardDialog &PasteBoardDialog::GetInstance()
 
 int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin, fromApp:%{public}s, toApp:%{public}s",
-        message.fromAppName.c_str(), message.toAppName.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin, app:%{public}s", message.appName.c_str());
     auto abilityManager = GetAbilityManagerService();
     if (abilityManager == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
@@ -72,17 +73,22 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
     Want want;
     want.SetAction("");
     want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_TOAST_ABILITY);
-    want.SetParam("fromAppName", message.fromAppName);
-    want.SetParam("toAppName", message.toAppName);
+    want.SetParam("appName", message.appName);
 
     std::lock_guard<std::mutex> lock(connectionLock_);
     connection_ = new DialogConnection(nullptr);
-    int32_t result = IN_PROCESS_CALL(abilityManager->ConnectAbility(want, connection_, nullptr));
+    int32_t result = IN_PROCESS_CALL(abilityManager->ConnectAbility(want, iface_cast<AAFwk::IAbilityConnection>(
+        connection_), nullptr));
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast failed, result:%{public}d", result);
         return -1;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast success.");
+    std::thread thread([this]() mutable {
+        std::this_thread::sleep_for(std::chrono::milliseconds(SHOW_TOAST_TIME));
+        CancelToast();
+    });
+    thread.detach();
     return 0;
 }
 

@@ -27,12 +27,11 @@ class DialogConnection;
 class PasteBoardDialog {
 public:
     struct ToastMessageInfo {
-        std::string fromAppName{ "unknown" };
-        std::string toAppName{ "unknown" };
+        std::string appName{ DEFAULT_LABEL };
     };
     static constexpr uint32_t POPUP_INTERVAL = 1;  // seconds
     static constexpr uint32_t MAX_LIFE_TIME = 300; // seconds
-    static constexpr uint32_t SHOW_TOAST_TIME = 2000; // milliseconds
+    static constexpr uint32_t SHOW_TOAST_TIME = 3000; // milliseconds
     static constexpr const char *DEFAULT_LABEL = "unknown";
     using Cancel = std::function<void()>;
     static PasteBoardDialog &GetInstance();

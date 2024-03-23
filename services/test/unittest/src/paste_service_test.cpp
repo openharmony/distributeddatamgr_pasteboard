@@ -1296,13 +1296,13 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
 }
 
 /**
-* @tc.name: HasPastePermissionTest001
-* @tc.desc: if (!pasteData->IsDraggedData() && (!isFocusedApp && !IsDefaultIME(GetAppInfo(tokenId))))
+* @tc.name: HasPasteDataTest001
+* @tc.desc: if !pasteData->IsDraggedData()
 * @tc.type: FUNC
 * @tc.require: issueshI5YDEV
 * @tc.author: chenyu
 */
-HWTEST_F(PasteboardServiceTest, HasPastePermissionTest001, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
 {
     PasteboardServiceTest::SetTestTokenId();
     std::vector<uint8_t> arrayBuffer(46);
