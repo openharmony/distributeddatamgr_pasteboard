@@ -644,8 +644,8 @@ void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData
     readBundles_.clear();
     std::thread thread([pasteData, bundles] () {
         auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-        for (size_t i = 0; i < pasteData.GetRecordCount(); i++) {
-            auto item = pasteData.GetRecordAt(i);
+        for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
+            auto item = pasteData->GetRecordAt(i);
             if (item == nullptr || item->GetOrginUri() == nullptr) {
                 continue;
             }
