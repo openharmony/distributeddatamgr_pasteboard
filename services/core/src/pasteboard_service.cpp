@@ -158,7 +158,7 @@ void PasteboardService::OnStart()
         EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
     }
     if (!SubscribeKeyboardEvent()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SubscribeKeyboardEvent failed.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Subscribe failed.");
         return;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
@@ -1542,7 +1542,8 @@ bool PasteboardService::SubscribeKeyboardEvent()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start subscribeKeyboardEvent.");
     inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId =
-            MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(callback));
+        MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(
+        inputEventCallback_));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor ret is: %{public}d", monitorId);
     return monitorId >= 0;
 }

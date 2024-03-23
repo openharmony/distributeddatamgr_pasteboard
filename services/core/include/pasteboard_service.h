@@ -23,6 +23,7 @@
 #include <memory>
 #include <mutex>
 #include <set>
+#include <shared_mutex>
 #include <stack>
 #include <sys/time.h>
 #include <system_ability_definition.h>
