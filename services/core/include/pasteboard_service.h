@@ -168,7 +168,7 @@ private:
 
     static std::string GetTime();
     bool IsDataAged();
-    bool VerifyPermission(PasteData &pasteData, uint32_t tokenId);
+    bool VerifyPermission(uint32_t tokenId);
     bool IsDataVaild(PasteData &pasteData, uint32_t tokenId);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);

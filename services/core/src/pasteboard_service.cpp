@@ -260,13 +260,12 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     return property != nullptr && property->name == appInfo.bundleName;
 }
 
-bool PasteboardService::VerifyPermission(PasteData &pasteData, uint32_t tokenId)
+bool PasteboardService::VerifyPermission(uint32_t tokenId)
 {
     auto callPid = IPCSkeleton::GetCallingPid();
     auto version = GetSdkVersion(tokenId);
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
-    auto isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
     AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
     auto isPrivilegeApp = IsDefaultIME(GetAppInfo(tokenId));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
@@ -283,9 +282,11 @@ bool PasteboardService::VerifyPermission(PasteData &pasteData, uint32_t tokenId)
             callPid, version);
         return false;
     }
+    auto isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
     if (!isSecureGrant && !isCtrlVAction) {
         ShowHintToast(tokenId, callPid);
     }
+    inputEventCallback_->Clear();
     return true;
 }
 
@@ -296,7 +297,6 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
         return false;
     }
     if (IsDataAged()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is aged");
         return false;
     }
     switch (pasteData.GetShareOption()) {
@@ -450,7 +450,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     PasteboardTrace tracer("PasteboardService GetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto callPid = IPCSkeleton::GetCallingPid();
-    if (!VerifyPermission(data, tokenId)) {
+    if (!VerifyPermission(tokenId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, callingPid is %{public}d", callPid);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
@@ -747,7 +747,6 @@ void PasteboardService::ShowHintToast(uint32_t tokenId, uint32_t pid)
     PasteBoardDialog::ToastMessageInfo message;
     message.appName = GetAppLabel(tokenId);
     PasteBoardDialog::GetInstance().ShowToast(message);
-    inputEventCallback_->Clear();
 }
 
 bool PasteboardService::HasPasteData()
@@ -1539,7 +1538,7 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 
 bool PasteboardService::SubscribeKeyboardEvent()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start subscribeKeyboardEvent.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start subscribe keyboard event.");
     inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId =
         MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(
@@ -1558,10 +1557,10 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) c
         (keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_RIGHT)) &&
         keyItems[1].GetKeyCode() == MMI::KeyEvent::KEYCODE_V) {
         int32_t windowId = keyEvent->GetTargetWindowId();
+        std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
         windowPid_ = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
         actionTime_ = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch())
             .count());
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "is ctrlV action, windowPid is %{public}d.", windowPid_);
     }
 }
 
