@@ -1314,7 +1314,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
 
 bool PasteboardService::IsAllowDataFilesSend()
 {
-    auto contralType = system.GetIntParameter(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE, INT_MIN,
+    auto contralType = system::GetIntParameter(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE, INT_MIN,
         INT_MAX);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "control type is: %{public}d.", contralType);
     return contralType == CONTROL_TYPE_ALLOW_SEND_RECEIVE;
