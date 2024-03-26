@@ -1311,9 +1311,18 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     return pasteData;
 }
 
+
+bool PasteboardService::IsAllowDataFilesSend()
+{
+    auto contralType = system.GetIntParameter(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE, INT_MIN,
+        INT_MAX);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "control type is: %{public}d.", contralType);
+    return contralType == CONTROL_TYPE_ALLOW_SEND_RECEIVE;
+}
+
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
-    if(!IsAllowDataFilesSend()){
+    if (!IsAllowDataFilesSend()) {
         return false;
     }
     std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
@@ -1595,14 +1604,6 @@ void InputEventCallback::Clear()
     std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
     actionTime_ = 0;
     windowPid_ = 0;
-}
-
-bool PasteboardService::IsAllowDataFilesSend()
-{
-    auto contralType = system.GetIntParameter(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE, INT_MIN,
-        INT_MAX);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "control type is: %{public}d.", contralType);
-    return contralType == CONTROL_TYPE_ALLOW_SEND_RECEIVE;
 }
 } // namespace MiscServices
 } // namespace OHOS
