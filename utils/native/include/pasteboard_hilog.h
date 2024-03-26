@@ -45,7 +45,7 @@ enum PasteboardDomainId {
     PASTEBOARD_BUTT,
 };
 
-static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD_MODULE_LABEL[PASTEBOARD_MODULE_BUTT] = {
+static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD[PASTEBOARD_MODULE_BUTT] = {
     { LOG_CORE, PASTEBOARD_INNERKIT_DOMAIN, "PasteboardInnerKit" },
     { LOG_CORE, PASTEBOARD_CLIENT_DOMAIN, "PasteboardClient" },
     { LOG_CORE, PASTEBOARD_SERVICE_DOMAIN, "PasteboardService" },
@@ -55,21 +55,18 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD_MODULE_LABEL[PASTEBOARD_
     { LOG_CORE, PASTEBOARD_JS_NAPI, "PasteboardJSNAPI" },
 };
 
-#define FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
-#define FORMATED__(fmt, ...) "[%{public}s] %{public}s# " fmt, FILENAME__, __FUNCTION__, ##__VA_ARGS__
-
 // In order to improve performance, do not check the module range.
 // Besides, make sure module is less than PASTEBOARD_MODULE_BUTT.
 #define PASTEBOARD_HILOGF(module, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Fatal(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+    ((void)HILOG_IMPL(LOG_CORE, LOG_FATAL, PASTEBOARD[module].domain, PASTEBOARD[module].tag, ##__VA_ARGS__))
 #define PASTEBOARD_HILOGE(module, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Error(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+    ((void)HILOG_IMPL(LOG_CORE, LOG_ERROR, PASTEBOARD[module].domain, PASTEBOARD[module].tag, ##__VA_ARGS__))
 #define PASTEBOARD_HILOGW(module, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Warn(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+    ((void)HILOG_IMPL(LOG_CORE, LOG_WARN, PASTEBOARD[module].domain, PASTEBOARD[module].tag, ##__VA_ARGS__))
 #define PASTEBOARD_HILOGI(module, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Info(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+    ((void)HILOG_IMPL(LOG_CORE, LOG_INFO, PASTEBOARD[module].domain, PASTEBOARD[module].tag, ##__VA_ARGS__))
 #define PASTEBOARD_HILOGD(module, ...) \
-    (void)OHOS::HiviewDFX::HiLog::Debug(PASTEBOARD_MODULE_LABEL[module], FORMATED__(__VA_ARGS__))
+    ((void)HILOG_IMPL(LOG_CORE, LOG_DEBUG, PASTEBOARD[module].domain, PASTEBOARD[module].tag, ##__VA_ARGS__))
 } // namespace MiscServices
 } // namespace OHOS
 
