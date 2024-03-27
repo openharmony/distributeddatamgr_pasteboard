@@ -1312,7 +1312,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
 }
 
 
-bool PasteboardService::IsAllowSendData()()
+bool PasteboardService::IsAllowSendData()
 {
     auto contralType = system::GetIntParameter(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE, INT_MIN,
         INT_MAX);
@@ -1325,7 +1325,7 @@ bool PasteboardService::IsAllowSendData()()
 
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
-    if (!IsAllowSendData()()) {
+    if (!IsAllowSendData()) {
         return false;
     }
     std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
