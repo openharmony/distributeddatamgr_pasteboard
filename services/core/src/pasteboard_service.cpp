@@ -37,6 +37,7 @@
 #include "int_wrapper.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
+#include "parameters.h"
 #include "para_handle.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_error.h"
@@ -70,10 +71,13 @@ constexpr const char* FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 constexpr const char* PASTEBOARD_PROXY_AUTHOR_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
 constexpr const char* SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
 constexpr const char* READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBOARD";
+constexpr const char* TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.datafiles_trans_ctrl";
+
 const std::int32_t CALL_UID = 5557;
 const std::int32_t INVAILD_VERSION = -1;
 const std::int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 const std::int32_t CTRLV_EVENT_SIZE = 2;
+const std::int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -1307,8 +1311,23 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     return pasteData;
 }
 
+
+bool PasteboardService::IsAllowSendData()
+{
+    auto contralType = system::GetIntParameter(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE, INT_MIN,
+        INT_MAX);
+    if (contralType != CONTROL_TYPE_ALLOW_SEND_RECEIVE) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "control type is: %{public}d.", contralType);
+        return false;
+    }
+    return true;
+}
+
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
+    if (!IsAllowSendData()) {
+        return false;
+    }
     std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
@@ -1589,6 +1608,5 @@ void InputEventCallback::Clear()
     actionTime_ = 0;
     windowPid_ = 0;
 }
-
 } // namespace MiscServices
 } // namespace OHOS
