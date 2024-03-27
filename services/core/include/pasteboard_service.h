@@ -221,7 +221,7 @@ private:
     bool HasLocalDataType(const std::string &mimeType);
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
     bool SubscribeKeyboardEvent();
-    bool IsAllowDataFilesSend();
+    bool IsAllowSendData();
     std::shared_ptr<InputEventCallback> inputEventCallback_;
 };
 } // namespace MiscServices
