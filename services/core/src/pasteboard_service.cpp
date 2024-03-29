@@ -268,6 +268,16 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 
 bool PasteboardService::VerifyPermission(uint32_t tokenId)
 {
+    auto version = GetSdkVersion(tokenId);
+    if (version == INVAILD_VERSION) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+        "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
+        return false;
+    }
+    auto deviceType = DevManager::GetInstance().GetLocalDeviceType();
+    if (deviceType == DEVICE_TYPE_PC || deviceType == DEVICE_TYPE_2IN1) {
+        return true;
+    }
     auto callPid = IPCSkeleton::GetCallingPid();
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
@@ -276,15 +286,7 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
         isSecureGrant, isPrivilegeApp);
-    auto version = GetSdkVersion(tokenId);
-    if (version == INVAILD_VERSION) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
-        return false;
-    }
-    auto deviceType = DevManager::GetInstance().GetLocalDeviceType();
-    auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || deviceType == DEVICE_TYPE_PC ||
-        deviceType == DEVICE_TYPE_2IN1;
+    auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp;
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}d, version is %{public}d",
             callPid, version);
