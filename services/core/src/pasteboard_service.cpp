@@ -269,6 +269,7 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 bool PasteboardService::VerifyPermission(uint32_t tokenId)
 {
     auto version = GetSdkVersion(tokenId);
+    auto callPid = IPCSkeleton::GetCallingPid();
     if (version == INVAILD_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
         "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
@@ -278,7 +279,6 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     if (deviceType == DEVICE_TYPE_PC || deviceType == DEVICE_TYPE_2IN1) {
         return true;
     }
-    auto callPid = IPCSkeleton::GetCallingPid();
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
     AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);

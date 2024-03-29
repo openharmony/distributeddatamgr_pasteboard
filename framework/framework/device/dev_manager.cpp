@@ -204,7 +204,7 @@ int32_t DevManager::GetLocalDeviceType()
     int32_t deviceType = DmDeviceType::DEVICE_TYPE_UNKNOWN;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceType(PKG_NAME, deviceType);
     if (ret != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetLocalDeviceType failed!");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get type failed, ret is %{public}d!", ret);
     }
     return deviceType;
 #else
