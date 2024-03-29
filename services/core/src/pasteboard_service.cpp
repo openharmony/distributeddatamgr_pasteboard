@@ -78,6 +78,8 @@ const std::int32_t INVAILD_VERSION = -1;
 const std::int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 const std::int32_t CTRLV_EVENT_SIZE = 2;
 const std::int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
+const std::int32_t DEVICE_TYPE_PC = 12;
+const std::int32_t DEVICE_TYPE_2IN1 = 2607;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -267,7 +269,6 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
 bool PasteboardService::VerifyPermission(uint32_t tokenId)
 {
     auto callPid = IPCSkeleton::GetCallingPid();
-    auto version = GetSdkVersion(tokenId);
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
     AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
@@ -275,12 +276,15 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
         isSecureGrant, isPrivilegeApp);
-    auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp;
+    auto version = GetSdkVersion(tokenId);
     if (version == INVAILD_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
         return false;
     }
+    auto deviceType = DevManager::GetInstance().GetLocalDeviceType();
+    auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || deviceType == DEVICE_TYPE_PC ||
+        deviceType == DEVICE_TYPE_2IN1;
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}d, version is %{public}d",
             callPid, version);
