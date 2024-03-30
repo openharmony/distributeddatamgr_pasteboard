@@ -28,6 +28,7 @@ public:
     static DevManager &GetInstance();
     std::vector<std::string> GetNetworkIds();
     std::vector<std::string> GetOldNetworkIds();
+    int32_t GetLocalDeviceType();
     int32_t Init();
     void OnReady();
     void Online(const std::string &networkId);

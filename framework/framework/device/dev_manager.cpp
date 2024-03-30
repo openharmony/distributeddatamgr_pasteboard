@@ -22,6 +22,7 @@
 #ifdef PB_DEVICE_MANAGER_ENABLE
 #include "device_manager.h"
 #include "device_manager_callback.h"
+#include "dm_device_info.h"
 #endif
 namespace OHOS {
 namespace MiscServices {
@@ -194,6 +195,20 @@ std::vector<std::string> DevManager::GetOldNetworkIds()
     return oldNetworkIds;
 #else
     return {};
+#endif
+}
+
+int32_t DevManager::GetLocalDeviceType()
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    int32_t deviceType = DmDeviceType::DEVICE_TYPE_UNKNOWN;
+    int32_t ret = DeviceManager::GetInstance().GetLocalDeviceType(PKG_NAME, deviceType);
+    if (ret != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get type failed, ret is %{public}d!", ret);
+    }
+    return deviceType;
+#else
+    return -1;
 #endif
 }
 } // namespace MiscServices
