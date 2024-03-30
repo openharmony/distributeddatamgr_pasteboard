@@ -272,7 +272,7 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     auto callPid = IPCSkeleton::GetCallingPid();
     if (version == INVAILD_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-        "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
+            "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
         return false;
     }
     auto deviceType = DevManager::GetInstance().GetLocalDeviceType();
