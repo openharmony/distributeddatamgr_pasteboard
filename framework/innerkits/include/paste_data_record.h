@@ -105,6 +105,8 @@ public:
     std::string GetConvertUri() const;
     void SetGrantUriPermission(bool hasPermission);
     bool HasGrantUriPermission();
+    static std::shared_ptr<OHOS::Media::PixelMap> Vector2PixelMap(std::vector<std::uint8_t> &value);
+    static std::vector<std::uint8_t> PixelMap2Vector(std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 
     class Builder {
     public:
@@ -128,8 +130,6 @@ private:
         return resultCode == ResultCode::OK;
     }
     std::string GetPassUri();
-    static std::shared_ptr<OHOS::Media::PixelMap> Vector2PixelMap(std::vector<std::uint8_t> &value);
-    static std::vector<std::uint8_t> PixelMap2Vector(std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;

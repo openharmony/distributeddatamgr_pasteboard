@@ -28,7 +28,7 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "pasteboard_web_controller.h"
-
+#include "pasteboard_utils.h"
 using namespace OHOS::Media;
 
 namespace OHOS {
@@ -162,6 +162,23 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     return ret;
 }
 
+int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData& unifiedData)
+{
+    StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetUnifiedData start.");
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    PasteData pasteData;
+    int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
+    RetainUri(pasteData);
+    RebuildWebviewPasteData(pasteData);
+    unifiedData = *(PasteboardUtils::ConvertData(pasteData));
+    FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetUnifiedData end.");
+    return ret;
+}
+
 void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
 {
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || pasteData.GetPrimaryHtml() == nullptr) {
@@ -241,6 +258,24 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
         return pasteboardServiceProxy_->SetPasteData(pasteData);
     }
     auto webData = SplitWebviewPasteData(pasteData);
+    if (webData == nullptr) {
+        return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
+    }
+    return pasteboardServiceProxy_->SetPasteData(*webData);
+}
+
+int32_t PasteboardClient::SetUnifiedData(UDMF::UnifiedData &unifiedData)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetUnifiedData start.");
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    auto pasteData = PasteboardUtils::ConvertData(unifiedData);
+    std::shared_ptr<std::string> html = pasteData->GetPrimaryHtml();
+    if (pasteData->GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
+        return pasteboardServiceProxy_->SetPasteData(*pasteData);
+    }
+    auto webData = SplitWebviewPasteData(*pasteData);
     if (webData == nullptr) {
         return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }

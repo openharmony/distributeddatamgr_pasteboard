@@ -50,6 +50,7 @@
           "safwk",
           "samgr",
           "time_service",
+          "udmf",
           "window_manager"
         ],
         "third_party": [

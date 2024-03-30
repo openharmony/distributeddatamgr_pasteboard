@@ -28,6 +28,8 @@ ohos_shared_library("pasteboard_napi") {
     "${ability_runtime_napi_path}/inner/napi_common",
     "napi/include",
     "${pasteboard_utils_path}/native/include",
+    "${udmf_interfaces_path}/innerkits",
+    "${udmf_interfaces_path}/jskits",
   ]
 
   cflags = [
@@ -65,6 +67,8 @@ ohos_shared_library("pasteboard_napi") {
     "image_framework:image",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "udmf:udmf_client",
+    "udmf:udmf_data_napi",
   ]
 
   relative_install_dir = "module"
