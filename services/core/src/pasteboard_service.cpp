@@ -1467,10 +1467,7 @@ bool PasteboardService::CleanDistributedData(int32_t user)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return true;
     }
-    std::thread thread([clipPlugin, user]() mutable {
-        clipPlugin->Clear(user);
-    });
-    thread.detach();
+    clipPlugin->Clear(user);
     return true;
 }
 
