@@ -36,7 +36,7 @@ public:
     T GetValue()
     {
         std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait_for(lock, std::chrono::seconds(interval_), [this]() { return isSet_; });
+        cv_.wait_for(lock, std::chrono::milliseconds(interval_), [this]() { return isSet_; });
         isSet_ = false;
         T data = std::move(data_);
         cv_.notify_one();
