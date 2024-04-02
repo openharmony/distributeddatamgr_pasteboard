@@ -625,7 +625,7 @@ HWTEST_F(PasteDataTest, LoadSystemAbilitySuccess001, TestSize.Level0)
 */
 HWTEST_F(PasteDataTest, SetInterval001, TestSize.Level0)
 {
-    uint32_t POPUP_INTERVAL = 1;
+    uint32_t POPUP_INTERVAL = 1000;
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(POPUP_INTERVAL);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     block->SetValue(pasteData);
