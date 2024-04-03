@@ -32,7 +32,7 @@ static thread_local napi_ref g_systemPasteboard_instance = nullptr;
 thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
 constexpr int ARGC_TYPE_SET1 = 1;
 constexpr size_t MAX_ARGS = 6;
-constexpr size_t SYNC_TIMEOUT = 5;
+constexpr size_t SYNC_TIMEOUT = 5000;
 const std::string STRING_UPDATE = "update";
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref) : env_(env), ref_(ref)
 {
