@@ -292,11 +292,6 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
             callPid, version);
         return false;
     }
-    auto isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
-    if (!isSecureGrant && !isCtrlVAction) {
-        ShowHintToast(tokenId, callPid);
-        inputEventCallback_->Clear();
-    }
     return true;
 }
 
