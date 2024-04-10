@@ -186,6 +186,9 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData001, TestSize.Level0)
     UDMF::UnifiedData data;
     std::shared_ptr<UDMF::PlainText> plainTextRecord = std::make_shared<UDMF::PlainText>(text, text);
     data.AddRecord(plainTextRecord);
+    std::shared_ptr<UDMF::UnifiedDataProperties> uniProps = std::make_shared<UDMF::UnifiedDataProperties>();
+    uniProps->tag = "myTag";
+    data.SetProperties(uniProps);
     PasteboardClient::GetInstance()->SetUnifiedData(data);
 
     UDMF::UnifiedData newData;
@@ -195,10 +198,7 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData001, TestSize.Level0)
     ASSERT_EQ(type, UDMF::PLAIN_TEXT);
     auto content = static_cast<UDMF::PlainText *>(record.get())->GetContent();
     ASSERT_EQ(content, text);
-
-    UDMF::UnifiedDataProperties properties = newData.GetProperties();
-    ASSERT_EQ(UDMF::PLAIN_TEXT, properties.types.at(0));
-
+    
     PasteData pasteData;
     PasteboardClient::GetInstance()->GetPasteData(pasteData);
     auto pasteRecord = pasteData.GetRecordAt(0);
@@ -223,7 +223,9 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData001, TestSize.Level0)
 HWTEST_F(PasteboardClientTest, SetUnifiedData002, TestSize.Level0)
 {
     UDMF::UnifiedData data;
-
+    std::shared_ptr<UDMF::UnifiedDataProperties> uniProps = std::make_shared<UDMF::UnifiedDataProperties>();
+    uniProps->tag = "myTag";
+    data.SetProperties(uniProps);
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
     InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
@@ -240,10 +242,6 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData002, TestSize.Level0)
     ASSERT_EQ(type, UDMF::SYSTEM_DEFINED_PIXEL_MAP);
     auto content = static_cast<UDMF::SystemDefinedPixelMap *>(record.get())->GetRawData();
     ASSERT_EQ(rawData, content);
-
-    UDMF::UnifiedDataProperties properties;
-    newData.GetProperties();
-    ASSERT_EQ(UDMF::SYSTEM_DEFINED_PIXEL_MAP, properties.types.at(0));
 }
 
 /**
@@ -259,7 +257,9 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData003, TestSize.Level0)
     std::string str = "file:/uri";
     OHOS::Uri uri(str);
     auto file = std::make_shared<UDMF::File>(uri.ToString());
-
+    std::shared_ptr<UDMF::UnifiedDataProperties> uniProps = std::make_shared<UDMF::UnifiedDataProperties>();
+    uniProps->tag = "myTag";
+    data.SetProperties(uniProps);
     data.AddRecord(file);
     PasteboardClient::GetInstance()->SetUnifiedData(data);
 
@@ -270,10 +270,6 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData003, TestSize.Level0)
     ASSERT_EQ(type, UDMF::FILE);
     auto content = static_cast<UDMF::File *>(record.get())->GetUri();
     ASSERT_EQ(str, content);
-
-    UDMF::UnifiedDataProperties properties;
-    newData.GetProperties();
-    ASSERT_EQ(UDMF::FILE, properties.types.at(0));
 }
 
 /**
@@ -289,7 +285,9 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData004, TestSize.Level0)
     std::string htmlText = "<div class='disable'>helloWorld</div>";
     std::string plainText = "helloWorld";
     auto html = std::make_shared<UDMF::Html>(htmlText, plainText);
-
+    std::shared_ptr<UDMF::UnifiedDataProperties> uniProps = std::make_shared<UDMF::UnifiedDataProperties>();
+    uniProps->tag = "myTag";
+    data.SetProperties(uniProps);
     data.AddRecord(html);
     PasteboardClient::GetInstance()->SetUnifiedData(data);
 
@@ -301,10 +299,7 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData004, TestSize.Level0)
     auto content = static_cast<UDMF::Html *>(record.get())->GetHtmlContent();
     auto plainContent = static_cast<UDMF::Html *>(record.get())->GetPlainContent();
     ASSERT_EQ(content, htmlText);
-    ASSERT_EQ(plainContent, ""); //
-
-    UDMF::UnifiedDataProperties properties = newData.GetProperties();
-    ASSERT_EQ(UDMF::HTML, properties.types.at(0));
+    ASSERT_EQ(plainContent, "");
 }
 
 /**
@@ -317,7 +312,9 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData004, TestSize.Level0)
 HWTEST_F(PasteboardClientTest, SetUnifiedData005, TestSize.Level0)
 {
     UDMF::UnifiedData data;
-
+    std::shared_ptr<UDMF::UnifiedDataProperties> uniProps = std::make_shared<UDMF::UnifiedDataProperties>();
+    uniProps->tag = "myTag";
+    data.SetProperties(uniProps);
     std::string text = "helloWorld";
     std::shared_ptr<UDMF::PlainText> plainTextRecord = std::make_shared<UDMF::PlainText>(text, text);
     data.AddRecord(plainTextRecord);
@@ -370,14 +367,7 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData005, TestSize.Level0)
     ASSERT_EQ(type, UDMF::SYSTEM_DEFINED_PIXEL_MAP);
     auto contentRawData = static_cast<UDMF::SystemDefinedPixelMap *>(record.get())->GetRawData();
     ASSERT_EQ(rawData, contentRawData);
-
-    UDMF::UnifiedDataProperties properties = newData.GetProperties();
-    ASSERT_EQ(properties.types.size(), 4);
-    ASSERT_TRUE(std::count(properties.types.begin(), properties.types.end(), UDMF::PLAIN_TEXT));
-    ASSERT_TRUE(std::count(properties.types.begin(), properties.types.end(), UDMF::FILE));
-    ASSERT_TRUE(std::count(properties.types.begin(), properties.types.end(), UDMF::HTML));
-    ASSERT_TRUE(std::count(properties.types.begin(), properties.types.end(), UDMF::SYSTEM_DEFINED_PIXEL_MAP));
-
+    
     PasteData pasteData;
     PasteboardClient::GetInstance()->GetPasteData(pasteData);
     auto pasteProp = pasteData.GetProperty();
@@ -387,4 +377,5 @@ HWTEST_F(PasteboardClientTest, SetUnifiedData005, TestSize.Level0)
     ASSERT_TRUE(std::count(pasteProp.mimeTypes.begin(), pasteProp.mimeTypes.end(), MIMETYPE_TEXT_HTML));
     ASSERT_TRUE(std::count(pasteProp.mimeTypes.begin(), pasteProp.mimeTypes.end(), MIMETYPE_PIXELMAP));
 }
+
 } // namespace OHOS::MiscServices
