@@ -464,7 +464,7 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
 //    UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance);
 
-    NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance1(env, unifiedData, instance)); // ÈçºÎÐÞ¸Ä
+    NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance1(env, unifiedData, instance));
     UDMF::UnifiedDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
@@ -528,11 +528,11 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo> 
     auto unifiedDataNapi = new (std::nothrow) UDMF::UnifiedDataNapi();
     auto input = [context, &unifiedDataNapi](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // setData has 1 or 2 args
-        context->status = napi_unwrap(env, argv[1], reinterpret_cast<void **>(&unifiedDataNapi));
+        context->status = napi_unwrap(env, argv[0], reinterpret_cast<void **>(&unifiedDataNapi));
         if (!CheckExpression(
                 env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
             !CheckExpression(env, context->status == napi_ok, JSErrorCode::INVALID_PARAMETERS,
-                "Parameter error. The Type of data must be pasteData.")) {
+                "Parameter error. The Type of data must be unifiedData.")) {
             return napi_invalid_arg;
         }
 
@@ -547,7 +547,6 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo> 
     };
     context->SetAction(std::move(input));
 }
-
 
 void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo> &context)
 {

@@ -28,6 +28,8 @@ pasteboard_service_path = "${pasteboard_root_path}/services"
 
 filemanagement_service_path = "//foundation/filemanagement/dfs_service/services"
 
+udmf_interfaces_path = "//foundation/distributeddatamgr/udmf/interfaces"
+
 declare_args() {
   pb_dlp_part_enabled = true
   pb_device_info_manager_part_enabled = true

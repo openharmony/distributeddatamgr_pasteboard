@@ -98,7 +98,6 @@ PasteData& PasteData::operator=(const PasteData &data)
     return *this;
 }
 
-
 PasteDataProperty PasteData::GetProperty() const
 {
     return PasteDataProperty(props_);
@@ -616,6 +615,7 @@ bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool i
     }
     return true;
 }
+
 bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
     std::vector<uint32_t> fdRecordMap;
@@ -632,6 +632,7 @@ bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler)
     }
     return true;
 }
+
 void PasteData::ReplaceShareUri(int32_t userId)
 {
     auto count = GetRecordCount();

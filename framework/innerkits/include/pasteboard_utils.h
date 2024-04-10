@@ -45,22 +45,16 @@ public:
    static std::shared_ptr<UnifiedData> ConvertData(PasteData &pasteData);
 
    static std::vector<std::shared_ptr<PasteDataRecord>> ConvertRecords(std::vector<std::shared_ptr<UnifiedRecord>> &records);
-   static std::vector<std::shared_ptr<UnifiedRecord>> ConvertRecords(std::shared_ptr<PasteDataRecord>& record);
+   static std::vector<std::shared_ptr<UnifiedRecord>> ConvertRecords(std::shared_ptr<PasteDataRecord> record);
 
-   static std::shared_ptr<PasteDataRecord> ConvertRecord(std::shared_ptr<UnifiedRecord> & record);
-   static std::shared_ptr<UnifiedRecord> ConvertRecord(std::shared_ptr<PasteDataRecord> & record);
+   static std::shared_ptr<PasteDataRecord> ConvertRecord(std::shared_ptr<UnifiedRecord> record);
+   static std::shared_ptr<UnifiedRecord> ConvertRecord(std::shared_ptr<PasteDataRecord> record);
 
    static PasteDataProperty ConvertProperties(UnifiedDataProperties &properties);
-   static UnifiedDataProperties ConvertProperties(PasteDataProperty &properties);
+   static std::shared_ptr<UnifiedDataProperties> ConvertProperties(PasteDataProperty &properties);
 
+   static std::vector<std::string> ConvertTypes(std::vector<UDType> &types);
    static std::string ConvertType(UDType uDType);
-   static UDType ConvertType(std::string & type);
-
-   static std::vector<std::string> ConvertTypes(std::vector<UDType>& uDTypes);
-   static std::vector<UDType> ConvertTypes(std::vector<std::string> & types);
-
-
-
 };
 }
 }
