@@ -464,7 +464,7 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
 //    UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance);
 
-    NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance1(env, unifiedData, instance));
+    NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance));
     UDMF::UnifiedDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
@@ -496,7 +496,7 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     napi_value instance = nullptr;
     std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
 
-    NAPI_CALL(env,UDMF::UnifiedDataNapi::NewInstance1(env, unifiedData, instance));
+    NAPI_CALL(env,UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance));
     UDMF::UnifiedDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
