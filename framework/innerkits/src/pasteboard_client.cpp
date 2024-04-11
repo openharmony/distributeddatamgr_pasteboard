@@ -326,6 +326,40 @@ void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> ca
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
+int32_t PasteboardClient::SetGlobalShareOption(std::map<uint32_t, ShareOption> globalShareOption)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetGlobalShareOption start.");
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    int32_t ret = pasteboardServiceProxy_->SetGlobalShareOption(globalShareOption);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetGlobalShareOption end.");
+    return ret;
+}
+
+int32_t PasteboardClient::RemoveGlobalShareOption(std::vector<uint32_t> tokenId)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "RemoveGlobalShareOption start.");
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    int32_t ret = pasteboardServiceProxy_->RemoveGlobalShareOption(tokenId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "RemoveGlobalShareOption end.");
+    return ret;
+}
+
+std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(std::vector<uint32_t> tokenId)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption start.");
+    if (!IsServiceAvailable()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption SA died.");
+        return {};
+    }
+    std::map<uint32_t, ShareOption> ret = pasteboardServiceProxy_->GetGlobalShareOption(tokenId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption end.");
+    return ret;
+}
+
 bool PasteboardClient::IsRemoteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "IsRemoteData start.");

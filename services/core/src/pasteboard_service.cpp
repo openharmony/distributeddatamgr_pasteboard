@@ -90,6 +90,7 @@ std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
 int32_t PasteboardService::currentUserId = ERROR_USERID;
+std::map<uint32_t, ShareOption> PasteboardService::globalShareOption_;
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
@@ -304,7 +305,11 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
     if (IsDataAged()) {
         return false;
     }
-    switch (pasteData.GetShareOption()) {
+    ShareOption shareOption = 
+        globalShareOption_.find(pasteData.GetTokenId()) != globalShareOption_.end()
+            ? globalShareOption_[pasteData.GetTokenId()]
+            : pasteData.GetShareOption();
+    switch (shareOption) {
         case ShareOption::InApp: {
             if (pasteData.GetTokenId() != tokenId) {
                 PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "InApp check failed.");
@@ -320,7 +325,7 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
         }
         default: {
             PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d is error.", pasteData.GetShareOption());
+                PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d is error.", shareOption);
             return false;
         }
     }
@@ -1061,6 +1066,48 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
     auto eraseNum = observerMap.erase(COMMON_USERID);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
+}
+
+int32_t PasteboardService::SetGlobalShareOption(std::map<uint32_t, ShareOption> globalShareOption)
+{
+    if (IsCallerUidValid()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SetGlobalShareOption no permission.");
+        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
+    }
+    for (auto &it : globalShareOption) {
+        globalShareOption_[it.first] = it.second;
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+int32_t PasteboardService::RemoveGlobalShareOption(std::vector<uint32_t> tokenId)
+{
+    if (IsCallerUidValid()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "RemoveGlobalShareOption no permission.");
+        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
+    }
+    for (auto &it : tokenId) {
+        globalShareOption_.erase(it);
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(std::vector<uint32_t> tokenId)
+{
+    if (IsCallerUidValid()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetGlobalShareOption no permission.");
+        return {};
+    }
+    if (tokenId.empty()) {
+        return globalShareOption_;
+    }
+    std::map<uint32_t, ShareOption> result;
+    for (auto &it : tokenId) {
+        if (globalShareOption_.find(it) != globalShareOption_.end()) {
+            result[it] = globalShareOption_[it];
+        }
+    }
+    return result;
 }
 
 inline bool PasteboardService::IsCallerUidValid()

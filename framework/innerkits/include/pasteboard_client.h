@@ -227,6 +227,30 @@ public:
     void RemovePasteboardEventObserver(sptr<PasteboardObserver> callback);
 
     /**
+     * SetGlobalShareOption
+     * @descrition Set global shareOption.
+     * @param globalShareOption Global ShareOption
+     * @return Result
+     */
+    int32_t SetGlobalShareOption(std::map<uint32_t, ShareOption> globalShareOption);
+
+    /**
+     * RemoveGlobalShareOption
+     * @descrition Remove global shareOption.
+     * @param tokenId tokenId
+     * @return Result
+     */
+    int32_t RemoveGlobalShareOption(std::vector<uint32_t> tokenId);
+
+    /**
+     * GetGlobalShareOption
+     * @descrition Get global shareOption.
+     * @param tokenId tokenId
+     * @return Global shareOption
+     */
+    std::map<uint32_t, ShareOption> GetGlobalShareOption(std::vector<uint32_t> tokenId);
+
+    /**
      * OnRemoteSaDied
      * @descrition
      * @param object systemAbility proxy object

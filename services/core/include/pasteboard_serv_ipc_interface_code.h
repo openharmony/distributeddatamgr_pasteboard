@@ -34,6 +34,9 @@ enum PasteboardServiceInterfaceCode {
     IS_REMOTE_DATA = 10,
     GET_DATA_SOURCE = 11,
     HAS_DATA_TYPE = 12,
+    SET_GLOBAL_SHARE_OPTION = 13,
+    REMOVE_GLOBAL_SHARE_OPTION = 14,
+    GET_GLOBAL_SHARE_OPTION = 15,
 };
 
 enum PasteboardObserverInterfaceCode {

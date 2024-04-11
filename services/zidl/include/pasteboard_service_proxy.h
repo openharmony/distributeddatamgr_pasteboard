@@ -40,6 +40,9 @@ public:
     virtual void AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemoveAllEventObserver() override;
+    virtual int32_t SetGlobalShareOption( std::map<uint32_t, ShareOption> globalShareOption) override;
+    virtual int32_t RemoveGlobalShareOption(std::vector<uint32_t> tokenId) override;
+    virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(std::vector<uint32_t> tokenId) override;
 
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;
