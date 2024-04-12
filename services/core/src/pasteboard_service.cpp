@@ -304,10 +304,11 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
     if (IsDataAged()) {
         return false;
     }
-    ShareOption shareOption =
-        globalShareOptions_.Contains(pasteData.GetTokenId())
-            ? globalShareOptions_[pasteData.GetTokenId()]
-            : pasteData.GetShareOption();
+    ShareOption shareOption = pasteData.GetShareOption();
+    globalShareOptions_.ComputeIfPresent(pasteData.GetTokenId(), [&shareOption](auto &key, auto &value) {
+        shareOption = value;
+        return true;
+    });
     switch (shareOption) {
         case ShareOption::InApp: {
             if (pasteData.GetTokenId() != tokenId) {
@@ -324,7 +325,7 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
         }
         default: {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "tokenId = %{public}d, shareOption = %{public}d is error.", tokenId, shareOption);
+                "tokenId = 0x%{public}x, shareOption = %{public}d is error.", tokenId, shareOption);
             return false;
         }
     }
@@ -1069,16 +1070,16 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
 
 int32_t PasteboardService::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
 {
-    for (auto &it : globalShareOptions) {
-        globalShareOptions_[it.first] = it.second;
+    for (auto &[tokenId,  shareOption] : globalShareOptions) {
+        globalShareOptions_.InsertOrAssign(tokenId, shareOption);
     }
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardService::RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds)
 {
-    for (auto &it : tokenIds) {
-        globalShareOptions_.Erase(it);
+    for (auto &tokenId : tokenIds) {
+        globalShareOptions_.Erase(tokenId);
     }
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
@@ -1087,16 +1088,17 @@ std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const st
 {
     std::map<uint32_t, ShareOption> result;
     if (tokenIds.empty()) {
-        globalShareOptions_.ForEach([&result](const uint32_t &key, const ShareOption &value) {
+        globalShareOptions_.ForEach([&result](auto &key, auto &value) {
             result[key] = value;
-            return true;
+            return false;
         });
         return result;
     }
-    for (auto &it : tokenIds) {
-        if (globalShareOptions_.Contains(it)) {
-            result[it] = globalShareOptions_[it];
-        }
+    for (auto &tokenId : tokenIds) {
+        globalShareOptions_.ComputeIfPresent(tokenId, [&result](auto &key, auto &value) {
+            result[key] = value;
+            return true;
+        });
     }
     return result;
 }

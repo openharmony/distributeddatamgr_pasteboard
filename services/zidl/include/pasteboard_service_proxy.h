@@ -47,7 +47,7 @@ public:
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;
     void ProcessObserver(uint32_t code, const sptr<IPasteboardChangedObserver> &observer);
-    static constexpr int32_t MAX_GET_GLOBAL_SHARE_OPTION_SIZE = 500;
+    static constexpr int32_t MAX_GET_GLOBAL_SHARE_OPTION_SIZE = 2000;
 };
 } // namespace MiscServices
 } // namespace OHOS
