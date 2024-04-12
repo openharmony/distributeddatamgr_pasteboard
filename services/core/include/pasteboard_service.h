@@ -32,6 +32,7 @@
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
+#include "common/concurrent_map.h"
 #include "event_handler.h"
 #include "i_pasteboard_observer.h"
 #include "iremote_object.h"
@@ -95,9 +96,9 @@ public:
     virtual void AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemoveAllEventObserver() override;
-    virtual int32_t SetGlobalShareOption(std::map<uint32_t, ShareOption> globalShareOption) override;
-    virtual int32_t RemoveGlobalShareOption(std::vector<uint32_t> tokenId) override;
-    virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(std::vector<uint32_t> tokenId) override;
+    virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) override;
+    virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
+    virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
     virtual void OnStart() override;
     virtual void OnStop() override;
     static int32_t currentUserId;
@@ -216,7 +217,7 @@ private:
     };
 
     std::map<std::string, int> p2pMap_ = {};
-    static std::map<uint32_t, ShareOption> globalShareOption_;
+    ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
 
     void AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);

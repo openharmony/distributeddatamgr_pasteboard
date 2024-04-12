@@ -326,38 +326,29 @@ void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> ca
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
-int32_t PasteboardClient::SetGlobalShareOption(std::map<uint32_t, ShareOption> globalShareOption)
+int32_t PasteboardClient::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetGlobalShareOption start.");
     if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
-    int32_t ret = pasteboardServiceProxy_->SetGlobalShareOption(globalShareOption);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetGlobalShareOption end.");
-    return ret;
+    return pasteboardServiceProxy_->SetGlobalShareOption(globalShareOptions);
 }
 
-int32_t PasteboardClient::RemoveGlobalShareOption(std::vector<uint32_t> tokenId)
+int32_t PasteboardClient::RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "RemoveGlobalShareOption start.");
     if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
-    int32_t ret = pasteboardServiceProxy_->RemoveGlobalShareOption(tokenId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "RemoveGlobalShareOption end.");
-    return ret;
+    return pasteboardServiceProxy_->RemoveGlobalShareOption(tokenIds);
+
 }
 
-std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(std::vector<uint32_t> tokenId)
+std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(const std::vector<uint32_t> &tokenIds)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption start.");
     if (!IsServiceAvailable()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption SA died.");
         return {};
     }
-    std::map<uint32_t, ShareOption> ret = pasteboardServiceProxy_->GetGlobalShareOption(tokenId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption end.");
-    return ret;
+    return pasteboardServiceProxy_->GetGlobalShareOption(tokenIds);
 }
 
 bool PasteboardClient::IsRemoteData()

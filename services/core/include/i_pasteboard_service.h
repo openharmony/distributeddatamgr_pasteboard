@@ -37,9 +37,9 @@ public:
     virtual void AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) = 0;
     virtual void RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) = 0;
     virtual void RemoveAllEventObserver() = 0;
-    virtual int32_t SetGlobalShareOption(std::map<uint32_t, ShareOption> globalShareOption) = 0;
-    virtual int32_t RemoveGlobalShareOption(std::vector<uint32_t> tokenId) = 0;
-    virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(std::vector<uint32_t> tokenId) = 0;
+    virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) = 0;
+    virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) = 0;
+    virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.miscservices.pasteboard.IPasteboardService");
 };
 } // namespace MiscServices

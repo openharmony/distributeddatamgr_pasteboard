@@ -293,15 +293,14 @@ int32_t PasteboardServiceStub::OnHasDataType(MessageParcel &data, MessageParcel 
 
 int32_t PasteboardServiceStub::OnSetGlobalShareOption(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnSetGlobalShareOption start.");
     int32_t size = 0;
     if (!data.ReadInt32(size)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read size failed.");
         return static_cast<int32_t>(PasteboardError::E_READ_PARCEL_ERROR);
     }
-    size_t readAbleSize = data.GetReadableBytes();
-    std::map<uint32_t, ShareOption> globalShareOption;
-    if (static_cast<size_t>(size) > readAbleSize || static_cast<size_t>(size) > globalShareOption.max_size()) {
+    int32_t readAbleSize = data.GetReadableBytes();
+    std::map<uint32_t, ShareOption> globalShareOptions;
+    if (size > readAbleSize || size > MAX_SET_GLOBAL_SHARE_OPTION_SIZE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read oversize failed.");
         return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }
@@ -316,20 +315,18 @@ int32_t PasteboardServiceStub::OnSetGlobalShareOption(MessageParcel &data, Messa
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read shareOption failed.");
             return static_cast<int32_t>(PasteboardError::E_READ_PARCEL_ERROR);
         }
-        globalShareOption[key] = static_cast<ShareOption>(value);
+        globalShareOptions[key] = static_cast<ShareOption>(value);
     }
-    int32_t result = SetGlobalShareOption(globalShareOption);
+    int32_t result = SetGlobalShareOption(globalShareOptions);
     if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write result failed.");
         return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnSetGlobalShareOption end.");
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardServiceStub::OnRemoveGlobalShareOption(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnRemoveGlobalShareOption start.");
     std::vector<uint32_t> tokenId;
     if (!data.ReadUInt32Vector(&tokenId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read tokenId failed.");
@@ -340,13 +337,11 @@ int32_t PasteboardServiceStub::OnRemoveGlobalShareOption(MessageParcel &data, Me
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write result failed.");
         return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnRemoveGlobalShareOption end.");
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardServiceStub::OnGetGlobalShareOption(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnGetGlobalShareOption start.");
     std::vector<uint32_t> tokenId;
     if (!data.ReadUInt32Vector(&tokenId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read tokenId failed.");
@@ -367,7 +362,6 @@ int32_t PasteboardServiceStub::OnGetGlobalShareOption(MessageParcel &data, Messa
             return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnGetGlobalShareOption end.");
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 

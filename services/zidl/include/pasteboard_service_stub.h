@@ -55,6 +55,7 @@ private:
 
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
     static constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;
+    static constexpr int32_t MAX_SET_GLOBAL_SHARE_OPTION_SIZE = 100;
 };
 } // namespace MiscServices
 } // namespace OHOS

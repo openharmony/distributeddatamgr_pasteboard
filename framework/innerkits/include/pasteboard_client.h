@@ -228,27 +228,27 @@ public:
 
     /**
      * SetGlobalShareOption
-     * @descrition Set global shareOption.
-     * @param globalShareOption Global ShareOption
-     * @return Result
+     * @descrition Set globalShareOptions.
+     * @param globalShareOption globalShareOptions
+     * @return int32_t
      */
-    int32_t SetGlobalShareOption(std::map<uint32_t, ShareOption> globalShareOption);
+    int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions);
 
     /**
      * RemoveGlobalShareOption
-     * @descrition Remove global shareOption.
-     * @param tokenId tokenId
-     * @return Result
+     * @descrition Remove globalShareOptions.
+     * @param tokenId tokenIds
+     * @return int32_t
      */
-    int32_t RemoveGlobalShareOption(std::vector<uint32_t> tokenId);
+    int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds);
 
     /**
      * GetGlobalShareOption
-     * @descrition Get global shareOption.
-     * @param tokenId tokenId
-     * @return Global shareOption
+     * @descrition Get globalShareOptions.
+     * @param tokenId tokenIds
+     * @return globalShareOptions
      */
-    std::map<uint32_t, ShareOption> GetGlobalShareOption(std::vector<uint32_t> tokenId);
+    std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds);
 
     /**
      * OnRemoteSaDied
