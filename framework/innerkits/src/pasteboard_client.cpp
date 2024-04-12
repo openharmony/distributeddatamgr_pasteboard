@@ -340,7 +340,6 @@ int32_t PasteboardClient::RemoveGlobalShareOption(const std::vector<uint32_t> &t
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     return pasteboardServiceProxy_->RemoveGlobalShareOption(tokenIds);
-
 }
 
 std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(const std::vector<uint32_t> &tokenIds)

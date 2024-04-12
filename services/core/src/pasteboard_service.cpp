@@ -304,7 +304,7 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
     if (IsDataAged()) {
         return false;
     }
-    ShareOption shareOption = 
+    ShareOption shareOption =
         globalShareOptions_.Contains(pasteData.GetTokenId())
             ? globalShareOptions_[pasteData.GetTokenId()]
             : pasteData.GetShareOption();
