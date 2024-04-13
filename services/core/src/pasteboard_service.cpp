@@ -1070,32 +1070,32 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
 
 int32_t PasteboardService::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
 {
-    for (auto &[tokenId,  shareOption] : globalShareOptions) {
+    for (const auto &[tokenId,  shareOption] : globalShareOptions) {
         globalShareOptions_.InsertOrAssign(tokenId, shareOption);
     }
-    return static_cast<int32_t>(PasteboardError::E_OK);
+    return ERR_OK;
 }
 
 int32_t PasteboardService::RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds)
 {
-    for (auto &tokenId : tokenIds) {
+    for (const uint32_t &tokenId : tokenIds) {
         globalShareOptions_.Erase(tokenId);
     }
-    return static_cast<int32_t>(PasteboardError::E_OK);
+    return ERR_OK;
 }
 
 std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const std::vector<uint32_t> &tokenIds)
 {
     std::map<uint32_t, ShareOption> result;
     if (tokenIds.empty()) {
-        globalShareOptions_.ForEach([&result](auto &key, auto &value) {
+        globalShareOptions_.ForEach([&result](const uint32_t &key, ShareOption &value) {
             result[key] = value;
             return false;
         });
         return result;
     }
-    for (auto &tokenId : tokenIds) {
-        globalShareOptions_.ComputeIfPresent(tokenId, [&result](auto &key, auto &value) {
+    for (const uint32_t &tokenId : tokenIds) {
+        globalShareOptions_.ComputeIfPresent(tokenId, [&result](const uint32_t &key, ShareOption &value) {
             result[key] = value;
             return true;
         });

@@ -305,27 +305,27 @@ int32_t PasteboardServiceProxy::SetGlobalShareOption(const std::map<uint32_t, Sh
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteInterfaceToken failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(static_cast<int32_t>(globalShareOptions.size()))) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write size failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        return ERR_INVALID_VALUE;
     }
-    for (const auto &entry : globalShareOptions) {
-        if (!data.WriteUint32(entry.first)) {
+    for (const auto &[tokenId, shareOption] : globalShareOptions) {
+        if (!data.WriteUint32(tokenId)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenId failed.");
-            return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+            return ERR_INVALID_VALUE;
         }
-        if (!data.WriteInt32(static_cast<int32_t>(entry.second))) {
+        if (!data.WriteInt32(static_cast<int32_t>(shareOption))) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write shareOption failed.");
-            return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+            return ERR_INVALID_VALUE;
         }
     }
-    int32_t status = Remote()->SendRequest(
+    int32_t result = Remote()->SendRequest(
         PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION, data, reply, option);
-    if (status != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Remote SendRequest failed, error code: %{public}d.", status);
-        return status;
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
+        return ERR_INVALID_OPERATION;
     }
     return reply.ReadInt32();
 }
@@ -337,17 +337,17 @@ int32_t PasteboardServiceProxy::RemoveGlobalShareOption(const std::vector<uint32
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteInterfaceToken failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        return ERR_INVALID_VALUE;
     }
     if (!data.WriteUInt32Vector(tokenIds)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenId failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenIds failed.");
+        return ERR_INVALID_VALUE;
     }
-    int32_t status = Remote()->SendRequest(
+    int32_t result = Remote()->SendRequest(
         PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION, data, reply, option);
-    if (status != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Remote SendRequest failed, error code: %{public}d.", status);
-        return status;
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Remote SendRequest failed, error code: %{public}d.", result);
+        return ERR_INVALID_OPERATION;
     }
     return reply.ReadInt32();
 }
@@ -362,16 +362,15 @@ std::map<uint32_t, ShareOption> PasteboardServiceProxy::GetGlobalShareOption(con
         return {};
     }
     if (!data.WriteUInt32Vector(tokenIds)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenId failed.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenIds failed.");
         return {};
     }
-    int32_t status = Remote()->SendRequest(
-        PasteboardServiceInterfaceCode::GET_DATA_SOURCE, data, reply, option);
-    if (status != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", status);
+    int32_t result = Remote()->SendRequest(
+        PasteboardServiceInterfaceCode::GET_GLOBAL_SHARE_OPTION, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
         return {};
     }
-    std::map<uint32_t, ShareOption> globalShareOptions;
     int32_t size = 0;
     if (!reply.ReadInt32(size)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read size failed.");
@@ -382,18 +381,19 @@ std::map<uint32_t, ShareOption> PasteboardServiceProxy::GetGlobalShareOption(con
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read oversize failed.");
         return {};
     }
+    std::map<uint32_t, ShareOption> globalShareOptions;
     for (int32_t i = 0; i < size; i++) {
-        uint32_t key;
-        if (!reply.ReadUint32(key)) {
+        uint32_t tokenId;
+        if (!reply.ReadUint32(tokenId)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read tokenId failed.");
             return {};
         }
-        int32_t value;
-        if (!reply.ReadInt32(value)) {
+        int32_t shareOption;
+        if (!reply.ReadInt32(shareOption)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read shareOption failed.");
             return {};
         }
-        globalShareOptions[key] = static_cast<ShareOption>(value);
+        globalShareOptions[tokenId] = static_cast<ShareOption>(shareOption);
     }
     return globalShareOptions;
 }
