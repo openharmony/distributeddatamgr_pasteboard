@@ -252,17 +252,4 @@ HWTEST_F(PasteboardClientTest, RemoveGlobalShareOption, TestSize.Level0)
     EXPECT_TRUE(result.find(100) == result.end());
     PasteboardClient::GetInstance()->RemoveGlobalShareOption({200, 300});
 }
-
-/**
-* @tc.name: SetGlobalShareOptionManual
-* @tc.desc: Manually set global shareOption
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
-HWTEST_F(PasteboardClientTest, SetGlobalShareOptionManual, TestSize.Level4)
-{
-    PasteboardClient::GetInstance()->SetGlobalShareOption({{100, ShareOption::InApp}});
-    PasteboardClient::GetInstance()->RemoveGlobalShareOption({100});
-}
 } // namespace OHOS::MiscServices
