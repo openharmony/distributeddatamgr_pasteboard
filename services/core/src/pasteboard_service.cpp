@@ -1073,7 +1073,7 @@ int32_t PasteboardService::SetGlobalShareOption(const std::map<uint32_t, ShareOp
     for (const auto &[tokenId,  shareOption] : globalShareOptions) {
         globalShareOptions_.InsertOrAssign(tokenId, shareOption);
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,"Set %{public}zu global shareOption.", globalShareOptions.size());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Set %{public}zu global shareOption.", globalShareOptions.size());
     return ERR_OK;
 }
 
@@ -1081,12 +1081,12 @@ int32_t PasteboardService::RemoveGlobalShareOption(const std::vector<uint32_t> &
 {
     int32_t count = 0;
     for (const uint32_t &tokenId : tokenIds) {
-        globalShareOptions_.ComputeIfPresent(tokenId, [&count](const uint32_t &key, ShareOption &value){
+        globalShareOptions_.ComputeIfPresent(tokenId, [&count](const uint32_t &key, ShareOption &value) {
             count++;
             return false;
         });
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,"Remove %{public}d global shareOption.", count);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Remove %{public}d global shareOption.", count);
     return ERR_OK;
 }
 
