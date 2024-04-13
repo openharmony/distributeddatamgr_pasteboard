@@ -1073,7 +1073,7 @@ int32_t PasteboardService::SetGlobalShareOption(const std::map<uint32_t, ShareOp
     for (const auto &[tokenId,  shareOption] : globalShareOptions) {
         globalShareOptions_.InsertOrAssign(tokenId, shareOption);
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,"Set %{public}u global shareOption.", globalShareOptions.size());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,"Set %{public}zu global shareOption.", globalShareOptions.size());
     return ERR_OK;
 }
 
