@@ -346,7 +346,7 @@ int32_t PasteboardServiceProxy::RemoveGlobalShareOption(const std::vector<uint32
     int32_t result = Remote()->SendRequest(
         PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION, data, reply, option);
     if (result != ERR_NONE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Remote SendRequest failed, error code: %{public}d.", result);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
         return ERR_INVALID_OPERATION;
     }
     return reply.ReadInt32();
