@@ -31,6 +31,12 @@ config("module_private_config") {
 module_output_path = "pasteboard/pasteboard_service"
 
 ohos_unittest("PasteboardFrameworkTest") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   resource_config_file = "//foundation/distributeddatamgr/pasteboard/framework/test/resource/ohos_test.xml"
   module_out_path = module_output_path
 
