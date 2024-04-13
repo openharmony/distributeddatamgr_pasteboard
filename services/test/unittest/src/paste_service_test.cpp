@@ -1313,8 +1313,8 @@ HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
-    // not DraggedData, not DefaultIME, not FocusedApp
-    EXPECT_FALSE(hasPasteData);
+    // not DraggedData, not DefaultIME
+    EXPECT_TRUE(hasPasteData);
     PasteboardClient::GetInstance()->Clear();
     PasteboardServiceTest::RestoreSelfTokenId();
 }

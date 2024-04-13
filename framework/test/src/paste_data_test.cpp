@@ -77,7 +77,7 @@ public:
 * @tc.require:AR000H5I1D
 * @tc.author: baoyayong
 */
-HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)__attribute__((no_sanitize("cfi")))
+HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
 {
     PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
@@ -111,7 +111,7 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)__attribute__((no_sa
 * @tc.require:AR000H5I1D
 * @tc.author: chenyu
 */
-HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)__attribute__((no_sanitize("cfi")))
+HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
 {
     PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
