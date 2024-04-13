@@ -40,10 +40,14 @@ public:
     virtual void AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void RemoveAllEventObserver() override;
+    virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) override;
+    virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
+    virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
 
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;
     void ProcessObserver(uint32_t code, const sptr<IPasteboardChangedObserver> &observer);
+    static constexpr int32_t MAX_GET_GLOBAL_SHARE_OPTION_SIZE = 2000;
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -304,7 +304,12 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
     if (IsDataAged()) {
         return false;
     }
-    switch (pasteData.GetShareOption()) {
+    ShareOption shareOption = pasteData.GetShareOption();
+    globalShareOptions_.ComputeIfPresent(pasteData.GetTokenId(), [&shareOption](auto &key, auto &value) {
+        shareOption = value;
+        return true;
+    });
+    switch (shareOption) {
         case ShareOption::InApp: {
             if (pasteData.GetTokenId() != tokenId) {
                 PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "InApp check failed.");
@@ -319,8 +324,8 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
             break;
         }
         default: {
-            PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_SERVICE, "shareOption = %{public}d is error.", pasteData.GetShareOption());
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "tokenId = 0x%{public}x, shareOption = %{public}d is error.", tokenId, shareOption);
             return false;
         }
     }
@@ -1061,6 +1066,47 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
     auto eraseNum = observerMap.erase(COMMON_USERID);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
+}
+
+int32_t PasteboardService::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
+{
+    for (const auto &[tokenId,  shareOption] : globalShareOptions) {
+        globalShareOptions_.InsertOrAssign(tokenId, shareOption);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Set %{public}zu global shareOption.", globalShareOptions.size());
+    return ERR_OK;
+}
+
+int32_t PasteboardService::RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds)
+{
+    int32_t count = 0;
+    for (const uint32_t &tokenId : tokenIds) {
+        globalShareOptions_.ComputeIfPresent(tokenId, [&count](const uint32_t &key, ShareOption &value) {
+            count++;
+            return false;
+        });
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Remove %{public}d global shareOption.", count);
+    return ERR_OK;
+}
+
+std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const std::vector<uint32_t> &tokenIds)
+{
+    std::map<uint32_t, ShareOption> result;
+    if (tokenIds.empty()) {
+        globalShareOptions_.ForEach([&result](const uint32_t &key, ShareOption &value) {
+            result[key] = value;
+            return false;
+        });
+        return result;
+    }
+    for (const uint32_t &tokenId : tokenIds) {
+        globalShareOptions_.ComputeIfPresent(tokenId, [&result](const uint32_t &key, ShareOption &value) {
+            result[key] = value;
+            return true;
+        });
+    }
+    return result;
 }
 
 inline bool PasteboardService::IsCallerUidValid()

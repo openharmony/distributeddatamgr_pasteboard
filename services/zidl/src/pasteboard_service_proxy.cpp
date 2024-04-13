@@ -297,5 +297,105 @@ bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return reply.ReadBool();
 }
+
+int32_t PasteboardServiceProxy::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteInterfaceToken failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteInt32(static_cast<int32_t>(globalShareOptions.size()))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write size failed.");
+        return ERR_INVALID_VALUE;
+    }
+    for (const auto &[tokenId, shareOption] : globalShareOptions) {
+        if (!data.WriteUint32(tokenId)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenId failed.");
+            return ERR_INVALID_VALUE;
+        }
+        if (!data.WriteInt32(static_cast<int32_t>(shareOption))) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write shareOption failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    int32_t result = Remote()->SendRequest(
+        PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
+        return ERR_INVALID_OPERATION;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t PasteboardServiceProxy::RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteInterfaceToken failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteUInt32Vector(tokenIds)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenIds failed.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = Remote()->SendRequest(
+        PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
+        return ERR_INVALID_OPERATION;
+    }
+    return reply.ReadInt32();
+}
+
+std::map<uint32_t, ShareOption> PasteboardServiceProxy::GetGlobalShareOption(const std::vector<uint32_t> &tokenIds)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteInterfaceToken failed.");
+        return {};
+    }
+    if (!data.WriteUInt32Vector(tokenIds)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenIds failed.");
+        return {};
+    }
+    int32_t result = Remote()->SendRequest(
+        PasteboardServiceInterfaceCode::GET_GLOBAL_SHARE_OPTION, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
+        return {};
+    }
+    int32_t size = 0;
+    if (!reply.ReadInt32(size)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read size failed.");
+        return {};
+    }
+    int32_t readAbleSize = reply.GetReadableBytes();
+    if (size > readAbleSize || size > MAX_GET_GLOBAL_SHARE_OPTION_SIZE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read oversize failed.");
+        return {};
+    }
+    std::map<uint32_t, ShareOption> globalShareOptions;
+    for (int32_t i = 0; i < size; i++) {
+        uint32_t tokenId;
+        if (!reply.ReadUint32(tokenId)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read tokenId failed.");
+            return {};
+        }
+        int32_t shareOption;
+        if (!reply.ReadInt32(shareOption)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read shareOption failed.");
+            return {};
+        }
+        globalShareOptions[tokenId] = static_cast<ShareOption>(shareOption);
+    }
+    return globalShareOptions;
+}
 } // namespace MiscServices
 } // namespace OHOS

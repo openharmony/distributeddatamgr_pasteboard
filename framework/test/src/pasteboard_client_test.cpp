@@ -168,4 +168,88 @@ HWTEST_F(PasteboardClientTest, GetDataSource001, TestSize.Level0)
     PasteboardClient::GetInstance()->GetDataSource(bundleName);
     EXPECT_FALSE(bundleName.empty());
 }
+
+/**
+* @tc.name: SetGlobalShareOption
+* @tc.desc: Set global shareOption
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, SetGlobalShareOption, TestSize.Level0)
+{
+    std::map<uint32_t, ShareOption> settings = {
+        {100, ShareOption::InApp},
+        {200, ShareOption::LocalDevice},
+        {300, ShareOption::CrossDevice}};
+    PasteboardClient::GetInstance()->SetGlobalShareOption(settings);
+    auto result = PasteboardClient::GetInstance()->GetGlobalShareOption({});
+    EXPECT_TRUE(result.size() == 3);
+    EXPECT_EQ(result[100], ShareOption::InApp);
+    EXPECT_EQ(result[200], ShareOption::LocalDevice);
+    EXPECT_EQ(result[300], ShareOption::CrossDevice);
+    std::map<uint32_t, ShareOption> modify = {{100, ShareOption::CrossDevice},
+                                              {400, ShareOption::InApp}};
+    PasteboardClient::GetInstance()->SetGlobalShareOption(modify);
+    result = PasteboardClient::GetInstance()->GetGlobalShareOption({});
+    EXPECT_TRUE(result.size() == 4);
+    EXPECT_EQ(result[100], ShareOption::CrossDevice);
+    EXPECT_EQ(result[400], ShareOption::InApp);
+    PasteboardClient::GetInstance()->RemoveGlobalShareOption({100, 200, 300, 400});
+}
+
+/**
+* @tc.name: GetGlobalShareOption
+* @tc.desc: Get global shareOption
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, GetGlobalShareOption, TestSize.Level0)
+{
+    std::map<uint32_t, ShareOption> settings = {
+        {100, ShareOption::InApp},
+        {200, ShareOption::LocalDevice},
+        {300, ShareOption::CrossDevice}};
+    PasteboardClient::GetInstance()->SetGlobalShareOption(settings);
+    auto result = PasteboardClient::GetInstance()->GetGlobalShareOption({});
+    EXPECT_TRUE(result.size() == 3);
+    EXPECT_EQ(result[100], ShareOption::InApp);
+    EXPECT_EQ(result[200], ShareOption::LocalDevice);
+    EXPECT_EQ(result[300], ShareOption::CrossDevice);
+    result = PasteboardClient::GetInstance()->GetGlobalShareOption({100, 400});
+    EXPECT_TRUE(result.size() == 1);
+    EXPECT_EQ(result[100], ShareOption::InApp);
+    EXPECT_TRUE(result.find(400) == result.end());
+    PasteboardClient::GetInstance()->RemoveGlobalShareOption({100, 200, 300});
+}
+
+/**
+* @tc.name: RemoveGlobalShareOption
+* @tc.desc: Remove global shareOption
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, RemoveGlobalShareOption, TestSize.Level0)
+{
+    std::map<uint32_t, ShareOption> settings = {
+        {100, ShareOption::InApp},
+        {200, ShareOption::LocalDevice},
+        {300, ShareOption::CrossDevice}};
+    PasteboardClient::GetInstance()->SetGlobalShareOption(settings);
+    auto result = PasteboardClient::GetInstance()->GetGlobalShareOption({});
+    EXPECT_TRUE(result.size() == 3);
+    EXPECT_EQ(result[100], ShareOption::InApp);
+    EXPECT_EQ(result[200], ShareOption::LocalDevice);
+    EXPECT_EQ(result[300], ShareOption::CrossDevice);
+    PasteboardClient::GetInstance()->RemoveGlobalShareOption({});
+    result = PasteboardClient::GetInstance()->GetGlobalShareOption({});
+    EXPECT_TRUE(result.size() == 3);
+    PasteboardClient::GetInstance()->RemoveGlobalShareOption({100, 400});
+    result = PasteboardClient::GetInstance()->GetGlobalShareOption({});
+    EXPECT_TRUE(result.size() == 2);
+    EXPECT_TRUE(result.find(100) == result.end());
+    PasteboardClient::GetInstance()->RemoveGlobalShareOption({200, 300});
+}
 } // namespace OHOS::MiscServices

@@ -48,10 +48,14 @@ private:
     int32_t OnIsRemoteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetDataSource(MessageParcel &data, MessageParcel &reply);
     int32_t OnHasDataType(MessageParcel &data, MessageParcel &reply);
+    int32_t OnSetGlobalShareOption(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRemoveGlobalShareOption(MessageParcel &data, MessageParcel &reply);
+    int32_t OnGetGlobalShareOption(MessageParcel &data, MessageParcel &reply);
     inline bool IsObserverValid(MessageParcel &data, sptr<IPasteboardChangedObserver> &callback);
 
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
     static constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;
+    static constexpr int32_t MAX_SET_GLOBAL_SHARE_OPTION_SIZE = 100;
 };
 } // namespace MiscServices
 } // namespace OHOS

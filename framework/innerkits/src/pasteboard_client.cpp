@@ -326,6 +326,30 @@ void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> ca
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
+int32_t PasteboardClient::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
+{
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    return pasteboardServiceProxy_->SetGlobalShareOption(globalShareOptions);
+}
+
+int32_t PasteboardClient::RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds)
+{
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    return pasteboardServiceProxy_->RemoveGlobalShareOption(tokenIds);
+}
+
+std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(const std::vector<uint32_t> &tokenIds)
+{
+    if (!IsServiceAvailable()) {
+        return {};
+    }
+    return pasteboardServiceProxy_->GetGlobalShareOption(tokenIds);
+}
+
 bool PasteboardClient::IsRemoteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "IsRemoteData start.");
