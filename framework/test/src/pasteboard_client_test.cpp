@@ -14,12 +14,14 @@
  */
 
 #include "pasteboard_client.h"
+#include "unistd.h"
 #include <gtest/gtest.h>
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::Media;
+constexpr const uid_t EDM_UID = 3057;
 class PasteboardClientTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -30,10 +32,12 @@ public:
 
 void PasteboardClientTest::SetUpTestCase(void)
 {
+    setuid(EDM_UID);
 }
 
 void PasteboardClientTest::TearDownTestCase(void)
 {
+    setuid(0);
 }
 
 void PasteboardClientTest::SetUp(void)
