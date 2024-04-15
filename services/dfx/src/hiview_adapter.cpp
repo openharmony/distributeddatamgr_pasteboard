@@ -104,10 +104,8 @@ std::map<int, int> HiViewAdapter::InitTimeMap()
 
 void HiViewAdapter::ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg &msg)
 {
-    constexpr const char *USER_ID = "USER_ID";
-    constexpr const char *ERROR_TYPE = "ERROR_TYPE";
     int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD, CoverEventID(dfxCode),
-        HiSysEvent::EventType::FAULT, USER_ID, msg.userId, ERROR_TYPE, msg.errorCode);
+        HiSysEvent::EventType::FAULT, "USER_ID", msg.userId, "ERROR_TYPE", msg.errorCode);
     if (ret != 0) {
         PASTEBOARD_HILOGD(
             PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d. errCode %{public}d", ret, dfxCode);
