@@ -12,6 +12,7 @@
 # limitations under the License.
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
+import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 config("module_public_config") {
   visibility = [ ":*" ]
@@ -22,6 +23,7 @@ config("module_public_config") {
     "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "./",
     "../innerkits/include",
+    "${udmf_interfaces_path}/innerkits",
   ]
 }
 

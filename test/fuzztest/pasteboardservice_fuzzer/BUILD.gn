@@ -30,6 +30,7 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "${pasteboard_root_path}/framework/uri",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_service_path}/core/include",
+    "${udmf_interfaces_path}/innerkits",
   ]
 
   cflags = [
@@ -65,6 +66,7 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
+    "udmf:udmf_client",
   ]
 }
 

@@ -26,7 +26,7 @@
 #include "uri.h"
 #include "uri_handler.h"
 #include "want.h"
-#include "unified_meta.h"
+#include "common/unified_meta.h"
 namespace OHOS {
 namespace MiscServices {
 namespace {

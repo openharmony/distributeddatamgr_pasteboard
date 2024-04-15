@@ -118,7 +118,7 @@ public:
         return value.Count() + sizeof(TLVHead);
     }
     template<typename T>
-    inline size_t Count(std::shared_ptr<T> value)
+    inline size_t Count(std::shared_ptr<T> &value)
     {
         if (value == nullptr) {
             return 0;

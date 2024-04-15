@@ -28,6 +28,8 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
 
   include_dirs = [
     "//foundation/distributeddatamgr/pasteboard/framework/innerkits/include",
+    "${udmf_interfaces_path}/innerkits",
+    "${udmf_interfaces_path}/innerkits/common",
   ]
 
   cflags = [
@@ -51,6 +53,7 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "image_framework:image_native",
+    "udmf:udmf_client",
   ]
 }
 

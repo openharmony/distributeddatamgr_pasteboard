@@ -168,8 +168,9 @@ PasteDataRecord::~PasteDataRecord()
 PasteDataRecord::PasteDataRecord(const PasteDataRecord& record)
     : mimeType_(record.mimeType_), htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_),
       uri_(record.uri_), convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
-      hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_), details_(record.details_),
-      udType_(record.udType_), systemDefinedContents_(record.systemDefinedContents_), textContent_(record.textContent_)
+      hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_), udType_(record.udType_),
+      details_(record.details_), textContent_(record.textContent_),
+      systemDefinedContents_(record.systemDefinedContents_)
 {
     this->isConvertUriFromRemote = record.isConvertUriFromRemote;
     InitDecodeMap();
@@ -518,7 +519,7 @@ bool PasteDataRecord::HasGrantUriPermission()
 
 void PasteDataRecord::SetTextContent(const std::string& content)
 {
-    this->textContent_ = std::move(content);
+    this->textContent_ = content;
 }
 std::string PasteDataRecord::GetTextContent() const
 {
@@ -527,7 +528,7 @@ std::string PasteDataRecord::GetTextContent() const
 
 void PasteDataRecord::SetDetails(const Details& details)
 {
-    this->details_ = std::make_shared<Details>(std::move(details));
+    this->details_ = std::make_shared<Details>(details);
 }
 
 std::shared_ptr<Details> PasteDataRecord::GetDetails() const
@@ -536,7 +537,7 @@ std::shared_ptr<Details> PasteDataRecord::GetDetails() const
 }
 
 void PasteDataRecord::SetSystemDefinedContent(const Details& contents) {
-    this->systemDefinedContents_ = std::make_shared<Details>(std::move(contents));
+    this->systemDefinedContents_ = std::make_shared<Details>(contents);
 }
 
 std::shared_ptr<Details> PasteDataRecord::GetSystemDefinedContent() const

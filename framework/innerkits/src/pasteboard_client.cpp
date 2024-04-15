@@ -166,13 +166,8 @@ int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData& unifiedData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetUnifiedData start.");
-    if (!IsServiceAvailable()) {
-        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
-    }
     PasteData pasteData;
-    int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
-    RetainUri(pasteData);
-    RebuildWebviewPasteData(pasteData);
+    int32_t ret = GetPasteData(pasteData);
     unifiedData = *(PasteboardUtils::GetInstance()->PasteData2UnifiedData(pasteData));
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetUnifiedData end.");
@@ -264,22 +259,11 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
     return pasteboardServiceProxy_->SetPasteData(*webData);
 }
 
-int32_t PasteboardClient::SetUnifiedData(UDMF::UnifiedData &unifiedData)
+int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetUnifiedData start.");
-    if (!IsServiceAvailable()) {
-        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
-    }
     auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(unifiedData);
-    std::shared_ptr<std::string> html = pasteData->GetPrimaryHtml();
-    if (pasteData->GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
-        return pasteboardServiceProxy_->SetPasteData(*pasteData);
-    }
-    auto webData = SplitWebviewPasteData(*pasteData);
-    if (webData == nullptr) {
-        return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
-    }
-    return pasteboardServiceProxy_->SetPasteData(*webData);
+    return SetPasteData(*pasteData);
 }
 
 std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pasteData)

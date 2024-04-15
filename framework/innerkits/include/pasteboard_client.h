@@ -178,7 +178,7 @@ public:
      * @param unifiedData the object of the PasteDate.
      * @return int32_t.
      */
-    int32_t SetUnifiedData(UDMF::UnifiedData &unifiedData);
+    int32_t SetUnifiedData(const UDMF::UnifiedData &unifiedData);
 
     /**
      * SetPasteData
