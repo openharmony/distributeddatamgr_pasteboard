@@ -108,14 +108,14 @@ public:
     static std::shared_ptr<OHOS::Media::PixelMap> Vector2PixelMap(std::vector<std::uint8_t> &value);
     static std::vector<std::uint8_t> PixelMap2Vector(std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 
-    void SetTextContent(std::string content);
+    void SetTextContent(const std::string& content);
     std::string GetTextContent() const;
-    void SetDetails(Details details);
+    void SetDetails(const Details& details);
     std::shared_ptr<Details> GetDetails() const;
-    void SetSystemDefinedContent(Details contents);
+    void SetSystemDefinedContent(const Details& contents);
     std::shared_ptr<Details> GetSystemDefinedContent() const;
     int32_t GetUDType() const;
-    void SetUDType(UDMF::UDType type);
+    void SetUDType(int32_t type);
 
     class Builder {
     public:
@@ -158,7 +158,6 @@ private:
     std::shared_ptr<Details> details_;
     std::string textContent_;
     std::shared_ptr<Details> systemDefinedContents_;
-
 };
 } // namespace MiscServices
 } // namespace OHOS

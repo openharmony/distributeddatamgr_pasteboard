@@ -516,7 +516,7 @@ bool PasteDataRecord::HasGrantUriPermission()
     return hasGrantUriPermission_;
 }
 
-void PasteDataRecord::SetTextContent(std::string content)
+void PasteDataRecord::SetTextContent(const std::string& content)
 {
     this->textContent_ = std::move(content);
 }
@@ -525,7 +525,7 @@ std::string PasteDataRecord::GetTextContent() const
     return this->textContent_;
 }
 
-void PasteDataRecord::SetDetails(Details details)
+void PasteDataRecord::SetDetails(const Details& details)
 {
     this->details_ = std::make_shared<Details>(std::move(details));
 }
@@ -535,7 +535,7 @@ std::shared_ptr<Details> PasteDataRecord::GetDetails() const
     return this->details_;
 }
 
-void PasteDataRecord::SetSystemDefinedContent(Details contents) {
+void PasteDataRecord::SetSystemDefinedContent(const Details& contents) {
     this->systemDefinedContents_ = std::make_shared<Details>(std::move(contents));
 }
 
@@ -548,7 +548,7 @@ int32_t PasteDataRecord::GetUDType() const
     return this->udType_;
 }
 
-void PasteDataRecord::SetUDType(UDMF::UDType type){
+void PasteDataRecord::SetUDType(int32_t type){
     this->udType_ = type;
 }
 

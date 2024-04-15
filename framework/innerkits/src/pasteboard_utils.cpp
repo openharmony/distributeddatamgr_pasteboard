@@ -218,8 +218,8 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::PlainText2PasteRecord(std::sha
         return nullptr;
     }
     auto plainTextRecord = PasteDataRecord::NewPlaintTextRecord(plainText->GetContent());
-    plainTextRecord->SetDetails(std::move(plainText->GetDetails()));
-    plainTextRecord->SetTextContent(std::move(plainText->GetAbstract()));
+    plainTextRecord->SetDetails(plainText->GetDetails());
+    plainTextRecord->SetTextContent(plainText->GetAbstract());
     plainTextRecord->SetUDType(UDMF::PLAIN_TEXT);
     return plainTextRecord;
 }
@@ -272,8 +272,8 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Link2PasteRecord(std::shared_p
         return nullptr;
     }
     auto plainTextRecord = PasteDataRecord::NewPlaintTextRecord(link->GetUrl());
-    plainTextRecord->SetDetails(std::move(link->GetDetails()));
-    plainTextRecord->SetTextContent(std::move(link->GetDescription()));
+    plainTextRecord->SetDetails(link->GetDetails());
+    plainTextRecord->SetTextContent(link->GetDescription());
     plainTextRecord->SetUDType(UDMF::HYPERLINK);
     return plainTextRecord;
 }
