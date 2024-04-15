@@ -63,6 +63,8 @@ private:
     mutable std::mutex mutex_{};
     std::string localDeviceUdid_{};
     ConcurrentMap<DMObserver *, DMObserver *> observers_;
+    using Function = bool (*)();
+    void RetryInBlocking(Function func) const;
 };
 } // namespace OHOS::MiscServices
 #endif // OHOS_PASTEBOARD_SERVICES_DEVICE_DM_ADAPTER_H

@@ -18,7 +18,6 @@
 #include <thread>
 
 #include "cJSON.h"
-#include "dev_manager.h"
 #include "distributed_module_config.h"
 #include "dm_adapter.h"
 #include "para_handle.h"

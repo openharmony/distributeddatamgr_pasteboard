@@ -23,7 +23,6 @@
 #include "calculate_time_consuming.h"
 #include "common_event_manager.h"
 #include "common/block_object.h"
-#include "dev_manager.h"
 #include "dev_profile.h"
 #include "device/dm_adapter.h"
 #include "dfx_code_constant.h"
@@ -95,8 +94,6 @@ PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
-    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
-        &PasteboardService::DevManagerInit;
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
 }
 
@@ -182,7 +179,6 @@ void PasteboardService::OnStop()
     state_ = ServiceRunningState::STATE_NOT_START;
 
     ParaHandle::GetInstance().WatchEnabledStatus(nullptr);
-    DevManager::GetInstance().UnregisterDevCallback();
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
@@ -210,12 +206,6 @@ void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::s
             (this->*ServiceListenerFunc)();
         }
     }
-}
-
-void PasteboardService::DevManagerInit()
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
-    DevManager::GetInstance().Init();
 }
 
 void PasteboardService::DevProfileInit()
@@ -275,7 +265,7 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
             "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
         return false;
     }
-    auto deviceType = DevManager::GetInstance().GetLocalDeviceType();
+    auto deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
     if (deviceType == DEVICE_TYPE_PC || deviceType == DEVICE_TYPE_2IN1) {
         return true;
     }

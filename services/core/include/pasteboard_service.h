@@ -181,7 +181,6 @@ private:
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    void DevManagerInit();
     void DevProfileInit();
 
     ServiceRunningState state_;

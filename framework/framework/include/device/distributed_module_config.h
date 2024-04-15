@@ -18,10 +18,11 @@
 
 #include "api/visibility.h"
 #include <functional>
+#include "device/dm_adapter.h"
 
 namespace OHOS {
 namespace MiscServices {
-class API_EXPORT DistributedModuleConfig {
+class API_EXPORT DistributedModuleConfig : protected DMAdapter::DMObserver {
 public:
     using Observer = std::function<void(bool isOn)>;
     static bool IsOn();
@@ -29,6 +30,10 @@ public:
     static void ForceNotify();
     static void Notify();
     static void GetDeviceNum();
+protected:
+    void Online(const std::string &device) override;
+    void Offline(const std::string &device) override;
+    void OnReady(const std::string &device) override;
 private:
     static bool GetEnabledStatus();
     static Observer observer_;
