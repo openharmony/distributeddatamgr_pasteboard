@@ -19,6 +19,7 @@
 #include "device_manager.h"
 #include "device_manager_callback.h"
 #endif
+#include "dev_profile.h"
 namespace OHOS::MiscServices {
 constexpr size_t DMAdapter::MAX_ID_LEN;
 constexpr const char *PKG_NAME = "pasteboard_service";
@@ -121,7 +122,7 @@ bool DMAdapter::Initialize(const std::string &pkgName)
         });
     }, [this](const DmDeviceInfo &deviceInfo) {
         observers_.ForEach([&deviceInfo](auto &key, auto &value) {
-            value->offline(deviceInfo.networkId);
+            value->Offline(deviceInfo.networkId);
             return false;
         });
     });
