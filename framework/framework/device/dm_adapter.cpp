@@ -32,7 +32,7 @@ public:
     DmStateObserver(const std::function<void(const DmDeviceInfo &)> online,
         const std::function<void(const DmDeviceInfo &)> onReady,
         const std::function<void(const DmDeviceInfo &)> offline)
-        :online_(std::move(online)), onReady_(std::move(onReady)), onffline_(std::move(offline))
+        :online_(std::move(online)), onReady_(std::move(onReady)), offline_(std::move(offline))
     {
     }
 
@@ -78,18 +78,8 @@ public:
     }
     void OnRemoteDied() override
     {
-        RetryInBlocking([]() -> bool {
-            auto initCallback = std::make_shared<DmDeath>();
-            int32_t errNo = DeviceManager::GetInstance().InitDeviceManager(PKG_NAME, shared_from_this());
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "InitDeviceManager ret %{public}d", errNo);
-            return errNo == DM_OK;
-        });
-        RetryInBlocking([]() -> bool {
-            auto stateCallback = std::make_shared<DmStateObserver>();
-            auto errNo = DeviceManager::GetInstance().RegisterDevStateCallback(PKG_NAME, "", observer_);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "RegisterDevStateCallback ret %{public}d", errNo);
-            return errNo == DM_OK;
-        });
+        DeviceManager::GetInstance().InitDeviceManager(pkgName_, shared_from_this());
+        DeviceManager::GetInstance().RegisterDevStateCallback(pkgName_, "", observer_);
     }
 
 private:
@@ -288,19 +278,4 @@ int32_t DMAdapter::GetLocalDeviceType()
     return -1;
 #endif
 }
-
-void DMAdapter::RetryInBlocking(DMAdapter::Function func) const
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry start");
-    constexpr int32_t RETRY_TIMES = 300;
-    for (int32_t i = 0; i < RETRY_TIMES; ++i) {
-        if (func()) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry result: %{public}d times", i);
-            return;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_TIME));
-    }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "retry failed");
-}
-
 } // namespace OHOS::MiscServices

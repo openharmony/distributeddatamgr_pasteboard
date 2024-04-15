@@ -43,6 +43,10 @@ public:
     const std::string &GetLocalDeviceUdid();
     const std::string GetLocalNetworkId();
     std::string GetUdidByNetworkId(const std::string &networkId);
+    std::vector<std::string> GetNetworkIds();
+    std::vector<std::string> GetOldNetworkIds();
+    int32_t GetLocalDeviceType();
+
     #ifdef PB_DEVICE_MANAGER_ENABLE
     int32_t GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice);
     #endif
@@ -63,8 +67,6 @@ private:
     mutable std::mutex mutex_{};
     std::string localDeviceUdid_{};
     ConcurrentMap<DMObserver *, DMObserver *> observers_;
-    using Function = bool (*)();
-    void RetryInBlocking(Function func) const;
 };
 } // namespace OHOS::MiscServices
 #endif // OHOS_PASTEBOARD_SERVICES_DEVICE_DM_ADAPTER_H
