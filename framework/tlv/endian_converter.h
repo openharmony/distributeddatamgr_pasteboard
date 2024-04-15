@@ -98,5 +98,16 @@ static inline uint64_t NetToHost(uint64_t value)
 {
     return le64toh(value);
 }
+
+static inline int64_t NetToHost(double value)
+{
+    return le64toh(*reinterpret_cast<uint64_t*>(&value));
+}
+
+static inline uint16_t HostToNet(double value)
+{
+    return htole64(*reinterpret_cast<uint64_t*>(&value));
+}
+
 } // namespace OHOS::MiscServices
 #endif // PASTEBOARD_ENDIAN_CONVERTER_H

@@ -19,6 +19,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "api/visibility.h"
@@ -48,10 +49,18 @@ struct RawMem {
 enum COMMON_TAG : uint16_t {
     TAG_VECTOR_ITEM = 0x0000,
     TAG_MAP_KEY,
-    TAG_MAP_VALUE,
-
+    TAG_MAP_VALUE, // std::vector<uint8_t>
+    TAG_INT32,
+    TAG_INT64,
+    TAG_BOOL,
+    TAG_DOUBLE,
+    TAG_STRING,
     TAG_BUFF = 0x0100,
 };
+
+using ValueType = std::variant<int32_t, int64_t, bool, double, std::string, std::vector<uint8_t>>;
+using Details = std::map<std::string, ValueType>;
+
 struct API_EXPORT TLVObject {
 public:
     TLVObject() : total_(0), cursor_(0)
@@ -84,6 +93,10 @@ public:
     {
         return sizeof(value) + sizeof(TLVHead);
     }
+    static inline size_t Count(double value)
+    {
+        return sizeof(value) + sizeof(TLVHead);
+    }
     static inline size_t Count(int64_t value)
     {
         return sizeof(value) + sizeof(TLVHead);
@@ -105,7 +118,7 @@ public:
         return value.Count() + sizeof(TLVHead);
     }
     template<typename T>
-    inline size_t Count(std::shared_ptr<T> &value)
+    inline size_t Count(std::shared_ptr<T> value)
     {
         if (value == nullptr) {
             return 0;
@@ -136,8 +149,54 @@ public:
         }
         return expectSize;
     }
+    static inline size_t Count(Details &value)
+    {
+        size_t expectSize = sizeof(TLVHead);
+        for (auto &item : value) {
+            expectSize += Count(item.first);
+            expectSize += Count(item.second);
+        }
+        return expectSize;
+    }
+
+    static inline size_t Count(ValueType &value)
+    {
+        size_t expectSize = 0;
+        auto strValue = std::get_if<std::string>(&value);
+        if (strValue != nullptr) {
+            expectSize += Count(*strValue);
+            return expectSize;
+        }
+        auto int32Value = std::get_if<int32_t>(&value);
+        if (int32Value != nullptr) {
+            expectSize += Count(*int32Value);
+            return expectSize;
+        }
+        auto int64Value = std::get_if<int64_t>(&value);
+        if (int64Value != nullptr) {
+            expectSize += Count(*int64Value);
+            return expectSize;
+        }
+        auto boolValue = std::get_if<bool>(&value);
+        if (boolValue != nullptr) {
+            expectSize += Count(*boolValue);
+            return expectSize;
+        }
+        auto doubleValue = std::get_if<double>(&value);
+        if (doubleValue != nullptr) {
+            expectSize += Count(*doubleValue);
+            return expectSize;
+        }
+        auto u8ArrayValue = std::get_if<std::vector<uint8_t>>(&value);
+        if (u8ArrayValue != nullptr) {
+            expectSize += Count(*u8ArrayValue);
+            return expectSize;
+        }
+        return expectSize;
+    }
 
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, bool value);
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, double value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int8_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int16_t value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int32_t value);
@@ -169,12 +228,15 @@ public:
         }
         return Write(buffer, type, *value);
     }
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, Details &value);
+
     bool ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, bool &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int8_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int16_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int32_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, int64_t &value, const TLVHead &head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, double &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, uint32_t &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::string &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMem, const TLVHead &head);
@@ -197,6 +259,8 @@ public:
         return true;
     }
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<uint8_t> &value, const TLVHead &head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, Details &value, const TLVHead &head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, ValueType &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value,
         const TLVHead &head);
 

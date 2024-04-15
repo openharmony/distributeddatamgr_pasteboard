@@ -26,7 +26,7 @@
 #include "uri.h"
 #include "uri_handler.h"
 #include "want.h"
-
+#include "unified_meta.h"
 namespace OHOS {
 namespace MiscServices {
 namespace {
@@ -108,6 +108,15 @@ public:
     static std::shared_ptr<OHOS::Media::PixelMap> Vector2PixelMap(std::vector<std::uint8_t> &value);
     static std::vector<std::uint8_t> PixelMap2Vector(std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 
+    void SetTextContent(std::string content);
+    std::string GetTextContent() const;
+    void SetDetails(Details details);
+    std::shared_ptr<Details> GetDetails() const;
+    void SetSystemDefinedContent(Details contents);
+    std::shared_ptr<Details> GetSystemDefinedContent() const;
+    int32_t GetUDType() const;
+    void SetUDType(UDMF::UDType type);
+
     class Builder {
     public:
         explicit Builder(const std::string &mimeType);
@@ -144,6 +153,12 @@ private:
     using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
     std::map<uint16_t, Func> decodeMap;
     void InitDecodeMap();
+
+    int32_t udType_ = UDMF::UD_BUTT;
+    std::shared_ptr<Details> details_;
+    std::string textContent_;
+    std::shared_ptr<Details> systemDefinedContents_;
+
 };
 } // namespace MiscServices
 } // namespace OHOS
