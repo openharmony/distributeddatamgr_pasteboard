@@ -23,8 +23,6 @@
 namespace OHOS::MiscServices {
 constexpr size_t DMAdapter::MAX_ID_LEN;
 constexpr const char *PKG_NAME = "pasteboard_service";
-constexpr int32_t DM_OK = 0;
-constexpr const int32_t DELAY_TIME = 200;
 constexpr const uint32_t FIRST_VERSION = 4;
 
 #ifdef PB_DEVICE_MANAGER_ENABLE
