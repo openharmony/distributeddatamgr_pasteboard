@@ -27,7 +27,6 @@ public:
     using Observer = std::function<void(bool isOn)>;
     static bool IsOn();
     static void Watch(Observer observer);
-    static void GetDeviceNum();
     void Init();
     void DeInit();
 protected:
@@ -38,6 +37,7 @@ private:
     static bool GetEnabledStatus();
     static void ForceNotify();
     static void Notify();
+    static void GetDeviceNum();
     static Observer observer_;
     static bool status_;
     static size_t deviceNums_;

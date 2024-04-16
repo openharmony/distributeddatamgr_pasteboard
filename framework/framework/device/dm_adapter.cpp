@@ -19,11 +19,9 @@
 #include "device_manager.h"
 #include "device_manager_callback.h"
 #endif
-#include "dev_profile.h"
 namespace OHOS::MiscServices {
 constexpr size_t DMAdapter::MAX_ID_LEN;
 constexpr const char *PKG_NAME = "pasteboard_service";
-constexpr const uint32_t FIRST_VERSION = 4;
 
 #ifdef PB_DEVICE_MANAGER_ENABLE
 class DmStateObserver : public DeviceStateCallback {
