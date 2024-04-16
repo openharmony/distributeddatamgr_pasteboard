@@ -25,8 +25,8 @@ namespace MiscServices {
 class API_EXPORT DistributedModuleConfig : protected DMAdapter::DMObserver {
 public:
     using Observer = std::function<void(bool isOn)>;
-    static bool IsOn();
-    static void Watch(Observer observer);
+    bool IsOn();
+    void Watch(Observer observer);
     void Init();
     void DeInit();
 protected:

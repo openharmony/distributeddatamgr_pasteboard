@@ -88,7 +88,6 @@ bool DistributedModuleConfig::GetEnabledStatus()
 
 void DistributedModuleConfig::Online(const std::string &device)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().SubscribeProfileEvent(device);
     DistributedModuleConfig::ForceNotify();
     DistributedModuleConfig::Notify();
@@ -96,14 +95,12 @@ void DistributedModuleConfig::Online(const std::string &device)
 
 void DistributedModuleConfig::Offline(const std::string &device)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().UnSubscribeProfileEvent(device);
     DistributedModuleConfig::Notify();
 }
 
 void DistributedModuleConfig::OnReady(const std::string &device)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().OnReady();
 }
 
