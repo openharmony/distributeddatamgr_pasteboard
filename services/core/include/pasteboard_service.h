@@ -227,6 +227,7 @@ private:
     bool SubscribeKeyboardEvent();
     bool IsAllowSendData();
     std::shared_ptr<InputEventCallback> inputEventCallback_;
+    DistributedModuleConfig moduleConfig_;
 };
 } // namespace MiscServices
 } // namespace OHOS

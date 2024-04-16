@@ -107,13 +107,13 @@ void DistributedModuleConfig::OnReady(const std::string &device)
     DevProfile::GetInstance().OnReady();
 }
 
-void DistributedModuleConfig::Register()
+void DistributedModuleConfig::Init()
 {
     DMAdapter::GetInstance().Register(this);
     GetDeviceNum();
 }
 
-void DistributedModuleConfig::Unregister()
+void DistributedModuleConfig::DeInit()
 {
     DMAdapter::GetInstance().Unregister(this);
 }

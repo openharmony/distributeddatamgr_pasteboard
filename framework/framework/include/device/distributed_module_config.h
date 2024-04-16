@@ -27,17 +27,17 @@ public:
     using Observer = std::function<void(bool isOn)>;
     static bool IsOn();
     static void Watch(Observer observer);
-    static void ForceNotify();
-    static void Notify();
     static void GetDeviceNum();
-    void Register();
-    void Unregister();
+    void Init();
+    void DeInit();
 protected:
     void Online(const std::string &device) override;
     void Offline(const std::string &device) override;
     void OnReady(const std::string &device) override;
 private:
     static bool GetEnabledStatus();
+    static void ForceNotify();
+    static void Notify();
     static Observer observer_;
     static bool status_;
     static size_t deviceNums_;

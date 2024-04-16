@@ -95,6 +95,8 @@ PasteboardService::PasteboardService()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
+    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
+        &PasteboardService::DMAdapterInit;
 }
 
 PasteboardService::~PasteboardService()
@@ -127,9 +129,8 @@ void PasteboardService::OnStart()
     Loader loader;
     loader.LoadComponents();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
-    DistributedModuleConfig moduleConfig;
-    moduleConfig.Register();
-    DistributedModuleConfig::Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
+    moduleConfig_.Init();
+    moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
 
     if (Init() != ERR_OK) {
@@ -184,8 +185,7 @@ void PasteboardService::OnStop()
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
-    DistributedModuleConfig moduleConfig;
-    moduleConfig.Unregister();
+    moduleConfig_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }
 
@@ -209,6 +209,12 @@ void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::s
             (this->*ServiceListenerFunc)();
         }
     }
+}
+
+void PasteboardService::DMAdapterInit()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
+    DMAdapter::GetInstance().Initialize();
 }
 
 void PasteboardService::DevProfileInit()
@@ -1491,7 +1497,7 @@ bool PasteboardService::HasDistributedData(int32_t user)
 
 std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
 {
-    auto isOn = DistributedModuleConfig::IsOn();
+    auto isOn = moduleConfig_.IsOn();
     std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;

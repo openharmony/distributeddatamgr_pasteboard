@@ -44,7 +44,6 @@ public:
     const std::string GetLocalNetworkId();
     std::string GetUdidByNetworkId(const std::string &networkId);
     std::vector<std::string> GetNetworkIds();
-    std::vector<std::string> GetOldNetworkIds();
     int32_t GetLocalDeviceType();
 
     #ifdef PB_DEVICE_MANAGER_ENABLE

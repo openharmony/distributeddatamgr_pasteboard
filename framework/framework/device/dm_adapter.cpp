@@ -96,7 +96,6 @@ DMAdapter::~DMAdapter()
     auto &deviceManager = DeviceManager::GetInstance();
     deviceManager.UnRegisterDevStateCallback(PKG_NAME);
     deviceManager.UnInitDeviceManager(PKG_NAME);
-    DevProfile::GetInstance().UnsubscribeAllProfileEvents();
 }
 
 DMAdapter &DMAdapter::GetInstance()
@@ -236,29 +235,6 @@ std::vector<std::string> DMAdapter::GetNetworkIds()
         networkIds.emplace_back(item.networkId);
     }
     return networkIds;
-#else
-    return {};
-#endif
-}
-
-std::vector<std::string> DMAdapter::GetOldNetworkIds()
-{
-#ifdef PB_DEVICE_MANAGER_ENABLE
-    std::vector<std::string> networkIds = GetNetworkIds();
-    if (networkIds.empty()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
-        return {};
-    }
-    std::vector<std::string> oldNetworkIds;
-    for (auto &item : networkIds) {
-        uint32_t versionId = 3;
-        DevProfile::GetInstance().GetRemoteDeviceVersion(item, versionId);
-        if (versionId >= FIRST_VERSION) {
-            continue;
-        }
-        oldNetworkIds.emplace_back(item);
-    }
-    return oldNetworkIds;
 #else
     return {};
 #endif
