@@ -88,7 +88,7 @@ bool DistributedModuleConfig::GetEnabledStatus()
 
 void DistributedModuleConfig::Online(const std::string &device)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().SubscribeProfileEvent(device);
     DistributedModuleConfig::ForceNotify();
     DistributedModuleConfig::Notify();
@@ -96,26 +96,26 @@ void DistributedModuleConfig::Online(const std::string &device)
 
 void DistributedModuleConfig::Offline(const std::string &device)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().UnSubscribeProfileEvent(device);
     DistributedModuleConfig::Notify();
 }
 
 void DistributedModuleConfig::OnReady(const std::string &device)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().OnReady();
 }
 
 void DistributedModuleConfig::Register()
 {
-    DMAdapte::GetInstance().Register(this);
+    DMAdapter::GetInstance().Register(this);
     GetDeviceNum();
 }
 
 void DistributedModuleConfig::Unregister()
 {
-    DMAdapte::GetInstance().Unregister(this);
+    DMAdapter::GetInstance().Unregister(this);
 }
 
 } // namespace MiscServices

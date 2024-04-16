@@ -30,6 +30,8 @@ public:
     static void ForceNotify();
     static void Notify();
     static void GetDeviceNum();
+    void Register();
+    void Unregister();
 protected:
     void Online(const std::string &device) override;
     void Offline(const std::string &device) override;
