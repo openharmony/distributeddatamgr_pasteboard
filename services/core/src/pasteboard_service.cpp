@@ -127,6 +127,8 @@ void PasteboardService::OnStart()
     Loader loader;
     loader.LoadComponents();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
+    DistributedModuleConfig moduleConfig;
+    moduleConfig.Register();
     DistributedModuleConfig::Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
 
@@ -182,7 +184,8 @@ void PasteboardService::OnStop()
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
-
+    DistributedModuleConfig moduleConfig;
+    moduleConfig.Unregister();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }
 

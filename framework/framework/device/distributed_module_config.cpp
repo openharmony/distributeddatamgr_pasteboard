@@ -106,5 +106,17 @@ void DistributedModuleConfig::OnReady(const std::string &device)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
     DevProfile::GetInstance().OnReady();
 }
+
+void DistributedModuleConfig::Register()
+{
+    DMAdapte::GetInstance().Register(this);
+    GetDeviceNum();
+}
+
+void DistributedModuleConfig::Unregister()
+{
+    DMAdapte::GetInstance().Unregister(this);
+}
+
 } // namespace MiscServices
 } // namespace OHOS
