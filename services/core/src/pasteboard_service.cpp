@@ -28,7 +28,6 @@
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "distributed_file_daemon_manager.h"
-#include "distributed_module_config.h"
 #include "hiview_adapter.h"
 #include "input_method_controller.h"
 #include "iservice_registry.h"

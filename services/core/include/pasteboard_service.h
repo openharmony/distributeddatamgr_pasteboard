@@ -33,6 +33,7 @@
 #include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
 #include "common/concurrent_map.h"
+#include "distributed_module_config.h"
 #include "event_handler.h"
 #include "i_pasteboard_observer.h"
 #include "iremote_object.h"
@@ -181,6 +182,7 @@ private:
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void DMAdapterInit();
     void DevProfileInit();
 
     ServiceRunningState state_;
