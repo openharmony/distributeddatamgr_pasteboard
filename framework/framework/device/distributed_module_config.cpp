@@ -89,14 +89,14 @@ bool DistributedModuleConfig::GetEnabledStatus()
 void DistributedModuleConfig::Online(const std::string &device)
 {
     DevProfile::GetInstance().SubscribeProfileEvent(device);
-    DistributedModuleConfig::ForceNotify();
-    DistributedModuleConfig::Notify();
+    ForceNotify();
+    Notify();
 }
 
 void DistributedModuleConfig::Offline(const std::string &device)
 {
     DevProfile::GetInstance().UnSubscribeProfileEvent(device);
-    DistributedModuleConfig::Notify();
+    Notify();
 }
 
 void DistributedModuleConfig::OnReady(const std::string &device)

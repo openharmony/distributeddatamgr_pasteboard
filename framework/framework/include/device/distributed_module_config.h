@@ -34,13 +34,13 @@ protected:
     void Offline(const std::string &device) override;
     void OnReady(const std::string &device) override;
 private:
-    static bool GetEnabledStatus();
-    static void ForceNotify();
-    static void Notify();
-    static void GetDeviceNum();
-    static Observer observer_;
-    static bool status_;
-    static size_t deviceNums_;
+    bool GetEnabledStatus();
+    void ForceNotify();
+    void Notify();
+    void GetDeviceNum();
+    Observer observer_;
+    bool status_;
+    size_t deviceNums_;
 };
 } // namespace MiscServices
 } // namespace OHOS
