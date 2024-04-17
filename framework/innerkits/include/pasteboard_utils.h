@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2021-2024 Huawei Device Co., Ltd.
+* Copyright (C) 2024 Huawei Device Co., Ltd.
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -17,8 +17,8 @@
 
 #include "paste_data.h"
 #include "paste_data_record.h"
-#include "data/unified_data.h"
-#include "data/unified_record.h"
+#include "unified_data.h"
+#include "unified_record.h"
 namespace OHOS {
 namespace MiscServices {
 class PasteboardUtils {
@@ -27,63 +27,60 @@ public:
     using UnifiedData = UDMF::UnifiedData;
     using UnifiedDataProperties = UDMF::UnifiedDataProperties;
     using UDType = UDMF::UDType;
-    static PasteboardUtils* GetInstance();
-    PasteboardUtils();
-    std::shared_ptr<PasteData> UnifiedData2PasteData(const UnifiedData& unifiedData);
-    std::shared_ptr<UnifiedData> PasteData2UnifiedData(PasteData& pasteData);
+    static PasteboardUtils& GetInstance();
+    std::shared_ptr<PasteData> Convert(const UnifiedData& unifiedData);
+    std::shared_ptr<UnifiedData> Convert(const PasteData& pasteData);
 
 private:
-    std::vector<std::shared_ptr<PasteDataRecord>> UnifiedRecords2PasteRecords(
-        std::vector<std::shared_ptr<UnifiedRecord>>& records);
-    static std::vector<std::shared_ptr<UnifiedRecord>> Custom2UnifiedRecord(
-        const std::shared_ptr<PasteDataRecord>& record);
+    using Convert2URecord = std::function<std::shared_ptr<UnifiedRecord>(std::shared_ptr<PasteDataRecord>)>;
+    using Convert2PRecord = std::function<std::shared_ptr<PasteDataRecord>(std::shared_ptr<UnifiedRecord>)>;
 
-    static PasteDataProperty UnifiedProp2PaseteProp(UnifiedDataProperties& properties);
-    static std::shared_ptr<UnifiedDataProperties> PaseteProp2UnifiedProp(PasteDataProperty& properties);
+    PasteboardUtils();
 
-    static std::vector<std::string> UtdTypes2PaseteTypes(std::vector<UDType>& uDTypes);
-    static std::string UtdType2PaseteType(UDType uDType);
-    static UDType PaseteType2UDType(int32_t uDType, const std::string& mimeType);
+    std::vector<std::shared_ptr<PasteDataRecord>> Convert(const std::vector<std::shared_ptr<UnifiedRecord>>& records);
+    static PasteDataProperty Convert(const UnifiedDataProperties& properties);
+    static std::shared_ptr<UnifiedDataProperties> Convert(const PasteDataProperty& properties);
+    static std::vector<std::string> Convert(const std::vector<UDType>& uDTypes);
+    static std::string Convert(UDType uDType);
+    static UDType Convert(int32_t uDType, const std::string& mimeType);
 
-    using PasteRecord2UnifiedRecordFunc =
-        std::function<std::shared_ptr<UnifiedRecord>(std::shared_ptr<PasteDataRecord>)>;
-    using UnifiedRecord2PasteRecordFunc =
-        std::function<std::shared_ptr<PasteDataRecord>(std::shared_ptr<UnifiedRecord>)>;
     void InitDecodeMap();
 
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Text(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2PlaintText(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Want(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Html(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Link(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2File(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Image(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Video(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Audio(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Folder(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2PixelMap(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2SystemDefined(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2AppItem(const std::shared_ptr<PasteDataRecord>& record);
-    static std::shared_ptr<UnifiedRecord> PasteRecord2Form(const std::shared_ptr<PasteDataRecord>& record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Text(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2PlaintText(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Want(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Html(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Link(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2File(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Image(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Video(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Audio(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Folder(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2PixelMap(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2SystemDefined(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2AppItem(std::shared_ptr<PasteDataRecord> record);
+    static std::shared_ptr<UnifiedRecord> PasteRecord2Form(std::shared_ptr<PasteDataRecord> record);
+    static std::vector<std::shared_ptr<UnifiedRecord>> Custom2AppDefined(
+        std::shared_ptr<PasteDataRecord> record);
 
-    static std::shared_ptr<PasteDataRecord> Text2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> PlainText2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> Want2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> Html2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> Link2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> File2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> Image2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> Video2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> Audio2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> Folder2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> PixelMap2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> AppItem2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> Form2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> SystemDefined2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
-    static std::shared_ptr<PasteDataRecord> AppDefined2PasteRecord(const std::shared_ptr<UnifiedRecord>& record);
+    static std::shared_ptr<PasteDataRecord> Text2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> PlainText2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> Want2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> Html2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> Link2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> File2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> Image2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> Video2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> Audio2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> Folder2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> PixelMap2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> AppItem2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> Form2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> SystemDefined2PasteRecord(std::shared_ptr<UnifiedRecord> record);
+    static std::shared_ptr<PasteDataRecord> AppDefined2PasteRecord(std::shared_ptr<UnifiedRecord> record);
 
-    std::map<int32_t, PasteRecord2UnifiedRecordFunc> pasteRecords2UnifiedRecordMap_;
-    std::map<int32_t, UnifiedRecord2PasteRecordFunc> unifiedRecord2PasteRecordsMap_;
+    std::map<int32_t, Convert2URecord> convert2URecordMap_;
+    std::map<int32_t, Convert2PRecord> convert2PRecordMap_;
 };
 } // namespace MiscServices
 } // namespace OHOS

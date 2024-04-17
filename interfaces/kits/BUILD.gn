@@ -28,8 +28,6 @@ ohos_shared_library("pasteboard_napi") {
     "${ability_runtime_napi_path}/inner/napi_common",
     "napi/include",
     "${pasteboard_utils_path}/native/include",
-    "${udmf_interfaces_path}/innerkits",
-    "${udmf_interfaces_path}/jskits",
   ]
 
   cflags = [

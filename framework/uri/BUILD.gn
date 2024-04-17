@@ -23,7 +23,8 @@ config("module_public_config") {
     "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "./",
     "../innerkits/include",
-    "${udmf_interfaces_path}/innerkits",
+    "${udmf_interfaces_path}/innerkits/data",
+    "${udmf_interfaces_path}/innerkits/common",
   ]
 }
 

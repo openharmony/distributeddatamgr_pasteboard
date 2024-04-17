@@ -536,7 +536,8 @@ std::shared_ptr<Details> PasteDataRecord::GetDetails() const
     return this->details_;
 }
 
-void PasteDataRecord::SetSystemDefinedContent(const Details& contents) {
+void PasteDataRecord::SetSystemDefinedContent(const Details& contents)
+{
     this->systemDefinedContents_ = std::make_shared<Details>(contents);
 }
 
@@ -549,7 +550,8 @@ int32_t PasteDataRecord::GetUDType() const
     return this->udType_;
 }
 
-void PasteDataRecord::SetUDType(int32_t type){
+void PasteDataRecord::SetUDType(int32_t type)
+{
     this->udType_ = type;
 }
 

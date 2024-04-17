@@ -165,12 +165,10 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData& unifiedData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetUnifiedData start.");
     PasteData pasteData;
     int32_t ret = GetPasteData(pasteData);
-    unifiedData = *(PasteboardUtils::GetInstance()->PasteData2UnifiedData(pasteData));
+    unifiedData = *(PasteboardUtils::GetInstance().Convert(pasteData));
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetUnifiedData end.");
     return ret;
 }
 
@@ -261,8 +259,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
 
 int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetUnifiedData start.");
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(unifiedData);
+    auto pasteData = PasteboardUtils::GetInstance().Convert(unifiedData);
     return SetPasteData(*pasteData);
 }
 

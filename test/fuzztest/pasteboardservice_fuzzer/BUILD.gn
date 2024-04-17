@@ -30,7 +30,6 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "${pasteboard_root_path}/framework/uri",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_service_path}/core/include",
-    "${udmf_interfaces_path}/innerkits",
   ]
 
   cflags = [

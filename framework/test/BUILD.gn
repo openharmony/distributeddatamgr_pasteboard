@@ -23,7 +23,6 @@ config("module_private_config") {
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
     "${pasteboard_root_path}/framework/framework/include/serializable",
     "${pasteboard_service_path}/load/include",
-    "${udmf_interfaces_path}/innerkits",
     "include",
     "test/include",
   ]

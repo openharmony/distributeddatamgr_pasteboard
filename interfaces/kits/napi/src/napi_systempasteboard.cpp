@@ -413,7 +413,7 @@ napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info
     auto context = std::make_shared<SetUnifiedContextInfo>();
     SetDataCommon(context);
 
-    auto exec = [context](AsyncCall::Context *ctx) {
+    auto exec = [context](AsyncCall::Context* ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
         int32_t ret = static_cast<int32_t>(PasteboardError::E_ERROR);
         if (context->obj != nullptr) {
@@ -436,21 +436,21 @@ napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info
 
 napi_value SystemPasteboardNapi::GetUnifiedData(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData is called!");
 
     auto context = std::make_shared<GetUnifiedContextInfo>();
     context->unifiedData = std::make_shared<UDMF::UnifiedData>();
     GetDataCommon(context);
 
-    auto exec = [context](AsyncCall::Context *ctx) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData Begin");
+    auto exec = [context](AsyncCall::Context* ctx) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetUnifiedData(*context->unifiedData);
         if (ret == static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED)) {
             context->SetErrInfo(ret, "Another getData is being processed");
         } else {
             context->status = napi_ok;
         }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData End");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData End");
     };
     // 0: the AsyncCall at the first position;
     AsyncCall asyncCall(env, info, context, 0);
@@ -459,14 +459,13 @@ napi_value SystemPasteboardNapi::GetUnifiedData(napi_env env, napi_callback_info
 
 napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetDataSync() is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetUnifiedDataSync is called!");
     napi_value instance = nullptr;
     std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
-//    UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance);
 
     NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance));
-    UDMF::UnifiedDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    UDMF::UnifiedDataNapi* obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void**>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
         return nullptr;
     }
@@ -479,12 +478,12 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     thread.detach();
     auto value = block->GetValue();
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request time out.")) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetUnifiedDataSync failed.");
         return nullptr;
     }
 
     if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, GetDataSync failed");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, GetUnifiedDataSync failed");
         return nullptr;
     }
     return instance;
@@ -492,13 +491,13 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
 
 napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi SetUnifiedDataSync() is called!");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi SetUnifiedDataSync is called!");
     napi_value instance = nullptr;
     std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
 
-    NAPI_CALL(env,UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance));
-    UDMF::UnifiedDataNapi *obj = nullptr;
-    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance));
+    UDMF::UnifiedDataNapi* obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void**>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
         return nullptr;
     }
@@ -523,19 +522,19 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     return instance;
 }
 
-void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo> &context)
+void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>& context)
 {
     auto unifiedDataNapi = new (std::nothrow) UDMF::UnifiedDataNapi();
-    auto input = [context, &unifiedDataNapi](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
+    auto input = [context, &unifiedDataNapi](napi_env env, size_t argc, napi_value* argv,
+                     napi_value self) -> napi_status {
         // setData has 1 or 2 args
-        context->status = napi_unwrap(env, argv[0], reinterpret_cast<void **>(&unifiedDataNapi));
-        if (!CheckExpression(
-                env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+        if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
+                "Parameter error. Wrong number of arguments.") ||
             !CheckExpression(env, context->status == napi_ok, JSErrorCode::INVALID_PARAMETERS,
                 "Parameter error. The Type of data must be unifiedData.")) {
             return napi_invalid_arg;
         }
-
+        context->status = napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
         if (argc > 1 &&
             !CheckArgsType(env, argv[1], napi_function, "Parameter error. The type of callback must be function.")) {
             return napi_invalid_arg;
@@ -548,9 +547,9 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo> 
     context->SetAction(std::move(input));
 }
 
-void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo> &context)
+void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo>& context)
 {
-    auto input = [](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
+    auto input = [](napi_env env, size_t argc, napi_value* argv, napi_value self) -> napi_status {
         // 1: GetPasteData has 0 or 1 args
         if (argc > 0 &&
             !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
@@ -559,13 +558,13 @@ void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo> 
         return napi_ok;
     };
 
-    auto output = [context](napi_env env, napi_value *result) -> napi_status {
+    auto output = [context](napi_env env, napi_value* result) -> napi_status {
         napi_value instance = nullptr;
         std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
         UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance);
 
-        UDMF::UnifiedDataNapi *obj = nullptr;
-        napi_status ret = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+        UDMF::UnifiedDataNapi* obj = nullptr;
+        napi_status ret = napi_unwrap(env, instance, reinterpret_cast<void**>(&obj));
         if ((ret == napi_ok) || (obj != nullptr)) {
             obj->value_ = context->unifiedData;
         } else {

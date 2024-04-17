@@ -119,7 +119,7 @@ bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, Details&
             Write(buffer, TAG_STRING, *strValue);
             continue;
         }
-        auto* int32Value= std::get_if<int32_t>(&val);
+        auto* int32Value = std::get_if<int32_t>(&val);
         if (int32Value != nullptr) {
             Write(buffer, TAG_INT32, *int32Value);
             continue;
@@ -279,20 +279,20 @@ bool TLVObject::ReadValue(
     return true;
 }
 
-bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, Details &value, const TLVHead &head)
+bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& value, const TLVHead& head)
 {
     auto mapEnd = cursor_ + head.len;
-    while (cursor_ < mapEnd ) {
+    while (cursor_ < mapEnd) {
         TLVHead keyHead{};
         bool ret = ReadHead(buffer, keyHead);
         std::string itemKey = "";
-        if (!ReadValue(buffer,itemKey, keyHead)) {
+        if (!ReadValue(buffer, itemKey, keyHead)) {
             return false;
         }
         TLVHead valueHead{};
         ret = ReadHead(buffer, valueHead);
         ValueType itemValue;
-        if (!ReadValue(buffer,itemValue, valueHead)) {
+        if (!ReadValue(buffer, itemValue, valueHead)) {
             return false;
         }
         value.emplace(itemKey, itemValue);
@@ -300,7 +300,7 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, Details &valu
     return true;
 }
 
-bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, ValueType &value, const TLVHead &head)
+bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, ValueType& value, const TLVHead& head)
 {
     switch (head.tag) {
         case TAG_STRING: {

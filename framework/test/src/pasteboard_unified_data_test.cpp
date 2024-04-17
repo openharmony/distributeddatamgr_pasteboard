@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +19,6 @@
 
 #include "data/application_defined_record.h"
 #include "data/audio.h"
-#include "data/file.h"
 #include "data/folder.h"
 #include "data/html.h"
 #include "data/image.h"
@@ -27,7 +26,6 @@
 #include "data/plain_text.h"
 #include "data/system_defined_appitem.h"
 #include "data/system_defined_form.h"
-#include "data/system_defined_record.h"
 #include "data/video.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;

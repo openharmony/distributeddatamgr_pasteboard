@@ -159,7 +159,7 @@ public:
         return expectSize;
     }
 
-    static inline size_t Count(ValueType &value)
+    static inline size_t Count(ValueType& value)
     {
         size_t expectSize = 0;
         auto strValue = std::get_if<std::string>(&value);

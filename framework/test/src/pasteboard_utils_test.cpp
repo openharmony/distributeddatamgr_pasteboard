@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,19 +17,16 @@
 
 #include <gtest/gtest.h>
 
-#include "data/application_defined_record.h"
-#include "data/audio.h"
-#include "data/file.h"
-#include "data/folder.h"
-#include "data/html.h"
-#include "data/image.h"
-#include "data/link.h"
-#include "data/plain_text.h"
-#include "data/system_defined_appitem.h"
-#include "data/system_defined_form.h"
-#include "data/system_defined_pixelmap.h"
-#include "data/system_defined_record.h"
-#include "data/video.h"
+#include "application_defined_record.h"
+#include "audio.h"
+#include "folder.h"
+#include "html.h"
+#include "image.h"
+#include "link.h"
+#include "plain_text.h"
+#include "system_defined_appitem.h"
+#include "system_defined_form.h"
+#include "video.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
@@ -40,6 +37,7 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+
 protected:
     Details details_;
     std::vector<uint8_t> rawData_;
@@ -51,7 +49,7 @@ void PasteboardUtilsTest::TearDownTestCase(void) {}
 
 void PasteboardUtilsTest::SetUp(void)
 {
-    rawData_ = {1,2,3,4,5,6,7,8};
+    rawData_ = { 1, 2, 3, 4, 5, 6, 7, 8 };
     details_.insert({ "keyString", "string_test" });
     details_.insert({ "keyInt32", 1 });
     details_.insert({ "keyInt64", 99L });
@@ -77,8 +75,8 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
     textRecord->SetDetails(details_);
     data.AddRecord(textRecord);
 
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -88,8 +86,8 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -115,9 +113,8 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     plainTextRecord->SetDetails(details_);
     data.AddRecord(plainTextRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -131,8 +128,8 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -162,9 +159,8 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
     htmlRecord->SetDetails(details_);
     data.AddRecord(htmlRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -178,8 +174,8 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -209,9 +205,8 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
     linkRecord->SetDetails(details_);
     data.AddRecord(linkRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -225,8 +220,8 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -262,8 +257,8 @@ HWTEST_F(PasteboardUtilsTest, Want2PasteRecord001, TestSize.Level0)
     UDMF::UnifiedData data;
     data.AddRecord(wantRecord);
 
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -272,21 +267,21 @@ HWTEST_F(PasteboardUtilsTest, Want2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(udType, int32_t(UDMF::UDType::OPENHARMONY_WANT));
     auto want1 = record->GetWant();
     auto deviceValue1 = want1->GetStringParam(deviceKey);
-//    ASSERT_EQ(deviceValue1, deviceValue);
+    //    ASSERT_EQ(deviceValue1, deviceValue);
     int32_t idValue1 = want1->GetIntParam(idKey, 0);
     ASSERT_EQ(idValue1, idValue);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::OPENHARMONY_WANT);
     auto recordValue = newRecord->GetValue();
-    auto wantValue= std::get_if<std::shared_ptr<OHOS::AAFwk::Want>>(&recordValue);
+    auto wantValue = std::get_if<std::shared_ptr<OHOS::AAFwk::Want>>(&recordValue);
     ASSERT_NE(wantValue, nullptr);
-//    auto deviceValue2 = (*(wantValue))->GetDeviceId();
-//    ASSERT_EQ(deviceValue2, deviceValue);
+    //    auto deviceValue2 = (*(wantValue))->GetDeviceId();
+    //    ASSERT_EQ(deviceValue2, deviceValue);
     int32_t idValue2 = (*(wantValue))->GetIntParam(idKey, 0);
     ASSERT_EQ(idValue2, idValue);
 }
@@ -307,9 +302,8 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
     fileRecord->SetDetails(details_);
     data.AddRecord(fileRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -321,8 +315,8 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -350,9 +344,8 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
     imageRecord->SetDetails(details_);
     data.AddRecord(imageRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -364,8 +357,8 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -393,9 +386,8 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
     audioRecord->SetDetails(details_);
     data.AddRecord(audioRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -407,8 +399,8 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -436,9 +428,8 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
     videoRecord->SetDetails(details_);
     data.AddRecord(videoRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -450,8 +441,8 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -479,9 +470,8 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
     folderRecord->SetDetails(details_);
     data.AddRecord(folderRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -493,8 +483,8 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -520,9 +510,8 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
     systemRecord->SetDetails(details_);
     data.AddRecord(systemRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -532,8 +521,8 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -569,8 +558,7 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
     systemDefinedAppItem1->SetType(UDMF::SYSTEM_DEFINED_APP_ITEM);
     data.AddRecord(systemDefinedAppItem1);
 
-
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
 
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
@@ -595,7 +583,7 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(abilityName, abilityName1);
 
     // 转回去
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -635,9 +623,8 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
     form->SetType(UDMF::SYSTEM_DEFINED_FORM);
     data.AddRecord(form);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -658,8 +645,8 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(bundleName, bundleName1);
     ASSERT_EQ(abilityName, abilityName1);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
@@ -691,8 +678,8 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
     UDMF::UnifiedData data;
     data.AddRecord(pixelMapRecord);
 
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -707,14 +694,14 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.width == opts.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_PIXEL_MAP);
     auto recordValue = newRecord->GetValue();
-    auto newPixelMap1= std::get_if<std::shared_ptr<OHOS::Media::PixelMap>>(&recordValue);
+    auto newPixelMap1 = std::get_if<std::shared_ptr<OHOS::Media::PixelMap>>(&recordValue);
     ASSERT_NE(newPixelMap1, nullptr);
     ImageInfo imageInfo1 = {};
     (*newPixelMap1)->GetImageInfo(imageInfo1);
@@ -742,9 +729,8 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     appRecord->SetRawData(rawData1);
     data.AddRecord(appRecord);
 
-
-    // UnifiedData2PasteData
-    auto pasteData = PasteboardUtils::GetInstance()->UnifiedData2PasteData(data);
+    // Convert
+    auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
@@ -754,8 +740,8 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     auto items = record->GetCustomData()->GetItemData();
     ASSERT_EQ(items, customData);
 
-    // PasteData2UnifiedData
-    auto newData = PasteboardUtils::GetInstance()->PasteData2UnifiedData(*pasteData);
+    // Convert
+    auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();

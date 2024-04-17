@@ -103,7 +103,7 @@ struct SetContextInfo : public AsyncCall::Context {
 };
 
 struct SetUnifiedContextInfo : public AsyncCall::Context {
-    std::shared_ptr<OHOS::UDMF::UnifiedData> obj;
+    std::shared_ptr<UDMF::UnifiedData> obj;
     napi_status status = napi_generic_failure;
     SetUnifiedContextInfo() : Context(nullptr, nullptr){};
 
