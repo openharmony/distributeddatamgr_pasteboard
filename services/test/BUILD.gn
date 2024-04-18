@@ -23,6 +23,8 @@ config("module_private_config") {
     "${pasteboard_service_path}/dfx/src/behaviour",
     "${pasteboard_service_path}/dfx/src/fault",
     "${pasteboard_service_path}/dfx/src/statistic",
+    "${udmf_interfaces_path}/innerkits/common",
+    "${udmf_interfaces_path}/innerkits/data",
     "include",
     "unittest/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",

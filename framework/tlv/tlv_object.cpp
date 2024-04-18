@@ -319,7 +319,9 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& valu
     auto mapEnd = cursor_ + head.len;
     while (cursor_ < mapEnd) {
         TLVHead keyHead{};
-        bool ret = ReadHead(buffer, keyHead);
+        if (!ReadHead(buffer, keyHead)) {
+            return false;
+        }
         std::string itemKey = "";
         if (!ReadValue(buffer, itemKey, keyHead)) {
             return false;

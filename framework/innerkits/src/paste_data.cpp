@@ -221,7 +221,7 @@ std::shared_ptr<std::string> PasteData::GetPrimaryMimeType()
     }
 }
 
-std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index)
+std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index) const
 {
     if (records_.size() > index) {
         return records_[index];
@@ -230,7 +230,7 @@ std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index)
     }
 }
 
-std::size_t PasteData::GetRecordCount()
+std::size_t PasteData::GetRecordCount() const
 {
     return records_.size();
 }

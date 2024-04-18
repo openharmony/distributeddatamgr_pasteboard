@@ -17,16 +17,16 @@
 
 #include <gtest/gtest.h>
 
-#include "data/application_defined_record.h"
-#include "data/audio.h"
-#include "data/folder.h"
-#include "data/html.h"
-#include "data/image.h"
-#include "data/link.h"
-#include "data/plain_text.h"
-#include "data/system_defined_appitem.h"
-#include "data/system_defined_form.h"
-#include "data/video.h"
+#include "application_defined_record.h"
+#include "audio.h"
+#include "folder.h"
+#include "html.h"
+#include "image.h"
+#include "link.h"
+#include "plain_text.h"
+#include "system_defined_appitem.h"
+#include "system_defined_form.h"
+#include "video.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;

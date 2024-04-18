@@ -78,8 +78,8 @@ public:
     std::shared_ptr<OHOS::Uri> GetPrimaryUri();
     std::shared_ptr<std::string> GetPrimaryMimeType();
     std::shared_ptr<OHOS::AAFwk::Want> GetPrimaryWant();
-    std::shared_ptr<PasteDataRecord> GetRecordAt(std::size_t index);
-    std::size_t GetRecordCount();
+    std::shared_ptr<PasteDataRecord> GetRecordAt(std::size_t index) const;
+    std::size_t GetRecordCount() const;
     bool RemoveRecordAt(std::size_t number);
     bool ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRecord> record);
     bool HasMimeType(const std::string &mimeType);
