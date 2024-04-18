@@ -215,7 +215,6 @@ void PasteboardService::DMAdapterInit()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
-    moduleConfig_.Init();
 }
 
 void PasteboardService::DevProfileInit()
