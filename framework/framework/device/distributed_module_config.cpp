@@ -18,9 +18,9 @@
 
 namespace OHOS {
 namespace MiscServices {
-bool DistributedModuleConfig::status_ = false;
-size_t DistributedModuleConfig::deviceNums_ = 0;
-DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
+bool status_ = false;
+size_t deviceNums_ = 0;
+DistributedModuleConfig::Observer observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
     if (deviceNums_ != 0) {
