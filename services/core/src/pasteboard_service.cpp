@@ -23,13 +23,11 @@
 #include "calculate_time_consuming.h"
 #include "common_event_manager.h"
 #include "common/block_object.h"
-#include "dev_manager.h"
 #include "dev_profile.h"
 #include "device/dm_adapter.h"
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "distributed_file_daemon_manager.h"
-#include "distributed_module_config.h"
 #include "hiview_adapter.h"
 #include "input_method_controller.h"
 #include "iservice_registry.h"
@@ -95,9 +93,9 @@ PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
-    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
-        &PasteboardService::DevManagerInit;
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
+    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
+        &PasteboardService::DMAdapterInit;
 }
 
 PasteboardService::~PasteboardService()
@@ -130,7 +128,8 @@ void PasteboardService::OnStart()
     Loader loader;
     loader.LoadComponents();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
-    DistributedModuleConfig::Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
+    moduleConfig_.Init();
+    moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
 
     if (Init() != ERR_OK) {
@@ -182,11 +181,10 @@ void PasteboardService::OnStop()
     state_ = ServiceRunningState::STATE_NOT_START;
 
     ParaHandle::GetInstance().WatchEnabledStatus(nullptr);
-    DevManager::GetInstance().UnregisterDevCallback();
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
-
+    moduleConfig_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }
 
@@ -212,10 +210,11 @@ void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::s
     }
 }
 
-void PasteboardService::DevManagerInit()
+void PasteboardService::DMAdapterInit()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
-    DevManager::GetInstance().Init();
+    auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
+    DMAdapter::GetInstance().Initialize(appInfo.bundleName);
 }
 
 void PasteboardService::DevProfileInit()
@@ -275,7 +274,7 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
             "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
         return false;
     }
-    auto deviceType = DevManager::GetInstance().GetLocalDeviceType();
+    auto deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
     if (deviceType == DEVICE_TYPE_PC || deviceType == DEVICE_TYPE_2IN1) {
         return true;
     }
@@ -1498,7 +1497,7 @@ bool PasteboardService::HasDistributedData(int32_t user)
 
 std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
 {
-    auto isOn = DistributedModuleConfig::IsOn();
+    auto isOn = moduleConfig_.IsOn();
     std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;

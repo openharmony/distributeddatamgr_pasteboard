@@ -13,16 +13,11 @@
  * limitations under the License.
  */
 #include "distributed_module_config.h"
-
-#include "dev_manager.h"
 #include "dev_profile.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
-bool DistributedModuleConfig::status_ = false;
-size_t DistributedModuleConfig::deviceNums_ = 0;
-DistributedModuleConfig::Observer DistributedModuleConfig::observer_ = nullptr;
 bool DistributedModuleConfig::IsOn()
 {
     if (deviceNums_ != 0) {
@@ -60,7 +55,7 @@ void DistributedModuleConfig::Notify()
 
 void DistributedModuleConfig::GetDeviceNum()
 {
-    auto networkIds = DevManager::GetInstance().GetNetworkIds();
+    auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
     deviceNums_ = networkIds.size();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetDeviceNum devicesNum = %{public}zu.", deviceNums_);
 }
@@ -73,7 +68,7 @@ bool DistributedModuleConfig::GetEnabledStatus()
         return false;
     }
 
-    auto networkIds = DevManager::GetInstance().GetNetworkIds();
+    auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
     deviceNums_ = networkIds.size();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", deviceNums_);
     std::string remoteEnabledStatus = "false";
@@ -87,5 +82,35 @@ bool DistributedModuleConfig::GetEnabledStatus()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus = %{public}s.", remoteEnabledStatus.c_str());
     return false;
 }
+
+void DistributedModuleConfig::Online(const std::string &device)
+{
+    DevProfile::GetInstance().SubscribeProfileEvent(device);
+    ForceNotify();
+    Notify();
+}
+
+void DistributedModuleConfig::Offline(const std::string &device)
+{
+    DevProfile::GetInstance().UnSubscribeProfileEvent(device);
+    Notify();
+}
+
+void DistributedModuleConfig::OnReady(const std::string &device)
+{
+    DevProfile::GetInstance().OnReady();
+}
+
+void DistributedModuleConfig::Init()
+{
+    DMAdapter::GetInstance().Register(this);
+    GetDeviceNum();
+}
+
+void DistributedModuleConfig::DeInit()
+{
+    DMAdapter::GetInstance().Unregister(this);
+}
+
 } // namespace MiscServices
 } // namespace OHOS

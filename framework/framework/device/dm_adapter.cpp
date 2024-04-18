@@ -21,12 +21,15 @@
 #endif
 namespace OHOS::MiscServices {
 constexpr size_t DMAdapter::MAX_ID_LEN;
+constexpr const char *PKG_NAME = "pasteboard_service";
+
 #ifdef PB_DEVICE_MANAGER_ENABLE
 class DmStateObserver : public DeviceStateCallback {
 public:
     DmStateObserver(const std::function<void(const DmDeviceInfo &)> online,
-        const std::function<void(const DmDeviceInfo &)> onReady)
-        :online_(std::move(online)), onReady_(std::move(onReady))
+        const std::function<void(const DmDeviceInfo &)> onReady,
+        const std::function<void(const DmDeviceInfo &)> offline)
+        :online_(std::move(online)), onReady_(std::move(onReady)), offline_(std::move(offline))
     {
     }
 
@@ -40,10 +43,16 @@ public:
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
     {
+        if (offline_ == nullptr) {
+            return;
+        }
+        offline_(deviceInfo);
     }
+
     void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override
     {
     }
+
     void OnDeviceReady(const DmDeviceInfo &deviceInfo) override
     {
         if (onReady_ == nullptr) {
@@ -55,6 +64,7 @@ public:
 private:
     std::function<void(const DmDeviceInfo &)> online_;
     std::function<void(const DmDeviceInfo &)> onReady_;
+    std::function<void(const DmDeviceInfo &)> offline_;
 };
 
 class DmDeath : public DmInitCallback, public std::enable_shared_from_this<DmDeath> {
@@ -81,6 +91,9 @@ DMAdapter::DMAdapter()
 
 DMAdapter::~DMAdapter()
 {
+    auto &deviceManager = DeviceManager::GetInstance();
+    deviceManager.UnRegisterDevStateCallback(PKG_NAME);
+    deviceManager.UnInitDeviceManager(PKG_NAME);
 }
 
 DMAdapter &DMAdapter::GetInstance()
@@ -100,6 +113,11 @@ bool DMAdapter::Initialize(const std::string &pkgName)
     }, [this](const DmDeviceInfo &deviceInfo) {
         observers_.ForEach([&deviceInfo](auto &key, auto &value) {
             value->OnReady(deviceInfo.networkId);
+            return false;
+        });
+    }, [this](const DmDeviceInfo &deviceInfo) {
+        observers_.ForEach([&deviceInfo](auto &key, auto &value) {
+            value->Offline(deviceInfo.networkId);
             return false;
         });
     });
@@ -194,5 +212,43 @@ void DMAdapter::Register(DMObserver *observer)
 void DMAdapter::Unregister(DMObserver *observer)
 {
     observers_.Erase(observer);
+}
+
+std::vector<std::string> DMAdapter::GetNetworkIds()
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::vector<DmDeviceInfo> devices;
+    int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devices);
+    if (ret != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetTrustedDeviceList failed!");
+        return {};
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "devicesNums = %{public}zu.", devices.size());
+    if (devices.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
+        return {};
+    }
+    std::vector<std::string> networkIds;
+    for (auto &item : devices) {
+        networkIds.emplace_back(item.networkId);
+    }
+    return networkIds;
+#else
+    return {};
+#endif
+}
+
+int32_t DMAdapter::GetLocalDeviceType()
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    int32_t deviceType = DmDeviceType::DEVICE_TYPE_UNKNOWN;
+    int32_t ret = DeviceManager::GetInstance().GetLocalDeviceType(PKG_NAME, deviceType);
+    if (ret != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get type failed, ret is %{public}d!", ret);
+    }
+    return deviceType;
+#else
+    return -1;
+#endif
 }
 } // namespace OHOS::MiscServices
