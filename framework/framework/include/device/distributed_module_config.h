@@ -38,8 +38,8 @@ private:
     void ForceNotify();
     void Notify();
     void GetDeviceNum();
-    Observer observer_;
-    bool status_;
+    Observer observer_ = nullptr;
+    bool status_ = false
     size_t deviceNums_;
 };
 } // namespace MiscServices
