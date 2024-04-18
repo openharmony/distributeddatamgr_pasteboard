@@ -102,7 +102,34 @@ bool TLVObject::Write(
     return ret;
 }
 
-bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, Details& value)
+template<typename _InTp>
+bool TLVObject::WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, uint32_t step, const _InTp &input)
+{
+    return true;
+}
+
+template<typename _InTp, typename _First, typename... _Rest>
+bool TLVObject::WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, uint32_t step, const _InTp &input)
+{
+    if (step == input.index()) {
+        auto val = std::get<_First>(input);
+        return Write(buffer, type, val);
+    }
+    return WriteVariant<_InTp, _Rest...>(buffer, type, step + 1, input);
+}
+
+template<typename... _Types>
+bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const std::variant<_Types...> &input)
+{
+    uint32_t index = static_cast<uint32_t>(input.index());
+    if (!Write(buffer, TAG_MAP_VALUE_TYPE_INDEX, index)) {
+        return false;
+    }
+
+    return WriteVariant<decltype(input), _Types...>(buffer, TAG_MAP_VALUE_TYPE_VALUE, 0, input);
+}
+
+bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const Details& value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
@@ -114,35 +141,8 @@ bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, Details&
         if (!Write(buffer, TAG_MAP_KEY, key)) {
             return false;
         }
-        auto* strValue = std::get_if<std::string>(&val);
-        if (strValue != nullptr) {
-            Write(buffer, TAG_STRING, *strValue);
-            continue;
-        }
-        auto* int32Value = std::get_if<int32_t>(&val);
-        if (int32Value != nullptr) {
-            Write(buffer, TAG_INT32, *int32Value);
-            continue;
-        }
-        auto* int64Value = std::get_if<int64_t>(&val);
-        if (int64Value != nullptr) {
-            Write(buffer, TAG_INT64, *int64Value);
-            continue;
-        }
-        auto* boolValue = std::get_if<bool>(&val);
-        if (boolValue != nullptr) {
-            Write(buffer, TAG_BOOL, *boolValue);
-            continue;
-        }
-        auto* doubleValue = std::get_if<double>(&val);
-        if (doubleValue != nullptr) {
-            Write(buffer, TAG_DOUBLE, *doubleValue);
-            continue;
-        }
-        auto* u8ArrayValue = std::get_if<std::vector<uint8_t>>(&val);
-        if (u8ArrayValue != nullptr) {
-            Write(buffer, TAG_MAP_VALUE, *u8ArrayValue);
-            continue;
+        if (!Write(buffer, TAG_MAP_VALUE_TYPE, val)) {
+            return false;
         }
     }
     WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
@@ -161,6 +161,7 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObjec
     WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
     return ret;
 }
+
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<uint8_t> &value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.size())) {
@@ -279,6 +280,40 @@ bool TLVObject::ReadValue(
     return true;
 }
 
+template<typename _OutTp>
+bool TLVObject::ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t step, uint32_t index, _OutTp& output,
+    const TLVHead& head)
+{
+    return true;
+}
+
+template<typename _OutTp, typename _First, typename... _Rest>
+bool TLVObject::ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t step, uint32_t index, _OutTp& value,
+    const TLVHead& head)
+{
+    if (step == index) {
+        TLVHead valueHead{};
+        ReadHead(buffer, valueHead);
+        _First output{};
+        auto success = ReadValue(buffer, output, valueHead);
+        value = output;
+        return success;
+    }
+    return ReadVariant<_OutTp, _Rest...>(buffer, step + 1, index, value, head);
+}
+
+template<typename... _Types>
+bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, std::variant<_Types...>& value, const TLVHead& head)
+{
+    TLVHead valueHead{};
+    ReadHead(buffer, valueHead);
+    uint32_t index = 0;
+    if (!ReadValue(buffer, index, valueHead)) {
+        return false;
+    }
+    return ReadVariant<decltype(value), _Types...>(buffer, 0, index, value, valueHead);
+}
+
 bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& value, const TLVHead& head)
 {
     auto mapEnd = cursor_ + head.len;
@@ -289,71 +324,13 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& valu
         if (!ReadValue(buffer, itemKey, keyHead)) {
             return false;
         }
-        TLVHead valueHead{};
-        ret = ReadHead(buffer, valueHead);
         ValueType itemValue;
-        if (!ReadValue(buffer, itemValue, valueHead)) {
+        if (!ReadValue(buffer, itemValue, head)) {
             return false;
         }
         value.emplace(itemKey, itemValue);
     }
     return true;
-}
-
-bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, ValueType& value, const TLVHead& head)
-{
-    switch (head.tag) {
-        case TAG_STRING: {
-            std::string val;
-            if (!ReadValue(buffer, val, head)) {
-                return false;
-            }
-            value = std::move(val);
-            return true;
-        }
-        case TAG_INT32: {
-            int32_t val;
-            if (!ReadValue(buffer, val, head)) {
-                return false;
-            }
-            value = val;
-            return true;
-        }
-        case TAG_INT64: {
-            int64_t val;
-            if (!ReadValue(buffer, val, head)) {
-                return false;
-            }
-            value = val;
-            return true;
-        }
-        case TAG_BOOL: {
-            bool val;
-            if (!ReadValue(buffer, val, head)) {
-                return false;
-            }
-            value = val;
-            return true;
-        }
-        case TAG_DOUBLE: {
-            double val;
-            if (!ReadValue(buffer, val, head)) {
-                return false;
-            }
-            value = val;
-            return true;
-        }
-        case TAG_MAP_VALUE: {
-            std::vector<uint8_t> val(0);
-            if (!ReadValue(buffer, val, head)) {
-                return false;
-            }
-            value = val;
-            return true;
-        }
-        default:
-            return true;
-    }
 }
 
 bool TLVObject::Encode(std::vector<std::uint8_t> &buffer, size_t &cursor, size_t total)

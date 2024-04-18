@@ -677,7 +677,6 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
         std::make_shared<UDMF::UnifiedRecord>(UDMF::SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
     UDMF::UnifiedData data;
     data.AddRecord(pixelMapRecord);
-
     // Convert
     auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -693,7 +692,6 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.height == opts.size.height);
     ASSERT_TRUE(imageInfo.size.width == opts.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
-
     // Convert
     auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
@@ -728,7 +726,6 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     appRecord->SetApplicationDefinedType(typeStr);
     appRecord->SetRawData(rawData1);
     data.AddRecord(appRecord);
-
     // Convert
     auto pasteData = PasteboardUtils::GetInstance()->Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -739,7 +736,6 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(udType, UDMF::APPLICATION_DEFINED_RECORD);
     auto items = record->GetCustomData()->GetItemData();
     ASSERT_EQ(items, customData);
-
     // Convert
     auto newData = PasteboardUtils::GetInstance()->Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());

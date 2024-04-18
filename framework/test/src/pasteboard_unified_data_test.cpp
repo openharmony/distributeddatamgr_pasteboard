@@ -37,6 +37,7 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+
 protected:
     Details details_;
     std::vector<uint8_t> rawData_;
@@ -46,8 +47,9 @@ void PasteboardUnifiedDataTest::SetUpTestCase(void) {}
 
 void PasteboardUnifiedDataTest::TearDownTestCase(void) {}
 
-void PasteboardUnifiedDataTest::SetUp(void) {
-    rawData_ = {1,2,3,4,5,6,7,8};
+void PasteboardUnifiedDataTest::SetUp(void)
+{
+    rawData_ = { 1, 2, 3, 4, 5, 6, 7, 8 };
     details_.insert({ "keyString", "string_test" });
     details_.insert({ "keyInt32", 1 });
     details_.insert({ "keyInt64", 99L });
@@ -73,7 +75,8 @@ HWTEST_F(PasteboardUnifiedDataTest, SetText001, TestSize.Level0)
     auto typeStr = UDMF::UD_TYPE_MAP.at(UDMF::TEXT);
     std::shared_ptr<UDMF::Text> textRecord = std::make_shared<UDMF::Text>();
     textRecord->SetDetails(details);
-    data.AddRecord(textRecord);    // SetUnifiedData
+    data.AddRecord(textRecord); 
+    // SetUnifiedData
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     // GetUnifiedData
     UDMF::UnifiedData newData;
@@ -116,7 +119,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetPlainText001, TestSize.Level0)
     std::shared_ptr<UDMF::PlainText> plainTextRecord = std::make_shared<UDMF::PlainText>(text, abstract);
     plainTextRecord->SetDetails(details);
     data.AddRecord(plainTextRecord);
-    
+
     // SetUnifiedData
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     // GetUnifiedData
@@ -273,7 +276,8 @@ HWTEST_F(PasteboardUnifiedDataTest, SetWant001, TestSize.Level0)
     std::shared_ptr<UDMF::UnifiedRecord> wantRecord =
         std::make_shared<UDMF::UnifiedRecord>(UDMF::OPENHARMONY_WANT, want);
     UDMF::UnifiedData data;
-    data.AddRecord(wantRecord);    // SetUnifiedData
+    data.AddRecord(wantRecord);
+    // SetUnifiedData
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     // GetUnifiedData
     UDMF::UnifiedData newData;
@@ -283,7 +287,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetWant001, TestSize.Level0)
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::OPENHARMONY_WANT);
     auto recordValue = newRecord->GetValue();
-    auto wantValue= std::get_if<std::shared_ptr<OHOS::AAFwk::Want>>(&recordValue);
+    auto wantValue = std::get_if<std::shared_ptr<OHOS::AAFwk::Want>>(&recordValue);
     ASSERT_NE(wantValue, nullptr);
     //    auto deviceValue2 = (*(wantValue))->GetDeviceId();
     //    ASSERT_EQ(deviceValue2, deviceValue);
@@ -776,48 +780,47 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppDefined001, TestSize.Level0)
 */
 HWTEST_F(PasteboardUnifiedDataTest, SetPixelMap001, TestSize.Level0)
 {
-//    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-//    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
-//    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
-//    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
-//    std::shared_ptr<UDMF::UnifiedRecord> pixelMapRecord =
-//        std::make_shared<UDMF::UnifiedRecord>(UDMF::SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
-//    UDMF::UnifiedData data;
-//    data.AddRecord(pixelMapRecord);
-//
-//    // SetUnifiedData
-//    PasteboardClient::GetInstance()->SetUnifiedData(data);
-//    // GetUnifiedData
-//    UDMF::UnifiedData newData;
-//    PasteboardClient::GetInstance()->GetUnifiedData(newData);
-//    ASSERT_EQ(1, newData.GetRecords().size());
-//    auto newRecord = newData.GetRecordAt(0);
-//    auto newType = newRecord->GetType();
-//    ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_PIXEL_MAP);
-//    auto recordValue = newRecord->GetValue();
-//    auto newPixelMap1= std::get_if<std::shared_ptr<OHOS::Media::PixelMap>>(&recordValue);
-//    ASSERT_NE(newPixelMap1, nullptr);
-//    ImageInfo imageInfo1 = {};
-//    (*newPixelMap1)->GetImageInfo(imageInfo1);
-//    ASSERT_TRUE(imageInfo1.size.height == opts.size.height);
-//    ASSERT_TRUE(imageInfo1.size.width == opts.size.width);
-//    ASSERT_TRUE(imageInfo1.pixelFormat == opts.pixelFormat);
-//
-//    // GetPasteData
-//    PasteData pasteData;
-//    PasteboardClient::GetInstance()->GetPasteData(pasteData);
-//    ASSERT_EQ(1, pasteData.GetRecordCount());
-//    auto record = pasteData.GetRecordAt(0);
-//    auto type = record->GetMimeType();
-//    ASSERT_EQ(type, MIMETYPE_PIXELMAP);
-//    auto udType = record->GetUDType();
-//    ASSERT_EQ(udType, int32_t(UDMF::UDType::SYSTEM_DEFINED_PIXEL_MAP));
-//    auto newPixelMap = record->GetPixelMap();
-//    ASSERT_TRUE(newPixelMap != nullptr);
-//    ImageInfo imageInfo = {};
-//    newPixelMap->GetImageInfo(imageInfo);
-//    ASSERT_TRUE(imageInfo.size.height == opts.size.height);
-//    ASSERT_TRUE(imageInfo.size.width == opts.size.width);
-//    ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    std::shared_ptr<UDMF::UnifiedRecord> pixelMapRecord =
+        std::make_shared<UDMF::UnifiedRecord>(UDMF::SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
+    UDMF::UnifiedData data;
+    data.AddRecord(pixelMapRecord);
+    // SetUnifiedData
+    PasteboardClient::GetInstance()->SetUnifiedData(data);
+    // GetUnifiedData
+    UDMF::UnifiedData newData;
+    PasteboardClient::GetInstance()->GetUnifiedData(newData);
+    ASSERT_EQ(1, newData.GetRecords().size());
+    auto newRecord = newData.GetRecordAt(0);
+    auto newType = newRecord->GetType();
+    ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+    auto recordValue = newRecord->GetValue();
+    auto newPixelMap1 = std::get_if<std::shared_ptr<OHOS::Media::PixelMap>>(&recordValue);
+    ASSERT_NE(newPixelMap1, nullptr);
+    ImageInfo imageInfo1 = {};
+    (*newPixelMap1)->GetImageInfo(imageInfo1);
+    ASSERT_TRUE(imageInfo1.size.height == opts.size.height);
+    ASSERT_TRUE(imageInfo1.size.width == opts.size.width);
+    ASSERT_TRUE(imageInfo1.pixelFormat == opts.pixelFormat);
+
+    // GetPasteData
+    PasteData pasteData;
+    PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_EQ(1, pasteData.GetRecordCount());
+    auto record = pasteData.GetRecordAt(0);
+    auto type = record->GetMimeType();
+    ASSERT_EQ(type, MIMETYPE_PIXELMAP);
+    auto udType = record->GetUDType();
+    ASSERT_EQ(udType, int32_t(UDMF::UDType::SYSTEM_DEFINED_PIXEL_MAP));
+    auto newPixelMap = record->GetPixelMap();
+    ASSERT_TRUE(newPixelMap != nullptr);
+    ImageInfo imageInfo = {};
+    newPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == opts.size.height);
+    ASSERT_TRUE(imageInfo.size.width == opts.size.width);
+    ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
 }
 }
