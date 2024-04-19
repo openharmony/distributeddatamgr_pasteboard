@@ -180,13 +180,9 @@ void PasteDataRecord::InitDecodeMap()
 {
     decodeMap = {
         {TAG_MIMETYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, mimeType_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, mimeType_, head);}},
         {TAG_HTMLTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, htmlText_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, htmlText_, head);}},
         {TAG_WANT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             RawMem rawMem{};
             ret = ret && ReadValue(buffer, rawMem, head);
@@ -194,9 +190,7 @@ void PasteDataRecord::InitDecodeMap()
             }
         },
         {TAG_PLAINTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, plainText_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, plainText_, head); }},
         {TAG_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             RawMem rawMem{};
             ret = ret && ReadValue(buffer, rawMem, head);
@@ -204,9 +198,7 @@ void PasteDataRecord::InitDecodeMap()
             }
         },
         {TAG_CONVERT_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, convertUri_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, convertUri_, head);}},
         {TAG_PIXELMAP, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             std::vector<std::uint8_t> value;
             ret = ret && ReadValue(buffer, value, head);
@@ -214,29 +206,17 @@ void PasteDataRecord::InitDecodeMap()
             }
         },
         {TAG_CUSTOM_DATA, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, customData_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, customData_, head);}},
         {TAG_URI_PERMISSION, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, hasGrantUriPermission_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, hasGrantUriPermission_, head);}},
         {TAG_UDC_UDTYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, udType_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, udType_, head);}},
         {TAG_UDC_DETAILS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, details_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, details_, head);}},
         {TAG_UDC_TEXTCONTENT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, textContent_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, textContent_, head);}},
         {TAG_UDC_SYSTEMCONTENTS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, systemDefinedContents_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, systemDefinedContents_, head);}},
     };
 }
 
