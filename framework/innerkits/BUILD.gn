@@ -23,6 +23,8 @@ config("pasteboard_client_config") {
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_utils_path}/native/include",
+    "${udmf_interfaces_path}/innerkits/common",
+    "${udmf_interfaces_path}/innerkits/data",
     "//commonlibrary/c_utils/base/include",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
