@@ -99,7 +99,7 @@ static inline uint64_t NetToHost(uint64_t value)
     return le64toh(value);
 }
 
-static inline double HostToNet(double value)
+inline double HostToNet(double value)
 {
     double to;
     size_t typeLen = sizeof(double);
@@ -111,7 +111,7 @@ static inline double HostToNet(double value)
     return to;
 }
 
-static inline double NetToHost(double value)
+inline double NetToHost(double value)
 {
     return HostToNet(value);
 }
