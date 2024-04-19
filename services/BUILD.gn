@@ -34,8 +34,6 @@ config("pasteboard_service_config") {
     "${pasteboard_utils_path}/system/safwk/native/include",
     "${pasteboard_framework_path}/framework/include",
     "${pasteboard_framework_path}/framework/include/device",
-    "${udmf_interfaces_path}/innerkits/common",
-    "${udmf_interfaces_path}/innerkits/data",
     "//commonlibrary/c_utils/base/include",
   ]
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
@@ -126,6 +124,7 @@ ohos_shared_library("pasteboard_service") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "time_service:time_client",
+    "udmf:udmf_client",
     "window_manager:libwm",
   ]
   if (scene_board_enabled) {

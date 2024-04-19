@@ -12,7 +12,6 @@
 # limitations under the License.
 import("//build/ohos.gni")
 import("//build/ohos_var.gni")
-import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 config("module_public_config") {
   visibility = [ ":*" ]
@@ -23,8 +22,6 @@ config("module_public_config") {
     "//foundation/distributeddatamgr/pasteboard/utils/native/include",
     "./",
     "../innerkits/include",
-    "${udmf_interfaces_path}/innerkits/data",
-    "${udmf_interfaces_path}/innerkits/common",
   ]
 }
 
@@ -56,6 +53,7 @@ ohos_static_library("pasteboard_uri") {
     "image_framework:image_native",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
+    "udmf:udmf_client",
   ]
   subsystem_name = "distributeddatamgr"
   part_name = "pasteboard"

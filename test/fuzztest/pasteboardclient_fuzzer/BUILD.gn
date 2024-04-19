@@ -28,8 +28,6 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
 
   include_dirs = [
     "//foundation/distributeddatamgr/pasteboard/framework/innerkits/include",
-    "${udmf_interfaces_path}/innerkits",
-    "${udmf_interfaces_path}/innerkits/common",
   ]
 
   cflags = [
