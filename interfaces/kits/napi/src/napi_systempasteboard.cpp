@@ -524,19 +524,16 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
 
 void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>& context)
 {
-    auto input = [context](napi_env env, size_t argc, napi_value* argv,
-                     napi_value self) -> napi_status {
-        // setData has 1 or 2 args
-        if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
-                "Parameter error. Wrong number of arguments.") ||
-            !CheckExpression(env, context->status == napi_ok, JSErrorCode::INVALID_PARAMETERS,
-                "Parameter error. The Type of data must be unifiedData.")) {
+    auto input = [context](napi_env env, size_t argc, napi_value* argv, napi_value self) -> napi_status {
+        // setData has 1 arg
+        if (!CheckExpression(
+            env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
             return napi_invalid_arg;
         }
-        UDMF::UnifiedDataNapi *unifiedDataNapi = nullptr;
+        UDMF::UnifiedDataNapi* unifiedDataNapi = nullptr;
         context->status = napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
-        if (!CheckExpression(env, unifiedDataNapi != nullptr, JSErrorCode::INVALID_PARAMETERS,
-                "Parameter error. The Type of data must be unifiedData.")) {
+        if (!CheckExpression(env, unifiedDataNapi != nullptr,
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. The Type of data must be unifiedData.")) {
             return napi_invalid_arg;
         }
         context->obj = unifiedDataNapi->value_;
