@@ -68,6 +68,7 @@ ohos_shared_library("pasteboard_service") {
     "dfx/src/statistic/time_consuming_statistic_impl.cpp",
     "load/src/config.cpp",
     "load/src/loader.cpp",
+    "zidl/src/pasteboard_delay_getter_proxy.cpp",
     "zidl/src/pasteboard_observer_proxy.cpp",
     "zidl/src/pasteboard_service_stub.cpp",
   ]

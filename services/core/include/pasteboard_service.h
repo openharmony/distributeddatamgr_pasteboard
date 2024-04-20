@@ -35,8 +35,9 @@
 #include "common/concurrent_map.h"
 #include "distributed_module_config.h"
 #include "event_handler.h"
-#include "i_pasteboard_observer.h"
 #include "iremote_object.h"
+#include "i_pasteboard_delay_getter.h"
+#include "i_pasteboard_observer.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "paste_data.h"
 #include "pasteboard_dump_helper.h"
@@ -87,7 +88,7 @@ public:
     virtual void Clear() override;
     virtual int32_t GetPasteData(PasteData &data) override;
     virtual bool HasPasteData() override;
-    virtual int32_t SetPasteData(PasteData &pasteData) override;
+    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) override;
     virtual bool IsRemoteData() override;
     virtual bool HasDataType(const std::string &mimeType) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
@@ -106,6 +107,7 @@ public:
     size_t GetDataSize(PasteData &data) const;
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
+    void NotifyDelayGetterDied(int32_t userId);
 
 private:
     using Event = ClipPlugin::GlobalEvent;
@@ -124,6 +126,17 @@ private:
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     static constexpr int MIN_TRANMISSION_TIME = 600;
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
+
+    class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
+    public:
+        explicit DelayGetterDeathRecipient(int32_t userId, PasteboardService &service);
+        virtual ~DelayGetterDeathRecipient() = default;
+        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+    private:
+        int32_t userId_ = ERROR_USERID;
+        PasteboardService &service_;
+    };
+
     struct classcomp {
         bool operator()(const sptr<IPasteboardChangedObserver> &l, const sptr<IPasteboardChangedObserver> &r) const
         {
@@ -140,7 +153,9 @@ private:
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
 
-    virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData) override;
+    int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
+        sptr<IPasteboardDelayGetter> delayGetter = nullptr) override;
+    void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
 
     int32_t GetSdkVersion(uint32_t tokenId);
@@ -151,6 +166,7 @@ private:
     bool GetPasteData(const AppInfo &appInfo, PasteData &data);
     bool CheckPasteData(const AppInfo &appInfo, PasteData &data);
     bool GetRemoteData(const AppInfo &appInfo, PasteData &data);
+    bool GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
@@ -195,6 +211,7 @@ private:
     ClipPlugin::GlobalEvent remoteEvent_;
     const std::string filePath_ = "";
     std::map<int32_t, std::shared_ptr<PasteData>> clips_;
+    std::map<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
     std::map<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;

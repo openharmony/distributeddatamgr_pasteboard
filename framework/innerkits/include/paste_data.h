@@ -120,6 +120,9 @@ public:
     bool IsValid() const;
     void SetInvalid();
 
+    void SetDelayData(bool isDelay);
+    bool IsDelayData() const;
+
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
     static std::string sharePath;
     static std::string WEBVIEW_PASTEDATA_TAG;
@@ -140,6 +143,7 @@ private:
     bool valid_ = true;
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste
+    bool isDelayData_ = false;
 };
 } // namespace MiscServices
 } // namespace OHOS

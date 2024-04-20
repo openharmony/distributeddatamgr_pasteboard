@@ -162,7 +162,22 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = SavePasteData(pasteData);
+    int32_t result = 0;
+    if (pasteData->IsDelayData()) {
+        sptr<IRemoteObject> obj = data.ReadRemoteObject();
+        if (obj == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delayGetter is nullptr");
+            return false;
+        }
+        auto delayGetter = iface_cast<IPasteboardDelayGetter>(obj);
+        if (delayGetter == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delayGetter is nullptr");
+            return false;
+        }
+        result = SavePasteData(pasteData, delayGetter);
+    } else {
+        result = SavePasteData(pasteData);
+    }
     HiViewAdapter::ReportUseBehaviour(*pasteData, HiViewAdapter::COPY_STATE, result);
     if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write SetPasteData result");

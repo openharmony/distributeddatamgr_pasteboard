@@ -69,7 +69,7 @@ bool PasteboardServiceProxy::HasPasteData()
     return has;
 }
 
-int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
+int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data;
@@ -98,7 +98,11 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return ERR_INVALID_VALUE;
     }
-
+    if (pasteData.IsDelayData() &&
+        !data.WriteRemoteObject(delayGetter->AsObject())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed to write delay getter");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::SET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);

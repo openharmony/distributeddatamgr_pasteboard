@@ -47,6 +47,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "src/dm_adapter_test.cpp",
     "src/paste_data_test.cpp",
     "src/pasteboard_client_test.cpp",
+    "src/pasteboard_client_udmf_delay_test.cpp",
     "src/pasteboard_unified_data_test.cpp",
     "src/pasteboard_utils_test.cpp",
     "src/serializable_test.cpp",

@@ -28,7 +28,13 @@ using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServices {
-enum TAG_PASTEBOARD : uint16_t { TAG_PROPS = TAG_BUFF + 1, TAG_RECORDS, TAG_DRAGGED_DATA_FLAG, TAG_LOCAL_PASTE_FLAG };
+enum TAG_PASTEBOARD : uint16_t {
+    TAG_PROPS = TAG_BUFF + 1,
+    TAG_RECORDS,
+    TAG_DRAGGED_DATA_FLAG,
+    TAG_LOCAL_PASTE_FLAG,
+    TAG_DELAY_DATA_FLAG,
+};
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
     TAG_MIMETYPES,
@@ -403,6 +409,7 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_RECORDS, records_) && ret;
     ret = Write(buffer, TAG_DRAGGED_DATA_FLAG, isDraggedData_) && ret;
     ret = Write(buffer, TAG_LOCAL_PASTE_FLAG, isLocalPaste_) && ret;
+    ret = Write(buffer, TAG_DELAY_DATA_FLAG, isDelayData_) && ret;
     return ret;
 }
 
@@ -428,6 +435,10 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && ReadValue(buffer, isLocalPaste_, head);
                 break;
             }
+            case TAG_DELAY_DATA_FLAG: {
+                ret = ret && ReadValue(buffer, isDelayData_, head);
+                break;
+            }
             default:
                 ret = ret && Skip(head.len, buffer.size());
                 break;
@@ -447,6 +458,7 @@ size_t PasteData::Count()
     expectSize += TLVObject::Count(records_);
     expectSize += TLVObject::Count(isDraggedData_);
     expectSize += TLVObject::Count(isLocalPaste_);
+    expectSize += TLVObject::Count(isDelayData_);
     return expectSize;
 }
 
@@ -458,6 +470,16 @@ bool PasteData::IsValid() const
 void PasteData::SetInvalid()
 {
     valid_ = false;
+}
+
+void PasteData::SetDelayData(bool isDelay)
+{
+    isDelayData_ = isDelay;
+}
+
+bool PasteData::IsDelayData() const
+{
+    return isDelayData_;
 }
 
 PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)

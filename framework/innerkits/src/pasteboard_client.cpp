@@ -22,6 +22,7 @@
 #include "hiview_adapter.h"
 #include "hitrace_meter.h"
 #include "pasteboard_client.h"
+#include "pasteboard_delay_getter_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_load_callback.h"
 #include "pasteboard_observer.h"
@@ -240,27 +241,33 @@ bool PasteboardClient::HasPasteData()
     return pasteboardServiceProxy_->HasPasteData();
 }
 
-int32_t PasteboardClient::SetPasteData(PasteData &pasteData)
+int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
     if (!IsServiceAvailable()) {
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
+    sptr<PasteboardDelayGetterClient> delayGetterAgent;
+    if (delayGetter != nullptr) {
+        pasteData.SetDelayData(true);
+        delayGetterAgent = new (std::nothrow) PasteboardDelayGetterClient(delayGetter);
+    }
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
-        return pasteboardServiceProxy_->SetPasteData(pasteData);
+        return pasteboardServiceProxy_->SetPasteData(pasteData, delayGetterAgent);
     }
     auto webData = SplitWebviewPasteData(pasteData);
     if (webData == nullptr) {
         return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }
-    return pasteboardServiceProxy_->SetPasteData(*webData);
+    return pasteboardServiceProxy_->SetPasteData(*webData, delayGetterAgent);
 }
 
-int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData)
+int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData,
+    std::shared_ptr<PasteboardDelayGetter> delayGetter)
 {
     auto pasteData = PasteboardUtils::GetInstance().Convert(unifiedData);
-    return SetPasteData(*pasteData);
+    return SetPasteData(*pasteData, delayGetter);
 }
 
 std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pasteData)

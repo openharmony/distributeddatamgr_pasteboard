@@ -210,6 +210,31 @@ void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::s
     }
 }
 
+PasteboardService::DelayGetterDeathRecipient::DelayGetterDeathRecipient(int32_t userId, PasteboardService &service)
+    : userId_(userId), service_(service)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Construct Delay Getter Death Recipient");
+}
+
+void PasteboardService::DelayGetterDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start");
+    (void) remote;
+    service_.NotifyDelayGetterDied(userId_);
+}
+
+void PasteboardService::NotifyDelayGetterDied(int32_t userId)
+{
+    if (userId == ERROR_USERID) {
+        return;
+    }
+    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
+    auto getter = delayGetters_.find(userId);
+    if (getter != delayGetters_.end()) {
+        delayGetters_.erase(getter);
+    }
+}
+
 void PasteboardService::DMAdapterInit()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
@@ -586,6 +611,10 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invaild.");
             return false;
         }
+        if (it->second->IsDelayData() && !(GetDelayPasteData(appInfo, *(it->second)))) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get delay data fail");
+            return false;
+        }
         it->second->SetBundleName(appInfo.bundleName);
         data = *(it->second);
     }
@@ -597,6 +626,31 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
+    return true;
+}
+
+bool PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get delay data start");
+    auto delayGetter = delayGetters_.find(appInfo.userId);
+    if (delayGetter->second.first == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delay getter is nullptr");
+        return false;
+    }
+    PasteData delayData;
+    delayGetter->second.first->GetPasteData("", delayData);
+    if (delayGetter->second.first != nullptr && delayGetter->second.second != nullptr) {
+        delayGetter->second.first->AsObject()->RemoveDeathRecipient(delayGetter->second.second);
+    }
+    data.SetDelayData(false);
+    delayGetters_.erase(delayGetter);
+    delayData.SetBundleName(data.GetBundleName());
+    delayData.SetOrginAuthority(data.GetOrginAuthority());
+    delayData.SetTime(data.GetTime());
+    delayData.SetTokenId(data.GetTokenId());
+    data = delayData;
+    CheckAppUriPermission(data);
+    SetWebViewPasteData(data, data.GetBundleName());
     return true;
 }
 
@@ -779,7 +833,7 @@ bool PasteboardService::HasPasteData()
     return IsDataVaild(*(it->second), tokenId);
 }
 
-int32_t PasteboardService::SetPasteData(PasteData &pasteData)
+int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter)
 {
     auto data = std::make_shared<PasteData>(pasteData);
     return SavePasteData(data);
@@ -880,7 +934,8 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
+int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
+    sptr<IPasteboardDelayGetter> delayGetter)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -899,11 +954,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
     std::lock_guard<std::recursive_mutex> lock(clipMutex_);
-    auto it = clips_.find(appInfo.userId);
-    if (it != clips_.end()) {
-        RevokeUriPermission(it->second);
-        clips_.erase(it);
-    }
+    RemovePasteData(appInfo);
     pasteData->SetBundleName(appInfo.bundleName);
     pasteData->SetOrginAuthority(appInfo.bundleName);
     std::string time = GetTime();
@@ -912,15 +963,39 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData)
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.insert_or_assign(appInfo.userId, pasteData);
+    if (pasteData->IsDelayData()) {
+        auto deathRecipient = new DelayGetterDeathRecipient(appInfo.userId, *this);
+        delayGetter->AsObject()->AddDeathRecipient(deathRecipient);
+        delayGetters_.insert_or_assign(appInfo.userId,
+            std::make_pair(delayGetter, deathRecipient));
+    }
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
     copyTime_.insert_or_assign(appInfo.userId, curTime);
-    SetDistributedData(appInfo.userId, *pasteData);
+    if (!(pasteData->IsDelayData())) {
+        SetDistributedData(appInfo.userId, *pasteData);
+    }
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(*pasteData);
     setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardService::RemovePasteData(const AppInfo &appInfo)
+{
+    auto it = clips_.find(appInfo.userId);
+    auto getter = delayGetters_.find(appInfo.userId);
+    if (it != clips_.end()) {
+        RevokeUriPermission(it->second);
+        clips_.erase(it);
+    }
+    if (getter != delayGetters_.end()) {
+        if (getter->second.first != nullptr && getter->second.second != nullptr) {
+            getter->second.first->AsObject()->RemoveDeathRecipient(getter->second.second);
+        }
+        delayGetters_.erase(getter);
+    }
 }
 
 void PasteboardService::SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName)

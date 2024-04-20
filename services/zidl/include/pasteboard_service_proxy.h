@@ -30,7 +30,7 @@ public:
     virtual void Clear() override;
     virtual int32_t GetPasteData(PasteData &data) override;
     virtual bool HasPasteData() override;
-    virtual int32_t SetPasteData(PasteData &pasteData) override;
+    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) override;
     virtual bool IsRemoteData() override;
     virtual int32_t GetDataSource(std::string &bundleName) override;
     virtual bool HasDataType(const std::string &mimeType) override;

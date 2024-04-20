@@ -19,9 +19,10 @@
 #include <cstdint>
 #include <map>
 
-#include "i_pasteboard_service.h"
 #include "ipc_skeleton.h"
 #include "iremote_stub.h"
+#include "i_pasteboard_delay_getter.h"
+#include "i_pasteboard_service.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -34,7 +35,8 @@ public:
 
 private:
     using PasteboardServiceFunc = int32_t (PasteboardServiceStub::*)(MessageParcel &data, MessageParcel &reply);
-    virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData) = 0;
+    virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
+        sptr<IPasteboardDelayGetter> delayGetter = nullptr) = 0;
     int32_t OnClear(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetPasteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnHasPasteData(MessageParcel &data, MessageParcel &reply);
