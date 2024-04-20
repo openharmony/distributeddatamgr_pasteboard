@@ -78,7 +78,7 @@ ohos_shared_library("pasteboard_client") {
     "samgr:samgr_proxy",
     "time_service:time_client",
   ]
-
+  public_external_deps = [ "udmf:udmf_client" ]
   subsystem_name = "distributeddatamgr"
   innerapi_tags = [ "platformsdk" ]
   part_name = "pasteboard"

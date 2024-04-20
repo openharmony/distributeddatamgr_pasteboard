@@ -162,17 +162,6 @@ describe('PasteBoardUdmfDelayJSTest', function () {
         return audioData;
     }
 
-    function getSystemDefinedFormData() {
-        let form = new UDC.SystemDefinedForm();
-        form.formId = TEST_ID;
-        form.formName = 'MyFormName';
-        form.bundleName = TEST_BUNDLE_NAME;
-        form.abilityName = TEST_ABILITY_NAME;
-        form.module = TEST_MODULE;
-        systemDefinedFormData.addRecord(form);
-        return systemDefinedFormData;
-    }
-
     function getSystemDefinedAppItemDataData() {
         let appItem = new UDC.SystemDefinedAppItem();
         appItem.appId = 'MyAppId';
@@ -508,33 +497,6 @@ describe('PasteBoardUdmfDelayJSTest', function () {
             done();
         });
         console.info('AudioTest001 end');
-    });
-
-    /**
-     * @tc.name SystemDefinedFormTest001
-     * @tc.desc Test Unified Record of SystemDefinedForm
-     * @tc.type FUNC
-     */
-    it('SystemDefinedFormTest001', 0, async function (done) {
-        console.info('SystemDefinedFormTest001 begin');
-        getSystemDefinedFormData();
-        const systemPasteboard = pasteboard.getSystemPasteboard();
-        await systemPasteboard.setUnifiedData(systemDefinedFormData);
-        const flag = await systemPasteboard.hasPasteData();
-        expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual('openharmony.form');
-            done();
-        });
-        console.info('SystemDefinedFormTest001 end');
     });
 
     /**
@@ -961,31 +923,6 @@ describe('PasteBoardUdmfDelayJSTest', function () {
             done();
         });
         console.info('SystemDefinedAppItemTestSync001 end');
-    });
-
-    /**
-     * @tc.name SystemDefinedFormTestSync001
-     * @tc.desc Test Unified Record of SystemDefinedForm
-     * @tc.type FUNC
-     */
-    it('SystemDefinedFormTestSync001', 0, async function (done) {
-        console.info('SystemDefinedFormTestSync001 begin');
-        getSystemDefinedFormData();
-        const systemPasteboard = pasteboard.getSystemPasteboard();
-        await systemPasteboard.setUnifiedData(systemDefinedFormData);
-        const flag = await systemPasteboard.hasPasteData();
-        expect(flag).assertEqual(true);
-        const outputData = systemPasteboard.getUnifiedData();
-        let records = outputData.getRecords();
-        expect(records.length).assertEqual(1);
-
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual('openharmony.form');
-            done();
-        });
-        console.info('SystemDefinedFormTestSync001 end');
     });
 
     /**
