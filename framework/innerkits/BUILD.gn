@@ -77,7 +77,6 @@ ohos_shared_library("pasteboard_client") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
     "time_service:time_client",
-    "udmf:udmf_client",
   ]
 
   subsystem_name = "distributeddatamgr"
