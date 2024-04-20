@@ -15,9 +15,13 @@
 #ifndef N_NAPI_PASTE_H
 #define N_NAPI_PASTE_H
 
+#include <atomic>
+
 #include "async_call.h"
+#include "common/block_object.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "pasteboard_delay_getter.h"
 #include "pasteboard_observer.h"
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
@@ -60,8 +64,50 @@ private:
     sptr<PasteboardObserverImpl> stub_ = nullptr;
 };
 
+class PasteboardDelayGetterInstance : public std::enable_shared_from_this<PasteboardDelayGetterInstance> {
+public:
+    class PasteboardDelayGetterImpl : public MiscServices::PasteboardDelayGetter {
+    public:
+        explicit PasteboardDelayGetterImpl() = default;
+        void GetPasteData(const std::string &type, MiscServices::PasteData &data) override;
+        void GetUnifiedData(const std::string &type, UDMF::UnifiedData &data) override;
+        void SetDelayGetterWrapper(const std::shared_ptr<PasteboardDelayGetterInstance> observerInstance);
+    private:
+        std::weak_ptr<PasteboardDelayGetterInstance> wrapper_;
+    };
+    explicit PasteboardDelayGetterInstance(const napi_env &env, const napi_ref &ref);
+    ~PasteboardDelayGetterInstance();
+
+    void GetUnifiedData(const std::string &type, UDMF::UnifiedData &data);
+
+    napi_env GetEnv()
+    {
+        return env_;
+    }
+
+    napi_ref GetRef()
+    {
+        return ref_;
+    }
+
+    std::shared_ptr<PasteboardDelayGetterImpl> GetStub()
+    {
+        return stub_;
+    }
+	
+private:
+    napi_env env_ = nullptr;
+    napi_ref ref_ = nullptr;
+    std::shared_ptr<PasteboardDelayGetterImpl> stub_ = nullptr;
+};
+
 struct PasteboardDataWorker {
+    std::atomic_bool isGetting = false;
+    napi_value dataType = nullptr;
     std::shared_ptr<PasteboardObserverInstance> observer = nullptr;
+    std::shared_ptr<PasteboardDelayGetterInstance> delayGetter = nullptr;
+    std::shared_ptr<UDMF::UnifiedData> unifiedData = nullptr;
+    std::shared_ptr<BlockObject<bool>> blockData = nullptr;
 };
 
 struct HasContextInfo : public AsyncCall::Context {
@@ -205,6 +251,7 @@ private:
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
     static thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
+    static std::shared_ptr<PasteboardDelayGetterInstance> delayGetter_;
 };
 } // namespace MiscServicesNapi
 } // namespace OHOS

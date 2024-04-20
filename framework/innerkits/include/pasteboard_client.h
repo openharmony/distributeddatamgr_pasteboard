@@ -22,6 +22,7 @@
 #include "i_pasteboard_service.h"
 #include "paste_data.h"
 #include "paste_data_record.h"
+#include "pasteboard_delay_getter.h"
 #include "pasteboard_observer.h"
 #include "unified_data.h"
 #include "want.h"
@@ -170,7 +171,7 @@ public:
      * @param pasteData the object of the PasteDate.
      * @return int32_t.
      */
-    int32_t SetPasteData(PasteData &pasteData);
+    int32_t SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter = nullptr);
 
     /**
      * SetPasteData
@@ -178,7 +179,8 @@ public:
      * @param unifiedData the object of the PasteDate.
      * @return int32_t.
      */
-    int32_t SetUnifiedData(const UDMF::UnifiedData &unifiedData);
+    int32_t SetUnifiedData(const UDMF::UnifiedData &unifiedData,
+        std::shared_ptr<PasteboardDelayGetter> delayGetter = nullptr);
 
     /**
      * SetPasteData
