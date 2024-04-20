@@ -67,6 +67,11 @@ ohos_shared_library("pasteboard_napi") {
     "napi:ace_napi",
   ]
 
+  public_external_deps = [
+    "udmf:udmf_client",
+    "udmf:udmf_data_napi",
+  ]
+
   relative_install_dir = "module"
 
   subsystem_name = "distributeddatamgr"

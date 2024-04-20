@@ -23,10 +23,10 @@
 #include "pixel_map.h"
 #include "string_ex.h"
 #include "tlv_object.h"
+#include "unified_meta.h"
 #include "uri.h"
 #include "uri_handler.h"
 #include "want.h"
-
 namespace OHOS {
 namespace MiscServices {
 namespace {
@@ -105,6 +105,17 @@ public:
     std::string GetConvertUri() const;
     void SetGrantUriPermission(bool hasPermission);
     bool HasGrantUriPermission();
+    static std::shared_ptr<OHOS::Media::PixelMap> Vector2PixelMap(std::vector<std::uint8_t> &value);
+    static std::vector<std::uint8_t> PixelMap2Vector(std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
+
+    void SetTextContent(const std::string& content);
+    std::string GetTextContent() const;
+    void SetDetails(const Details& details);
+    std::shared_ptr<Details> GetDetails() const;
+    void SetSystemDefinedContent(const Details& contents);
+    std::shared_ptr<Details> GetSystemDefinedContent() const;
+    int32_t GetUDType() const;
+    void SetUDType(int32_t type);
 
     class Builder {
     public:
@@ -128,8 +139,6 @@ private:
         return resultCode == ResultCode::OK;
     }
     std::string GetPassUri();
-    static std::shared_ptr<OHOS::Media::PixelMap> Vector2PixelMap(std::vector<std::uint8_t> &value);
-    static std::vector<std::uint8_t> PixelMap2Vector(std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
@@ -144,6 +153,11 @@ private:
     using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
     std::map<uint16_t, Func> decodeMap;
     void InitDecodeMap();
+
+    int32_t udType_ = UDMF::UD_BUTT;
+    std::shared_ptr<Details> details_;
+    std::string textContent_;
+    std::shared_ptr<Details> systemDefinedContents_;
 };
 } // namespace MiscServices
 } // namespace OHOS

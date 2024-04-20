@@ -28,6 +28,10 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, int16_t 
 {
     return WriteBasic(buffer, type, value);
 }
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, double value)
+{
+    return WriteBasic(buffer, type, value);
+}
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, int32_t value)
 {
     return WriteBasic(buffer, type, value);
@@ -97,6 +101,54 @@ bool TLVObject::Write(
     WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
     return ret;
 }
+
+template<typename _InTp>
+bool TLVObject::WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, uint32_t step, const _InTp &input)
+{
+    return true;
+}
+
+template<typename _InTp, typename _First, typename... _Rest>
+bool TLVObject::WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, uint32_t step, const _InTp &input)
+{
+    if (step == input.index()) {
+        auto val = std::get<_First>(input);
+        return Write(buffer, type, val);
+    }
+    return WriteVariant<_InTp, _Rest...>(buffer, type, step + 1, input);
+}
+
+template<typename... _Types>
+bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const std::variant<_Types...> &input)
+{
+    uint32_t index = static_cast<uint32_t>(input.index());
+    if (!Write(buffer, TAG_MAP_VALUE_TYPE_INDEX, index)) {
+        return false;
+    }
+
+    return WriteVariant<decltype(input), _Types...>(buffer, TAG_MAP_VALUE_TYPE_VALUE, 0, input);
+}
+
+bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const Details& value)
+{
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
+        return false;
+    }
+    auto tagCursor = cursor_;
+    cursor_ += sizeof(TLVHead);
+    auto valueCursor = cursor_;
+    for (auto [key, val] : value) {
+        if (!Write(buffer, TAG_MAP_KEY, key)) {
+            return false;
+        }
+        if (!Write(buffer, TAG_MAP_VALUE_TYPE, val)) {
+            return false;
+        }
+    }
+    WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
+    return true;
+}
+
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
@@ -109,6 +161,7 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObjec
     WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
     return ret;
 }
+
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<uint8_t> &value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.size())) {
@@ -159,6 +212,10 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, int32_t &valu
 }
 
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, int64_t &value, const TLVHead &head)
+{
+    return ReadBasicValue(buffer, value, head);
+}
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, double &value, const TLVHead &head)
 {
     return ReadBasicValue(buffer, value, head);
 }
@@ -222,6 +279,62 @@ bool TLVObject::ReadValue(
     }
     return true;
 }
+
+template<typename _OutTp>
+bool TLVObject::ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t step, uint32_t index, _OutTp& output,
+    const TLVHead& head)
+{
+    return true;
+}
+
+template<typename _OutTp, typename _First, typename... _Rest>
+bool TLVObject::ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t step, uint32_t index, _OutTp& value,
+    const TLVHead& head)
+{
+    if (step == index) {
+        TLVHead valueHead{};
+        ReadHead(buffer, valueHead);
+        _First output{};
+        auto success = ReadValue(buffer, output, valueHead);
+        value = output;
+        return success;
+    }
+    return ReadVariant<_OutTp, _Rest...>(buffer, step + 1, index, value, head);
+}
+
+template<typename... _Types>
+bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, std::variant<_Types...>& value, const TLVHead& head)
+{
+    TLVHead valueHead{};
+    ReadHead(buffer, valueHead);
+    uint32_t index = 0;
+    if (!ReadValue(buffer, index, valueHead)) {
+        return false;
+    }
+    return ReadVariant<decltype(value), _Types...>(buffer, 0, index, value, valueHead);
+}
+
+bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& value, const TLVHead& head)
+{
+    auto mapEnd = cursor_ + head.len;
+    while (cursor_ < mapEnd) {
+        TLVHead keyHead{};
+        if (!ReadHead(buffer, keyHead)) {
+            return false;
+        }
+        std::string itemKey = "";
+        if (!ReadValue(buffer, itemKey, keyHead)) {
+            return false;
+        }
+        ValueType itemValue;
+        if (!ReadValue(buffer, itemValue, head)) {
+            return false;
+        }
+        value.emplace(itemKey, itemValue);
+    }
+    return true;
+}
+
 bool TLVObject::Encode(std::vector<std::uint8_t> &buffer, size_t &cursor, size_t total)
 {
     cursor_ = cursor;

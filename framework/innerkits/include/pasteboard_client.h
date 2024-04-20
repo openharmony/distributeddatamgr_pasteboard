@@ -23,6 +23,7 @@
 #include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_observer.h"
+#include "unified_data.h"
 #include "want.h"
 
 namespace OHOS {
@@ -170,6 +171,22 @@ public:
      * @return int32_t.
      */
     int32_t SetPasteData(PasteData &pasteData);
+
+    /**
+     * SetPasteData
+     * @descrition set paste data to the pasteboard.
+     * @param unifiedData the object of the PasteDate.
+     * @return int32_t.
+     */
+    int32_t SetUnifiedData(const UDMF::UnifiedData &unifiedData);
+
+    /**
+     * SetPasteData
+     * @descrition set paste data to the pasteboard.
+     * @param unifiedData the object of the PasteDate.
+     * @return int32_t.
+     */
+    int32_t GetUnifiedData(UDMF::UnifiedData &unifiedData);
 
     /**
      * IsRemoteData

@@ -23,6 +23,8 @@
 #include "pastedata_record_napi.h"
 #include "pixel_map_napi.h"
 #include "uri.h"
+#include "unified_data.h"
+#include "unified_data_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -100,10 +102,48 @@ struct SetContextInfo : public AsyncCall::Context {
     }
 };
 
+struct SetUnifiedContextInfo : public AsyncCall::Context {
+    std::shared_ptr<UDMF::UnifiedData> obj;
+    napi_status status = napi_generic_failure;
+    SetUnifiedContextInfo() : Context(nullptr, nullptr){};
+
+    napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
+    {
+        NAPI_ASSERT_BASE(env, self != nullptr, "self is nullptr", napi_invalid_arg);
+        return Context::operator()(env, argc, argv, self);
+    }
+    napi_status operator()(napi_env env, napi_value *result) override
+    {
+        if (status != napi_ok) {
+            return status;
+        }
+        return Context::operator()(env, result);
+    }
+};
+
 struct GetContextInfo : public AsyncCall::Context {
     std::shared_ptr<MiscServices::PasteData> pasteData;
     napi_status status = napi_generic_failure;
     GetContextInfo() : Context(nullptr, nullptr){};
+
+    napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
+    {
+        NAPI_ASSERT_BASE(env, self != nullptr, "self is nullptr", napi_invalid_arg);
+        return Context::operator()(env, argc, argv, self);
+    }
+    napi_status operator()(napi_env env, napi_value *result) override
+    {
+        if (status != napi_ok) {
+            return status;
+        }
+        return Context::operator()(env, result);
+    }
+};
+
+struct GetUnifiedContextInfo : public AsyncCall::Context {
+    std::shared_ptr<UDMF::UnifiedData> unifiedData;
+    napi_status status = napi_generic_failure;
+    GetUnifiedContextInfo() : Context(nullptr, nullptr){};
 
     napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
     {
@@ -152,6 +192,14 @@ private:
     static std::shared_ptr<PasteboardObserverInstance> GetObserver(napi_env env, napi_value observer);
     static void GetDataCommon(std::shared_ptr<GetContextInfo> &context);
     static void SetDataCommon(std::shared_ptr<SetContextInfo> &context);
+
+    static void GetDataCommon(std::shared_ptr<GetUnifiedContextInfo> &context);
+    static void SetDataCommon(std::shared_ptr<SetUnifiedContextInfo> &context);
+
+    static napi_value GetUnifiedData(napi_env env, napi_callback_info info);
+    static napi_value GetUnifiedDataSync(napi_env env, napi_callback_info info);
+    static napi_value SetUnifiedData(napi_env env, napi_callback_info info);
+    static napi_value SetUnifiedDataSync(napi_env env, napi_callback_info info);
 
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;

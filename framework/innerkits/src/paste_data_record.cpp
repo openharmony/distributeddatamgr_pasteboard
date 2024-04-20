@@ -47,6 +47,10 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_CUSTOM_DATA,
     TAG_CONVERT_URI,
     TAG_URI_PERMISSION,
+    TAG_UDC_UDTYPE,
+    TAG_UDC_DETAILS,
+    TAG_UDC_TEXTCONTENT,
+    TAG_UDC_SYSTEMCONTENTS,
 };
 
 enum TAG_CUSTOMDATA : uint16_t {
@@ -161,10 +165,12 @@ PasteDataRecord::~PasteDataRecord()
     decodeMap.clear();
 }
 
-PasteDataRecord::PasteDataRecord(const PasteDataRecord &record) : mimeType_(record.mimeType_),
-    htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_), uri_(record.uri_),
-    convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
-    hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_)
+PasteDataRecord::PasteDataRecord(const PasteDataRecord& record)
+    : mimeType_(record.mimeType_), htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_),
+      uri_(record.uri_), convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
+      hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_), udType_(record.udType_),
+      details_(record.details_), textContent_(record.textContent_),
+      systemDefinedContents_(record.systemDefinedContents_)
 {
     this->isConvertUriFromRemote = record.isConvertUriFromRemote;
     InitDecodeMap();
@@ -174,13 +180,9 @@ void PasteDataRecord::InitDecodeMap()
 {
     decodeMap = {
         {TAG_MIMETYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, mimeType_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, mimeType_, head);}},
         {TAG_HTMLTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, htmlText_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, htmlText_, head);}},
         {TAG_WANT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             RawMem rawMem{};
             ret = ret && ReadValue(buffer, rawMem, head);
@@ -188,9 +190,7 @@ void PasteDataRecord::InitDecodeMap()
             }
         },
         {TAG_PLAINTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, plainText_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, plainText_, head); }},
         {TAG_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             RawMem rawMem{};
             ret = ret && ReadValue(buffer, rawMem, head);
@@ -198,9 +198,7 @@ void PasteDataRecord::InitDecodeMap()
             }
         },
         {TAG_CONVERT_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, convertUri_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, convertUri_, head);}},
         {TAG_PIXELMAP, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             std::vector<std::uint8_t> value;
             ret = ret && ReadValue(buffer, value, head);
@@ -208,13 +206,17 @@ void PasteDataRecord::InitDecodeMap()
             }
         },
         {TAG_CUSTOM_DATA, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, customData_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, customData_, head);}},
         {TAG_URI_PERMISSION, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, hasGrantUriPermission_, head);
-            }
-        },
+            ret = ret && ReadValue(buffer, hasGrantUriPermission_, head);}},
+        {TAG_UDC_UDTYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, udType_, head);}},
+        {TAG_UDC_DETAILS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, details_, head);}},
+        {TAG_UDC_TEXTCONTENT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, textContent_, head);}},
+        {TAG_UDC_SYSTEMCONTENTS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, systemDefinedContents_, head);}},
     };
 }
 
@@ -337,6 +339,10 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_PIXELMAP, pixelVector) && ret;
     ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
     ret = Write(buffer, TAG_URI_PERMISSION, hasGrantUriPermission_) && ret;
+    ret = Write(buffer, TAG_UDC_UDTYPE, udType_) && ret;
+    ret = Write(buffer, TAG_UDC_DETAILS, details_) && ret;
+    ret = Write(buffer, TAG_UDC_TEXTCONTENT, textContent_) && ret;
+    ret = Write(buffer, TAG_UDC_SYSTEMCONTENTS, systemDefinedContents_) && ret;
     return ret;
 }
 
@@ -373,6 +379,10 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(pixelVector);
     expectedSize += TLVObject::Count(customData_);
     expectedSize += TLVObject::Count(hasGrantUriPermission_);
+    expectedSize += TLVObject::Count(udType_);
+    expectedSize += TLVObject::Count(details_);
+    expectedSize += TLVObject::Count(textContent_);
+    expectedSize += TLVObject::Count(systemDefinedContents_);
     return expectedSize;
 }
 
@@ -486,6 +496,45 @@ bool PasteDataRecord::HasGrantUriPermission()
 {
     return hasGrantUriPermission_;
 }
+
+void PasteDataRecord::SetTextContent(const std::string& content)
+{
+    this->textContent_ = content;
+}
+std::string PasteDataRecord::GetTextContent() const
+{
+    return this->textContent_;
+}
+
+void PasteDataRecord::SetDetails(const Details& details)
+{
+    this->details_ = std::make_shared<Details>(details);
+}
+
+std::shared_ptr<Details> PasteDataRecord::GetDetails() const
+{
+    return this->details_;
+}
+
+void PasteDataRecord::SetSystemDefinedContent(const Details& contents)
+{
+    this->systemDefinedContents_ = std::make_shared<Details>(contents);
+}
+
+std::shared_ptr<Details> PasteDataRecord::GetSystemDefinedContent() const
+{
+    return this->systemDefinedContents_;
+}
+int32_t PasteDataRecord::GetUDType() const
+{
+    return this->udType_;
+}
+
+void PasteDataRecord::SetUDType(int32_t type)
+{
+    this->udType_ = type;
+}
+
 FileDescriptor::~FileDescriptor()
 {
     if (fd_ >= 0) {

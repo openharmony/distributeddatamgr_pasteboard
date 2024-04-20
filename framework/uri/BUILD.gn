@@ -54,6 +54,9 @@ ohos_static_library("pasteboard_uri") {
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
   ]
+
+  public_external_deps = [ "udmf:udmf_client" ]
+
   subsystem_name = "distributeddatamgr"
   part_name = "pasteboard"
 }

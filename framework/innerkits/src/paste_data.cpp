@@ -98,7 +98,6 @@ PasteData& PasteData::operator=(const PasteData &data)
     return *this;
 }
 
-
 PasteDataProperty PasteData::GetProperty() const
 {
     return PasteDataProperty(props_);
@@ -222,7 +221,7 @@ std::shared_ptr<std::string> PasteData::GetPrimaryMimeType()
     }
 }
 
-std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index)
+std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index) const
 {
     if (records_.size() > index) {
         return records_[index];
@@ -231,7 +230,7 @@ std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index)
     }
 }
 
-std::size_t PasteData::GetRecordCount()
+std::size_t PasteData::GetRecordCount() const
 {
     return records_.size();
 }
@@ -616,6 +615,7 @@ bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool i
     }
     return true;
 }
+
 bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler)
 {
     std::vector<uint32_t> fdRecordMap;
@@ -632,6 +632,7 @@ bool PasteData::ReadUriFd(MessageParcel &parcel, UriHandler &uriHandler)
     }
     return true;
 }
+
 void PasteData::ReplaceShareUri(int32_t userId)
 {
     auto count = GetRecordCount();

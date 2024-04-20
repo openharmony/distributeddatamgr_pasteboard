@@ -47,6 +47,8 @@ ohos_unittest("PasteboardFrameworkTest") {
     "src/dm_adapter_test.cpp",
     "src/paste_data_test.cpp",
     "src/pasteboard_client_test.cpp",
+    "src/pasteboard_unified_data_test.cpp",
+    "src/pasteboard_utils_test.cpp",
     "src/serializable_test.cpp",
     "src/tlv_object_test.cpp",
     "src/web_controller_test.cpp",
@@ -66,6 +68,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "udmf:udmf_client",
   ]
 
   deps = [
