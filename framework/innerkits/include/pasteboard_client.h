@@ -23,8 +23,8 @@
 #include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_observer.h"
-#include "want.h"
 #include "unified_data.h"
+#include "want.h"
 
 namespace OHOS {
 namespace MiscServices {

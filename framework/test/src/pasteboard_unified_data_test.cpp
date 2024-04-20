@@ -69,7 +69,6 @@ void PasteboardUnifiedDataTest::SetUp(void)
     rawData_ = { 1, 2, 3, 4, 5, 6, 7, 8 };
     details_.insert({ "keyString", "string_test" });
     details_.insert({ "keyInt32", 1 });
-    details_.insert({ "keyInt64", 99L });
     details_.insert({ "keyBool", true });
     details_.insert({ "KeyU8Array", rawData_ });
     details_.insert({ "KeyDouble", 1.234 });

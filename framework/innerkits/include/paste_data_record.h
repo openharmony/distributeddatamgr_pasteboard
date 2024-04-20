@@ -23,10 +23,10 @@
 #include "pixel_map.h"
 #include "string_ex.h"
 #include "tlv_object.h"
+#include "unified_meta.h"
 #include "uri.h"
 #include "uri_handler.h"
 #include "want.h"
-#include "unified_meta.h"
 namespace OHOS {
 namespace MiscServices {
 namespace {
