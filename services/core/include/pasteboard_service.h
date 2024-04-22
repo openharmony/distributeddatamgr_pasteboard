@@ -74,7 +74,7 @@ public:
     void Clear();
 private:
     static constexpr uint32_t EVENT_TIME_OUT = 2000;
-    mutable uint32_t windowPid_;
+    mutable int32_t windowPid_;
     mutable uint64_t actionTime_;
     mutable std::shared_mutex inputEventMutex_;
 };
