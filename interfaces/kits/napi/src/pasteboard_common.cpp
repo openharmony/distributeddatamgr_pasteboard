@@ -117,7 +117,7 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
 {
     // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
     if (!CheckExpression(env, argc >= ARGC_TYPE_SET2, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.") ||
+        "Parameter error. The number of arguments cannot be less than two.") ||
         !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
@@ -133,27 +133,28 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
         return false;
     }
-    const char *message = "Parameter error. The value does not match mimeType correctly.";
 
     if (mimeType == MIMETYPE_TEXT_URI || mimeType == MIMETYPE_TEXT_PLAIN || mimeType == MIMETYPE_TEXT_HTML) {
-        if (!CheckArgsType(env, argv[1], napi_string, message)) {
+        if (!CheckArgsType(env, argv[1], napi_string, "Parameter error. The type of mimeType must be string.")) {
             return false;
         }
     } else if (mimeType == MIMETYPE_PIXELMAP) {
         if (!CheckExpression(env, Media::PixelMapNapi::GetPixelMap(env, argv[1]) != nullptr,
-            JSErrorCode::INVALID_PARAMETERS, message)) {
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. Actual mimeType is not mimetype_pixelmap.")) {
             return false;
         }
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
         AAFwk::Want want;
         ret = OHOS::AppExecFwk::UnwrapWant(env, argv[1], want);
-        if (!CheckExpression(env, ret, JSErrorCode::INVALID_PARAMETERS, message)) {
+        if (!CheckExpression(env, ret, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. Actual mimeType is not mimetype_text_want.")) {
             return false;
         }
     } else {
         bool isArrayBuffer = false;
         NAPI_CALL_BASE(env, napi_is_arraybuffer(env, argv[1], &isArrayBuffer), false);
-        if (!CheckExpression(env, isArrayBuffer, JSErrorCode::INVALID_PARAMETERS, message)) {
+        if (!CheckExpression(env, isArrayBuffer, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The mimeType is not an arraybuffer.")) {
             return false;
         }
     }
