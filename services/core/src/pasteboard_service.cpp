@@ -792,15 +792,23 @@ bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, 
 
 void PasteboardService::CheckAppUriPermission(PasteData &data)
 {
+    std::vector<Uri> uris;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
         }
         auto uri = item->GetOrginUri()->ToString();
-        std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization({uri},
-            AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
-        item->SetGrantUriPermission(ret[0]);
+        uris.push_back(uri);
+    }
+    std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(uris,
+        AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
+    for (size_t i = 0; i < data.GetRecordCount(); i++) {
+        auto item = data.GetRecordAt(i);
+        if (item == nullptr || item->GetOrginUri() == nullptr) {
+            continue;
+        }
+        item->SetGrantUriPermission(ret[i]);
     }
 }
 
