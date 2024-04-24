@@ -793,6 +793,7 @@ bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, 
 void PasteboardService::CheckAppUriPermission(PasteData &data)
 {
     std::vector<std::string> uris;
+    std::vector<size_t> items;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
@@ -800,6 +801,7 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
         }
         auto uri = item->GetOrginUri()->ToString();
         uris.emplace_back(uri);
+        items.emplace_back(i);
     }
     std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(uris,
         AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
@@ -808,7 +810,9 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
         if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
         }
-        item->SetGrantUriPermission(ret[i]);
+        if (std::find(items.begin(), items.end(), i) != items.end()) {
+            item->SetGrantUriPermission(ret[i]);
+        }
     }
 }
 
