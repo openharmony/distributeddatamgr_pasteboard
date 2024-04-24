@@ -805,7 +805,7 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
     }
     std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(uris,
         AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
-    for (size_t i = 0; i < items; i++) {
+    for (size_t i = 0; i < items.size(); i++) {
         auto item = data.GetRecordAt(items[i]);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
