@@ -805,14 +805,12 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
     }
     std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(uris,
         AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
-    for (size_t i = 0; i < data.GetRecordCount(); i++) {
-        auto item = data.GetRecordAt(i);
+    for (size_t i = 0; i < items; i++) {
+        auto item = data.GetRecordAt(items[i]);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
         }
-        if (std::find(items.begin(), items.end(), i) != items.end()) {
-            item->SetGrantUriPermission(ret[i]);
-        }
+        item->SetGrantUriPermission(ret[i]);
     }
 }
 
