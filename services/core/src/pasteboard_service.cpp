@@ -716,7 +716,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         partUrs.assign(start, end);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "grant uri size:%{public}u",
             static_cast<uint32_t>(partUrs.size()));
-        auto permissionCode = permissionClient.GrantUriPermissionPrivileged(grantUris,
+        auto permissionCode = permissionClient.GrantUriPermissionPrivileged(partUrs,
             AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
