@@ -794,7 +794,7 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
 {
     std::vector<std::string> uris;
     std::vector<size_t> indexs;
-    std::vector<bool> result;
+    std::vector<bool> checkResults;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
@@ -802,34 +802,23 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
         }
         auto uri = item->GetOrginUri()->ToString();
         uris.emplace_back(uri);
-        indexs.emplace_back(i);
+        indexs.emplace(i);
     }
-    size_t rounds = uris.size() / MAX_URI_COUNT;
-    size_t remainder = uris.size() % MAX_URI_COUNT;
-    for (size_t i = 0; i <= rounds; i++) {
-        std::vector <std::string> partUrs;
-        std::vector<std::string>::const_iterator start = uris.begin() + i * MAX_URI_COUNT;
-        std::vector<std::string>::const_iterator end;
-        if (i < rounds) {
-            end = uris.begin() + i * MAX_URI_COUNT + MAX_URI_COUNT;
-        } else {
-            end = uris.begin() + i * MAX_URI_COUNT + remainder;
+    if (!uris.empty()) {
+        for (size_t index = 0; index < uris.size(); index += MAX_URI_COUNT) {
+            std::vector <std::string> urisSub(uris.begin() + index, uris.begin() + std::min(index + MAX_URI_COUNT,
+                uris.size()));
+            std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(partUrs,
+                AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
+            checkResults.insert(checkResults.end(), ret.begin(), ret.end());
         }
-        if (start == end) {
-            continue;
-        }
-        partUrs.assign(start, end);
-        std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(partUrs,
-            AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,data.GetTokenId());
-        result.insert(result.end(), ret.begin(), ret.end());
     }
-
     for (size_t i = 0; i < indexs.size(); i++) {
         auto item = data.GetRecordAt(indexs[i]);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
         }
-        item->SetGrantUriPermission(result[i]);
+        item->SetGrantUriPermission(checkResults[i]);
     }
 }
 
