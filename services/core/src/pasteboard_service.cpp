@@ -768,7 +768,7 @@ bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, 
 
 void PasteboardService::CheckAppUriPermission(PasteData &data)
 {
-    std::vector<std::string> uris;
+    std::vector<std::Uri> uris;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
@@ -781,7 +781,7 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
     for (int i = 0; i < uriVectors.size(); i++) {
         std::vector<std::string> uriStrings;
         for (int j = 0; j < uriVectors[i].size(); j++) {
-            uriStrings.emplace_back(uriVectors[i][j]->ToString());
+            uriStrings.emplace_back(uriVectors[i][j].ToString());
         }
         std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(uriStrings,
             AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
@@ -1699,7 +1699,7 @@ std::vector<std::vector<Uri>> PasteboardService::GetUriVectors(std::vector<Uri> 
     size_t index = uris.size() / MAX_URI_COUNT;
     if (index == 0) {
         ret.emplace_back(uris);
-        return uris;
+        return ret;
     }
     size_t remainder = uris.size() % MAX_URI_COUNT;
     for (size_t i = 0; i <= index; i++) {
@@ -1717,6 +1717,7 @@ std::vector<std::vector<Uri>> PasteboardService::GetUriVectors(std::vector<Uri> 
         partUrs.assign(start, end);
         ret.emplace_back(partUrs);
     }
+    return ret;
 }
 
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
