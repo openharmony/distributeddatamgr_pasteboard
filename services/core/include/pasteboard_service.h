@@ -245,6 +245,7 @@ private:
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
     bool SubscribeKeyboardEvent();
     bool IsAllowSendData();
+    std::vector<std::vector<Uri>> GetUriVectors(std::vector<Uri> uris);
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
 };

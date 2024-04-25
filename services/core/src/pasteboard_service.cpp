@@ -690,33 +690,9 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri size: %{public}u, targetBundleName is %{public}s",
         static_cast<uint32_t>(grantUris.size()), targetBundleName.c_str());
     auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    size_t index = grantUris.size() / MAX_URI_COUNT;
-    if (index == 0) {
-        auto permissionCode = permissionClient.GrantUriPermissionPrivileged(grantUris,
-            AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
-        if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
-            readBundles_.insert(targetBundleName);
-        }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
-        return;
-    }
-    size_t remainder = grantUris.size() % MAX_URI_COUNT;
-    for (size_t i = 0; i <= index; i++) {
-        std::vector<Uri> partUrs;
-        std::vector<Uri>::const_iterator start = grantUris.begin() + i * MAX_URI_COUNT;
-        std::vector<Uri>::const_iterator end;
-        if (i < index) {
-            end = grantUris.begin() + i * MAX_URI_COUNT + MAX_URI_COUNT;
-        } else {
-            end = grantUris.begin() + i * MAX_URI_COUNT + remainder;
-        }
-        if (start == end) {
-            continue;
-        }
-        partUrs.assign(start, end);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "grant uri size:%{public}u",
-            static_cast<uint32_t>(partUrs.size()));
-        auto permissionCode = permissionClient.GrantUriPermissionPrivileged(grantUris,
+    std::vector<std::vector<Uri>> uriVectors = GetUriVectors(grantUris);
+    for (int i = 0; i < uriVectors.size(); i ++) {
+        auto permissionCode = permissionClient.GrantUriPermissionPrivileged(uriVectors[i],
             AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
@@ -793,24 +769,33 @@ bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, 
 void PasteboardService::CheckAppUriPermission(PasteData &data)
 {
     std::vector<std::string> uris;
-    std::vector<size_t> items;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
         }
-        auto uri = item->GetOrginUri()->ToString();
+        auto uri = item->GetOrginUri();
         uris.emplace_back(uri);
-        items.emplace_back(i);
     }
-    std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(uris,
-        AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
-    for (size_t i = 0; i < items.size(); i++) {
-        auto item = data.GetRecordAt(items[i]);
-        if (item == nullptr || item->GetOrginUri() == nullptr) {
-            continue;
+    std::vector<std::vector<Uri>> uriVectors = GetUriVectors(uris);
+    for (int i = 0; i < uriVectors.size(); i++) {
+        std::vector<std::string> uriStrings;
+        for (int j = 0; j < uriVectors[i].size(); j++) {
+            uriStrings.emplace_back(uriVectors[i][j]->ToString());
         }
-        item->SetGrantUriPermission(ret[i]);
+        std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(uriStrings,
+            AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
+        if (ret.size() != uriStrings.size()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check uri authorization failed.");
+            return;
+        }
+        for (size_t i = 0; i < uriStrings.size(); i++) {
+            auto item = data.GetRecordAt(uriStrings[i]);
+            if (item == nullptr || item->GetOrginUri() == nullptr) {
+                continue;
+            }
+            item->SetGrantUriPermission(ret[i]);
+        }
     }
 }
 
@@ -1706,6 +1691,32 @@ bool PasteboardService::SubscribeKeyboardEvent()
         inputEventCallback_));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor ret is: %{public}d", monitorId);
     return monitorId >= 0;
+}
+
+std::vector<std::vector<Uri>> PasteboardService::GetUriVectors(std::vector<Uri> uris)
+{
+    std::vector<std::vector<Uri>> ret;
+    size_t index = uris.size() / MAX_URI_COUNT;
+    if (index == 0) {
+        ret.emplace_back(uris);
+        return uris;
+    }
+    size_t remainder = uris.size() % MAX_URI_COUNT;
+    for (size_t i = 0; i <= index; i++) {
+        std::vector<Uri> partUrs;
+        std::vector<Uri>::const_iterator start = uris.begin() + i * MAX_URI_COUNT;
+        std::vector<Uri>::const_iterator end;
+        if (i < index) {
+            end = uris.begin() + i * MAX_URI_COUNT + MAX_URI_COUNT;
+        } else {
+            end = uris.begin() + i * MAX_URI_COUNT + remainder;
+        }
+        if (start == end) {
+            continue;
+        }
+        partUrs.assign(start, end);
+        ret.emplace_back(partUrs);
+    }
 }
 
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
