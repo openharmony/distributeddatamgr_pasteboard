@@ -602,20 +602,26 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
 napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi SetUnifiedDataSync is called!");
-    napi_value instance = nullptr;
-    std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
+    size_t argc = 1;
+    napi_value argv[1] = { 0 };
+    napi_value thisVar = nullptr;
 
-    NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance));
-    UDMF::UnifiedDataNapi* obj = nullptr;
-    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void**>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    if (!CheckExpression(
+            env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
+        return nullptr;
+    }
+    UDMF::UnifiedDataNapi* unifiedDataNapi = nullptr;
+    napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
+    if (!CheckExpression(env, unifiedDataNapi != nullptr,
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. The Type of data must be unifiedData.")) {
         return nullptr;
     }
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
-    std::thread thread([block, &obj]() mutable {
+    std::thread thread([block, &unifiedDataNapi]() mutable {
         int32_t ret = 0;
         if (delayGetter_ != nullptr) {
-            ret = PasteboardClient::GetInstance()->SetUnifiedData(*(obj->value_), delayGetter_->GetStub());
+            ret = PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_), delayGetter_->GetStub());
         } else {
             ret = PasteboardClient::GetInstance()->SetUnifiedData(*(obj->value_));
         }
@@ -633,8 +639,7 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, SetUnifiedDataSync failed");
         return nullptr;
     }
-
-    return instance;
+    return nullptr;
 }
 
 void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>& context)
