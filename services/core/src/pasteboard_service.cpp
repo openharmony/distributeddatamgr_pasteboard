@@ -768,7 +768,7 @@ bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, 
 
 void PasteboardService::CheckAppUriPermission(PasteData &data)
 {
-    std::vector<std::Uri> uris;
+    std::vector<Uri> uris;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
@@ -790,7 +790,7 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
             return;
         }
         for (size_t i = 0; i < uriStrings.size(); i++) {
-            auto item = data.GetRecordAt(uriStrings[i]);
+            auto item = data.GetRecordAt(i);
             if (item == nullptr || item->GetOrginUri() == nullptr) {
                 continue;
             }
