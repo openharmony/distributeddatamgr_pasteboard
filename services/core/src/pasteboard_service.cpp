@@ -581,7 +581,6 @@ bool PasteboardService::GetPasteData(const AppInfo &appInfo, PasteData &data)
         + PasteData::SHARE_PATH_PREFIX_ACCOUNT;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
     bool isRemote = false;
-    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
     auto pastData = GetDistributedData(appInfo.userId);
     if (pastData != nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pastData != nullptr");
