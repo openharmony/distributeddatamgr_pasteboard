@@ -269,11 +269,11 @@ void PasteboardService::Clear()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
-    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
-    auto it = clips_.find(userId);
-    if (it != clips_.end()) {
-        RevokeUriPermission(it->second);
-        clips_.erase(it);
+
+    auto couple = clips_.Find(userId);
+    if (couple.first) {
+        RevokeUriPermission(couple.second);
+        clips_.Erase(userId);
         auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
         std::string bundleName = GetAppBundleName(appInfo);
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
@@ -418,9 +418,9 @@ bool PasteboardService::IsDataAged()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
     if (curTime > copyTime && curTime - copyTime > ONE_HOUR_MILLISECONDS) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
-        auto data = clips_.find(userId);
-        if (data != clips_.end()) {
-            clips_.erase(data);
+        auto data = clips_.Find(userId);
+        if (data.first) {
+            clips_.Erase(userId);
         }
         copyTime_.erase(it);
         return true;
@@ -579,14 +579,14 @@ bool PasteboardService::GetPasteData(const AppInfo &appInfo, PasteData &data)
     }
     PasteData::sharePath = PasteData::SHARE_PATH_PREFIX + std::to_string(appInfo.userId)
         + PasteData::SHARE_PATH_PREFIX_ACCOUNT;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.Size()));
     bool isRemote = false;
     auto pastData = GetDistributedData(appInfo.userId);
     if (pastData != nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pastData != nullptr");
         isRemote = true;
         pastData->SetRemote(isRemote);
-        clips_.insert_or_assign(appInfo.userId, pastData);
+        clips_.InsertOrAssign(appInfo.userId, pastData);
         auto curTime =
             static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
@@ -599,23 +599,22 @@ bool PasteboardService::GetPasteData(const AppInfo &appInfo, PasteData &data)
 bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
 {
     {
-        std::lock_guard<std::recursive_mutex> lock(clipMutex_);
-        auto it = clips_.find(appInfo.userId);
-        if (it == clips_.end()) {
+        auto it = clips_.Find(appInfo.userId);
+        if (!it.first) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
             return false;
         }
-        auto ret = IsDataVaild(*(it->second), appInfo.tokenId);
+        auto ret = IsDataVaild(*(it.second), appInfo.tokenId);
         if (!ret) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invaild.");
             return false;
         }
-        if (it->second->IsDelayData() && !(GetDelayPasteData(appInfo, *(it->second)))) {
+        if (it.second->IsDelayData() && !(GetDelayPasteData(appInfo, *(it.second)))) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get delay data fail");
             return false;
         }
-        it->second->SetBundleName(appInfo.bundleName);
-        data = *(it->second);
+        it.second->SetBundleName(appInfo.bundleName);
+        data = *(it.second);
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d",
@@ -822,14 +821,13 @@ bool PasteboardService::HasPasteData()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return false;
     }
-    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
-    auto it = clips_.find(userId);
-    if (it == clips_.end()) {
+    auto it = clips_.Find(userId);
+    if (!it.first) {
         return HasDistributedData(userId);
     }
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    return IsDataVaild(*(it->second), tokenId);
+    return IsDataVaild(*(it.second), tokenId);
 }
 
 int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter)
@@ -864,19 +862,19 @@ bool PasteboardService::HasLocalDataType(const std::string &mimeType)
         return false;
     }
     auto userId = GetCurrentAccountId();
-    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
-    auto it = clips_.find(userId);
-    if (it == clips_.end()) {
+
+    auto it = clips_.Find(userId);
+    if (!it.first) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "can not find data");
         return false;
     }
-    if (it->second == nullptr) {
+    if (it.second == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr");
         return false;
     }
-    std::vector<std::string> mimeTypes = it->second->GetMimeTypes();
+    std::vector<std::string> mimeTypes = it.second->GetMimeTypes();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "type is %{public}s", mimeType.c_str());
-    auto isWebData = it->second->GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG;
+    auto isWebData = it.second->GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG;
     auto isExistType = std::find(mimeTypes.begin(), mimeTypes.end(), mimeType) != mimeTypes.end();
     if (isWebData) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "is Web Data");
@@ -905,12 +903,11 @@ bool PasteboardService::IsRemoteData()
     if (userId == ERROR_USERID) {
         return false;
     }
-    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
-    auto it = clips_.find(userId);
-    if (it == clips_.end()) {
+    auto it = clips_.Find(userId);
+    if (!it.first) {
         return HasDistributedData(userId);
     }
-    return it->second->IsRemote();
+    return it.second->IsRemote();
 }
 
 int32_t PasteboardService::GetDataSource(std::string &bundleName)
@@ -919,12 +916,11 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
     if (userId == ERROR_USERID) {
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
-    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
-    auto it = clips_.find(userId);
-    if (it == clips_.end()) {
+    auto it = clips_.Find(userId);
+    if (!it.first) {
         return static_cast<int32_t>(PasteboardError::E_REMOTE);
     }
-    auto data = it->second;
+    auto data = it.second;
     if (data->IsRemote()) {
         return static_cast<int32_t>(PasteboardError::E_REMOTE);
     }
@@ -961,7 +957,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     pasteData->SetTokenId(tokenId);
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
-    clips_.insert_or_assign(appInfo.userId, pasteData);
+    clips_.InsertOrAssign(appInfo.userId, pasteData);
     if (pasteData->IsDelayData()) {
         auto deathRecipient = new DelayGetterDeathRecipient(appInfo.userId, *this);
         delayGetter->AsObject()->AddDeathRecipient(deathRecipient);
@@ -977,17 +973,17 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(*pasteData);
     setting_.store(false);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.size()));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.Size()));
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 void PasteboardService::RemovePasteData(const AppInfo &appInfo)
 {
-    auto it = clips_.find(appInfo.userId);
+    auto it = clips_.Find(appInfo.userId);
     auto getter = delayGetters_.find(appInfo.userId);
-    if (it != clips_.end()) {
-        RevokeUriPermission(it->second);
-        clips_.erase(it);
+    if (it.first) {
+        RevokeUriPermission(it.second);
+        clips_.Erase(appInfo.userId);
     }
     if (getter != delayGetters_.end()) {
         if (getter->second.first != nullptr && getter->second.second != nullptr) {
@@ -1311,12 +1307,11 @@ std::string PasteboardService::DumpData()
         return "";
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "id = %{public}d", userId);
-    std::lock_guard<std::recursive_mutex> lock(clipMutex_);
-    auto it = clips_.find(userId);
+    auto it = clips_.Find(userId);
     std::string result;
-    if (it != clips_.end() && it->second != nullptr) {
-        size_t recordCounts = it->second->GetRecordCount();
-        auto property = it->second->GetProperty();
+    if (it.first && it.second != nullptr) {
+        size_t recordCounts = it.second->GetRecordCount();
+        auto property = it.second->GetProperty();
         std::string shareOption;
         PasteData::ShareOptionToString(property.shareOption, shareOption);
         std::string sourceDevice;
