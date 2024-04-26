@@ -623,7 +623,7 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
         if (delayGetter_ != nullptr) {
             ret = PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_), delayGetter_->GetStub());
         } else {
-            ret = PasteboardClient::GetInstance()->SetUnifiedData(*(obj->value_));
+            ret = PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_));
         }
         std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
         block->SetValue(value);
