@@ -690,7 +690,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri size: %{public}u, targetBundleName is %{public}s",
         static_cast<uint32_t>(grantUris.size()), targetBundleName.c_str());
     for (size_t index = 0; index < grantUris.size(); index += MAX_URI_COUNT) {
-        std::vector <Uri> urisSub(grantUris.begin() + index, grantUris.begin() + std::min(index + MAX_URI_COUNT,
+        std::vector<Uri> urisSub(grantUris.begin() + index, grantUris.begin() + std::min(index + MAX_URI_COUNT,
             grantUris.size()));
         auto permissionCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(urisSub,
             AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
