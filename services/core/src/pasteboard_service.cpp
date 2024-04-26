@@ -955,7 +955,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     std::string time = GetTime();
     pasteData->SetTime(time);
     pasteData->SetTokenId(tokenId);
-    CheckGlobalShareOption(*pasteData);
+    UpdateShareOption(*pasteData);
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.insert_or_assign(appInfo.userId, pasteData);
@@ -1191,7 +1191,7 @@ std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const st
     return result;
 }
 
-void PasteboardService::CheckGlobalShareOption(PasteData &pasteData)
+void PasteboardService::UpdateShareOption(PasteData &pasteData)
 {
     globalShareOptions_.ComputeIfPresent(pasteData.GetTokenId(),
         [&pasteData](const uint32_t &tokenId, ShareOption &shareOption) {
