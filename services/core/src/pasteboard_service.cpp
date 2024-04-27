@@ -66,7 +66,6 @@ constexpr const int32_t COMMON_USERID = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
 constexpr const char* PASTEBOARD_SERVICE_NAME = "PasteboardService";
 constexpr const char* FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
-constexpr const char* PASTEBOARD_PROXY_AUTHOR_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
 constexpr const char* SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
 constexpr const char* READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBOARD";
 constexpr const char* TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.datafiles_trans_ctrl";
@@ -690,39 +689,21 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri size: %{public}u, targetBundleName is %{public}s",
         static_cast<uint32_t>(grantUris.size()), targetBundleName.c_str());
-    auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-    size_t index = grantUris.size() / MAX_URI_COUNT;
-    if (index == 0) {
-        auto permissionCode = permissionClient.GrantUriPermission(grantUris, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
-            targetBundleName);
+    size_t offset = 0;
+    size_t length = grantUris.size();
+    size_t count = MAX_URI_COUNT;
+    while (length > offset) {
+        if (length - offset < MAX_URI_COUNT) {
+            count = length - offset;
+        }
+        auto sendValues = std::vector<Uri>(grantUris.begin() + offset, grantUris.begin() + offset + count);
+        auto permissionCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(sendValues,
+            AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
-        return;
-    }
-    size_t remainder = grantUris.size() % MAX_URI_COUNT;
-    for (size_t i = 0; i <= index; i++) {
-        std::vector<Uri> partUrs;
-        std::vector<Uri>::const_iterator start = grantUris.begin() + i * MAX_URI_COUNT;
-        std::vector<Uri>::const_iterator end;
-        if (i < index) {
-            end = grantUris.begin() + i * MAX_URI_COUNT + MAX_URI_COUNT;
-        } else {
-            end = grantUris.begin() + i * MAX_URI_COUNT + remainder;
-        }
-        if (start == end) {
-            continue;
-        }
-        partUrs.assign(start, end);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "grant uri size:%{public}u",
-            static_cast<uint32_t>(partUrs.size()));
-        auto permissionCode = permissionClient.GrantUriPermission(partUrs, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION,
-            targetBundleName);
-        if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
-            readBundles_.insert(targetBundleName);
-        }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+        offset += count;
     }
 }
 
@@ -793,19 +774,41 @@ bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, 
 
 void PasteboardService::CheckAppUriPermission(PasteData &data)
 {
+    std::vector<std::string> uris;
+    std::vector<size_t> indexs;
+    std::vector<bool> checkResults;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
         }
-        auto uri = item->GetOrginUri();
-        int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(data.GetTokenId(),
-            PASTEBOARD_PROXY_AUTHOR_URI);
-        if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-            item->SetGrantUriPermission(false);
+        auto uri = item->GetOrginUri()->ToString();
+        uris.emplace_back(uri);
+        indexs.emplace_back(i);
+    }
+    if (uris.empty()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no uri.");
+        return;
+    }
+    size_t offset = 0;
+    size_t length = uris.size();
+    size_t count = MAX_URI_COUNT;
+    while (length > offset) {
+        if (length - offset < MAX_URI_COUNT) {
+            count = length - offset;
+        }
+        auto sendValues = std::vector<std::string>(uris.begin() + offset, uris.begin() + offset + count);
+        std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(sendValues,
+            AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
+        checkResults.insert(checkResults.end(), ret.begin(), ret.end());
+        offset += count;
+    }
+    for (size_t i = 0; i < indexs.size(); i++) {
+        auto item = data.GetRecordAt(indexs[i]);
+        if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
         }
-        item->SetGrantUriPermission(true);
+        item->SetGrantUriPermission(checkResults[i]);
     }
 }
 
