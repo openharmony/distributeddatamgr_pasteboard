@@ -131,7 +131,7 @@ std::vector<std::shared_ptr<PasteDataRecord>> PasteboardUtils::Convert(
 PasteDataProperty PasteboardUtils::Convert(const UnifiedDataProperties& properties)
 {
     PasteDataProperty pasteDataProperty;
-    pasteDataProperty.shareOption = static_cast<ShareOption>(properties.shareOption);
+    pasteDataProperty.shareOption = static_cast<ShareOption>(properties.shareOptions);
     pasteDataProperty.additions = properties.extras;
     pasteDataProperty.timestamp = properties.timestamp;
     pasteDataProperty.tag = properties.tag;
@@ -141,8 +141,8 @@ PasteDataProperty PasteboardUtils::Convert(const UnifiedDataProperties& properti
 std::shared_ptr<UnifiedDataProperties> PasteboardUtils::Convert(const PasteDataProperty& properties)
 {
     auto unifiedDataProperties = std::make_shared<UnifiedDataProperties>();
-    unifiedDataProperties->shareOption = properties.shareOption == ShareOption::InApp ? UDMF::ShareOption::IN_APP
-                                                                                      : UDMF::ShareOption::CROSS_APP;
+    unifiedDataProperties->shareOptions = properties.shareOption == ShareOption::InApp ? UDMF::ShareOptions::IN_APP
+                                                                                      : UDMF::ShareOptions::CROSS_APP;
     unifiedDataProperties->extras = properties.additions;
     unifiedDataProperties->timestamp = properties.timestamp;
     unifiedDataProperties->tag = properties.tag;
