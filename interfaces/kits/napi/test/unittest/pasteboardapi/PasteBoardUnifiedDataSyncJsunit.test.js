@@ -42,7 +42,7 @@ var applicationDefinedRecordData = new UDC.UnifiedData();
 var wantData = new UDC.UnifiedData();
 var pixelMapData = new UDC.UnifiedData();
 
-describe('PasteBoardUdmfDelayJSTest', function () {
+describe('PasteBoardUnifiedDataSyncJSTest', function () {
     beforeAll(async function () {
         console.info('beforeAll');
     });
