@@ -327,12 +327,7 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
     if (IsDataAged()) {
         return false;
     }
-    ShareOption shareOption = pasteData.GetShareOption();
-    globalShareOptions_.ComputeIfPresent(pasteData.GetTokenId(), [&shareOption](auto &key, auto &value) {
-        shareOption = value;
-        return true;
-    });
-    switch (shareOption) {
+    switch (pasteData.GetShareOption()) {
         case ShareOption::InApp: {
             if (pasteData.GetTokenId() != tokenId) {
                 PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "InApp check failed.");
@@ -348,7 +343,7 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
         }
         default: {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "tokenId = 0x%{public}x, shareOption = %{public}d is error.", tokenId, shareOption);
+                "tokenId = 0x%{public}x, shareOption = %{public}d is error.", tokenId, pasteData.GetShareOption());
             return false;
         }
     }
@@ -963,6 +958,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     std::string time = GetTime();
     pasteData->SetTime(time);
     pasteData->SetTokenId(tokenId);
+    UpdateShareOption(*pasteData);
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.insert_or_assign(appInfo.userId, pasteData);
@@ -1196,6 +1192,15 @@ std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const st
         });
     }
     return result;
+}
+
+void PasteboardService::UpdateShareOption(PasteData &pasteData)
+{
+    globalShareOptions_.ComputeIfPresent(pasteData.GetTokenId(),
+        [&pasteData](const uint32_t &tokenId, ShareOption &shareOption) {
+            pasteData.SetShareOption(shareOption);
+            return true;
+        });
 }
 
 inline bool PasteboardService::IsCallerUidValid()
