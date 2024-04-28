@@ -210,7 +210,7 @@ private:
     ClipPlugin::GlobalEvent currentEvent_;
     ClipPlugin::GlobalEvent remoteEvent_;
     const std::string filePath_ = "";
-    ConcurrentMap<int32_t, std::shared_ptr<PasteData>> clips_;
+    std::map<int32_t, std::shared_ptr<PasteData>> clips_;
     std::map<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
     std::map<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
