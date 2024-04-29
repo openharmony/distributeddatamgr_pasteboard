@@ -932,6 +932,29 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
+bool PasteboardService::IsFocusedApp(uint32_t tokenId)
+{
+    if (AccessTokenKit::GetTokenTypeFlag(tokenId) != ATokenTypeEnum::TOKEN_HAP) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "caller is not application");
+        return true;
+    }
+    FocusChangeInfo info;
+#ifdef SCENE_BOARD_ENABLE
+    WindowManagerLite::GetInstance().GetFocusWindowInfo(info);
+#else
+    WindowManager::GetInstance().GetFocusWindowInfo(info);
+#endif
+    auto callPid = IPCSkeleton::GetCallingPid();
+    if (callPid == info.pid_) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pid is same, it is focused app");
+        return true;
+    }
+    bool isFocused = false;
+    auto ret = AAFwk::AbilityManagerClient::GetInstance()->CheckUIExtensionIsFocused(tokenId, isFocused);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check result:%{public}d, isFocused:%{public}d", ret, isFocused);
+    return ret == ErrorCode::NO_ERROR && isFocused;
+}
+
 int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     sptr<IPasteboardDelayGetter> delayGetter)
 {
@@ -939,6 +962,9 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsCopyable(tokenId)) {
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
+    }
+    if (!IsFocusedApp(tokenId)) {
+        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
     if (setting_.exchange(true)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is setting.");
