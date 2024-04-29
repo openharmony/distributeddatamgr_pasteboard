@@ -596,7 +596,8 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
     {
         std::lock_guard<std::recursive_mutex> lock(clipMutex_);
         auto it = clips_.find(appInfo.userId);
-        if (it == clips_.end()) {
+        auto tempTime = copyTime_.Find(appInfo.userId);
+        if (!it.first || !tempTime.first) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
             return false;
         }
@@ -605,12 +606,15 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invaild.");
             return false;
         }
-        if (it->second->IsDelayData() && !(GetDelayPasteData(appInfo, *(it->second)))) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get delay data fail");
-            return false;
+        data = *(it.second);
+        if (it.second->IsDelayData()) {
+            GetDelayPasteData(appInfo, data);
         }
-        it->second->SetBundleName(appInfo.bundleName);
-        data = *(it->second);
+        data.SetBundleName(appInfo.bundleName);
+        auto curTime = copyTime_[appInfo.userId];
+        if (tempTime.second == curTime && clips_[appInfo.userId]->IsDelayData()) {
+            clips_[appInfo.userId] = std::make_shared<PasteData>(data);
+        }
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d",
@@ -623,29 +627,27 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
     return true;
 }
 
-bool PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
+void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get delay data start");
-    auto delayGetter = delayGetters_.find(appInfo.userId);
-    if (delayGetter->second.first == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delay getter is nullptr");
+    delayGetters_.ComputeIfPresent(appInfo.userId, [this, &data](auto, auto &delayGetter) {
+        PasteData delayData;
+        if (delayGetter.first != nullptr) {
+            delayGetter.first->GetPasteData("", delayData);
+        }
+        if (delayGetter.second != nullptr) {
+            delayGetter.first->AsObject()->RemoveDeathRecipient(delayGetter.second);
+        }
+        delayData.SetDelayData(false);
+        delayData.SetBundleName(data.GetBundleName());
+        delayData.SetOrginAuthority(data.GetOrginAuthority());
+        delayData.SetTime(data.GetTime());
+        delayData.SetTokenId(data.GetTokenId());
+        CheckAppUriPermission(delayData);
+        SetWebViewPasteData(delayData, data.GetBundleName());
+        data = delayData;
         return false;
-    }
-    PasteData delayData;
-    delayGetter->second.first->GetPasteData("", delayData);
-    if (delayGetter->second.first != nullptr && delayGetter->second.second != nullptr) {
-        delayGetter->second.first->AsObject()->RemoveDeathRecipient(delayGetter->second.second);
-    }
-    data.SetDelayData(false);
-    delayGetters_.erase(delayGetter);
-    delayData.SetBundleName(data.GetBundleName());
-    delayData.SetOrginAuthority(data.GetOrginAuthority());
-    delayData.SetTime(data.GetTime());
-    delayData.SetTokenId(data.GetTokenId());
-    data = delayData;
-    CheckAppUriPermission(data);
-    SetWebViewPasteData(data, data.GetBundleName());
-    return true;
+    });
 }
 
 void PasteboardService::EstablishP2PLink()
