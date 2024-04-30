@@ -126,6 +126,7 @@ void PasteboardService::OnStart()
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     Loader loader;
     loader.LoadComponents();
+    bundles_ = loader.LoadBundles();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
     moduleConfig_.Init();
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
@@ -285,8 +286,13 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     if (appInfo.tokenType != ATokenTypeEnum::TOKEN_HAP) {
         return true;
     }
-    std::shared_ptr<Property> property = InputMethodController::GetInstance()->GetCurrentInputMethod();
-    return property != nullptr && property->name == appInfo.bundleName;
+
+    auto it = find(bundles_.begin(), bundles_.end(), appInfo.bundleName);
+    if (it != bundles_.end()) {
+        return true;
+    }
+
+    return false;
 }
 
 bool PasteboardService::VerifyPermission(uint32_t tokenId)

@@ -194,7 +194,7 @@ private:
     bool IsDataVaild(PasteData &pasteData, uint32_t tokenId);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
-    static bool IsDefaultIME(const AppInfo &appInfo);
+    bool IsDefaultIME(const AppInfo &appInfo);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
@@ -249,6 +249,7 @@ private:
     void UpdateShareOption(PasteData &pasteData);
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
+    std::vector<std::string> bundles_;
 };
 } // namespace MiscServices
 } // namespace OHOS
