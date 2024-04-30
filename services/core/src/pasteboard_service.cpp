@@ -286,7 +286,9 @@ bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
     if (appInfo.tokenType != ATokenTypeEnum::TOKEN_HAP) {
         return true;
     }
-
+    if (bundles_.empty()) {
+        return true;
+    }
     auto it = find(bundles_.begin(), bundles_.end(), appInfo.bundleName);
     if (it != bundles_.end()) {
         return true;
