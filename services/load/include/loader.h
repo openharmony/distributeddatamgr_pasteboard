@@ -22,7 +22,7 @@ public:
     Loader();
     ~Loader();
     void LoadComponents();
-
+    std::vector<std::string> LoadBundles();
 private:
     using Constructor = void (*)(const char *);
     Config LoadConfig();

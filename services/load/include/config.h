@@ -34,6 +34,7 @@ public:
     std::vector<std::string> features;
     std::vector<std::string> plugins;
     std::vector<Component> components;
+    std::vector<std::string> bundles;
     bool Marshal(json &node) const override;
     bool Unmarshal(const json &node) override;
 };
