@@ -218,7 +218,7 @@ private:
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
-    std::atomic<uint32_t> sequenceId_ = 0;
+    std::atomic<uint16_t> sequenceId_ = 0;
     static std::mutex historyMutex_;
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;

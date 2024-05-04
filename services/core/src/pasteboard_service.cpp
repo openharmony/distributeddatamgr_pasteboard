@@ -1454,7 +1454,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
         return nullptr;
     }
 
-    if (event.frameNum > 0 && (clipPlugin->GetPasteData(event, rawData) != 0)) {
+    if (clipPlugin->GetPasteData(event, rawData) != 0) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get data failed");
         Reporter::GetInstance().PasteboardFault().Report({ user, "GET_REMOTE_DATA_FAILED" });
         return nullptr;

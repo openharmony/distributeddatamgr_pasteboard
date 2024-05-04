@@ -91,7 +91,6 @@
             "header": {
               "header_files": [
                 "clip/clip_plugin.h",
-                "device/clip_para.h",
                 "device/dm_adapter.h",
                 "common/block_object.h"
               ],
