@@ -351,7 +351,7 @@ void HiViewAdapter::ReportStatisticEvent(
             };
             size_t len = sizeof(params) / sizeof(params[0]);
             ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN,
-                                      CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC).c_str(), HISYSEVENT_STATISTIC, params, len);
+                CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC).c_str(), HISYSEVENT_STATISTIC, params, len);
         } else {
             HiSysEventParam params[] = {
                 {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {pasteboardState.c_str()}, 0},
