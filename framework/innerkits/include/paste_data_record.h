@@ -39,7 +39,7 @@ const std::string MIMETYPE_TEXT_WANT = "text/want";
 
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
 
-class MineCustomData : public TLVObject {
+class API_EXPORT MineCustomData : public TLVObject {
 public:
     MineCustomData() = default;
     std::map<std::string, std::vector<uint8_t>> GetItemData();
@@ -63,7 +63,7 @@ private:
     int32_t fd_ = -1;
 };
 
-class PasteDataRecord : public TLVObject {
+class API_EXPORT PasteDataRecord : public TLVObject {
 public:
     PasteDataRecord();
     ~PasteDataRecord();

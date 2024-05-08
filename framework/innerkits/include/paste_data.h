@@ -32,7 +32,7 @@
 namespace OHOS {
 namespace MiscServices {
 enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
-struct PasteDataProperty : public TLVObject {
+struct API_EXPORT PasteDataProperty : public TLVObject {
     PasteDataProperty() = default;
     ~PasteDataProperty();
     explicit PasteDataProperty(const PasteDataProperty &property);
@@ -54,7 +54,7 @@ struct PasteDataProperty : public TLVObject {
     size_t Count() override;
 };
 
-class PasteData : public TLVObject {
+class API_EXPORT PasteData : public TLVObject {
 public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();

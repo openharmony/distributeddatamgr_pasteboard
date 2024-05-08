@@ -38,7 +38,7 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(PasteboardSaDeathRecipient);
 };
-class PasteboardClient : public DelayedSingleton<PasteboardClient> {
+class API_EXPORT PasteboardClient : public DelayedSingleton<PasteboardClient> {
     DECLARE_DELAYED_SINGLETON(PasteboardClient);
 
 public:

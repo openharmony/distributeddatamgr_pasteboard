@@ -971,9 +971,6 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     if (!IsCopyable(tokenId)) {
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
     }
-    if (!IsFocusedApp(tokenId)) {
-        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
-    }
     if (setting_.exchange(true)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is setting.");
         return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);

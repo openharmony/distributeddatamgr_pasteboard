@@ -104,8 +104,13 @@ std::map<int, int> HiViewAdapter::InitTimeMap()
 
 void HiViewAdapter::ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg &msg)
 {
-    int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD, CoverEventID(dfxCode),
-        HiSysEvent::EventType::FAULT, "USER_ID", msg.userId, "ERROR_TYPE", msg.errorCode);
+    HiSysEventParam params[] = {
+        {"USER_ID", HISYSEVENT_INT32, {msg.userId}, 0},
+        {"ERROR_TYPE", HISYSEVENT_STRING, {msg.errorCode.c_str()}, 0},
+    };
+    size_t len = sizeof(params) / sizeof(params[0]);
+    int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(dfxCode).c_str(), HISYSEVENT_FAULT,
+        params, len);
     if (ret != 0) {
         PASTEBOARD_HILOGD(
             PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d. errCode %{public}d", ret, dfxCode);
@@ -338,17 +343,25 @@ void HiViewAdapter::ReportStatisticEvent(
         int ret = -1;
         if (pasteboardState == REMOTE_PASTE_STATE) {
             std::string netType = "WIFI";
-            ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-                CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
-                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, NET_TYPE, netType, DATA_LEVEL,
-                GetDataLevel(i), CONSUMING_DATA, buffMsg);
+            HiSysEventParam params[] = {
+                {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {pasteboardState.c_str()}, 0},
+                {{*NET_TYPE}, HISYSEVENT_STRING, {netType.c_str()}, 0},
+                {{*DATA_LEVEL}, HISYSEVENT_STRING, {GetDataLevel(i)}, 0},
+                {{*CONSUMING_DATA}, HISYSEVENT_STRING, {buffMsg.c_str()}, 0},
+            };
+            size_t len = sizeof(params) / sizeof(params[0]);
+            ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN,
+                                      CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC).c_str(), HISYSEVENT_STATISTIC, params, len);
         } else {
-            ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-                CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
-                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, DATA_LEVEL, GetDataLevel(i),
-                CONSUMING_DATA, buffMsg);
+            HiSysEventParam params[] = {
+                {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {pasteboardState.c_str()}, 0},
+                {{*DATA_LEVEL}, HISYSEVENT_STRING, {GetDataLevel(i)}, 0},
+                {{*CONSUMING_DATA}, HISYSEVENT_STRING, {buffMsg.c_str()}, 0},
+            };
+            size_t len = sizeof(params) / sizeof(params[0]);
+            ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN,
+                CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC).c_str(), HISYSEVENT_STATISTIC, params, len);
         }
-
         if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(
                 PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret = %{public}d, i = %{public}d.", ret, i);
@@ -381,12 +394,22 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
             ++index;
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour report  ");
-        int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-            CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR),
-            HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, pasteboardState, TOP_ONE_APP, appPackName[0],
-            TOP_TOW_APP, appPackName[1], TOP_THREE_APP, appPackName[2], TOP_FOUR_APP, appPackName[3], TOP_FIVE_APP,
-            appPackName[4], TOP_SIX_APP, appPackName[5], TOP_SEVEN_APP, appPackName[6], TOP_EIGHT_APP, appPackName[7],
-            TOP_NINE_APP, appPackName[8], TOP_TEN_APP, appPackName[9]);
+        HiSysEventParam params[] = {
+            {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {pasteboardState}, 0},
+            {{*TOP_ONE_APP}, HISYSEVENT_STRING, {appPackName[0].c_str()}, 0},
+            {{*TOP_TOW_APP}, HISYSEVENT_STRING, {appPackName[1].c_str()}, 0},
+            {{*TOP_THREE_APP}, HISYSEVENT_STRING, {appPackName[2].c_str()}, 0},
+            {{*TOP_FOUR_APP}, HISYSEVENT_STRING, {appPackName[3].c_str()}, 0},
+            {{*TOP_FIVE_APP}, HISYSEVENT_STRING, {appPackName[4].c_str()}, 0},
+            {{*TOP_SIX_APP}, HISYSEVENT_STRING, {appPackName[5].c_str()}, 0},
+            {{*TOP_SEVEN_APP}, HISYSEVENT_STRING, {appPackName[6].c_str()}, 0},
+            {{*TOP_EIGHT_APP}, HISYSEVENT_STRING, {appPackName[7].c_str()}, 0},
+            {{*TOP_NINE_APP}, HISYSEVENT_STRING, {appPackName[8].c_str()}, 0},
+            {{*TOP_TEN_APP}, HISYSEVENT_STRING, {appPackName[9].c_str()}, 0},
+        };
+        size_t len = sizeof(params) / sizeof(params[0]);
+        int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR).c_str(),
+            HISYSEVENT_BEHAVIOR, params, len);
         if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
         }
@@ -489,17 +512,20 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Match error result: %{public}d.", result);
             appRet = "MATCH ERROR";
         }
-        int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-            CoverEventID(DfxCodeConstant::USE_BEHAVIOUR),
-            HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, state,
-            BOOTTIME, TimeServiceClient::GetInstance()->GetBootTimeMs(),
-            WALLTIME, TimeServiceClient::GetInstance()->GetWallTimeMs(),
-            RESULT, appRet,
-            OPERATE_APP, bundleName,
-            PRI_MIME_TYPE, primaryMimeType,
-            ISLOCALPASTE, isLocalPaste,
-            ISREMOTE, isRemote,
-            SHAREOPTION, shareOption);
+        HiSysEventParam params[] = {
+            {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {state}, 0},
+            {{*BOOTTIME}, HISYSEVENT_INT32, {TimeServiceClient::GetInstance()->GetBootTimeMs()}, 0},
+            {{*WALLTIME}, HISYSEVENT_INT32, {TimeServiceClient::GetInstance()->GetWallTimeMs()}, 0},
+            {{*RESULT}, HISYSEVENT_STRING, {appRet}, 0},
+            {{*OPERATE_APP}, HISYSEVENT_STRING, {bundleName.c_str()}, 0},
+            {{*PRI_MIME_TYPE}, HISYSEVENT_STRING, {primaryMimeType.c_str()}, 0},
+            {{*ISLOCALPASTE}, HISYSEVENT_BOOL, {isLocalPaste}, 0},
+            {{*ISREMOTE}, HISYSEVENT_BOOL, {isRemote}, 0},
+            {{*SHAREOPTION}, HISYSEVENT_STRING, {shareOption.c_str()}, 0},
+        };
+        size_t len = sizeof(params) / sizeof(params[0]);
+        int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::USE_BEHAVIOUR).c_str(),
+            HISYSEVENT_BEHAVIOR, params, len);
         if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
         }
