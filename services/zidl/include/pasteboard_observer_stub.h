@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-class PasteboardObserverStub : public IRemoteStub<IPasteboardChangedObserver> {
+class API_EXPORT PasteboardObserverStub : public IRemoteStub<IPasteboardChangedObserver> {
 public:
     PasteboardObserverStub();
     ~PasteboardObserverStub();
