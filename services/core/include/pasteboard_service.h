@@ -204,22 +204,21 @@ private:
 
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
-    std::recursive_mutex clipMutex_;
     std::mutex observerMutex_;
     ObserverMap observerChangedMap_;
     ObserverMap observerEventMap_;
     ClipPlugin::GlobalEvent currentEvent_;
     ClipPlugin::GlobalEvent remoteEvent_;
     const std::string filePath_ = "";
-    std::map<int32_t, std::shared_ptr<PasteData>> clips_;
-    std::map<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
-    std::map<int32_t, uint64_t> copyTime_;
+    ConcurrentMap<int32_t, std::shared_ptr<PasteData>> clips_;
+    ConcurrentMap<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
+    ConcurrentMap<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
-    std::atomic<uint32_t> sequenceId_ = 0;
+    std::atomic<uint16_t> sequenceId_ = 0;
     static std::mutex historyMutex_;
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;

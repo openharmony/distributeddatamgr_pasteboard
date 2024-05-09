@@ -36,7 +36,6 @@ ohos_shared_library("pasteboard_framework") {
   sources = [
     "clip/clip_plugin.cpp",
     "clip/default_clip.cpp",
-    "device/clip_para.cpp",
     "device/dev_profile.cpp",
     "device/distributed_module_config.cpp",
     "device/dm_adapter.cpp",
