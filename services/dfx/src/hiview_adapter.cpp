@@ -375,53 +375,53 @@ void HiViewAdapter::ReportStatisticEvent(
 
 void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const char *pasteboardState)
 {
-    if (!behaviour.empty()) {
-        std::vector<std::pair<std::string, int>> vec;
-        constexpr const int TOTAL_APP_NUMBERS = 10;
-        for (auto it = behaviour.begin(); it != behaviour.end(); ++it) {
-            vec.push_back(std::pair<std::string, int>(it->first, it->second));
-        }
-        sort(vec.begin(), vec.end(),
-            [](std::pair<std::string, int> a, std::pair<std::string, int> b) { return a.second > b.second; });
-        std::vector<std::string> appPackName;
-        for (int i = 0; i < TOTAL_APP_NUMBERS; ++i) {
-            appPackName.push_back("default");
-        }
-        int index = 0;
-        for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
-            appPackName[index] = iter->first + " :" + std::to_string(iter->second);
-            ++index;
-        }
-        HiSysEventParam params[] = {
-            {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState},
-                .arraySize = 0, },
-            {.name = {*TOP_ONE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[0].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_TOW_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[1].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_THREE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[2].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_FOUR_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[3].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_FIVE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[4].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_SIX_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[5].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_SEVEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[6].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_EIGHT_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[7].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_NINE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[8].c_str()},
-                .arraySize = 0, },
-            {.name = {*TOP_TEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[9].c_str()},
-                .arraySize = 0, }, };
-        int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR).c_str(),
-            HISYSEVENT_BEHAVIOR, params, sizeof(params) / sizeof(params[0]));
-        if (ret != HiviewDFX::SUCCESS) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
-        }
-    } else {
+    if (behaviour.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "behaviour is empty!");
+        return;
+    }
+    std::vector<std::pair<std::string, int>> vec;
+    constexpr const int TOTAL_APP_NUMBERS = 10;
+    for (auto it = behaviour.begin(); it != behaviour.end(); ++it) {
+        vec.push_back(std::pair<std::string, int>(it->first, it->second));
+    }
+    sort(vec.begin(), vec.end(),
+         [](std::pair<std::string, int> a, std::pair<std::string, int> b) { return a.second > b.second; });
+    std::vector<std::string> appPackName;
+    for (int i = 0; i < TOTAL_APP_NUMBERS; ++i) {
+        appPackName.push_back("default");
+    }
+    int index = 0;
+    for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
+        appPackName[index] = iter->first + " :" + std::to_string(iter->second);
+        ++index;
+    }
+    HiSysEventParam params[] = {
+        {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState},
+            .arraySize = 0, },
+        {.name = {*TOP_ONE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[0].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_TOW_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[1].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_THREE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[2].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_FOUR_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[3].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_FIVE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[4].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_SIX_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[5].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_SEVEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[6].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_EIGHT_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[7].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_NINE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[8].c_str()},
+            .arraySize = 0, },
+        {.name = {*TOP_TEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[9].c_str()},
+            .arraySize = 0, }, };
+    int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR).c_str(),
+        HISYSEVENT_BEHAVIOR, params, sizeof(params) / sizeof(params[0]));
+    if (ret != HiviewDFX::SUCCESS) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
     }
 }
 
