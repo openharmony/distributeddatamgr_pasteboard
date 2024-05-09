@@ -30,7 +30,7 @@ public:
         uint8_t version = 0;
         uint8_t frameNum = 0;
         uint16_t user = 0;
-        uint32_t seqId = 0;
+        uint16_t seqId = 0;
         uint64_t expiration = 0;
         uint16_t status = EVT_UNKNOWN;
         std::string deviceId;
