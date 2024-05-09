@@ -52,7 +52,7 @@ enum TimeConsumingLevel : std::int32_t {
     TIME_LEVEL_ELEVEN,
 };
 
-class HiViewAdapter {
+class API_EXPORT HiViewAdapter {
 public:
     ~HiViewAdapter();
 

@@ -105,8 +105,8 @@ std::map<int, int> HiViewAdapter::InitTimeMap()
 void HiViewAdapter::ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg &msg)
 {
     HiSysEventParam params[] = {
-        {"USER_ID", HISYSEVENT_INT32, {msg.userId}, 0},
-        {"ERROR_TYPE", HISYSEVENT_STRING, {msg.errorCode.c_str()}, 0},
+        {.name = "USER_ID", .t = HISYSEVENT_INT32, .v = { .i32 = msg.userId }, .arraySize = 0, },
+        {.name = "ERROR_TYPE", .t = HISYSEVENT_STRING, .v = { .s = (char *)msg.errorCode.c_str() }, .arraySize = 0, },
     };
     size_t len = sizeof(params) / sizeof(params[0]);
     int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(dfxCode).c_str(), HISYSEVENT_FAULT,
@@ -344,19 +344,23 @@ void HiViewAdapter::ReportStatisticEvent(
         if (pasteboardState == REMOTE_PASTE_STATE) {
             std::string netType = "WIFI";
             HiSysEventParam params[] = {
-                {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {pasteboardState.c_str()}, 0},
-                {{*NET_TYPE}, HISYSEVENT_STRING, {netType.c_str()}, 0},
-                {{*DATA_LEVEL}, HISYSEVENT_STRING, {GetDataLevel(i)}, 0},
-                {{*CONSUMING_DATA}, HISYSEVENT_STRING, {buffMsg.c_str()}, 0},
+                {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState.c_str()},
+                    .arraySize = 0, },
+                {.name = {*NET_TYPE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)netType.c_str()}, .arraySize = 0, },
+                {.name = {*DATA_LEVEL}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0, },
+                {.name = {*CONSUMING_DATA}, .t = HISYSEVENT_STRING, .v = { .s = (char *)buffMsg.c_str()},
+                    .arraySize = 0, },
             };
             size_t len = sizeof(params) / sizeof(params[0]);
             ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN,
                 CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC).c_str(), HISYSEVENT_STATISTIC, params, len);
         } else {
             HiSysEventParam params[] = {
-                {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {pasteboardState.c_str()}, 0},
-                {{*DATA_LEVEL}, HISYSEVENT_STRING, {GetDataLevel(i)}, 0},
-                {{*CONSUMING_DATA}, HISYSEVENT_STRING, {buffMsg.c_str()}, 0},
+                {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState.c_str()},
+                    .arraySize = 0, },
+                {.name = {*DATA_LEVEL}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0, },
+                {.name = {*CONSUMING_DATA}, .t = HISYSEVENT_STRING, .v = { .s = (char *)buffMsg.c_str()},
+                    .arraySize = 0, },
             };
             size_t len = sizeof(params) / sizeof(params[0]);
             ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN,
@@ -395,17 +399,28 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour report  ");
         HiSysEventParam params[] = {
-            {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {pasteboardState}, 0},
-            {{*TOP_ONE_APP}, HISYSEVENT_STRING, {appPackName[0].c_str()}, 0},
-            {{*TOP_TOW_APP}, HISYSEVENT_STRING, {appPackName[1].c_str()}, 0},
-            {{*TOP_THREE_APP}, HISYSEVENT_STRING, {appPackName[2].c_str()}, 0},
-            {{*TOP_FOUR_APP}, HISYSEVENT_STRING, {appPackName[3].c_str()}, 0},
-            {{*TOP_FIVE_APP}, HISYSEVENT_STRING, {appPackName[4].c_str()}, 0},
-            {{*TOP_SIX_APP}, HISYSEVENT_STRING, {appPackName[5].c_str()}, 0},
-            {{*TOP_SEVEN_APP}, HISYSEVENT_STRING, {appPackName[6].c_str()}, 0},
-            {{*TOP_EIGHT_APP}, HISYSEVENT_STRING, {appPackName[7].c_str()}, 0},
-            {{*TOP_NINE_APP}, HISYSEVENT_STRING, {appPackName[8].c_str()}, 0},
-            {{*TOP_TEN_APP}, HISYSEVENT_STRING, {appPackName[9].c_str()}, 0},
+            {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState},
+                .arraySize = 0, },
+            {.name = {*TOP_ONE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[0].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_TOW_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[1].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_THREE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[2].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_FOUR_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[3].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_FIVE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[4].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_SIX_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[5].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_SEVEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[6].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_EIGHT_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[7].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_NINE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[8].c_str()},
+                .arraySize = 0, },
+            {.name = {*TOP_TEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[9].c_str()},
+                .arraySize = 0, },
         };
         size_t len = sizeof(params) / sizeof(params[0]);
         int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR).c_str(),
@@ -513,15 +528,20 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
             appRet = "MATCH ERROR";
         }
         HiSysEventParam params[] = {
-            {{*PASTEBOARD_STATE}, HISYSEVENT_STRING, {state}, 0},
-            {{*BOOTTIME}, HISYSEVENT_INT32, {TimeServiceClient::GetInstance()->GetBootTimeMs()}, 0},
-            {{*WALLTIME}, HISYSEVENT_INT32, {TimeServiceClient::GetInstance()->GetWallTimeMs()}, 0},
-            {{*RESULT}, HISYSEVENT_STRING, {appRet}, 0},
-            {{*OPERATE_APP}, HISYSEVENT_STRING, {bundleName.c_str()}, 0},
-            {{*PRI_MIME_TYPE}, HISYSEVENT_STRING, {primaryMimeType.c_str()}, 0},
-            {{*ISLOCALPASTE}, HISYSEVENT_BOOL, {isLocalPaste}, 0},
-            {{*ISREMOTE}, HISYSEVENT_BOOL, {isRemote}, 0},
-            {{*SHAREOPTION}, HISYSEVENT_STRING, {shareOption.c_str()}, 0},
+            {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)state}, .arraySize = 0, },
+            {.name = {*BOOTTIME}, .t = HISYSEVENT_INT64,
+                .v = { .i64 = TimeServiceClient::GetInstance()->GetBootTimeMs()}, .arraySize = 0, },
+            {.name = {*WALLTIME}, .t = HISYSEVENT_INT64,
+                .v = { .i64 = TimeServiceClient::GetInstance()->GetWallTimeMs()}, .arraySize = 0, },
+
+            {.name = {*RESULT}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appRet}, .arraySize = 0, },
+            {.name = {*OPERATE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0, },
+            {.name = {*PRI_MIME_TYPE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)primaryMimeType.c_str()},
+                .arraySize = 0, },
+            {.name = {*ISLOCALPASTE}, .t = HISYSEVENT_BOOL, .v = { .b = isLocalPaste}, .arraySize = 0, },
+            {.name = {*ISREMOTE}, .t = HISYSEVENT_BOOL, .v = { .b = isRemote}, .arraySize = 0, },
+            {.name = {*SHAREOPTION}, .t = HISYSEVENT_STRING, .v = { .s = (char *)shareOption.c_str()},
+                .arraySize = 0, },
         };
         size_t len = sizeof(params) / sizeof(params[0]);
         int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::USE_BEHAVIOUR).c_str(),
