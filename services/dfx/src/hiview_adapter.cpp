@@ -394,30 +394,26 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
     for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
         appPackName[index] = iter->first + " :" + std::to_string(iter->second);
         ++index;
+        if (index >= TOTAL_APP_NUMBERS) {
+            break;
+        }
     }
     HiSysEventParam params[] = {
         {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState},
-            .arraySize = 0, },
-        {.name = {*TOP_ONE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[0].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_TOW_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[1].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_THREE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[2].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_FOUR_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[3].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_FIVE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[4].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_SIX_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[5].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_SEVEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[6].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_EIGHT_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[7].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_NINE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[8].c_str()},
-            .arraySize = 0, },
-        {.name = {*TOP_TEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[9].c_str()},
-            .arraySize = 0, }, };
+            .arraySize = 0, }, {.name = {*TOP_ONE_APP}, .t = HISYSEVENT_STRING,
+            .v = { .s = (char *)appPackName[0].c_str()}, .arraySize = 0, }, {.name = {*TOP_TOW_APP},
+            .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[1].c_str()}, .arraySize = 0, },
+            {.name = {*TOP_THREE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[2].c_str()},
+            .arraySize = 0, }, {.name = {*TOP_FOUR_APP}, .t = HISYSEVENT_STRING,
+            .v = { .s = (char *)appPackName[3].c_str()}, .arraySize = 0, },{.name = {*TOP_FIVE_APP},
+            .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[4].c_str()}, .arraySize = 0, },
+            {.name = {*TOP_SIX_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[5].c_str()},
+            .arraySize = 0, }, {.name = {*TOP_SEVEN_APP}, .t = HISYSEVENT_STRING,
+            .v = { .s = (char *)appPackName[6].c_str()}, .arraySize = 0, }, {.name = {*TOP_EIGHT_APP},
+            .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[7].c_str()}, .arraySize = 0, },
+            {.name = {*TOP_NINE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[8].c_str()},
+            .arraySize = 0, }, {.name = {*TOP_TEN_APP}, .t = HISYSEVENT_STRING,
+            .v = { .s = (char *)appPackName[9].c_str()}, .arraySize = 0, }, };
     int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR).c_str(),
         HISYSEVENT_BEHAVIOR, params, sizeof(params) / sizeof(params[0]));
     if (ret != HiviewDFX::SUCCESS) {
@@ -502,13 +498,14 @@ void HiViewAdapter::StartTimerThread()
 
 void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, int32_t result)
 {
+    std::string stateStr = state;
     std::string bundleName = pastData.GetBundleName();
     std::string primaryMimeType = pastData.GetPrimaryMimeType() != nullptr? *pastData.GetPrimaryMimeType() : "null";
     std::string shareOption;
     PasteData::ShareOptionToString(pastData.GetShareOption(), shareOption);
     auto isLocalPaste = pastData.IsLocalPaste();
     auto isRemote = pastData.IsRemote();
-    std::thread thread([bundleName, primaryMimeType, shareOption, isLocalPaste, isRemote, state, result]() {
+    std::thread thread([bundleName, primaryMimeType, shareOption, isLocalPaste, isRemote, stateStr, result]() {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
         auto iter = PasteboardErrorMap.find(PasteboardError(result));
         const char *appRet;
@@ -519,7 +516,8 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
             appRet = "MATCH ERROR";
         }
         HiSysEventParam params[] = {
-            {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)state}, .arraySize = 0, },
+            {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)stateStr.c_str()},
+                .arraySize = 0, },
             {.name = {*BOOTTIME}, .t = HISYSEVENT_INT64,
                 .v = { .i64 = TimeServiceClient::GetInstance()->GetBootTimeMs()}, .arraySize = 0, },
             {.name = {*WALLTIME}, .t = HISYSEVENT_INT64,
