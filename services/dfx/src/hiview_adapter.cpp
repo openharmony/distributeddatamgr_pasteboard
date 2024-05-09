@@ -379,6 +379,9 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
         for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
             appPackName[index] = iter->first + " :" + std::to_string(iter->second);
             ++index;
+            if (index >= TOTAL_APP_NUMBERS) {
+                break;
+            }
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour report  ");
         int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
