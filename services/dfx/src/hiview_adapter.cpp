@@ -104,8 +104,13 @@ std::map<int, int> HiViewAdapter::InitTimeMap()
 
 void HiViewAdapter::ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg &msg)
 {
-    int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD, CoverEventID(dfxCode),
-        HiSysEvent::EventType::FAULT, "USER_ID", msg.userId, "ERROR_TYPE", msg.errorCode);
+    HiSysEventParam params[] = {
+        {.name = "USER_ID", .t = HISYSEVENT_INT32, .v = { .i32 = msg.userId }, .arraySize = 0, },
+        {.name = "ERROR_TYPE", .t = HISYSEVENT_STRING, .v = { .s = (char *)msg.errorCode.c_str() }, .arraySize = 0, },
+    };
+    size_t len = sizeof(params) / sizeof(params[0]);
+    int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(dfxCode).c_str(), HISYSEVENT_FAULT,
+        params, len);
     if (ret != 0) {
         PASTEBOARD_HILOGD(
             PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d. errCode %{public}d", ret, dfxCode);
@@ -338,17 +343,29 @@ void HiViewAdapter::ReportStatisticEvent(
         int ret = -1;
         if (pasteboardState == REMOTE_PASTE_STATE) {
             std::string netType = "WIFI";
-            ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-                CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
-                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, NET_TYPE, netType, DATA_LEVEL,
-                GetDataLevel(i), CONSUMING_DATA, buffMsg);
+            HiSysEventParam params[] = {
+                {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState.c_str()},
+                    .arraySize = 0, },
+                {.name = {*NET_TYPE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)netType.c_str()}, .arraySize = 0, },
+                {.name = {*DATA_LEVEL}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0, },
+                {.name = {*CONSUMING_DATA}, .t = HISYSEVENT_STRING, .v = { .s = (char *)buffMsg.c_str()},
+                    .arraySize = 0, },
+            };
+            size_t len = sizeof(params) / sizeof(params[0]);
+            ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN,
+                CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC).c_str(), HISYSEVENT_STATISTIC, params, len);
         } else {
-            ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-                CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC),
-                HiSysEvent::EventType::STATISTIC, PASTEBOARD_STATE, pasteboardState, DATA_LEVEL, GetDataLevel(i),
-                CONSUMING_DATA, buffMsg);
+            HiSysEventParam params[] = {
+                {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState.c_str()},
+                    .arraySize = 0, },
+                {.name = {*DATA_LEVEL}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0, },
+                {.name = {*CONSUMING_DATA}, .t = HISYSEVENT_STRING, .v = { .s = (char *)buffMsg.c_str()},
+                    .arraySize = 0, },
+            };
+            size_t len = sizeof(params) / sizeof(params[0]);
+            ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN,
+                CoverEventID(DfxCodeConstant::TIME_CONSUMING_STATISTIC).c_str(), HISYSEVENT_STATISTIC, params, len);
         }
-
         if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(
                 PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret = %{public}d, i = %{public}d.", ret, i);
@@ -358,45 +375,47 @@ void HiViewAdapter::ReportStatisticEvent(
 
 void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const char *pasteboardState)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour  enter");
-    if (!behaviour.empty()) {
-        std::vector<std::pair<std::string, int>> vec;
-        constexpr const int TOTAL_APP_NUMBERS = 10;
-
-        for (auto it = behaviour.begin(); it != behaviour.end(); ++it) {
-            vec.push_back(std::pair<std::string, int>(it->first, it->second));
-        }
-        // sort
-        sort(vec.begin(), vec.end(),
-            [](std::pair<std::string, int> a, std::pair<std::string, int> b) { return a.second > b.second; });
-
-        std::vector<std::string> appPackName;
-        for (int i = 0; i < TOTAL_APP_NUMBERS; ++i) {
-            appPackName.push_back("default");
-        }
-
-        int index = 0;
-        for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
-            appPackName[index] = iter->first + " :" + std::to_string(iter->second);
-            ++index;
-            if (index >= TOTAL_APP_NUMBERS) {
-                break;
-            }
-        }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour report  ");
-        int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-            CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR),
-            HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, pasteboardState, TOP_ONE_APP, appPackName[0],
-            TOP_TOW_APP, appPackName[1], TOP_THREE_APP, appPackName[2], TOP_FOUR_APP, appPackName[3], TOP_FIVE_APP,
-            appPackName[4], TOP_SIX_APP, appPackName[5], TOP_SEVEN_APP, appPackName[6], TOP_EIGHT_APP, appPackName[7],
-            TOP_NINE_APP, appPackName[8], TOP_TEN_APP, appPackName[9]);
-        if (ret != HiviewDFX::SUCCESS) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
-        }
-    } else {
+    if (behaviour.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "behaviour is empty!");
+        return;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ReportBehaviour end");
+    std::vector<std::pair<std::string, int>> vec;
+    constexpr const int TOTAL_APP_NUMBERS = 10;
+    for (auto it = behaviour.begin(); it != behaviour.end(); ++it) {
+        vec.push_back(std::pair<std::string, int>(it->first, it->second));
+    }
+    sort(vec.begin(), vec.end(),
+         [](std::pair<std::string, int> a, std::pair<std::string, int> b) { return a.second > b.second; });
+    std::vector<std::string> appPackName;
+    for (int i = 0; i < TOTAL_APP_NUMBERS; ++i) {
+        appPackName.push_back("default");
+    }
+    int index = 0;
+    for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
+        appPackName[index] = iter->first + " :" + std::to_string(iter->second);
+        ++index;
+        if (index >= TOTAL_APP_NUMBERS) {
+            break;
+        }
+    }
+    HiSysEventParam params[] = {
+        {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState}, .arraySize = 0},
+        {.name = {*TOP_ONE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[0].c_str()}, .arraySize = 0},
+        {.name = {*TOP_TOW_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[1].c_str()}, .arraySize = 0},
+        {.name = {*TOP_THREE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[2].c_str()}, .arraySize = 0},
+        {.name = {*TOP_FOUR_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[3].c_str()}, .arraySize = 0},
+        {.name = {*TOP_FIVE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[4].c_str()}, .arraySize = 0},
+        {.name = {*TOP_SIX_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[5].c_str()}, .arraySize = 0},
+        {.name = {*TOP_SEVEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[6].c_str()}, .arraySize = 0},
+        {.name = {*TOP_EIGHT_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[7].c_str()}, .arraySize = 0},
+        {.name = {*TOP_NINE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[8].c_str()}, .arraySize = 0},
+        {.name = {*TOP_TEN_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[9].c_str()}, .arraySize = 0},
+    };
+    int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::PASTEBOARD_BEHAVIOUR).c_str(),
+        HISYSEVENT_BEHAVIOR, params, sizeof(params) / sizeof(params[0]));
+    if (ret != HiviewDFX::SUCCESS) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
+    }
 }
 
 void HiViewAdapter::InvokePasteBoardBehaviour()
@@ -476,13 +495,14 @@ void HiViewAdapter::StartTimerThread()
 
 void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, int32_t result)
 {
+    std::string stateStr = state;
     std::string bundleName = pastData.GetBundleName();
     std::string primaryMimeType = pastData.GetPrimaryMimeType() != nullptr? *pastData.GetPrimaryMimeType() : "null";
     std::string shareOption;
     PasteData::ShareOptionToString(pastData.GetShareOption(), shareOption);
     auto isLocalPaste = pastData.IsLocalPaste();
     auto isRemote = pastData.IsRemote();
-    std::thread thread([bundleName, primaryMimeType, shareOption, isLocalPaste, isRemote, state, result]() {
+    std::thread thread([bundleName, primaryMimeType, shareOption, isLocalPaste, isRemote, stateStr, result]() {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
         auto iter = PasteboardErrorMap.find(PasteboardError(result));
         const char *appRet;
@@ -492,17 +512,26 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Match error result: %{public}d.", result);
             appRet = "MATCH ERROR";
         }
-        int ret = HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::PASTEBOARD,
-            CoverEventID(DfxCodeConstant::USE_BEHAVIOUR),
-            HiSysEvent::EventType::BEHAVIOR, PASTEBOARD_STATE, state,
-            BOOTTIME, TimeServiceClient::GetInstance()->GetBootTimeMs(),
-            WALLTIME, TimeServiceClient::GetInstance()->GetWallTimeMs(),
-            RESULT, appRet,
-            OPERATE_APP, bundleName,
-            PRI_MIME_TYPE, primaryMimeType,
-            ISLOCALPASTE, isLocalPaste,
-            ISREMOTE, isRemote,
-            SHAREOPTION, shareOption);
+        HiSysEventParam params[] = {
+            {.name = {*PASTEBOARD_STATE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)stateStr.c_str()},
+                .arraySize = 0, },
+            {.name = {*BOOTTIME}, .t = HISYSEVENT_INT64,
+                .v = { .i64 = TimeServiceClient::GetInstance()->GetBootTimeMs()}, .arraySize = 0, },
+            {.name = {*WALLTIME}, .t = HISYSEVENT_INT64,
+                .v = { .i64 = TimeServiceClient::GetInstance()->GetWallTimeMs()}, .arraySize = 0, },
+
+            {.name = {*RESULT}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appRet}, .arraySize = 0, },
+            {.name = {*OPERATE_APP}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0, },
+            {.name = {*PRI_MIME_TYPE}, .t = HISYSEVENT_STRING, .v = { .s = (char *)primaryMimeType.c_str()},
+                .arraySize = 0, },
+            {.name = {*ISLOCALPASTE}, .t = HISYSEVENT_BOOL, .v = { .b = isLocalPaste}, .arraySize = 0, },
+            {.name = {*ISREMOTE}, .t = HISYSEVENT_BOOL, .v = { .b = isRemote}, .arraySize = 0, },
+            {.name = {*SHAREOPTION}, .t = HISYSEVENT_STRING, .v = { .s = (char *)shareOption.c_str()},
+                .arraySize = 0, },
+        };
+        size_t len = sizeof(params) / sizeof(params[0]);
+        int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::USE_BEHAVIOUR).c_str(),
+            HISYSEVENT_BEHAVIOR, params, len);
         if (ret != HiviewDFX::SUCCESS) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
         }

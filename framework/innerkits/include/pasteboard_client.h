@@ -29,7 +29,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-class PasteboardSaDeathRecipient : public IRemoteObject::DeathRecipient {
+class API_EXPORT PasteboardSaDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
     explicit PasteboardSaDeathRecipient();
     ~PasteboardSaDeathRecipient() = default;
@@ -38,7 +38,7 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(PasteboardSaDeathRecipient);
 };
-class PasteboardClient : public DelayedSingleton<PasteboardClient> {
+class API_EXPORT PasteboardClient : public DelayedSingleton<PasteboardClient> {
     DECLARE_DELAYED_SINGLETON(PasteboardClient);
 
 public:

@@ -29,7 +29,7 @@
 namespace OHOS {
 namespace MiscServices {
 
-class PasteboardWebController : public RefBase {
+class API_EXPORT PasteboardWebController : public RefBase {
 public:
     PasteboardWebController() {};
     ~PasteboardWebController() {};
