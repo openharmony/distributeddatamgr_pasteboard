@@ -48,12 +48,12 @@ bool Config::Marshal(Serializable::json &node) const
 
 bool Config::Unmarshal(const Serializable::json &node)
 {
-    GetValue(node, GET_NAME(processLabel), processLabel);
-    GetValue(node, GET_NAME(version), version);
+    auto ret = GetValue(node, GET_NAME(processLabel), processLabel);
+    ret = GetValue(node, GET_NAME(version), version) && ret;
     GetValue(node, GET_NAME(features), features);
     GetValue(node, GET_NAME(plugins), plugins);
     GetValue(node, GET_NAME(components), components);
     GetValue(node, GET_NAME(bundles), bundles);
-    return true;
+    return ret;
 }
 } // namespace OHOS::MiscServices
