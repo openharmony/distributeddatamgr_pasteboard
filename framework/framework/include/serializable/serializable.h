@@ -30,113 +30,104 @@ namespace DistributedData {
 #endif
 struct Serializable {
 public:
-    using json = cJSON;
-    API_EXPORT json Marshall() const;
-    template<typename T>
-    static std::string Marshall(T &values)
-    {
-        json *root;
-        SetValue(*root, values);
-        return cJSON_PrintUnformatted(root);
-    }
-
+    using json = cJSON*;
     API_EXPORT bool Unmarshall(const std::string &jsonStr);
-    template<typename T>
-    static bool Unmarshall(const std::string &body, T &values)
-    {
-        return GetValue(ToJson(body), "", values);
-    }
-    API_EXPORT static json ToJson(const std::string &jsonStr);
     virtual bool Marshal(json &node) const = 0;
     virtual bool Unmarshal(const json &node) = 0;
-    API_EXPORT static bool GetValue(const json &node, const std::string &name, std::string &value);
-    API_EXPORT static bool GetValue(const json &node, const std::string &name, uint32_t &value);
-    API_EXPORT static bool GetValue(const json &node, const std::string &name, int32_t &value);
-    API_EXPORT static bool GetValue(const json &node, const std::string &name, int64_t &value);
-    API_EXPORT static bool GetValue(const json &node, const std::string &name, bool &value);
-    API_EXPORT static bool GetValue(const json &node, const std::string &name, std::vector<uint8_t> &value);
-    API_EXPORT static bool GetValue(const json &node, const std::string &name, Serializable &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, std::string &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, uint32_t &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, int32_t &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, int64_t &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, bool &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, std::vector<uint8_t> &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, Serializable &value);
     API_EXPORT static bool SetValue(
-        json &node, const std::string &value, const std::string &name = "", const bool &isObject = true);
+        json &node, const std::string &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
-        json &node, const uint32_t &value, const std::string &name = "", const bool &isObject = true);
+        json &node, const uint32_t &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
-        json &node, const int32_t &value, const std::string &name = "", const bool &isObject = true);
+        json &node, const int32_t &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
-        json &node, const int64_t &value, const std::string &name = "", const bool &isObject = true);
+        json &node, const int64_t &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
-        json &node, const bool &value, const std::string &name = "", const bool &isObject = true);
+        json &node, const bool &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
-        json &node, const std::vector<uint8_t> &value, const std::string &name = "", const bool &isObject = true);
+        json &node, const std::vector<uint8_t> &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
-        json &node, const Serializable &value, const std::string &name = "", const bool &isObject = true);
+        json &node, const Serializable &value, const std::string &name = "");
 
+    template<typename T>
+    static bool SetValue(
+        json &node, const std::vector<T> &values, const std::string &name = "")
+    {
+        bool result = true;
+        auto subNode = cJSON_CreateArray();
+        for (const auto &value : values) {
+            json item = nullptr;
+            result = SetValue(item, value, "") && result;
+            cJSON_AddItemToArray(subNode, item);
+        }
+
+        if (name.empty()) {
+            node = subNode;
+            return result;
+        }
+        SetValueToObject(node, subNode, name);
+        return result;
+    }
 protected:
     API_EXPORT ~Serializable() = default;
 
     template<typename T>
-    static bool GetValue(const json &node, const std::string &name, T *&value)
+    static bool GetValue(const json node, const std::string &name, std::vector<T> &values)
     {
-        auto &subNode = GetSubNode(node, name);
-        if (cJSON_IsNull(&subNode)) {
-            return false;
-        }
-        value = new (std::nothrow) T();
-        if (value == nullptr) {
-            return false;
-        }
-        bool result = GetValue(subNode, "", *value);
-        if (!result) {
-            delete value;
-            value = nullptr;
-        }
-        return result;
-    }
-    template<typename T>
-    static bool GetValue(const json &node, const std::string &name, std::vector<T> &values)
-    {
-        auto &subNode = GetSubNode(node, name);
-        if (cJSON_IsNull(&subNode) || !cJSON_IsArray(&subNode)) {
+        auto subNode = GetSubNode(node, name);
+        if (!cJSON_IsArray(subNode)) {
             return false;
         }
         bool result = true;
-        values.resize(cJSON_GetArraySize(&subNode));
-        for (int i = 0; i < cJSON_GetArraySize(&subNode); ++i) {
-            result = GetValue(*cJSON_GetArrayItem(&subNode, i), "", values[i]) && result;
+        auto arraySize = cJSON_GetArraySize(subNode);
+        values.resize(arraySize);
+        for (int i = 0; i < arraySize; ++i) {
+            result = GetValue(cJSON_GetArrayItem(subNode, i), "", values[i]) && result;
         }
         return result;
     }
 
     template<typename T>
-    static bool SetValue(
-        json &node, const std::vector<T> &values, const std::string &name = "", const bool &isObject = true)
+    static bool SetNumber(json &node, const T &value, const std::string &name)
     {
-        bool result = true;
-        int i = 0;
-        auto subNode = cJSON_CreateArray();
-        for (const auto &value : values) {
-            json *item = cJSON_CreateNull();
-            result = SetValue(*item, value, "", false) && result;
-            cJSON_AddItemToArray(subNode, item);
-            i++;
+        json subNode = cJSON_CreateNumber(value);
+        if (name.empty()) {
+            node = subNode;
+            return true;
         }
-
-        if (!isObject) {
-            node = *subNode;
-            delete subNode;
-            return result;
-        }
-        SetValueCommon(node, *subNode, name);
-        return result;
+        SetValueToObject(node, subNode, name);
+        return true;
     }
 
-    API_EXPORT static const json &GetSubNode(const json &node, const std::string &name);
-    static void SetValueCommon(json &node, json &subNode, const std::string &name)
+    template<typename T>
+    static bool GetNumber(const json node, const std::string &name, T &value)
     {
-        if (!cJSON_IsObject(&node)) {
-            node = *cJSON_CreateObject();
+        auto subNode = GetSubNode(node, name);
+        if (!cJSON_IsNumber(subNode)) {
+            return false;
         }
-        cJSON_AddItemToObject(&node, name.c_str(), &subNode);
+        value = cJSON_GetNumberValue(subNode);
+        return true;
+    }
+
+    API_EXPORT static json GetSubNode(const json node, const std::string &name);
+    static void SetValueToObject(json &node, json subNode, const std::string &name)
+    {
+        if (!cJSON_IsObject(node)) {
+            node = cJSON_CreateObject();
+        }
+        if (cJSON_HasObjectItem(node, name.c_str())) {
+            cJSON_ReplaceItemInObject(node, name.c_str(), subNode);
+        } else {
+            cJSON_AddItemToObject(node, name.c_str(), subNode);
+        }
     }
 };
 } // namespace DistributedData
