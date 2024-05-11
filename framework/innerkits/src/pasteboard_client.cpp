@@ -210,7 +210,10 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
         builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
     webData->AddRecord(pasteDataRecord);
-    webData->RemoveRecordAt(webData->GetRecordCount() - 1);
+    std::size_t recordCnt = webData->GetRecordCount();
+    if (recordCnt >= 1) {
+        webData->RemoveRecordAt(recordCnt - 1);
+    }
     pasteData = *webData;
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData end.");
@@ -283,7 +286,10 @@ std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pa
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
         builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
     webPasteData->AddRecord(pasteDataRecord);
-    webPasteData->RemoveRecordAt(webPasteData->GetRecordCount() - 1);
+    std::size_t recordCnt = webPasteData->GetRecordCount();
+    if (recordCnt >= 1) {
+        webPasteData->RemoveRecordAt(recordCnt - 1);
+    }
     webPasteData->SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData end.");
     return webPasteData;
