@@ -20,6 +20,7 @@
 
 #include "file_uri.h"
 #include "hiview_adapter.h"
+#include "pasteboard_event_dfx.h"
 #include "hitrace_meter.h"
 #include "pasteboard_client.h"
 #include "pasteboard_delay_getter_client.h"
@@ -150,9 +151,18 @@ void PasteboardClient::Clear()
 
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
+    HiSysEventParam funcParam = { .name = "FUNC", .t = HISYSEVENT_STRING,
+        .v = { .s = const_cast<char *>(__FUNCTION__ ) }, .arraySize = 0, };
+    HiSysEventParam beginParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_GET_PASTEBOARD_PARAM, BIZ_STATE_BEGIN_PARAM };
+    PASTEBOARD_DFX_EVENT(beginParams, sizeof(beginParams) / sizeof(beginParams[0]));
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     if (!IsServiceAvailable()) {
+        HiSysEventParam checkServerStage = { .name = {*BIZ_STAGE}, .t = HISYSEVENT_INT32,
+            .v = { .i32 = DFX_CHECK_SET_SERVER }, .arraySize = 0, };
+        HiSysEventParam chkSvrFailParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_GET_PASTEBOARD_PARAM,
+            checkServerStage, STAGE_RES_FAILED_PARAM,  BIZ_STATE_ABNORMAL_END_PARAM};
+        PASTEBOARD_DFX_EVENT(chkSvrFailParams, sizeof(chkSvrFailParams) / sizeof(chkSvrFailParams[0]));
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
@@ -160,6 +170,9 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     RebuildWebviewPasteData(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
+    HiSysEventParam endParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_GET_PASTEBOARD_PARAM,
+        BIZ_STATE_NORMAL_END_PARAM };
+    PASTEBOARD_DFX_EVENT(endParams, sizeof(endParams) / sizeof(endParams[0]));
     return ret;
 }
 
@@ -247,7 +260,16 @@ bool PasteboardClient::HasPasteData()
 int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
+    HiSysEventParam funcParam = { .name = "FUNC", .t = HISYSEVENT_STRING,
+        .v = { .s = const_cast<char *>(__FUNCTION__ ) }, .arraySize = 0, };
+    HiSysEventParam beginParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM, BIZ_STATE_BEGIN_PARAM };
+    PASTEBOARD_DFX_EVENT(beginParams, sizeof(beginParams) / sizeof(beginParams[0]));
     if (!IsServiceAvailable()) {
+        HiSysEventParam checkServerStage = { .name = {*BIZ_STAGE}, .t = HISYSEVENT_INT32,
+            .v = { .i32 = DFX_CHECK_GET_SERVER }, .arraySize = 0, };
+        HiSysEventParam chkSvrFailParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM,
+            checkServerStage, STAGE_RES_FAILED_PARAM,  BIZ_STATE_ABNORMAL_END_PARAM};
+        PASTEBOARD_DFX_EVENT(chkSvrFailParams, sizeof(chkSvrFailParams) / sizeof(chkSvrFailParams[0]));
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     sptr<PasteboardDelayGetterClient> delayGetterAgent;
@@ -257,13 +279,21 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     }
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
+        HiSysEventParam checkHtmlStage = { .name = {*BIZ_STAGE}, .t = HISYSEVENT_INT32,
+            .v = { .i32 = DFX_CHECK_GET_DATA_HTML_TYPE }, .arraySize = 0, };
+        HiSysEventParam endParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM,
+            checkHtmlStage, STAGE_RES_FAILED_PARAM,  BIZ_STATE_NORMAL_END_PARAM };
         return pasteboardServiceProxy_->SetPasteData(pasteData, delayGetterAgent);
     }
     auto webData = SplitWebviewPasteData(pasteData);
     if (webData == nullptr) {
         return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }
-    return pasteboardServiceProxy_->SetPasteData(*webData, delayGetterAgent);
+    auto ret = pasteboardServiceProxy_->SetPasteData(*webData, delayGetterAgent);
+    HiSysEventParam endParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM,
+        BIZ_STATE_NORMAL_END_PARAM };
+    PASTEBOARD_DFX_EVENT(endParams, sizeof(endParams) / sizeof(endParams[0]));
+    return ret;
 }
 
 int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData,
