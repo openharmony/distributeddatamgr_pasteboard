@@ -281,8 +281,9 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
         HiSysEventParam checkHtmlStage = { .name = {*BIZ_STAGE}, .t = HISYSEVENT_INT32,
             .v = { .i32 = DFX_CHECK_GET_DATA_HTML_TYPE }, .arraySize = 0, };
-        HiSysEventParam endParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM,
+        HiSysEventParam noHtmlEndParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM,
             checkHtmlStage, STAGE_RES_FAILED_PARAM,  BIZ_STATE_NORMAL_END_PARAM };
+        PASTEBOARD_DFX_EVENT(noHtmlEndParams, sizeof(noHtmlEndParams) / sizeof(noHtmlEndParams[0]));
         return pasteboardServiceProxy_->SetPasteData(pasteData, delayGetterAgent);
     }
     auto webData = SplitWebviewPasteData(pasteData);
