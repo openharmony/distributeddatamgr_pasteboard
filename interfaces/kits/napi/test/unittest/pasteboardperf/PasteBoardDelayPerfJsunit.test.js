@@ -17,12 +17,13 @@ import {describe, beforeAll, beforeEach, afterEach, afterAll, it, expect} from '
 import pasteboard from '@ohos.pasteboard'
 import UDC from '@ohos.data.unifiedDataChannel';
 
-var plainTextData = new UDC.UnifiedData();
 var sumGetUnifiedDataTime = 0;
+var plainTextData = new UDC.UnifiedData();
+var date = new Date();
 
 const BASE_CONUT = 100;
 
-describe('PasteBoardPerfJSTest', function () {
+describe('PasteBoardDelayPerfJSTest', function () {
     beforeAll(async function () {
         console.info('beforeAll');
     })
@@ -32,7 +33,7 @@ describe('PasteBoardPerfJSTest', function () {
     })
 
     function computeAverageTime(startTime, baseCount, message) {
-        let endTime = new Date().getTime();
+        let endTime = date.getTime();
         let averageTime = ((endTime - startTime) * 1000) / baseCount;
         console.info(message + averageTime);
     }
@@ -62,22 +63,14 @@ describe('PasteBoardPerfJSTest', function () {
     it('setUnifiedData_delay_performance_test_001', 0, async function (done) {
         console.info('setUnifiedData_delay_performance_test_001 begin');
         const systemPasteboard = pasteboard.getSystemPasteboard();
-        let properties = new UDC.UnifiedDataProperties();
-        properties.getDelayData = getPlainTextData;
-        plainTextData.properties = properties;
-        await systemPasteboard.setUnifiedData(plainTextData);
-        function setUnifiedDataDelayPerfTest(index) {
-            systemPasteboard.setUnifiedData(plainTextData).then(() => {
-                if (index < BASE_CONUT) {
-                    setUnifiedDataDelayPerfTest(index + 1);
-                } else {
-                    computeAverageTime(startTime, BASE_CONUT, "setUnifiedData_delay_performance_test_001 averageTime:");
-                    done();
-                }
-            });
+        let startTime = date.getTime();
+        for (let index = 0; index < BASE_CONUT; ++index) {
+            plainTextData = new UDC.UnifiedData();
+            plainTextData.properties.getDelayData = getPlainTextData;
+            await systemPasteboard.setUnifiedData(plainTextData);
         }
-        let startTime = new Date().getTime();
-        setUnifiedDataDelayPerfTest(0);
+        computeAverageTime(startTime, BASE_CONUT, "setUnifiedData_delay_performance_test_001 averageTime:");
+        done();
         console.info('setUnifiedData_delay_performance_test_001 end');
     })
 
@@ -89,27 +82,17 @@ describe('PasteBoardPerfJSTest', function () {
     it('getUnifiedData_delay_performance_test_001', 0, async function (done) {
         console.info('getUnifiedData_delay_performance_test_001 begin');
         const systemPasteboard = pasteboard.getSystemPasteboard();
-        let properties = new UDC.UnifiedDataProperties();
-        properties.getDelayData = getPlainTextData;
-        plainTextData.properties = properties;
-        await systemPasteboard.setUnifiedData(plainTextData);
-        function getUnifiedDataDelayPerfTest(index) {
-            systemPasteboard.setUnifiedData(plainTextData).then(() => {
-                let beginGetTime = new Date().getTime();
-                systemPasteboard.getUnifiedData().then((data) => {
-                    let endGetTime = new Date().getTime();
-                    sumGetUnifiedDataTime += (endGetTime - beginGetTime);
-                });
-                if (index < BASE_CONUT) {
-                    getUnifiedDataDelayPerfTest(index + 1);
-                } else {
-                    computeAverageTime(BASE_CONUT, "getUnifiedData_delay_performance_test_001 averageTime:");
-                    done();
-                }
-            });
+        for (let index = 0; index < BASE_CONUT; ++index) {
+            plainTextData = new UDC.UnifiedData();
+            plainTextData.properties.getDelayData = getPlainTextData;
+            await systemPasteboard.setUnifiedData(plainTextData);
+            let beginGetTime = date.getTime();
+            let unifiedData = await systemPasteboard.getUnifiedData();
+            let endGetTime = date.getTime();
+            sumGetUnifiedDataTime += (endGetTime - beginGetTime);
         }
-        let startTime = new Date().getTime();
-        getUnifiedDataDelayPerfTest(0);
+        computeAverageGetTime(BASE_CONUT, "getUnifiedData_delay_performance_test_001 averageTime:");
+        done();
         console.info('getUnifiedData_delay_performance_test_001 end');
     })
 });

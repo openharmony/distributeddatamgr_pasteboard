@@ -160,6 +160,5 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
     }
     return true;
 }
-
 } // namespace MiscServicesNapi
 } // namespace OHOS
