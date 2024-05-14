@@ -19,7 +19,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-class PasteboardObserver : public PasteboardObserverStub {
+class API_EXPORT PasteboardObserver : public PasteboardObserverStub {
 public:
     PasteboardObserver();
     ~PasteboardObserver();

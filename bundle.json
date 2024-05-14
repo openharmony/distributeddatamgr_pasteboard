@@ -65,6 +65,7 @@
             "fwk_group": [
                 "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
                 "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
+                "//foundation/distributeddatamgr/pasteboard/interfaces/cj:cj_pasteboard_ffi",
                 "//foundation/distributeddatamgr/pasteboard/interfaces/kits:pasteboard_napi"
             ],
             "service_group": [
@@ -91,7 +92,6 @@
             "header": {
               "header_files": [
                 "clip/clip_plugin.h",
-                "device/clip_para.h",
                 "device/dm_adapter.h",
                 "common/block_object.h"
               ],

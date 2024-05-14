@@ -277,7 +277,7 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if ((!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.")) ||
+        "Parameter error. The number of arguments must be greater than zero.")) ||
         (!CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string."))) {
         return nullptr;
     }
@@ -315,7 +315,7 @@ PasteDataNapi *PasteDataNapi::RemoveAndGetRecordCommon(napi_env env, napi_callba
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
 
     if ((!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.")) ||
+        "Parameter error. The number of arguments must be greater than zero.")) ||
         (!CheckArgsType(env, argv[0], napi_number, "Parameter error. The type of mimeType must be number."))) {
         return nullptr;
     }
@@ -660,7 +660,8 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     napi_value argv[ARGC_TYPE_SET2] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc > ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS, "Wrong number of arguments.") ||
+    if (!CheckExpression(env, argc > ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. The number of arguments must be greater than one.") ||
         !CheckArgsType(env, argv[0], napi_number, "The type of mimeType must be number.")) {
         return nullptr;
     }
@@ -683,7 +684,7 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     }
     std::shared_ptr<PasteDataRecord> pasteDataRecord = ParseRecord(env, argv[1]);
     if (!CheckExpression(env, pasteDataRecord != nullptr, JSErrorCode::INVALID_PARAMETERS,
-        "The type of record must be PasteDataRecord.")) {
+        "Parameter error. The type of PasteDataRecord cannot be nullptr.")) {
         return nullptr;
     }
     obj->value_->ReplaceRecordAt(index, pasteDataRecord);
@@ -928,7 +929,7 @@ napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if (!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.") ||
+        "Parameter error. The number of arguments must be greater than zero.") ||
         !CheckExpression(env, IsProperty(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
         "Parameter error. The type of property must be PasteDataProperty.")) {
         return nullptr;

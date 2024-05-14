@@ -55,6 +55,12 @@ void Loader::LoadComponents()
     }
 }
 
+std::vector<std::string> Loader::LoadBundles()
+{
+    Config config = LoadConfig();
+    return config.bundles;
+}
+
 Config Loader::LoadConfig()
 {
     Config config;

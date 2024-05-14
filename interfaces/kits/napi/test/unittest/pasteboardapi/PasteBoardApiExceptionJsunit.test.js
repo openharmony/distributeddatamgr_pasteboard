@@ -330,7 +330,7 @@ describe('PasteBoardJSTest', function () {
       expect(true === false).assertTrue();
     } catch (error) {
       expect(error.code).assertEqual('401');
-      expect(error.message).assertEqual('Parameter error. The value does not match mimeType correctly.');
+      expect(error.message).assertEqual('Parameter error. The mimeType is not an arraybuffer.');
     }
     done();
   });
@@ -474,7 +474,7 @@ describe('PasteBoardJSTest', function () {
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code).assertEqual('401');
-      expect(e.message).assertEqual('Parameter error. The value does not match mimeType correctly.');
+      expect(e.message).assertEqual('Parameter error. Actual mimeType is not mimetype_pixelmap.');
     }
     done();
   });
@@ -761,7 +761,7 @@ describe('PasteBoardJSTest', function () {
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code === '401').assertTrue();
-      expect(e.message === 'Parameter error. The value does not match mimeType correctly.').assertTrue();
+      expect(e.message === 'Parameter error. The type of mimeType must be string.').assertTrue();
     }
     done();
   });
@@ -780,7 +780,7 @@ describe('PasteBoardJSTest', function () {
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code === '401').assertTrue();
-      expect(e.message === 'Parameter error. The value does not match mimeType correctly.').assertTrue();
+      expect(e.message === 'Parameter error. The mimeType is not an arraybuffer.').assertTrue();
     }
     done();
   });
@@ -797,7 +797,7 @@ describe('PasteBoardJSTest', function () {
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code === '401').assertTrue();
-      expect(e.message === 'Parameter error. The value does not match mimeType correctly.').assertTrue();
+      expect(e.message === 'Parameter error. Actual mimeType is not mimetype_pixelmap.').assertTrue();
     }
     done();
   });

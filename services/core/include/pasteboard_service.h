@@ -157,6 +157,7 @@ private:
         sptr<IPasteboardDelayGetter> delayGetter = nullptr) override;
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
+    bool IsFocusedApp(uint32_t tokenId);
 
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
@@ -193,7 +194,7 @@ private:
     bool IsDataVaild(PasteData &pasteData, uint32_t tokenId);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
-    static bool IsDefaultIME(const AppInfo &appInfo);
+    bool IsDefaultIME(const AppInfo &appInfo);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
@@ -203,22 +204,21 @@ private:
 
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
-    std::recursive_mutex clipMutex_;
     std::mutex observerMutex_;
     ObserverMap observerChangedMap_;
     ObserverMap observerEventMap_;
     ClipPlugin::GlobalEvent currentEvent_;
     ClipPlugin::GlobalEvent remoteEvent_;
     const std::string filePath_ = "";
-    std::map<int32_t, std::shared_ptr<PasteData>> clips_;
-    std::map<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
-    std::map<int32_t, uint64_t> copyTime_;
+    ConcurrentMap<int32_t, std::shared_ptr<PasteData>> clips_;
+    ConcurrentMap<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
+    ConcurrentMap<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
-    std::atomic<uint32_t> sequenceId_ = 0;
+    std::atomic<uint16_t> sequenceId_ = 0;
     static std::mutex historyMutex_;
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
@@ -248,6 +248,7 @@ private:
     void UpdateShareOption(PasteData &pasteData);
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
+    std::vector<std::string> bundles_;
 };
 } // namespace MiscServices
 } // namespace OHOS

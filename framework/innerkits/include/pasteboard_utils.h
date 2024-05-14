@@ -21,7 +21,7 @@
 #include "unified_record.h"
 namespace OHOS {
 namespace MiscServices {
-class PasteboardUtils {
+class API_EXPORT PasteboardUtils {
 public:
     using UnifiedRecord = UDMF::UnifiedRecord;
     using UnifiedData = UDMF::UnifiedData;

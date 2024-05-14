@@ -24,8 +24,8 @@
 
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
-#include "hisysevent.h"
 #include "paste_data.h"
+#include "hisysevent_c.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -52,13 +52,14 @@ enum TimeConsumingLevel : std::int32_t {
     TIME_LEVEL_ELEVEN,
 };
 
-class HiViewAdapter {
+class API_EXPORT HiViewAdapter {
 public:
     ~HiViewAdapter();
 
     static inline const char *PASTEBOARD_STATE = "PASTEBOARD_STATE";
     static inline const char *COPY_STATE = "COPY_STATE";
     static inline const char *PASTE_STATE = "PASTE_STATE";
+    static inline const char *PASTEBOARD_DOMAIN = "PASTEBOARD";
 
     static void ReportPasteboardFault(int dfxCode, const PasteboardFaultMsg &msg);
     static void ReportTimeConsumingStatistic(const TimeConsumingStat &stat);

@@ -243,7 +243,7 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
 bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc)
 {
     if (!CheckExpression(
-        env, checkArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+        env, checkArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. The number of arguments is wrong.") ||
         !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
@@ -458,7 +458,8 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetContextInfo> &contex
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // setData has 1 or 2 args
         if (!CheckExpression(
-            env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.") ||
+            env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The number of arguments must be greater than zero.") ||
             !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The Type of data must be pasteData.")) {
             return napi_invalid_arg;
@@ -779,7 +780,7 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if ((!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.")) ||
+        "Parameter error. The number of arguments must be grater than zero.")) ||
         (!CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string."))) {
         return nullptr;
     }
@@ -865,7 +866,7 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Wrong number of arguments.") ||
+        "Parameter error. The number of arguments must be one.") ||
         !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
         "Parameter error. The Type of data must be pasteData.")) {
         return nullptr;
