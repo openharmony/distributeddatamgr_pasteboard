@@ -37,6 +37,7 @@
 #include "parameters.h"
 #include "para_handle.h"
 #include "pasteboard_dialog.h"
+#include "pasteboard_event_dfx.h"
 #include "pasteboard_error.h"
 #include "pasteboard_trace.h"
 #include "remote_file_share.h"
@@ -626,6 +627,8 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
 
 bool PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
 {
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DELAY_PASTE,
+                 RadarReporter::DFX_SUCCESS, RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get delay data start");
     auto delayGetter = delayGetters_.Find(appInfo.userId);
     if (!delayGetter.first) {
@@ -636,6 +639,9 @@ bool PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delay getter is nullptr");
         return false;
     }
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DELAY_PASTE,
+        RadarReporter::DFX_SUCCESS, RadarReporter::GET_DATA_APP, appInfo.bundleName, RadarReporter::GET_DATA_TYPE,
+        GenerateDataType(data), RadarReporter::LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
     PasteData delayData;
     delayGetter.second.first->GetPasteData("", delayData);
     if (delayGetter.second.first != nullptr && delayGetter.second.second != nullptr) {
@@ -650,6 +656,8 @@ bool PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
     data = delayData;
     CheckAppUriPermission(data);
     SetWebViewPasteData(data, data.GetBundleName());
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DELAY_PASTE,
+        RadarReporter::DFX_SUCCESS, RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
     return true;
 }
 
@@ -936,6 +944,8 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
 int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     sptr<IPasteboardDelayGetter> delayGetter)
 {
+    RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+                 RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsCopyable(tokenId)) {
@@ -963,6 +973,9 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.InsertOrAssign(appInfo.userId, pasteData);
     if (pasteData->IsDelayData()) {
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_DELAY_COPY,
+            RadarReporter::DFX_SUCCESS, RadarReporter::SET_DATA_APP, appInfo.bundleName, RadarReporter::SET_DATA_TYPE,
+            GenerateDataType(*pasteData), RadarReporter::LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
         auto deathRecipient = new DelayGetterDeathRecipient(appInfo.userId, *this);
         delayGetter->AsObject()->AddDeathRecipient(deathRecipient);
         delayGetters_.InsertOrAssign(appInfo.userId,
@@ -990,6 +1003,8 @@ void PasteboardService::RemovePasteData(const AppInfo &appInfo)
         clips_.Erase(appInfo.userId);
     }
     if (getter.first) {
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_DELAY_COPY,
+            RadarReporter::DFX_SUCCESS, RadarReporter::COVER_DELAY_DATA, RadarReporter::DFX_SUCCESS);
         if (getter.second.first != nullptr && getter.second.second != nullptr) {
             getter.second.first->AsObject()->RemoveDeathRecipient(getter.second.second);
         }

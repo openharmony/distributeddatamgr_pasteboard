@@ -16,7 +16,6 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_EVENT_DFX_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_EVENT_DFX_H
 
-#include <string>
 #include "hisysevent.h"
 namespace OHOS {
 namespace MiscServices {
@@ -60,10 +59,11 @@ enum BizStageBroadcastPull : std::int32_t {
 enum BizStageGetPasteboard : std::int32_t {
     DFX_GET_BIZ_SCENE = 0,
     DFX_CHECK_GET_SERVER = 1,
-    DFX_CHECK_GET_AUTHORITY = 2,
-    DFX_CHECK_GET_URI_AUTHORITY = 3,
-    DFX_GET_CACHE_DATA = 4,
-    DFX_HANDLE_GET_DATA = 5,
+    DFX_CHECK_GET_DELAY_PASTE = 2,
+    DFX_CHECK_GET_AUTHORITY = 3,
+    DFX_CHECK_GET_URI_AUTHORITY = 4,
+    DFX_GET_CACHE_DATA = 5,
+    DFX_HANDLE_GET_DATA = 6,
 };
 
 
@@ -104,15 +104,20 @@ static constexpr char DOMAIN[] = "DISTDATAMGR";
 const std::string EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOUR";
 const std::string ORG_PKG = "distributeddata";
 const std::string BIZ_STATE = "BIZ_STATE";
-const std::string ERROR_CODE = "ERROR_CODE";
+const std::string SET_DATA_APP = "SET_DATA_APP";
+const std::string SET_DATA_TYPE = "SET_DATA_TYPE";
+const std::string GET_DATA_APP = "GET_DATA_APP";
+const std::string GET_DATA_TYPE = "GET_DATA_TYPE";
+const std::string LOCAL_DEV_TYPE = "LOCAL_DEV_TYPE";
+const std::string COVER_DELAY_DATA = "COVER_DELAY_DATA";
 static constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                    \
 ({                                                                                         \
-HiSysEventWrite(RadarReporter::DOMAIN, RadarReporter::EVENT_NAME, RadarReporter::TYPE, \
-"ORG_PKG", RadarReporter::ORG_PKG, "FUNC", __FUNCTION__,                           \
-"BIZ_SCENE", bizScene, "BIZ_STAGE", bizStage, "STAGE_RES", stageRes,               \
-        ##__VA_ARGS__);                                                                   \
+    HiSysEventWrite(RadarReporter::DOMAIN, RadarReporter::EVENT_NAME, RadarReporter::TYPE, \
+        "ORG_PKG", RadarReporter::ORG_PKG, "FUNC", __FUNCTION__,                           \
+        "BIZ_SCENE", bizScene, "BIZ_STAGE", bizStage, "STAGE_RES", stageRes,               \
+        ##__VA_ARGS__);                                                                    \
 })
 } // namespace RadarReporter
 } // namespace MiscServices

@@ -268,7 +268,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     }
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
-        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DATA_HTML_TYPE,
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_DATA_HTML_TYPE,
             RadarReporter::DFX_SUCCESS, RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END);
         return pasteboardServiceProxy_->SetPasteData(pasteData, delayGetterAgent);
     }
