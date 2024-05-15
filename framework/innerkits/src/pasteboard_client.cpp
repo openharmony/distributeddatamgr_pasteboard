@@ -151,18 +151,13 @@ void PasteboardClient::Clear()
 
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
-    HiSysEventParam funcParam = { .name = "FUNC", .t = HISYSEVENT_STRING,
-        .v = { .s = const_cast<char *>(__FUNCTION__ ) }, .arraySize = 0, };
-    HiSysEventParam beginParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_GET_PASTEBOARD_PARAM, BIZ_STATE_BEGIN_PARAM };
-    PASTEBOARD_DFX_EVENT(beginParams, sizeof(beginParams) / sizeof(beginParams[0]));
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     if (!IsServiceAvailable()) {
-        HiSysEventParam checkServerStage = { .name = {*BIZ_STAGE}, .t = HISYSEVENT_INT32,
-            .v = { .i32 = DFX_CHECK_SET_SERVER }, .arraySize = 0, };
-        HiSysEventParam chkSvrFailParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_GET_PASTEBOARD_PARAM,
-            checkServerStage, STAGE_RES_FAILED_PARAM,  BIZ_STATE_ABNORMAL_END_PARAM};
-        PASTEBOARD_DFX_EVENT(chkSvrFailParams, sizeof(chkSvrFailParams) / sizeof(chkSvrFailParams[0]));
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
@@ -170,9 +165,8 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     RebuildWebviewPasteData(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
-    HiSysEventParam endParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_GET_PASTEBOARD_PARAM,
-        BIZ_STATE_NORMAL_END_PARAM };
-    PASTEBOARD_DFX_EVENT(endParams, sizeof(endParams) / sizeof(endParams[0]));
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
     return ret;
 }
 
@@ -260,16 +254,11 @@ bool PasteboardClient::HasPasteData()
 int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
-    HiSysEventParam funcParam = { .name = "FUNC", .t = HISYSEVENT_STRING,
-        .v = { .s = const_cast<char *>(__FUNCTION__ ) }, .arraySize = 0, };
-    HiSysEventParam beginParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM, BIZ_STATE_BEGIN_PARAM };
-    PASTEBOARD_DFX_EVENT(beginParams, sizeof(beginParams) / sizeof(beginParams[0]));
+    RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     if (!IsServiceAvailable()) {
-        HiSysEventParam checkServerStage = { .name = {*BIZ_STAGE}, .t = HISYSEVENT_INT32,
-            .v = { .i32 = DFX_CHECK_GET_SERVER }, .arraySize = 0, };
-        HiSysEventParam chkSvrFailParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM,
-            checkServerStage, STAGE_RES_FAILED_PARAM,  BIZ_STATE_ABNORMAL_END_PARAM};
-        PASTEBOARD_DFX_EVENT(chkSvrFailParams, sizeof(chkSvrFailParams) / sizeof(chkSvrFailParams[0]));
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_SERVER, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     sptr<PasteboardDelayGetterClient> delayGetterAgent;
@@ -279,11 +268,8 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     }
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
-        HiSysEventParam checkHtmlStage = { .name = {*BIZ_STAGE}, .t = HISYSEVENT_INT32,
-            .v = { .i32 = DFX_CHECK_GET_DATA_HTML_TYPE }, .arraySize = 0, };
-        HiSysEventParam noHtmlEndParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM,
-            checkHtmlStage, STAGE_RES_FAILED_PARAM,  BIZ_STATE_NORMAL_END_PARAM };
-        PASTEBOARD_DFX_EVENT(noHtmlEndParams, sizeof(noHtmlEndParams) / sizeof(noHtmlEndParams[0]));
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DATA_HTML_TYPE,
+            RadarReporter::DFX_SUCCESS, RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END);
         return pasteboardServiceProxy_->SetPasteData(pasteData, delayGetterAgent);
     }
     auto webData = SplitWebviewPasteData(pasteData);
@@ -291,9 +277,8 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
         return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }
     auto ret = pasteboardServiceProxy_->SetPasteData(*webData, delayGetterAgent);
-    HiSysEventParam endParams[] = { ORG_PKG_PARAM, funcParam, BIZ_SCENE_SET_PASTEBOARD_PARAM,
-        BIZ_STATE_NORMAL_END_PARAM };
-    PASTEBOARD_DFX_EVENT(endParams, sizeof(endParams) / sizeof(endParams[0]));
+    RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
     return ret;
 }
 
