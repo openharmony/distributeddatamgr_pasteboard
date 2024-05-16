@@ -167,7 +167,7 @@ private:
     bool GetPasteData(const AppInfo &appInfo, PasteData &data);
     bool CheckPasteData(const AppInfo &appInfo, PasteData &data);
     bool GetRemoteData(const AppInfo &appInfo, PasteData &data);
-    bool GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
+    void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);

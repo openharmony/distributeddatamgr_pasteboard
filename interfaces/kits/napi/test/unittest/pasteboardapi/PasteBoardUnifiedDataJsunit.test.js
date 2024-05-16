@@ -217,25 +217,21 @@ describe('PasteBoardUnifiedDataJSTest', function () {
      * @tc.type FUNC
      */
     it('TextTest001', 0, async function (done) {
+        console.info('TextTest001 begin');
         getTextData();
         const systemPasteboard = pasteboard.getSystemPasteboard();
         await systemPasteboard.setUnifiedData(textData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('text' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('text' + VALUE_TEST_ELEMENT);
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual('general.text');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('text' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('text' + VALUE_TEST_ELEMENT);
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.getPrimaryMimeType()).assertEqual('general.text');
+        done();
         console.info('TextTest001 end');
     });
 
@@ -251,24 +247,19 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(plainTextData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('plainText' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('plainText' + VALUE_TEST_ELEMENT);
-            expect(records[0].textContent).assertEqual('textContent');
-            expect(records[0].abstract).assertEqual('abstract');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
-            const primaryText = outputData.getPrimaryText();
-            expect(primaryText).assertEqual('textContent');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('plainText' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('plainText' + VALUE_TEST_ELEMENT);
+        expect(records[0].textContent).assertEqual('textContent');
+        expect(records[0].abstract).assertEqual('abstract');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
+        const primaryText = pasteData.getPrimaryText();
+        expect(primaryText).assertEqual('textContent');
+        done();
         console.info('PlainTextTest001 end');
     });
 
@@ -278,29 +269,25 @@ describe('PasteBoardUnifiedDataJSTest', function () {
      * @tc.type FUNC
      */
     it('HyperlinkTest001', 0, async function (done) {
+        console.info('HyperlinkTest001 begin');
         getHyperlinkData();
         const systemPasteboard = pasteboard.getSystemPasteboard();
         await systemPasteboard.setUnifiedData(hyperlinkData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('hyperLink' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('hyperLink' + VALUE_TEST_ELEMENT);
-            expect(records[0].url).assertEqual('url');
-            expect(records[0].description).assertEqual('description');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
-            const primaryText = outputData.getPrimaryText();
-            expect(primaryText).assertEqual('url');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('hyperLink' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('hyperLink' + VALUE_TEST_ELEMENT);
+        expect(records[0].url).assertEqual('url');
+        expect(records[0].description).assertEqual('description');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
+        const primaryText = pasteData.getPrimaryText();
+        expect(primaryText).assertEqual('url');
+        done();
         console.info('HyperlinkTest001 end');
     });
 
@@ -310,29 +297,25 @@ describe('PasteBoardUnifiedDataJSTest', function () {
      * @tc.type FUNC
      */
     it('HtmlTest001', 0, async function (done) {
+        console.info('HtmlTest001 begin');
         getHtmlData();
         const systemPasteboard = pasteboard.getSystemPasteboard();
         await systemPasteboard.setUnifiedData(htmlData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('html' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('html' + VALUE_TEST_ELEMENT);
-            expect(records[0].htmlContent).assertEqual('htmlContent');
-            expect(records[0].plainContent).assertEqual('plainContent');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
-            const primaryHtml = outputData.getPrimaryHtml();
-            expect(primaryHtml).assertEqual('htmlContent');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('html' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('html' + VALUE_TEST_ELEMENT);
+        expect(records[0].htmlContent).assertEqual('htmlContent');
+        expect(records[0].plainContent).assertEqual('plainContent');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
+        const primaryHtml = pasteData.getPrimaryHtml();
+        expect(primaryHtml).assertEqual('htmlContent');
+        done();
         console.info('HtmlTest001 end');
     });
 
@@ -348,23 +331,18 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(fileData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('file' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('file' + VALUE_TEST_ELEMENT);
-            expect(records[0].uri).assertEqual('uri');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-            const primaryUri = data.getPrimaryUri();
-            expect(primaryUri).assertEqual('uri');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('file' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('file' + VALUE_TEST_ELEMENT);
+        expect(records[0].uri).assertEqual('uri');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
+        const primaryUri = pasteData.getPrimaryUri();
+        expect(primaryUri).assertEqual('uri');
+        done();
         console.info('FileTest001 end');
     });
 
@@ -380,23 +358,18 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(folderData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('folder' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('folder' + VALUE_TEST_ELEMENT);
-            expect(records[0].uri).assertEqual('folderUri');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-            const primaryUri = data.getPrimaryUri();
-            expect(primaryUri).assertEqual('folderUri');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('folder' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('folder' + VALUE_TEST_ELEMENT);
+        expect(records[0].uri).assertEqual('folderUri');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
+        const primaryUri = pasteData.getPrimaryUri();
+        expect(primaryUri).assertEqual('folderUri');
+        done();
         console.info('FolderTest001 end');
     });
 
@@ -412,23 +385,18 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(imageData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('image' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('image' + VALUE_TEST_ELEMENT);
-            expect(records[0].imageUri).assertEqual('imageUri');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-            const primaryUri = data.getPrimaryUri();
-            expect(primaryUri).assertEqual('imageUri');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('image' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('image' + VALUE_TEST_ELEMENT);
+        expect(records[0].imageUri).assertEqual('imageUri');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
+        const primaryUri = pasteData.getPrimaryUri();
+        expect(primaryUri).assertEqual('imageUri');
+        done();
         console.info('ImageTest001 end');
     });
 
@@ -444,23 +412,18 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(videoData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('video' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('video' + VALUE_TEST_ELEMENT);
-            expect(records[0].videoUri).assertEqual('videoUri');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-            const primaryUri = data.getPrimaryUri();
-            expect(primaryUri).assertEqual('videoUri');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('video' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('video' + VALUE_TEST_ELEMENT);
+        expect(records[0].videoUri).assertEqual('videoUri');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
+        const primaryUri = pasteData.getPrimaryUri();
+        expect(primaryUri).assertEqual('videoUri');
+        done();
         console.info('VideoTest001 end');
     });
 
@@ -476,23 +439,18 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(audioData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.Key).assertEqual('audio' + KEY_TEST_ELEMENT);
-            expect(records[0].details.Value).assertEqual('audio' + VALUE_TEST_ELEMENT);
-            expect(records[0].audioUri).assertEqual('audioUri');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(data.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
-            const primaryUri = data.getPrimaryUri();
-            expect(primaryUri).assertEqual('audioUri');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.Key).assertEqual('audio' + KEY_TEST_ELEMENT);
+        expect(records[0].details.Value).assertEqual('audio' + VALUE_TEST_ELEMENT);
+        expect(records[0].audioUri).assertEqual('audioUri');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.hasMimeType(pasteboard.MIMETYPE_TEXT_URI)).assertEqual(true);
+        const primaryUri = pasteData.getPrimaryUri();
+        expect(primaryUri).assertEqual('audioUri');
+        done();
         console.info('AudioTest001 end');
     });
 
@@ -508,29 +466,24 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(systemDefinedAppItemData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].details.appItemKey1).assertEqual(1);
-            expect(records[0].details.appItemKey2).assertEqual('appItem' + VALUE_TEST_ELEMENT);
-            for (let i = 0; i < U8_ARRAY.length; i++) {
-                expect(records[0].details.appItemKey3[i]).assertEqual(U8_ARRAY[i]);
-            }
-            expect(records[0].appId).assertEqual('MyAppId');
-            expect(records[0].appName).assertEqual('MyAppName');
-            expect(records[0].abilityName).assertEqual(TEST_ABILITY_NAME);
-            expect(records[0].bundleName).assertEqual(TEST_BUNDLE_NAME);
-            expect(records[0].appIconId).assertEqual('MyAppIconId');
-            expect(records[0].appLabelId).assertEqual('MyAppLabelId');
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual('openharmony.app-item');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].details.appItemKey1).assertEqual(1);
+        expect(records[0].details.appItemKey2).assertEqual('appItem' + VALUE_TEST_ELEMENT);
+        for (let i = 0; i < U8_ARRAY.length; i++) {
+            expect(records[0].details.appItemKey3[i]).assertEqual(U8_ARRAY[i]);
+        }
+        expect(records[0].appId).assertEqual('MyAppId');
+        expect(records[0].appName).assertEqual('MyAppName');
+        expect(records[0].abilityName).assertEqual(TEST_ABILITY_NAME);
+        expect(records[0].bundleName).assertEqual(TEST_BUNDLE_NAME);
+        expect(records[0].appIconId).assertEqual('MyAppIconId');
+        expect(records[0].appLabelId).assertEqual('MyAppLabelId');
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.getPrimaryMimeType()).assertEqual('openharmony.app-item');
+        done();
         console.info('SystemDefinedAppItemTest001 end');
     });
 
@@ -546,22 +499,17 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(applicationDefinedRecordData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            expect(records[0].applicationDefinedType).assertEqual('applicationDefinedType');
-            for (let i = 0; i < U8_ARRAY.length; i++) {
-                expect(records[0].rawData[i]).assertEqual(U8_ARRAY[i]);
-            }
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual('applicationDefinedType');
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        expect(records[0].applicationDefinedType).assertEqual('applicationDefinedType');
+        for (let i = 0; i < U8_ARRAY.length; i++) {
+            expect(records[0].rawData[i]).assertEqual(U8_ARRAY[i]);
+        }
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.getPrimaryMimeType()).assertEqual('applicationDefinedType');
+        done();
         console.info('ApplicationDefinedRecordTest001 end');
     });
 
@@ -577,18 +525,13 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(wantData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_WANT);
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_WANT);
+        done();
         console.info('WantTest001 end');
     });
 
@@ -604,18 +547,13 @@ describe('PasteBoardUnifiedDataJSTest', function () {
         await systemPasteboard.setUnifiedData(pixelMapData);
         const flag = await systemPasteboard.hasPasteData();
         expect(flag).assertEqual(true);
-        systemPasteboard.getUnifiedData().then((data) => {
-            const outputData = data;
-            let records = outputData.getRecords();
-            expect(records.length).assertEqual(1);
-            done();
-        });
-        systemPasteboard.getData().then((data) => {
-            const outputData = data;
-            expect(outputData.getRecordCount()).assertEqual(1);
-            expect(outputData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_PIXELMAP);
-            done();
-        });
+        let unifiedData = await systemPasteboard.getUnifiedData();
+        let records = unifiedData.getRecords();
+        expect(records.length).assertEqual(1);
+        let pasteData = await systemPasteboard.getData();
+        expect(pasteData.getRecordCount()).assertEqual(1);
+        expect(pasteData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_PIXELMAP);
+        done();
         console.info('PixelMapTest001 end');
     });
 });
