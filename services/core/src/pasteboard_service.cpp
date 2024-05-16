@@ -31,6 +31,8 @@
 #include "hiview_adapter.h"
 #include "iservice_registry.h"
 #include "loader.h"
+#include "mem_mgr_client.h"
+#include "mem_mgr_proxy.h"
 #include "int_wrapper.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
