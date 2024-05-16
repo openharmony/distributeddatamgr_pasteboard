@@ -627,8 +627,6 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
 
 bool PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
 {
-    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DELAY_PASTE,
-                 RadarReporter::DFX_SUCCESS, RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get delay data start");
     auto delayGetter = delayGetters_.Find(appInfo.userId);
     if (!delayGetter.first) {
@@ -639,9 +637,6 @@ bool PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delay getter is nullptr");
         return false;
     }
-    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DELAY_PASTE,
-        RadarReporter::DFX_SUCCESS, RadarReporter::GET_DATA_APP, appInfo.bundleName, RadarReporter::GET_DATA_TYPE,
-        GenerateDataType(data), RadarReporter::LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
     PasteData delayData;
     delayGetter.second.first->GetPasteData("", delayData);
     if (delayGetter.second.first != nullptr && delayGetter.second.second != nullptr) {
@@ -656,8 +651,6 @@ bool PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
     data = delayData;
     CheckAppUriPermission(data);
     SetWebViewPasteData(data, data.GetBundleName());
-    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DELAY_PASTE,
-        RadarReporter::DFX_SUCCESS, RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
     return true;
 }
 

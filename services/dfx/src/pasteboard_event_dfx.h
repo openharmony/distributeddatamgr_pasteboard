@@ -101,7 +101,7 @@ enum ErrorCode : std::int32_t {
 };
 
 static constexpr char DOMAIN[] = "DISTDATAMGR";
-const std::string EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOUR";
+const std::string EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOR";
 const std::string ORG_PKG = "distributeddata";
 const std::string BIZ_STATE = "BIZ_STATE";
 const std::string SET_DATA_APP = "SET_DATA_APP";
