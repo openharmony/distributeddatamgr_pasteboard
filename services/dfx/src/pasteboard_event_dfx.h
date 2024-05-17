@@ -39,7 +39,6 @@ enum BizStageSetPasteboard : std::int32_t {
     DFX_CHECK_ONLINE_DEVICE = 6,
     DFX_CHECK_DEVICE_DISTRIBUTED = 7,
     DFX_LOAD_DISTRIBUTED_PLUGIN = 8,
-    DFX_PERSIST_DISTRIBUTED_DATA = 9,
 };
 
 enum BizStageBroadcastSend : std::int32_t {
@@ -111,6 +110,8 @@ const std::string GET_DATA_APP = "GET_DATA_APP";
 const std::string GET_DATA_TYPE = "GET_DATA_TYPE";
 const std::string LOCAL_DEV_TYPE = "LOCAL_DEV_TYPE";
 const std::string COVER_DELAY_DATA = "COVER_DELAY_DATA";
+const std::string SEND_BROADCAST_TIME = "SEND_BROADCAST_TIME";
+const std::string RECEIVE_BROADCAST_TIME = "RECEIVE_BROADCAST_TIME";
 static constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                    \
