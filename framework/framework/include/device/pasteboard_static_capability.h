@@ -16,10 +16,9 @@
 #ifndef PASTEBOARD_STATIC_CAPABILITY_H
 #define PASTEBOARD_STATIC_CAPABILITY_H
 
-#include "pasteboard_single_instance.h"
-
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 #include "i_static_capability_collector.h"
+#include "single_instance.h"
 #endif
 
 #ifndef API_EXPORT

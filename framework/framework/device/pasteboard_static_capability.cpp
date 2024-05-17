@@ -17,6 +17,7 @@
 
 namespace OHOS {
 namespace MiscServices {
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 IMPLEMENT_SINGLE_INSTANCE(PasteboardStaticCapability);
 
 bool PasteboardStaticCapability::IsSupportCapability()
@@ -28,5 +29,6 @@ DistributedDeviceProfile::IStaticCapabilityCollector* GetStaticCapabilityCollect
 {
     return &PasteboardStaticCapability::GetInstance();
 }
+#endif
 } // namespace MiscServices
 } // namespace OHOS
