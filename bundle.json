@@ -93,6 +93,7 @@
               "header_files": [
                 "clip/clip_plugin.h",
                 "device/dm_adapter.h",
+                "device/pasteboard_static_capability.h",
                 "common/block_object.h"
               ],
               "header_base":"//foundation/distributeddatamgr/pasteboard/framework/framework/include"
