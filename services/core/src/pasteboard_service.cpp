@@ -37,6 +37,7 @@
 #include "parameters.h"
 #include "para_handle.h"
 #include "pasteboard_dialog.h"
+#include "pasteboard_event_dfx.h"
 #include "pasteboard_error.h"
 #include "pasteboard_trace.h"
 #include "remote_file_share.h"
@@ -58,6 +59,7 @@ namespace MiscServices {
 using namespace Rosen;
 using namespace std::chrono;
 using namespace Storage::DistributedFile;
+using namespace RadarReporter;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 constexpr const size_t MAX_URI_COUNT = 500;
@@ -482,6 +484,8 @@ int32_t PasteboardService::GetPasteData(PasteData &data)
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto callPid = IPCSkeleton::GetCallingPid();
     if (!VerifyPermission(tokenId)) {
+        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_AUTHORITY, DFX_FAILED, ERROR_CODE,
+            PERMISSION_VERIFICATION_ERROR);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, callingPid is %{public}d", callPid);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
@@ -534,6 +538,9 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     }
     GetPasteDataDot(data, appInfo.bundleName);
     GrantUriPermission(data, appInfo.bundleName);
+    auto dfxRes = result ? DFX_SUCCESS : DFX_FAILED;
+    RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_HANDLE_GET_DATA, dfxRes, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
+        DMAdapter::GetInstance().GetLocalDeviceType());
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
@@ -610,7 +617,10 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
         data = *(it.second);
         if (it.second->IsDelayData()) {
             GetDelayPasteData(appInfo, data);
+            RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_DELAY_PASTE, DFX_SUCCESS, GET_DATA_APP, appInfo.bundleName,
+                GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
         }
+        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_CACHE_DATA, DFX_SUCCESS);
         data.SetBundleName(appInfo.bundleName);
         auto curTime = copyTime_[appInfo.userId];
         if (tempTime.second == curTime && clips_[appInfo.userId]->IsDelayData()) {
@@ -700,6 +710,7 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
         }
+        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_URI_AUTHORITY, permissionCode);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
         offset += count;
     }
@@ -937,6 +948,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsCopyable(tokenId)) {
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_AUTHORITY, DFX_FAILED, ERROR_CODE, PROHIBIT_COPY);
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
     }
     if (setting_.exchange(true)) {
@@ -960,11 +972,14 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.InsertOrAssign(appInfo.userId, pasteData);
+    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CONSTRUCT_PASTEDATA, DFX_SUCCESS, SET_DATA_TYPE, GenerateDataType(*pasteData),
+        LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
     if (pasteData->IsDelayData()) {
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, DFX_SUCCESS, SET_DATA_APP, appInfo.bundleName,
+            LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
         auto deathRecipient = new DelayGetterDeathRecipient(appInfo.userId, *this);
         delayGetter->AsObject()->AddDeathRecipient(deathRecipient);
-        delayGetters_.InsertOrAssign(appInfo.userId,
-            std::make_pair(delayGetter, deathRecipient));
+        delayGetters_.InsertOrAssign(appInfo.userId, std::make_pair(delayGetter, deathRecipient));
     }
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
@@ -988,6 +1003,7 @@ void PasteboardService::RemovePasteData(const AppInfo &appInfo)
         clips_.Erase(appInfo.userId);
     }
     if (getter.first) {
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, DFX_SUCCESS, COVER_DELAY_DATA, DFX_SUCCESS);
         if (getter.second.first != nullptr && getter.second.second != nullptr) {
             getter.second.first->AsObject()->RemoveDeathRecipient(getter.second.second);
         }
@@ -1469,9 +1485,11 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_FAILED);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return false;
     }
+    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
     GenerateDistributedUri(data);
     if (data.GetShareOption() != CrossDevice || !data.Encode(*rawData)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Cross-device data is not supported.");

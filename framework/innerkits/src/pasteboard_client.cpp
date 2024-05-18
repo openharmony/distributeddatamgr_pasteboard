@@ -24,6 +24,7 @@
 #include "pasteboard_client.h"
 #include "pasteboard_delay_getter_client.h"
 #include "pasteboard_error.h"
+#include "pasteboard_event_dfx.h"
 #include "pasteboard_load_callback.h"
 #include "pasteboard_observer.h"
 #include "string_ex.h"
@@ -150,9 +151,14 @@ void PasteboardClient::Clear()
 
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     if (!IsServiceAvailable()) {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END, RadarReporter::ERROR_CODE,
+            RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
@@ -160,6 +166,8 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     RebuildWebviewPasteData(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
     return ret;
 }
 
@@ -176,6 +184,8 @@ int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData& unifiedData)
 void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
 {
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || pasteData.GetPrimaryHtml() == nullptr) {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DATA_HTML_TYPE,
+            RadarReporter::DFX_FAILED);
         return;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData start.");
@@ -215,6 +225,8 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
         webData->RemoveRecordAt(recordCnt - 1);
     }
     pasteData = *webData;
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_DATA_HTML_TYPE,
+        RadarReporter::DFX_SUCCESS);
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData end.");
 }
@@ -247,7 +259,12 @@ bool PasteboardClient::HasPasteData()
 int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
+    RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     if (!IsServiceAvailable()) {
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_SERVER, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END, RadarReporter::ERROR_CODE,
+            RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     sptr<PasteboardDelayGetterClient> delayGetterAgent;
@@ -257,13 +274,21 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     }
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
-        return pasteboardServiceProxy_->SetPasteData(pasteData, delayGetterAgent);
+        auto noHtmlRet = pasteboardServiceProxy_->SetPasteData(pasteData, delayGetterAgent);
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_DATA_HTML_TYPE,
+            RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
+        return noHtmlRet;
     }
+    RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_DATA_HTML_TYPE,
+        RadarReporter::DFX_SUCCESS);
     auto webData = SplitWebviewPasteData(pasteData);
     if (webData == nullptr) {
         return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }
-    return pasteboardServiceProxy_->SetPasteData(*webData, delayGetterAgent);
+    auto ret = pasteboardServiceProxy_->SetPasteData(*webData, delayGetterAgent);
+    RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
+    return ret;
 }
 
 int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData,
