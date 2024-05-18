@@ -157,7 +157,8 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     if (!IsServiceAvailable()) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END);
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END, RadarReporter::ERROR_CODE,
+            RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
@@ -262,7 +263,8 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
         RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     if (!IsServiceAvailable()) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_SERVER, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END);
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END, RadarReporter::ERROR_CODE,
+            RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     sptr<PasteboardDelayGetterClient> delayGetterAgent;

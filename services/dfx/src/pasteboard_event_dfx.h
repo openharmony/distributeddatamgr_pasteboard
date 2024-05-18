@@ -104,6 +104,7 @@ static constexpr char DOMAIN[] = "DISTDATAMGR";
 const std::string EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOR";
 const std::string ORG_PKG = "distributeddata";
 const std::string BIZ_STATE = "BIZ_STATE";
+const std::string ERROR_CODE = "ERROR_CODE";
 const std::string SET_DATA_APP = "SET_DATA_APP";
 const std::string SET_DATA_TYPE = "SET_DATA_TYPE";
 const std::string GET_DATA_APP = "GET_DATA_APP";
