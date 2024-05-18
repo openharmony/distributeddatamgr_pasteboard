@@ -432,7 +432,6 @@ bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
     int32_t fd = parcel.ReadFileDescriptor();
     if (fd >= 0) {
         convertUri_ = uriHandler.ToUri(fd);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "convertUri_:%{public}s", convertUri_.c_str());
     }
     if (!uriHandler.IsPaste()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Set fd, fd is %{public}d", fd);
@@ -462,7 +461,6 @@ std::string PasteDataRecord::GetPassUri()
     if (!convertUri_.empty()) {
         tempUri = convertUri_;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "tempUri:%{public}s", tempUri.c_str());
     return tempUri;
 }
 void PasteDataRecord::ReplaceShareUri(int32_t userId)
@@ -477,7 +475,6 @@ void PasteDataRecord::ReplaceShareUri(int32_t userId)
     auto rearPos = convertUri_.find("/account/");
     if (frontPos == 0 && rearPos != std::string::npos) {
         convertUri_ = SHARE_PATH_PREFIX + std::to_string(userId) + convertUri_.substr(rearPos);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "replace uri:%{public}s", convertUri_.c_str());
     }
 }
 void PasteDataRecord::SetConvertUri(const std::string &value)

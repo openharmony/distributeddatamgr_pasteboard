@@ -42,7 +42,6 @@ std::string CopyUriHandler::ToUri(int32_t fd)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " create share path failed, %{public}d ", ret);
         return uri_;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "share path: %{public}s", uri_.c_str());
     return uri_;
 }
 } // namespace OHOS::MiscServices
