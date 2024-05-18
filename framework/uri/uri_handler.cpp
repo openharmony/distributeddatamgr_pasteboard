@@ -32,7 +32,6 @@ bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealP
 
 bool UriHandler::IsFile(const std::string &uri) const
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "uri:%{public}s", uri.c_str());
     if (uri.empty()) {
         return false;
     }
@@ -47,7 +46,6 @@ bool UriHandler::IsFile(const std::string &uri) const
 }
 int32_t UriHandler::ToFd(const std::string &uri, bool isClient)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri: %{public}s", uri.c_str());
     std::string fileRealPath;
     if (!GetRealPath(uri, fileRealPath)) {
         return INVALID_FD;

@@ -192,7 +192,6 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
             realUri = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Rebuild webview uri is file uri.");
         }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview realUri is = %{public}s.", realUri.c_str());
         if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
             item->SetConvertUri(realUri);
         } else {
