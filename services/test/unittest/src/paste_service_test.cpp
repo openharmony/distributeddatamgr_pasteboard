@@ -574,10 +574,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType1, arrayBuffer);
     std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(mimeType)
-                                                           .SetPlainText(std::make_shared<std::string>(plainText))
-                                                           .SetHtmlText(std::make_shared<std::string>(htmlText))
-                                                           .SetCustomData(customData)
-                                                           .Build();
+                                                            .SetPlainText(std::make_shared<std::string>(plainText))
+                                                            .SetHtmlText(std::make_shared<std::string>(htmlText))
+                                                            .SetCustomData(customData)
+                                                            .Build();
     pasteData->AddRecord(pasteDataRecord);
     PasteData newPasteData;
     PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
