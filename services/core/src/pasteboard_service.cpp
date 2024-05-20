@@ -76,8 +76,6 @@ const std::int32_t INVAILD_VERSION = -1;
 const std::int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 const std::int32_t CTRLV_EVENT_SIZE = 2;
 const std::int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
-const std::int32_t DEVICE_TYPE_PC = 12;
-const std::int32_t DEVICE_TYPE_2IN1 = 2607;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
