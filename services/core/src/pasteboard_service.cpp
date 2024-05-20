@@ -308,7 +308,7 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
         isSecureGrant, isPrivilegeApp);
     auto isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
-    auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || IsCtrlVProcess;
+    auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || isCtrlVAction;
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}d, version is %{public}d",
             callPid, version);
