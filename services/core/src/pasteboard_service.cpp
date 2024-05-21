@@ -31,6 +31,8 @@
 #include "hiview_adapter.h"
 #include "iservice_registry.h"
 #include "loader.h"
+#include "mem_mgr_client.h"
+#include "mem_mgr_proxy.h"
 #include "int_wrapper.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
@@ -167,6 +169,7 @@ void PasteboardService::OnStart()
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 1, PASTEBOARD_SERVICE_ID);
     return;
 }
 
@@ -185,6 +188,7 @@ void PasteboardService::OnStop()
     }
     moduleConfig_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 0, PASTEBOARD_SERVICE_ID);
 }
 
 void PasteboardService::AddSysAbilityListener()

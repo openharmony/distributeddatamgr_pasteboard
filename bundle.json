@@ -45,6 +45,7 @@
           "imf",
           "ipc",
           "image_framework",
+          "memmgr",
           "napi",
           "os_account",
           "safwk",
