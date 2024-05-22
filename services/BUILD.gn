@@ -112,6 +112,7 @@ ohos_shared_library("pasteboard_service") {
     "init:libbegetutil",
     "input:libmmi-client",
     "ipc:ipc_core",
+    "memmgr:memmgrclient",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

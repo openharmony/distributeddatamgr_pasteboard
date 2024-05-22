@@ -47,6 +47,7 @@
           "ipc",
           "image_framework",
           "libuv",
+          "memmgr",
           "napi",
           "os_account",
           "safwk",

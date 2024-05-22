@@ -19,11 +19,11 @@ namespace DistributedData {
 bool Serializable::Unmarshall(const std::string &jsonStr)
 {
     json jsonObj = cJSON_Parse(jsonStr.c_str());
-    if (cJSON_IsNull(jsonObj)) {
-        return false;
+    auto result = false;
+    if (jsonObj != nullptr) {
+        result = Unmarshal(jsonObj);
+        cJSON_Delete(jsonObj);
     }
-    auto result = Unmarshal(jsonObj);
-    cJSON_Delete(jsonObj);
     return result;
 }
 
