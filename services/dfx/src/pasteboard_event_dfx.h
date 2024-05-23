@@ -21,7 +21,7 @@ namespace OHOS {
 namespace MiscServices {
 namespace RadarReporter {
 using namespace OHOS::HiviewDFX;
-static constexpr int DDMS_ID = 0xd;
+static constexpr int DIST_DATA_MGR_SYS_ID = 0xd;
 static constexpr int PASTEBOARD_ID = 8;
 enum BizScene : std::int32_t {
     DFX_SET_PASTEBOARD = 1,
@@ -93,7 +93,7 @@ enum BizState : std::int32_t {
 };
 
 enum ErrorCode : std::int32_t {
-    PASTEBOARD_ERROR = (DDMS_ID << 21) | (PASTEBOARD_ID << 16),
+    PASTEBOARD_ERROR = (DIST_DATA_MGR_SYS_ID << 21) | (PASTEBOARD_ID << 16),
     INVALID_RETURN_VALUE_ERROR,
     INVALID_PARAM_ERROR,
     SERIALIZATION_ERROR,
