@@ -21,24 +21,26 @@ namespace OHOS {
 namespace MiscServices {
 namespace RadarReporter {
 using namespace OHOS::HiviewDFX;
+static constexpr int DDMS_ID = 0xd;
+static constexpr int PASTEBOARD_ID = 8;
 enum BizScene : std::int32_t {
     DFX_SET_PASTEBOARD = 1,
     DFX_DISTRIBUTED_PASTEBOARD_BROADCAST_SEND = 2,
     DFX_DISTRIBUTED_PASTEBOARD_BROADCAST_RECEIVE = 3,
     DFX_DISTRIBUTED_PASTEBOARD_BROADCAST_PULL = 4,
     DFX_GET_PASTEBOARD = 5,
+    DFX_CLEAR_PASTEBOARD = 6,
+    DFX_OBSERVER = 7,
+    DFX_PLUGIN_CREATE_DESTROY = 8,
 };
 
 enum BizStageSetPasteboard : std::int32_t {
     DFX_SET_BIZ_SCENE = 0,
     DFX_CHECK_SET_SERVER = 1,
     DFX_CHECK_SET_DELAY_COPY = 2,
-    DFX_CHECK_SET_DATA_HTML_TYPE = 3,
-    DFX_CHECK_SET_AUTHORITY = 4,
-    DFX_CONSTRUCT_PASTEDATA = 5,
-    DFX_CHECK_ONLINE_DEVICE = 6,
-    DFX_CHECK_DEVICE_DISTRIBUTED = 7,
-    DFX_LOAD_DISTRIBUTED_PLUGIN = 8,
+    DFX_CHECK_SET_AUTHORITY = 3,
+    DFX_CHECK_ONLINE_DEVICE = 4,
+    DFX_LOAD_DISTRIBUTED_PLUGIN = 5,
 };
 
 enum BizStageBroadcastSend : std::int32_t {
@@ -59,13 +61,23 @@ enum BizStageGetPasteboard : std::int32_t {
     DFX_GET_BIZ_SCENE = 0,
     DFX_CHECK_GET_SERVER = 1,
     DFX_CHECK_GET_DELAY_PASTE = 2,
-    DFX_CHECK_GET_DATA_HTML_TYPE = 3,
-    DFX_CHECK_GET_AUTHORITY = 4,
-    DFX_CHECK_GET_URI_AUTHORITY = 5,
-    DFX_GET_CACHE_DATA = 6,
-    DFX_HANDLE_GET_DATA = 7,
+    DFX_CHECK_GET_AUTHORITY = 3,
+    DFX_CHECK_GET_URI_AUTHORITY = 4,
 };
 
+enum BizStageClearPasteboard : std::int32_t {
+    DFX_MANUAL_CLEAR = 1,
+    DFX_AUTO_CLEAR = 2,
+};
+
+enum BizStageObserver : std::int32_t {
+    DFX_ADD_OBSERVER = 1,
+};
+
+enum BizStagePlugin : std::int32_t {
+    DFX_PLUGIN_CREATE = 1,
+    DFX_PLUGIN_DESTROY = 2,
+};
 
 enum StageRes : std::int32_t {
     DFX_IDLE = 0,
@@ -81,38 +93,40 @@ enum BizState : std::int32_t {
 };
 
 enum ErrorCode : std::int32_t {
-    INVALID_RETURN_VALUE_ERROR = 27787265,
-    INVALID_PARAM_ERROR = 27787266,
-    SERIALIZATION_ERROR = 27787267,
-    DESERIALIZATION_ERROR = 27787268,
-    OBTAIN_SERVER_SA_ERROR = 27787269,
-    OTHER_ERROR = 27787270,
-    CROSS_BORDER_ERROR = 27787271,
-    PERMISSION_VERIFICATION_ERROR = 27787272,
-    PARAM_ERROR = 27787273,
-    TIMEOUT_ERROR = 27787274,
-    CANCELED = 27787275,
-    EXCEEDING_LIMIT_EXCEPTION = 27787276,
-    TASK_PROCESSING = 27787277,
-    PROHIBIT_COPY = 27787278,
-    UNKNOWN_ERROR = 27787279,
-    BACKUP_EXCEPTION = 27787280,
-    REMOTE_EXCEPTION = 27787281,
+    PASTEBOARD_ERROR = (DDMS_ID << 21) | (PASTEBOARD_ID << 16),
+    INVALID_RETURN_VALUE_ERROR,
+    INVALID_PARAM_ERROR,
+    SERIALIZATION_ERROR,
+    DESERIALIZATION_ERROR,
+    OBTAIN_SERVER_SA_ERROR,
+    OTHER_ERROR,
+    CROSS_BORDER_ERROR,
+    PERMISSION_VERIFICATION_ERROR,
+    PARAM_ERROR,
+    TIMEOUT_ERROR,
+    CANCELED,
+    EXCEEDING_LIMIT_EXCEPTION,
+    TASK_PROCESSING,
+    PROHIBIT_COPY,
+    UNKNOWN_ERROR,
+    BACKUP_EXCEPTION,
+    REMOTE_EXCEPTION,
 };
 
 static constexpr char DOMAIN[] = "DISTDATAMGR";
-const std::string EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOR";
-const std::string ORG_PKG = "distributeddata";
-const std::string BIZ_STATE = "BIZ_STATE";
-const std::string ERROR_CODE = "ERROR_CODE";
-const std::string SET_DATA_APP = "SET_DATA_APP";
-const std::string SET_DATA_TYPE = "SET_DATA_TYPE";
-const std::string GET_DATA_APP = "GET_DATA_APP";
-const std::string GET_DATA_TYPE = "GET_DATA_TYPE";
-const std::string LOCAL_DEV_TYPE = "LOCAL_DEV_TYPE";
-const std::string COVER_DELAY_DATA = "COVER_DELAY_DATA";
-const std::string SEND_BROADCAST_TIME = "SEND_BROADCAST_TIME";
-const std::string RECEIVE_BROADCAST_TIME = "RECEIVE_BROADCAST_TIME";
+constexpr const char* EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOR";
+constexpr const char* ORG_PKG = "distributeddata";
+constexpr const char* BIZ_STATE = "BIZ_STATE";
+constexpr const char* ERROR_CODE = "ERROR_CODE";
+constexpr const char* SET_DATA_APP = "SET_DATA_APP";
+constexpr const char* SET_DATA_TYPE = "SET_DATA_TYPE";
+constexpr const char* GET_DATA_APP = "GET_DATA_APP";
+constexpr const char* GET_DATA_TYPE = "GET_DATA_TYPE";
+constexpr const char* LOCAL_DEV_TYPE = "LOCAL_DEV_TYPE";
+constexpr const char* COVER_DELAY_DATA = "COVER_DELAY_DATA";
+constexpr const char* SEND_BROADCAST_TIME = "SEND_BROADCAST_TIME_64";
+constexpr const char* RECEIVE_BROADCAST_TIME = "RECEIVE_BROADCAST_TIME_64";
+constexpr const char* SEQ_ID = "SEQ_ID";
 static constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                    \
