@@ -176,7 +176,7 @@ std::string PasteboardUtils::Convert(UDType uDType)
         case UDType::OPENHARMONY_WANT:
             return MIMETYPE_TEXT_WANT;
         default:
-            return UDMF::UD_TYPE_MAP.at(uDType);
+            return UDMF::UtdUtils::GetUtdIdFromUtdEnum(uDType);
     }
 }
 
@@ -200,10 +200,9 @@ UDType PasteboardUtils::Convert(int32_t uDType, const std::string& mimeType)
     if (mimeType == MIMETYPE_PIXELMAP) {
         return UDMF::SYSTEM_DEFINED_PIXEL_MAP;
     }
-    for (const auto& [type, typeString] : UDMF::UD_TYPE_MAP) {
-        if (mimeType == typeString) {
-            return static_cast<UDType>(type);
-        }
+    auto type = UDMF::UtdUtils::GetUtdEnumFromUtdId(mimeType);
+    if (type != UDMF::UD_BUTT) {
+        return static_cast<UDType>(type);
     }
     return UDMF::UD_BUTT;
 }
@@ -577,7 +576,7 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Text2PasteRecord(const std::sh
         return nullptr;
     }
     std::vector<uint8_t> arrayBuffer;
-    std::string type = UDMF::UD_TYPE_MAP.at(UDMF::TEXT);
+    std::string type = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::TEXT);
     auto kvRecord = PasteDataRecord::NewKvRecord(type, arrayBuffer);
     kvRecord->SetUDType(UDMF::TEXT);
     kvRecord->SetDetails(text->GetDetails());

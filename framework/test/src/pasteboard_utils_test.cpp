@@ -135,7 +135,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitLinkData()
 UDMF::UnifiedData PasteboardUtilsTest::InitFileData()
 {
     UDMF::UnifiedData data;
-    auto typeStr = UDMF::UD_TYPE_MAP.at(UDMF::FILE);
+    auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE);
     uri_ = "file:/uri";
     std::shared_ptr<UDMF::File> fileRecord = std::make_shared<UDMF::File>(uri_);
     fileRecord->SetDetails(details_);
@@ -145,7 +145,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitFileData()
 UDMF::UnifiedData PasteboardUtilsTest::InitImageData()
 {
     UDMF::UnifiedData data;
-    auto typeStr = UDMF::UD_TYPE_MAP.at(UDMF::IMAGE);
+    auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::IMAGE);
     uri_ = "file:/image";
     std::shared_ptr<UDMF::Image> imageRecord = std::make_shared<UDMF::Image>(uri_);
     imageRecord->SetDetails(details_);
@@ -155,7 +155,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitImageData()
 UDMF::UnifiedData PasteboardUtilsTest::InitVideoData()
 {
     UDMF::UnifiedData data;
-    auto typeStr = UDMF::UD_TYPE_MAP.at(UDMF::VIDEO);
+    auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::VIDEO);
     uri_ = "file:/Video";
     std::shared_ptr<UDMF::Video> videoRecord = std::make_shared<UDMF::Video>(uri_);
     videoRecord->SetDetails(details_);
@@ -166,7 +166,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitVideoData()
 UDMF::UnifiedData PasteboardUtilsTest::InitAudioData()
 {
     UDMF::UnifiedData data;
-    auto typeStr = UDMF::UD_TYPE_MAP.at(UDMF::AUDIO);
+    auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::AUDIO);
     uri_ = "file:/Audio";
     std::shared_ptr<UDMF::Audio> audioRecord = std::make_shared<UDMF::Audio>(uri_);
     audioRecord->SetDetails(details_);
@@ -176,7 +176,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitAudioData()
 UDMF::UnifiedData PasteboardUtilsTest::InitFolderData()
 {
     UDMF::UnifiedData data;
-    auto typeStr = UDMF::UD_TYPE_MAP.at(UDMF::FOLDER);
+    auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FOLDER);
     uri_ = "file:/Folder";
     std::shared_ptr<UDMF::Folder> folderRecord = std::make_shared<UDMF::Folder>(uri_);
     folderRecord->SetDetails(details_);
@@ -249,8 +249,8 @@ UDMF::UnifiedData PasteboardUtilsTest::InitAppDefinedData()
     UDMF::UnifiedData data;
     std::shared_ptr<UDMF::ApplicationDefinedRecord> appRecord = std::make_shared<UDMF::ApplicationDefinedRecord>();
     std::map<std::string, std::vector<uint8_t>> customData;
-    customData[UDMF::UD_TYPE_MAP.at(UDMF::APPLICATION_DEFINED_RECORD)] = rawData_;
-    appRecord->SetApplicationDefinedType(UDMF::UD_TYPE_MAP.at(UDMF::APPLICATION_DEFINED_RECORD));
+    customData[UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::APPLICATION_DEFINED_RECORD)] = rawData_;
+    appRecord->SetApplicationDefinedType(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::APPLICATION_DEFINED_RECORD));
     appRecord->SetRawData(rawData_);
     data.AddRecord(appRecord);
     return data;
@@ -270,7 +270,7 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
-    ASSERT_EQ(type, UDMF::UD_TYPE_MAP.at(UDMF::TEXT));
+    ASSERT_EQ(type, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::TEXT));
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::TEXT);
     auto details1 = record->GetDetails();
@@ -617,7 +617,7 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
-    ASSERT_EQ(type, UDMF::UD_TYPE_MAP.at(UDMF::SYSTEM_DEFINED_RECORD));
+    ASSERT_EQ(type, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_RECORD));
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::SYSTEM_DEFINED_RECORD);
     auto details1 = record->GetDetails();
@@ -646,7 +646,7 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
-    ASSERT_EQ(type, UDMF::UD_TYPE_MAP.at(UDMF::SYSTEM_DEFINED_APP_ITEM));
+    ASSERT_EQ(type, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_APP_ITEM));
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::SYSTEM_DEFINED_APP_ITEM);
     auto details1 = record->GetDetails();
@@ -694,7 +694,7 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
-    ASSERT_EQ(type, UDMF::UD_TYPE_MAP.at(UDMF::SYSTEM_DEFINED_FORM));
+    ASSERT_EQ(type, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_FORM));
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::SYSTEM_DEFINED_FORM);
     auto details1 = record->GetDetails();
@@ -779,7 +779,7 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);
     auto type = record->GetMimeType();
-    ASSERT_EQ(type, UDMF::UD_TYPE_MAP.at(UDMF::APPLICATION_DEFINED_RECORD));
+    ASSERT_EQ(type, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::APPLICATION_DEFINED_RECORD));
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::APPLICATION_DEFINED_RECORD);
     auto items = record->GetCustomData()->GetItemData();
