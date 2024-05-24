@@ -33,7 +33,7 @@ constexpr const uint32_t NOT_SUPPORT = 0;
 constexpr const uint32_t SUPPORT = 1;
 
 constexpr const char *SERVICE_ID = "pasteboardService";
-constexpr const char *CHARACTER_ID = "supportDistributedPasteboard";
+constexpr const char *CHARACTER_ID = "static_capability";
 constexpr const char *VERSION_ID = "PasteboardVersionId";
 constexpr const char *CHARACTERISTIC_VALUE = "characteristicValue";
 
@@ -149,7 +149,6 @@ void DevProfile::ParameterChange(const char *key, const char *value, void *conte
         return;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ParameterChange, key = %{public}s, value = %{public}s.", key, value);
-    DevProfile::GetInstance().PutEnabledStatus(value);
 }
 
 void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
