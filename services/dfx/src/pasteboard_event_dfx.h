@@ -54,7 +54,9 @@ enum BizStageBroadcastReceive : std::int32_t {
 };
 
 enum BizStageBroadcastPull : std::int32_t {
-    DFX_INIT_BROADCAST_PULL = 1,
+    DFX_PRE_SYNC = 1,
+    DFX_GET_PASTE_DATA_SYNC = 2,
+    DFX_SYNC_DETAIL = 3,
 };
 
 enum BizStageGetPasteboard : std::int32_t {
@@ -72,6 +74,8 @@ enum BizStageClearPasteboard : std::int32_t {
 
 enum BizStageObserver : std::int32_t {
     DFX_ADD_OBSERVER = 1,
+    DFX_REMOVE_SINGLE_OBSERVER = 2,
+    DFX_REMOVE_ALL_OBSERVER = 3,
 };
 
 enum BizStagePlugin : std::int32_t {

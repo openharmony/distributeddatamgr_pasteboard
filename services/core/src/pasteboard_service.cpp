@@ -1133,6 +1133,7 @@ void PasteboardService::RemoveSingleObserver(const sptr<IPasteboardChangedObserv
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
         static_cast<unsigned int>(observers->size()));
     auto eraseNum = observers->erase(observer);
+    RADAR_REPORT(DFX_OBSERVER, DFX_REMOVE_SINGLE_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
 }
@@ -1149,6 +1150,7 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
         static_cast<unsigned int>(observers->size()));
     auto eraseNum = observerMap.erase(COMMON_USERID);
+    RADAR_REPORT(DFX_OBSERVER, DFX_REMOVE_ALL_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
 }
