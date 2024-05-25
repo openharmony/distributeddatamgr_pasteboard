@@ -201,7 +201,6 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &enabledStatus)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
