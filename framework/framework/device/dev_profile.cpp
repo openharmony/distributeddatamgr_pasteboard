@@ -33,6 +33,7 @@ constexpr const uint32_t NOT_SUPPORT = 0;
 constexpr const uint32_t SUPPORT = 1;
 
 constexpr const char *SERVICE_ID = "pasteboardService";
+constexpr const char *SUPPORT_DISTRIBUTED_PASTEBOARD = "supportDistributedPasteboard";
 constexpr const char *CHARACTER_ID = "static_capability";
 constexpr const char *VERSION_ID = "PasteboardVersionId";
 constexpr const char *CHARACTERISTIC_VALUE = "characteristicValue";
@@ -222,7 +223,7 @@ void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &ena
         return;
     }
     enabledStatus = "false";
-    if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, CHARACTER_ID)) == SUPPORT) {
+    if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, SUPPORT_DISTRIBUTED_PASTEBOARD)) == SUPPORT) {
         enabledStatus = "true";
     }
     cJSON_Delete(jsonObject);
