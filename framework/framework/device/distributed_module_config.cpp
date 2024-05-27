@@ -63,25 +63,19 @@ void DistributedModuleConfig::GetDeviceNum()
 bool DistributedModuleConfig::GetEnabledStatus()
 {
     auto localNetworkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    std::string localEnabledStatus = "true";
-    DevProfile::GetInstance().GetEnabledStatus(localNetworkId, localEnabledStatus);
-    if (localEnabledStatus == "false") {
+    if (!DevProfile::GetInstance().GetEnabledStatus(localNetworkId)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false.");
         return false;
     }
-
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
     deviceNums_ = networkIds.size();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", deviceNums_);
-    std::string remoteEnabledStatus = "false";
     for (auto &id : networkIds) {
-        DevProfile::GetInstance().GetEnabledStatus(id, remoteEnabledStatus);
-        if (remoteEnabledStatus == "true") {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus true.");
+        if (DevProfile::GetInstance().GetEnabledStatus(id)) {
             return true;
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus = %{public}s.", remoteEnabledStatus.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus is false.");
     return false;
 }
 

@@ -198,38 +198,35 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #endif
 }
 
-void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &enabledStatus)
+bool DevProfile::GetEnabledStatus(const std::string &networkId, std::string &enabledStatus)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
-        return;
+        return false;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret =
-        DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(
-            udid, SERVICE_ID, CHARACTER_ID, profile);
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile( udid, SERVICE_ID,
+        CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetCharacteristicProfile failed, %{public}.5s.", udid.c_str());
-        return;
+        return false;
     }
     const auto &jsonData = profile.GetCharacteristicValue();
     cJSON *jsonObject = cJSON_Parse(jsonData.c_str());
     if (jsonObject == nullptr) {
         cJSON_Delete(jsonObject);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
-        return;
+        return false;
     }
-    enabledStatus = "false";
     if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, CHARACTER_ID)) == SUPPORT) {
-        enabledStatus = "true";
+        return true;
     }
     cJSON_Delete(jsonObject);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
+    return false;
 #endif
 }
 

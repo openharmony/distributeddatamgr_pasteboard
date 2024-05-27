@@ -28,7 +28,7 @@ namespace MiscServices {
 class API_EXPORT DevProfile {
 public:
     static DevProfile &GetInstance();
-    void GetEnabledStatus(const std::string &networkId, std::string &enabledStatus);
+    bool GetEnabledStatus(const std::string &networkId);
     void Init();
     void OnReady();
     void PutEnabledStatus(const std::string &enabledStatus);
