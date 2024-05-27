@@ -169,7 +169,6 @@ void PasteboardService::OnStart()
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
-    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 1, PASTEBOARD_SERVICE_ID);
     return;
 }
 
@@ -204,6 +203,10 @@ void PasteboardService::AddSysAbilityListener()
 void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "systemAbilityId = %{public}d added!", systemAbilityId);
+    if (systemAbilityId == MEMORY_MANAGER_SA_ID) {
+        Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 1,
+                                                                PASTEBOARD_SERVICE_ID);
+    }
     auto itFunc = ServiceListenerFunc_.find(systemAbilityId);
     if (itFunc != ServiceListenerFunc_.end()) {
         auto ServiceListenerFunc = itFunc->second;
