@@ -613,6 +613,7 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
             return false;
         }
         data = *(it.second);
+        auto originBundleName = it.second->GetBundleName();
         auto isDelayData = it.second->IsDelayData();
         if (isDelayData) {
             GetDelayPasteData(appInfo, data);
@@ -624,6 +625,7 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
         auto curTime = copyTime_[appInfo.userId];
         if (tempTime.second == curTime && clips_[appInfo.userId]->IsDelayData()) {
             clips_[appInfo.userId] = std::make_shared<PasteData>(data);
+            NotifyObservers(originBundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
         }
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
@@ -983,8 +985,8 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     copyTime_.InsertOrAssign(appInfo.userId, curTime);
     if (!(pasteData->IsDelayData())) {
         SetDistributedData(appInfo.userId, *pasteData);
+        NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     }
-    NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(*pasteData);
     setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.Size()));
