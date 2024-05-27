@@ -16,6 +16,7 @@
 #include "clip/clip_plugin.h"
 
 #include "default_clip.h"
+#include "pasteboard_event_dfx.h"
 namespace OHOS::MiscServices {
 std::map<std::string, ClipPlugin::Factory *> ClipPlugin::factories_;
 DefaultClip g_defaultClip;
@@ -35,6 +36,8 @@ ClipPlugin *ClipPlugin::CreatePlugin(const std::string &name)
     if (it == factories_.end() || it->second == nullptr) {
         return &g_defaultClip;
     }
+    RADAR_REPORT(RadarReporter::DFX_PLUGIN_CREATE_DESTROY, RadarReporter::DFX_PLUGIN_CREATE,
+        RadarReporter::DFX_SUCCESS);
     return it->second->Create();
 }
 
@@ -48,6 +51,8 @@ bool ClipPlugin::DestroyPlugin(const std::string &name, ClipPlugin *plugin)
     if (it == factories_.end() || it->second == nullptr) {
         return false;
     }
+    RADAR_REPORT(RadarReporter::DFX_PLUGIN_CREATE_DESTROY, RadarReporter::DFX_PLUGIN_DESTROY,
+        RadarReporter::DFX_SUCCESS);
     return it->second->Destroy(plugin);
 }
 
