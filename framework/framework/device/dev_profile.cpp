@@ -198,7 +198,7 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #endif
 }
 
-bool DevProfile::GetEnabledStatus(const std::string &networkId, std::string &enabledStatus)
+bool DevProfile::GetEnabledStatus(const std::string &networkId)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
@@ -207,7 +207,7 @@ bool DevProfile::GetEnabledStatus(const std::string &networkId, std::string &ena
         return false;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile( udid, SERVICE_ID,
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SERVICE_ID,
         CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetCharacteristicProfile failed, %{public}.5s.", udid.c_str());
@@ -226,8 +226,8 @@ bool DevProfile::GetEnabledStatus(const std::string &networkId, std::string &ena
     cJSON_Delete(jsonObject);
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return false;
 #endif
+    return false;
 }
 
 void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)
