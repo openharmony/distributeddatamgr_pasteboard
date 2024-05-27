@@ -198,40 +198,36 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #endif
 }
 
-void DevProfile::GetEnabledStatus(const std::string &networkId, std::string &enabledStatus)
+bool DevProfile::GetEnabledStatus(const std::string &networkId)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus start.");
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
-        return;
+        return false;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret =
-        DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(
-            udid, SERVICE_ID, CHARACTER_ID, profile);
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SERVICE_ID,
+        CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetCharacteristicProfile failed, %{public}.5s.", udid.c_str());
-        return;
+        return false;
     }
     const auto &jsonData = profile.GetCharacteristicValue();
     cJSON *jsonObject = cJSON_Parse(jsonData.c_str());
     if (jsonObject == nullptr) {
         cJSON_Delete(jsonObject);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
-        return;
+        return false;
     }
-    enabledStatus = "false";
     if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, SUPPORT_DISTRIBUTED_PASTEBOARD)) == SUPPORT) {
-        enabledStatus = "true";
+        return true;
     }
     cJSON_Delete(jsonObject);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetEnabledStatus success %{public}s.", enabledStatus.c_str());
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
 #endif
+    return false;
 }
 
 void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)
