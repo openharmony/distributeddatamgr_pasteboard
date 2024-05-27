@@ -31,6 +31,8 @@
 #include "hiview_adapter.h"
 #include "iservice_registry.h"
 #include "loader.h"
+#include "mem_mgr_client.h"
+#include "mem_mgr_proxy.h"
 #include "int_wrapper.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
@@ -167,6 +169,7 @@ void PasteboardService::OnStart()
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 1, PASTEBOARD_SERVICE_ID);
     return;
 }
 
@@ -185,6 +188,7 @@ void PasteboardService::OnStop()
     }
     moduleConfig_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 0, PASTEBOARD_SERVICE_ID);
 }
 
 void PasteboardService::AddSysAbilityListener()
@@ -264,6 +268,7 @@ void PasteboardService::Clear()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
+    RADAR_REPORT(DFX_CLEAR_PASTEBOARD, DFX_MANUAL_CLEAR, DFX_SUCCESS);
     auto it = clips_.Find(userId);
     if (it.first) {
         RevokeUriPermission(it.second);
@@ -417,6 +422,7 @@ bool PasteboardService::IsDataAged()
             clips_.Erase(userId);
         }
         copyTime_.Erase(userId);
+        RADAR_REPORT(DFX_CLEAR_PASTEBOARD, DFX_AUTO_CLEAR, DFX_SUCCESS);
         return true;
     }
     return false;
@@ -533,9 +539,6 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     }
     GetPasteDataDot(data, appInfo.bundleName);
     GrantUriPermission(data, appInfo.bundleName);
-    auto dfxRes = result ? DFX_SUCCESS : DFX_FAILED;
-    RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_HANDLE_GET_DATA, dfxRes, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
-        DMAdapter::GetInstance().GetLocalDeviceType());
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
@@ -610,16 +613,19 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
             return false;
         }
         data = *(it.second);
-        if (it.second->IsDelayData()) {
+        auto originBundleName = it.second->GetBundleName();
+        auto isDelayData = it.second->IsDelayData();
+        if (isDelayData) {
             GetDelayPasteData(appInfo, data);
-            RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_DELAY_PASTE, DFX_SUCCESS, GET_DATA_APP, appInfo.bundleName,
-                GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
         }
-        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_CACHE_DATA, DFX_SUCCESS);
+        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_DELAY_PASTE, static_cast<int>(isDelayData), GET_DATA_APP,
+            appInfo.bundleName, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
+            DMAdapter::GetInstance().GetLocalDeviceType());
         data.SetBundleName(appInfo.bundleName);
         auto curTime = copyTime_[appInfo.userId];
         if (tempTime.second == curTime && clips_[appInfo.userId]->IsDelayData()) {
             clips_[appInfo.userId] = std::make_shared<PasteData>(data);
+            NotifyObservers(originBundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
         }
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
@@ -967,11 +973,9 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.InsertOrAssign(appInfo.userId, pasteData);
-    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CONSTRUCT_PASTEDATA, DFX_SUCCESS, SET_DATA_TYPE, GenerateDataType(*pasteData),
-        LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
+    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
+        appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
     if (pasteData->IsDelayData()) {
-        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, DFX_SUCCESS, SET_DATA_APP, appInfo.bundleName,
-            LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
         auto deathRecipient = new DelayGetterDeathRecipient(appInfo.userId, *this);
         delayGetter->AsObject()->AddDeathRecipient(deathRecipient);
         delayGetters_.InsertOrAssign(appInfo.userId, std::make_pair(delayGetter, deathRecipient));
@@ -981,8 +985,8 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     copyTime_.InsertOrAssign(appInfo.userId, curTime);
     if (!(pasteData->IsDelayData())) {
         SetDistributedData(appInfo.userId, *pasteData);
+        NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     }
-    NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
     SetPasteDataDot(*pasteData);
     setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.Size()));
@@ -1111,6 +1115,7 @@ void PasteboardService::AddObserver(const sptr<IPasteboardChangedObserver> &obse
         observerMap.insert(std::make_pair(COMMON_USERID, observers));
     }
     observers->insert(observer);
+    RADAR_REPORT(DFX_OBSERVER, DFX_ADD_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "observers->size = %{public}u.",
         static_cast<unsigned int>(observers->size()));
 }
@@ -1130,6 +1135,7 @@ void PasteboardService::RemoveSingleObserver(const sptr<IPasteboardChangedObserv
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
         static_cast<unsigned int>(observers->size()));
     auto eraseNum = observers->erase(observer);
+    RADAR_REPORT(DFX_OBSERVER, DFX_REMOVE_SINGLE_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
 }
@@ -1146,6 +1152,7 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
         static_cast<unsigned int>(observers->size()));
     auto eraseNum = observerMap.erase(COMMON_USERID);
+    RADAR_REPORT(DFX_OBSERVER, DFX_REMOVE_ALL_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
 }
