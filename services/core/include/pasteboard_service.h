@@ -201,6 +201,7 @@ private:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DMAdapterInit();
     void DevProfileInit();
+    void NotifySaStatus();
 
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
