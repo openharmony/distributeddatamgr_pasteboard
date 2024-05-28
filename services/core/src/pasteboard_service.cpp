@@ -236,21 +236,18 @@ void PasteboardService::NotifyDelayGetterDied(int32_t userId)
 
 void PasteboardService::DMAdapterInit()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
 }
 
 void PasteboardService::DevProfileInit()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     ParaHandle::GetInstance().Init();
     DevProfile::GetInstance().Init();
 }
 
 void PasteboardService::NotifySaStatus()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, PASTEBOARD_SERVICE_ID);
 }
 
