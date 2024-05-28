@@ -11,9 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ability_runtime_napi_path =
-    "//foundation/ability/ability_runtime/frameworks/js/napi"
-
 pasteboard_root_path = "//foundation/distributeddatamgr/pasteboard"
 
 pasteboard_kits_path = "${pasteboard_root_path}/kits"
@@ -25,10 +22,6 @@ pasteboard_framework_path = "${pasteboard_root_path}/framework/framework"
 pasteboard_utils_path = "${pasteboard_root_path}/utils"
 
 pasteboard_service_path = "${pasteboard_root_path}/services"
-
-filemanagement_service_path = "//foundation/filemanagement/dfs_service/services"
-
-udmf_interfaces_path = "//foundation/distributeddatamgr/udmf/interfaces"
 
 declare_args() {
   pb_dlp_part_enabled = true
