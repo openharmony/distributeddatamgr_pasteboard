@@ -259,7 +259,7 @@ std::vector<std::string> DMAdapter::CheckAuthForm(const std::string &networkId)
     (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
     for (auto &device : devices) {
         if (device.networkId == networkId) {
-            remoteDevice = device;
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "device auth result is %{public}d!", device.authForm);
             return device.authForm == IDENTICAL_ACCOUNT;
         }
     }

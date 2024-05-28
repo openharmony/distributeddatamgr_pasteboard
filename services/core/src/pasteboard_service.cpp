@@ -619,7 +619,7 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
             GetDelayPasteData(appInfo, data);
         }
         RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_DELAY_PASTE, static_cast<int>(isDelayData), GET_DATA_APP,
-            appInfo.bundleName, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
+            appInfo.bundleName, GET_DATA_TYPE, ConvertDataType(data), LOCAL_DEV_TYPE,
             DMAdapter::GetInstance().GetLocalDeviceType());
         data.SetBundleName(appInfo.bundleName);
         auto curTime = copyTime_[appInfo.userId];
@@ -637,6 +637,30 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
     return true;
+}
+
+uint8_t PasteboardService::ConvertDataType(PasteData &data) {
+    std::vector<std::string> mimeTypes = data.GetMimeTypes();
+    if (mimeTypes.empty()) {
+        return 0;
+    }
+    std::bitset<MAX_INDEX_LENGTH> dataType(0);
+    for (size_t i = 0; i < mimeTypes.size(); i++) {
+        auto it = typeMap_.find(mimeTypes[i]);
+        if (it == typeMap_.end()) {
+            continue;
+        }
+        auto index = it->second;
+        if (it->second == HTML_INDEX && data.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG) {
+            dataType.reset();
+            dataType.set(index);
+            break;
+        }
+        dataType.set(index);
+    }
+    auto types = dataType.to_ulong();
+    uint8_t value = types & 0xff;
+    return value;
 }
 
 void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
@@ -866,6 +890,12 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
         return HasLocalDataType(mimeType);
     }
     HasDistributedData(userId);
+    if (event.dataType.size() == 0) {
+        std::vector<uint8_t> rawData = std::move(event.addition);
+        if (clipPlugin->GetPasteData(event, rawData) != 0) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get data failed");
+        }
+    }
     return HasDistributedDataType(mimeType);
 }
 
@@ -899,16 +929,13 @@ bool PasteboardService::HasLocalDataType(const std::string &mimeType)
 
 bool PasteboardService::HasDistributedDataType(const std::string &mimeType)
 {
-    auto value = remoteEvent_.dataType;
-    std::bitset<MAX_INDEX_LENGTH> dataType(value);
+    std::set<std::string> dataType = remoteEvent_.dataType;
     auto it = typeMap_.find(mimeType);
     if (it == typeMap_.end()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mimetype is not exist");
         return false;
     }
-    auto index = it->second;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "index = %{public}d", index);
-    return dataType[index];
+    return std::find(dataType.begin(), dataType.end(), mimeType) != dataType.end();
 }
 
 bool PasteboardService::IsRemoteData()
@@ -1523,31 +1550,16 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     return true;
 }
 
-uint8_t PasteboardService::GenerateDataType(PasteData &data)
-{
-    std::vector<std::string> mimeTypes = data.GetMimeTypes();
+std::set<std::string> PasteboardService::GenerateDataType(PasteData &data) {
+    std::vector <std::string> mimeTypes = data.GetMimeTypes();
     if (mimeTypes.empty()) {
         return 0;
     }
-    std::bitset<MAX_INDEX_LENGTH> dataType(0);
+    std::set <std::string> dataType;
     for (size_t i = 0; i < mimeTypes.size(); i++) {
-        auto it = typeMap_.find(mimeTypes[i]);
-        if (it == typeMap_.end()) {
-            continue;
-        }
-        auto index = it->second;
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist index=%{public}d", index);
-        if (it->second == HTML_INDEX && data.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG) {
-            dataType.reset();
-            dataType.set(index);
-            break;
-        }
-        dataType.set(index);
+        dataType.insert(mimeTypes[i]);
     }
-    auto types = dataType.to_ulong();
-    uint8_t value = types & 0xff;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "value = %{public}d", value);
-    return value;
+    return dataType;
 }
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)
