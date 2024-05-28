@@ -251,4 +251,20 @@ int32_t DMAdapter::GetLocalDeviceType()
     return -1;
 #endif
 }
+
+std::vector<std::string> DMAdapter::CheckAuthForm(const std::string &networkId)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::vector<DmDeviceInfo> devices;
+    (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
+    for (auto &device : devices) {
+        if (device.networkId == networkId) {
+            remoteDevice = device;
+            return device.authForm == IDENTICAL_ACCOUNT;
+        }
+    }
+#else
+    return false;
+#endif
+}
 } // namespace OHOS::MiscServices
