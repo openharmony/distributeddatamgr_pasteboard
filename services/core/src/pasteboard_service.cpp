@@ -96,6 +96,7 @@ PasteboardService::PasteboardService()
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
         &PasteboardService::DMAdapterInit;
+    ServiceListenerFunc_[static_cast<int32_t>(MEMORY_MANAGER_SA_ID)] = &PasteboardService::NotifySaStatus;
 }
 
 PasteboardService::~PasteboardService()
@@ -169,7 +170,6 @@ void PasteboardService::OnStart()
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
-    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 1, PASTEBOARD_SERVICE_ID);
     return;
 }
 
@@ -188,7 +188,7 @@ void PasteboardService::OnStop()
     }
     moduleConfig_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
-    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 0, PASTEBOARD_SERVICE_ID);
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, PASTEBOARD_SERVICE_ID);
 }
 
 void PasteboardService::AddSysAbilityListener()
@@ -236,16 +236,19 @@ void PasteboardService::NotifyDelayGetterDied(int32_t userId)
 
 void PasteboardService::DMAdapterInit()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
 }
 
 void PasteboardService::DevProfileInit()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     ParaHandle::GetInstance().Init();
     DevProfile::GetInstance().Init();
+}
+
+void PasteboardService::NotifySaStatus()
+{
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, PASTEBOARD_SERVICE_ID);
 }
 
 void PasteboardService::InitServiceHandler()
