@@ -19,6 +19,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <set>
 
 #include "api/visibility.h"
 namespace OHOS::MiscServices {

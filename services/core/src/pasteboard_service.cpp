@@ -1540,7 +1540,8 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
     event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
-    event.dataType = GenerateDataType(data);
+    std::set<std::string> dataType(data.GetMimeTypes().begin(), data.GetMimeTypes().end());
+    event.dataType = dataType;
     currentEvent_ = event;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
     std::thread thread([clipPlugin, event, rawData]() mutable {
@@ -1548,18 +1549,6 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     });
     thread.detach();
     return true;
-}
-
-std::set<std::string> PasteboardService::GenerateDataType(PasteData &data) {
-    std::vector <std::string> mimeTypes = data.GetMimeTypes();
-    if (mimeTypes.empty()) {
-        return 0;
-    }
-    std::set <std::string> dataType;
-    for (size_t i = 0; i < mimeTypes.size(); i++) {
-        dataType.insert(mimeTypes[i]);
-    }
-    return dataType;
 }
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)

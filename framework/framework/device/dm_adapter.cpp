@@ -252,7 +252,7 @@ int32_t DMAdapter::GetLocalDeviceType()
 #endif
 }
 
-std::vector<std::string> DMAdapter::CheckAuthForm(const std::string &networkId)
+bool DMAdapter::CheckAuthForm(const std::string &networkId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     std::vector<DmDeviceInfo> devices;
