@@ -263,8 +263,7 @@ bool DMAdapter::CheckAuthForm(const std::string &networkId)
             return device.authForm == IDENTICAL_ACCOUNT;
         }
     }
-#else
-    return false;
 #endif
+    return false;
 }
 } // namespace OHOS::MiscServices

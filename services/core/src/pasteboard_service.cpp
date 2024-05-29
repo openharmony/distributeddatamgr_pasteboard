@@ -1661,7 +1661,7 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     auto &tmpEvent = events[0];
     if (tmpEvent.dataType.size() == 0) {
         std::vector<uint8_t> rawData = std::move(event.addition);
-        if (clipPlugin->GetPasteData(event, rawData) == 0) {
+        if (Plugin->GetPasteData(event, rawData) == 0) {
             std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
             pasteData->Decode(rawData);
             GenerateDataType(*pasteData);
