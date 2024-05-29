@@ -639,7 +639,8 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
     return true;
 }
 
-uint8_t PasteboardService::ConvertDataType(PasteData &data) {
+uint8_t PasteboardService::ConvertDataType(PasteData &data)
+{
     std::vector<std::string> mimeTypes = data.GetMimeTypes();
     if (mimeTypes.empty()) {
         return 0;
