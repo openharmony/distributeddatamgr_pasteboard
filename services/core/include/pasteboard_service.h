@@ -177,6 +177,7 @@ private:
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void EstablishP2PLink();
+    std::set<std::string> GenerateDataType(PasteData &data);
     uint8_t ConvertDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 

@@ -890,12 +890,6 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
         return HasLocalDataType(mimeType);
     }
     HasDistributedData(userId);
-    if (event.dataType.size() == 0) {
-        std::vector<uint8_t> rawData = std::move(event.addition);
-        if (clipPlugin->GetPasteData(event, rawData) != 0) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get data failed");
-        }
-    }
     return HasDistributedDataType(mimeType);
 }
 
@@ -1540,8 +1534,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
     event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
-    std::set<std::string> dataType(data.GetMimeTypes().begin(), data.GetMimeTypes().end());
-    event.dataType = dataType;
+    event.dataType = GenerateDataType(data);
     currentEvent_ = event;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
     std::thread thread([clipPlugin, event, rawData]() mutable {
@@ -1549,6 +1542,19 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     });
     thread.detach();
     return true;
+}
+
+std::set<std::string> PasteboardService::GenerateDataType(PasteData &data)
+{
+    std::vector<std::string> mimeTypes = data.GetMimeTypes();
+    std::set<std::string> dataTypes;
+    if (mimeTypes.empty()) {
+        return dataTypes;
+    }
+    for (size_t i = 0; i < mimeTypes.size(); i ++) {
+        dataTypes.insert(mimeTypes[i]);
+    }
+    return dataTypes;
 }
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)
@@ -1653,6 +1659,15 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     }
 
     auto &tmpEvent = events[0];
+    if (tmpEvent.dataType.size() == 0) {
+        std::vector<uint8_t> rawData = std::move(event.addition);
+        if (clipPlugin->GetPasteData(event, rawData) == 0) {
+            std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+            pasteData->Decode(rawData);
+            GenerateDataType(*pasteData);
+        }
+    }
+
     if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalNetworkId()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data.");
         return false;
