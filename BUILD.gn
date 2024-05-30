@@ -21,7 +21,6 @@ group("pasteboard_packages") {
       "etc/init:pasteboardservice.cfg",
       "framework/framework:build_module",
       "framework/innerkits:pasteboard_client",
-      "interfaces/cj:cj_pasteboard_ffi",
       "interfaces/kits:pasteboard_napi",
       "profile:distributeddatamgr_pasteboard_sa_profiles",
       "services:pasteboard_service",
