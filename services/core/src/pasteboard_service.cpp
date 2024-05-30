@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "ability_manager_client.h"
+#include "tokenid_kit.h"
 #include "accesstoken_kit.h"
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
@@ -1192,6 +1193,41 @@ std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const st
         });
     }
     return result;
+}
+
+int32_t PasteboardService::SetAppShareOptions(const ShareOption &shareOptions)
+{
+    auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
+    if (!OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(fullTokenId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "No permission, full token id: 0x%{public}" PRIx64 "", fullTokenId);
+        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
+    }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto isAbsent = globalShareOptions_.ComputeIfAbsent(tokenId, [&shareOptions](const uint32_t &tokenId) {
+        return shareOptions;
+    });
+    if (!isAbsent) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Settings already exist, token id: 0x%{public}x.", tokenId);
+        return static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
+        "Set token id: 0x%{public}x share options: %{public}d success.", tokenId, shareOptions);
+    return 0;
+}
+
+int32_t PasteboardService::RemoveAppShareOptions()
+{
+    auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
+    if (!OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(fullTokenId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "No permission, full token id: 0x%{public}" PRIx64 "", fullTokenId);
+        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
+    }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    globalShareOptions_.Erase(tokenId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Remove token id: 0x%{public}x share options success.", tokenId);
+    return 0;
 }
 
 void PasteboardService::UpdateShareOption(PasteData &pasteData)

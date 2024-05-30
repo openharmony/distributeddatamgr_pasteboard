@@ -247,6 +247,9 @@ private:
     static napi_value SetUnifiedData(napi_env env, napi_callback_info info);
     static napi_value SetUnifiedDataSync(napi_env env, napi_callback_info info);
 
+    static napi_value SetAppShareOptions(napi_env env, napi_callback_info info);
+    static napi_value RemoveAppShareOptions(napi_env env, napi_callback_info info);
+
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;

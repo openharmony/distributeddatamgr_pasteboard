@@ -379,6 +379,22 @@ std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(const std
     return pasteboardServiceProxy_->GetGlobalShareOption(tokenIds);
 }
 
+int32_t PasteboardClient::SetAppShareOptions(const ShareOption &shareOptions)
+{
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    return pasteboardServiceProxy_->SetAppShareOptions(shareOptions);
+}
+
+int32_t PasteboardClient::RemoveAppShareOptions()
+{
+    if (!IsServiceAvailable()) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    return pasteboardServiceProxy_->RemoveAppShareOptions();
+}
+
 bool PasteboardClient::IsRemoteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "IsRemoteData start.");
