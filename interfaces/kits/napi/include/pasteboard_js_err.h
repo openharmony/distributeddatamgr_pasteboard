@@ -20,6 +20,7 @@ namespace OHOS::MiscServices {
 enum class JSErrorCode : int32_t {
     SUCCESS = 0,
     NO_PERMISSION = 201,
+    NO_SYSTEM_PERMISSION = 202,
     INVALID_PARAMETERS = 401,
     DEVICE_NOT_SUPPORT = 801,
     OUT_OF_RANGE = 12900001,
@@ -27,6 +28,7 @@ enum class JSErrorCode : int32_t {
     OTHER_COPY_OR_PASTE_IN_PROCESSING,
     COPY_FORBIDDEN,
     REQUEST_TIME_OUT,
+    SETTINGS_ALREADY_EXIST,
 };
 } // namespace OHOS::MiscServices
 

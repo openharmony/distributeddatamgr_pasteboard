@@ -662,6 +662,51 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     return nullptr;
 }
 
+napi_value SystemPasteboardNapi::SetAppShareOptions(napi_env env, napi_callback_info info)
+{
+    size_t argc = 1;
+    napi_value argv[1] = {0};
+    napi_value thisArg = nullptr;
+    void *data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
+    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Mandatory parameters are left unspecified.")) {
+        return nullptr;
+    }
+    int32_t shareOptions;
+    auto status = napi_get_value_int32(env, argv[0], &shareOptions);
+    if (!CheckExpression(env, status == napi_ok, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. Incorrect parameter types.")) {
+        return nullptr;
+    }
+    if (!CheckExpression(env, shareOptions >= ShareOption::InApp && shareOptions <= ShareOption::CrossDevice,
+        JSErrorCode::INVALID_PARAMETERS, "Parameter error. Parameter verification failed.")) {
+        return nullptr;
+    }
+    auto result = PasteboardClient::GetInstance()->SetAppShareOptions(static_cast<ShareOption>(shareOptions));
+    if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::E_NO_PERMISSION),
+        JSErrorCode::NO_SYSTEM_PERMISSION,
+        "Permission verification failed. A non-system application calls a system API.")) {
+        return nullptr;
+    }
+    if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION),
+        JSErrorCode::SETTINGS_ALREADY_EXIST, "Settings already exist.")) {
+        return nullptr;
+    }
+    return nullptr;
+}
+
+napi_value SystemPasteboardNapi::RemoveAppShareOptions(napi_env env, napi_callback_info info)
+{
+    auto result = PasteboardClient::GetInstance()->RemoveAppShareOptions();
+    if (CheckExpression(env, result != static_cast<int32_t>(PasteboardError::E_NO_PERMISSION),
+        JSErrorCode::NO_SYSTEM_PERMISSION,
+        "Permission verification failed. A non-system application calls a system API.")) {
+        return nullptr;
+    }
+    return nullptr;
+}
+
 void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>& context)
 {
     auto input = [context](napi_env env, size_t argc, napi_value* argv, napi_value self) -> napi_status {
@@ -944,6 +989,9 @@ napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value e
         DECLARE_NAPI_FUNCTION("getUnifiedData", GetUnifiedData),
         DECLARE_NAPI_FUNCTION("setUnifiedDataSync", SetUnifiedDataSync),
         DECLARE_NAPI_FUNCTION("getUnifiedDataSync", GetUnifiedDataSync),
+        DECLARE_NAPI_FUNCTION("setAppShareOptions", SetAppShareOptions),
+        DECLARE_NAPI_FUNCTION("removeAppShareOptions", RemoveAppShareOptions),
+
     };
     napi_value constructor;
     napi_define_class(env, "SystemPasteboard", NAPI_AUTO_LENGTH, New, nullptr,

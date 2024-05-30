@@ -401,5 +401,43 @@ std::map<uint32_t, ShareOption> PasteboardServiceProxy::GetGlobalShareOption(con
     }
     return globalShareOptions;
 }
+
+int32_t PasteboardServiceProxy::SetAppShareOptions(const ShareOption &shareOptions)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write interface token failed.");
+        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+    }
+    if (!data.WriteInt32(shareOptions)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write share options failed.");
+        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+    }
+    auto result = Remote()->SendRequest(PasteboardServiceInterfaceCode::SET_APP_SHARE_OPTIONS, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Send request failed, error code: %{public}d.", result);
+        return result;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t PasteboardServiceProxy::RemoveAppShareOptions()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write interface token failed.");
+        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+    }
+    auto result = Remote()->SendRequest(PasteboardServiceInterfaceCode::REMOVE_APP_SHARE_OPTIONS, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Send request failed, error code: %{public}d.", result);
+        return result;
+    }
+    return reply.ReadInt32();
+}
 } // namespace MiscServices
 } // namespace OHOS
