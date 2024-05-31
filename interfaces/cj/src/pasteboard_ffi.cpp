@@ -80,7 +80,7 @@ char* MallocCString(const std::string& origin)
         return nullptr;
     }
     auto len = origin.length() + 1;
-    char* res = (char*)malloc(sizeof(char) * len);
+    char* res = static_cast<char*>(malloc(sizeof(char) * len));
     if (res == nullptr) {
         return nullptr;
     }
@@ -537,7 +537,6 @@ int32_t FfiOHOSPasteDataAddPixelMapRecord(int64_t id, const char* mimeType, int6
         return ERR_INVALID_INSTANCE_CODE;
     }
 
-    std::string types = mimeType;
     auto pixelMap = pixelMapImpl->GetRealPixelMap();
     if (pixelMap == nullptr) {
         LOGE("[PasteData] PasteDataImpl PixelMap not exist");
