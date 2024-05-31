@@ -1642,7 +1642,8 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "account error.");
         return false;
     }
-    if (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId) {
+    if (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId &&
+        tmpEvent.expiration == currentEvent_.expiration) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data.");
         return false;
     }
