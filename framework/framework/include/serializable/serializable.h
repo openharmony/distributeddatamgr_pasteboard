@@ -32,10 +32,14 @@ struct Serializable {
 public:
     using json = cJSON*;
     API_EXPORT bool Unmarshall(const std::string &jsonStr);
+    API_EXPORT std::string Marshall();
     virtual bool Marshal(json &node) const = 0;
     virtual bool Unmarshal(const json &node) = 0;
     API_EXPORT static bool GetValue(const json node, const std::string &name, std::string &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, uint8_t &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, uint16_t &value);
     API_EXPORT static bool GetValue(const json node, const std::string &name, uint32_t &value);
+    API_EXPORT static bool GetValue(const json node, const std::string &name, uint64_t &value);
     API_EXPORT static bool GetValue(const json node, const std::string &name, int32_t &value);
     API_EXPORT static bool GetValue(const json node, const std::string &name, int64_t &value);
     API_EXPORT static bool GetValue(const json node, const std::string &name, bool &value);
@@ -44,7 +48,13 @@ public:
     API_EXPORT static bool SetValue(
         json &node, const std::string &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
+        json &node, const uint8_t &value, const std::string &name = "");
+    API_EXPORT static bool SetValue(
+        json &node, const uint16_t &value, const std::string &name = "");
+    API_EXPORT static bool SetValue(
         json &node, const uint32_t &value, const std::string &name = "");
+    API_EXPORT static bool SetValue(
+        json &node, const uint64_t &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
         json &node, const int32_t &value, const std::string &name = "");
     API_EXPORT static bool SetValue(
