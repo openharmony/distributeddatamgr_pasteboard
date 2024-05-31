@@ -24,6 +24,8 @@ ohos_shared_library("cj_pasteboard_ffi") {
   ]
 
   sanitize = {
+    ubsan = true
+    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     cfi_vcall_icall_only = true
