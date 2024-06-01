@@ -32,7 +32,7 @@ struct Serializable {
 public:
     using json = cJSON*;
     API_EXPORT bool Unmarshall(const std::string &jsonStr);
-    API_EXPORT std::string Marshall();
+    API_EXPORT std::string Marshall() const;
     virtual bool Marshal(json &node) const = 0;
     virtual bool Unmarshal(const json &node) = 0;
     API_EXPORT static bool GetValue(const json node, const std::string &name, std::string &value);
