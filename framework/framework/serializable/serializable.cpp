@@ -27,7 +27,7 @@ bool Serializable::Unmarshall(const std::string &jsonStr)
     return result;
 }
 
-std::string Serializable::Marshall()
+std::string Serializable::Marshall() const
 {
     json node;
     Marshal(node);
