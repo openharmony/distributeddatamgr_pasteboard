@@ -1571,7 +1571,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
             continue;
         }
         HmdfsUriInfo hui;
-        auto ret = RemoteFileShare::GetDfsUriFromLocal(uri.ToString(), userId, hui, data.GetBundleName());
+        auto ret = RemoteFileShare::GetDfsUriFromLocal(uri.ToString(), userId, hui);
         if (ret != 0) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "creat uri failed: %{public}d", ret);
             continue;
