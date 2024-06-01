@@ -312,7 +312,10 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
         isSecureGrant, isPrivilegeApp);
-    auto isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
+    bool isCtrlVAction;
+    if (inputEventCallback_ != null) {
+        isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
+    }
     auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || isCtrlVAction;
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}d, version is %{public}d",
@@ -619,7 +622,7 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
             GetDelayPasteData(appInfo, data);
         }
         RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_DELAY_PASTE, static_cast<int>(isDelayData), GET_DATA_APP,
-            appInfo.bundleName, GET_DATA_TYPE, ConvertDataType(data), LOCAL_DEV_TYPE,
+            appInfo.bundleName, GET_DATA_TYPE, GetDataTypeBit(data), LOCAL_DEV_TYPE,
             DMAdapter::GetInstance().GetLocalDeviceType());
         data.SetBundleName(appInfo.bundleName);
         auto curTime = copyTime_[appInfo.userId];
@@ -639,7 +642,7 @@ bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
     return true;
 }
 
-uint8_t PasteboardService::ConvertDataType(PasteData &data)
+uint8_t PasteboardService::GetDataTypeBit(PasteData &data)
 {
     std::vector<std::string> mimeTypes = data.GetMimeTypes();
     if (mimeTypes.empty()) {
@@ -647,21 +650,20 @@ uint8_t PasteboardService::ConvertDataType(PasteData &data)
     }
     std::bitset<MAX_INDEX_LENGTH> dataType(0);
     for (size_t i = 0; i < mimeTypes.size(); i++) {
-        auto it = typeMap_.find(mimeTypes[i]);
+    for (const auto& mimeType : mimeTypes) {
+        auto it = typeMap_.find(mimeType);
         if (it == typeMap_.end()) {
             continue;
         }
         auto index = it->second;
-        if (it->second == HTML_INDEX && data.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG) {
+        if (index == HTML_INDEX && data.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG) {
             dataType.reset();
             dataType.set(index);
             break;
         }
         dataType.set(index);
     }
-    auto types = dataType.to_ulong();
-    uint8_t value = types & 0xff;
-    return value;
+    return dataType.to_ulong() & 0xff;
 }
 
 void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
@@ -1456,7 +1458,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
         event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
-    std::vector<uint8_t> rawData = std::move(event.addition);
+    std::vector<uint8_t> rawData;
     if (!isEffective) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is invalid");
         currentEvent_.status = ClipPlugin::EVT_INVALID;
@@ -1660,15 +1662,6 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
     }
 
     auto &tmpEvent = events[0];
-    if (tmpEvent.dataType.size() == 0) {
-        std::vector<uint8_t> rawData = std::move(event.addition);
-        if (plugin->GetPasteData(event, rawData) == 0) {
-            std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-            pasteData->Decode(rawData);
-            GenerateDataType(*pasteData);
-        }
-    }
-
     if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalNetworkId()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data.");
         return false;
@@ -1682,7 +1675,14 @@ bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, 
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data.");
         return false;
     }
-
+    if (tmpEvent.dataType.size() == 0) {
+        std::vector<uint8_t> rawData;
+        if (plugin->GetPasteData(event, rawData) == 0) {
+            std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+            pasteData->Decode(rawData);
+            GenerateDataType(*pasteData);
+        }
+    }
     event = std::move(tmpEvent);
     uint64_t curTime =
         static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());

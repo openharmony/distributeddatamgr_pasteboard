@@ -252,14 +252,13 @@ int32_t DMAdapter::GetLocalDeviceType()
 #endif
 }
 
-bool DMAdapter::CheckAuthForm(const std::string &networkId)
+bool DMAdapter::IsSameAccount(const std::string &networkId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     std::vector<DmDeviceInfo> devices;
     (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
     for (auto &device : devices) {
         if (device.networkId == networkId) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "device auth result is %{public}d!", device.authForm);
             return device.authForm == IDENTICAL_ACCOUNT;
         }
     }

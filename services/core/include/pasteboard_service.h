@@ -178,7 +178,7 @@ private:
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void EstablishP2PLink();
     std::set<std::string> GenerateDataType(PasteData &data);
-    uint8_t ConvertDataType(PasteData &data);
+    uint8_t GetDataTypeBit(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
     std::shared_ptr<PasteData> GetDistributedData(int32_t user);
