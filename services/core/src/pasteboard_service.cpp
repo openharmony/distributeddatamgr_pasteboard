@@ -1496,8 +1496,8 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     }
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
     GenerateDistributedUri(data);
-    if (data.GetShareOption() != CrossDevice || !data.Encode(*rawData)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Cross-device data is not supported.");
+    if (data.GetShareOption() == InApp || !data.Encode(*rawData)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InApp data is not supports cross device, or data encode failed.");
         return false;
     }
 
@@ -1515,7 +1515,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.expiration = static_cast<uint64_t>(expiration);
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
-    event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
+    event.status = ClipPlugin::EVT_NORMAL;
     event.dataType = GenerateDataType(data);
     currentEvent_ = event;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
