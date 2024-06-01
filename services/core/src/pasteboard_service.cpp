@@ -1496,8 +1496,8 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     }
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
     GenerateDistributedUri(data);
-    if (!data.Encode(*rawData)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data encode failed.");
+    if (data.GetShareOption() == InApp || !data.Encode(*rawData)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InApp data is not supports cross device, or data encode failed.");
         return false;
     }
 
