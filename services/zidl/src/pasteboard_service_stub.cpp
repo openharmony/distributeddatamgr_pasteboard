@@ -61,6 +61,10 @@ PasteboardServiceStub::PasteboardServiceStub()
             &PasteboardServiceStub::OnRemoveGlobalShareOption;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_GLOBAL_SHARE_OPTION)] =
             &PasteboardServiceStub::OnGetGlobalShareOption;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_APP_SHARE_OPTIONS)] =
+            &PasteboardServiceStub::OnSetAppShareOptions;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_APP_SHARE_OPTIONS)] =
+            &PasteboardServiceStub::OnRemoveAppShareOptions;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -376,6 +380,31 @@ int32_t PasteboardServiceStub::OnGetGlobalShareOption(MessageParcel &data, Messa
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write shareOption failed.");
             return ERR_INVALID_VALUE;
         }
+    }
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnSetAppShareOptions(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t shareOptions;
+    if (!data.ReadInt32(shareOptions)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read share options failed.");
+        return static_cast<int32_t>(PasteboardError::E_READ_PARCEL_ERROR);
+    }
+    auto result = SetAppShareOptions(static_cast<ShareOption>(shareOptions));
+    if (!reply.WriteInt32(result)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write result failed.");
+        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+    }
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnRemoveAppShareOptions(MessageParcel &data, MessageParcel &reply)
+{
+    auto result = RemoveAppShareOptions();
+    if (!reply.WriteInt32(result)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write result failed.");
+        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
     }
     return ERR_OK;
 }

@@ -43,6 +43,8 @@ public:
     virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) override;
     virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
     virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
+    virtual int32_t SetAppShareOptions(const ShareOption &shareOptions) override;
+    virtual int32_t RemoveAppShareOptions() override;
 
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;
