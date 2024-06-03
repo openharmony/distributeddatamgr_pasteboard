@@ -19,7 +19,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <set>
 
 #include "api/visibility.h"
 #include "serializable/serializable.h"
@@ -37,7 +36,7 @@ public:
         uint16_t status = EVT_UNKNOWN;
         std::string deviceId;
         std::string account;
-        std::set<std::string> dataType;
+        std::vector<std::string> dataType;
         bool operator == (const GlobalEvent globalEvent)
         {
             return globalEvent.seqId == this->seqId && globalEvent.deviceId == this->deviceId;
