@@ -316,10 +316,10 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
         isSecureGrant, isPrivilegeApp);
-    if (inputEventCallback_ == nullptr) {
-        SubscribeKeyboardEvent();
+    bool isCtrlVAction = false;
+    if (inputEventCallback_ != nullptr) {
+        isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
     }
-    bool isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
     auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || isCtrlVAction;
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}d, version is %{public}d",
@@ -532,7 +532,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     CalculateTimeConsuming::SetBeginTime();
     auto appInfo = GetAppInfo(tokenId);
     bool result = false;
-    auto event = GetValidTopEvent(appInfo.userId);
+    auto event = GetValidDistributeEvent(appInfo.userId);
     if (!event.first) {
         result = GetLocalData(appInfo, data);
     } else {
@@ -616,30 +616,6 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
     return true;
-}
-
-uint8_t PasteboardService::GenerateDataType(PasteData &data)
-{
-    std::vector<std::string> mimeTypes = data.GetMimeTypes();
-    if (mimeTypes.empty()) {
-        return 0;
-    }
-    std::bitset<MAX_INDEX_LENGTH> dataType(0);
-    for (size_t i = 0; i < mimeTypes.size(); i++) {
-    for (const auto& mimeType : mimeTypes) {
-        auto it = typeMap_.find(mimeType);
-        if (it == typeMap_.end()) {
-            continue;
-        }
-        auto index = it->second;
-        if (index == HTML_INDEX && data.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG) {
-            dataType.reset();
-            dataType.set(index);
-            break;
-        }
-        dataType.set(index);
-    }
-    return dataType.to_ulong() & 0xff;
 }
 
 void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
@@ -841,7 +817,7 @@ bool PasteboardService::HasPasteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        auto evt = GetValidTopEvent(userId);
+        auto evt = GetValidDistributeEvent(userId);
         return evt.first;
     }
 
@@ -858,7 +834,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
 bool PasteboardService::HasDataType(const std::string &mimeType)
 {
     auto userId = GetCurrentAccountId();
-    auto event = GetValidTopEvent(userId);
+    auto event = GetValidDistributeEvent(userId);
     if (event.first) {
         if (!GetRemoteData(userId, event, data)) {
             return false;
@@ -867,7 +843,7 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
     return HasLocalDataType(mimeType);
 }
 
-std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidTopEvent(int32_t user)
+std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEvent(int32_t user)
 {
     Event evt;
     auto plugin = GetClipPlugin();
@@ -1513,6 +1489,33 @@ bool PasteboardService::IsAllowSendData()
     return true;
 }
 
+uint8_t PasteboardService::GenerateDataType(PasteData &data)
+{
+    std::vector<std::string> mimeTypes = data.GetMimeTypes();
+    if (mimeTypes.empty()) {
+        return 0;
+    }
+    std::bitset<MAX_INDEX_LENGTH> dataType(0);
+    for (size_t i = 0; i < mimeTypes.size(); i++) {
+        auto it = typeMap_.find(mimeTypes[i]);
+        if (it == typeMap_.end()) {
+            continue;
+        }
+        auto index = it->second;
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist index=%{public}d", index);
+        if (it->second == HTML_INDEX && data.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG) {
+            dataType.reset();
+            dataType.set(index);
+            break;
+        }
+        dataType.set(index);
+    }
+    auto types = dataType.to_ulong();
+    uint8_t value = types & 0xff;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "value = %{public}d", value);
+    return value;
+}
+
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
     if (!IsAllowSendData()) {
@@ -1556,6 +1559,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     thread.detach();
     return true;
 }
+
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)
 {
@@ -1682,9 +1686,6 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 
 bool PasteboardService::SubscribeKeyboardEvent()
 {
-    if (inputEventCallback_ != nullptr) {
-        return true;
-    }
     inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId =
         MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(

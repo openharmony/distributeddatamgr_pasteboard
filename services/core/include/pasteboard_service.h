@@ -159,9 +159,7 @@ private:
         sptr<IPasteboardDelayGetter> delayGetter = nullptr) override;
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
-
-    std::pair<bool, ClipPlugin::GlobalEvent> GetValidTopEvent(int32_t user);
-
+    std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
     int32_t GetData(uint32_t tokenId, PasteData &data);
