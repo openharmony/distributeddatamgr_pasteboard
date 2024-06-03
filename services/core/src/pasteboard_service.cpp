@@ -836,7 +836,8 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
     auto userId = GetCurrentAccountId();
     auto event = GetValidDistributeEvent(userId);
     if (event.first) {
-        if (!GetRemoteData(userId, event, data)) {
+        PasteData data;
+        if (!GetRemoteData(userId, event.second, data)) {
             return false;
         }
     }
@@ -1476,7 +1477,6 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(const Event &ev
     }
     return pasteData;
 }
-
 
 bool PasteboardService::IsAllowSendData()
 {
