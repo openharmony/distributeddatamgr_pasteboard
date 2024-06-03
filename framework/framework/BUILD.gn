@@ -30,6 +30,8 @@ config("module_public_config") {
 ohos_shared_library("pasteboard_framework") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    ubsan = true
+    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -53,17 +55,12 @@ ohos_shared_library("pasteboard_framework") {
     "-O2",
   ]
 
-  configs = [ ":module_public_config" ]
-
-  configs += [ "//third_party/cJSON:cJSON_config" ]
-
-  deps = [ "//third_party/cJSON:cjson" ]
-
   defines = []
 
   public_configs = [ ":module_public_config" ]
 
   external_deps = [
+    "cJSON:cjson",
     "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",

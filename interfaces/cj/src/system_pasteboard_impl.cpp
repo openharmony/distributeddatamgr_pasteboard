@@ -61,11 +61,11 @@ int32_t SystemPasteboardImpl::GetSystemPasteboardImpl(int64_t &id)
 
 int32_t SystemPasteboardImpl::SetData(sptr<PasteDataImpl> dataImpl, std::shared_ptr<MiscServices::PasteData> data)
 {
-    int32_t ret = static_cast<int32_t>(PasteboardError::E_ERROR);
     if (data == nullptr) {
         LOGE("[SystemPasteboardImpl] SetData data nullptr");
+        return PASTEBOARD_INVALID_PARAMETERS;
     }
-    ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
     int32_t res = PASTEBOARD_SUCCESS;
     if (ret == static_cast<int>(PasteboardError::E_OK)) {
         value_ = dataImpl;

@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "ability_manager_client.h"
+#include "tokenid_kit.h"
 #include "accesstoken_kit.h"
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
@@ -96,6 +97,7 @@ PasteboardService::PasteboardService()
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
         &PasteboardService::DMAdapterInit;
+    ServiceListenerFunc_[static_cast<int32_t>(MEMORY_MANAGER_SA_ID)] = &PasteboardService::NotifySaStatus;
 }
 
 PasteboardService::~PasteboardService()
@@ -169,7 +171,6 @@ void PasteboardService::OnStart()
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
-    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 1, PASTEBOARD_SERVICE_ID);
     return;
 }
 
@@ -188,7 +189,7 @@ void PasteboardService::OnStop()
     }
     moduleConfig_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
-    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(IPCSkeleton::GetCallingPid(), 1, 0, PASTEBOARD_SERVICE_ID);
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, PASTEBOARD_SERVICE_ID);
 }
 
 void PasteboardService::AddSysAbilityListener()
@@ -236,16 +237,19 @@ void PasteboardService::NotifyDelayGetterDied(int32_t userId)
 
 void PasteboardService::DMAdapterInit()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
 }
 
 void PasteboardService::DevProfileInit()
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin.");
     ParaHandle::GetInstance().Init();
     DevProfile::GetInstance().Init();
+}
+
+void PasteboardService::NotifySaStatus()
+{
+    Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, PASTEBOARD_SERVICE_ID);
 }
 
 void PasteboardService::InitServiceHandler()
@@ -1227,6 +1231,41 @@ std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const st
     return result;
 }
 
+int32_t PasteboardService::SetAppShareOptions(const ShareOption &shareOptions)
+{
+    auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
+    if (!OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(fullTokenId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "No permission, full token id: 0x%{public}" PRIx64 "", fullTokenId);
+        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
+    }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto isAbsent = globalShareOptions_.ComputeIfAbsent(tokenId, [&shareOptions](const uint32_t &tokenId) {
+        return shareOptions;
+    });
+    if (!isAbsent) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Settings already exist, token id: 0x%{public}x.", tokenId);
+        return static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
+        "Set token id: 0x%{public}x share options: %{public}d success.", tokenId, shareOptions);
+    return 0;
+}
+
+int32_t PasteboardService::RemoveAppShareOptions()
+{
+    auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
+    if (!OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(fullTokenId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "No permission, full token id: 0x%{public}" PRIx64 "", fullTokenId);
+        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
+    }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    globalShareOptions_.Erase(tokenId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Remove token id: 0x%{public}x share options success.", tokenId);
+    return 0;
+}
+
 void PasteboardService::UpdateShareOption(PasteData &pasteData)
 {
     globalShareOptions_.ComputeIfPresent(pasteData.GetTokenId(),
@@ -1488,8 +1527,8 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     }
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
     GenerateDistributedUri(data);
-    if (data.GetShareOption() != CrossDevice || !data.Encode(*rawData)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Cross-device data is not supported.");
+    if (data.GetShareOption() == InApp || !data.Encode(*rawData)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InApp data is not supports cross device, or data encode failed.");
         return false;
     }
 
@@ -1507,7 +1546,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.expiration = static_cast<uint64_t>(expiration);
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
-    event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
+    event.status = ClipPlugin::EVT_NORMAL;
     event.dataType = data.GetMimeTypes();
     currentEvent_ = event;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);

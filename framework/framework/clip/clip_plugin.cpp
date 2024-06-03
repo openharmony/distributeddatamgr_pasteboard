@@ -81,4 +81,36 @@ void ClipPlugin::Clear(int32_t user)
 {
     (void)user;
 }
+
+bool ClipPlugin::GlobalEvent::Marshal(Serializable::json &node) const
+{
+    bool ret = true;
+    ret = ret && SetValue(node, version, GET_NAME(version));
+    ret = ret && SetValue(node, frameNum, GET_NAME(frameNum));
+    ret = ret && SetValue(node, user, GET_NAME(user));
+    ret = ret && SetValue(node, seqId, GET_NAME(seqId));
+    ret = ret && SetValue(node, expiration, GET_NAME(expiration));
+    ret = ret && SetValue(node, status, GET_NAME(status));
+    ret = ret && SetValue(node, deviceId, GET_NAME(deviceId));
+    ret = ret && SetValue(node, account, GET_NAME(account));
+    ret = ret && SetValue(node, addition, GET_NAME(addition));
+    ret = ret && SetValue(node, dataType, GET_NAME(dataType));
+    return ret;
+}
+
+bool ClipPlugin::GlobalEvent::Unmarshal(const Serializable::json &node)
+{
+    bool ret = true;
+    ret = ret && GetValue(node, GET_NAME(version), version);
+    ret = ret && GetValue(node, GET_NAME(frameNum), frameNum);
+    ret = ret && GetValue(node, GET_NAME(user), user);
+    ret = ret && GetValue(node, GET_NAME(seqId), seqId);
+    ret = ret && GetValue(node, GET_NAME(expiration), expiration);
+    ret = ret && GetValue(node, GET_NAME(status), status);
+    ret = ret && GetValue(node, GET_NAME(deviceId), deviceId);
+    ret = ret && GetValue(node, GET_NAME(account), account);
+    ret = ret && GetValue(node, GET_NAME(addition), addition);
+    ret = ret && GetValue(node, GET_NAME(dataType), dataType);
+    return ret;
+}
 } // namespace OHOS::MiscServices

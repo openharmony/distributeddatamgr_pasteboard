@@ -35,9 +35,7 @@ int64_t CreateCjPasteDataRecordObject(std::string mimeType, CJValueType value)
     auto pasteDataRecordImpl = FFI::FFIData::Create<PasteDataRecordImpl>(mimeType, value);
     std::shared_ptr<MiscServices::PasteDataRecord> realValue = pasteDataRecordImpl->GetRealPasteDataRecord();
     std::lock_guard<std::recursive_mutex> lock(g_PasteDataMutex);
-    if (g_cjPasteDataRecordMap.find(realValue) == g_cjPasteDataRecordMap.end()) {
-        g_cjPasteDataRecordMap[realValue] = pasteDataRecordImpl;
-    }
+    g_cjPasteDataRecordMap.try_emplace(realValue, pasteDataRecordImpl);
 
     return pasteDataRecordImpl->GetID();
 }
@@ -54,18 +52,14 @@ sptr<PasteDataRecordImpl> getCjPasteDataRecordImpl(std::shared_ptr<PasteDataReco
 void removeCjPasteDataRecordImpl(std::shared_ptr<MiscServices::PasteDataRecord> record)
 {
     std::lock_guard<std::recursive_mutex> lock(g_PasteDataMutex);
-    if (g_cjPasteDataRecordMap.find(record) != g_cjPasteDataRecordMap.end()) {
-        g_cjPasteDataRecordMap.erase(record);
-    }
+    g_cjPasteDataRecordMap.erase(record);
 }
 
 void addCjPasteDataRecordImpl(std::shared_ptr<MiscServices::PasteDataRecord> record,
                               sptr<PasteDataRecordImpl> pasteDataRecordImpl)
 {
     std::lock_guard<std::recursive_mutex> lock(g_PasteDataMutex);
-    if (g_cjPasteDataRecordMap.find(record) == g_cjPasteDataRecordMap.end()) {
-        g_cjPasteDataRecordMap[record] = pasteDataRecordImpl;
-    }
+    g_cjPasteDataRecordMap.try_emplace(record, pasteDataRecordImpl);
 }
 
 PasteDataRecordImpl::PasteDataRecordImpl()

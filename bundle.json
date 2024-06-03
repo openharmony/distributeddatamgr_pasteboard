@@ -29,6 +29,7 @@
           "access_token",
           "app_file_service",
           "bundle_framework",
+          "cJSON",
           "c_utils",
           "common_event_service",
           "device_info_manager",
@@ -45,6 +46,7 @@
           "imf",
           "ipc",
           "image_framework",
+          "libuv",
           "memmgr",
           "napi",
           "os_account",
@@ -53,10 +55,6 @@
           "time_service",
           "udmf",
           "window_manager"
-        ],
-        "third_party": [
-          "libuv",
-          "cJSON"
         ]
         },
       "build": {

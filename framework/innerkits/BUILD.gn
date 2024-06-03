@@ -23,17 +23,17 @@ config("pasteboard_client_config") {
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_utils_path}/native/include",
-    "//commonlibrary/c_utils/base/include",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri",
-    "//foundation/filemanagement/app_file_service/interfaces/innerkits/remote_file_share/native",
   ]
 }
 
 ohos_shared_library("pasteboard_client") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    ubsan = true
+    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -60,7 +60,6 @@ ohos_shared_library("pasteboard_client") {
     "-fvisibility=hidden",
   ]
 
-  configs = [ ":pasteboard_client_config" ]
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
     "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
@@ -72,7 +71,6 @@ ohos_shared_library("pasteboard_client") {
     "ability_base:zuri",
     "ability_runtime:wantagent_innerkits",
     "app_file_service:fileuri_native",
-    "c_utils:utils",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
@@ -81,7 +79,10 @@ ohos_shared_library("pasteboard_client") {
     "samgr:samgr_proxy",
     "time_service:time_client",
   ]
-  public_external_deps = [ "udmf:udmf_client" ]
+  public_external_deps = [
+    "c_utils:utils",
+    "udmf:udmf_client",
+  ]
   subsystem_name = "distributeddatamgr"
   innerapi_tags = [ "platformsdk" ]
   part_name = "pasteboard"

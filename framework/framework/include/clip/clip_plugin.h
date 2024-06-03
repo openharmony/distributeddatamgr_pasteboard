@@ -22,12 +22,13 @@
 #include <set>
 
 #include "api/visibility.h"
+#include "serializable/serializable.h"
 namespace OHOS::MiscServices {
 class API_EXPORT ClipPlugin {
 public:
     enum EventStatus : uint32_t { EVT_UNKNOWN, EVT_INVALID, EVT_NORMAL, EVT_BUTT };
 
-    struct GlobalEvent {
+    struct GlobalEvent final : public DistributedData::Serializable {
         uint8_t version = 0;
         uint8_t frameNum = 0;
         uint16_t user = 0;
@@ -41,6 +42,8 @@ public:
         {
             return globalEvent.seqId == this->seqId && globalEvent.deviceId == this->deviceId;
         }
+        bool Marshal(json &node) const override;
+        bool Unmarshal(const json &node) override;
     };
     class Factory {
     public:

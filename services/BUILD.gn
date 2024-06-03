@@ -13,7 +13,6 @@
 
 import("//build/ohos.gni")
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
-import("//foundation/window/window_manager/windowmanager_aafwk.gni")
 
 config("pasteboard_service_config") {
   visibility = [ ":*" ]
@@ -27,14 +26,12 @@ config("pasteboard_service_config") {
     "account/include",
     "core/include",
     "load/include",
-    "${filemanagement_service_path}/distributedfiledaemon/include/ipc",
     "${pasteboard_innerkits_path}/include",
     "${pasteboard_utils_path}/mock/include",
     "${pasteboard_utils_path}/native/include",
     "${pasteboard_utils_path}/system/safwk/native/include",
     "${pasteboard_framework_path}/framework/include",
     "${pasteboard_framework_path}/framework/include/device",
-    "//commonlibrary/c_utils/base/include",
   ]
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
   cflags = [
@@ -47,6 +44,8 @@ config("pasteboard_service_config") {
 ohos_shared_library("pasteboard_service") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    ubsan = true
+    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -72,11 +71,11 @@ ohos_shared_library("pasteboard_service") {
     "zidl/src/pasteboard_observer_proxy.cpp",
     "zidl/src/pasteboard_service_stub.cpp",
   ]
-  public_configs = [
-    "//commonlibrary/c_utils/base:utils_config",
-    ":pasteboard_service_config",
+  public_configs = [ ":pasteboard_service_config" ]
+  public_external_deps = [
+    "c_utils:utils",
+    "dfs_service:distributed_file_daemon_kit_inner",
   ]
-
   cflags_cc = [
     "-fstack-protector",
     "-D_FORTIFY_SOURCE=2",
@@ -91,10 +90,6 @@ ohos_shared_library("pasteboard_service") {
   ]
   defines = []
 
-  configs = [ "//third_party/cJSON:cJSON_config" ]
-
-  deps += [ "//third_party/cJSON:cjson" ]
-
   external_deps = [
     "ability_base:base",
     "ability_base:want",
@@ -104,12 +99,12 @@ ohos_shared_library("pasteboard_service") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
+    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
+    "cJSON:cjson",
     "common_event_service:cesfwk_innerkits",
-    "dfs_service:distributed_file_daemon_kit_inner",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
