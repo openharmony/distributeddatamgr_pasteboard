@@ -916,7 +916,7 @@ bool PasteboardService::IsRemoteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        auto evt =  GetValidTopEvent(userId);
+        auto evt =  GetValidDistributeEvent(userId);
         return evt.first;
     }
     return it.second->IsRemote();
