@@ -101,6 +101,8 @@ public:
     virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) override;
     virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
     virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
+    virtual int32_t SetAppShareOptions(const ShareOption &shareOptions) override;
+    virtual int32_t RemoveAppShareOptions() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
     static int32_t currentUserId;
@@ -113,7 +115,7 @@ private:
     using Event = ClipPlugin::GlobalEvent;
     using ServiceListenerFunc = void (PasteboardService::*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
-        DISTRIBUTED_DEVICE_PROFILE_SA_ID, WINDOW_MANAGER_SERVICE_ID };
+        DISTRIBUTED_DEVICE_PROFILE_SA_ID, WINDOW_MANAGER_SERVICE_ID, MEMORY_MANAGER_SA_ID };
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
     static constexpr uint32_t PLAIN_INDEX = 0;
     static constexpr uint32_t HTML_INDEX = 1;
@@ -200,6 +202,7 @@ private:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DMAdapterInit();
     void DevProfileInit();
+    void NotifySaStatus();
 
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;

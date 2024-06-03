@@ -27,6 +27,19 @@ bool Serializable::Unmarshall(const std::string &jsonStr)
     return result;
 }
 
+std::string Serializable::Marshall() const
+{
+    json node;
+    Marshal(node);
+    char* value = cJSON_PrintUnformatted(node);
+    std::string result;
+    if (value != nullptr) {
+        result = std::string(value);
+        cJSON_free(value);
+    }
+    return result;
+}
+
 bool Serializable::GetValue(const json node, const std::string &name, std::string &value)
 {
     auto subNode = GetSubNode(node, name);
@@ -37,7 +50,22 @@ bool Serializable::GetValue(const json node, const std::string &name, std::strin
     return true;
 }
 
+bool Serializable::GetValue(const json node, const std::string &name, uint8_t &value)
+{
+    return GetNumber(node, name, value);
+}
+
+bool Serializable::GetValue(const json node, const std::string &name, uint16_t &value)
+{
+    return GetNumber(node, name, value);
+}
+
 bool Serializable::GetValue(const json node, const std::string &name, uint32_t &value)
+{
+    return GetNumber(node, name, value);
+}
+
+bool Serializable::GetValue(const json node, const std::string &name, uint64_t &value)
 {
     return GetNumber(node, name, value);
 }
@@ -95,7 +123,22 @@ bool Serializable::SetValue(json &node, const std::string &value, const std::str
     return true;
 }
 
+bool Serializable::SetValue(json &node, const uint8_t &value, const std::string &name)
+{
+    return SetNumber(node, value, name);
+}
+
+bool Serializable::SetValue(json &node, const uint16_t &value, const std::string &name)
+{
+    return SetNumber(node, value, name);
+}
+
 bool Serializable::SetValue(json &node, const uint32_t &value, const std::string &name)
+{
+    return SetNumber(node, value, name);
+}
+
+bool Serializable::SetValue(json &node, const uint64_t &value, const std::string &name)
 {
     return SetNumber(node, value, name);
 }

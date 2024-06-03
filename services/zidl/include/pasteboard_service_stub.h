@@ -53,6 +53,8 @@ private:
     int32_t OnSetGlobalShareOption(MessageParcel &data, MessageParcel &reply);
     int32_t OnRemoveGlobalShareOption(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetGlobalShareOption(MessageParcel &data, MessageParcel &reply);
+    int32_t OnSetAppShareOptions(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRemoveAppShareOptions(MessageParcel &data, MessageParcel &reply);
     inline bool IsObserverValid(MessageParcel &data, sptr<IPasteboardChangedObserver> &callback);
 
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;

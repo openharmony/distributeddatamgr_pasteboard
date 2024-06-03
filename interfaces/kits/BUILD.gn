@@ -17,6 +17,8 @@ import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 ohos_shared_library("pasteboard_napi") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    ubsan = true
+    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     debug = false
@@ -25,7 +27,6 @@ ohos_shared_library("pasteboard_napi") {
     "${pasteboard_innerkits_path}/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri",
-    "${ability_runtime_napi_path}/inner/napi_common",
     "napi/include",
     "${pasteboard_utils_path}/native/include",
   ]
@@ -51,10 +52,7 @@ ohos_shared_library("pasteboard_napi") {
     "napi/src/pasteboard_common.cpp",
   ]
 
-  deps = [
-    "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
-    "//third_party/libuv:uv",
-  ]
+  deps = [ "${pasteboard_root_path}/framework/innerkits:pasteboard_client" ]
 
   external_deps = [
     "ability_base:want",
@@ -64,6 +62,7 @@ ohos_shared_library("pasteboard_napi") {
     "hilog:libhilog",
     "image_framework:image",
     "ipc:ipc_core",
+    "libuv:uv",
     "napi:ace_napi",
   ]
 

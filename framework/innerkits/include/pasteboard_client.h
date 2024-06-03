@@ -270,6 +270,21 @@ public:
     std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds);
 
     /**
+     * SetAppShareOptions
+     * @description Sets a unified ShareOptions for the application.
+     * @param shareOptions shareOptions
+     * @return result
+     */
+    int32_t SetAppShareOptions(const ShareOption &shareOptions);
+
+    /**
+     * RemoveAppShareOptions
+     * @description Removes the ShareOptions for the application.
+     * @return result
+     */
+    int32_t RemoveAppShareOptions();
+
+    /**
      * OnRemoteSaDied
      * @descrition
      * @param object systemAbility proxy object
