@@ -316,7 +316,7 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
         isSecureGrant, isPrivilegeApp);
-    if (inputEventCallback_ == null) {
+    if (inputEventCallback_ == nullptr) {
         SubscribeKeyboardEvent();
     }
     bool isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
@@ -1682,7 +1682,7 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 
 bool PasteboardService::SubscribeKeyboardEvent()
 {
-    if (inputEventCallback_ != null) {
+    if (inputEventCallback_ != nullptr) {
         return true;
     }
     inputEventCallback_ = std::make_shared<InputEventCallback>();
