@@ -157,7 +157,8 @@ private:
         sptr<IPasteboardDelayGetter> delayGetter = nullptr) override;
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
-    bool IsFocusedApp(uint32_t tokenId);
+
+    std::pair<bool, ClipPlugin::GlobalEvent> GetValidTopEvent(int32_t user);
 
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
@@ -165,8 +166,8 @@ private:
 
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
     bool GetPasteData(const AppInfo &appInfo, PasteData &data);
-    bool CheckPasteData(const AppInfo &appInfo, PasteData &data);
-    bool GetRemoteData(const AppInfo &appInfo, PasteData &data);
+    bool GetLocalData(const AppInfo &appInfo, PasteData &data);
+    bool GetRemoteData(int32_t userId, const Event &event, PasteData &data);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
@@ -178,11 +179,10 @@ private:
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void EstablishP2PLink();
     uint8_t GenerateDataType(PasteData &data);
+    bool HasDistributedDataType(const std::string &mimeType);
 
-    std::shared_ptr<PasteData> GetDistributedData(int32_t user);
+    std::shared_ptr<PasteData> GetDistributedData(const Event &event, int32_t user);
     bool SetDistributedData(int32_t user, PasteData &data);
-    bool HasDistributedData(int32_t user);
-    bool GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, int32_t user, Event &event);
     bool CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
     std::shared_ptr<ClipPlugin> GetClipPlugin();

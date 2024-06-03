@@ -1507,7 +1507,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.expiration = static_cast<uint64_t>(expiration);
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
-    event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
+    event.status = ClipPlugin::EVT_NORMAL;
     event.dataType = data.GetMimeTypes();
     currentEvent_ = event;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
