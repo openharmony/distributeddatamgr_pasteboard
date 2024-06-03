@@ -93,7 +93,6 @@ bool ClipPlugin::GlobalEvent::Marshal(Serializable::json &node) const
     ret = ret && SetValue(node, status, GET_NAME(status));
     ret = ret && SetValue(node, deviceId, GET_NAME(deviceId));
     ret = ret && SetValue(node, account, GET_NAME(account));
-    ret = ret && SetValue(node, addition, GET_NAME(addition));
     ret = ret && SetValue(node, dataType, GET_NAME(dataType));
     return ret;
 }
@@ -109,7 +108,6 @@ bool ClipPlugin::GlobalEvent::Unmarshal(const Serializable::json &node)
     ret = ret && GetValue(node, GET_NAME(status), status);
     ret = ret && GetValue(node, GET_NAME(deviceId), deviceId);
     ret = ret && GetValue(node, GET_NAME(account), account);
-    ret = ret && GetValue(node, GET_NAME(addition), addition);
     ret = ret && GetValue(node, GET_NAME(dataType), dataType);
     return ret;
 }
