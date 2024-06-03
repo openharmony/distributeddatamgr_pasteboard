@@ -24,6 +24,7 @@ namespace MiscServicesCj {
 #define PASTEBOARD_SUCCESS 0
 #define PASTEBOARD_IS_BEGING_PROCESSED 12900003
 #define PASTEBOARD_COPY_FORBIDDEN 12900004
+#define PASTEBOARD_INVALID_PARAMETERS 401
 
 class SystemPasteboardImpl : public OHOS::FFI::FFIData {
 public:
