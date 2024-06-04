@@ -171,12 +171,12 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         sptr<IRemoteObject> obj = data.ReadRemoteObject();
         if (obj == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delayGetter is nullptr");
-            return false;
+            return ERR_INVALID_VALUE;
         }
         auto delayGetter = iface_cast<IPasteboardDelayGetter>(obj);
         if (delayGetter == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delayGetter is nullptr");
-            return false;
+            return ERR_INVALID_VALUE;
         }
         result = SavePasteData(pasteData, delayGetter);
     } else {

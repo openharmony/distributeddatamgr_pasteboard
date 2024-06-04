@@ -94,7 +94,7 @@ public:
     {
         return stub_;
     }
-	
+
 private:
     napi_env env_ = nullptr;
     napi_ref ref_ = nullptr;
@@ -102,12 +102,17 @@ private:
 };
 
 struct PasteboardDataWorker {
-    std::atomic_bool isGetting = false;
-    napi_value dataType = nullptr;
     std::shared_ptr<PasteboardObserverInstance> observer = nullptr;
+};
+
+struct PasteboardDelayWorker {
+    std::string dataType;
     std::shared_ptr<PasteboardDelayGetterInstance> delayGetter = nullptr;
     std::shared_ptr<UDMF::UnifiedData> unifiedData = nullptr;
-    std::shared_ptr<BlockObject<bool>> blockData = nullptr;
+    bool complete;
+    bool clean;
+    std::condition_variable cv;
+    std::mutex mutex;
 };
 
 struct HasContextInfo : public AsyncCall::Context {
@@ -149,7 +154,9 @@ struct SetContextInfo : public AsyncCall::Context {
 };
 
 struct SetUnifiedContextInfo : public AsyncCall::Context {
+    std::shared_ptr<PasteboardDelayGetterInstance> delayGetter;
     std::shared_ptr<UDMF::UnifiedData> obj;
+    bool isDelay = false;
     napi_status status = napi_generic_failure;
     SetUnifiedContextInfo() : Context(nullptr, nullptr){};
 
@@ -250,6 +257,7 @@ private:
     static napi_value SetAppShareOptions(napi_env env, napi_callback_info info);
     static napi_value RemoveAppShareOptions(napi_env env, napi_callback_info info);
 
+    static std::mutex delayMutex_;
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
