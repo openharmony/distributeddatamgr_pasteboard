@@ -36,8 +36,7 @@ public:
         uint16_t status = EVT_UNKNOWN;
         std::string deviceId;
         std::string account;
-        std::vector<uint8_t> addition;
-        uint8_t dataType = 0;
+        std::vector<std::string> dataType;
         bool operator == (const GlobalEvent globalEvent)
         {
             return globalEvent.seqId == this->seqId && globalEvent.deviceId == this->deviceId;
