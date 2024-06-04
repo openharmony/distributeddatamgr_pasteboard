@@ -30,10 +30,11 @@ static thread_local napi_ref g_systemPasteboard = nullptr;
 static thread_local napi_ref g_systemPasteboard_instance = nullptr;
 thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
 std::shared_ptr<PasteboardDelayGetterInstance> SystemPasteboardNapi::delayGetter_;
+std::mutex SystemPasteboardNapi::delayMutex_;
 constexpr int ARGC_TYPE_SET1 = 1;
 constexpr size_t MAX_ARGS = 6;
 constexpr size_t SYNC_TIMEOUT = 5000;
-constexpr size_t DELAY_TIMEOUT = 2000;
+constexpr size_t DELAY_TIMEOUT = 2;
 const std::string STRING_UPDATE = "update";
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref) : env_(env), ref_(ref)
 {
@@ -142,15 +143,15 @@ void UvQueueWorkGetDelayPasteData(uv_work_t *work, int status)
     if (work == nullptr) {
         return;
     }
-    PasteboardDataWorker *pasteboardDataWorker = (PasteboardDataWorker *)work->data;
-    if (pasteboardDataWorker == nullptr || pasteboardDataWorker->delayGetter == nullptr) {
+    PasteboardDelayWorker *pasteboardDelayWorker = (PasteboardDelayWorker *)work->data;
+    if (pasteboardDelayWorker == nullptr || pasteboardDelayWorker->delayGetter == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker or delayGetter is null");
         delete work;
         work = nullptr;
         return;
     }
-    auto env = pasteboardDataWorker->delayGetter->GetEnv();
-    auto ref = pasteboardDataWorker->delayGetter->GetRef();
+    auto env = pasteboardDelayWorker->delayGetter->GetEnv();
+    auto ref = pasteboardDelayWorker->delayGetter->GetRef();
     napi_handle_scope scope = nullptr;
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
@@ -159,27 +160,32 @@ void UvQueueWorkGetDelayPasteData(uv_work_t *work, int status)
     }
     napi_value undefined = nullptr;
     napi_get_undefined(env, &undefined);
-    napi_value argv[1] = { pasteboardDataWorker->dataType };
+    napi_value argv[1] = { CreateNapiString(env, pasteboardDelayWorker->dataType) };
     napi_value callback = nullptr;
     napi_value resultOut = nullptr;
     napi_get_reference_value(env, ref, &callback);
-    auto ret = napi_call_function(env, undefined, callback, 1, argv, &resultOut);
-    if (ret == napi_ok) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "get delay data success");
-        UDMF::UnifiedDataNapi *unifiedDataNapi = nullptr;
-        napi_unwrap(env, resultOut, reinterpret_cast<void **>(&unifiedDataNapi));
-        if (unifiedDataNapi != nullptr) {
-            pasteboardDataWorker->unifiedData = unifiedDataNapi->value_;
+    {
+        std::unique_lock<std::mutex> lock(pasteboardDelayWorker->mutex);
+        auto ret = napi_call_function(env, undefined, callback, 1, argv, &resultOut);
+        if (ret == napi_ok) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "get delay data success");
+            UDMF::UnifiedDataNapi *unifiedDataNapi = nullptr;
+            napi_unwrap(env, resultOut, reinterpret_cast<void **>(&unifiedDataNapi));
+            if (unifiedDataNapi != nullptr) {
+                pasteboardDelayWorker->unifiedData = unifiedDataNapi->value_;
+            }
+        }
+        napi_close_handle_scope(env, scope);
+        pasteboardDelayWorker->complete = true;
+        if (!pasteboardDelayWorker->clean) {
+            pasteboardDelayWorker->cv.notify_all();
+            return;
         }
     }
-    napi_close_handle_scope(env, scope);
-    pasteboardDataWorker->blockData->SetValue(true);
-    if (!(pasteboardDataWorker->isGetting.exchange(true))) {
-        delete pasteboardDataWorker;
-        pasteboardDataWorker = nullptr;
-        delete work;
-        work = nullptr;
-    }
+    delete pasteboardDelayWorker;
+    pasteboardDelayWorker = nullptr;
+    delete work;
+    work = nullptr;
 }
 
 void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF::UnifiedData &data)
@@ -195,39 +201,43 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "work is null");
         return;
     }
-    PasteboardDataWorker *pasteboardDataWorker = new (std::nothrow) PasteboardDataWorker();
-    if (pasteboardDataWorker == nullptr) {
+    PasteboardDelayWorker *pasteboardDelayWorker = new (std::nothrow) PasteboardDelayWorker();
+    if (pasteboardDelayWorker == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker is null");
         delete work;
         work = nullptr;
         return;
     }
-    pasteboardDataWorker->delayGetter = shared_from_this();
-    pasteboardDataWorker->dataType = CreateNapiString(env_, type);
-    pasteboardDataWorker->blockData = std::make_shared<BlockObject<bool>>(DELAY_TIMEOUT);
-    (void)pasteboardDataWorker->isGetting.exchange(true);
-    work->data = (void *)pasteboardDataWorker;
-    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, UvQueueWorkGetDelayPasteData);
-    if (ret != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "uv_queue_work is fail, ret = %{public}d", ret);
-        delete pasteboardDataWorker;
-        pasteboardDataWorker = nullptr;
-        delete work;
-        work = nullptr;
-        return;
-    }
-    auto flag = pasteboardDataWorker->blockData->GetValue();
-    if (flag) {
-        if (pasteboardDataWorker->unifiedData != nullptr) {
-            data = *(pasteboardDataWorker->unifiedData);
+    pasteboardDelayWorker->delayGetter = shared_from_this();
+    pasteboardDelayWorker->dataType = type;
+    work->data = (void *)pasteboardDelayWorker;
+    bool noNeedClean = false;
+    {
+        std::unique_lock<std::mutex> lock(pasteboardDelayWorker->mutex);
+        int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, UvQueueWorkGetDelayPasteData);
+        if (ret != 0) {
+            delete pasteboardDelayWorker;
+            pasteboardDelayWorker = nullptr;
+            delete work;
+            work = nullptr;
+            return;
         }
-        delete pasteboardDataWorker;
-        pasteboardDataWorker = nullptr;
+        if (pasteboardDelayWorker->cv.wait_for(lock, std::chrono::seconds(DELAY_TIMEOUT),
+            [pasteboardDelayWorker] { return pasteboardDelayWorker->complete; }) &&
+            pasteboardDelayWorker->unifiedData != nullptr) {
+            data = *(pasteboardDelayWorker->unifiedData);
+        }
+        if (!pasteboardDelayWorker->complete && uv_cancel((uv_req_t*)work) != 0) {
+            pasteboardDelayWorker->clean = true;
+            noNeedClean = true;
+        }
+    }
+    if (!noNeedClean) {
+        delete pasteboardDelayWorker;
+        pasteboardDelayWorker = nullptr;
         delete work;
         work = nullptr;
-        return;
     }
-    pasteboardDataWorker->isGetting.store(false);
 }
 
 bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc)
@@ -524,8 +534,8 @@ napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
         int32_t ret = static_cast<int32_t>(PasteboardError::E_ERROR);
         if (context->obj != nullptr) {
-            if (delayGetter_ != nullptr) {
-                ret = PasteboardClient::GetInstance()->SetUnifiedData(*(context->obj), delayGetter_->GetStub());
+            if (context->isDelay && context->delayGetter != nullptr) {
+                ret = PasteboardClient::GetInstance()->SetUnifiedData(*(context->obj), context->delayGetter->GetStub());
             } else {
                 ret = PasteboardClient::GetInstance()->SetUnifiedData(*(context->obj));
             }
@@ -618,14 +628,19 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
         JSErrorCode::INVALID_PARAMETERS, "Parameter error. The Type of data must be unifiedData.")) {
         return nullptr;
     }
+    auto properties = unifiedDataNapi->GetPropertiesNapi(env);
+    bool isDelay = false;
+    std::shared_ptr<PasteboardDelayGetterInstance> delayGetter = nullptr;
+    if (properties != nullptr && properties->delayDataRef_ != nullptr) {
+        delayGetter = std::make_shared<PasteboardDelayGetterInstance>(env, properties->delayDataRef_);
+        delayGetter->GetStub()->SetDelayGetterWrapper(delayGetter);
+        isDelay = true;
+    }
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
-    std::thread thread([block, &unifiedDataNapi]() mutable {
-        int32_t ret = 0;
-        if (delayGetter_ != nullptr) {
-            ret = PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_), delayGetter_->GetStub());
-        } else {
-            ret = PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_));
-        }
+    std::thread thread([block, unifiedDataNapi, isDelay, delayGetter]() mutable {
+        int32_t ret = isDelay ?
+            PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_), delayGetter->GetStub()) :
+            PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_));
         std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
         block->SetValue(value);
     });
@@ -639,6 +654,10 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, SetUnifiedDataSync failed");
         return nullptr;
+    }
+    {
+        std::lock_guard<std::mutex> lck(delayMutex_);
+        delayGetter_ = delayGetter;
     }
     return nullptr;
 }
@@ -660,12 +679,20 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>&
         context->obj = unifiedDataNapi->value_;
         auto properties = unifiedDataNapi->GetPropertiesNapi(env);
         if (properties != nullptr && properties->delayDataRef_ != nullptr) {
-            delayGetter_ = std::make_shared<PasteboardDelayGetterInstance>(env, properties->delayDataRef_);
-            delayGetter_->GetStub()->SetDelayGetterWrapper(delayGetter_);
+            context->delayGetter = std::make_shared<PasteboardDelayGetterInstance>(env, properties->delayDataRef_);
+            context->delayGetter->GetStub()->SetDelayGetterWrapper(context->delayGetter);
+            context->isDelay = true;
         }
         return napi_ok;
     };
-    context->SetAction(std::move(input));
+    auto output = [context](napi_env env, napi_value *result) -> napi_status {
+        if (context->status == napi_ok) {
+            std::lock_guard<std::mutex> lck(delayMutex_);
+            delayGetter_ = std::move(context->delayGetter);
+        }
+        return napi_ok;
+    };
+    context->SetAction(std::move(input), std::move(output));
 }
 
 void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo>& context)
