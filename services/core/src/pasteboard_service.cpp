@@ -23,7 +23,6 @@
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
 #include "common_event_manager.h"
-#include "common/block_object.h"
 #include "dev_profile.h"
 #include "device/dm_adapter.h"
 #include "dfx_code_constant.h"
@@ -549,33 +548,114 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
+std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool> PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(const Event &event)
+{
+    auto key = event.deviceId + std::to_string(event.seqId);
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = dataTasks_.find(key);
+    if (it == dataTasks_.end()) {
+        it = dataTasks_.emplace(key, std::make_shared<TaskContext>()).first;
+    }
+
+    if (it == dataTasks_.end()) {
+        return std::make_pair(nullptr, false);
+    }
+
+    return std::make_pair(it->second, it->second->pasting_.exchange(true));
+}
+
+void PasteboardService::RemoteDataTaskManager::Notify(const Event &event, std::shared_ptr<PasteData> data)
+{
+    auto key = event.deviceId + std::to_string(event.seqId);
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto it = dataTasks_.find(key);
+    if (it == dataTasks_.end()) {
+        return;
+    }
+    auto& task = it->second;
+    task->data_ = data;
+    task->getDataBlocks_.ForEach([](const auto& key, auto value) -> bool {
+        value->SetValue(true);
+        return false;
+    });
+}
+
+std::shared_ptr<PasteData> PasteboardService::RemoteDataTaskManager::WaitRemoteData(const Event &event)
+{
+    std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext> task;
+    {
+        auto key = event.deviceId + std::to_string(event.seqId);
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto it = dataTasks_.find(key);
+        if (it == dataTasks_.end()) {
+            return nullptr;
+        }
+
+        task = it->second;
+    }
+
+    auto key = ++mapKey_;
+    auto block = std::make_shared<BlockObject<bool>>(GET_REMOTE_DATA_WAIT_TIME);
+    task->getDataBlocks_.InsertOrAssign(key, block);
+    block->GetValue();
+
+    task->getDataBlocks_.Erase(key);
+    return task->data_;
+}
+
+void PasteboardService::RemoteDataTaskManager::ClearRemoteDataTask(const Event &event)
+{
+    auto key = event.deviceId + std::to_string(event.seqId);
+    std::lock_guard<std::mutex> lock(mutex_);
+    dataTasks_.erase(key);
+}
+
 bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteData &data)
 {
-    std::lock_guard<std::mutex> lock(remoteMutex_);
-    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
+    auto [task, isPasting] = taskMgr_.GetRemoteDataTask(event);
+    if (task == nullptr) {
+        return false;
+    }
+
+    if (isPasting) {
+        auto pasteData = taskMgr_.WaitRemoteData(event);
+        if (pasteData != nullptr) {
+            data = *pasteData;
+        }
+        return pasteData != nullptr;
+    }
+
+    auto curEvent = GetValidDistributeEvent(userId);
+    if (!curEvent.first || !(curEvent.second == event)) {
+        auto it = clips_.Find(userId);
+        if (it.first) {
+            data = *it.second;
+        }
+        taskMgr_.ClearRemoteDataTask(event);
+        return it.first;
+    }
+
+    auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(GET_REMOTE_DATA_WAIT_TIME);
     std::thread thread([this, event, block, userId]() mutable {
         std::shared_ptr<PasteData> pasteData = GetDistributedData(event, userId);
+        auto curEvent = GetValidDistributeEvent(userId);
         if (pasteData != nullptr) {
             pasteData->SetRemote(true);
             clips_.InsertOrAssign(userId, pasteData);
             auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch())
                     .count());
             copyTime_.InsertOrAssign(userId, curTime);
+            taskMgr_.Notify(event, pasteData);
         }
         block->SetValue(pasteData);
+        taskMgr_.ClearRemoteDataTask(event);
     });
 
     thread.detach();
     auto value = block->GetValue();
-    if (value == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "continue to get remote data");
-        block->SetInterval(PasteBoardDialog::MAX_LIFE_TIME);
-        value = block->GetValue();
-    }
     if (value != nullptr) {
-        auto ret = value->IsValid();
         data = std::move(*value);
-        return ret;
+        return true;
     }
     return false;
 }

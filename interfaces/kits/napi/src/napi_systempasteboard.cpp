@@ -33,7 +33,7 @@ std::shared_ptr<PasteboardDelayGetterInstance> SystemPasteboardNapi::delayGetter
 std::mutex SystemPasteboardNapi::delayMutex_;
 constexpr int ARGC_TYPE_SET1 = 1;
 constexpr size_t MAX_ARGS = 6;
-constexpr size_t SYNC_TIMEOUT = 5000;
+constexpr size_t SYNC_TIMEOUT = 4200;
 constexpr size_t DELAY_TIMEOUT = 2;
 const std::string STRING_UPDATE = "update";
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref) : env_(env), ref_(ref)
