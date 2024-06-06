@@ -77,7 +77,7 @@ napi_value AsyncCall::Call(napi_env env, Context::ExecAction exec)
     context_->work = work;
     context_ = nullptr;
     napi_queue_async_work_with_qos(env, work, napi_qos_user_initiated);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "async call exec");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "async call exec");
     return promise;
 }
 
@@ -111,7 +111,7 @@ void AsyncCall::OnComplete(napi_env env, napi_status status, void *data)
     napi_value output = nullptr;
     napi_status runStatus = (*context->ctx)(env, &output);
     napi_value result[ARG_BUTT] = { 0 };
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI,
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI,
         "run the js callback function:status[%{public}d]runStatus[%{public}d]", status, runStatus);
     if (status == napi_ok && runStatus == napi_ok) {
         napi_get_undefined(env, &result[ARG_ERROR]);

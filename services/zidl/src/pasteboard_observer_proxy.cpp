@@ -35,7 +35,6 @@ void PasteboardObserverProxy::OnPasteboardChanged()
     MessageParcel reply;
     MessageOption option = { MessageOption::TF_ASYNC };
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "write descriptor failed!");
         return;
     }
 

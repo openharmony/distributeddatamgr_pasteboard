@@ -48,11 +48,11 @@ enum PasteboardDomainId {
 static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD[PASTEBOARD_MODULE_BUTT] = {
     { LOG_CORE, PASTEBOARD_INNERKIT_DOMAIN, "PasteboardInnerKit" },
     { LOG_CORE, PASTEBOARD_CLIENT_DOMAIN, "PasteboardClient" },
-    { LOG_CORE, PASTEBOARD_SERVICE_DOMAIN, "PasteboardService" },
+    { LOG_CORE, PASTEBOARD_SERVICE_DOMAIN, "PbS" },
     { LOG_CORE, PASTEBOARD_JAVAKIT_DOMAIN, "PasteboardJavaKit" },
     { LOG_CORE, PASTEBOARD_JNI_DOMAIN, "PasteboardJni" },
     { LOG_CORE, PASTEBOARD_COMMON_DOMAIN, "PasteboardCommon" },
-    { LOG_CORE, PASTEBOARD_JS_NAPI, "PasteboardJSNAPI" },
+    { LOG_CORE, PASTEBOARD_JS_NAPI, "PbJS" },
 };
 
 #define FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
@@ -63,35 +63,35 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD[PASTEBOARD_MODULE_BUTT] 
     do {                                                                                                  \
         if (HiLogIsLoggable(PASTEBOARD[module].domain, PASTEBOARD[module].tag, LOG_FATAL)) {              \
             ((void)HILOG_IMPL(LOG_CORE, LOG_FATAL, PASTEBOARD[module].domain, PASTEBOARD[module].tag,     \
-                              "[%{public}s] %{public}s# " fmt, FILENAME__, __FUNCTION__, ##__VA_ARGS__)); \
+                              "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)); \
         }                                                                                                 \
     } while (0)
 #define PASTEBOARD_HILOGE(module, fmt, ...)                                                               \
     do {                                                                                                  \
         if (HiLogIsLoggable(PASTEBOARD[module].domain, PASTEBOARD[module].tag, LOG_ERROR)) {              \
             ((void)HILOG_IMPL(LOG_CORE, LOG_ERROR, PASTEBOARD[module].domain, PASTEBOARD[module].tag,     \
-                              "[%{public}s] %{public}s# " fmt, FILENAME__, __FUNCTION__, ##__VA_ARGS__)); \
+                              "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)); \
         }                                                                                                 \
     } while (0)
 #define PASTEBOARD_HILOGW(module, fmt, ...)                                                               \
     do {                                                                                                  \
         if (HiLogIsLoggable(PASTEBOARD[module].domain, PASTEBOARD[module].tag, LOG_WARN)) {               \
             ((void)HILOG_IMPL(LOG_CORE, LOG_WARN, PASTEBOARD[module].domain, PASTEBOARD[module].tag,      \
-                              "[%{public}s] %{public}s# " fmt, FILENAME__, __FUNCTION__, ##__VA_ARGS__)); \
+                              "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)); \
         }                                                                                                 \
     } while (0)
 #define PASTEBOARD_HILOGI(module, fmt, ...)                                                               \
     do {                                                                                                  \
         if (HiLogIsLoggable(PASTEBOARD[module].domain, PASTEBOARD[module].tag, LOG_INFO)) {               \
             ((void)HILOG_IMPL(LOG_CORE, LOG_INFO, PASTEBOARD[module].domain, PASTEBOARD[module].tag,      \
-                              "[%{public}s] %{public}s# " fmt, FILENAME__, __FUNCTION__, ##__VA_ARGS__)); \
+                              "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)); \
         }                                                                                                 \
     } while (0)
 #define PASTEBOARD_HILOGD(module, fmt, ...)                                                               \
     do {                                                                                                  \
         if (HiLogIsLoggable(PASTEBOARD[module].domain, PASTEBOARD[module].tag, LOG_DEBUG)) {              \
             ((void)HILOG_IMPL(LOG_CORE, LOG_DEBUG, PASTEBOARD[module].domain, PASTEBOARD[module].tag,     \
-                              "[%{public}s] %{public}s# " fmt, FILENAME__, __FUNCTION__, ##__VA_ARGS__)); \
+                              "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__)); \
         }                                                                                                 \
     } while (0)
 } // namespace MiscServices

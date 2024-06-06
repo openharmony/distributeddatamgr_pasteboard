@@ -23,8 +23,6 @@ bool DistributedModuleConfig::IsOn()
     if (deviceNums_ != 0) {
         Notify();
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu, status_:%{public}d",
-        deviceNums_, status_);
     return status_;
 }
 
