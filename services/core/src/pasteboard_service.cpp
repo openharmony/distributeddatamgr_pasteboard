@@ -522,12 +522,11 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     auto appInfo = GetAppInfo(tokenId);
 
     bool result = false;
-    auto clipPlugin = GetClipPlugin();
-    if (clipPlugin == nullptr) {
-        result = CheckPasteData(appInfo, data);
+    auto event = GetValidDistributeEvent(appInfo.userId);
+    if (!event.first) {
+        result = GetLocalData(appInfo, data);
     } else {
-        std::lock_guard<std::mutex> lock(remoteMutex_);
-        result = GetRemoteData(appInfo, data);
+        result = GetRemoteData(appInfo.userId, event.second, data);
     }
     if (observerEventMap_.size() != 0) {
         std::string targetBundleName = GetAppBundleName(appInfo);
@@ -538,18 +537,20 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
-bool PasteboardService::GetRemoteData(const AppInfo &appInfo, PasteData &data)
+bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteData &data)
 {
+    std::lock_guard<std::mutex> lock(remoteMutex_);
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(PasteBoardDialog::POPUP_INTERVAL);
-    std::thread thread([this, block, &appInfo]() mutable {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Begin");
-        std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-        auto success = GetPasteData(appInfo, *pasteData);
-        if (!success) {
-            pasteData->SetInvalid();
+    std::thread thread([this, event, block, userId]() mutable {
+        std::shared_ptr<PasteData> pasteData = GetDistributedData(event, userId);
+        if (pasteData != nullptr) {
+            pasteData->SetRemote(true);
+            clips_.InsertOrAssign(userId, pasteData);
+            auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+                    .count());
+            copyTime_.InsertOrAssign(userId, curTime);
         }
         block->SetValue(pasteData);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData End");
     });
     thread.detach();
     auto value = block->GetValue();
@@ -566,64 +567,33 @@ bool PasteboardService::GetRemoteData(const AppInfo &appInfo, PasteData &data)
     return false;
 }
 
-bool PasteboardService::GetPasteData(const AppInfo &appInfo, PasteData &data)
+bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
 {
-    PasteboardTrace tracer("GetPasteData inner");
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start inner.");
-    if (appInfo.userId == ERROR_USERID) {
-        PasteData::sharePath = "";
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId error.");
+    auto it = clips_.Find(appInfo.userId);
+    auto tempTime = copyTime_.Find(appInfo.userId);
+    if (!it.first || !tempTime.first) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
         return false;
     }
-    PasteData::sharePath = PasteData::SHARE_PATH_PREFIX + std::to_string(appInfo.userId)
-        + PasteData::SHARE_PATH_PREFIX_ACCOUNT;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.Size()));
-    bool isRemote = false;
-    auto pastData = GetDistributedData(appInfo.userId);
-    if (pastData != nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pastData != nullptr");
-        isRemote = true;
-        pastData->SetRemote(isRemote);
-        clips_.InsertOrAssign(appInfo.userId, pastData);
-        auto curTime =
-            static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
-        copyTime_.InsertOrAssign(appInfo.userId, curTime);
+    auto ret = IsDataVaild(*(it.second), appInfo.tokenId);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invaild.");
+        return false;
     }
-    data.SetRemote(isRemote);
-    return CheckPasteData(appInfo, data);
-}
-
-bool PasteboardService::CheckPasteData(const AppInfo &appInfo, PasteData &data)
-{
-    {
-        auto it = clips_.Find(appInfo.userId);
-        auto tempTime = copyTime_.Find(appInfo.userId);
-        if (!it.first || !tempTime.first) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
-            return false;
-        }
-        auto ret = IsDataVaild(*(it.second), appInfo.tokenId);
-        if (!ret) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invaild.");
-            return false;
-        }
-        data = *(it.second);
-        auto originBundleName = it.second->GetBundleName();
-        auto isDelayData = it.second->IsDelayData();
-        if (isDelayData) {
-            GetDelayPasteData(appInfo, data);
-        }
-        data.SetBundleName(appInfo.bundleName);
-        auto curTime = copyTime_[appInfo.userId];
-        if (tempTime.second == curTime && clips_[appInfo.userId]->IsDelayData()) {
-            clips_[appInfo.userId] = std::make_shared<PasteData>(data);
-            NotifyObservers(originBundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
-        }
+    data = *(it.second);
+    auto originBundleName = it.second->GetBundleName();
+    auto isDelayData = it.second->IsDelayData();
+    if (isDelayData) {
+        GetDelayPasteData(appInfo, data);
     }
+    data.SetBundleName(appInfo.bundleName);
+    auto curTime = copyTime_[appInfo.userId];
+    if (tempTime.second == curTime && clips_[appInfo.userId]->IsDelayData()) {
+        clips_[appInfo.userId] = std::make_shared<PasteData>(data);
+        NotifyObservers(originBundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
+    }
+    
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isRemote=%{public}d, fileSize=%{public}d",
-        data.IsRemote(), fileSize);
     if (data.IsRemote() && fileSize > 0) {
         EstablishP2PLink();
     }
@@ -830,7 +800,8 @@ bool PasteboardService::HasPasteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        return HasDistributedData(userId);
+        auto evt = GetValidDistributeEvent(userId);
+        return evt.first;
     }
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -845,29 +816,60 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
 {
-    auto clipPlugin = GetClipPlugin();
-    if (clipPlugin == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
-        return HasLocalDataType(mimeType);
-    }
     auto userId = GetCurrentAccountId();
-    ClipPlugin::GlobalEvent event;
-    auto isEffective = GetDistributedEvent(clipPlugin, userId, event);
-    if (!isEffective || event == currentEvent_) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EVT_UNKNOWN.");
-        return HasLocalDataType(mimeType);
+    auto event = GetValidDistributeEvent(userId);
+    if (event.first) {
+        PasteData data;
+        if (!GetRemoteData(userId, event.second, data)) {
+            return false;
+        }
     }
-    HasDistributedData(userId);
-    return HasDistributedDataType(mimeType);
+    return HasLocalDataType(mimeType);
+}
+
+std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEvent(int32_t user)
+{
+    Event evt;
+    auto plugin = GetClipPlugin();
+    if (plugin == nullptr) {
+        return std::make_pair(false, evt);
+    }
+
+    auto events = plugin->GetTopEvents(1, user);
+    if (events.empty()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "events empty.");
+        return std::make_pair(false, evt);
+    }
+
+    auto &tmpEvent = events[0];
+    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalNetworkId() ||
+        tmpEvent.expiration < currentEvent_.expiration) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data.");
+        return std::make_pair(false, evt);
+    }
+    if (tmpEvent.account != AccountManager::GetInstance().GetCurrentAccount()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "account error.");
+        return std::make_pair(false, evt);
+    }
+
+    if (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId &&
+        tmpEvent.expiration == currentEvent_.expiration) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data.");
+        return std::make_pair(false, evt);
+    }
+
+    uint64_t curTime =
+        static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    if ((curTime < tmpEvent.expiration) && (tmpEvent.status == ClipPlugin::EVT_NORMAL)) {
+        evt = tmpEvent;
+        return std::make_pair(true, evt);
+    }
+
+    return std::make_pair(false, evt);
 }
 
 bool PasteboardService::HasLocalDataType(const std::string &mimeType)
 {
-    auto hasData = HasPasteData();
-    if (!hasData) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is not exist");
-        return false;
-    }
     auto userId = GetCurrentAccountId();
     auto it = clips_.Find(userId);
     if (!it.first) {
@@ -889,20 +891,6 @@ bool PasteboardService::HasLocalDataType(const std::string &mimeType)
     return isExistType;
 }
 
-bool PasteboardService::HasDistributedDataType(const std::string &mimeType)
-{
-    auto value = remoteEvent_.dataType;
-    std::bitset<MAX_INDEX_LENGTH> dataType(value);
-    auto it = typeMap_.find(mimeType);
-    if (it == typeMap_.end()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mimetype is not exist");
-        return false;
-    }
-    auto index = it->second;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "index = %{public}d", index);
-    return dataType[index];
-}
-
 bool PasteboardService::IsRemoteData()
 {
     auto userId = GetCurrentAccountId();
@@ -911,7 +899,8 @@ bool PasteboardService::IsRemoteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        return HasDistributedData(userId);
+        auto evt =  GetValidDistributeEvent(userId);
+        return evt.first;
     }
     return it.second->IsRemote();
 }
@@ -1440,30 +1429,14 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
     CalculateTimeConsuming timeC(dataSize, pState);
 }
 
-std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
+std::shared_ptr<PasteData> PasteboardService::GetDistributedData(const Event &event, int32_t user)
 {
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return nullptr;
     }
-    ClipPlugin::GlobalEvent event;
-    auto isEffective = GetDistributedEvent(clipPlugin, user, event);
-    if (event.status == ClipPlugin::EVT_UNKNOWN) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "EVT_UNKNOWN.");
-        return nullptr;
-    }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
-        event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
-    std::vector<uint8_t> rawData = std::move(event.addition);
-    if (!isEffective) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is invalid");
-        currentEvent_.status = ClipPlugin::EVT_INVALID;
-        currentEvent_ = std::move(event);
-        Reporter::GetInstance().PasteboardFault().Report({ user, "GET_REMOTE_DATA_FAILED" });
-        return nullptr;
-    }
-
+    std::vector<uint8_t> rawData;
     if (clipPlugin->GetPasteData(event, rawData) != 0) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get data failed");
         Reporter::GetInstance().PasteboardFault().Report({ user, "GET_REMOTE_DATA_FAILED" });
@@ -1475,9 +1448,6 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(int32_t user)
     pasteData->Decode(rawData);
     pasteData->ReplaceShareUri(user);
     pasteData->SetOrginAuthority(pasteData->GetBundleName());
-    int fileSize = pasteData->GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remote bundle: %{public}s", pasteData->GetBundleName().c_str());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remote file size: %{public}d", fileSize);
     for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
         auto item = pasteData->GetRecordAt(i);
         if (item == nullptr || item->GetConvertUri().empty()) {
@@ -1497,48 +1467,6 @@ bool PasteboardService::IsAllowSendData()
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "control type is: %{public}d.", contralType);
         return false;
     }
-    return true;
-}
-
-bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
-{
-    if (!IsAllowSendData()) {
-        return false;
-    }
-    std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
-    auto clipPlugin = GetClipPlugin();
-    if (clipPlugin == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
-        return false;
-    }
-    GenerateDistributedUri(data);
-    if (data.GetShareOption() != CrossDevice || !data.Encode(*rawData)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Cross-device data is not supported.");
-        return false;
-    }
-
-    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    if (networkId.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
-        return false;
-    }
-
-    auto expiration =
-        duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
-    Event event;
-    event.user = user;
-    event.seqId = ++sequenceId_;
-    event.expiration = static_cast<uint64_t>(expiration);
-    event.deviceId = networkId;
-    event.account = AccountManager::GetInstance().GetCurrentAccount();
-    event.status = (data.GetShareOption() == CrossDevice) ? ClipPlugin::EVT_NORMAL : ClipPlugin::EVT_INVALID;
-    event.dataType = GenerateDataType(data);
-    currentEvent_ = event;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
-    std::thread thread([clipPlugin, event, rawData]() mutable {
-        clipPlugin->SetPasteData(event, *rawData);
-    });
-    thread.detach();
     return true;
 }
 
@@ -1569,6 +1497,49 @@ uint8_t PasteboardService::GenerateDataType(PasteData &data)
     return value;
 }
 
+bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
+{
+    if (!IsAllowSendData()) {
+        return false;
+    }
+    std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
+        return false;
+    }
+    GenerateDistributedUri(data);
+    if (data.GetShareOption() == InApp || !data.Encode(*rawData)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InApp data is not supports cross device, or data encode failed.");
+        return false;
+    }
+
+    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    if (networkId.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
+        return false;
+    }
+
+    auto expiration =
+        duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
+    Event event;
+    event.user = user;
+    event.seqId = ++sequenceId_;
+    event.expiration = static_cast<uint64_t>(expiration);
+    event.deviceId = networkId;
+    event.account = AccountManager::GetInstance().GetCurrentAccount();
+    event.status = ClipPlugin::EVT_NORMAL;
+    event.dataType = data.GetMimeTypes();
+    currentEvent_ = event;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
+    std::thread thread([clipPlugin, event, rawData]() mutable {
+        clipPlugin->SetPasteData(event, *rawData);
+    });
+    thread.detach();
+    return true;
+}
+
+
 void PasteboardService::GenerateDistributedUri(PasteData &data)
 {
     auto userId = GetCurrentAccountId();
@@ -1597,21 +1568,6 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
     data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
-}
-
-bool PasteboardService::HasDistributedData(int32_t user)
-{
-    auto clipPlugin = GetClipPlugin();
-    if (clipPlugin == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
-        return false;
-    }
-    Event event;
-    auto has = GetDistributedEvent(clipPlugin, user, event);
-    remoteEvent_ = std::move(event);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "same device:%{public}d, evt seq:%{public}u current seq:%{public}u.",
-        event.deviceId == currentEvent_.deviceId, event.seqId, currentEvent_.seqId);
-    return has;
 }
 
 std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
@@ -1662,36 +1618,6 @@ void PasteboardService::OnConfigChange(bool isOn)
     clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
 }
 
-bool PasteboardService::GetDistributedEvent(std::shared_ptr<ClipPlugin> plugin, int32_t user, Event &event)
-{
-    auto events = plugin->GetTopEvents(1, user);
-    if (events.empty()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "events empty.");
-        return false;
-    }
-
-    auto &tmpEvent = events[0];
-    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalNetworkId()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data.");
-        return false;
-    }
-    if (tmpEvent.account != AccountManager::GetInstance().GetCurrentAccount()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "account error.");
-        return false;
-    }
-    if (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId &&
-        tmpEvent.expiration == currentEvent_.expiration) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data.");
-        return false;
-    }
-
-    event = std::move(tmpEvent);
-    uint64_t curTime =
-        static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "result compare time = %{public}d", curTime < event.expiration);
-    return ((curTime < event.expiration) && (event.status == ClipPlugin::EVT_NORMAL));
-}
-
 std::string PasteboardService::GetAppLabel(uint32_t tokenId)
 {
     auto iBundleMgr = GetAppBundleManager();
@@ -1739,7 +1665,6 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 
 bool PasteboardService::SubscribeKeyboardEvent()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start subscribe keyboard event.");
     inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId =
         MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(
