@@ -70,7 +70,7 @@ PasteboardServiceStub::PasteboardServiceStub()
 int32_t PasteboardServiceStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start##code = %{public}u", code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start##code = %{public}u", code);
     std::u16string myDescripter = PasteboardServiceStub::GetDescriptor();
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (myDescripter != remoteDescripter) {
@@ -79,7 +79,7 @@ int32_t PasteboardServiceStub::OnRemoteRequest(
     }
     pid_t p = IPCSkeleton::GetCallingPid();
     pid_t p1 = IPCSkeleton::GetCallingUid();
-    PASTEBOARD_HILOGD(
+    PASTEBOARD_HILOGI(
         PASTEBOARD_MODULE_SERVICE, "CallingPid = %{public}d, CallingUid = %{public}d, code = %{public}u", p, p1, code);
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {
