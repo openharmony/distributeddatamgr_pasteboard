@@ -638,13 +638,15 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(GET_REMOTE_DATA_WAIT_TIME);
     std::thread thread([this, event, block, userId]() mutable {
         std::shared_ptr<PasteData> pasteData = GetDistributedData(event, userId);
-        auto curEvent = GetValidDistributeEvent(userId);
+        auto validEvent = GetValidDistributeEvent(userId);
         if (pasteData != nullptr) {
             pasteData->SetRemote(true);
-            clips_.InsertOrAssign(userId, pasteData);
-            auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-                    .count());
-            copyTime_.InsertOrAssign(userId, curTime);
+            if (validEvent == event) {
+                clips_.InsertOrAssign(userId, pasteData);
+                auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+                        .count());
+                copyTime_.InsertOrAssign(userId, curTime);
+            }
             taskMgr_.Notify(event, pasteData);
         }
         block->SetValue(pasteData);
