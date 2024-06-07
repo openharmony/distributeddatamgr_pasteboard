@@ -941,27 +941,26 @@ std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEv
         return std::make_pair(false, evt);
     }
 
-    auto &tmpEvent = events[0];
-    if (tmpEvent.deviceId == DMAdapter::GetInstance().GetLocalNetworkId() ||
-        tmpEvent.expiration < currentEvent_.expiration) {
+    evt = events[0];
+    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId() ||
+        evt.expiration < currentEvent_.expiration) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data.");
         return std::make_pair(false, evt);
     }
-    if (tmpEvent.account != AccountManager::GetInstance().GetCurrentAccount()) {
+    if (evt.account != AccountManager::GetInstance().GetCurrentAccount()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "account error.");
         return std::make_pair(false, evt);
     }
 
-    if (tmpEvent.deviceId == currentEvent_.deviceId && tmpEvent.seqId == currentEvent_.seqId &&
-        tmpEvent.expiration == currentEvent_.expiration) {
+    if (evt.deviceId == currentEvent_.deviceId && evt.seqId == currentEvent_.seqId &&
+        evt.expiration == currentEvent_.expiration) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data.");
         return std::make_pair(false, evt);
     }
 
     uint64_t curTime =
         static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    if ((curTime < tmpEvent.expiration) && (tmpEvent.status == ClipPlugin::EVT_NORMAL)) {
-        evt = tmpEvent;
+    if ((curTime < evt.expiration) && (evt.status == ClipPlugin::EVT_NORMAL)) {
         return std::make_pair(true, evt);
     }
 

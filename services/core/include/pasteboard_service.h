@@ -153,7 +153,7 @@ private:
         void ClearRemoteDataTask(const Event &event);
         std::shared_ptr<PasteData> WaitRemoteData(const Event &event);
 
-        std::atomic<uint32_t> mapKey_ = 0;
+        private std::atomic<uint32_t> mapKey_ = 0;
         std::mutex mutex_;
         std::map<std::string, std::shared_ptr<TaskContext>> dataTasks_;
     };
