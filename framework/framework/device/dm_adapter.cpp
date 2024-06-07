@@ -40,7 +40,7 @@ public:
         }
         online_(deviceInfo);
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device on:%{public}.6s",
-            deviceInfo.networkId.c_str());
+            deviceInfo.networkId);
     }
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
@@ -50,7 +50,7 @@ public:
         }
         offline_(deviceInfo);
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device off:%{public}.6s",
-            deviceInfo.networkId.c_str());
+            deviceInfo.networkId);
     }
 
     void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override
