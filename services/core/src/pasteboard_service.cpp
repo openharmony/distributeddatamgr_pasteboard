@@ -641,7 +641,7 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
         auto validEvent = GetValidDistributeEvent(userId);
         if (pasteData != nullptr) {
             pasteData->SetRemote(true);
-            if (validEvent == event) {
+            if (validEvent.second == event) {
                 clips_.InsertOrAssign(userId, pasteData);
                 auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch())
                         .count());
