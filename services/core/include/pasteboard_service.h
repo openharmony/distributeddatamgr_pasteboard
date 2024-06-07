@@ -148,7 +148,8 @@ private:
             std::shared_ptr<PasteData>  data_;
         };
 
-        std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool> GetRemoteDataTask(const Event &event);
+        std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>
+            GetRemoteDataTask(const Event &event);
         void Notify(const Event &event, std::shared_ptr<PasteData> data);
         void ClearRemoteDataTask(const Event &event);
         std::shared_ptr<PasteData> WaitRemoteData(const Event &event);

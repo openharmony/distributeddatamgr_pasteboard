@@ -548,7 +548,8 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
-std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool> PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(const Event &event)
+std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool> PasteboardService::
+    RemoteDataTaskManager::GetRemoteDataTask(const Event &event)
 {
     auto key = event.deviceId + std::to_string(event.seqId);
     std::lock_guard<std::mutex> lock(mutex_);
