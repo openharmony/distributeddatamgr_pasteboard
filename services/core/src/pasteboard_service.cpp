@@ -548,8 +548,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
-std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>
-    PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(const Event &event)
+DataTask PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(const Event &event)
 {
     auto key = event.deviceId + std::to_string(event.seqId);
     std::lock_guard<std::mutex> lock(mutex_);
@@ -800,7 +799,7 @@ void PasteboardService::CheckUriPermission(PasteData &data, std::vector<Uri> &gr
             uri = item->GetOrginUri();
         }
         auto hasGrantUriPermission = item->HasGrantUriPermission();
-        if (uri == nullptr || (!isBundleOwnUriPermission(data.GetOrginAuthority(), *uri) && !hasGrantUriPermission)) {
+        if (uri == nullptr || (!IsBundleOwnUriPermission(data.GetOrginAuthority(), *uri) && !hasGrantUriPermission)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri is null:%{public}d, not grant permission: %{public}d.",
                 uri == nullptr, hasGrantUriPermission);
             continue;
@@ -833,7 +832,7 @@ void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData
     thread.detach();
 }
 
-bool PasteboardService::isBundleOwnUriPermission(const std::string &bundleName, Uri &uri)
+bool PasteboardService::IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri)
 {
     auto authority = uri.GetAuthority();
     if (bundleName.compare(authority) != 0) {
@@ -1658,7 +1657,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
             continue;
         }
         Uri uri = *(item->GetOrginUri());
-        if (!isBundleOwnUriPermission(data.GetOrginAuthority(), uri) && !item->HasGrantUriPermission()) {
+        if (!IsBundleOwnUriPermission(data.GetOrginAuthority(), uri) && !item->HasGrantUriPermission()) {
             continue;
         }
         HmdfsUriInfo hui;

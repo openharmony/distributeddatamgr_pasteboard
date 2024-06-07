@@ -141,6 +141,7 @@ private:
     };
 
     class RemoteDataTaskManager {
+        using DataTask = std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>;
     public:
         struct TaskContext {
             std::atomic<bool> pasting_ = false;
@@ -148,8 +149,7 @@ private:
             std::shared_ptr<PasteData>  data_;
         };
 
-        std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>
-            GetRemoteDataTask(const Event &event);
+        DataTask GetRemoteDataTask(const Event &event);
         void Notify(const Event &event, std::shared_ptr<PasteData> data);
         void ClearRemoteDataTask(const Event &event);
         std::shared_ptr<PasteData> WaitRemoteData(const Event &event);
@@ -193,7 +193,7 @@ private:
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
-    bool isBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
+    bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
