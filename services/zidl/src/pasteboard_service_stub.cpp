@@ -79,7 +79,7 @@ int32_t PasteboardServiceStub::OnRemoteRequest(
     pid_t p = IPCSkeleton::GetCallingPid();
     pid_t p1 = IPCSkeleton::GetCallingUid();
     PASTEBOARD_HILOGI(
-        PASTEBOARD_MODULE_SERVICE, "CP:%{public}d, CU:%{public}d, cd:%{public}u", p, p1, code);
+        PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u", p, p1, code);
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;
