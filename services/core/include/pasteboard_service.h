@@ -141,14 +141,13 @@ private:
     };
 
     class RemoteDataTaskManager {
-        using DataTask = std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>;
     public:
         struct TaskContext {
             std::atomic<bool> pasting_ = false;
             ConcurrentMap<uint32_t, std::shared_ptr<BlockObject<bool>>>  getDataBlocks_;
             std::shared_ptr<PasteData>  data_;
         };
-
+        using DataTask = std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>;
         DataTask GetRemoteDataTask(const Event &event);
         void Notify(const Event &event, std::shared_ptr<PasteData> data);
         void ClearRemoteDataTask(const Event &event);
