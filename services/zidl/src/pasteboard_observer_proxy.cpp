@@ -34,7 +34,6 @@ void PasteboardObserverProxy::OnPasteboardChanged()
     MessageParcel data;
     MessageParcel reply;
     MessageOption option = { MessageOption::TF_ASYNC };
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "write descriptor failed!");
         return;
@@ -45,7 +44,6 @@ void PasteboardObserverProxy::OnPasteboardChanged()
     if (ret != ERR_OK) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return;
 }
 

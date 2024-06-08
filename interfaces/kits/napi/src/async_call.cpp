@@ -62,7 +62,7 @@ napi_value AsyncCall::Call(napi_env env, Context::ExecAction exec)
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "context_->ctx is null");
         return nullptr;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "async call exec");
+
     context_->ctx->exec_ = std::move(exec);
     napi_value promise = nullptr;
     if (context_->callback == nullptr) {
@@ -77,7 +77,7 @@ napi_value AsyncCall::Call(napi_env env, Context::ExecAction exec)
     context_->work = work;
     context_ = nullptr;
     napi_queue_async_work_with_qos(env, work, napi_qos_user_initiated);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "async call exec");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "async call exec");
     return promise;
 }
 
@@ -101,24 +101,21 @@ napi_value AsyncCall::SyncCall(napi_env env, AsyncCall::Context::ExecAction exec
 
 void AsyncCall::OnExecute(napi_env env, void *data)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "run the async runnable");
     AsyncContext *context = reinterpret_cast<AsyncContext *>(data);
     context->ctx->Exec();
 }
 
 void AsyncCall::OnComplete(napi_env env, napi_status status, void *data)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "run the js callback function");
     AsyncContext *context = reinterpret_cast<AsyncContext *>(data);
     napi_value output = nullptr;
     napi_status runStatus = (*context->ctx)(env, &output);
     napi_value result[ARG_BUTT] = { 0 };
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI,
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI,
         "run the js callback function:status[%{public}d]runStatus[%{public}d]", status, runStatus);
     if (status == napi_ok && runStatus == napi_ok) {
         napi_get_undefined(env, &result[ARG_ERROR]);
         if (output != nullptr) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AsyncCall::OnComplete output != nullptr");
             result[ARG_DATA] = output;
         } else {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "AsyncCall::OnComplete output == nullptr");
@@ -138,11 +135,8 @@ void AsyncCall::OnComplete(napi_env env, napi_status status, void *data)
         napi_create_error(env, errCode, message, &result[ARG_ERROR]);
         napi_get_undefined(env, &result[ARG_DATA]);
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI,
-        "run the js callback function:(context->defer != nullptr)?[%{public}d]", context->defer != nullptr);
     if (context->defer != nullptr) {
         // promise
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "Promise to do!");
         if (status == napi_ok && runStatus == napi_ok) {
             napi_resolve_deferred(env, context->defer, result[ARG_DATA]);
         } else {
