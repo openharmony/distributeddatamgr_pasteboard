@@ -32,6 +32,7 @@
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
+#include "common/block_object.h"
 #include "common/concurrent_map.h"
 #include "distributed_module_config.h"
 #include "event_handler.h"
@@ -128,7 +129,7 @@ private:
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     static constexpr int MIN_TRANMISSION_TIME = 600;
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
-
+    static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 4000;
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
         explicit DelayGetterDeathRecipient(int32_t userId, PasteboardService &service);
@@ -137,6 +138,24 @@ private:
     private:
         int32_t userId_ = ERROR_USERID;
         PasteboardService &service_;
+    };
+
+    class RemoteDataTaskManager {
+    public:
+        struct TaskContext {
+            std::atomic<bool> pasting_ = false;
+            ConcurrentMap<uint32_t, std::shared_ptr<BlockObject<bool>>>  getDataBlocks_;
+            std::shared_ptr<PasteData>  data_;
+        };
+        using DataTask = std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>;
+        DataTask GetRemoteDataTask(const Event &event);
+        void Notify(const Event &event, std::shared_ptr<PasteData> data);
+        void ClearRemoteDataTask(const Event &event);
+        std::shared_ptr<PasteData> WaitRemoteData(const Event &event);
+    private:
+        std::atomic<uint32_t> mapKey_ = 0;
+        std::mutex mutex_;
+        std::map<std::string, std::shared_ptr<TaskContext>> dataTasks_;
     };
 
     struct classcomp {
@@ -173,7 +192,7 @@ private:
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
-    bool isBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
+    bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
@@ -224,7 +243,6 @@ private:
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
-    std::mutex remoteMutex_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
     std::map<std::string, int> typeMap_ = {
         { MIMETYPE_TEXT_PLAIN, PLAIN_INDEX },
@@ -249,6 +267,7 @@ private:
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;
+    RemoteDataTaskManager  taskMgr_;
 };
 } // namespace MiscServices
 } // namespace OHOS
