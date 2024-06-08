@@ -210,7 +210,7 @@ bool DevProfile::GetEnabledStatus(const std::string &networkId)
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SERVICE_ID,
         CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get status failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get status failed, %{public}.5s.", udid.c_str());
         return false;
     }
     const auto &jsonData = profile.GetCharacteristicValue();
