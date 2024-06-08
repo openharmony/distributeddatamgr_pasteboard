@@ -8,12 +8,21 @@
     "deviceTypes": [
       "default",
       "tablet",
-      "2in1"
+      "2in1",
+      "phone"
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
     "abilities": [],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.MANAGE_SECURE_SETTINGS"
+      },
+      {
+        "name": "ohos.permission.MANAGE_SETTINGS"
+      }
+    ],
     "extensionAbilities": [
       {
         "name": "ToastExtensionAbility",
@@ -23,6 +32,20 @@
         "label":"$string:ToastExtensionAbility_label",
         "visible": false,
         "type": "service"
+      },
+      {
+        "name": "PasteboardSwitchAbility",
+        "srcEntry": "./ets/pasteboardswitchability/PasteboardSwitchAbility.ets",
+        "description": "$string:PasteboardSwitchAbility_desc",
+        "label": "$string:PasteboardSwitchAbility_label",
+        "type": "sys/commonUI",
+        "exported": true
+      }
+    ],
+    "metadata": [
+      {
+        "name": "action.settings.search.path",
+        "value": "searchConfig/searchPage.json"
       }
     ]
   }
