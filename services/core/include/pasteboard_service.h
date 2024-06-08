@@ -152,10 +152,10 @@ private:
         void Notify(const Event &event, std::shared_ptr<PasteData> data);
         void ClearRemoteDataTask(const Event &event);
         std::shared_ptr<PasteData> WaitRemoteData(const Event &event);
-        std::mutex mutex_;
-        std::map<std::string, std::shared_ptr<TaskContext>> dataTasks_;
     private:
         std::atomic<uint32_t> mapKey_ = 0;
+        std::mutex mutex_;
+        std::map<std::string, std::shared_ptr<TaskContext>> dataTasks_;
     };
 
     struct classcomp {
