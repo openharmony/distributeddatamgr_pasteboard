@@ -34,6 +34,7 @@
           "common_event_service",
           "device_info_manager",
           "device_manager",
+          "data_share",
           "dfs_service",
           "dlp_permission_service",
           "eventhandler",

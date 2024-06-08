@@ -34,9 +34,11 @@ constexpr const uint32_t SUPPORT = 1;
 
 constexpr const char *SERVICE_ID = "pasteboardService";
 constexpr const char *SUPPORT_DISTRIBUTED_PASTEBOARD = "supportDistributedPasteboard";
-constexpr const char *CHARACTER_ID = "static_capability";
+constexpr const char *CHARACTER_ID = "SwitchStatus";
 constexpr const char *VERSION_ID = "PasteboardVersionId";
 constexpr const char *CHARACTERISTIC_VALUE = "characteristicValue";
+constexpr const char *SUPPORT_STATUS = "1";
+constexpr const char *SWITCH_ID = "SwitchStatus_Key_Distributed_Pasteboard";
 
 DevProfile::SubscribeDPChangeListener::SubscribeDPChangeListener()
 {
@@ -158,36 +160,25 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
-    if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
-        return;
-    }
-    DistributedDeviceProfile::ServiceProfile serviceProfile;
-    serviceProfile.SetDeviceId(udid);
-    serviceProfile.SetServiceName(SERVICE_ID);
-    serviceProfile.SetServiceType(SERVICE_ID);
-    int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutServiceProfile(serviceProfile);
-    if (errNo != HANDLE_OK && errNo != DistributedDeviceProfile::DP_CACHE_EXIST) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutServiceProfile failed, %{public}d", errNo);
+    if (udid.empty() || GetEnabledStatus(networkId) == (enabledStatus == SUPPORT_STATUS)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed or enableStatus not change");
         return;
     }
     cJSON *jsonObject = cJSON_CreateObject();
     cJSON_AddNumberToObject(jsonObject, CHARACTER_ID, NOT_SUPPORT);
-    localEnable_ = false;
     if (enabledStatus == "true") {
         cJSON_ReplaceItemInObject(jsonObject, CHARACTER_ID, cJSON_CreateNumber(SUPPORT));
-        localEnable_ = true;
     }
     cJSON_AddNumberToObject(jsonObject, VERSION_ID, FIRST_VERSION);
     char *jsonString = cJSON_PrintUnformatted((jsonObject));
     DistributedDeviceProfile::CharacteristicProfile profile;
     profile.SetDeviceId(udid);
-    profile.SetServiceName(SERVICE_ID);
+    profile.SetServiceName(SWITCH_ID);
     profile.SetCharacteristicKey(CHARACTER_ID);
     profile.SetCharacteristicValue(jsonString);
     cJSON_Delete(jsonObject);
     free(jsonString);
-    errNo = DistributedDeviceProfileClient::GetInstance().PutCharacteristicProfile(profile);
+    int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutCharacteristicProfile(profile);
     if (errNo != HANDLE_OK && errNo != DistributedDeviceProfile::DP_CACHE_EXIST) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutCharacteristicProfile failed, %{public}d", errNo);
         return;
@@ -334,11 +325,5 @@ void DevProfile::UnsubscribeAllProfileEvents()
     return;
 #endif
 }
-
-bool DevProfile::GetLocalEnable()
-{
-    return localEnable_;
-}
-
 } // namespace MiscServices
 } // namespace OHOS

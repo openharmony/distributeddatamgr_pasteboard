@@ -35,7 +35,6 @@ protected:
     void OnReady(const std::string &device) override;
 private:
     bool GetEnabledStatus();
-    void ForceNotify();
     void Notify();
     void GetDeviceNum();
     Observer observer_ = nullptr;

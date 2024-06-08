@@ -35,6 +35,7 @@
 #include "common/block_object.h"
 #include "common/concurrent_map.h"
 #include "distributed_module_config.h"
+#include "pasteboard_switch.h"
 #include "event_handler.h"
 #include "iremote_object.h"
 #include "i_pasteboard_delay_getter.h"
@@ -254,6 +255,8 @@ private:
 
     std::map<std::string, int> p2pMap_ = {};
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
+
+    PastedSwitch switch_;
 
     void AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);

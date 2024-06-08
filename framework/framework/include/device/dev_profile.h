@@ -36,7 +36,6 @@ public:
     void SubscribeProfileEvent(const std::string &networkId);
     void UnSubscribeProfileEvent(const std::string &networkId);
     void UnsubscribeAllProfileEvents();
-    bool GetLocalEnable();
     static constexpr const uint32_t FIRST_VERSION = 4;
     #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     class SubscribeDPChangeListener : public DistributedDeviceProfile::ProfileChangeListenerStub {
@@ -67,7 +66,6 @@ private:
     ~DevProfile() = default;
     static void ParameterChange(const char *key, const char *value, void *context);
     std::mutex callbackMutex_;
-    bool localEnable_ = false;
 
     #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::map<std::string, DistributedDeviceProfile::SubscribeInfo> subscribeInfoCache_;

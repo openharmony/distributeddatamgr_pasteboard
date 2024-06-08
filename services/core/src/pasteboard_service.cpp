@@ -133,6 +133,7 @@ void PasteboardService::OnStart()
     moduleConfig_.Init();
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
+    switch_.Init();
 
     if (Init() != ERR_OK) {
         auto callback = [this]() { Init(); };
@@ -187,6 +188,7 @@ void PasteboardService::OnStop()
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
     moduleConfig_.DeInit();
+    switch_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, PASTEBOARD_SERVICE_ID);
 }
