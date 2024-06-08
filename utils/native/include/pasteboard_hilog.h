@@ -52,7 +52,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD[PASTEBOARD_MODULE_BUTT] 
     { LOG_CORE, PASTEBOARD_JAVAKIT_DOMAIN, "PBJK" },
     { LOG_CORE, PASTEBOARD_JNI_DOMAIN, "PBJN" },
     { LOG_CORE, PASTEBOARD_COMMON_DOMAIN, "PBCM" },
-    { LOG_CORE, PASTEBOARD_JS_NAPI, "PbJS" },
+    { LOG_CORE, PASTEBOARD_JS_NAPI, "PBJS" },
 };
 
 #define FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
