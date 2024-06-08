@@ -73,7 +73,6 @@ bool DistributedModuleConfig::GetEnabledStatus()
 void DistributedModuleConfig::Online(const std::string &device)
 {
     DevProfile::GetInstance().SubscribeProfileEvent(device);
-    ForceNotify();
     Notify();
 }
 
