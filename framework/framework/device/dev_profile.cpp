@@ -34,11 +34,12 @@ constexpr const uint32_t SUPPORT = 1;
 
 constexpr const char *SERVICE_ID = "pasteboardService";
 constexpr const char *SUPPORT_DISTRIBUTED_PASTEBOARD = "supportDistributedPasteboard";
-constexpr const char *CHARACTER_ID = "SwitchStatus";
+constexpr const char *STATIC_CHARACTER_ID = "SwitchStatus";
 constexpr const char *VERSION_ID = "PasteboardVersionId";
 constexpr const char *CHARACTERISTIC_VALUE = "characteristicValue";
 constexpr const char *SUPPORT_STATUS = "1";
 constexpr const char *SWITCH_ID = "SwitchStatus_Key_Distributed_Pasteboard";
+constexpr const char *CHARACTER_ID = "SwitchStatus";
 
 DevProfile::SubscribeDPChangeListener::SubscribeDPChangeListener()
 {
@@ -233,7 +234,7 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
     DistributedDeviceProfile::CharacteristicProfile profile;
     int32_t ret =
         DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(
-            udid, SERVICE_ID, CHARACTER_ID, profile);
+            udid, SWITCH_ID, STATIC_CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetCharacteristicProfile failed, %{public}.5s.", udid.c_str());
         return;

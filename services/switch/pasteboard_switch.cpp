@@ -42,7 +42,9 @@ void PastedSwitch::SetSwitch()
 {
     std::string value;
     DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEDBOARD_SWITCH, value);
-    DevProfile::GetInstance().PutEnabledStatus(value);
+    if (value != "") {
+        DevProfile::GetInstance().PutEnabledStatus(value);
+    }
 }
 
 void PastedSwitch::DeInit()

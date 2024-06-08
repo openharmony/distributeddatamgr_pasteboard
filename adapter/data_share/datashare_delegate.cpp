@@ -63,7 +63,7 @@ void DataShareDelegate::Initialize()
 std::shared_ptr<DataShare::DataShareHelper> DataShareDelegate::CreateDataShareHelper()
 {
     auto [ret, helper] = DataShare::DataShareHelper::Create(remoteObj_, SETTING_URI_PROXY, SETTINGS_DATA_EXT_URI);
-    if (ret == 0) {
+    if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "create helper failed ret %{public}d", ret);
         return nullptr;
     }
