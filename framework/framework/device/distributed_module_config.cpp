@@ -89,6 +89,9 @@ void DistributedModuleConfig::Init()
 {
     DMAdapter::GetInstance().Register(this);
     GetDeviceNum();
+    DevProfile::GetInstance().Watch([this](bool isEnable)-> void {
+        Notify();
+    });
 }
 
 void DistributedModuleConfig::DeInit()

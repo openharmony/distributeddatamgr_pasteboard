@@ -119,9 +119,7 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
     const CharacteristicProfile &oldProfile, const CharacteristicProfile &newProfile)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileUpdate start.");
-    if (newProfile.GetCharacteristicValue() == SUPPORT_STATUS) {
-        DevProfile::GetInstance().Notify();
-    }
+    DevProfile::GetInstance().Notify(newProfile.GetCharacteristicValue() == SUPPORT_STATUS);
     return 0;
 }
 #endif
@@ -159,12 +157,17 @@ void DevProfile::ParameterChange(const char *key, const char *value, void *conte
 
 void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 {
+    Notify(enabledStatus == SUPPORT_STATUS);
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    if (GetEnabledStatus(networkId) == (enabledStatus == SUPPORT_STATUS)) {
+        return;
+    }
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
-    if (udid.empty() || GetEnabledStatus(networkId) == (enabledStatus == SUPPORT_STATUS)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed or enableStatus not change");
+    if (udid.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, networkId is %{public}.5s",
+             networkId.c_str());
         return;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
@@ -315,10 +318,10 @@ void DevProfile::Watch(Observer observer)
     observer_ = std::move(observer);
 }
 
-void DevProfile::Notify()
+void DevProfile::Notify(bool isEnable)
 {
     if (observer_ != nullptr) {
-        observer_(SUPPORT_STATUS);
+        observer_(isEnable);
     }
 }
 } // namespace MiscServices

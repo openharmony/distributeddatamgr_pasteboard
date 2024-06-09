@@ -26,7 +26,8 @@
 namespace OHOS::MiscServices {
 const constexpr char* SETTING_COLUMN_KEYWORD = "KEYWORD";
 const constexpr char* SETTING_COLUMN_VALUE = "VALUE";
-const constexpr char* SETTING_URI_PROXY = "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
+const constexpr char* SETTING_URI_PROXY =
+    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 constexpr const char* SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
@@ -120,7 +121,8 @@ Uri DataShareDelegate::MakeUri(const std::string& key)
     return uri;
 }
 
-int32_t DataShareDelegate::RegisterObserver(const std::string& key, std::shared_ptr<DataShare::DataShareObserver> observer)
+int32_t DataShareDelegate::RegisterObserver(const std::string& key,
+    std::shared_ptr<DataShare::DataShareObserver> observer)
 {
     auto uri = MakeUri(key);
     auto helper = CreateDataShareHelper();
@@ -133,7 +135,8 @@ int32_t DataShareDelegate::RegisterObserver(const std::string& key, std::shared_
     return ERR_OK;
 }
 
-int32_t DataShareDelegate::UnregisterObserver(const std::string& key, std::shared_ptr<DataShare::DataShareObserver> observer)
+int32_t DataShareDelegate::UnregisterObserver(const std::string& key,
+    std::shared_ptr<DataShare::DataShareObserver> observer)
 {
     auto uri = MakeUri(key);
     auto helper = CreateDataShareHelper();

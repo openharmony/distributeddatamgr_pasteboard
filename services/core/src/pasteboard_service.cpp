@@ -244,7 +244,6 @@ void PasteboardService::DevProfileInit()
 {
     ParaHandle::GetInstance().Init();
     DevProfile::GetInstance().Init();
-    DevProfile::GetInstance().Watch(std::bind(&PasteboardService::OnStatusChange, this, std::placeholders::_1));
 }
 
 void PasteboardService::NotifySaStatus()

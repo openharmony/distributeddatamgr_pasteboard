@@ -27,7 +27,7 @@ class PastedSwitchObserver : public DataShare::DataShareObserver {
 public:
     using ChangeInfo = DataShare::DataShareObserver::ChangeInfo;
     using ObserverCallback = std::function<void(const ChangeInfo&)>;
-    PastedSwitchObserver(ObserverCallback func): func_(func) {}
+    explicit PastedSwitchObserver(ObserverCallback func): func_(func) {}
     ~PastedSwitchObserver() {}
 
     void OnChange(const ChangeInfo &changeInfo) override;

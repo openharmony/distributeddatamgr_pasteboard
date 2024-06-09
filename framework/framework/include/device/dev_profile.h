@@ -68,7 +68,7 @@ private:
     DevProfile();
     ~DevProfile() = default;
     static void ParameterChange(const char *key, const char *value, void *context);
-    void Notify();
+    void Notify(bool isEnable);
     std::mutex callbackMutex_;
     Observer observer_ = nullptr;
     #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
