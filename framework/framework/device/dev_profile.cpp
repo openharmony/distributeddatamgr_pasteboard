@@ -120,7 +120,7 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileUpdate start.");
     if (newProfile.GetCharacteristicValue() == SUPPORT_STATUS) {
-        DevProfile.GetInstance().Notify();
+        DevProfile::GetInstance().Notify();
     }
     return 0;
 }
