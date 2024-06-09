@@ -59,6 +59,7 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "access_token:libprivacy_sdk",
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
+    "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "image_framework:image_native",

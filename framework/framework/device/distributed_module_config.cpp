@@ -20,7 +20,7 @@ namespace OHOS {
 namespace MiscServices {
 bool DistributedModuleConfig::IsOn()
 {
-    if (deviceNums_ != 0) {
+    if (GetDeviceNum() != 0) {
         Notify();
     }
     return status_;
@@ -29,13 +29,6 @@ bool DistributedModuleConfig::IsOn()
 void DistributedModuleConfig::Watch(Observer observer)
 {
     observer_ = std::move(observer);
-}
-
-void DistributedModuleConfig::ForceNotify()
-{
-    if (observer_ != nullptr) {
-        observer_(true);
-    }
 }
 
 void DistributedModuleConfig::Notify()
@@ -51,11 +44,10 @@ void DistributedModuleConfig::Notify()
     }
 }
 
-void DistributedModuleConfig::GetDeviceNum()
+size_t DistributedModuleConfig::GetDeviceNum()
 {
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
-    deviceNums_ = networkIds.size();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetDeviceNum devicesNum = %{public}zu.", deviceNums_);
+    return networkIds.size();
 }
 
 bool DistributedModuleConfig::GetEnabledStatus()
@@ -66,8 +58,7 @@ bool DistributedModuleConfig::GetEnabledStatus()
         return false;
     }
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
-    deviceNums_ = networkIds.size();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", deviceNums_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", networkIds.size());
     for (auto &id : networkIds) {
         if (DevProfile::GetInstance().GetEnabledStatus(id)) {
             return true;
@@ -80,7 +71,6 @@ bool DistributedModuleConfig::GetEnabledStatus()
 void DistributedModuleConfig::Online(const std::string &device)
 {
     DevProfile::GetInstance().SubscribeProfileEvent(device);
-    ForceNotify();
     Notify();
 }
 
@@ -99,6 +89,9 @@ void DistributedModuleConfig::Init()
 {
     DMAdapter::GetInstance().Register(this);
     GetDeviceNum();
+    DevProfile::GetInstance().Watch([this](bool isEnable)-> void {
+        Notify();
+    });
 }
 
 void DistributedModuleConfig::DeInit()

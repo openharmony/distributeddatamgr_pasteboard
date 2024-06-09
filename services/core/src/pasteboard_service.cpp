@@ -133,14 +133,13 @@ void PasteboardService::OnStart()
     moduleConfig_.Init();
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
-
     if (Init() != ERR_OK) {
         auto callback = [this]() { Init(); };
         serviceHandler_->PostTask(callback, INIT_INTERVAL);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Init failed. Try again 10s later.");
         return;
     }
-
+    switch_.Init();
     copyHistory = std::make_shared<Command>(std::vector<std::string>{ "--copy-history" },
         "Dump access history last ten times.",
         [this](const std::vector<std::string> &input, std::string &output) -> bool {
@@ -187,6 +186,7 @@ void PasteboardService::OnStop()
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
     moduleConfig_.DeInit();
+    switch_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, PASTEBOARD_SERVICE_ID);
 }

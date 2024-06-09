@@ -35,12 +35,10 @@ protected:
     void OnReady(const std::string &device) override;
 private:
     bool GetEnabledStatus();
-    void ForceNotify();
     void Notify();
-    void GetDeviceNum();
+    size_t GetDeviceNum();
     Observer observer_ = nullptr;
     bool status_ = false;
-    size_t deviceNums_;
 };
 } // namespace MiscServices
 } // namespace OHOS
