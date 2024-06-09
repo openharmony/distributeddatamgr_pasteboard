@@ -15,6 +15,30 @@
     {
       "name": "typeface",
       "value": "HarmonyHeiTi"
+    },
+    {
+      "name": "PasteboardSwitchAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "PasteboardSwitchAbility_label",
+      "value": "label"
+    },
+    {
+      "name": "pasteboard_title",
+      "value": "Pasteboard"
+    },
+    {
+      "name": "pasteboard_desc",
+      "value": "Copy on one device, then paste on another nearby device logged in with the same ID."
+    },
+    {
+      "name": "multi_device_collaboration",
+      "value": "More connectivity options"
+    },
+    {
+      "name": "pasteboard_privacy_text",
+      "value": "The Bluetooth and WLAN functions are required to read and transmit the device name to the peer trusted device. By turning on the switch, you agree to the above content."
     }
   ]
 }
