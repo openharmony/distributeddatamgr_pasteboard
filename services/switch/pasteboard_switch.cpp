@@ -43,6 +43,7 @@ void PastedSwitch::SetSwitch()
     std::string value;
     DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEDBOARD_SWITCH, value);
     if (!value.empty()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "set switch status to %{public}s.", value.c_str());
         DevProfile::GetInstance().PutEnabledStatus(value);
     }
 }
