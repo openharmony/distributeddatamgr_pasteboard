@@ -29,12 +29,9 @@ namespace MiscServices {
 using namespace OHOS::DistributedDeviceProfile;
 constexpr const int32_t HANDLE_OK = 0;
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
-constexpr const uint32_t NOT_SUPPORT = 0;
-constexpr const uint32_t SUPPORT = 1;
 
 constexpr const char *SERVICE_ID = "pasteboardService";
-constexpr const char *SUPPORT_DISTRIBUTED_PASTEBOARD = "supportDistributedPasteboard";
-constexpr const char *STATIC_CHARACTER_ID = "SwitchStatus";
+constexpr const char *STATIC_CHARACTER_ID = "static_capability";
 constexpr const char *VERSION_ID = "PasteboardVersionId";
 constexpr const char *CHARACTERISTIC_VALUE = "characteristicValue";
 constexpr const char *SUPPORT_STATUS = "1";
@@ -220,7 +217,7 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
     DistributedDeviceProfile::CharacteristicProfile profile;
     int32_t ret =
         DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(
-            udid, SWITCH_ID, STATIC_CHARACTER_ID, profile);
+            udid, SERVICE_ID, STATIC_CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetCharacteristicProfile failed, %{public}.5s.", udid.c_str());
         return;
