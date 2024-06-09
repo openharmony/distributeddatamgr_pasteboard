@@ -17,7 +17,7 @@
 #define PASTE_BOARD_DEV_PROFILE_H
 
 #include "api/visibility.h"
-
+#include <functional>
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 #include "distributed_device_profile_client.h"
 #include "profile_change_listener_stub.h"
@@ -27,6 +27,7 @@ namespace OHOS {
 namespace MiscServices {
 class API_EXPORT DevProfile {
 public:
+    using Observer = std::function<void(bool isEnable)>;
     static DevProfile &GetInstance();
     bool GetEnabledStatus(const std::string &networkId);
     void Init();
@@ -36,7 +37,9 @@ public:
     void SubscribeProfileEvent(const std::string &networkId);
     void UnSubscribeProfileEvent(const std::string &networkId);
     void UnsubscribeAllProfileEvents();
+    void Watch(Observer observer);
     static constexpr const uint32_t FIRST_VERSION = 4;
+
     #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     class SubscribeDPChangeListener : public DistributedDeviceProfile::ProfileChangeListenerStub {
     public:
@@ -65,8 +68,9 @@ private:
     DevProfile();
     ~DevProfile() = default;
     static void ParameterChange(const char *key, const char *value, void *context);
+    void Notify();
     std::mutex callbackMutex_;
-
+    Observer observer_ = nullptr;
     #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::map<std::string, DistributedDeviceProfile::SubscribeInfo> subscribeInfoCache_;
     #endif // PB_DEVICE_INFO_MANAGER_ENABLE

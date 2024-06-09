@@ -244,6 +244,7 @@ void PasteboardService::DevProfileInit()
 {
     ParaHandle::GetInstance().Init();
     DevProfile::GetInstance().Init();
+    DevProfile::GetInstance().Watch(std::bind(&PasteboardService::OnStatusChange, this, std::placeholders::_1));
 }
 
 void PasteboardService::NotifySaStatus()
@@ -1710,6 +1711,21 @@ void PasteboardService::OnConfigChange(bool isOn)
         clipPlugin_ = nullptr;
         return;
     }
+    if (clipPlugin_ != nullptr) {
+        return;
+    }
+    auto release = [this](ClipPlugin *plugin) {
+        std::lock_guard<decltype(mutex)> lockGuard(mutex);
+        ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
+    };
+
+    clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
+}
+
+void PasteboardService::OnStatusChange(bool isEnable)
+{
+    p2pMap_.clear();
+    std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (clipPlugin_ != nullptr) {
         return;
     }

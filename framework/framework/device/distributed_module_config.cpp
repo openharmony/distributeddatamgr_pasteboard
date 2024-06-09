@@ -20,7 +20,7 @@ namespace OHOS {
 namespace MiscServices {
 bool DistributedModuleConfig::IsOn()
 {
-    if (deviceNums_ != 0) {
+    if (GetDeviceNum() != 0) {
         Notify();
     }
     return status_;
@@ -44,11 +44,10 @@ void DistributedModuleConfig::Notify()
     }
 }
 
-void DistributedModuleConfig::GetDeviceNum()
+size_t DistributedModuleConfig::GetDeviceNum()
 {
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
-    deviceNums_ = networkIds.size();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetDeviceNum devicesNum = %{public}zu.", deviceNums_);
+    return networkIds.size();
 }
 
 bool DistributedModuleConfig::GetEnabledStatus()
@@ -59,8 +58,7 @@ bool DistributedModuleConfig::GetEnabledStatus()
         return false;
     }
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
-    deviceNums_ = networkIds.size();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", deviceNums_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", networkIds.size());
     for (auto &id : networkIds) {
         if (DevProfile::GetInstance().GetEnabledStatus(id)) {
             return true;

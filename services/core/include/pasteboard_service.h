@@ -205,6 +205,7 @@ private:
     bool SetDistributedData(int32_t user, PasteData &data);
     bool CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
+    void OnStatusChange(bool isEnable);
     std::shared_ptr<ClipPlugin> GetClipPlugin();
 
     static std::string GetTime();

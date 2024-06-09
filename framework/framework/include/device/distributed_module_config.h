@@ -36,10 +36,9 @@ protected:
 private:
     bool GetEnabledStatus();
     void Notify();
-    void GetDeviceNum();
+    size_t GetDeviceNum();
     Observer observer_ = nullptr;
     bool status_ = false;
-    size_t deviceNums_;
 };
 } // namespace MiscServices
 } // namespace OHOS

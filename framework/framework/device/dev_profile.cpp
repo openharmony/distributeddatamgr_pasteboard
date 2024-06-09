@@ -122,6 +122,9 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
     const CharacteristicProfile &oldProfile, const CharacteristicProfile &newProfile)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileUpdate start.");
+    if (newProfile.GetCharacteristicValue() == SUPPORT_STATUS) {
+        DevProfile.GetInstance().Notify();
+    }
     return 0;
 }
 #endif
@@ -139,6 +142,8 @@ DevProfile &DevProfile::GetInstance()
 void DevProfile::Init()
 {
     ParaHandle::GetInstance().WatchEnabledStatus(ParameterChange);
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    SubscribeProfileEvent(networkId);
 }
 
 void DevProfile::OnReady()
@@ -165,20 +170,11 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed or enableStatus not change");
         return;
     }
-    cJSON *jsonObject = cJSON_CreateObject();
-    cJSON_AddNumberToObject(jsonObject, CHARACTER_ID, NOT_SUPPORT);
-    if (enabledStatus == "true") {
-        cJSON_ReplaceItemInObject(jsonObject, CHARACTER_ID, cJSON_CreateNumber(SUPPORT));
-    }
-    cJSON_AddNumberToObject(jsonObject, VERSION_ID, FIRST_VERSION);
-    char *jsonString = cJSON_PrintUnformatted((jsonObject));
     DistributedDeviceProfile::CharacteristicProfile profile;
     profile.SetDeviceId(udid);
     profile.SetServiceName(SWITCH_ID);
     profile.SetCharacteristicKey(CHARACTER_ID);
-    profile.SetCharacteristicValue(jsonString);
-    cJSON_Delete(jsonObject);
-    free(jsonString);
+    profile.SetCharacteristicValue(enabledStatus);
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutCharacteristicProfile(profile);
     if (errNo != HANDLE_OK && errNo != DistributedDeviceProfile::DP_CACHE_EXIST) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutCharacteristicProfile failed, %{public}d", errNo);
@@ -199,23 +195,13 @@ bool DevProfile::GetEnabledStatus(const std::string &networkId)
         return false;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SERVICE_ID,
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SWITCH_ID,
         CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get status failed, %{public}.5s.", udid.c_str());
         return false;
     }
-    const auto &jsonData = profile.GetCharacteristicValue();
-    cJSON *jsonObject = cJSON_Parse(jsonData.c_str());
-    if (jsonObject == nullptr) {
-        cJSON_Delete(jsonObject);
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
-        return false;
-    }
-    if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, SUPPORT_DISTRIBUTED_PASTEBOARD)) == SUPPORT) {
-        return true;
-    }
-    cJSON_Delete(jsonObject);
+    return profile.GetCharacteristicValue() == SUPPORT_STATUS;
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
 #endif
@@ -273,7 +259,7 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
     }
     DistributedDeviceProfile::SubscribeInfo subscribeInfo;
     subscribeInfo.SetSaId(PASTEBOARD_SA_ID);
-    subscribeInfo.SetSubscribeKey(udid, SERVICE_ID, CHARACTER_ID, CHARACTERISTIC_VALUE);
+    subscribeInfo.SetSubscribeKey(udid, SWITCH_ID, CHARACTER_ID, CHARACTERISTIC_VALUE);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_ADD);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_UPDATE);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_DELETE);
@@ -325,6 +311,18 @@ void DevProfile::UnsubscribeAllProfileEvents()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
     return;
 #endif
+}
+
+void DevProfile::Watch(Observer observer)
+{
+    observer_ = std::move(observer);
+}
+
+void DevProfile::Notify()
+{
+    if (observer_ != nullptr) {
+        observer_(newStatus);
+    }
 }
 } // namespace MiscServices
 } // namespace OHOS
