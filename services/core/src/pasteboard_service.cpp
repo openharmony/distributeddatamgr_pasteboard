@@ -1721,21 +1721,6 @@ void PasteboardService::OnConfigChange(bool isOn)
     clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
 }
 
-void PasteboardService::OnStatusChange(bool isEnable)
-{
-    p2pMap_.clear();
-    std::lock_guard<decltype(mutex)> lockGuard(mutex);
-    if (clipPlugin_ != nullptr) {
-        return;
-    }
-    auto release = [this](ClipPlugin *plugin) {
-        std::lock_guard<decltype(mutex)> lockGuard(mutex);
-        ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
-    };
-
-    clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
-}
-
 std::string PasteboardService::GetAppLabel(uint32_t tokenId)
 {
     auto iBundleMgr = GetAppBundleManager();
