@@ -167,7 +167,7 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, networkId is %{public}.5s",
-             networkId.c_str());
+            networkId.c_str());
         return;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
