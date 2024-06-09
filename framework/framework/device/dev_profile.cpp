@@ -318,7 +318,7 @@ void DevProfile::Watch(Observer observer)
 void DevProfile::Notify()
 {
     if (observer_ != nullptr) {
-        observer_(newStatus);
+        observer_(SUPPORT_STATUS);
     }
 }
 } // namespace MiscServices
