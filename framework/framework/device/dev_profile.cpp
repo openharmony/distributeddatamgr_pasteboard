@@ -137,8 +137,6 @@ DevProfile &DevProfile::GetInstance()
 void DevProfile::Init()
 {
     ParaHandle::GetInstance().WatchEnabledStatus(ParameterChange);
-    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    SubscribeProfileEvent(networkId);
 }
 
 void DevProfile::OnReady()
