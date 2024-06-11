@@ -42,7 +42,6 @@ ohos_shared_library("pasteboard_framework") {
     "device/dev_profile.cpp",
     "device/distributed_module_config.cpp",
     "device/dm_adapter.cpp",
-    "device/para_handle.cpp",
     "device/pasteboard_static_capability.cpp",
     "serializable/serializable.cpp",
   ]

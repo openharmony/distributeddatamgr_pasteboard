@@ -37,7 +37,6 @@
 #include "native_token_info.h"
 #include "os_account_manager.h"
 #include "parameters.h"
-#include "para_handle.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_error.h"
@@ -93,7 +92,6 @@ PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
-    ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_DEVICE_PROFILE_SA_ID)] = &PasteboardService::DevProfileInit;
     ServiceListenerFunc_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
         &PasteboardService::DMAdapterInit;
     ServiceListenerFunc_[static_cast<int32_t>(MEMORY_MANAGER_SA_ID)] = &PasteboardService::NotifySaStatus;
@@ -181,7 +179,6 @@ void PasteboardService::OnStop()
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
 
-    ParaHandle::GetInstance().WatchEnabledStatus(nullptr);
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
@@ -238,12 +235,6 @@ void PasteboardService::DMAdapterInit()
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
-}
-
-void PasteboardService::DevProfileInit()
-{
-    ParaHandle::GetInstance().Init();
-    DevProfile::GetInstance().Init();
 }
 
 void PasteboardService::NotifySaStatus()

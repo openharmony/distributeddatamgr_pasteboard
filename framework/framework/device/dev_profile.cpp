@@ -20,7 +20,6 @@
 #include "cJSON.h"
 #include "distributed_module_config.h"
 #include "dm_adapter.h"
-#include "para_handle.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
@@ -134,23 +133,8 @@ DevProfile &DevProfile::GetInstance()
     return instance;
 }
 
-void DevProfile::Init()
-{
-    ParaHandle::GetInstance().WatchEnabledStatus(ParameterChange);
-}
-
 void DevProfile::OnReady()
 {
-}
-
-void DevProfile::ParameterChange(const char *key, const char *value, void *context)
-{
-    auto enabledKey = ParaHandle::DISTRIBUTED_PASTEBOARD_ENABLED_KEY;
-    if (strncmp(key, enabledKey, strlen(enabledKey)) != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "key is error.");
-        return;
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ParameterChange, key = %{public}s, value = %{public}s.", key, value);
 }
 
 void DevProfile::PutEnabledStatus(const std::string &enabledStatus)

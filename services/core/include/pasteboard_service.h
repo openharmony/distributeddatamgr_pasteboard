@@ -117,7 +117,7 @@ private:
     using Event = ClipPlugin::GlobalEvent;
     using ServiceListenerFunc = void (PasteboardService::*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
-        DISTRIBUTED_DEVICE_PROFILE_SA_ID, WINDOW_MANAGER_SERVICE_ID, MEMORY_MANAGER_SA_ID };
+        WINDOW_MANAGER_SERVICE_ID, MEMORY_MANAGER_SA_ID };
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
     static constexpr uint32_t PLAIN_INDEX = 0;
     static constexpr uint32_t HTML_INDEX = 1;
@@ -219,7 +219,6 @@ private:
     void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DMAdapterInit();
-    void DevProfileInit();
     void NotifySaStatus();
 
     ServiceRunningState state_;
