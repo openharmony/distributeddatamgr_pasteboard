@@ -678,6 +678,7 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     }
     data = *(it.second);
     auto isDelayData = it.second->IsDelayData();
+    auto originBundleName = it.second->GetBundleName();
     if (isDelayData) {
         GetDelayPasteData(appInfo, data);
     }
@@ -687,14 +688,17 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     data.SetBundleName(appInfo.bundleName);
     auto curTime = copyTime_[appInfo.userId];
     if (tempTime.second == curTime) {
-        clips_.ComputeIfPresent(appInfo.userId, [this, &data](auto &key, auto &value) {
+        bool isNotify = false;
+        clips_.ComputeIfPresent(appInfo.userId, [&data, &isNotify](auto &key, auto &value) {
             if (value->IsDelayData()) {
-                auto originBundleName = value->GetBundleName();
                 value = std::make_shared<PasteData>(data);
-                NotifyObservers(originBundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
+                isNotify = true;
             }
             return true;
         });
+        if (isNotify) {
+            NotifyObservers(originBundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
+        }
     }
     
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
