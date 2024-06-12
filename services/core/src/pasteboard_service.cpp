@@ -687,9 +687,18 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
         DMAdapter::GetInstance().GetLocalDeviceType());
     data.SetBundleName(appInfo.bundleName);
     auto curTime = copyTime_[appInfo.userId];
-    if (tempTime.second == curTime && clips_[appInfo.userId]->IsDelayData()) {
-        clips_[appInfo.userId] = std::make_shared<PasteData>(data);
-        NotifyObservers(originBundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
+    if (tempTime.second == curTime) {
+        bool isNotify = false;
+        clips_.ComputeIfPresent(appInfo.userId, [&data, &isNotify](auto &key, auto &value) {
+            if (value->IsDelayData()) {
+                value = std::make_shared<PasteData>(data);
+                isNotify = true;
+            }
+            return true;
+        });
+        if (isNotify) {
+            NotifyObservers(originBundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
+        }
     }
     
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
