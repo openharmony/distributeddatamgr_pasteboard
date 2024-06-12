@@ -677,8 +677,8 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
         return false;
     }
     data = *(it.second);
-    auto isDelayData = it.second->IsDelayData();
     auto originBundleName = it.second->GetBundleName();
+    auto isDelayData = it.second->IsDelayData();
     if (isDelayData) {
         GetDelayPasteData(appInfo, data);
     }
