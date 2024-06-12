@@ -30,7 +30,6 @@ public:
     using Observer = std::function<void(bool isEnable)>;
     static DevProfile &GetInstance();
     bool GetEnabledStatus(const std::string &networkId);
-    void Init();
     void OnReady();
     void PutEnabledStatus(const std::string &enabledStatus);
     void GetRemoteDeviceVersion(const std::string &networkId, uint32_t &deviceVersion);
@@ -67,7 +66,6 @@ public:
 private:
     DevProfile();
     ~DevProfile() = default;
-    static void ParameterChange(const char *key, const char *value, void *context);
     void Notify(bool isEnable);
     std::mutex callbackMutex_;
     Observer observer_ = nullptr;
