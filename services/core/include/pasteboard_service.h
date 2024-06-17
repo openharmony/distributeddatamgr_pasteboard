@@ -268,6 +268,7 @@ private:
     bool SubscribeKeyboardEvent();
     bool IsAllowSendData();
     void UpdateShareOption(PasteData &pasteData);
+    void CommonEventSubscriber();
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;

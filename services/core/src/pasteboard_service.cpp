@@ -155,15 +155,7 @@ void PasteboardService::OnStart()
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyHistory);
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyData);
 
-    if (commonEventSubscriber_ == nullptr) {
-        EventFwk::MatchingSkills matchingSkills;
-        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
-        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
-        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
-        EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-        commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo);
-        EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
-    }
+    CommonEventSubscriber();
     if (!SubscribeKeyboardEvent()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Subscribe failed.");
         return;
@@ -1813,6 +1805,20 @@ bool PasteboardService::SubscribeKeyboardEvent()
         inputEventCallback_));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor ret is: %{public}d", monitorId);
     return monitorId >= 0;
+}
+
+void PasteboardService::CommonEventSubscriber()
+{
+    if (commonEventSubscriber_ != nullptr) {
+        return;
+    }
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo);
+    EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
 }
 
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
