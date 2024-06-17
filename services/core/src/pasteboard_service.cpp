@@ -1154,7 +1154,7 @@ ScreenEvent PasteboardService::GetCurrentScreenStatus()
     }
     
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query current screen status failed.");
-    return currentScreenStatus;
+    return ScreenEvent::Default;
 }
 
 bool PasteboardService::IsCopyable(uint32_t tokenId) const
