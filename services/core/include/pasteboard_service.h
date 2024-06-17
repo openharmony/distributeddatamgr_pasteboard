@@ -108,6 +108,7 @@ public:
     virtual void OnStart() override;
     virtual void OnStop() override;
     static int32_t currentUserId;
+    static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
@@ -169,6 +170,7 @@ private:
     void AddSysAbilityListener();
     int32_t Init();
     static int32_t GetCurrentAccountId();
+    static ScreenEvent GetCurrentScreenStatus();
     std::string DumpHistory() const;
     std::string DumpData();
     void NotifyObservers(std::string bundleName, PasteboardEventStatus status);

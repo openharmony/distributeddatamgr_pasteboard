@@ -87,6 +87,7 @@ std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
 int32_t PasteboardService::currentUserId = ERROR_USERID;
+ScreenEvent PasteboardService::currentScreenStatus = ScreenEvent::Default;
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
@@ -157,6 +158,8 @@ void PasteboardService::OnStart()
     if (commonEventSubscriber_ == nullptr) {
         EventFwk::MatchingSkills matchingSkills;
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
         EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
         commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo);
         EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
@@ -323,6 +326,12 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
 {
     if (pasteData.IsDraggedData() || !pasteData.IsValid()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "data is invalid");
+        return false;
+    }
+    auto screenStatus = GetCurrentScreenStatus();
+    if (pasteData.GetScreenStatus() > screenStatus) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "current screen is %{public}d, set data screen is %{public}d.",
+            screenStatus, pasteData.GetScreenStatus());
         return false;
     }
     if (IsDataAged()) {
@@ -900,6 +909,9 @@ bool PasteboardService::HasPasteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
+        if (GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
+            return false;
+        }
         auto evt = GetValidDistributeEvent(userId);
         return evt.first;
     }
@@ -916,12 +928,14 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
 {
-    auto userId = GetCurrentAccountId();
-    auto event = GetValidDistributeEvent(userId);
-    if (event.first) {
-        PasteData data;
-        if (!GetRemoteData(userId, event.second, data)) {
-            return false;
+    if (GetCurrentScreenStatus() == ScreenEvent::ScreenUnlocked) {
+        auto userId = GetCurrentAccountId();
+        auto event = GetValidDistributeEvent(userId);
+        if (event.first) {
+            PasteData data;
+            if (!GetRemoteData(userId, event.second, data)) {
+                return false;
+            }
         }
     }
     return HasLocalDataType(mimeType);
@@ -977,6 +991,12 @@ bool PasteboardService::HasLocalDataType(const std::string &mimeType)
     }
     if (it.second == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr");
+        return false;
+    }
+    auto screenStatus = GetCurrentScreenStatus();
+    if (it.second->GetScreenStatus() > screenStatus) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "current screen is %{public}d, set data screen is %{public}d.",
+            screenStatus, it.second->GetScreenStatus());
         return false;
     }
     std::vector<std::string> mimeTypes = it.second->GetMimeTypes();
@@ -1048,6 +1068,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     pasteData->SetOrginAuthority(appInfo.bundleName);
     std::string time = GetTime();
     pasteData->SetTime(time);
+    pasteData->SetScreenStatus(GetCurrentScreenStatus());
     pasteData->SetTokenId(tokenId);
     UpdateShareOption(*pasteData);
     CheckAppUriPermission(*pasteData);
@@ -1124,6 +1145,16 @@ int32_t PasteboardService::GetCurrentAccountId()
     }
     currentUserId = accountIds.front();
     return currentUserId;
+}
+
+ScreenEvent PasteboardService::GetCurrentScreenStatus()
+{
+    if (currentScreenStatus != ScreenEvent::Default) {
+        return currentScreenStatus;
+    }
+    
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query current screen status failed.");
+    return currentScreenStatus;
 }
 
 bool PasteboardService::IsCopyable(uint32_t tokenId) const
@@ -1763,6 +1794,14 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
         int32_t userId = data.GetCode();
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id switched: %{public}d", userId);
         PasteboardService::currentUserId = userId;
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screen is locked");
+        PasteboardService::currentScreenStatus = ScreenEvent::ScreenLocked;
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screen is unlocked");
+        PasteboardService::currentScreenStatus = ScreenEvent::ScreenUnlocked;
     }
 }
 

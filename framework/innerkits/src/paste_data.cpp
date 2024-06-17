@@ -46,6 +46,7 @@ enum TAG_PROPERTY : uint16_t {
     TAG_ISREMOTE,
     TAG_BUNDLENAME,
     TAG_SETTIME,
+    TAG_SCREENSTATUS,
 };
 
 std::string PasteData::sharePath = "";
@@ -359,6 +360,16 @@ std::string PasteData::GetTime()
     return props_.setTime;
 }
 
+void PasteData::SetScreenStatus(ScreenEvent screenStatus)
+{
+    props_.screenStatus = screenStatus;
+}
+
+ScreenEvent PasteData::GetScreenStatus()
+{
+    return props_.screenStatus;
+}
+
 void PasteData::SetTag(std::string &tag)
 {
     props_.tag = tag;
@@ -485,7 +496,7 @@ bool PasteData::IsDelayData() const
 PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)
     : tag(property.tag), timestamp(property.timestamp), localOnly(property.localOnly),
     shareOption(property.shareOption), tokenId(property.tokenId), isRemote(property.isRemote),
-    bundleName(property.bundleName), setTime(property.setTime)
+    bundleName(property.bundleName), setTime(property.setTime), screenStatus(property.screenStatus)
 {
     this->additions = property.additions;
     std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
@@ -510,6 +521,7 @@ PasteDataProperty& PasteDataProperty::operator=(const PasteDataProperty &propert
     this->isRemote = property.isRemote;
     this->bundleName = property.bundleName;
     this->setTime = property.setTime;
+    this->screenStatus = property.screenStatus;
     this->additions = property.additions;
     this->mimeTypes.clear();
     std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
@@ -529,6 +541,7 @@ bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_ISREMOTE, isRemote) && ret;
     ret = Write(buffer, TAG_BUNDLENAME, bundleName) && ret;
     ret = Write(buffer, TAG_SETTIME, setTime) && ret;
+    ret = Write(buffer, TAG_SCREENSTATUS, (int32_t &)screenStatus) && ret;
     return ret;
 }
 
@@ -583,6 +596,9 @@ bool PasteDataProperty::DecodeTag(const std::vector<std::uint8_t> &buffer)
         case TAG_SETTIME:
             ret = ret && ReadValue(buffer, setTime, head);
             break;
+        case TAG_SCREENSTATUS:
+            ret = ret && ReadValue(buffer, (int32_t &)screenStatus, head);
+            break;
         default:
             ret = ret && Skip(head.len, buffer.size());
             break;
@@ -603,6 +619,7 @@ size_t PasteDataProperty::Count()
     expectedSize += TLVObject::Count(isRemote);
     expectedSize += TLVObject::Count(bundleName);
     expectedSize += TLVObject::Count(setTime);
+    expectedSize += TLVObject::Count(screenStatus);
     return expectedSize;
 }
 

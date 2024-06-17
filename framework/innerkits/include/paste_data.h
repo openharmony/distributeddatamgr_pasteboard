@@ -32,6 +32,7 @@
 namespace OHOS {
 namespace MiscServices {
 enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
+enum ScreenEvent : int32_t { Default = 0, ScreenLocked, ScreenUnlocked };
 struct API_EXPORT PasteDataProperty : public TLVObject {
     PasteDataProperty() = default;
     ~PasteDataProperty();
@@ -47,6 +48,7 @@ struct API_EXPORT PasteDataProperty : public TLVObject {
     bool isRemote = false;
     std::string bundleName;
     std::string setTime;
+    ScreenEvent screenStatus;
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
@@ -103,6 +105,8 @@ public:
     bool IsRemote();
     void SetTime(const std::string &time);
     std::string GetTime();
+    void SetScreenStatus(ScreenEvent screenStatus);
+    ScreenEvent GetScreenStatus();
     void SetTag(std::string &tag);
     std::string GetTag();
     void SetAdditions(AAFwk::WantParams &additions);
