@@ -47,7 +47,7 @@ struct PasteboardSwitch {
   @State imageHeight: number = 0;
   @State textWidth: number = 0;
   @State gapLength: number = 0;
-  @State videoSrc: Resource = $rawfile('pasteboard.mp4');
+  @State videoSrc: Resource = $rawfile('clipboard.mp4');
   @State isShow: boolean = false;
   @State portraitFunc: mediaQuery.MediaQueryResult | void | null = null;
   private videoController: VideoController | undefined = undefined;
@@ -58,10 +58,10 @@ struct PasteboardSwitch {
   onPortrait(mediaQueryResult: mediaQuery.MediaQueryResult) {
     console.log(TAG + 'onPortrait in');
     if (mediaQueryResult.matches as boolean) {
-      this.videoSrc = $rawfile('pasteboard_dark.mp4');
+      this.videoSrc = $rawfile('clipboard_dark.mp4');
       this.extContext?.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_DARK);
     } else {
-      this.videoSrc = $rawfile('pasteboard.mp4');
+      this.videoSrc = $rawfile('clipboard.mp4');
       this.extContext?.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT);
     }
   }
