@@ -71,10 +71,10 @@ Note:If the text contains special characters, please escape them according to th
                             name="services/dialog/PasteboardDialog/entry/src/main/resources/base/media/pasteboardImg.svg"
                             desc="hap svg image"/>
                 <filteritem type="filepath"
-                            name="services/dialog/PasteboardDialog/entry/src/main/resources/rawfile/pasteboard.mp4"
+                            name="services/dialog/PasteboardDialog/entry/src/main/resources/rawfile/clipboard.mp4"
                             desc="hap mp4"/>
                 <filteritem type="filepath"
-                            name="services/dialog/PasteboardDialog/entry/src/main/resources/rawfile/pasteboard_dark.mp4"
+                            name="services/dialog/PasteboardDialog/entry/src/main/resources/rawfile/clipboard_dark.mp4"
                             desc="hap mp4"/>
             </filefilter>
         </filefilterlist>
