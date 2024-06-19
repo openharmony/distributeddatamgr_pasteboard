@@ -34,15 +34,11 @@
     },
     {
       "name":"pasteboard_desc",
-      "value":"在一台设备上进行拷贝，然后可在附近另一台登录相同帐号的设备上粘贴。"
+      "value":"在一台设备上进行复制，然后可在附近另一台登录相同帐号的设备上粘贴。此功能需双方设备开启“跨设备剪贴板”、WLAN和蓝牙"
     },
     {
       "name": "multi_device_collaboration",
       "value": "多设备协同"
-    },
-    {
-      "name": "pasteboard_privacy_text",
-      "value": "本服务使用过程中需要使用蓝牙和WLAN功能，读取并传送本设备名称到对端可信设备。打开开关，即表示您同意上述内容。"
     }
   ]
 }

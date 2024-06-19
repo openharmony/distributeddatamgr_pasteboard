@@ -26,19 +26,15 @@
     },
     {
       "name": "pasteboard_title",
-      "value": "Pasteboard"
+      "value": "Cross-Device Clipboard"
     },
     {
       "name": "pasteboard_desc",
-      "value": "Copy on one device, then paste on another nearby device logged in with the same ID."
+      "value": "Copy it on one device, and then paste it on another device nearby that is logged into the same account. This function requires both devices to enable Cross-device Clipboard, WLAN, and Bluetooth"
     },
     {
       "name": "multi_device_collaboration",
       "value": "More connectivity options"
-    },
-    {
-      "name": "pasteboard_privacy_text",
-      "value": "The Bluetooth and WLAN functions are required to read and transmit the device name to the peer trusted device. By turning on the switch, you agree to the above content."
     }
   ]
 }
