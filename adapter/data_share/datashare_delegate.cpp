@@ -103,9 +103,9 @@ int32_t DataShareDelegate::GetValue(const std::string& key, std::string& value)
         resultSet->Close();
         return ERR_NAME_NOT_FOUND;
     }
-    int32_t INDEX = 0;
-    resultSet->GoToRow(INDEX);
-    int32_t ret = resultSet->GetString(INDEX, value);
+    int32_t index = 0;
+    resultSet->GoToRow(index);
+    int32_t ret = resultSet->GetString(index, value);
     if (ret != DataShare::E_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get value failed, ret=%{public}d", ret);
         resultSet->Close();
