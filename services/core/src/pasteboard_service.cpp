@@ -534,7 +534,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data)
     auto appInfo = GetAppInfo(tokenId);
     bool result = false;
     auto event = GetValidDistributeEvent(appInfo.userId);
-    if (!event.first) {
+    if (!event.first || GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
         result = GetLocalData(appInfo, data);
     } else {
         result = GetRemoteData(appInfo.userId, event.second, data);
@@ -1154,7 +1154,7 @@ ScreenEvent PasteboardService::GetCurrentScreenStatus()
     if (currentScreenStatus != ScreenEvent::Default) {
         return currentScreenStatus;
     }
-    
+
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query current screen status failed.");
     return ScreenEvent::Default;
 }
