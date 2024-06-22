@@ -54,7 +54,7 @@ sptr<PasteboardObserverInstance::PasteboardObserverImpl> PasteboardObserverInsta
 void UvQueueWorkOnPasteboardChanged(uv_work_t *work, int status)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "UvQueueWorkOnPasteboardChanged start");
-    if (work == nullptr) {
+    if (UV_ECANCELED == status || work == nullptr || work->data == nullptr) {
         return;
     }
     PasteboardDataWorker *pasteboardDataWorker = (PasteboardDataWorker *)work->data;
@@ -140,7 +140,7 @@ PasteboardDelayGetterInstance::~PasteboardDelayGetterInstance()
 void UvQueueWorkGetDelayPasteData(uv_work_t *work, int status)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "UvQueueWorkGetDelayPasteData start");
-    if (work == nullptr) {
+    if (UV_ECANCELED == status || work == nullptr || work->data == nullptr) {
         return;
     }
     PasteboardDelayWorker *pasteboardDelayWorker = (PasteboardDelayWorker *)work->data;
