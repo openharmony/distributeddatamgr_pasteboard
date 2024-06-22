@@ -108,6 +108,7 @@ public:
     virtual void OnStart() override;
     virtual void OnStop() override;
     static int32_t currentUserId;
+    static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
@@ -168,7 +169,9 @@ private:
     using ObserverMap = std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
     void AddSysAbilityListener();
     int32_t Init();
+    void InitScreenStatus();
     static int32_t GetCurrentAccountId();
+    static ScreenEvent GetCurrentScreenStatus();
     std::string DumpHistory() const;
     std::string DumpData();
     void NotifyObservers(std::string bundleName, PasteboardEventStatus status);
@@ -266,6 +269,7 @@ private:
     bool SubscribeKeyboardEvent();
     bool IsAllowSendData();
     void UpdateShareOption(PasteData &pasteData);
+    void CommonEventSubscriber();
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;

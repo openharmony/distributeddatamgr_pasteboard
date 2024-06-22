@@ -53,6 +53,7 @@
           "os_account",
           "safwk",
           "samgr",
+          "screenlock_mgr",
           "time_service",
           "udmf",
           "window_manager"
