@@ -169,6 +169,7 @@ private:
     using ObserverMap = std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
     void AddSysAbilityListener();
     int32_t Init();
+    void InitScreenStatus();
     static int32_t GetCurrentAccountId();
     static ScreenEvent GetCurrentScreenStatus();
     std::string DumpHistory() const;

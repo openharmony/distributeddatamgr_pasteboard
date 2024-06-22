@@ -43,6 +43,7 @@
 #include "pasteboard_trace.h"
 #include "remote_file_share.h"
 #include "reporter.h"
+#include "screenlock_manager.h"
 #include "tokenid_kit.h"
 #include "uri_permission_manager_client.h"
 #ifdef SCENE_BOARD_ENABLE
@@ -112,7 +113,16 @@ int32_t PasteboardService::Init()
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Init Success.");
     state_ = ServiceRunningState::STATE_RUNNING;
+    InitScreenStatus();
     return ERR_OK;
+}
+
+void PasteboardService::InitScreenStatus()
+{
+    auto isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
+    PasteboardService::currentScreenStatus = isScreenLocked ? ScreenEvent::ScreenLocked : ScreenEvent::ScreenUnlocked;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screen status is %{public}d",
+        PasteboardService::currentScreenStatus);
 }
 
 void PasteboardService::OnStart()
