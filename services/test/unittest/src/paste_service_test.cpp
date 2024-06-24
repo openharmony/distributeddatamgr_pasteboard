@@ -41,6 +41,7 @@ using namespace OHOS::Security::AccessToken;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
 constexpr const uint16_t EACH_LINE_LENGTH = 50;
 constexpr const uint16_t TOTAL_LENGTH = 500;
+const uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
 std::string g_webviewPastedataTag = "WebviewPasteDataTag";
 class PasteboardServiceTest : public testing::Test {
 public:
@@ -1316,6 +1317,43 @@ HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
     // not DraggedData, not DefaultIME
     EXPECT_TRUE(hasPasteData);
     PasteboardClient::GetInstance()->Clear();
+    PasteboardServiceTest::RestoreSelfTokenId();
+}
+
+/**
+* @tc.name: SetAppShareOptions
+* @tc.desc: set app share options
+* @tc.type: FUNC
+* @tc.require: issuesIA7V62
+* @tc.author: caozhijun
+*/
+HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
+{
+    uint64_t tempTokenID = testTokenId_ | SYSTEM_APP_MASK;
+    auto result = SetSelfTokenID(tempTokenID);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "testTokenId= 0x%{public}x, ret= %{public}d!", testTokenId_, result);
+    ShareOption setting = ShareOption::InApp;
+    int32_t ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
+    EXPECT_TRUE(ret == 0);
+    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION));
+    ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
+    EXPECT_TRUE(ret == 0);
+
+    setting = ShareOption::LocalDevice;
+    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
+    EXPECT_TRUE(ret == 0);
+    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION));
+    ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
+    EXPECT_TRUE(ret == 0);
+
+    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
+    EXPECT_TRUE(ret == 0);
+    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION));
+    ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
+    EXPECT_TRUE(ret == 0);
     PasteboardServiceTest::RestoreSelfTokenId();
 }
 } // namespace OHOS::MiscServices

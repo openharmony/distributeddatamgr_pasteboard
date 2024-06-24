@@ -123,4 +123,18 @@ HWTEST_F(DMAdapterTest, GetUdidByNetworkId, TestSize.Level0)
     auto udid = DMAdapter::GetInstance().GetUdidByNetworkId("");
     ASSERT_TRUE(udid.empty());
 }
+
+/**
+* @tc.name: IsSameAccount
+* @tc.desc: is same account.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, IsSameAccount, TestSize.Level0)
+{
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    bool ret = DMAdapter::GetInstance().IsSameAccount(networkId);
+    ASSERT_FALSE(ret);
+}
 }

@@ -916,4 +916,21 @@ HWTEST_F(PasteDataTest, SetDraggedDataFlag001, TestSize.Level0)
     auto result = pasteData->IsDraggedData();
     ASSERT_TRUE(result);
 }
+
+/**
+* @tc.name: SetScreenStatus
+* @tc.desc:
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, SetScreenStatus, TestSize.Level0)
+{
+    std::string plainText = "plain text";
+    auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ScreenEvent event = ScreenEvent::ScreenLocked;
+    pasteData->SetScreenStatus(event);
+    ScreenEvent ret = pasteData->GetScreenStatus();
+    ASSERT_TRUE(ret == ScreenEvent::ScreenLocked);
+}
 } // namespace OHOS::MiscServices
