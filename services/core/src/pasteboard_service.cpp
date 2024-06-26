@@ -119,10 +119,15 @@ int32_t PasteboardService::Init()
 
 void PasteboardService::InitScreenStatus()
 {
+#ifdef PB_SCREENLOCK_MGR_ENABLE
     auto isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
     PasteboardService::currentScreenStatus = isScreenLocked ? ScreenEvent::ScreenLocked : ScreenEvent::ScreenUnlocked;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screen status is %{public}d",
         PasteboardService::currentScreenStatus);
+#else
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_SCREENLOCK_MGR_ENABLE not defined");
+    return;
+#endif
 }
 
 void PasteboardService::OnStart()
