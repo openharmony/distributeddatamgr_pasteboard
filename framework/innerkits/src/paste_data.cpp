@@ -493,6 +493,48 @@ bool PasteData::IsDelayData() const
     return isDelayData_;
 }
 
+bool PasteData::Marshalling(Parcel &parcel) const
+{
+    std::vector<uint8_t> pasteDataTlv(0);
+    if (!const_cast<PasteData*>(this)->Encode(PasteDataTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Encoding failed");
+        return false;
+    }
+    if (!parcel.WriteUint8Vector(pasteDataTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteUint8Vector failed");
+        return false;
+    }
+    return true;
+}
+
+bool PasteData::UnMarshalling(Parcel &parcel) const
+{
+    PasteData* pasteData = new (std::nothrow) PasteData();
+    if (pasteData != nullptr && !pasteData->ReadFromParcel(parcel)) {
+        delete pasteData;
+        pasteData = nullptr;
+    }
+    return pasteData;
+}
+
+PastdData* PasteData::ReadFromParcel(Parcel &parcel)
+{
+    std::vector<uint8_t> pasteDataTlv(0);
+    if (!parcel.ReadUInt8Vector(&pasteDataTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadUInt8Vector failed");
+        return false;
+    }
+    if (pasteDataTlv.size() == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadFromParcel size = 0");
+        return false;
+    }
+    if (!Decode(pasteDataTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Decode failed");
+        return false;
+    }
+    return true;
+}
+
 PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)
     : tag(property.tag), timestamp(property.timestamp), localOnly(property.localOnly),
     shareOption(property.shareOption), tokenId(property.tokenId), isRemote(property.isRemote),

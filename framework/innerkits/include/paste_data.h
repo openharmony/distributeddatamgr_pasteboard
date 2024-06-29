@@ -28,6 +28,7 @@
 #include "uri.h"
 #include "want.h"
 #include "want_params.h"
+#inclued "parcel.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -56,7 +57,7 @@ struct API_EXPORT PasteDataProperty : public TLVObject {
     size_t Count() override;
 };
 
-class API_EXPORT PasteData : public TLVObject {
+class API_EXPORT PasteData : public TLVObject, public Parcelable {
 public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();
@@ -126,6 +127,8 @@ public:
 
     void SetDelayData(bool isDelay);
     bool IsDelayData() const;
+    bool Marshalling(Parcel &parcel) const override;
+    static PasteData* Marshalling(Parcel &parcel);
 
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
     static std::string sharePath;
@@ -140,7 +143,7 @@ public:
 
 private:
     void RefreshMimeProp();
-
+    bool ReadFromParcel(Parcel &parcel);
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
     std::string orginAuthority_;
