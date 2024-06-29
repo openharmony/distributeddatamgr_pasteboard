@@ -62,7 +62,7 @@ public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();
     ~PasteData();
-    explicit PasteData(const PasteData &data);
+    PasteData(const PasteData &data);
     PasteData& operator=(const PasteData &data);
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
 
@@ -128,7 +128,7 @@ public:
     void SetDelayData(bool isDelay);
     bool IsDelayData() const;
     bool Marshalling(Parcel &parcel) const override;
-    static PasteData* Marshalling(Parcel &parcel);
+    static PasteData* Unmarshalling(Parcel &parcel);
 
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
     static std::string sharePath;
