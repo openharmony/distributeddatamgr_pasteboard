@@ -496,18 +496,18 @@ bool PasteData::IsDelayData() const
 bool PasteData::Marshalling(Parcel &parcel) const
 {
     std::vector<uint8_t> pasteDataTlv(0);
-    if (!const_cast<PasteData*>(this)->Encode(PasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Encoding failed");
+    if (!const_cast<PasteData*>(this)->Encode(pasteDataTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Encode failed");
         return false;
     }
-    if (!parcel.WriteUint8Vector(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteUint8Vector failed");
+    if (!parcel.WriteUInt8Vector(pasteDataTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteUInt8Vector failed");
         return false;
     }
     return true;
 }
 
-bool PasteData::UnMarshalling(Parcel &parcel) const
+bool PasteData::Unmarshalling(Parcel &parcel) const
 {
     PasteData* pasteData = new (std::nothrow) PasteData();
     if (pasteData != nullptr && !pasteData->ReadFromParcel(parcel)) {
