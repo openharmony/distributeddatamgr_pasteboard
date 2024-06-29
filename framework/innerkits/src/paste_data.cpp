@@ -507,7 +507,7 @@ bool PasteData::Marshalling(Parcel &parcel) const
     return true;
 }
 
-bool PasteData::Unmarshalling(Parcel &parcel) const
+PastdData* PasteData::Unmarshalling(Parcel &parcel) const
 {
     PasteData* pasteData = new (std::nothrow) PasteData();
     if (pasteData != nullptr && !pasteData->ReadFromParcel(parcel)) {
@@ -517,7 +517,7 @@ bool PasteData::Unmarshalling(Parcel &parcel) const
     return pasteData;
 }
 
-PastdData* PasteData::ReadFromParcel(Parcel &parcel)
+bool PasteData::ReadFromParcel(Parcel &parcel)
 {
     std::vector<uint8_t> pasteDataTlv(0);
     if (!parcel.ReadUInt8Vector(&pasteDataTlv)) {
