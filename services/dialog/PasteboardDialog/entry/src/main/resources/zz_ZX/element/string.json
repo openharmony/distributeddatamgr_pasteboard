@@ -2,7 +2,11 @@
   "string": [
     {
       "name":"pasteboard_title",
-      "value":"跨设备剪贴板"
+      "value":"[TS_940609]_Cross-Device Clipboard"
+    },
+    {
+      "name":"pasteboard_desc",
+      "value":"[TS_940611]_Copy it on one device, and then paste it on another device nearby that is logged into the same account. This function requires both devices to enable Cross-device Clipboard, WLAN, and Bluetooth."
     }
   ]
 }
