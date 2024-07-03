@@ -620,6 +620,7 @@ void PasteboardService::RemoteDataTaskManager::ClearRemoteDataTask(const Event &
 
 bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteData &data)
 {
+    data.SetSyncTime(-1);
     auto [task, isPasting] = taskMgr_.GetRemoteDataTask(event);
     if (task == nullptr) {
         return false;
@@ -645,19 +646,20 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
 
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteData>>>(GET_REMOTE_DATA_WAIT_TIME);
     std::thread thread([this, event, block, userId]() mutable {
-        std::shared_ptr<PasteData> pasteData = GetDistributedData(event, userId);
+        auto pasteDataAndTime = GetDistributedData(event, userId);
         auto validEvent = GetValidDistributeEvent(userId);
-        if (pasteData != nullptr) {
-            pasteData->SetRemote(true);
+        if (pasteDataAndTime.first != nullptr) {
+            pasteDataAndTime.first->SetRemote(true);
             if (validEvent.second == event) {
-                clips_.InsertOrAssign(userId, pasteData);
+                clips_.InsertOrAssign(userId, pasteDataAndTime.first);
+                pasteDataAndTime.first->SetSyncTime(pasteDataAndTime.second);
                 auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch())
                         .count());
                 copyTime_.InsertOrAssign(userId, curTime);
             }
-            taskMgr_.Notify(event, pasteData);
+            taskMgr_.Notify(event, pasteDataAndTime.first);
         }
-        block->SetValue(pasteData);
+        block->SetValue(pasteDataAndTime.first);
         taskMgr_.ClearRemoteDataTask(event);
     });
 
@@ -1569,18 +1571,19 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
     CalculateTimeConsuming timeC(dataSize, pState);
 }
 
-std::shared_ptr<PasteData> PasteboardService::GetDistributedData(const Event &event, int32_t user)
+std::pair<std::shared_ptr<PasteData>, int32_t> PasteboardService::GetDistributedData(const Event &event, int32_t user)
 {
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
-        return nullptr;
+        return std::make_pair(nullptr, -1);
     }
     std::vector<uint8_t> rawData;
-    if (clipPlugin->GetPasteData(event, rawData) != 0) {
+    auto result = clipPlugin->GetPasteData(event, rawData);
+    if (result.first != 0) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get data failed");
         Reporter::GetInstance().PasteboardFault().Report({ user, "GET_REMOTE_DATA_FAILED" });
-        return nullptr;
+        return std::make_pair(nullptr, -1);
     }
 
     currentEvent_ = std::move(event);
@@ -1595,7 +1598,7 @@ std::shared_ptr<PasteData> PasteboardService::GetDistributedData(const Event &ev
         }
         item->isConvertUriFromRemote = true;
     }
-    return pasteData;
+    return pasteData;std::make_pair(pasteData, result.second);
 }
 
 bool PasteboardService::IsAllowSendData()

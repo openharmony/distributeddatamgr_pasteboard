@@ -91,9 +91,8 @@ enum StageRes : std::int32_t {
 };
 
 enum BizState : std::int32_t {
-    DFX_BEGIN = 0,
-    DFX_NORMAL_END = 1,
-    DFX_ABNORMAL_END = 2,
+    DFX_BEGIN = 1,
+    DFX_END = 2,
 };
 
 enum ErrorCode : std::int32_t {
@@ -131,6 +130,8 @@ constexpr const char* COVER_DELAY_DATA = "COVER_DELAY_DATA";
 constexpr const char* SEND_BROADCAST_TIME = "SEND_BROADCAST_TIME_64";
 constexpr const char* RECEIVE_BROADCAST_TIME = "RECEIVE_BROADCAST_TIME_64";
 constexpr const char* SEQ_ID = "SEQ_ID";
+constexpr const char* CONCURRENT_ID = "CONCURRENT_ID";
+constexpr const char* DIS_SYNC_TIME = "DIS_SYNC_TIME";
 static constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                    \

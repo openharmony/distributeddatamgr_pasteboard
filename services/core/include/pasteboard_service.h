@@ -204,7 +204,7 @@ private:
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
-    std::shared_ptr<PasteData> GetDistributedData(const Event &event, int32_t user);
+    std::pair<std::shared_ptr<PasteData>, int32_t> GetDistributedData(const Event &event, int32_t user);
     bool SetDistributedData(int32_t user, PasteData &data);
     bool CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
