@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "clip/clip_plugin.h"
 #include "config.h"
 #include "pasteboard_hilog.h"
 #include "serializable.h"
@@ -473,5 +474,26 @@ HWTEST_F(SerializableTest, SerializableTest011, TestSize.Level0)
     ASSERT_EQ(config.components[1].destructor, "destructor2");
     ASSERT_EQ(config.components[1].params, "params2");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+}
+
+/**
+* @tc.name: GlobalEventTest001
+* @tc.desc: test GlobalEvent serializable.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(SerializableTest, GlobalEventTest001, TestSize.Level0)
+{
+    ClipPlugin::GlobalEvent event;
+    event.deviceId = "deviceId";
+    event.expiration = 1;
+    event.seqId = 0;
+    std::string data = event.Marshall();
+    ClipPlugin::GlobalEvent event1;
+    if (!event1.Unmarshall(data)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_INNERKIT, "Unmarshall event failed.");
+    }
+    ASSERT_TRUE(event == event1);
 }
 } // namespace OHOS::DistributedData
