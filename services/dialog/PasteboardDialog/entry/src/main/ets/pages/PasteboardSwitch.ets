@@ -51,6 +51,7 @@ struct PasteboardSwitch {
   @State gapLength: number = 0;
   @State videoSrc: Resource = $rawfile('clipboard.mp4');
   @State isShow: boolean = false;
+  @State is2in1: boolean = false;
   @State portraitFunc: mediaQuery.MediaQueryResult | void | null = null;
   private videoController: VideoController | undefined = undefined;
   private listener: mediaQuery.MediaQueryListener = mediaQuery.matchMediaSync('(dark-mode:true)');
@@ -102,6 +103,7 @@ struct PasteboardSwitch {
     if (this.videoController) {
       this.videoController.start();
     }
+    this.is2in1 = deviceInfo.deviceType === '2in1' ? true : false;
   }
 
   aboutToAppear() {
@@ -209,13 +211,19 @@ struct PasteboardSwitch {
             .width('100%')
 
           Column() {
-            Row() {
+            Flex({
+              direction: FlexDirection.Row,
+              justifyContent: FlexAlign.SpaceBetween,
+              alignItems: ItemAlign.Center
+            }) {
               Text($r('app.string.pasteboard_title'))
                 .fontSize($r('sys.float.ohos_id_text_size_sub_title2'))
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('sys.color.ohos_id_color_text_primary'))
 
                 Toggle({ type: ToggleType.Switch, isOn: this.isSwitchOn })
+                  .width(36)
+                  .height(20)
                   .hoverEffect(HoverEffect.None)
                   .onChange((isOn: boolean) => {
                     console.log(TAG + 'isOn:' + isOn);
@@ -230,11 +238,11 @@ struct PasteboardSwitch {
                     }
                   })
               }
-              .justifyContent(FlexAlign.SpaceBetween)
+              .height(this.is2in1 ? 48 : 56)
               .width('100%')
-              .padding({ left: 12, right: 8, top: 10, bottom: 10 })
+              .padding({ left: 12, right: 12 })
               .backgroundColor($r('sys.color.ohos_id_color_list_card_bg'))
-              .borderRadius(20)
+              .borderRadius(this.is2in1 ? 16 : 20)
             }.width('100%')
           }.padding({ left: this.gapLength, right: this.gapLength }).width('100%').height('100%')
         }
