@@ -186,13 +186,13 @@ RetDataCString FfiOHOSPasteDataGetPrimaryText(int64_t id)
     RetDataCString ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = nullptr };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetPrimaryText: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetPrimaryText: pasteData not exist");
         return ret;
     }
     
@@ -212,7 +212,7 @@ RetDataCString FfiOHOSPasteDataRecordToPlainText(int64_t id)
     RetDataCString ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = nullptr };
     auto instance = FFIData::GetData<PasteDataRecordImpl>(id);
     if (!instance) {
-        LOGE("[PasteRecord] PasteDataRecordImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteRecord] ToPlainText: instance not exist %{public}" PRId64, id);
         ret.code = ERR_INVALID_INSTANCE_CODE;
         return ret;
     }
@@ -233,13 +233,13 @@ RetDataCString FfiOHOSPasteDataGetPrimaryHtml(int64_t id)
     RetDataCString ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = nullptr };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetPrimaryHtml: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetPrimaryHtml: pasteData not exist");
         return ret;
     }
 
@@ -259,13 +259,13 @@ RetDataCString FfiOHOSPasteDataGetPrimaryUri(int64_t id)
     RetDataCString ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = nullptr };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetPrimaryUri: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetPrimaryUri: pasteData not exist");
         return ret;
     }
 
@@ -286,13 +286,13 @@ RetDataI64 FfiOHOSPasteDataGetPrimaryPixelMap(int64_t id)
     RetDataI64 ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetPrimaryPixelMap: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetPrimaryPixelMap: pasteData not exist");
         return ret;
     }
 
@@ -315,13 +315,13 @@ RetDataCString FfiOHOSPasteDataGetPrimaryMimeType(int64_t id)
     RetDataCString ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = nullptr };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetPrimaryMimeType: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetPrimaryMimeType: pasteData not exist");
         return ret;
     }
 
@@ -353,13 +353,13 @@ int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
     LOGI("[PasteData] FfiOHOSPasteDataGetProperty start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetProperty: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetProperty: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -392,7 +392,7 @@ int32_t FfiOHOSPasteDataSetProperty(int64_t id, CArrString mimeTypes, const char
     LOGI("[PasteData] FfiOHOSPasteDataSetProperty start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] SetProperty: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
     PasteDataProperty property;
@@ -404,7 +404,7 @@ int32_t FfiOHOSPasteDataSetProperty(int64_t id, CArrString mimeTypes, const char
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] SetProperty: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -420,13 +420,13 @@ RetDataCString FfiOHOSPasteDataGetTag(int64_t id)
     RetDataCString ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = nullptr };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetTag: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetTag: pasteData not exist");
         return ret;
     }
 
@@ -446,7 +446,7 @@ RetDataBool FfiOHOSPasteDataHasType(int64_t id, const char* mimeTypes)
     RetDataBool ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = false };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] HasType: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
@@ -454,7 +454,7 @@ RetDataBool FfiOHOSPasteDataHasType(int64_t id, const char* mimeTypes)
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] HasType: pasteData not exist");
         return ret;
     }
 
@@ -470,20 +470,20 @@ int32_t FfiOHOSPasteDataAddRecord(int64_t id, int64_t recordId)
     LOGI("[PasteData] FfiOHOSPasteDataAddRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] AddRecord: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
     PasteDataRecord rec;
     auto recordIntance = FFIData::GetData<PasteDataRecordImpl>(recordId);
     if (!recordIntance) {
-        LOGE("[PasteData] PasteDataRecordImpl instance not exist %{public}" PRId64, recordId);
+        LOGE("[PasteData] AddRecord: instance not exist %{public}" PRId64, recordId);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] AddRecord: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -499,7 +499,7 @@ int32_t FfiOHOSPasteDataAddMimeTypeRecord(int64_t id, const char* mimeType, cons
     LOGI("[PasteData] FfiOHOSPasteDataAddMimeTypeRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] AddMimeTypeRecord: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -508,7 +508,7 @@ int32_t FfiOHOSPasteDataAddMimeTypeRecord(int64_t id, const char* mimeType, cons
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] AddMimeTypeRecord: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -529,7 +529,7 @@ int32_t FfiOHOSPasteDataAddPixelMapRecord(int64_t id, const char* mimeType, int6
     LOGI("[PasteData] FfiOHOSPasteDataAddPixelMapRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] AddPixelMapRecord: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto pixelMapImpl = FFIData::GetData<PixelMapImpl>(pixelMapId);
@@ -539,13 +539,13 @@ int32_t FfiOHOSPasteDataAddPixelMapRecord(int64_t id, const char* mimeType, int6
 
     auto pixelMap = pixelMapImpl->GetRealPixelMap();
     if (pixelMap == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PixelMap not exist");
+        LOGE("[PasteData] AddPixelMapRecord: PixelMap not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] AddPixelMapRecord: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -560,7 +560,7 @@ int32_t FfiOHOSPasteDataAddArrayRecord(int64_t id, const char* mimeType, uint8_t
     LOGI("[PasteData] FfiOHOSPasteDataAddArrayRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] AddArrayRecord: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -570,7 +570,7 @@ int32_t FfiOHOSPasteDataAddArrayRecord(int64_t id, const char* mimeType, uint8_t
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] AddArrayRecord: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -600,13 +600,13 @@ RetDataCArrString FfiOHOSPasteDataGetMimeTypes(int64_t id)
     RetDataCArrString ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = { .head = nullptr, .size = 0 } };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetMimeTypes: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetMimeTypes: pasteData not exist");
         return ret;
     }
 
@@ -625,13 +625,13 @@ RetDataI64 FfiOHOSPasteDataGetRecord(int64_t id, int32_t index, CPasteDataRecord
     RetDataI64 ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetRecord: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetRecord: pasteData not exist");
         return ret;
     }
 
@@ -667,13 +667,13 @@ RetDataUI FfiOHOSPasteDataGetRecordCount(int64_t id)
     RetDataUI ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] GetRecordCount: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] GetRecordCount: pasteData not exist");
         return ret;
     }
 
@@ -689,13 +689,13 @@ int32_t FfiOHOSPasteDataRemoveRecord(int64_t id, int32_t index)
     LOGI("[PasteData] FfiOHOSPasteDataRemoveRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] RemoveRecord: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] RemoveRecord: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -723,19 +723,19 @@ int32_t FfiOHOSPasteDataReplaceRecord(int64_t id, int64_t recordId, int32_t inde
     LOGI("[PasteData] FfiOHOSPasteDataReplaceRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
     if (!instance) {
-        LOGE("[PasteData] PasteDataImpl instance not exist %{public}" PRId64, id);
+        LOGE("[PasteData] ReplaceRecord: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
     auto recordInstance = FFIData::GetData<PasteDataRecordImpl>(recordId);
     if (!recordInstance) {
-        LOGE("[PasteData] PasteDataRecordImpl instance not exist %{public}" PRId64, recordId);
+        LOGE("[PasteData] ReplaceRecord: instance not exist %{public}" PRId64, recordId);
         return ERR_INVALID_INSTANCE_CODE;
     }
 
     auto pasteData = instance->GetRealPasteData();
     if (pasteData == nullptr) {
-        LOGE("[PasteData] PasteDataImpl PasteData not exist");
+        LOGE("[PasteData] ReplaceRecord: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
 
@@ -774,12 +774,12 @@ int32_t FfiOHOSSystemPasteboardSetData(int64_t id, int64_t pasteDataId)
     LOGI("[SystemPasteboard] FfiOHOSSystemPasteboardSetData start");
     auto instance = FFIData::GetData<SystemPasteboardImpl>(id);
     if (!instance) {
-        LOGE("[SystemPasteboard] SystemPasteboardImpl instance not exist %{public}" PRId64, id);
+        LOGE("[SystemPasteboard] SetData: instance not exist %{public}" PRId64, id);
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto pasteDataInstance = FFIData::GetData<PasteDataImpl>(pasteDataId);
     if (!pasteDataInstance) {
-        LOGE("[SystemPasteboard] PasteDataImpl instance not exist %{public}" PRId64, pasteDataId);
+        LOGE("[SystemPasteboard] SetData: instance not exist %{public}" PRId64, pasteDataId);
         return ERR_INVALID_INSTANCE_CODE;
     }
     auto ret = instance->SetData(pasteDataInstance, pasteDataInstance->GetRealPasteData());
@@ -796,7 +796,7 @@ RetDataI64 FfiOHOSSystemPasteboardGetData(int64_t id)
     LOGI("[SystemPasteboard] FfiOHOSSystemPasteboardGetData start");
     auto instance = FFIData::GetData<SystemPasteboardImpl>(id);
     if (!instance) {
-        LOGE("[SystemPasteboard] SystemPasteboardImpl instance not exist %{public}" PRId64, id);
+        LOGE("[SystemPasteboard] GetData: instance not exist %{public}" PRId64, id);
         return ret;
     }
     std::shared_ptr<MiscServices::PasteData> pasteData = std::make_shared<PasteData>();
@@ -818,7 +818,7 @@ RetDataBool FfiOHOSSystemPasteboardHasData(int64_t id)
     LOGI("[SystemPasteboard] FfiOHOSSystemPasteboardHasData start");
     auto instance = FFIData::GetData<SystemPasteboardImpl>(id);
     if (!instance) {
-        LOGE("[SystemPasteboard] SystemPasteboardImpl instance not exist %{public}" PRId64, id);
+        LOGE("[SystemPasteboard] HasData: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
@@ -833,7 +833,7 @@ FFI_EXPORT void FfiOHOSSystemPasteboardClearData(int64_t id)
     LOGI("[SystemPasteboard] FfiOHOSSystemPasteboardClearData start");
     auto instance = FFIData::GetData<SystemPasteboardImpl>(id);
     if (!instance) {
-        LOGE("[SystemPasteboard] SystemPasteboardImpl instance not exist %{public}" PRId64, id);
+        LOGE("[SystemPasteboard] ClearData: instance not exist %{public}" PRId64, id);
         return;
     }
     instance->ClearData();
@@ -847,7 +847,7 @@ RetDataBool FfiOHOSSystemPasteboardIsRemoteData(int64_t id)
     LOGI("[SystemPasteboard] FfiOHOSSystemPasteboardIsRemoteData start");
     auto instance = FFIData::GetData<SystemPasteboardImpl>(id);
     if (!instance) {
-        LOGE("[SystemPasteboard] SystemPasteboardImpl instance not exist %{public}" PRId64, id);
+        LOGE("[SystemPasteboard] IsRemoteData: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
@@ -863,7 +863,7 @@ RetDataBool FfiOHOSSystemPasteboardHasDataType(int64_t id, const char* mimeType)
     LOGI("[SystemPasteboard] FfiOHOSSystemPasteboardHasDataType start");
     auto instance = FFIData::GetData<SystemPasteboardImpl>(id);
     if (!instance) {
-        LOGE("[SystemPasteboard] SystemPasteboardImpl instance not exist %{public}" PRId64, id);
+        LOGE("[SystemPasteboard] HasDataType: instance not exist %{public}" PRId64, id);
         return ret;
     }
 
@@ -880,7 +880,7 @@ RetDataCString FfiOHOSSystemPasteboardGetDataSource(int64_t id)
     RetDataCString ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = nullptr };
     auto instance = FFIData::GetData<SystemPasteboardImpl>(id);
     if (!instance) {
-        LOGE("[SystemPasteboard] SystemPasteboardImpl instance not exist %{public}" PRId64, id);
+        LOGE("[SystemPasteboard] GetDataSource: instance not exist %{public}" PRId64, id);
         return ret;
     }
     std::string res = instance->GetDataSource();
