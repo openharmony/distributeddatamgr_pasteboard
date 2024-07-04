@@ -662,7 +662,6 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
         block->SetValue(pasteDataAndTime.first);
         taskMgr_.ClearRemoteDataTask(event);
     });
-
     thread.detach();
     auto value = block->GetValue();
     if (value != nullptr) {
@@ -1598,7 +1597,7 @@ std::pair<std::shared_ptr<PasteData>, int32_t> PasteboardService::GetDistributed
         }
         item->isConvertUriFromRemote = true;
     }
-    return pasteData;std::make_pair(pasteData, result.second);
+    return std::make_pair(pasteData, result.second);
 }
 
 bool PasteboardService::IsAllowSendData()
