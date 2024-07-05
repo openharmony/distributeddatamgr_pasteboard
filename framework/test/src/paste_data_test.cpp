@@ -208,6 +208,33 @@ HWTEST_F(PasteDataTest, AddRecord002, TestSize.Level0)
 }
 
 /**
+* @tc.name: Marshalling001
+* @tc.desc: PasteData Marshalling
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteDataTest, Marshalling001, TestSize.Level0)
+{
+    PasteData data1;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    std::string uriStr = FILE_URI;
+    auto uri = std::make_shared<OHOS::Uri>(uriStr);
+    builder.SetUri(uri);
+    auto record = builder.Build();
+    data1.AddRecord(*record);
+    auto count = data1.GetRecordCount();
+    EXPECT_TRUE(count == 1);
+    Parcel parcel;
+    data1.Marshalling(parcel);
+
+    auto data2 = PasteData::Unmarshalling(parcel);
+    auto count2 = data2->GetRecordCount();
+    EXPECT_TRUE(count == count2);
+    std::shared_ptr<OHOS::Uri> uri2 = data2->GetPrimaryUri();
+    std::string uriStr2 = uri2->ToString();
+    EXPECT_TRUE(uriStr == uriStr2);
+}
+
+/**
 * @tc.name: GetRealPathFailed001
 * @tc.desc: GetRealPath Failed(realpath(inOriPath.c_str(), realPath) == nullptr)
 * @tc.type: FUNC
