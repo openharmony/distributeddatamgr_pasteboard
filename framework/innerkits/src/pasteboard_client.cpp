@@ -323,7 +323,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
             errorCode = operatorIter->second;
         }
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::ERROR_CODE, errorCode);
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::ERROR_CODE, errorCode);
     }
     return ret;
 }
