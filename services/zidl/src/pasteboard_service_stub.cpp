@@ -103,7 +103,8 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
     PasteData pasteData{};
-    auto result = GetPasteData(pasteData);
+    int32_t syncTime = 0;
+    auto result = GetPasteData(pasteData, syncTime);
     HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::PASTE_STATE, result);
     std::vector<uint8_t> pasteDataTlv(0);
     bool ret = pasteData.Encode(pasteDataTlv);
@@ -122,6 +123,10 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
     PasteUriHandler pasteUriHandler;
     if (!pasteData.WriteUriFd(reply, pasteUriHandler, false)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(syncTime)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to GetPasteData syncTime");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteInt32(result)) {

@@ -130,9 +130,6 @@ public:
     bool Marshalling(Parcel &parcel) const override;
     static PasteData* Unmarshalling(Parcel &parcel);
 
-    void SetSyncTime(int32_t syncTime);
-    int32_t GetSyncTime() const;
-
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
     static std::string sharePath;
     static std::string WEBVIEW_PASTEDATA_TAG;
@@ -154,7 +151,6 @@ private:
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste
     bool isDelayData_ = false;
-    int32_t sync_time_ = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

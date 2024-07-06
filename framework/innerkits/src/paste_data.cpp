@@ -34,7 +34,6 @@ enum TAG_PASTEBOARD : uint16_t {
     TAG_DRAGGED_DATA_FLAG,
     TAG_LOCAL_PASTE_FLAG,
     TAG_DELAY_DATA_FLAG,
-    TAG_SYNC_TIME_FLAG,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -99,7 +98,6 @@ PasteData& PasteData::operator=(const PasteData &data)
     this->isDraggedData_ = data.isDraggedData_;
     this->isLocalPaste_ = data.isLocalPaste_;
     this->props_ = data.props_;
-    this->sync_time_ = data.sync_time_;
     this->records_.clear();
     for (const auto &item : data.records_) {
         this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
@@ -423,7 +421,6 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_DRAGGED_DATA_FLAG, isDraggedData_) && ret;
     ret = Write(buffer, TAG_LOCAL_PASTE_FLAG, isLocalPaste_) && ret;
     ret = Write(buffer, TAG_DELAY_DATA_FLAG, isDelayData_) && ret;
-    ret = Write(buffer, TAG_SYNC_TIME_FLAG, sync_time_) && ret;
     return ret;
 }
 
@@ -453,10 +450,6 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && ReadValue(buffer, isDelayData_, head);
                 break;
             }
-            case TAG_SYNC_TIME_FLAG: {
-                ret = ret && ReadValue(buffer, sync_time_, head);
-                break;
-            }
             default:
                 ret = ret && Skip(head.len, buffer.size());
                 break;
@@ -477,7 +470,6 @@ size_t PasteData::Count()
     expectSize += TLVObject::Count(isDraggedData_);
     expectSize += TLVObject::Count(isLocalPaste_);
     expectSize += TLVObject::Count(isDelayData_);
-    expectSize += TLVObject::Count(sync_time_);
     return expectSize;
 }
 
@@ -499,16 +491,6 @@ void PasteData::SetDelayData(bool isDelay)
 bool PasteData::IsDelayData() const
 {
     return isDelayData_;
-}
-
-void PasteData::SetSyncTime(int32_t syncTime)
-{
-    sync_time_ = syncTime;
-}
-
-int32_t PasteData::GetSyncTime() const
-{
-    return sync_time_;
 }
 
 bool PasteData::Marshalling(Parcel &parcel) const

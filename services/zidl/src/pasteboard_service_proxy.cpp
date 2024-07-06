@@ -112,7 +112,7 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
     return reply.ReadInt32();
 }
 
-int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
+int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData, int32_t &syncTime)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data;
@@ -148,7 +148,7 @@ int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return ERR_INVALID_VALUE;
     }
-
+    syncTime = reply.ReadInt32();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return reply.ReadInt32();
 }

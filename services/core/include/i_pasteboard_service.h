@@ -26,7 +26,7 @@ namespace MiscServices {
 class IPasteboardService : public IRemoteBroker {
 public:
     virtual void Clear() = 0;
-    virtual int32_t GetPasteData(PasteData &data) = 0;
+    virtual int32_t GetPasteData(PasteData &data, int32_t &syncTime) = 0;
     virtual bool HasPasteData() = 0;
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) = 0;
     virtual bool IsRemoteData() = 0;
