@@ -628,8 +628,8 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
 
     if (isPasting) {
         auto value = taskMgr_.WaitRemoteData(event);
-        syncTime = value->syncTime;
         if (value->data != nullptr) {
+            syncTime = value->syncTime;
             data = *(value->data);
         }
         return value->data != nullptr;
@@ -654,6 +654,7 @@ bool PasteboardService::GetRemotePasteData(int32_t userId, const Event &event, P
     std::thread thread([this, event, block, userId]() mutable {
         auto result = GetDistributedData(event, userId);
         auto validEvent = GetValidDistributeEvent(userId);
+        std::shared_ptr<PasteDateTime> pasteDataTime = std::make_shared<PasteDateTime>();
         if (result.first != nullptr) {
             result.first->SetRemote(true);
             if (validEvent.second == event) {
@@ -662,7 +663,6 @@ bool PasteboardService::GetRemotePasteData(int32_t userId, const Event &event, P
                         .count());
                 copyTime_.InsertOrAssign(userId, curTime);
             }
-            std::shared_ptr<PasteDateTime> pasteDataTime = std::make_shared<PasteDateTime>();
             pasteDataTime->syncTime = result.second;
             pasteDataTime->data = result.first;
             taskMgr_.Notify(event, pasteDataTime);
@@ -672,8 +672,8 @@ bool PasteboardService::GetRemotePasteData(int32_t userId, const Event &event, P
     });
     thread.detach();
     auto value = block->GetValue();
-    syncTime = value->syncTime;
     if (value->data != nullptr) {
+        syncTime = value->syncTime;
         data = std::move(*(value->data));
         return true;
     }
