@@ -37,6 +37,7 @@ public:
         std::string deviceId;
         std::string account;
         std::vector<std::string> dataType;
+        int32_t syncTime = 0;
         bool operator == (const GlobalEvent globalEvent)
         {
             return globalEvent.seqId == this->seqId && globalEvent.deviceId == this->deviceId;
@@ -55,7 +56,7 @@ public:
 
     virtual ~ClipPlugin();
     virtual int32_t SetPasteData(const GlobalEvent &event, const std::vector<uint8_t> &data) = 0;
-    virtual int32_t GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data) = 0;
+    virtual std::pair<int32_t, int32_t> GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data) = 0;
     virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN);
     virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN, int32_t user);
     virtual void Clear();

@@ -316,6 +316,7 @@ private:
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
+    std::atomic<uint32_t> getSequenceId_ = 0;
     class StaticDestoryMonitor {
         public:
             StaticDestoryMonitor() : destoryed_(false) {}

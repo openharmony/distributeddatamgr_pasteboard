@@ -37,6 +37,28 @@ namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
 constexpr int32_t LOADSA_TIMEOUT_MS = 10000;
+const std::map<int32_t, int32_t> ERROR_CODE_COVERT_TABLE = {
+    {static_cast<int32_t>(PasteboardError::E_INVALID_VALUE), RadarReporter::INVALID_RETURN_VALUE_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_INVALID_OPTION), RadarReporter::OTHER_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR), RadarReporter::SERIALIZATION_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_READ_PARCEL_ERROR), RadarReporter::DESERIALIZATION_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_SA_DIED), RadarReporter::OBTAIN_SERVER_SA_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_ERROR), RadarReporter::OTHER_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_OUT_OF_RANGE), RadarReporter::EXCEEDING_LIMIT_EXCEPTION},
+    {static_cast<int32_t>(PasteboardError::E_NO_PERMISSION), RadarReporter::PERMISSION_VERIFICATION_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_INVALID_PARAMETERS), RadarReporter::INVALID_PARAM_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_TIMEOUT), RadarReporter::TIMEOUT_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_CANCELED), RadarReporter::CANCELED},
+    {static_cast<int32_t>(PasteboardError::E_EXCEEDS_LIMIT), RadarReporter::EXCEEDING_LIMIT_EXCEPTION},
+    {static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED), RadarReporter::TASK_PROCESSING},
+    {static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN), RadarReporter::PROHIBIT_COPY},
+    {static_cast<int32_t>(PasteboardError::E_UNKNOWN), RadarReporter::UNKNOWN_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_BUTT), RadarReporter::OTHER_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_REMOTE), RadarReporter::REMOTE_EXCEPTION},
+    {static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION), RadarReporter::OTHER_ERROR},
+    {ERR_INVALID_VALUE, RadarReporter::INVALID_RETURN_VALUE_ERROR},
+    {ERR_INVALID_OPERATION, RadarReporter::INVALID_RETURN_VALUE_ERROR},
+};
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
@@ -151,23 +173,38 @@ void PasteboardClient::Clear()
 
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
+    std::string currentId = "GetPasteData_" + std::to_string(getpid()) + "_" + std::to_string(getSequenceId_);
+    ++getSequenceId_;
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId);
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     if (!IsServiceAvailable()) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END, RadarReporter::ERROR_CODE,
-            RadarReporter::OBTAIN_SERVER_SA_ERROR);
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+            RadarReporter::ERROR_CODE, RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
-    int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData);
+    int32_t syncTime = 0;
+    int32_t ret = pasteboardServiceProxy_->GetPasteData(pasteData, syncTime);
     RetainUri(pasteData);
     RebuildWebviewPasteData(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
-    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+            RadarReporter::DIS_SYNC_TIME, syncTime);
+    } else {
+        int32_t errorCode = RadarReporter::OTHER_ERROR;
+        auto operatorIter = ERROR_CODE_COVERT_TABLE.find(ret);
+        if (operatorIter != ERROR_CODE_COVERT_TABLE.end()) {
+            errorCode = operatorIter->second;
+        }
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+            RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::ERROR_CODE, errorCode);
+    }
     return ret;
 }
 
@@ -258,7 +295,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
         RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     if (!IsServiceAvailable()) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_SERVER, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_ABNORMAL_END, RadarReporter::ERROR_CODE,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::ERROR_CODE,
             RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
@@ -277,8 +314,18 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
         return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }
     auto ret = pasteboardServiceProxy_->SetPasteData(*webData, delayGetterAgent);
-    RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_NORMAL_END);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END);
+    } else {
+        int32_t errorCode = RadarReporter::OTHER_ERROR;
+        auto operatorIter = ERROR_CODE_COVERT_TABLE.find(ret);
+        if (operatorIter != ERROR_CODE_COVERT_TABLE.end()) {
+            errorCode = operatorIter->second;
+        }
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::ERROR_CODE, errorCode);
+    }
     return ret;
 }
 

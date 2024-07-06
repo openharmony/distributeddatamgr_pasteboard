@@ -94,6 +94,7 @@ bool ClipPlugin::GlobalEvent::Marshal(Serializable::json &node) const
     ret = ret && SetValue(node, deviceId, GET_NAME(deviceId));
     ret = ret && SetValue(node, account, GET_NAME(account));
     ret = ret && SetValue(node, dataType, GET_NAME(dataType));
+    ret = ret && SetValue(node, syncTime, GET_NAME(syncTime));
     return ret;
 }
 
@@ -109,6 +110,7 @@ bool ClipPlugin::GlobalEvent::Unmarshal(const Serializable::json &node)
     ret = ret && GetValue(node, GET_NAME(deviceId), deviceId);
     ret = ret && GetValue(node, GET_NAME(account), account);
     ret = ret && GetValue(node, GET_NAME(dataType), dataType);
+    ret = ret && GetValue(node, GET_NAME(syncTime), syncTime);
     return ret;
 }
 } // namespace OHOS::MiscServices

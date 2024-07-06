@@ -67,6 +67,11 @@ struct HistoryInfo {
     std::string remote;
 };
 
+struct PasteDateTime {
+    int32_t syncTime = 0;
+    std::shared_ptr<PasteData> data;
+};
+
 class InputEventCallback : public MMI::IInputEventConsumer {
 public:
     void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
@@ -88,7 +93,7 @@ public:
     API_EXPORT PasteboardService();
     API_EXPORT ~PasteboardService();
     virtual void Clear() override;
-    virtual int32_t GetPasteData(PasteData &data) override;
+    virtual int32_t GetPasteData(PasteData &data, int32_t &syncTime) override;
     virtual bool HasPasteData() override;
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) override;
     virtual bool IsRemoteData() override;
@@ -147,13 +152,13 @@ private:
         struct TaskContext {
             std::atomic<bool> pasting_ = false;
             ConcurrentMap<uint32_t, std::shared_ptr<BlockObject<bool>>>  getDataBlocks_;
-            std::shared_ptr<PasteData>  data_;
+            std::shared_ptr<PasteDateTime>  data_;
         };
         using DataTask = std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>;
         DataTask GetRemoteDataTask(const Event &event);
-        void Notify(const Event &event, std::shared_ptr<PasteData> data);
+        void Notify(const Event &event, std::shared_ptr<PasteDateTime> data);
         void ClearRemoteDataTask(const Event &event);
-        std::shared_ptr<PasteData> WaitRemoteData(const Event &event);
+        std::shared_ptr<PasteDateTime> WaitRemoteData(const Event &event);
     private:
         std::atomic<uint32_t> mapKey_ = 0;
         std::mutex mutex_;
@@ -185,12 +190,12 @@ private:
     std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
-    int32_t GetData(uint32_t tokenId, PasteData &data);
+    int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime);
 
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
-    bool GetPasteData(const AppInfo &appInfo, PasteData &data);
     bool GetLocalData(const AppInfo &appInfo, PasteData &data);
-    bool GetRemoteData(int32_t userId, const Event &event, PasteData &data);
+    bool GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
+    bool GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
@@ -204,7 +209,7 @@ private:
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
-    std::shared_ptr<PasteData> GetDistributedData(const Event &event, int32_t user);
+    std::pair<std::shared_ptr<PasteData>, int32_t> GetDistributedData(const Event &event, int32_t user);
     bool SetDistributedData(int32_t user, PasteData &data);
     bool CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);

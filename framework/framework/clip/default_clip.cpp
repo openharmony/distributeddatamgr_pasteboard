@@ -19,9 +19,9 @@ int32_t DefaultClip::SetPasteData(const GlobalEvent &event, const std::vector<ui
     return 0;
 }
 
-int32_t DefaultClip::GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data)
+std::pair<int32_t, int32_t> DefaultClip::GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data)
 {
-    return 0;
+    return std::make_pair(0, 0);
 }
 
 std::vector<DefaultClip::GlobalEvent> DefaultClip::GetTopEvents(uint32_t topN, int32_t user)
