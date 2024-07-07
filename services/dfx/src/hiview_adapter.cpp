@@ -347,7 +347,7 @@ void HiViewAdapter::ReportStatisticEvent(
                 {.name = {"PASTEBOARD_STATE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState.c_str()},
                     .arraySize = 0, },
                 {.name = {"NET_TYPE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)netType.c_str()}, .arraySize = 0, },
-                {.name = {"DATA_LEVEL"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0, },
+                {.name = {"DATA_LEVEL"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0,},
                 {.name = {"CONSUMING_DATA"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)buffMsg.c_str()},
                     .arraySize = 0, },
             };
@@ -358,7 +358,7 @@ void HiViewAdapter::ReportStatisticEvent(
             HiSysEventParam params[] = {
                 {.name = {"PASTEBOARD_STATE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState.c_str()},
                     .arraySize = 0, },
-                {.name = {"DATA_LEVEL"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0, },
+                {.name = {"DATA_LEVEL"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0,},
                 {.name = {"CONSUMING_DATA"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)buffMsg.c_str()},
                     .arraySize = 0, },
             };
@@ -402,12 +402,15 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
         {.name = {"PASTEBOARD_STATE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState}, .arraySize = 0},
         {.name = {"TOP_ONE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[0].c_str()}, .arraySize = 0},
         {.name = {"TOP_TOW_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[1].c_str()}, .arraySize = 0},
-        {.name = {"TOP_THREE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[2].c_str()}, .arraySize = 0},
+        {.name = {"TOP_THREE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[2].c_str()},
+            .arraySize = 0},
         {.name = {"TOP_FOUR_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[3].c_str()}, .arraySize = 0},
         {.name = {"TOP_FIVE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[4].c_str()}, .arraySize = 0},
         {.name = {"TOP_SIX_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[5].c_str()}, .arraySize = 0},
-        {.name = {"TOP_SEVEN_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[6].c_str()}, .arraySize = 0},
-        {.name = {"TOP_EIGHT_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[7].c_str()}, .arraySize = 0},
+        {.name = {"TOP_SEVEN_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[6].c_str()},
+            .arraySize = 0},
+        {.name = {"TOP_EIGHT_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[7].c_str()},
+            .arraySize = 0},
         {.name = {"TOP_NINE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[8].c_str()}, .arraySize = 0},
         {.name = {"TOP_TEN_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appPackName[9].c_str()}, .arraySize = 0},
     };
@@ -521,7 +524,7 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
                 .v = { .i64 = TimeServiceClient::GetInstance()->GetWallTimeMs()}, .arraySize = 0, },
 
             {.name = {"RESULT"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appRet}, .arraySize = 0, },
-            {.name = {"OPERATE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0, },
+            {.name = {"OPERATE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0,},
             {.name = {"PRI_MIME_TYPE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)primaryMimeType.c_str()},
                 .arraySize = 0, },
             {.name = {"ISLOCALPASTE"}, .t = HISYSEVENT_BOOL, .v = { .b = isLocalPaste}, .arraySize = 0, },
