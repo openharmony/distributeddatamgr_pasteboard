@@ -513,19 +513,21 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
 
 void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant)
 {
-    std::string permissionName = READ_PASTEBOARD_PERMISSION;
-    bool isGrant = isReadGrant;
-    if (isSecureGrant) {
-        permissionName = SECURE_PASTE_PERMISSION;
-        isGrant = isSecureGrant;
+    bool isGrant = isReadGrant || isSecureGrant;
+    if (!isGrant) {
+        return;
     }
-    auto permUsedType = AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId, permissionName);
+    auto permUsedType = PermissionUsedType::SECURITY_COMPONENT_TYPE;
+    if (!isSecureGrant) {
+        permUsedType = static_cast<PermissionUsedType>(AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId,
+            READ_PASTEBOARD_PERMISSION));
+    }
     AddPermParamInfo info;
     info.tokenId = tokenId;
-    info.permissionName = permissionName;
+    info.permissionName = READ_PASTEBOARD_PERMISSION;
     info.successCount = isGrant ? 1 : 0;
     info.failCount = isGrant ? 0 : 1;
-    info.type = static_cast<PermissionUsedType>(permUsedType);
+    info.type = permUsedType;
     int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
     if (result != RET_SUCCESS) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "add record failed, result is %{public}d", result);
