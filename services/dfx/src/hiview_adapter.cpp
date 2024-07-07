@@ -347,7 +347,7 @@ void HiViewAdapter::ReportStatisticEvent(
                 {.name = {"PASTEBOARD_STATE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState.c_str()},
                     .arraySize = 0, },
                 {.name = {"NET_TYPE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)netType.c_str()}, .arraySize = 0, },
-                {.name = {"DATA_LEVEL"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0,},
+                {.name = {"DATA_LEVEL"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0},
                 {.name = {"CONSUMING_DATA"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)buffMsg.c_str()},
                     .arraySize = 0, },
             };
@@ -524,7 +524,7 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
                 .v = { .i64 = TimeServiceClient::GetInstance()->GetWallTimeMs()}, .arraySize = 0, },
 
             {.name = {"RESULT"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appRet}, .arraySize = 0, },
-            {.name = {"OPERATE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0,},
+            {.name = {"OPERATE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0},
             {.name = {"PRI_MIME_TYPE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)primaryMimeType.c_str()},
                 .arraySize = 0, },
             {.name = {"ISLOCALPASTE"}, .t = HISYSEVENT_BOOL, .v = { .b = isLocalPaste}, .arraySize = 0, },
