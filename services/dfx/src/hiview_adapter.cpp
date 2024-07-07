@@ -358,7 +358,7 @@ void HiViewAdapter::ReportStatisticEvent(
             HiSysEventParam params[] = {
                 {.name = {"PASTEBOARD_STATE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState.c_str()},
                     .arraySize = 0, },
-                {.name = {"DATA_LEVEL"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0,},
+                {.name = {"DATA_LEVEL"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)GetDataLevel(i)}, .arraySize = 0},
                 {.name = {"CONSUMING_DATA"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)buffMsg.c_str()},
                     .arraySize = 0, },
             };
