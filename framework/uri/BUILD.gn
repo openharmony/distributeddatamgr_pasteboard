@@ -48,9 +48,6 @@ ohos_static_library("pasteboard_uri") {
   public_configs = [ ":module_public_config" ]
   deps = []
   external_deps = [
-    "ability_base:base",
-    "ability_base:want",
-    "ability_base:zuri",
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
     "file_api:remote_uri_native",
