@@ -17,6 +17,7 @@
 #define PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
 
 #include "api/visibility.h"
+#include <atomic>
 #include <functional>
 #include "device/dm_adapter.h"
 
@@ -34,11 +35,15 @@ protected:
     void Offline(const std::string &device) override;
     void OnReady(const std::string &device) override;
 private:
-    bool GetEnabledStatus();
+    int32_t GetEnabledStatus();
     void Notify();
+    void GetRetryTask();
     size_t GetDeviceNum();
     Observer observer_ = nullptr;
     bool status_ = false;
+    std::atomic<bool> retrying_ = false;
+    static constexpr uint32_t RETRY_TIMES = 30;
+    static constexpr uint32_t RETRY_INTERVAL = 1000; //milliseconds
 };
 } // namespace MiscServices
 } // namespace OHOS

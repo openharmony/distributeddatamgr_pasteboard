@@ -20,6 +20,7 @@
 #include "cJSON.h"
 #include "distributed_module_config.h"
 #include "dm_adapter.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
@@ -168,26 +169,28 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #endif
 }
 
-bool DevProfile::GetEnabledStatus(const std::string &networkId)
+int32_t DevProfile::GetEnabledStatus(const std::string &networkId)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
-        return false;
+        return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SWITCH_ID,
         CHARACTER_ID, profile);
-    if (ret != HANDLE_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get status failed, %{public}.5s.", udid.c_str());
-        return false;
+    if (ret == HANDLE_OK && profile.GetCharacteristicValue() == SUPPORT_STATUS) {
+        return static_cast<int32_t>(PasteboardError::E_OK);
     }
-    return profile.GetCharacteristicValue() == SUPPORT_STATUS;
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get status failed, %{public}.5s. ret:%{public}d", udid.c_str(), ret);
+    if (ret == DP_LOAD_SERVICE_ERR) {
+        return static_cast<int32_t>(PasteboardError::E_DP_LOAD_SERVICE_ERR);
+    }
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
 #endif
-    return false;
+    return static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
 void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)
