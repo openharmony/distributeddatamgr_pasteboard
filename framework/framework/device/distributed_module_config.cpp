@@ -14,7 +14,9 @@
  */
 #include "distributed_module_config.h"
 #include "dev_profile.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include <thread>
 
 namespace OHOS {
 namespace MiscServices {
@@ -33,9 +35,14 @@ void DistributedModuleConfig::Watch(Observer observer)
 
 void DistributedModuleConfig::Notify()
 {
-    bool newStatus = GetEnabledStatus();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Notify, status:%{public}d, newStatus:%{public}d",
-        status_, newStatus);
+    auto status = GetEnabledStatus();
+    if (status == static_cast<int32_t>(PasteboardError::E_DP_LOAD_SERVICE_ERR)) {
+        if (!retrying_.exchange(true)) {
+            GetRetryTask();
+        }
+        return;
+    }
+    bool newStatus = (status == static_cast<int32_t>(PasteboardError::E_OK));
     if (newStatus != status_) {
         status_ = newStatus;
         if (observer_ != nullptr) {
@@ -44,28 +51,60 @@ void DistributedModuleConfig::Notify()
     }
 }
 
+void DistributedModuleConfig::GetRetryTask()
+{
+    std::thread remover([this]() {
+        retrying_.store(true);
+        uint32_t retry = 0;
+        auto status = static_cast<int32_t>(PasteboardError::E_ERROR);
+        while (retry < RETRY_TIMES) {
+            ++retry;
+            status = GetEnabledStatus();
+            if (status == static_cast<int32_t>(PasteboardError::E_DP_LOAD_SERVICE_ERR)) {
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "dp load err, retry:%{public}d, status_:%{public}d"
+                    "newStatus:%{public}d", retry, status_, status);
+                std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_INTERVAL));
+                continue;
+            }
+            break;
+        }
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Retry end. count:%{public}d, status_:%{public}d"
+            "newStatus:%{public}d", retry, status_, status);
+        bool newStatus = (status == static_cast<int32_t>(PasteboardError::E_OK));
+        if (newStatus != status_) {
+            status_ = newStatus;
+            if (observer_ != nullptr) {
+                observer_(newStatus);
+            }
+        }
+        retrying_.store(false);
+    });
+    remover.detach();
+}
+
 size_t DistributedModuleConfig::GetDeviceNum()
 {
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
     return networkIds.size();
 }
 
-bool DistributedModuleConfig::GetEnabledStatus()
+int32_t DistributedModuleConfig::GetEnabledStatus()
 {
     auto localNetworkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    if (!DevProfile::GetInstance().GetEnabledStatus(localNetworkId)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false.");
-        return false;
+    auto status = DevProfile::GetInstance().GetEnabledStatus(localNetworkId);
+    if (status != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false, status:%{public}d", status);
+        return status;
     }
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", networkIds.size());
     for (auto &id : networkIds) {
-        if (DevProfile::GetInstance().GetEnabledStatus(id)) {
-            return true;
+        if (DevProfile::GetInstance().GetEnabledStatus(id) == static_cast<int32_t>(PasteboardError::E_OK)) {
+            return static_cast<int32_t>(PasteboardError::E_OK);
         }
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus is false.");
-    return false;
+    return static_cast<int32_t>(PasteboardError::E_ERROR);
 }
 
 void DistributedModuleConfig::Online(const std::string &device)

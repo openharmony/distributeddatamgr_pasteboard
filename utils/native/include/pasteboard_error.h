@@ -47,6 +47,7 @@ enum class PasteboardError : int32_t {
     E_BUTT,
     E_REMOTE,
     E_INVALID_OPERATION,
+    E_DP_LOAD_SERVICE_ERR,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
