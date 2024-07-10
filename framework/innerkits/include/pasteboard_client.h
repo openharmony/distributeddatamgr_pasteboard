@@ -308,8 +308,7 @@ public:
     void LoadSystemAbilityFail();
 
 private:
-    inline bool IsServiceAvailable();
-    void ConnectService();
+    sptr<IPasteboardService> GetPasteboardService();
     static void RetainUri(PasteData &pasteData);
     static std::shared_ptr<PasteData> SplitWebviewPasteData(PasteData &pasteData);
     static sptr<IPasteboardService> pasteboardServiceProxy_;

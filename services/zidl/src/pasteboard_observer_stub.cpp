@@ -38,7 +38,7 @@ int32_t PasteboardObserverStub::OnRemoteRequest(
     std::u16string remoteDescripter = data.ReadInterfaceToken();
     if (myDescripter != remoteDescripter) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "end##descriptor checked fail");
-        return static_cast<int32_t>(PasteboardError::E_INVALID_PARAMETERS);
+        return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     pid_t p = IPCSkeleton::GetCallingPid();
     pid_t p1 = IPCSkeleton::GetCallingUid();
