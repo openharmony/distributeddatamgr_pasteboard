@@ -215,6 +215,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::PlainText2PasteRecord(const st
         return nullptr;
     }
     auto plainTextRecord = PasteDataRecord::NewPlaintTextRecord(plainText->GetContent());
+    if (plainTextRecord == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "create plaint text record failed.");
+        return nullptr;
+    }
     plainTextRecord->SetDetails(plainText->GetDetails());
     plainTextRecord->SetTextContent(plainText->GetAbstract());
     plainTextRecord->SetUDType(UDMF::PLAIN_TEXT);
@@ -272,6 +276,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Html2PasteRecord(const std::sh
         return nullptr;
     }
     auto htmlRecord = PasteDataRecord::NewHtmlRecord(html->GetHtmlContent());
+    if (htmlRecord == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "create html record failed.");
+        return nullptr;
+    }
     htmlRecord->SetTextContent(html->GetPlainContent());
     htmlRecord->SetUDType(UDMF::HTML);
     htmlRecord->SetDetails(html->GetDetails());
@@ -301,6 +309,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Link2PasteRecord(const std::sh
         return nullptr;
     }
     auto plainTextRecord = PasteDataRecord::NewPlaintTextRecord(link->GetUrl());
+    if (plainTextRecord == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "create plain text record failed.");
+        return nullptr;
+    }
     plainTextRecord->SetDetails(link->GetDetails());
     plainTextRecord->SetTextContent(link->GetDescription());
     plainTextRecord->SetUDType(UDMF::HYPERLINK);
