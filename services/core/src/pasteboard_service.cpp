@@ -707,7 +707,8 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
         appInfo.bundleName, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
         DMAdapter::GetInstance().GetLocalDeviceType());
     data.SetBundleName(appInfo.bundleName);
-    auto curTime = copyTime_[appInfo.userId];
+    auto result = copyTime_.Find(appInfo.userId);
+    auto curTime = result.second;
     if (tempTime.second == curTime) {
         bool isNotify = false;
         clips_.ComputeIfPresent(appInfo.userId, [&data, &isNotify](auto &key, auto &value) {
