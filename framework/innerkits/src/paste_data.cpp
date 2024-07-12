@@ -276,6 +276,9 @@ bool PasteData::RemoveRecordAt(std::size_t number)
 
 bool PasteData::ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        return false;
+    }
     if (records_.size() > number) {
         records_[number] = std::move(record);
         RefreshMimeProp();

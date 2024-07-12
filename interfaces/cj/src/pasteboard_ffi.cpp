@@ -93,6 +93,9 @@ char* MallocCString(const std::string& origin)
 
 void fillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        return;
+    }
     retPtr->htmlText = nullptr;
     retPtr->mimeType = nullptr;
     retPtr->plainText = nullptr;
