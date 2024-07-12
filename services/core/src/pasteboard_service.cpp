@@ -632,7 +632,7 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
 
     if (isPasting) {
         auto value = taskMgr_.WaitRemoteData(event);
-        if (value->data != nullptr) {
+        if (value != nullptr && value->data != nullptr) {
             syncTime = value->syncTime;
             data = *(value->data);
         }
@@ -676,7 +676,7 @@ bool PasteboardService::GetRemotePasteData(int32_t userId, const Event &event, P
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value->data != nullptr) {
+    if (value != nullptr && value->data != nullptr) {
         syncTime = value->syncTime;
         data = std::move(*(value->data));
         return true;
