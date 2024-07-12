@@ -223,6 +223,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::PlainText2PasteRecord(const st
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2PlaintText(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to plain, record is null.");
+        return nullptr;
+    }
     auto plaint = record->GetPlainText();
     if (plaint == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get plain from paste record to plain field.");
@@ -256,6 +260,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Want2PasteRecord(const std::sh
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Want(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "to want, record is null.");
+        return nullptr;
+    }
     auto wantRecord = record->GetWant();
     if (wantRecord == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get want from paste record field.");
@@ -280,6 +288,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Html2PasteRecord(const std::sh
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Html(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to html, record is null.");
+        return nullptr;
+    }
     auto html = record->GetHtmlText();
     if (html == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get HTML from paste record field.");
@@ -309,6 +321,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Link2PasteRecord(const std::sh
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Link(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to link, record is null.");
+        return nullptr;
+    }
     auto plaint = record->GetPlainText();
     if (plaint == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get plain from paste record to link field.");
@@ -337,6 +353,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::File2PasteRecord(const std::sh
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2File(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to file, record is null.");
+        return nullptr;
+    }
     auto uri = record->GetUri();
     if (uri == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get uri from paste record to file field.");
@@ -365,6 +385,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Image2PasteRecord(const std::s
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Image(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to image, record is null.");
+        return nullptr;
+    }
     auto uri = record->GetUri();
     if (uri == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get uri from paste record to image field.");
@@ -393,6 +417,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Video2PasteRecord(const std::s
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Video(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to video, record is null.");
+        return nullptr;
+    }
     auto uri = record->GetUri();
     if (uri == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get uri from paste record to video field.");
@@ -421,6 +449,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Audio2PasteRecord(const std::s
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Audio(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to audio, record is null.");
+        return nullptr;
+    }
     auto uri = record->GetUri();
     if (uri == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get uri from paste record to audio field.");
@@ -449,6 +481,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Folder2PasteRecord(const std::
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Folder(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to folder, para record is null.");
+        return nullptr;
+    }
     auto uri = record->GetUri();
     if (uri == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get uri from paste record to folder field.");
@@ -482,6 +518,10 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::PixelMap2PasteRecord(const std
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2PixelMap(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "to pixelMap, record is null.");
+        return nullptr;
+    }
     auto pixelMapRecord = record->GetPixelMap();
     if (pixelMapRecord == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get pixelMap from paste record field.");
@@ -508,6 +548,9 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::AppItem2PasteRecord(const std:
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2AppItem(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        return nullptr;
+    }
     auto unifiedRecord = std::make_shared<UDMF::SystemDefinedAppItem>();
     if (record->GetSystemDefinedContent() != nullptr) {
         unifiedRecord->SetItems(*record->GetSystemDefinedContent());
@@ -535,6 +578,9 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Form2PasteRecord(const std::sh
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Form(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        return nullptr;
+    }
     auto unifiedRecord = std::make_shared<UDMF::SystemDefinedForm>();
     if (record->GetSystemDefinedContent() != nullptr) {
         unifiedRecord->SetItems(*record->GetSystemDefinedContent());
@@ -561,6 +607,9 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::SystemDefined2PasteRecord(cons
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2SystemDefined(const std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        return nullptr;
+    }
     auto unifiedRecord = std::make_shared<UDMF::SystemDefinedRecord>();
     if (record->GetDetails() != nullptr) {
         unifiedRecord->SetDetails(*record->GetDetails());
@@ -585,6 +634,9 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Text2PasteRecord(const std::sh
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Text(std::shared_ptr<PasteDataRecord> record)
 {
+    if (record == nullptr) {
+        return nullptr;
+    }
     auto unifiedRecord = std::make_shared<UDMF::Text>();
     if (record->GetDetails() != nullptr) {
         unifiedRecord->SetDetails(*record->GetDetails());
@@ -596,6 +648,9 @@ std::vector<std::shared_ptr<UnifiedRecord>> PasteboardUtils::Custom2AppDefined(
     const std::shared_ptr<PasteDataRecord> record)
 {
     std::vector<std::shared_ptr<UnifiedRecord>> unifiedRecords;
+    if (record == nullptr) {
+        return unifiedRecords;
+    }
     auto customData = record->GetCustomData();
     for (auto& [type, rawData] : customData->GetItemData()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "app defied type:%{public}s.", type.c_str());
