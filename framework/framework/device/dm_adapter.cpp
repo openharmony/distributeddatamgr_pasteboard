@@ -108,17 +108,17 @@ bool DMAdapter::Initialize(const std::string &pkgName)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     auto stateObserver = std::make_shared<DmStateObserver>([this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEach([&deviceInfo](auto &key, auto &value) {
+        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
             value->Online(deviceInfo.networkId);
             return false;
         });
     }, [this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEach([&deviceInfo](auto &key, auto &value) {
+        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
             value->OnReady(deviceInfo.networkId);
             return false;
         });
     }, [this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEach([&deviceInfo](auto &key, auto &value) {
+        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
             value->Offline(deviceInfo.networkId);
             return false;
         });
