@@ -709,7 +709,7 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     data.SetBundleName(appInfo.bundleName);
     auto result = copyTime_.Find(appInfo.userId);
     if (!result.first) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "userId : %{public}d not found", appInfo.userId);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "userId not found");
         return false;
     }
     auto curTime = result.second;
