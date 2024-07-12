@@ -380,7 +380,7 @@ int32_t PasteboardService::GetSdkVersion(uint32_t tokenId)
             tokenId, ret);
         return INVAILD_VERSION;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetHapTokenInfo version=%{public}d.", hapTokenInfo.apiVersion);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ver:%{public}d.", hapTokenInfo.apiVersion);
     return hapTokenInfo.apiVersion;
 }
 
