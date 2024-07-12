@@ -708,7 +708,7 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
         DMAdapter::GetInstance().GetLocalDeviceType());
     data.SetBundleName(appInfo.bundleName);
     auto result = copyTime_.Find(appInfo.userId);
-    if (!tempTime.first) {
+    if (!result.first) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "userId : %{public}d not found", appInfo.userId);
         return false;
     }
