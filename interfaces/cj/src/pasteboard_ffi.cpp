@@ -74,7 +74,7 @@ RetDataI64 FfiOHOSCreateArrayBufPasteData(const char* mimeType, uint8_t *buffPtr
     return ret;
 }
 
-char* MallocCString(const std::string& origin)
+char *MallocCString(const std::string& origin)
 {
     if (origin.empty()) {
         return nullptr;
@@ -86,12 +86,14 @@ char* MallocCString(const std::string& origin)
     }
     auto ret = strcpy_s(res, sizeof(char) * len, origin.c_str());
     if (ret != EOK) {
-        LOGI("strcpy_s error");
+        LOGE("strcpy_s error");
+        free(res);
+        return nullptr;
     }
     return res;
 }
 
-void fillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRecord> record)
+void FillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRecord> record)
 {
     if (record == nullptr) {
         return;
@@ -119,21 +121,32 @@ void fillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRec
     }
     std::shared_ptr<PixelMap> pixelMap = record->GetPixelMap();
     auto nativeImage = FFIData::Create<PixelMapImpl>(move(pixelMap));
+    if (!nativeImage) {
+        retPtr->pixelMap = 0;
+        return;
+    }
     retPtr->pixelMap = nativeImage->GetID();
 }
 
 RetDataI64 FfiOHOSCreateStringPasteDataRecord(const char* mimeType, const char* value, CPasteDataRecord *retPtr)
 {
     LOGI("[PasteDataRecord] FfiOHOSCreateStringPasteDataRecord");
-    RetDataI64 ret;
+    RetDataI64 ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
     std::string mmType = mimeType;
     CJValueType valueType;
     valueType.stringValue = value;
 
     ret.data = CreateCjPasteDataRecordObject(mmType, valueType);
+    if (ret.data == 0) {
+        return ret;
+    }
     auto recordInstance = FFIData::GetData<PasteDataRecordImpl>(ret.data);
+    if (!recordInstance) {
+        FFIData::Release(ret.data);
+        return ret;
+    }
     std::shared_ptr<PasteDataRecord> record = recordInstance->GetRealPasteDataRecord();
-    fillCPasteDataRecord(retPtr, record);
+    FillCPasteDataRecord(retPtr, record);
     ret.code = SUCCESS_CODE;
     LOGI("[PasteDataRecord] FfiOHOSCreateStringPasteDataRecord success");
 
@@ -154,9 +167,16 @@ RetDataI64 FfiOHOSCreatePixelMapPasteDataRecord(const char* mimeType, int64_t pi
     CJValueType valueType;
     valueType.pixelMap = pixelMap;
     ret.data = CreateCjPasteDataRecordObject(mmType, valueType);
+    if (ret.data == 0) {
+        return ret;
+    }
     auto recordInstance = FFIData::GetData<PasteDataRecordImpl>(ret.data);
+    if (!recordInstance) {
+        FFIData::Release(ret.data);
+        return ret;
+    }
     std::shared_ptr<PasteDataRecord> record = recordInstance->GetRealPasteDataRecord();
-    fillCPasteDataRecord(retPtr, record);
+    FillCPasteDataRecord(retPtr, record);
     ret.code = SUCCESS_CODE;
     LOGI("[PasteDataRecord] FfiOHOSCreateStringPasteDataRecord success");
 
@@ -174,9 +194,16 @@ RetDataI64 FfiOHOSCreateArrayBufPasteDataRecord(const char* mimeType, uint8_t *b
     valueType.arrayBufferSize = bufferSize;
 
     ret.data = CreateCjPasteDataRecordObject(mmType, valueType);
+    if (ret.data == 0) {
+        return ret;
+    }
     auto recordInstance = FFIData::GetData<PasteDataRecordImpl>(ret.data);
+    if (!recordInstance) {
+        FFIData::Release(ret.data);
+        return ret;
+    }
     std::shared_ptr<PasteDataRecord> record = recordInstance->GetRealPasteDataRecord();
-    fillCPasteDataRecord(retPtr, record);
+    FillCPasteDataRecord(retPtr, record);
     ret.code = SUCCESS_CODE;
     LOGI("[PasteDataRecord] FfiOHOSCreateArrayBufPasteDataRecord success");
 
@@ -202,6 +229,10 @@ RetDataCString FfiOHOSPasteDataGetPrimaryText(int64_t id)
     std::shared_ptr<std::string> p = pasteData->GetPrimaryText();
     if (p != nullptr) {
         ret.data = MallocCString(*p);
+        if (ret.data == nullptr) {
+            ret.code = ERR_CODE_PARAM_INVALID;
+            return ret;
+        }
     }
     ret.code = SUCCESS_CODE;
     LOGI("[PasteData] FfiOHOSPasteDataGetPrimaryText success");
@@ -221,8 +252,10 @@ RetDataCString FfiOHOSPasteDataRecordToPlainText(int64_t id)
     }
 
     std::string res = instance->GetRealPasteDataRecord()->ConvertToText();
-    if (!res.empty()) {
-        ret.data = MallocCString(res);
+    ret.data = MallocCString(res);
+    if (ret.data == nullptr) {
+        ret.code = ERR_CODE_PARAM_INVALID;
+        return ret;
     }
     ret.code = SUCCESS_CODE;
     LOGI("[PasteRecord] FfiOHOSPasteDataRecordToPlainText success");
@@ -249,6 +282,10 @@ RetDataCString FfiOHOSPasteDataGetPrimaryHtml(int64_t id)
     std::shared_ptr<std::string> p = pasteData->GetPrimaryHtml();
     if (p != nullptr) {
         ret.data = MallocCString(*p);
+        if (ret.data == nullptr) {
+            ret.code = ERR_CODE_PARAM_INVALID;
+            return ret;
+        }
     }
     ret.code = SUCCESS_CODE;
     LOGI("[PasteData] FfiOHOSPasteDataGetPrimaryHtml success");
@@ -276,6 +313,10 @@ RetDataCString FfiOHOSPasteDataGetPrimaryUri(int64_t id)
     if (p != nullptr) {
         std::string uri = p->ToString();
         ret.data = MallocCString(uri);
+        if (ret.data == nullptr) {
+            ret.code = ERR_CODE_PARAM_INVALID;
+            return ret;
+        }
     }
     ret.code = SUCCESS_CODE;
     LOGI("[PasteData] FfiOHOSPasteDataGetPrimaryUri success");
@@ -302,6 +343,9 @@ RetDataI64 FfiOHOSPasteDataGetPrimaryPixelMap(int64_t id)
     std::shared_ptr<PixelMap> pixelMap = pasteData->GetPrimaryPixelMap();
     if (pixelMap != nullptr) {
         auto nativeImage = FFIData::Create<PixelMapImpl>(move(pixelMap));
+        if (!nativeImage) {
+            return ret;
+        }
         ret.data = nativeImage->GetID();
         ret.code = SUCCESS_CODE;
         LOGI("[PasteData] FfiOHOSPasteDataGetPrimaryPixelMap success");
@@ -331,6 +375,10 @@ RetDataCString FfiOHOSPasteDataGetPrimaryMimeType(int64_t id)
     std::shared_ptr<std::string> mimeType = pasteData->GetPrimaryMimeType();
     if (mimeType != nullptr) {
         ret.data = MallocCString(*mimeType);
+        if (ret.data == nullptr) {
+            ret.code = ERR_CODE_PARAM_INVALID;
+            return ret;
+        }
     }
     ret.code = SUCCESS_CODE;
     LOGI("[PasteData] FfiOHOSPasteDataGetPrimaryMimeType success");
@@ -338,17 +386,34 @@ RetDataCString FfiOHOSPasteDataGetPrimaryMimeType(int64_t id)
     return ret;
 }
 
-static char** VectorToCArrString(std::vector<std::string> &src)
+static char** VectorToCArrString(std::vector<std::string> &vec)
 {
-    char** res = new char* [src.size()];
-    for (size_t i = 0; i < src.size(); i++) {
-        res[i] = new char[src[i].length() + 1];
-        auto ret = strcpy_s(res[i], src[i].length() + 1, src[i].c_str());
-        if (ret != EOK) {
-            LOGI("strcpy_s error");
-        }
+    char** result = new char* [vec.size()];
+    if (result == nullptr) {
+        return nullptr;
     }
-    return res;
+    size_t temp = 0;
+    for (size_t i = 0; i < vec.size(); i++) {
+        result[i] = new char[vec[i].length() + 1];
+        if (result[i] == nullptr) {
+            break;
+        }
+        if (strcpy_s(result[i], vec[i].length() + 1, vec[i].c_str()) != 0) {
+            delete result[i];
+            result[i] = nullptr;
+            break;
+        }
+        temp++;
+    }
+    if (temp != vec.size()) {
+        for (size_t j = temp; j > 0; j--) {
+            delete result[j - 1];
+            result[j - 1] = nullptr;
+        }
+        delete[] result;
+        return nullptr;
+    }
+    return result;
 }
 
 int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
@@ -367,9 +432,16 @@ int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
     }
 
     PasteDataProperty property = pasteData->GetProperty();
-    retPtr->mimeTypes.size = static_cast<int64_t>(property.mimeTypes.size());
-    retPtr->mimeTypes.head = VectorToCArrString(property.mimeTypes);
     retPtr->tag = MallocCString(property.tag);
+    if (retPtr->tag == nullptr) {
+        return ERR_CODE_PARAM_INVALID;
+    }
+    retPtr->mimeTypes.head = VectorToCArrString(property.mimeTypes);
+    if (retPtr->mimeTypes.head == nullptr) {
+        free(retPtr->tag);
+        return ERR_CODE_PARAM_INVALID;
+    }
+    retPtr->mimeTypes.size = static_cast<int64_t>(property.mimeTypes.size());
     retPtr->timestamp = property.timestamp;
     retPtr->localOnly = property.localOnly;
     retPtr->shareOption = property.shareOption;
@@ -436,6 +508,10 @@ RetDataCString FfiOHOSPasteDataGetTag(int64_t id)
     std::string tag = pasteData->GetTag();
     if (!tag.empty()) {
         ret.data = MallocCString(tag);
+        if (ret.data == nullptr) {
+            ret.code = ERR_CODE_PARAM_INVALID;
+            return ret;
+        }
     }
     ret.code = SUCCESS_CODE;
     LOGI("[PasteData] FfiOHOSPasteDataGetTag success");
@@ -584,19 +660,6 @@ int32_t FfiOHOSPasteDataAddArrayRecord(int64_t id, const char* mimeType, uint8_t
     return SUCCESS_CODE;
 }
 
-char** VectorToCharPointer(std::vector<std::string>& vec)
-{
-    char** result = new char* [vec.size()];
-    for (size_t i = 0; i < vec.size(); i++) {
-        result[i] = new char[vec[i].length() + 1];
-        auto ret = strcpy_s(result[i], vec[i].length() + 1, vec[i].c_str());
-        if (ret != EOK) {
-            LOGI("strcpy_s error");
-        }
-    }
-    return result;
-}
-
 RetDataCArrString FfiOHOSPasteDataGetMimeTypes(int64_t id)
 {
     LOGI("[PasteData] FfiOHOSPasteDataAddArrayRecord start");
@@ -614,9 +677,13 @@ RetDataCArrString FfiOHOSPasteDataGetMimeTypes(int64_t id)
     }
 
     std::vector<std::string> mimeTypes = pasteData->GetMimeTypes();
+    ret.data.head = VectorToCArrString(mimeTypes);
+    if (ret.data.head == nullptr) {
+        ret.code = ERR_CODE_PARAM_INVALID;
+        return ret;
+    }
+    ret.data.size = static_cast<int64_t>(mimeTypes.size());
     ret.code = SUCCESS_CODE;
-    ret.data.head = VectorToCharPointer(mimeTypes);
-    ret.data.size = (int64_t)mimeTypes.size();
     LOGI("[PasteData] FfiOHOSPasteDataGetMimeTypes success");
 
     return ret;
@@ -650,15 +717,18 @@ RetDataI64 FfiOHOSPasteDataGetRecord(int64_t id, int32_t index, CPasteDataRecord
         return ret;
     }
 
-    fillCPasteDataRecord(retPtr, record);
-    ret.code = SUCCESS_CODE;
+    FillCPasteDataRecord(retPtr, record);
     auto existedRecordImpl = getCjPasteDataRecordImpl(record);
     if (existedRecordImpl != nullptr) {
         ret.data = existedRecordImpl->GetID();
     } else {
         auto pasteDataRecordImpl = FFI::FFIData::Create<PasteDataRecordImpl>(record);
+        if (!pasteDataRecordImpl) {
+            return ret;
+        }
         ret.data = pasteDataRecordImpl->GetID();
     }
+    ret.code = SUCCESS_CODE;
     LOGI("[PasteData] FfiOHOSPasteDataGetRecord success");
 
     return ret;
@@ -809,6 +879,9 @@ RetDataI64 FfiOHOSSystemPasteboardGetData(int64_t id)
         return ret;
     }
     auto pasteDataImpl = FFIData::Create<PasteDataImpl>(pasteData);
+    if (!pasteDataImpl) {
+        return ret;
+    }
     ret.data = pasteDataImpl->GetID();
     ret.code = SUCCESS_CODE;
     LOGI("[SystemPasteboard] FfiOHOSSystemPasteboardGetData success");
@@ -887,10 +960,12 @@ RetDataCString FfiOHOSSystemPasteboardGetDataSource(int64_t id)
         return ret;
     }
     std::string res = instance->GetDataSource();
-    if (!res.empty()) {
-        ret.data = MallocCString(res);
-        ret.code = SUCCESS_CODE;
+    ret.data = MallocCString(res);
+    if (ret.data == nullptr) {
+        ret.code = ERR_CODE_PARAM_INVALID;
+        return ret;
     }
+    ret.code = SUCCESS_CODE;
     LOGI("[PasteData] FfiOHOSSystemPasteboardGetDataSource success");
 
     return ret;

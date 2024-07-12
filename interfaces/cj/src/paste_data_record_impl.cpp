@@ -33,6 +33,9 @@ OHOS::FFI::RuntimeType *PasteDataRecordImpl::GetClassType()
 int64_t CreateCjPasteDataRecordObject(std::string mimeType, CJValueType value)
 {
     auto pasteDataRecordImpl = FFI::FFIData::Create<PasteDataRecordImpl>(mimeType, value);
+    if (!pasteDataRecordImpl) {
+        return 0;
+    }
     std::shared_ptr<MiscServices::PasteDataRecord> realValue = pasteDataRecordImpl->GetRealPasteDataRecord();
     std::lock_guard<std::recursive_mutex> lock(g_PasteDataMutex);
     g_cjPasteDataRecordMap.try_emplace(realValue, pasteDataRecordImpl);
