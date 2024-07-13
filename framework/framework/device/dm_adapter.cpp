@@ -35,7 +35,7 @@ public:
 
     void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override
     {
-        if (online_ == nullptr) {
+        if (online_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
             return;
         }
         online_(deviceInfo);
@@ -44,7 +44,7 @@ public:
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
     {
-        if (offline_ == nullptr) {
+        if (offline_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT)  {
             return;
         }
         offline_(deviceInfo);
@@ -57,7 +57,7 @@ public:
 
     void OnDeviceReady(const DmDeviceInfo &deviceInfo) override
     {
-        if (onReady_ == nullptr) {
+        if (onReady_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
             return;
         }
         onReady_(deviceInfo);
