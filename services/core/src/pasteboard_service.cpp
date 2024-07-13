@@ -635,8 +635,9 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
         if (value != nullptr && value->data != nullptr) {
             syncTime = value->syncTime;
             data = *(value->data);
+            return true;
         }
-        return value->data != nullptr;
+        return false;
     }
 
     auto curEvent = GetValidDistributeEvent(userId);
