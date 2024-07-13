@@ -598,7 +598,7 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetUnifiedDataSync failed.");
         return nullptr;
     }
@@ -646,7 +646,7 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, SetUnifiedDataSync failed.");
         return nullptr;
     }
@@ -781,7 +781,7 @@ napi_value SystemPasteboardNapi::IsRemoteData(napi_env env, napi_callback_info i
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, IsRemoteData failed.");
         return nullptr;
     }
@@ -802,7 +802,7 @@ napi_value SystemPasteboardNapi::GetDataSource(napi_env env, napi_callback_info 
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSource failed.");
         return nullptr;
     }
@@ -844,7 +844,7 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, HasDataType failed.");
         return nullptr;
     }
@@ -865,7 +865,7 @@ napi_value SystemPasteboardNapi::ClearDataSync(napi_env env, napi_callback_info 
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, ClearDataSync failed.");
     }
     return nullptr;
@@ -889,7 +889,7 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed.");
         return nullptr;
     }
@@ -931,7 +931,7 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, SetDataSync failed.");
         return nullptr;
     }
@@ -954,7 +954,7 @@ napi_value SystemPasteboardNapi::HasDataSync(napi_env env, napi_callback_info in
     });
     thread.detach();
     auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request time out.")) {
+    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, HasDataSync failed.");
         return nullptr;
     }
