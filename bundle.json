@@ -16,6 +16,10 @@
         "SystemCapability.MiscServices.Pasteboard"
       ],
       "features": [
+        "pasteboard_dlp_part_enabled",
+        "pasteboard_device_info_manager_part_enabled",
+        "pasteboard_device_manager_part_enabled",
+        "pasteboard_screenlock_mgr_part_enabled"
       ],
       "adapted_system_type": [
         "standard"
