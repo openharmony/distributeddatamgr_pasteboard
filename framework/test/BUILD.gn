@@ -82,7 +82,7 @@ ohos_unittest("PasteboardFrameworkTest") {
 
   defines = []
 
-  if (pb_device_info_manager_part_enabled) {
+  if (pasteboard_device_info_manager_part_enabled) {
     external_deps += [
       "device_info_manager:distributed_device_profile_common",
       "device_info_manager:distributed_device_profile_sdk",
@@ -90,7 +90,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     defines += [ "PB_DEVICE_INFO_MANAGER_ENABLE" ]
   }
 
-  if (pb_device_manager_part_enabled) {
+  if (pasteboard_device_manager_part_enabled) {
     external_deps += [ "device_manager:devicemanagersdk" ]
     defines += [ "PB_DEVICE_MANAGER_ENABLE" ]
   }
