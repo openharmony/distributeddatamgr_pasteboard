@@ -237,7 +237,7 @@ std::vector<std::string> DMAdapter::GetNetworkIds()
     }
     std::vector<std::string> networkIds;
     for (auto &item : devices) {
-        if(DeviceManager::GetInstance().IsSameAccount(item.networkId)) {
+        if (DeviceManager::GetInstance().IsSameAccount(item.networkId)) {
             networkIds.emplace_back(item.networkId);
         }
     }
