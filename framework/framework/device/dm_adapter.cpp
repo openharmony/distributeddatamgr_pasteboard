@@ -53,6 +53,11 @@ public:
 
     void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override
     {
+        // authForm not vaild use networkId
+        if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
+            online_(deviceInfo);
+        }
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device config changed:%{public}.6s", deviceInfo.networkId);
     }
 
     void OnDeviceReady(const DmDeviceInfo &deviceInfo) override
@@ -232,7 +237,9 @@ std::vector<std::string> DMAdapter::GetNetworkIds()
     }
     std::vector<std::string> networkIds;
     for (auto &item : devices) {
-        networkIds.emplace_back(item.networkId);
+        if(DeviceManager::GetInstance().IsSameAccount(item.networkId)) {
+            networkIds.emplace_back(item.networkId);
+        }
     }
     return networkIds;
 #else
