@@ -123,7 +123,8 @@ bool FuzzPasteOnAddChangedObserver(const uint8_t *rawData, size_t size)
     size = size - OFFSET;
 
     MessageParcel data;
-    sptr<IRemoteObject> obj = new PasteboardService();
+    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    sptr<IRemoteObject> obj = new (std::nothrow) IPCObjectStub();
     data.WriteRemoteObject(obj);
     data.WriteInt32(size);
     data.WriteBuffer(rawData, size);
@@ -149,7 +150,8 @@ bool FuzzPasteOnAddEventObserver(const uint8_t *rawData, size_t size)
     size = size - OFFSET;
 
     MessageParcel data;
-    sptr<IRemoteObject> obj = new PasteboardService();
+    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    sptr<IRemoteObject> obj = new (std::nothrow) IPCObjectStub();
     data.WriteRemoteObject(obj);
     data.WriteInt32(size);
     data.WriteBuffer(rawData, size);
@@ -171,25 +173,48 @@ bool FuzzPasteOnAddEventObserver(const uint8_t *rawData, size_t size)
 
 bool FuzzPasteOnSetGlobalShareOption(const uint8_t *rawData, size_t size)
 {
+    uint32_t tokenId = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
 
     MessageParcel data;
     data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
-    data.WriteInt32(size);
-    uint32_t tokenId = ConvertToUint32(rawData);
+    data.WriteInt32(1);
     data.WriteUint32(tokenId);
     data.WriteInt32(static_cast<int32_t>(tokenId % SHAREOPTIONSIZE));
+
     data.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
 
     std::make_shared<PasteboardService>()->OnRemoteRequest(
         static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION), data, reply, option);
+    return true;
+}
+
+bool FuzzPasteOnGetGlobalShareOption(const uint8_t *rawData, size_t size)
+{
+    uint32_t tokenId = ConvertToUint32(rawData);
+    rawData = rawData + OFFSET;
+    size = size - OFFSET;
+
+    std::vector<uint32_t> vec;
+    vec.push_back(tokenId);
+    tokenId = ConvertToUint32(rawData);
+    vec.push_back(tokenId);
+
+    MessageParcel data;
+    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    data.WriteUInt32Vector(vec);
+    data.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    std::make_shared<PasteboardService>()->OnRemoteRequest(
+        static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_GLOBAL_SHARE_OPTION), data, reply, option);
     data.RewindRead(0);
     std::make_shared<PasteboardService>()->OnRemoteRequest(
         static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION), data, reply, option);
-
     return true;
 }
 } // namespace OHOS
@@ -206,5 +231,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzPasteOnAddChangedObserver(data, size);
     OHOS::FuzzPasteOnAddEventObserver(data, size);
     OHOS::FuzzPasteOnSetGlobalShareOption(data, size);
+    OHOS::FuzzPasteOnGetGlobalShareOption(data, size);
     return 0;
 }
