@@ -259,7 +259,8 @@ void PasteboardService::InitServiceHandler()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Already init.");
         return;
     }
-    std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create(PASTEBOARD_SERVICE_NAME);
+    std::shared_ptr<AppExecFwk::EventRunner> runner =
+        AppExecFwk::EventRunner::Create(PASTEBOARD_SERVICE_NAME, AppExecFwk::ThreadMode::FFRT);
     serviceHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "InitServiceHandler Succeeded.");
