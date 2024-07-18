@@ -387,24 +387,8 @@ int32_t PasteboardService::GetSdkVersion(uint32_t tokenId)
 
 bool PasteboardService::IsPermissionGranted(const std::string& perm, uint32_t tokenId)
 {
-    ATokenTypeEnum type = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check grant permission, perm=%{public}s type=%{public}d",
-        perm.c_str(), type);
-    int32_t result = PermissionState::PERMISSION_DENIED;
-    switch (type) {
-        case ATokenTypeEnum::TOKEN_HAP:
-            result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
-            break;
-        case ATokenTypeEnum::TOKEN_NATIVE:
-        case ATokenTypeEnum::TOKEN_SHELL:
-            result = PermissionState::PERMISSION_GRANTED;
-            break;
-        case ATokenTypeEnum::TOKEN_INVALID:
-        case ATokenTypeEnum::TOKEN_TYPE_BUTT:
-            break;
-        default:
-            break;
-    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check grant permission, perm=%{public}s", perm.c_str());
+    int32_t result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
     if (result == PermissionState::PERMISSION_DENIED) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "permission denied");
         return false;
