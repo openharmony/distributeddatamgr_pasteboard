@@ -600,12 +600,6 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     auto value = block->GetValue();
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetUnifiedDataSync failed.");
-        return nullptr;
-    }
-
-    if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, GetUnifiedDataSync failed");
-        return nullptr;
     }
     return instance;
 }
@@ -891,14 +885,7 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
     auto value = block->GetValue();
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed.");
-        return nullptr;
     }
-
-    if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, GetDataSync failed");
-        return nullptr;
-    }
-
     return instance;
 }
 
