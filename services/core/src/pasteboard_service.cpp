@@ -497,7 +497,9 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
     PasteboardTrace tracer("PasteboardService GetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto callPid = IPCSkeleton::GetCallingPid();
-    if (!VerifyPermission(tokenId)) {
+    bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
+    bool isTestServerSetPasteData = developerMode && setPasteDataUId_ == TESE_SERVER_UID;
+    if (!VerifyPermission(tokenId) && !isTestServerSetPasteData) {
         RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_AUTHORITY, DFX_FAILED, ERROR_CODE,
             PERMISSION_VERIFICATION_ERROR);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, callingPid is %{public}d", callPid);
@@ -1080,6 +1082,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return static_cast<int32_t>(PasteboardError::E_ERROR);
     }
+    setPasteDataUId_ = IPCSkeleton::GetCallingUid();
     RemovePasteData(appInfo);
     pasteData->SetBundleName(appInfo.bundleName);
     pasteData->SetOrginAuthority(appInfo.bundleName);
