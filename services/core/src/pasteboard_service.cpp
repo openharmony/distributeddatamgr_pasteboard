@@ -391,17 +391,11 @@ bool PasteboardService::IsPermissionGranted(const std::string& perm, uint32_t to
         perm.c_str(), type);
     int32_t result = PermissionState::PERMISSION_DENIED;
     switch (type) {
-        case ATokenTypeEnum::TOKEN_HAP:
-            result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
-            break;
-        case ATokenTypeEnum::TOKEN_NATIVE:
-        case ATokenTypeEnum::TOKEN_SHELL:
-            result = PermissionState::PERMISSION_GRANTED;
-            break;
         case ATokenTypeEnum::TOKEN_INVALID:
         case ATokenTypeEnum::TOKEN_TYPE_BUTT:
             break;
         default:
+            result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
             break;
     }
     if (result == PermissionState::PERMISSION_DENIED) {
