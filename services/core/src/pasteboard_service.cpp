@@ -386,6 +386,7 @@ int32_t PasteboardService::GetSdkVersion(uint32_t tokenId)
 
 bool PasteboardService::IsPermissionGranted(const std::string& perm, uint32_t tokenId)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check grant permission, perm=%{public}s", perm.c_str());
     int32_t result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
     if (result == PermissionState::PERMISSION_DENIED) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "permission denied");
