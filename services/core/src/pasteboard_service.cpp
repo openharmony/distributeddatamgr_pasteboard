@@ -1830,7 +1830,7 @@ bool PasteboardService::SubscribeKeyboardEvent()
         return true;
     }
     std::lock_guard<std::mutex> lock(eventMutex_);
-    inputEventCallback_ = std::make_shared<eventMutex_>();
+    inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId =
         MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(
         inputEventCallback_));
