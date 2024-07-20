@@ -937,10 +937,8 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
 {
     auto data = std::make_shared<PasteData>(pasteData);
     auto ret = SavePasteData(data);
-    if (ret == static_cast<int32_t>(PasteboardError::E_OK && inputEventCallback_ == nullptr &&
-        !SubscribeKeyboardEvent()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "subscribe keyboard event failed.");
-        return;
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK) {
+        SubscribeKeyboardEvent();
     }
     return ret;
 }
@@ -1732,10 +1730,7 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;
     }
-    if (inputEventCallback_ == nullptr && !SubscribeKeyboardEvent()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "subscribe keyboard event failed.");
-        return;
-    }
+    SubscribeKeyboardEvent();
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
@@ -1831,7 +1826,11 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 
 bool PasteboardService::SubscribeKeyboardEvent()
 {
-    inputEventCallback_ = std::make_shared<InputEventCallback>();
+    if (inputEventCallback_ != nullptr) {
+        return true;
+    }
+    std::lock_guard<std::mutex> lock(eventMutex_);
+    inputEventCallback_ = std::make_shared<eventMutex_>();
     int32_t monitorId =
         MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(
         inputEventCallback_));
