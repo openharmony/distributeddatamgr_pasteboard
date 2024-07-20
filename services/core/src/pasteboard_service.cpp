@@ -1826,10 +1826,10 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 
 bool PasteboardService::SubscribeKeyboardEvent()
 {
+    std::lock_guard<std::mutex> lock(eventMutex_);
     if (inputEventCallback_ != nullptr) {
         return true;
     }
-    std::lock_guard<std::mutex> lock(eventMutex_);
     inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId =
         MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(
