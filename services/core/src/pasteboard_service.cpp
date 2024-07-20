@@ -1826,7 +1826,7 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 
 bool PasteboardService::SubscribeKeyboardEvent()
 {
-    std::lock_guard<std::mutex> lock(eventMutex_);
+    std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
     if (inputEventCallback_ != nullptr) {
         return true;
     }
