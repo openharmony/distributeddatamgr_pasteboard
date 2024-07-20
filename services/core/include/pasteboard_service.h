@@ -279,6 +279,7 @@ private:
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;
     RemoteDataTaskManager  taskMgr_;
+    std::mutex eventMutex_;
 };
 } // namespace MiscServices
 } // namespace OHOS
