@@ -171,10 +171,6 @@ void PasteboardService::OnStart()
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyData);
 
     CommonEventSubscriber();
-//    if (!SubscribeKeyboardEvent()) {
-//        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Subscribe failed.");
-//        return;
-//    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
     return;
