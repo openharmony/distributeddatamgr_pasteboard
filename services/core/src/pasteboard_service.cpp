@@ -171,10 +171,10 @@ void PasteboardService::OnStart()
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyData);
 
     CommonEventSubscriber();
-    if (!SubscribeKeyboardEvent()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Subscribe failed.");
-        return;
-    }
+//    if (!SubscribeKeyboardEvent()) {
+//        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Subscribe failed.");
+//        return;
+//    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
     return;
@@ -940,7 +940,13 @@ bool PasteboardService::HasPasteData()
 int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter)
 {
     auto data = std::make_shared<PasteData>(pasteData);
-    return SavePasteData(data);
+    auto ret = SavePasteData(data);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK && inputEventCallback_ == nullptr &&
+        !SubscribeKeyboardEvent()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "subscribe keyboard event failed.");
+        return;
+    }
+    return ret;
 }
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
@@ -1730,7 +1736,10 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;
     }
-
+    if (inputEventCallback_ == nullptr && !SubscribeKeyboardEvent()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "subscribe keyboard event failed.");
+        return;
+    }
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
