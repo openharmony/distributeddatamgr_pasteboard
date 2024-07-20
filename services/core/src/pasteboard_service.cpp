@@ -937,7 +937,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
 {
     auto data = std::make_shared<PasteData>(pasteData);
     auto ret = SavePasteData(data);
-    if (ret == static_cast<int32_t>(PasteboardError::E_OK) {
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         SubscribeKeyboardEvent();
     }
     return ret;
