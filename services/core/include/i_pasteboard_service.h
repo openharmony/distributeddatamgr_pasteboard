@@ -32,12 +32,10 @@ public:
     virtual bool IsRemoteData() = 0;
     virtual int32_t GetDataSource(std::string &bundleName) = 0;
     virtual bool HasDataType(const std::string &mimeType) = 0;
-    virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) = 0;
-    virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) = 0;
-    virtual void RemoveAllChangedObserver() = 0;
-    virtual void AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) = 0;
-    virtual void RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) = 0;
-    virtual void RemoveAllEventObserver() = 0;
+    virtual void SubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) = 0;
+    virtual void UnsubscribeObserver(PasteboardObserverType type,
+        const sptr<IPasteboardChangedObserver> &observer) = 0;
+    virtual void UnsubscribeAllObserver(PasteboardObserverType type) = 0;
     virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) = 0;
     virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) = 0;
     virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) = 0;

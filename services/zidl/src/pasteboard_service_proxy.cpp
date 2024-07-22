@@ -154,20 +154,22 @@ __attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteDat
     return reply.ReadInt32();
 }
 
-void PasteboardServiceProxy::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
+void PasteboardServiceProxy::SubscribeObserver(PasteboardObserverType type,
+    const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    ProcessObserver(PasteboardServiceInterfaceCode::ADD_CHANGED_OBSERVER, observer);
+    ProcessObserver(PasteboardServiceInterfaceCode::SUBSCRIBE_OBSERVER, type, observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
-void PasteboardServiceProxy::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
+void PasteboardServiceProxy::UnsubscribeObserver(PasteboardObserverType type,
+    const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    ProcessObserver(PasteboardServiceInterfaceCode::DELETE_CHANGED_OBSERVER, observer);
+    ProcessObserver(PasteboardServiceInterfaceCode::UNSUBSCRIBE_OBSERVER, type, observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
-void PasteboardServiceProxy::RemoveAllChangedObserver()
+void PasteboardServiceProxy::UnsubscribeAllObserver(PasteboardObserverType type)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data;
@@ -177,46 +179,20 @@ void PasteboardServiceProxy::RemoveAllChangedObserver()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
-    int32_t result =
-        Remote()->SendRequest(PasteboardServiceInterfaceCode::DELETE_ALL_CHANGED_OBSERVER, data, reply, option);
-    if (result != ERR_NONE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-}
-
-void PasteboardServiceProxy::AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    ProcessObserver(PasteboardServiceInterfaceCode::ADD_EVENT_OBSERVER, observer);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-}
-
-void PasteboardServiceProxy::RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    ProcessObserver(PasteboardServiceInterfaceCode::DELETE_EVENT_OBSERVER, observer);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-}
-void PasteboardServiceProxy::RemoveAllEventObserver()
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
+    if (!data.WriteUint32(static_cast<uint32_t>(type))) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
     int32_t result =
-       Remote()->SendRequest(PasteboardServiceInterfaceCode::DELETE_ALL_EVENT_OBSERVER, data, reply, option);
+        Remote()->SendRequest(PasteboardServiceInterfaceCode::UNSUBSCRIBE_ALL_OBSERVER, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
-void PasteboardServiceProxy::ProcessObserver(uint32_t code, const sptr<IPasteboardChangedObserver> &observer)
+void PasteboardServiceProxy::ProcessObserver(uint32_t code, PasteboardObserverType type,
+    const sptr<IPasteboardChangedObserver> &observer)
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer nullptr");
@@ -226,11 +202,15 @@ void PasteboardServiceProxy::ProcessObserver(uint32_t code, const sptr<IPasteboa
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write descriptor to parcelable");
+        return;
+    }
+    if (!data.WriteUint32(static_cast<uint32_t>(type))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write type to parcelable");
         return;
     }
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write observer to parcelable");
         return;
     }
     int32_t result = Remote()->SendRequest(code, data, reply, option);

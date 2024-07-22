@@ -37,18 +37,12 @@ PasteboardServiceStub::PasteboardServiceStub()
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_PASTE_DATA)] =
         &PasteboardServiceStub::OnSetPasteData;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::CLEAR_ALL)] = &PasteboardServiceStub::OnClear;
-    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::ADD_CHANGED_OBSERVER)] =
-        &PasteboardServiceStub::OnAddPasteboardChangedObserver;
-    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_CHANGED_OBSERVER)] =
-        &PasteboardServiceStub::OnRemovePasteboardChangedObserver;
-    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_ALL_CHANGED_OBSERVER)] =
-        &PasteboardServiceStub::OnRemoveAllChangedObserver;
-    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::ADD_EVENT_OBSERVER)] =
-        &PasteboardServiceStub::OnAddPasteboardEventObserver;
-    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_EVENT_OBSERVER)] =
-        &PasteboardServiceStub::OnRemovePasteboardEventObserver;
-    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DELETE_ALL_EVENT_OBSERVER)] =
-        &PasteboardServiceStub::OnRemoveAllEventObserver;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SUBSCRIBE_OBSERVER)] =
+        &PasteboardServiceStub::OnSubscribeObserver;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::UNSUBSCRIBE_OBSERVER)] =
+        &PasteboardServiceStub::OnUnsubscribeObserver;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::UNSUBSCRIBE_ALL_OBSERVER)] =
+        &PasteboardServiceStub::OnUnsubscribeAllObserver;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::IS_REMOTE_DATA)] =
             &PasteboardServiceStub::OnIsRemoteData;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_DATA_SOURCE)] =
@@ -192,73 +186,52 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
     return ERR_OK;
 }
-int32_t PasteboardServiceStub::OnAddPasteboardChangedObserver(MessageParcel &data, MessageParcel &reply)
+int32_t PasteboardServiceStub::OnSubscribeObserver(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
+    uint32_t type = 0;
     sptr<IPasteboardChangedObserver> callback;
-    if (!IsObserverValid(data, callback)) {
+    if (!IsObserverValid(data, type, callback)) {
         return ERR_INVALID_VALUE;
     }
 
-    AddPasteboardChangedObserver(callback);
+    SubscribeObserver(static_cast<PasteboardObserverType>(type), callback);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }
-int32_t PasteboardServiceStub::OnRemovePasteboardChangedObserver(MessageParcel &data, MessageParcel &reply)
+int32_t PasteboardServiceStub::OnUnsubscribeObserver(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
+    uint32_t type = 0;
     sptr<IPasteboardChangedObserver> callback;
-    if (!IsObserverValid(data, callback)) {
+    if (!IsObserverValid(data, type, callback)) {
         return ERR_INVALID_VALUE;
     }
-    RemovePasteboardChangedObserver(callback);
+    UnsubscribeObserver(static_cast<PasteboardObserverType>(type), callback);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }
 
-int32_t PasteboardServiceStub::OnRemoveAllChangedObserver(MessageParcel &data, MessageParcel &reply)
+int32_t PasteboardServiceStub::OnUnsubscribeAllObserver(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
-    RemoveAllChangedObserver();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
-    return ERR_OK;
-}
-
-int32_t PasteboardServiceStub::OnAddPasteboardEventObserver(MessageParcel &data, MessageParcel &reply)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
-    sptr<IPasteboardChangedObserver> callback;
-    if (!IsObserverValid(data, callback)) {
+    uint32_t type = 0;
+    if (!data.ReadUint32(type)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read type failed.");
         return ERR_INVALID_VALUE;
     }
-
-    AddPasteboardEventObserver(callback);
+    UnsubscribeAllObserver(static_cast<PasteboardObserverType>(type));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }
 
-int32_t PasteboardServiceStub::OnRemovePasteboardEventObserver(MessageParcel &data, MessageParcel &reply)
+bool PasteboardServiceStub::IsObserverValid(MessageParcel &data, uint32_t &type,
+    sptr<IPasteboardChangedObserver> &callback)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
-    sptr<IPasteboardChangedObserver> callback;
-    if (!IsObserverValid(data, callback)) {
-        return ERR_INVALID_VALUE;
+    if (!data.ReadUint32(type)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read type failed.");
+        return false;
     }
-    RemovePasteboardEventObserver(callback);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
-    return ERR_OK;
-}
-
-int32_t PasteboardServiceStub::OnRemoveAllEventObserver(MessageParcel &data, MessageParcel &reply)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
-    RemoveAllEventObserver();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
-    return ERR_OK;
-}
-
-inline bool PasteboardServiceStub::IsObserverValid(MessageParcel &data, sptr<IPasteboardChangedObserver> &callback)
-{
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     if (obj == nullptr) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "obj nullptr");

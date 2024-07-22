@@ -214,6 +214,15 @@ public:
     bool HasDataType(const std::string &mimeType);
 
     /**
+     * Subscribe
+     * @descrition
+     * @param type observer type
+     * @param observer pasteboard change callback.
+     * @return void.
+     */
+    void Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback);
+
+    /**
      * AddPasteboardChangedObserver
      * @descrition
      * @param observer pasteboard change callback.
@@ -228,6 +237,15 @@ public:
      * @return void.
      */
     void AddPasteboardEventObserver(sptr<PasteboardObserver> callback);
+
+        /**
+     * Unsubscribe
+     * @descrition
+     * @param type observer type
+     * @param observer pasteboard change callback.
+     * @return void.
+     */
+    void Unsubscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback);
 
     /**
      * RemovePasteboardChangedObserver
