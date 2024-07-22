@@ -6,7 +6,7 @@
     {
       "pageTitle": "$string:pasteboard_title",
       "pageDescription": "",
-      "entryKey": "pasteboard_entry",
+      "entryKey": "cross_device_clipboard_entry",
       "params": "",
       "path": [
         "$string:multi_device_collaboration",

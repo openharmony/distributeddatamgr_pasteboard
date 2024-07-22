@@ -156,12 +156,6 @@ public:
         return count;
     }
 
-    mapped_type &operator[](const key_type &key) noexcept
-    {
-        std::lock_guard<decltype(mutex_)> lock(mutex_);
-        return entries_[key];
-    }
-
     void ForEach(const std::function<bool(const key_type &, mapped_type &)> &action)
     {
         if (action == nullptr) {
@@ -169,6 +163,19 @@ public:
         }
         std::lock_guard<decltype(mutex_)> lock(mutex_);
         for (auto &[key, value] : entries_) {
+            if (action(key, value)) {
+                break;
+            }
+        }
+    }
+
+    void ForEachCopies(const std::function<bool(const key_type &, mapped_type &)> &action)
+    {
+        if (action == nullptr) {
+            return;
+        }
+        auto entries = Clone();
+        for (auto &[key, value] : entries) {
             if (action(key, value)) {
                 break;
             }

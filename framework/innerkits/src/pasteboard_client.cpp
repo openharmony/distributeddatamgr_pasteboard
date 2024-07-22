@@ -190,12 +190,13 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     }
     int32_t syncTime = 0;
     int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
+    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     RetainUri(pasteData);
     RebuildWebviewPasteData(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
-        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
             RadarReporter::DIS_SYNC_TIME, syncTime);
     } else {
@@ -204,7 +205,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
         if (operatorIter != ERROR_CODE_COVERT_TABLE.end()) {
             errorCode = operatorIter->second;
         }
-        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
             RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::ERROR_CODE, errorCode);
     }

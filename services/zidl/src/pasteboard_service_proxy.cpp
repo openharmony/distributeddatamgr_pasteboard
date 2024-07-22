@@ -112,7 +112,8 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
     return reply.ReadInt32();
 }
 
-int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData, int32_t &syncTime)
+__attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData,
+    int32_t &syncTime)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data;

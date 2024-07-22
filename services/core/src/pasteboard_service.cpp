@@ -171,10 +171,6 @@ void PasteboardService::OnStart()
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyData);
 
     CommonEventSubscriber();
-    if (!SubscribeKeyboardEvent()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Subscribe failed.");
-        return;
-    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
     return;
@@ -259,7 +255,8 @@ void PasteboardService::InitServiceHandler()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Already init.");
         return;
     }
-    std::shared_ptr<AppExecFwk::EventRunner> runner = AppExecFwk::EventRunner::Create(PASTEBOARD_SERVICE_NAME);
+    std::shared_ptr<AppExecFwk::EventRunner> runner =
+        AppExecFwk::EventRunner::Create(PASTEBOARD_SERVICE_NAME, AppExecFwk::ThreadMode::FFRT);
     serviceHandler_ = std::make_shared<AppExecFwk::EventHandler>(runner);
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "InitServiceHandler Succeeded.");
@@ -380,30 +377,14 @@ int32_t PasteboardService::GetSdkVersion(uint32_t tokenId)
             tokenId, ret);
         return INVAILD_VERSION;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetHapTokenInfo version=%{public}d.", hapTokenInfo.apiVersion);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ver:%{public}d.", hapTokenInfo.apiVersion);
     return hapTokenInfo.apiVersion;
 }
 
 bool PasteboardService::IsPermissionGranted(const std::string& perm, uint32_t tokenId)
 {
-    ATokenTypeEnum type = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check grant permission, perm=%{public}s type=%{public}d",
-        perm.c_str(), type);
-    int32_t result = PermissionState::PERMISSION_DENIED;
-    switch (type) {
-        case ATokenTypeEnum::TOKEN_HAP:
-            result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
-            break;
-        case ATokenTypeEnum::TOKEN_NATIVE:
-        case ATokenTypeEnum::TOKEN_SHELL:
-            result = PermissionState::PERMISSION_GRANTED;
-            break;
-        case ATokenTypeEnum::TOKEN_INVALID:
-        case ATokenTypeEnum::TOKEN_TYPE_BUTT:
-            break;
-        default:
-            break;
-    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check grant permission, perm=%{public}s", perm.c_str());
+    int32_t result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
     if (result == PermissionState::PERMISSION_DENIED) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "permission denied");
         return false;
@@ -634,11 +615,12 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
 
     if (isPasting) {
         auto value = taskMgr_.WaitRemoteData(event);
-        if (value->data != nullptr) {
+        if (value != nullptr && value->data != nullptr) {
             syncTime = value->syncTime;
             data = *(value->data);
+            return true;
         }
-        return value->data != nullptr;
+        return false;
     }
 
     auto curEvent = GetValidDistributeEvent(userId);
@@ -678,7 +660,7 @@ bool PasteboardService::GetRemotePasteData(int32_t userId, const Event &event, P
     });
     thread.detach();
     auto value = block->GetValue();
-    if (value->data != nullptr) {
+    if (value != nullptr && value->data != nullptr) {
         syncTime = value->syncTime;
         data = std::move(*(value->data));
         return true;
@@ -709,7 +691,12 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
         appInfo.bundleName, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
         DMAdapter::GetInstance().GetLocalDeviceType());
     data.SetBundleName(appInfo.bundleName);
-    auto curTime = copyTime_[appInfo.userId];
+    auto result = copyTime_.Find(appInfo.userId);
+    if (!result.first) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "userId not found");
+        return false;
+    }
+    auto curTime = result.second;
     if (tempTime.second == curTime) {
         bool isNotify = false;
         clips_.ComputeIfPresent(appInfo.userId, [&data, &isNotify](auto &key, auto &value) {
@@ -941,7 +928,11 @@ bool PasteboardService::HasPasteData()
 int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter)
 {
     auto data = std::make_shared<PasteData>(pasteData);
-    return SavePasteData(data);
+    auto ret = SavePasteData(data);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        SubscribeKeyboardEvent();
+    }
+    return ret;
 }
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
@@ -1732,7 +1723,7 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;
     }
-
+    SubscribeKeyboardEvent();
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
@@ -1828,6 +1819,10 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
 
 bool PasteboardService::SubscribeKeyboardEvent()
 {
+    std::lock_guard<std::mutex> lock(eventMutex_);
+    if (inputEventCallback_ != nullptr) {
+        return true;
+    }
     inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId =
         MMI::InputManager::GetInstance()->AddMonitor(std::static_pointer_cast<MMI::IInputEventConsumer>(

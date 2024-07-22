@@ -32,6 +32,7 @@ using namespace OHOS::MiscServices;
 namespace OHOS {
 constexpr size_t THRESHOLD = 10;
 constexpr int32_t OFFSET = 4;
+const int32_t SHAREOPTIONSIZE = 3;
 const std::u16string PASTEBOARDSERVICE_INTERFACE_TOKEN = u"ohos.miscservices.pasteboard.IPasteboardService";
 
 uint32_t ConvertToUint32(const uint8_t *ptr)
@@ -122,7 +123,8 @@ bool FuzzPasteOnAddChangedObserver(const uint8_t *rawData, size_t size)
     size = size - OFFSET;
 
     MessageParcel data;
-    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    sptr<IRemoteObject> obj = new PasteboardService();
+    data.WriteRemoteObject(obj);
     data.WriteInt32(size);
     data.WriteBuffer(rawData, size);
     data.RewindRead(0);
@@ -147,7 +149,8 @@ bool FuzzPasteOnAddEventObserver(const uint8_t *rawData, size_t size)
     size = size - OFFSET;
 
     MessageParcel data;
-    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    sptr<IRemoteObject> obj = new PasteboardService();
+    data.WriteRemoteObject(obj);
     data.WriteInt32(size);
     data.WriteBuffer(rawData, size);
     data.RewindRead(0);
@@ -165,6 +168,30 @@ bool FuzzPasteOnAddEventObserver(const uint8_t *rawData, size_t size)
 
     return true;
 }
+
+bool FuzzPasteOnSetGlobalShareOption(const uint8_t *rawData, size_t size)
+{
+    rawData = rawData + OFFSET;
+    size = size - OFFSET;
+
+    MessageParcel data;
+    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    data.WriteInt32(size);
+    uint32_t tokenId = ConvertToUint32(rawData);
+    data.WriteUint32(tokenId);
+    data.WriteInt32(static_cast<int32_t>(tokenId % SHAREOPTIONSIZE));
+    data.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    std::make_shared<PasteboardService>()->OnRemoteRequest(
+        static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION), data, reply, option);
+    data.RewindRead(0);
+    std::make_shared<PasteboardService>()->OnRemoteRequest(
+        static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION), data, reply, option);
+
+    return true;
+}
 } // namespace OHOS
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
@@ -178,5 +205,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzPasteOnIsRemoteData(data, size);
     OHOS::FuzzPasteOnAddChangedObserver(data, size);
     OHOS::FuzzPasteOnAddEventObserver(data, size);
+    OHOS::FuzzPasteOnSetGlobalShareOption(data, size);
     return 0;
 }

@@ -127,7 +127,6 @@ void DistributedModuleConfig::OnReady(const std::string &device)
 void DistributedModuleConfig::Init()
 {
     DMAdapter::GetInstance().Register(this);
-    GetDeviceNum();
     DevProfile::GetInstance().Watch([this](bool isEnable)-> void {
         Notify();
     });

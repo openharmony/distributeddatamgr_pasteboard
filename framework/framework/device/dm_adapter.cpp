@@ -35,7 +35,7 @@ public:
 
     void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override
     {
-        if (online_ == nullptr) {
+        if (online_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
             return;
         }
         online_(deviceInfo);
@@ -44,7 +44,7 @@ public:
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
     {
-        if (offline_ == nullptr) {
+        if (offline_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT)  {
             return;
         }
         offline_(deviceInfo);
@@ -53,11 +53,16 @@ public:
 
     void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override
     {
+        // authForm not vaild use networkId
+        if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
+            online_(deviceInfo);
+        }
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device config changed:%{public}.6s", deviceInfo.networkId);
     }
 
     void OnDeviceReady(const DmDeviceInfo &deviceInfo) override
     {
-        if (onReady_ == nullptr) {
+        if (onReady_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
             return;
         }
         onReady_(deviceInfo);
@@ -108,17 +113,17 @@ bool DMAdapter::Initialize(const std::string &pkgName)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     auto stateObserver = std::make_shared<DmStateObserver>([this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEach([&deviceInfo](auto &key, auto &value) {
+        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
             value->Online(deviceInfo.networkId);
             return false;
         });
     }, [this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEach([&deviceInfo](auto &key, auto &value) {
+        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
             value->OnReady(deviceInfo.networkId);
             return false;
         });
     }, [this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEach([&deviceInfo](auto &key, auto &value) {
+        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
             value->Offline(deviceInfo.networkId);
             return false;
         });
@@ -232,7 +237,9 @@ std::vector<std::string> DMAdapter::GetNetworkIds()
     }
     std::vector<std::string> networkIds;
     for (auto &item : devices) {
-        networkIds.emplace_back(item.networkId);
+        if (DeviceManager::GetInstance().IsSameAccount(item.networkId)) {
+            networkIds.emplace_back(item.networkId);
+        }
     }
     return networkIds;
 #else
