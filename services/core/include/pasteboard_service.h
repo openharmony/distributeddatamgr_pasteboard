@@ -77,7 +77,7 @@ public:
     void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
     void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
     void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
-    bool IsCtrlVProcess(uint32_t callingPid);
+    bool IsCtrlVProcess(uint32_t callingPid, uint32_t tokenId);
     void Clear();
 private:
     static constexpr uint32_t EVENT_TIME_OUT = 2000;
@@ -186,6 +186,7 @@ private:
     int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
         sptr<IPasteboardDelayGetter> delayGetter = nullptr) override;
     void RemovePasteData(const AppInfo &appInfo);
+    bool IsFocusedApp(uint32_t tokenId);
     void SetPasteDataDot(PasteData &pasteData);
     std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
     int32_t GetSdkVersion(uint32_t tokenId);

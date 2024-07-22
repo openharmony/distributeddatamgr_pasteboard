@@ -314,7 +314,8 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
         isSecureGrant, isPrivilegeApp);
     bool isCtrlVAction = false;
     if (inputEventCallback_ != nullptr) {
-        isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid);
+        isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid, tokenId);
+        inputEventCallback_->Clear();
     }
     auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || isCtrlVAction;
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
@@ -936,11 +937,7 @@ bool PasteboardService::HasPasteData()
 int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter)
 {
     auto data = std::make_shared<PasteData>(pasteData);
-    auto ret = SavePasteData(data);
-    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
-        SubscribeKeyboardEvent();
-    }
-    return ret;
+    return SavePasteData(data);
 }
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
@@ -1109,6 +1106,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     SetPasteDataDot(*pasteData);
     setting_.store(false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.Size()));
+    SubscribeKeyboardEvent();
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
@@ -1538,6 +1536,29 @@ std::string PasteboardService::DumpData()
     return result;
 }
 
+bool PasteboardService::IsFocusedApp(uint32_t tokenId)
+{
+    if (AccessTokenKit::GetTokenTypeFlag(tokenId) != ATokenTypeEnum::TOKEN_HAP) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "caller is not application");
+        return true;
+    }
+    FocusChangeInfo info;
+#ifdef SCENE_BOARD_ENABLE
+    WindowManagerLite::GetInstance().GetFocusWindowInfo(info);
+#else
+    WindowManager::GetInstance().GetFocusWindowInfo(info);
+#endif
+    auto callPid = IPCSkeleton::GetCallingPid();
+    if (callPid == info.pid_) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pid is same, it is focused app");
+        return true;
+    }
+    bool isFocused = false;
+    auto ret = AAFwk::AbilityManagerClient::GetInstance()->CheckUIExtensionIsFocused(tokenId, isFocused);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check result:%{public}d, isFocused:%{public}d", ret, isFocused);
+    return ret == ErrorCode::NO_ERROR && isFocused;
+}
+
 void PasteboardService::SetPasteDataDot(PasteData &pasteData)
 {
     auto bundleName = pasteData.GetBundleName();
@@ -1877,11 +1898,15 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent)
 {
 }
 
-bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid)
+bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, uint32_t tokenId)
 {
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    return callingPid == static_cast<uint32_t>(windowPid_) && curTime - actionTime_ < EVENT_TIME_OUT;
+    bool IsFocused = false;
+    if (windowId_ > 0) {
+        IsFocused = PasteboardService::IsFocusedApp(tokenId);
+    }
+    return (callingPid == static_cast<uint32_t>(windowPid_) || IsFocused)&& curTime - actionTime_ < EVENT_TIME_OUT;
 }
 
 void InputEventCallback::Clear()

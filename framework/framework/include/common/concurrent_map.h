@@ -187,7 +187,6 @@ public:
             }
         }
     }
-
     // The action's return value mains that the element is keep in map or not; true mains keep, false mains remove.
     bool Compute(const key_type &key, const std::function<bool(const key_type &, mapped_type &)> &action)
     {

@@ -17,7 +17,7 @@
 
 #include "pasteboard_dialog.h"
 #include "ability_connect_callback_stub.h"
-#include "extension_manager_client.h"
+#include "ability_manager_client.h"
 #include "iservice_registry.h"
 #include "pasteboard_hilog.h"
 #include "system_ability_definition.h"
