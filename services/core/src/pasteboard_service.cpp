@@ -313,8 +313,9 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
         isSecureGrant, isPrivilegeApp);
     bool isCtrlVAction = false;
+    bool isFocused = IsFocusedApp(tokenId);
     if (inputEventCallback_ != nullptr) {
-        isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid, tokenId);
+        isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid, isFocused);
         inputEventCallback_->Clear();
     }
     auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || isCtrlVAction;
@@ -1898,15 +1899,11 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent)
 {
 }
 
-bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, uint32_t tokenId)
+bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid,  bool isFocused)
 {
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    bool IsFocused = false;
-    if (windowPid_ != 0) {
-        IsFocused = PasteboardService::IsFocusedApp(tokenId);
-    }
-    return (callingPid == static_cast<uint32_t>(windowPid_) || IsFocused) && curTime - actionTime_ < EVENT_TIME_OUT;
+    return (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime - actionTime_ < EVENT_TIME_OUT;
 }
 
 void InputEventCallback::Clear()
