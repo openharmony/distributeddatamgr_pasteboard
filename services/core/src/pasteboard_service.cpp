@@ -1751,7 +1751,6 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;
     }
-    SubscribeKeyboardEvent();
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
@@ -1784,6 +1783,7 @@ void PasteboardService::OnConfigChange(bool isOn)
     if (clipPlugin_ != nullptr) {
         return;
     }
+    SubscribeKeyboardEvent();
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
@@ -1903,7 +1903,7 @@ bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, uint32_t tokenId)
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     bool IsFocused = false;
-    if (windowId_ > 0) {
+    if (windowId_ != 0) {
         IsFocused = PasteboardService::IsFocusedApp(tokenId);
     }
     return (callingPid == static_cast<uint32_t>(windowPid_) || IsFocused)&& curTime - actionTime_ < EVENT_TIME_OUT;
