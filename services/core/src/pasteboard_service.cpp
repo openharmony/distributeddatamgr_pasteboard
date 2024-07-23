@@ -1906,7 +1906,7 @@ bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, uint32_t tokenId)
     if (windowPid_ != 0) {
         IsFocused = PasteboardService::IsFocusedApp(tokenId);
     }
-    return (callingPid == static_cast<uint32_t>(windowPid_) || IsFocused)&& curTime - actionTime_ < EVENT_TIME_OUT;
+    return (callingPid == static_cast<uint32_t>(windowPid_) || IsFocused) && curTime - actionTime_ < EVENT_TIME_OUT;
 }
 
 void InputEventCallback::Clear()
