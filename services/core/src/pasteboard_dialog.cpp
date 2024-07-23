@@ -16,8 +16,8 @@
 #include <thread>
 
 #include "pasteboard_dialog.h"
-#include "ability_connect_callback_stub.h"
-#include "ability_manager_client.h"
+#include "ability_manager_proxy.h"
+#include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
 #include "pasteboard_hilog.h"
 #include "system_ability_definition.h"
@@ -70,8 +70,7 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
 
     std::lock_guard<std::mutex> lock(connectionLock_);
     connection_ = new DialogConnection(nullptr);
-    int32_t result = AAFwk::ExtensionManagerClient::GetInstance().ConnectServiceExtensionAbility(want, connection_,
-        nullptr, -1);
+    int32_t result = AAFwk::ExtensionManagerClient::GetInstance().ConnectServiceExtensionAbility(want, connection_, nullptr, -1);
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast failed, result:%{public}d", result);
         return -1;

@@ -1556,7 +1556,7 @@ bool PasteboardService::IsFocusedApp(uint32_t tokenId)
     bool isFocused = false;
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->CheckUIExtensionIsFocused(tokenId, isFocused);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check result:%{public}d, isFocused:%{public}d", ret, isFocused);
-    return ret == ErrorCode::NO_ERROR && isFocused;
+    return ret == NO_ERROR && isFocused;
 }
 
 void PasteboardService::SetPasteDataDot(PasteData &pasteData)
