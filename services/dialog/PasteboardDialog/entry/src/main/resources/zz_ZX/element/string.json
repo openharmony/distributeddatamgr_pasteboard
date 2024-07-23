@@ -1,12 +1,40 @@
 {
-  "string": [
+  "string":[
     {
       "name":"pasteboard_title",
       "value":"[TS_940609]_Cross-Device Clipboard"
     },
     {
       "name":"pasteboard_desc",
-      "value":"[TS_940611]_Copy it on one device, and then paste it on another device nearby that is logged into the same account. This function requires both devices to enable Cross-device Clipboard, WLAN, and Bluetooth."
+      "value":"[TS_940611]_Copy on one device, paste on another.\n\nDevices need to be close to each other, have Cross-device clipboard, Wi-Fi, and Bluetooth enabled, and be using the same HUAWEI ID."
+    },
+    {
+      "name":"PasteboardSwitchAbility_desc",
+      "value":"[TS_940613]_description"
+    },
+    {
+      "name":"typeface",
+      "value":"[TS_909191]_HarmonyHeiTi"
+    },
+    {
+      "name":"entry_desc",
+      "value":"[TS_849893]_Pasteboard dialog"
+    },
+    {
+      "name":"ToastExtensionAbility_desc",
+      "value":"[TS_909190]_Pasteboard toast extension"
+    },
+    {
+      "name":"PasteboardSwitchAbility_label",
+      "value":"[TS_940612]_label"
+    },
+    {
+      "name":"multi_device_collaboration",
+      "value":"[TS_940610]_More connectivity options"
+    },
+    {
+      "name":"ToastExtensionAbility_label",
+      "value":"[TS_909189]_Pasteboard Toast"
     }
   ]
 }
