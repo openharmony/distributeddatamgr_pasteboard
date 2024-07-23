@@ -279,6 +279,8 @@ private:
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;
     RemoteDataTaskManager  taskMgr_;
+    pid_t setPasteDataUId_ = 0;
+    static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;
 };
 } // namespace MiscServices
