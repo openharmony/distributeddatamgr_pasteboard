@@ -118,6 +118,7 @@ public:
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     void NotifyDelayGetterDied(int32_t userId);
+    static bool IsFocusedApp(uint32_t tokenId);
 
 private:
     using Event = ClipPlugin::GlobalEvent;
@@ -186,7 +187,6 @@ private:
     int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
         sptr<IPasteboardDelayGetter> delayGetter = nullptr) override;
     void RemovePasteData(const AppInfo &appInfo);
-    bool IsFocusedApp(uint32_t tokenId);
     void SetPasteDataDot(PasteData &pasteData);
     std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
     int32_t GetSdkVersion(uint32_t tokenId);
