@@ -77,7 +77,7 @@ public:
     void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
     void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
     void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
-    bool IsCtrlVProcess(uint32_t callingPid);
+    bool IsCtrlVProcess(uint32_t callingPid, bool isFocused);
     void Clear();
 private:
     static constexpr uint32_t EVENT_TIME_OUT = 2000;
@@ -118,6 +118,7 @@ public:
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     void NotifyDelayGetterDied(int32_t userId);
+    bool IsFocusedApp(uint32_t tokenId);
 
 private:
     using Event = ClipPlugin::GlobalEvent;
