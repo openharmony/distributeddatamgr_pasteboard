@@ -314,9 +314,8 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
         isSecureGrant, isPrivilegeApp);
     bool isCtrlVAction = false;
-    bool isFocused = IsFocusedApp(tokenId);
     if (inputEventCallback_ != nullptr) {
-        isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid, isFocused);
+        isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid, IsFocusedApp(tokenId));
         inputEventCallback_->Clear();
     }
     auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || isCtrlVAction;

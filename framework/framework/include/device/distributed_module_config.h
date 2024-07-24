@@ -44,6 +44,8 @@ private:
     std::atomic<bool> retrying_ = false;
     static constexpr uint32_t RETRY_TIMES = 30;
     static constexpr uint32_t RETRY_INTERVAL = 1000; //milliseconds
+    static constexpr uint32_t RANDOM_MAX = 500; //milliseconds
+    static constexpr uint32_t RANDOM_MIN = 5; //milliseconds
 };
 } // namespace MiscServices
 } // namespace OHOS
