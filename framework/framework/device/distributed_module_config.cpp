@@ -23,6 +23,7 @@ namespace MiscServices {
 bool DistributedModuleConfig::IsOn()
 {
     if (GetDeviceNum() != 0) {
+        std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
         Notify();
     }
     return status_;
@@ -110,12 +111,14 @@ int32_t DistributedModuleConfig::GetEnabledStatus()
 void DistributedModuleConfig::Online(const std::string &device)
 {
     DevProfile::GetInstance().SubscribeProfileEvent(device);
+    std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
     Notify();
 }
 
 void DistributedModuleConfig::Offline(const std::string &device)
 {
     DevProfile::GetInstance().UnSubscribeProfileEvent(device);
+    std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
     Notify();
 }
 
@@ -128,6 +131,7 @@ void DistributedModuleConfig::Init()
 {
     DMAdapter::GetInstance().Register(this);
     DevProfile::GetInstance().Watch([this](bool isEnable)-> void {
+        std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
         Notify();
     });
 }
