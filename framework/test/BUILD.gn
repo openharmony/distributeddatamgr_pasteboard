@@ -45,6 +45,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
     "${pasteboard_service_path}/load/src/config.cpp",
     "src/dm_adapter_test.cpp",
+    "src/event_center_test.cpp",
     "src/paste_data_test.cpp",
     "src/pasteboard_client_test.cpp",
     "src/pasteboard_client_udmf_delay_test.cpp",
