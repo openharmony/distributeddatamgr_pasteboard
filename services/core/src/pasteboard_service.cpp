@@ -28,6 +28,8 @@
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
 #include "distributed_file_daemon_manager.h"
+#include "eventcenter/pasteboard_event.h"
+#include "eventcenter/event_center.h"
 #include "hiview_adapter.h"
 #include "iservice_registry.h"
 #include "loader.h"
@@ -171,6 +173,7 @@ void PasteboardService::OnStart()
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyData);
 
     CommonEventSubscriber();
+    PasteboardEventSubscriber();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     HiViewAdapter::StartTimerThread();
     return;
@@ -190,6 +193,7 @@ void PasteboardService::OnStop()
     }
     moduleConfig_.DeInit();
     switch_.DeInit();
+    EventCenter::GetInstance().Unsubscribe(PasteboardEvent::DISCONNECT);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, PASTEBOARD_SERVICE_ID);
 }
@@ -743,25 +747,69 @@ void PasteboardService::EstablishP2PLink()
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
+    auto networkId = currentEvent_.deviceId;
+    bool needOpen = p2pMap_.ComputeIfAbsent(networkId, [] (const auto& key) {
+        return 1;
+    });
+    if (!needOpen) {
+        return;
+    }
     DmDeviceInfo remoteDevice;
-    auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(currentEvent_.deviceId, remoteDevice);
+    auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
         return;
     }
-    DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
-    auto it = p2pMap_.find(currentEvent_.deviceId);
-    if (it != p2pMap_.end() && it->second == 1) {
+    auto plugin = GetClipPlugin();
+    if (plugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
         return;
     }
-    p2pMap_.insert_or_assign(currentEvent_.deviceId, 1);
-    std::thread thread([this, remoteDevice]() mutable {
+    auto status = DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
+    if (status != RESULT_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "open p2p error, status:%{public}d", status);
+        return;
+    }
+    status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
+    if (status != RESULT_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
+    }
+    std::thread thread([this, networkId]() mutable {
         std::this_thread::sleep_for(std::chrono::seconds(MIN_TRANMISSION_TIME));
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
-        DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
-        p2pMap_.erase(currentEvent_.deviceId);
+        CloseP2PLink(networkId);
     });
     thread.detach();
+#endif
+}
+
+void PasteboardService::CloseP2PLink(const std::string& networkId)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo remoteDevice;
+    auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
+    if (ret != RESULT_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
+        return;
+    }
+    bool needClose = p2pMap_.ComputeIfPresent(networkId, [] (const auto& key, auto & value) {
+        return false;
+    });
+    if (needClose) {
+        auto status = DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
+        if (status != RESULT_OK) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "close p2p error, status:%{public}d", status);
+        }
+    }
+    auto plugin = GetClipPlugin();
+    if (plugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
+        return;
+    }
+    auto status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::IDLE);
+    if (status != RESULT_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state idle error, status:%{public}d", status);
+    }
 #endif
 }
 
@@ -1767,7 +1815,7 @@ bool PasteboardService::CleanDistributedData(int32_t user)
 void PasteboardService::OnConfigChange(bool isOn)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConfigChange isOn: %{public}d.", isOn);
-    p2pMap_.clear();
+    p2pMap_.Clear();
     std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (!isOn) {
         clipPlugin_ = nullptr;
@@ -1850,6 +1898,20 @@ bool PasteboardService::SubscribeKeyboardEvent()
         inputEventCallback_));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor ret is: %{public}d", monitorId);
     return monitorId >= 0;
+}
+
+void PasteboardService::PasteboardEventSubscriber()
+{
+    EventCenter::GetInstance().Subscribe(PasteboardEvent::DISCONNECT,
+        [this](const OHOS::MiscServices::Event& event) {
+            auto& evt = static_cast<const PasteboardEvent&>(event);
+            auto networkId = evt.GetNetworkId();
+            if (networkId.empty()) {
+                PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
+                return;
+            }
+            CloseP2PLink(networkId);
+        });
 }
 
 void PasteboardService::CommonEventSubscriber()

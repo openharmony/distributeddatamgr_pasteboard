@@ -77,6 +77,11 @@ void ClipPlugin::Clear()
 {
 }
 
+int32_t ClipPlugin::PublishServiceState(const std::string &networkId, ServiceStatus status)
+{
+    return 0;
+}
+
 void ClipPlugin::Clear(int32_t user)
 {
     (void)user;

@@ -32,4 +32,9 @@ std::vector<DefaultClip::GlobalEvent> DefaultClip::GetTopEvents(uint32_t topN, i
 void DefaultClip::Clear(int32_t user)
 {
 }
+
+int32_t DefaultClip::PublishServiceState(const std::string &networkId, ServiceStatus status)
+{
+    return 0;
+}
 } // namespace OHOS::MiscServices
