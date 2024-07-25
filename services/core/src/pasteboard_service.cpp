@@ -172,6 +172,7 @@ void PasteboardService::OnStart()
 
     CommonEventSubscriber();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
+    EventCenter::GetInstance().Subscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE, RemotePasteboardChange());
     HiViewAdapter::StartTimerThread();
     return;
 }
@@ -191,6 +192,7 @@ void PasteboardService::OnStop()
     moduleConfig_.DeInit();
     switch_.DeInit();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
+    EventCenter::GetInstance().Unsubscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE);
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, PASTEBOARD_SERVICE_ID);
 }
 
@@ -1180,59 +1182,86 @@ bool PasteboardService::IsCopyable(uint32_t tokenId) const
     return true;
 }
 
-void PasteboardService::AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
+void PasteboardService::SubscribeObserver(PasteboardObserverType type,
+    const sptr<IPasteboardChangedObserver> &observer)
 {
-    AddObserver(observer, observerChangedMap_);
-}
-
-void PasteboardService::RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer)
-{
-    RemoveSingleObserver(observer, observerChangedMap_);
-}
-
-void PasteboardService::RemoveAllChangedObserver()
-{
-    RemoveAllObserver(observerChangedMap_);
-}
-
-void PasteboardService::AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
-{
-    if (!IsCallerUidValid()) {
+    bool isEventType = static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_EVENT);
+    int32_t userId = isEventType ? COMMON_USERID : GetCurrentAccountId();
+    if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
-    AddObserver(observer, observerEventMap_);
+    if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_LOCAL)) {
+        AddObserver(userId, observer, observerLocalChangedMap_);
+    }
+
+    if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_REMOTE)) {
+        AddObserver(userId, observer, observerRemoteChangedMap_);
+    }
+
+    if (isEventType && IsCallerUidValid()) {
+        AddObserver(userId, observer, observerEventMap_);
+    }
 }
 
-void PasteboardService::RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer)
+void PasteboardService::UnsubscribeObserver(PasteboardObserverType type,
+    const sptr<IPasteboardChangedObserver> &observer)
 {
-    if (!IsCallerUidValid()) {
+    bool isEventType = static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_EVENT);
+    int32_t userId = isEventType ? COMMON_USERID : GetCurrentAccountId();
+    if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
-    RemoveSingleObserver(observer, observerEventMap_);
+    if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_LOCAL)) {
+        RemoveSingleObserver(userId, observer, observerLocalChangedMap_);
+    }
+
+    if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_REMOTE)) {
+        RemoveSingleObserver(userId, observer, observerRemoteChangedMap_);
+    }
+
+    if (isEventType && IsCallerUidValid()) {
+        RemoveSingleObserver(userId, observer, observerEventMap_);
+    }
 }
 
-void PasteboardService::RemoveAllEventObserver()
+void PasteboardService::UnsubscribeAllObserver(PasteboardObserverType type)
 {
-    if (!IsCallerUidValid()) {
+    bool isEventType = static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_EVENT);
+    int32_t userId = isEventType ? COMMON_USERID : GetCurrentAccountId();
+    if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
-    RemoveAllObserver(observerEventMap_);
+    if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_LOCAL)) {
+        RemoveAllObserver(userId, observerLocalChangedMap_);
+    }
+
+    if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_REMOTE)) {
+        RemoveAllObserver(userId, observerRemoteChangedMap_);
+    }
+
+    if (isEventType && IsCallerUidValid()) {
+        RemoveAllObserver(userId, observerEventMap_);
+    }
 }
 
-void PasteboardService::AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap)
+void PasteboardService::AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer,
+    ObserverMap &observerMap)
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
         return;
     }
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(COMMON_USERID);
+    auto it = observerMap.find(userId);
     std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>> observers;
     if (it != observerMap.end()) {
         observers = it->second;
     } else {
         observers = std::make_shared<std::set<sptr<IPasteboardChangedObserver>, classcomp>>();
-        observerMap.insert(std::make_pair(COMMON_USERID, observers));
+        observerMap.insert(std::make_pair(userId, observers));
     }
     observers->insert(observer);
     RADAR_REPORT(DFX_OBSERVER, DFX_ADD_OBSERVER, DFX_SUCCESS);
@@ -1240,14 +1269,15 @@ void PasteboardService::AddObserver(const sptr<IPasteboardChangedObserver> &obse
         static_cast<unsigned int>(observers->size()));
 }
 
-void PasteboardService::RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap)
+void PasteboardService::RemoveSingleObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer,
+    ObserverMap &observerMap)
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
         return;
     }
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(COMMON_USERID);
+    auto it = observerMap.find(userId);
     if (it == observerMap.end()) {
         return;
     }
@@ -1260,10 +1290,10 @@ void PasteboardService::RemoveSingleObserver(const sptr<IPasteboardChangedObserv
         static_cast<unsigned int>(observers->size()), eraseNum);
 }
 
-void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
+void PasteboardService::RemoveAllObserver(int32_t userId, ObserverMap &observerMap)
 {
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(COMMON_USERID);
+    auto it = observerMap.find(userId);
     if (it == observerMap.end()) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observer empty.");
         return;
@@ -1271,7 +1301,7 @@ void PasteboardService::RemoveAllObserver(ObserverMap &observerMap)
     auto observers = it->second;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
         static_cast<unsigned int>(observers->size()));
-    auto eraseNum = observerMap.erase(COMMON_USERID);
+    auto eraseNum = observerMap.erase(userId);
     RADAR_REPORT(DFX_OBSERVER, DFX_REMOVE_ALL_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
         static_cast<unsigned int>(observers->size()), eraseNum);
@@ -1388,7 +1418,7 @@ void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventS
 {
     std::thread thread([this, bundleName, status] () {
         std::lock_guard<std::mutex> lock(observerMutex_);
-        for (auto &observers : observerChangedMap_) {
+        for (auto &observers : observerLocalChangedMap_) {
             for (const auto &observer : *(observers.second)) {
                 if (status != PasteboardEventStatus::PASTEBOARD_READ) {
                     observer->OnPasteboardChanged();
@@ -1864,6 +1894,19 @@ void PasteboardService::CommonEventSubscriber()
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
     commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo);
     EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
+}
+
+std::function<void(const OHOS::MiscServices::Event &)> PasteboardService::RemotePasteboardChange()
+{
+    return [this](const OHOS::MiscServices::Event &event) {
+        (void)event;
+        std::lock_guard<std::mutex> lock(observerMutex_);
+        for (auto &observers : observerRemoteChangedMap_) {
+            for (const auto &observer : *(observers.second)) {
+                observer->OnPasteboardChanged();
+            }
+        }
+    };
 }
 
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const

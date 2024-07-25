@@ -364,7 +364,7 @@ std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pa
     return webPasteData;
 }
 
-void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)
+void PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (callback == nullptr) {
@@ -375,57 +375,44 @@ void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> cal
     if (proxyService == nullptr) {
         return;
     }
-    proxyService->AddPasteboardChangedObserver(callback);
-    return;
+    proxyService->SubscribeObserver(type, callback);
+}
+
+void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)
+{
+    Subscribe(PasteboardObserverType::OBSERVER_LOCAL, callback);
 }
 
 void PasteboardClient::AddPasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
+    Subscribe(PasteboardObserverType::OBSERVER_EVENT, callback);
+}
+
+void PasteboardClient::Unsubscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
+{
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    if (callback == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
-        return;
-    }
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         return;
     }
-    proxyService->AddPasteboardEventObserver(callback);
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
+        proxyService->UnsubscribeAllObserver(type);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+        return;
+    }
+    proxyService->UnsubscribeObserver(type, callback);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
 void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> callback)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
-    if (callback == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
-        proxyService->RemoveAllChangedObserver();
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-        return;
-    }
-    proxyService->RemovePasteboardChangedObserver(callback);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-    return;
+    Unsubscribe(PasteboardObserverType::OBSERVER_LOCAL, callback);
 }
 
 void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
-    if (callback == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
-        proxyService->RemoveAllEventObserver();
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
-        return;
-    }
-    proxyService->RemovePasteboardEventObserver(callback);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    Unsubscribe(PasteboardObserverType::OBSERVER_EVENT, callback);
 }
 
 int32_t PasteboardClient::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)

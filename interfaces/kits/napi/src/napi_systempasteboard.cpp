@@ -285,7 +285,7 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
     napi_create_reference(env, argv[1], 1, &ref);
     observer = std::make_shared<PasteboardObserverInstance>(env, ref);
     observer->GetStub()->SetObserverWrapper(observer);
-    PasteboardClient::GetInstance()->AddPasteboardChangedObserver(observer->GetStub());
+    PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, observer->GetStub());
     observers_[ref] = observer;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi on() is end!");
     return result;
@@ -1100,7 +1100,8 @@ void SystemPasteboardNapi::DeleteObserver(const std::shared_ptr<PasteboardObserv
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "delete observer size: %{public}zu", observers.size());
     for (auto &delObserver : observers) {
-        PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(delObserver->GetStub());
+        PasteboardClient::GetInstance()->Unsubscribe(PasteboardObserverType::OBSERVER_LOCAL,
+            delObserver->GetStub());
     }
 }
 

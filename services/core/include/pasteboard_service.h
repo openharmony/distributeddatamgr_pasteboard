@@ -35,6 +35,7 @@
 #include "common/block_object.h"
 #include "common/concurrent_map.h"
 #include "distributed_module_config.h"
+#include "eventcenter/event_center.h"
 #include "pasteboard_switch.h"
 #include "event_handler.h"
 #include "iremote_object.h"
@@ -99,12 +100,11 @@ public:
     virtual bool IsRemoteData() override;
     virtual bool HasDataType(const std::string &mimeType) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
-    virtual void AddPasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
-    virtual void RemovePasteboardChangedObserver(const sptr<IPasteboardChangedObserver> &observer) override;
-    virtual void RemoveAllChangedObserver() override;
-    virtual void AddPasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
-    virtual void RemovePasteboardEventObserver(const sptr<IPasteboardChangedObserver> &observer) override;
-    virtual void RemoveAllEventObserver() override;
+    virtual void SubscribeObserver(PasteboardObserverType type,
+        const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void UnsubscribeObserver(PasteboardObserverType type,
+        const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void UnsubscribeAllObserver(PasteboardObserverType type) override;
     virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) override;
     virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
     virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
@@ -233,7 +233,8 @@ private:
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::mutex observerMutex_;
-    ObserverMap observerChangedMap_;
+    ObserverMap observerLocalChangedMap_;
+    ObserverMap observerRemoteChangedMap_;
     ObserverMap observerEventMap_;
     ClipPlugin::GlobalEvent currentEvent_;
     ClipPlugin::GlobalEvent remoteEvent_;
@@ -266,9 +267,10 @@ private:
 
     PastedSwitch switch_;
 
-    void AddObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
-    void RemoveSingleObserver(const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
-    void RemoveAllObserver(ObserverMap &observerMap);
+    void AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
+    void RemoveSingleObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer,
+        ObserverMap &observerMap);
+    void RemoveAllObserver(int32_t userId, ObserverMap &observerMap);
     inline bool IsCallerUidValid();
     bool HasLocalDataType(const std::string &mimeType);
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
@@ -276,6 +278,7 @@ private:
     bool IsAllowSendData();
     void UpdateShareOption(PasteData &pasteData);
     void CommonEventSubscriber();
+    std::function<void(const OHOS::MiscServices::Event &)> RemotePasteboardChange();
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;

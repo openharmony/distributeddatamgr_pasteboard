@@ -41,12 +41,9 @@ private:
     int32_t OnGetPasteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnHasPasteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnSetPasteData(MessageParcel &data, MessageParcel &reply);
-    int32_t OnAddPasteboardChangedObserver(MessageParcel &data, MessageParcel &reply);
-    int32_t OnRemovePasteboardChangedObserver(MessageParcel &data, MessageParcel &reply);
-    int32_t OnRemoveAllChangedObserver(MessageParcel &data, MessageParcel &reply);
-    int32_t OnAddPasteboardEventObserver(MessageParcel &data, MessageParcel &reply);
-    int32_t OnRemovePasteboardEventObserver(MessageParcel &data, MessageParcel &reply);
-    int32_t OnRemoveAllEventObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t OnSubscribeObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUnsubscribeObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUnsubscribeAllObserver(MessageParcel &data, MessageParcel &reply);
     int32_t OnIsRemoteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetDataSource(MessageParcel &data, MessageParcel &reply);
     int32_t OnHasDataType(MessageParcel &data, MessageParcel &reply);
@@ -55,7 +52,7 @@ private:
     int32_t OnGetGlobalShareOption(MessageParcel &data, MessageParcel &reply);
     int32_t OnSetAppShareOptions(MessageParcel &data, MessageParcel &reply);
     int32_t OnRemoveAppShareOptions(MessageParcel &data, MessageParcel &reply);
-    inline bool IsObserverValid(MessageParcel &data, sptr<IPasteboardChangedObserver> &callback);
+    bool IsObserverValid(MessageParcel &data, uint32_t &type, sptr<IPasteboardChangedObserver> &callback);
 
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
     static constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;
