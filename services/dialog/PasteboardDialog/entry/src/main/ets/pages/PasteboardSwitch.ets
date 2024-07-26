@@ -23,7 +23,7 @@ import mediaQuery from '@ohos.mediaquery';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 
 const TAG = '[PasteboardSwitch_Page] : ';
-const IMAGE_COUNT = 167;
+const IMAGE_COUNT: number = 167;
 let context = getContext(this) as common.UIAbilityContext;
 let localStorage = LocalStorage.getShared();
 
@@ -122,10 +122,10 @@ struct PasteboardSwitch {
       console.log(TAG + 'set value success :' + status + '; set:distributed_pasteboard_switch is 1');
     }
 
-    for (let i = 0; i < IMAGE_COUNT; i++) {
+    for (let i = 1; i <= IMAGE_COUNT; i++) {
       this.images.push({
-          src: `resources/base/media/pasteboard_${i}.png`,
-          duration: (i == IMAGE_COUNT) ? 1000 : 30
+        src: `resources/base/media/pasteboard_${i}.png`,
+        duration: (i == IMAGE_COUNT) ? 1000 : 30
       })
     }
 
