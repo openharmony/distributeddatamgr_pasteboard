@@ -511,8 +511,8 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, 
     AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = READ_PASTEBOARD_PERMISSION;
-    info.successCount = isGrant ? 1 : 0;
-    info.failCount = isGrant ? 0 : 1;
+    info.successCount = 1;
+    info.failCount = 0;
     info.type = permUsedType;
     int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
     if (result != RET_SUCCESS) {
@@ -917,7 +917,9 @@ bool PasteboardService::HasPasteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        if (GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
+        ScreenEvent screenStatus = GetCurrentScreenStatus();
+        if (screenStatus != ScreenEvent::ScreenUnlocked) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screenStatus:%{public}d.", screenStatus);
             return false;
         }
         auto evt = GetValidDistributeEvent(userId);

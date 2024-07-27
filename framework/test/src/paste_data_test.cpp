@@ -960,4 +960,31 @@ HWTEST_F(PasteDataTest, SetScreenStatus, TestSize.Level0)
     ScreenEvent ret = pasteData->GetScreenStatus();
     ASSERT_TRUE(ret == ScreenEvent::ScreenLocked);
 }
+
+/**
+* @tc.name: GetMimeTypes
+* @tc.desc: PasteData GetMimeTypes
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, GetMimeTypes, TestSize.Level0)
+{
+    PasteData data;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    std::string uriStr = FILE_URI;
+    auto uri = std::make_shared<OHOS::Uri>(uriStr);
+    auto record = builder.SetUri(uri).Build();
+    data.AddRecord(*record);
+
+    PasteDataRecord::Builder builder1(MIMETYPE_TEXT_PLAIN);
+    std::string plainText = "plain text";
+    auto text = std::make_shared<std::string>(plainText);
+    auto record1 = builder1.SetPlainText(text).Build();
+    data.AddRecord(*record1);
+
+    auto mimeType = data.GetMimeTypes();
+    EXPECT_TRUE(mimeType.at(1) == MIMETYPE_TEXT_URI);
+    EXPECT_TRUE(mimeType.at(0) == MIMETYPE_TEXT_PLAIN);
+}
 } // namespace OHOS::MiscServices
