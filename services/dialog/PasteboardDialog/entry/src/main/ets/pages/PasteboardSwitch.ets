@@ -23,6 +23,7 @@ import mediaQuery from '@ohos.mediaquery';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 
 const TAG = '[PasteboardSwitch_Page] : ';
+const IMAGE_COUNT: number = 167;
 let context = getContext(this) as common.UIAbilityContext;
 let localStorage = LocalStorage.getShared();
 
@@ -53,6 +54,7 @@ struct PasteboardSwitch {
   @State isShow: boolean = false;
   @State is2in1: boolean = false;
   @State portraitFunc: mediaQuery.MediaQueryResult | void | null = null;
+  @State images: Array<ImageFrameInfo> = [];
   private videoController: VideoController | undefined = undefined;
   private listener: mediaQuery.MediaQueryListener = mediaQuery.matchMediaSync('(dark-mode:true)');
   private extContext?: common.UIExtensionContext;
@@ -120,6 +122,13 @@ struct PasteboardSwitch {
       console.log(TAG + 'set value success :' + status + '; set:distributed_pasteboard_switch is 1');
     }
 
+    for (let i = 1; i <= IMAGE_COUNT; i++) {
+      this.images.push({
+        src: `resources/base/media/pasteboard_${i}.png`,
+        duration: (i == IMAGE_COUNT) ? 1000 : 30
+      })
+    }
+
     try {
       context.resourceManager.getStringValue($r('app.string.pasteboard_title')
         .id, (error: BusinessError, value: string) => {
@@ -182,25 +191,13 @@ struct PasteboardSwitch {
       Scroll(this.scroller) {
         Row() {
           Column() {
-            Video({ src: this.videoSrc, controller: this.videoController })
-              .autoPlay(true)
-              .loop(true)
-              .objectFit(ImageFit.Contain)
-              .muted(true)
-              .controls(false)
-              .width(this.videoWidth)
-              .height(this.videoHeight)
-              .margin({ left: 35, right: 35, bottom: 24 })
-              .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
-              .visibility(this.isShow ? Visibility.Visible : Visibility.Hidden)
-              .onPrepared(async (event) => {
-                console.info('onPrepared is ' + event.duration);
-                if (this.videoController) {
-                  this.videoController.start();
-                }
-                await this.awaitTime(100);
-                this.isShow = true;
-              })
+          ImageAnimator()
+            .images(this.images)
+            .state(AnimationStatus.Running)
+            .iterations(-1)
+            .width(this.videoWidth)
+            .height(this.videoHeight)
+            .margin({ left: 35, right: 35, bottom: 24 })
 
           Text($r('app.string.pasteboard_desc'))
             .fontSize($r('sys.float.ohos_id_text_size_body2'))
