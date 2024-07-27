@@ -481,11 +481,11 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
     PasteboardTrace tracer("PasteboardService GetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto callPid = IPCSkeleton::GetCallingPid();
+    auto appInfo = GetAppInfo(tokenId);
     bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
     bool isTestServerSetPasteData = developerMode && setPasteDataUId_ == TESE_SERVER_UID;
     if (!VerifyPermission(tokenId) && !isTestServerSetPasteData) {
-        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_AUTHORITY, DFX_FAILED, ERROR_CODE,
-            PERMISSION_VERIFICATION_ERROR);
+        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_AUTHORITY, DFX_SUCCESS, GET_DATA_APP, appInfo.bundleName);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, callingPid is %{public}d", callPid);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
@@ -525,7 +525,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
 {
     CalculateTimeConsuming::SetBeginTime();
     auto appInfo = GetAppInfo(tokenId);
-    bool result = false;
+    int32_t result = static_cast<int32_t>(PasteboardError::E_OK);
     auto event = GetValidDistributeEvent(appInfo.userId);
     if (!event.first || GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
         result = GetLocalData(appInfo, data);
@@ -542,7 +542,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     }
     GetPasteDataDot(data, appInfo.bundleName);
     GrantUriPermission(data, appInfo.bundleName);
-    return result ? static_cast<int32_t>(PasteboardError::E_OK) : static_cast<int32_t>(PasteboardError::E_ERROR);
+    return result;
 }
 
 PasteboardService::RemoteDataTaskManager::DataTask PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(const
@@ -608,12 +608,12 @@ void PasteboardService::RemoteDataTaskManager::ClearRemoteDataTask(const Event &
     dataTasks_.erase(key);
 }
 
-bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime)
+int32_t PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime)
 {
     syncTime = -1;
     auto [task, isPasting] = taskMgr_.GetRemoteDataTask(event);
     if (task == nullptr) {
-        return false;
+        return static_cast<int32_t>(PasteboardError::E_REMOTE_TASK);
     }
 
     if (isPasting) {
@@ -621,9 +621,9 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
         if (value != nullptr && value->data != nullptr) {
             syncTime = value->syncTime;
             data = *(value->data);
-            return true;
+            return static_cast<int32_t>(PasteboardError::E_OK);
         }
-        return false;
+        return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);
     }
 
     auto curEvent = GetValidDistributeEvent(userId);
@@ -633,13 +633,15 @@ bool PasteboardService::GetRemoteData(int32_t userId, const Event &event, PasteD
             data = *it.second;
         }
         taskMgr_.ClearRemoteDataTask(event);
-        return it.first;
+        int32_t res = it.first ? static_cast<int32_t>(PasteboardError::E_OK) :
+            static_cast<int32_t>(PasteboardError::E_INVALID_EVENT);
+        return res;
     }
 
     return GetRemotePasteData(userId, event, data, syncTime);
 }
 
-bool PasteboardService::GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime)
+int32_t PasteboardService::GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime)
 {
     auto block = std::make_shared<BlockObject<std::shared_ptr<PasteDateTime>>>(GET_REMOTE_DATA_WAIT_TIME);
     std::thread thread([this, event, block, userId]() mutable {
@@ -666,23 +668,23 @@ bool PasteboardService::GetRemotePasteData(int32_t userId, const Event &event, P
     if (value != nullptr && value->data != nullptr) {
         syncTime = value->syncTime;
         data = std::move(*(value->data));
-        return true;
+        return static_cast<int32_t>(PasteboardError::E_OK);
     }
-    return false;
+    return static_cast<int32_t>(PasteboardError::E_GET_REMOTE_DATA);
 }
 
-bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
+int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
 {
     auto it = clips_.Find(appInfo.userId);
     auto tempTime = copyTime_.Find(appInfo.userId);
     if (!it.first || !tempTime.first) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no data.");
-        return false;
+        return static_cast<int32_t>(PasteboardError::E_NO_DATA);
     }
     auto ret = IsDataVaild(*(it.second), appInfo.tokenId);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invaild.");
-        return false;
+        return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }
     data = *(it.second);
     auto originBundleName = it.second->GetBundleName();
@@ -697,7 +699,7 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     auto result = copyTime_.Find(appInfo.userId);
     if (!result.first) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "userId not found");
-        return false;
+        return static_cast<int32_t>(PasteboardError::E_INVALID_USERID);
     }
     auto curTime = result.second;
     if (tempTime.second == curTime) {
@@ -715,7 +717,7 @@ bool PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteData success.");
     SetLocalPasteFlag(data.IsRemote(), appInfo.tokenId, data);
-    return true;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &data)
@@ -942,7 +944,7 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
         if (event.first) {
             PasteData data;
             int32_t syncTime = 0;
-            if (!GetRemoteData(userId, event.second, data, syncTime)) {
+            if (GetRemoteData(userId, event.second, data, syncTime) != static_cast<int32_t>(PasteboardError::E_OK)) {
                 return false;
             }
         }
@@ -1058,7 +1060,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsCopyable(tokenId)) {
-        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_AUTHORITY, DFX_FAILED, ERROR_CODE, PROHIBIT_COPY);
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_AUTHORITY, DFX_SUCCESS);
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
     }
     if (setting_.exchange(true)) {
@@ -1700,7 +1702,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
-        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_FAILED);
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_SUCCESS);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return false;
     }

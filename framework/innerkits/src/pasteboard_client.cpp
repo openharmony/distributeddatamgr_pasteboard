@@ -38,7 +38,7 @@ namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
 constexpr int32_t LOADSA_TIMEOUT_MS = 10000;
 const std::map<int32_t, int32_t> ERROR_CODE_COVERT_TABLE = {
-    {static_cast<int32_t>(PasteboardError::E_INVALID_VALUE), RadarReporter::INVALID_RETURN_VALUE_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_INVALID_VALUE), RadarReporter::INVALID_DATA_ERROR},
     {static_cast<int32_t>(PasteboardError::E_INVALID_OPTION), RadarReporter::OTHER_ERROR},
     {static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR), RadarReporter::SERIALIZATION_ERROR},
     {static_cast<int32_t>(PasteboardError::E_READ_PARCEL_ERROR), RadarReporter::DESERIALIZATION_ERROR},
@@ -56,6 +56,11 @@ const std::map<int32_t, int32_t> ERROR_CODE_COVERT_TABLE = {
     {static_cast<int32_t>(PasteboardError::E_BUTT), RadarReporter::OTHER_ERROR},
     {static_cast<int32_t>(PasteboardError::E_REMOTE), RadarReporter::REMOTE_EXCEPTION},
     {static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION), RadarReporter::OTHER_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_NO_DATA), RadarReporter::NO_DATA_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_INVALID_USERID), RadarReporter::INVALID_USERID_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_REMOTE_TASK), RadarReporter::REMOTE_TASK_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_INVALID_EVENT), RadarReporter::INVALID_EVENT_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_GET_REMOTE_DATA), RadarReporter::GET_REMOTE_DATA_ERROR},
     {ERR_INVALID_VALUE, RadarReporter::INVALID_RETURN_VALUE_ERROR},
     {ERR_INVALID_OPERATION, RadarReporter::INVALID_RETURN_VALUE_ERROR},
 };

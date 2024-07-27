@@ -48,6 +48,11 @@ enum class PasteboardError : int32_t {
     E_REMOTE,
     E_INVALID_OPERATION,
     E_DP_LOAD_SERVICE_ERR,
+    E_NO_DATA,
+    E_INVALID_USERID,
+    E_REMOTE_TASK,
+    E_INVALID_EVENT,
+    E_GET_REMOTE_DATA,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -70,6 +75,11 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::E_BUTT, "E_BUTT"},
     {PasteboardError::E_REMOTE, "E_REMOTE"},
     {PasteboardError::E_INVALID_OPERATION, "E_INVALID_OPERATION"},
+    {PasteboardError::E_NO_DATA, "E_NO_DATA"},
+    {PasteboardError::E_INVALID_USERID, "E_INVALID_USERID"},
+    {PasteboardError::E_REMOTE_TASK, "E_REMOTE_TASK"},
+    {PasteboardError::E_INVALID_EVENT, "E_INVALID_EVENT"},
+    {PasteboardError::E_GET_REMOTE_DATA, "E_GET_REMOTE_DATA"},
 };
 
 } // namespace MiscServices
