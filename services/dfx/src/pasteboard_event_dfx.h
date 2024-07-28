@@ -122,6 +122,8 @@ enum ErrorCode : std::int32_t {
     REMOTE_TASK_ERROR,
     INVALID_EVENT_ERROR,
     GET_REMOTE_DATA_ERROR,
+    SEND_BROADCAST_ERROR,
+    SYNC_DATA_ERROR,
 };
 
 static constexpr char DOMAIN[] = "DISTDATAMGR";
