@@ -45,6 +45,7 @@ ohos_shared_library("pasteboard_framework") {
     "device/pasteboard_static_capability.cpp",
     "eventcenter/event.cpp",
     "eventcenter/event_center.cpp",
+    "eventcenter/pasteboard_event.cpp",
     "serializable/serializable.cpp",
   ]
   cflags = [ "-Wno-multichar" ]

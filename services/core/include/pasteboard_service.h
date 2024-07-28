@@ -207,6 +207,7 @@ private:
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void EstablishP2PLink();
+    void CloseP2PLink(const std::string& networkId);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
@@ -262,7 +263,7 @@ private:
         { MIMETYPE_PIXELMAP, PIXELMAP_INDEX }
     };
 
-    std::map<std::string, int> p2pMap_ = {};
+    ConcurrentMap<std::string, int> p2pMap_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
 
     PastedSwitch switch_;
@@ -277,6 +278,7 @@ private:
     bool SubscribeKeyboardEvent();
     bool IsAllowSendData();
     void UpdateShareOption(PasteData &pasteData);
+    void PasteboardEventSubscriber();
     void CommonEventSubscriber();
     std::function<void(const OHOS::MiscServices::Event &)> RemotePasteboardChange();
     std::shared_ptr<InputEventCallback> inputEventCallback_;

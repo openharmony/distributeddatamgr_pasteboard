@@ -26,6 +26,7 @@ namespace OHOS::MiscServices {
 class API_EXPORT ClipPlugin {
 public:
     enum EventStatus : uint32_t { EVT_UNKNOWN, EVT_INVALID, EVT_NORMAL, EVT_BUTT };
+    enum ServiceStatus : uint32_t { UNKNOWN = 0, IDLE, CONNECT_SUCC };
 
     struct GlobalEvent final : public DistributedData::Serializable {
         uint8_t version = 0;
@@ -60,6 +61,7 @@ public:
     virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN);
     virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN, int32_t user);
     virtual void Clear();
+    virtual int32_t PublishServiceState(const std::string &networkId, ServiceStatus status);
     virtual void Clear(int32_t user);
 
 private:

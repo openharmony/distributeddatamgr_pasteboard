@@ -23,6 +23,7 @@ public:
     std::pair<int32_t, int32_t> GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data) override;
     std::vector<GlobalEvent> GetTopEvents(uint32_t topN, int32_t user) override;
     void Clear(int32_t user) override;
+    int32_t PublishServiceState(const std::string &networkId, ServiceStatus status) override;
 };
 } // namespace OHOS::MiscServices
 #endif // OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_CLIPS_DEFAULT_CLIPS_H
