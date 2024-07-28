@@ -1072,7 +1072,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     if (appInfo.userId == ERROR_USERID) {
         setting_.store(false);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
-        return static_cast<int32_t>(PasteboardError::E_ERROR);
+        return static_cast<int32_t>(PasteboardError::E_INVALID_USERID);
     }
     setPasteDataUId_ = IPCSkeleton::GetCallingUid();
     RemovePasteData(appInfo);
