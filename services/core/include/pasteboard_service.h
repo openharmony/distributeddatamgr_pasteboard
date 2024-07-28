@@ -194,9 +194,9 @@ private:
     int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime);
 
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
-    bool GetLocalData(const AppInfo &appInfo, PasteData &data);
-    bool GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
-    bool GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
+    int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
+    int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
+    int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     void GrantUriPermission(PasteData &data, const std::string &targetBundleName);

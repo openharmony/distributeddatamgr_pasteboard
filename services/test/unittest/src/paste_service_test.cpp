@@ -1197,7 +1197,7 @@ HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
     PasteboardClient::GetInstance()->Clear();
     PasteData data;
     auto ret = PasteboardClient::GetInstance()->GetPasteData(data);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_ERROR));
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_NO_DATA));
 }
 
 /**
