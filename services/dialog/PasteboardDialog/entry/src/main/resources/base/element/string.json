@@ -30,7 +30,7 @@
     },
     {
       "name": "pasteboard_desc",
-      "value": "Copy on one device, paste on another.\n\nDevices need to be close to each other, have Cross-device clipboard, Wi-Fi, and Bluetooth enabled, and be using the same HUAWEI ID."
+      "value": "Copy on one device, paste on another.\n\nDevices need to be close to each other, have Cross-device clipboard, WLAN, and Bluetooth enabled, and be using the same HUAWEI ID."
     },
     {
       "name": "multi_device_collaboration",
