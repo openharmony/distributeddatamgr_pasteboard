@@ -325,6 +325,20 @@ public:
      */
     void LoadSystemAbilityFail();
 
+    /**
+    * PasteStart
+    * @descrition Utilized to notify pasteboard service while reading PasteData, in this case, the service will help to preserve the context and resources
+    * @return void.
+    */
+    void PasteStart();
+
+    /**
+     * PasteComplete
+     * @descrition Invoked to notify pasteboard service the utilization of PasteData has completed and occupied resources can be released for further usage
+     * @return void.
+     */
+    void PasteComplete(std::string deviceId);
+
 private:
     sptr<IPasteboardService> GetPasteboardService();
     static void RetainUri(PasteData &pasteData);

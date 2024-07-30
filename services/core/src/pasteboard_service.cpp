@@ -57,6 +57,7 @@
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
+#include "ffrt_utils.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -774,10 +775,12 @@ void PasteboardService::EstablishP2PLink()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "open p2p error, status:%{public}d", status);
         return;
     }
+    usedNum_ ++;
     status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
     }
+
     std::thread thread([this, networkId]() mutable {
         std::this_thread::sleep_for(std::chrono::seconds(MIN_TRANMISSION_TIME));
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
@@ -815,6 +818,23 @@ void PasteboardService::CloseP2PLink(const std::string& networkId)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state idle error, status:%{public}d", status);
     }
 #endif
+}
+
+void PasteboardService::PasteStart()
+{
+    stopFlag_.store(true);
+}
+
+void PasteboardService::PasteComplete(std::string deviceId)
+{
+    if (usedNum_ != 1) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "session is using");
+        std::lock_guard<decltype(sessionMutex_)> lg(sessionMutex_);
+        usedNum_ --;
+        return;
+    }
+    CloseP2PLink(deviceId);
+    usedNum_ = 0;
 }
 
 void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)

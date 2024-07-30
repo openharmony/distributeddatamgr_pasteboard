@@ -420,5 +420,40 @@ int32_t PasteboardServiceProxy::RemoveAppShareOptions()
     }
     return reply.ReadInt32();
 }
+
+int32_t PasteboardServiceProxy::CopyFileStart()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PASTE_START, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+}
+
+int32_t PasteboardServiceProxy::CopyFileComplete(std::string deviceId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    if (!data.WriteString(deviceId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PASTE_COMPLETE, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+}
+
 } // namespace MiscServices
 } // namespace OHOS

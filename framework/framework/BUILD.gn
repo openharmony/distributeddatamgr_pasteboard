@@ -47,6 +47,7 @@ ohos_shared_library("pasteboard_framework") {
     "eventcenter/event_center.cpp",
     "eventcenter/pasteboard_event.cpp",
     "serializable/serializable.cpp",
+    "ffrt/ffrt_utils.cpp",
   ]
   cflags = [ "-Wno-multichar" ]
 
@@ -69,6 +70,7 @@ ohos_shared_library("pasteboard_framework") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "ffrt:libffrt",
   ]
 
   if (pasteboard_device_info_manager_part_enabled) {

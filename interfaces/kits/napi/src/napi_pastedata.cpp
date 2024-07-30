@@ -1039,5 +1039,25 @@ bool PasteDataNapi::IsPasteData(napi_env env, napi_value in)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "isPasteData is [%{public}d]", isPasteData);
     return isPasteData;
 }
+
+napi_status PasteDataNapi::PasteStart(napi_env env, napi_callback_info info)
+{
+    PasteboardClient::GetInstance()->CopyFileStart();
+    return nullptr;
+}
+
+napi_status PasteDataNapi::PasteComplete(napi_env env, napi_callback_info info)
+{
+    napi_value thisValue = nullptr;
+    PasteDataNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
+        return nullptr;
+    }
+    std::string deviceId = obj->value->GetDeviceId();
+    PasteboardClient::GetInstance()->CopyFileCmplete(deviceId);
+    return nullptr;
+}
 } // namespace MiscServicesNapi
 } // namespace OHOS

@@ -577,6 +577,24 @@ void PasteboardClient::OnRemoteSaDied(const wptr<IRemoteObject> &remote)
     pasteboardServiceProxy_ = nullptr;
 }
 
+void PasteboardClient::PasteStart()
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return false;
+    }
+    proxyService->PasteStart();
+}
+
+void PasteboardClient::PasteComplete(std::string deviceId)
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return false;
+    }
+    proxyService->PasteComplete(deviceId);
+}
+
 PasteboardSaDeathRecipient::PasteboardSaDeathRecipient()
 {
 }

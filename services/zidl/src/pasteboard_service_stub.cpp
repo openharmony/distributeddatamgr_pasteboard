@@ -388,5 +388,16 @@ PasteboardServiceStub::~PasteboardServiceStub()
 {
     memberFuncMap_.clear();
 }
+
+int32_t PasteboardServiceStub::OnPasteStart(MessageParcel &data, MessageParcel &reply)
+{
+    PasteStart();
+}
+
+int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParcel &reply)
+{
+    std::string deviceId = data.ReadString();
+    PasteComplete(deviceId);
+}
 } // namespace MiscServices
 } // namespace OHOS

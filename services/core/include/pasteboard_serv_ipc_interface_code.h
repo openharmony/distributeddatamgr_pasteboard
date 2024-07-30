@@ -36,6 +36,8 @@ enum PasteboardServiceInterfaceCode {
     GET_GLOBAL_SHARE_OPTION = 12,
     SET_APP_SHARE_OPTIONS = 13,
     REMOVE_APP_SHARE_OPTIONS = 14,
+    PASTE_START = 15,
+    PASTE_COMPLETE = 16,
 };
 
 enum PasteboardObserverInterfaceCode {

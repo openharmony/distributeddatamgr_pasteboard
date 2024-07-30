@@ -125,6 +125,7 @@ ohos_shared_library("pasteboard_service") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "time_service:time_client",
+    "ffrt:libffrt",
   ]
   if (scene_board_enabled) {
     external_deps += [ "window_manager:libwm_lite" ]
