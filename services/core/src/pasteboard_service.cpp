@@ -780,13 +780,16 @@ void PasteboardService::EstablishP2PLink()
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
     }
-
-    std::thread thread([this, networkId]() mutable {
-        std::this_thread::sleep_for(std::chrono::seconds(MIN_TRANMISSION_TIME));
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
-        CloseP2PLink(networkId);
+    FFRTUtils::SubmitTask([this, networkId] {
+        auto start = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+        while ((
+            static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) - start)
+            < MIN_TRANMISSION_TIME && !stopFlag_.load()) {
+        }
+        if (!stopFlag_.load()) {
+            PasteComplete();
+        }
     });
-    thread.detach();
 #endif
 }
 
@@ -829,7 +832,6 @@ void PasteboardService::PasteComplete(std::string deviceId)
 {
     if (usedNum_ != 1) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "session is using");
-        std::lock_guard<decltype(sessionMutex_)> lg(sessionMutex_);
         usedNum_ --;
         return;
     }
