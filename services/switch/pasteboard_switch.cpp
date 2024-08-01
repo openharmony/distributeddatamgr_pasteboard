@@ -25,8 +25,8 @@ namespace OHOS::MiscServices {
 const constexpr char* DISTRIBUTED_PASTEDBOARD_SWITCH = "distributed_pasteboard_switch";
 PastedSwitch::PastedSwitch()
 {
-    switchObserver_ = std::make_shared<PastedSwitchObserver>(
-        [this](const PastedSwitchObserver::ChangeInfo &changeInfo)-> void {
+    switchObserver_ = new (std::nothrow) PastedSwitchObserver(
+        [this]()-> void {
             SetSwitch();
         }
     );
@@ -53,10 +53,10 @@ void PastedSwitch::DeInit()
     DataShareDelegate::GetInstance().UnregisterObserver(DISTRIBUTED_PASTEDBOARD_SWITCH, switchObserver_);
 }
 
-void PastedSwitchObserver::OnChange(const ChangeInfo &changeInfo)
+void PastedSwitchObserver::OnChange()
 {
     if (func_ != nullptr) {
-        func_(changeInfo);
+        func_();
     }
 }
 } // namespace OHOS::MiscServices

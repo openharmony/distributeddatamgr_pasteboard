@@ -26,8 +26,8 @@ using ChangeInfo = DataShare::DataShareObserver::ChangeInfo;
 class DataShareDelegate {
 public:
     static DataShareDelegate& GetInstance();
-    int32_t RegisterObserver(const std::string& key, std::shared_ptr<DataShare::DataShareObserver> observer);
-    int32_t UnregisterObserver(const std::string& key, std::shared_ptr<DataShare::DataShareObserver> observer);
+    int32_t RegisterObserver(const std::string& key, sptr<AAFwk::IDataAbilityObserver> observer);
+    int32_t UnregisterObserver(const std::string& key, sptr<AAFwk::IDataAbilityObserver> observer);
     int32_t GetValue(const std::string& key, std::string& value);
 
 private:
