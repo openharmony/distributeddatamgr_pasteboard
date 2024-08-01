@@ -121,29 +121,27 @@ Uri DataShareDelegate::MakeUri(const std::string& key)
     return uri;
 }
 
-int32_t DataShareDelegate::RegisterObserver(const std::string& key,
-    std::shared_ptr<DataShare::DataShareObserver> observer)
+int32_t DataShareDelegate::RegisterObserver(const std::string& key, sptr<AAFwk::IDataAbilityObserver> observer)
 {
     auto uri = MakeUri(key);
     auto helper = CreateDataShareHelper();
     if (helper == nullptr) {
         return ERR_NO_INIT;
     }
-    helper->RegisterObserverExt(uri, observer, true);
+    helper->RegisterObserver(uri, observer);
     ReleaseDataShareHelper(helper);
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "register observer %{public}s", uri.ToString().c_str());
     return ERR_OK;
 }
 
-int32_t DataShareDelegate::UnregisterObserver(const std::string& key,
-    std::shared_ptr<DataShare::DataShareObserver> observer)
+int32_t DataShareDelegate::UnregisterObserver(const std::string& key, sptr<AAFwk::IDataAbilityObserver> observer)
 {
     auto uri = MakeUri(key);
     auto helper = CreateDataShareHelper();
     if (helper == nullptr) {
         return ERR_NO_INIT;
     }
-    helper->UnregisterObserverExt(uri, observer);
+    helper->UnregisterObserver(uri, observer);
     ReleaseDataShareHelper(helper);
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "unregister observer %{public}s", uri.ToString().c_str());
     return ERR_OK;
