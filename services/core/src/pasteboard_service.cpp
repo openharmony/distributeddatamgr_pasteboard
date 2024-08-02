@@ -541,6 +541,8 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}zu, isremote=%{public}d", fileSize,
+        static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
         EstablishP2PLink();
     }
@@ -750,7 +752,7 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
 void PasteboardService::EstablishP2PLink()
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
     auto networkId = currentEvent_.deviceId;
     bool needOpen = p2pMap_.ComputeIfAbsent(networkId, [] (const auto& key) {
         return 1;
@@ -780,7 +782,7 @@ void PasteboardService::EstablishP2PLink()
     }
     std::thread thread([this, networkId]() mutable {
         std::this_thread::sleep_for(std::chrono::seconds(MIN_TRANMISSION_TIME));
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
         CloseP2PLink(networkId);
     });
     thread.detach();
@@ -1804,6 +1806,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         }
         Uri uri = *(item->GetOrginUri());
         if (!IsBundleOwnUriPermission(data.GetOrginAuthority(), uri) && !item->HasGrantUriPermission()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "orginuri=%{public}s, no permission", uri.ToString().c_str());
             continue;
         }
         HmdfsUriInfo hui;
@@ -1815,7 +1818,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         item->SetConvertUri(hui.uriStr);
         fileSize += hui.fileSize;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
     data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
 }
 
