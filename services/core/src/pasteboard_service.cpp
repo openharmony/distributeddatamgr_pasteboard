@@ -752,8 +752,8 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
 void PasteboardService::EstablishP2PLink()
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
     auto networkId = currentEvent_.deviceId;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink deviceId:%{public}.6s", networkId.c_str);
     bool needOpen = p2pMap_.ComputeIfAbsent(networkId, [] (const auto& key) {
         return 1;
     });
@@ -782,7 +782,7 @@ void PasteboardService::EstablishP2PLink()
     }
     std::thread thread([this, networkId]() mutable {
         std::this_thread::sleep_for(std::chrono::seconds(MIN_TRANMISSION_TIME));
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink deviceId:%{public}.6s", networkId.c_str);
         CloseP2PLink(networkId);
     });
     thread.detach();
