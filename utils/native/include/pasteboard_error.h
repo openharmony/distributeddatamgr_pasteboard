@@ -53,6 +53,7 @@ enum class PasteboardError : int32_t {
     E_REMOTE_TASK,
     E_INVALID_EVENT,
     E_GET_REMOTE_DATA,
+    E_URI_GRANT_ERROR,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -80,6 +81,7 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::E_REMOTE_TASK, "E_REMOTE_TASK"},
     {PasteboardError::E_INVALID_EVENT, "E_INVALID_EVENT"},
     {PasteboardError::E_GET_REMOTE_DATA, "E_GET_REMOTE_DATA"},
+    {PasteboardError::E_URI_GRANT_ERROR, "E_URI_GRANT_ERROR"},
 };
 
 } // namespace MiscServices
