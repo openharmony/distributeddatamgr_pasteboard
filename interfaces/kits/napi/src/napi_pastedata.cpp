@@ -1042,7 +1042,7 @@ bool PasteDataNapi::IsPasteData(napi_env env, napi_value in)
 
 napi_status PasteDataNapi::PasteStart(napi_env env, napi_callback_info info)
 {
-    PasteboardClient::GetInstance()->CopyFileStart();
+    PasteboardClient::GetInstance()->PasteStart();
     return nullptr;
 }
 
@@ -1056,7 +1056,7 @@ napi_status PasteDataNapi::PasteComplete(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::string deviceId = obj->value->GetDeviceId();
-    PasteboardClient::GetInstance()->CopyFileCmplete(deviceId);
+    PasteboardClient::GetInstance()->PasteComplete(deviceId);
     return nullptr;
 }
 } // namespace MiscServicesNapi

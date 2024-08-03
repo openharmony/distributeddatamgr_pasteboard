@@ -421,7 +421,7 @@ int32_t PasteboardServiceProxy::RemoveAppShareOptions()
     return reply.ReadInt32();
 }
 
-int32_t PasteboardServiceProxy::CopyFileStart()
+int32_t PasteboardServiceProxy::PasteStart()
 {
     MessageParcel data;
     MessageParcel reply;
@@ -436,7 +436,7 @@ int32_t PasteboardServiceProxy::CopyFileStart()
     }
 }
 
-int32_t PasteboardServiceProxy::CopyFileComplete(std::string deviceId)
+int32_t PasteboardServiceProxy::PasteComplete(std::string deviceId)
 {
     MessageParcel data;
     MessageParcel reply;

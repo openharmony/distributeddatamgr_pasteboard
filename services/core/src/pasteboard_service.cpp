@@ -57,7 +57,6 @@
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
-#include "ffrt_utils.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -226,7 +225,7 @@ void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::s
 PasteboardService::DelayGetterDeathRecipient::DelayGetterDeathRecipient(int32_t userId, PasteboardService &service)
     : userId_(userId), service_(service)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Construct Delay Getter Death Recipient");
+    PASTEBOARD_HILOGI(PASTEB OARD_MODULE_SERVICE, "Construct Delay Getter Death Recipient");
 }
 
 void PasteboardService::DelayGetterDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
@@ -753,8 +752,11 @@ void PasteboardService::EstablishP2PLink()
 #ifdef PB_DEVICE_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
     auto networkId = currentEvent_.deviceId;
-    bool needOpen = p2pMap_.ComputeIfAbsent(networkId, [] (const auto& key) {
-        return 1;
+    auto bundles = p2pMap_.Find(networkId).second;
+    auto callPid = IPCSkeleton::GetCallingPid();
+    bundles.emplace_back(callPid);
+    bool needOpen = p2pMap_.ComputeIfAbsent(networkId, [&bundles] (const auto& key) {
+        return bundles;
     });
     if (!needOpen) {
         return;
@@ -775,25 +777,24 @@ void PasteboardService::EstablishP2PLink()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "open p2p error, status:%{public}d", status);
         return;
     }
-    usedNum_ ++;
     status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
     }
-    FFRTUtils::SubmitTask([this, networkId] {
-        auto start = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-        while ((
-            static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) - start)
-            < MIN_TRANMISSION_TIME && !stopFlag_.load()) {
-        }
-        if (!stopFlag_.load()) {
-            PasteComplete();
-        }
-    });
+    FFRTTask task = [this, networkId, callPid] {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
+        PasteComplete(networkId);
+    };
+    if (ffrtTimer_ != nullptr) {
+        ffrtTimer_->SetTimer(TIMER_ID_USER_ACTIVITY_OFF, task, MIN_TRANMISSION_TIME);
+    } else {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "%{public}s: SetTimer(%{public}s) failed, timer is null",
+            __func__, std::to_string(delayTime).c_str());
+    }
 #endif
 }
 
-void PasteboardService::CloseP2PLink(const std::string& networkId)
+void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo remoteDevice;
@@ -802,7 +803,21 @@ void PasteboardService::CloseP2PLink(const std::string& networkId)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
         return;
     }
-    bool needClose = p2pMap_.ComputeIfPresent(networkId, [] (const auto& key, auto & value) {
+    // 查看当前组网设备还是否有应用在用通道
+    auto it = p2pMap_.Find(networkId);
+    auto bundles = it.second;
+    for (auto iter = bundles.begin(); iter != bundles.end();) {
+        if (iter == pid) {
+            iter = bundles.erase(iter);
+        } else {
+            iter ++;
+        }
+    }
+    bundles.Erase(iter);
+    bool needClose = p2pMap_.ComputeIfPresent(networkId, [&bundles] (const auto& key, auto & value) {
+        if (bundles.empty()) {
+            return true;
+        }
         return false;
     });
     if (needClose) {
@@ -825,18 +840,29 @@ void PasteboardService::CloseP2PLink(const std::string& networkId)
 
 void PasteboardService::PasteStart()
 {
-    stopFlag_.store(true);
+    // 停止定时任务
+    if (ffrtTimer_ != nullptr) {
+        ffrtTimer_->CancelTimer(TIMER_ID_USER_ACTIVITY_OFF);
+    }
 }
 
 void PasteboardService::PasteComplete(std::string deviceId)
 {
-    if (usedNum_ != 1) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "session is using");
-        usedNum_ --;
-        return;
-    }
-    CloseP2PLink(deviceId);
-    usedNum_ = 0;
+    // 应用主动关通道
+    auto pid = IPCSkeleton::GetCallingPid();
+    CloseP2PLink(deviceId, pid);
+}
+
+int32_t PasteboardService::OnAppExit(pid_t uid, pid_t pid, uint32_t tokenId, const std::string &bundleName)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
+        "AppExit uid=%{public}d, pid=%{public}d, tokenId=0x%{public}x, bundleName=%{public}s", uid, pid, tokenId,
+        bundleName.c_str());
+    p2pMap_.ForEachCopies([](auto &key, auto &value) {
+        CloseP2PLink(key, static_cast<int32_t>(pid));
+        return false;
+    });
+    return E_OK;
 }
 
 void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)

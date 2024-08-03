@@ -48,6 +48,7 @@
 #include "system_ability.h"
 #include "privacy_kit.h"
 #include "input_manager.h"
+#include "ffrt_utils.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -113,7 +114,7 @@ public:
     virtual void OnStart() override;
     virtual void OnStop() override;
     virtual void PasteStart();
-    virtual void PasteComplete(std::string deviceId);
+    virtual void PasteComplete();
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
@@ -121,6 +122,7 @@ public:
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     void NotifyDelayGetterDied(int32_t userId);
     bool IsFocusedApp(uint32_t tokenId);
+    int32_t OnAppExit(pid_t uid, pid_t pid, uint32_t tokenId, const std::string &bundleName) override;
 
 private:
     using Event = ClipPlugin::GlobalEvent;
@@ -209,7 +211,7 @@ private:
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void EstablishP2PLink();
-    void CloseP2PLink(const std::string& networkId);
+    void CloseP2PLink(const std::string& networkId, uint32_t pid = 0);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
@@ -265,11 +267,9 @@ private:
         { MIMETYPE_PIXELMAP, PIXELMAP_INDEX }
     };
 
-    ConcurrentMap<std::string, int> p2pMap_;
-    std::atomic<uint16_t> usedNum_ = 0;
-    std::atomic<bool> stopFlag_ = false;
+    ConcurrentMap<std::string, std::vector<std::string>> p2pMap_;
+    std::shared_ptr<FFRTTimer> ffrtTimer_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
-
     PastedSwitch switch_;
 
     void AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
