@@ -503,6 +503,9 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
 
 void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant)
 {
+    if (AccessTokenKit::GetTokenTypeFlag(tokenId) != TOKEN_HAP) {
+        return;
+    }
     bool isGrant = isReadGrant || isSecureGrant;
     if (!isGrant) {
         return;
