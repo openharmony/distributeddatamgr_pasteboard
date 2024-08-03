@@ -507,7 +507,7 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, 
         return;
     }
     bool isGrant = isReadGrant || isSecureGrant;
-    if (!isGrant) {
+    if (!isGrant || AccessTokenKit::GetTokenTypeFlag(tokenId) != TOKEN_HAP) {
         return;
     }
     auto permUsedType = PermissionUsedType::SECURITY_COMPONENT_TYPE;
