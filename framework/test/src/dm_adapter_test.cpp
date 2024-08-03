@@ -59,7 +59,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid, TestSize.Level0)
     auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
     ASSERT_FALSE(fromDevice.empty());
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
-    ASSERT_TRUE(udid.empty());
+    ASSERT_FALSE(udid.empty());
 }
 
 /**

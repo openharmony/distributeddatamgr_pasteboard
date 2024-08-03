@@ -503,20 +503,20 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
 
 void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant)
 {
+    if (AccessTokenKit::GetTokenTypeFlag(tokenId) != TOKEN_HAP) {
+        return;
+    }
     bool isGrant = isReadGrant || isSecureGrant;
     if (!isGrant) {
         return;
     }
-    auto permUsedType = PermissionUsedType::SECURITY_COMPONENT_TYPE;
-    if (!isSecureGrant) {
-        permUsedType = static_cast<PermissionUsedType>(AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId,
-            READ_PASTEBOARD_PERMISSION));
-    }
+    auto permUsedType = static_cast<PermissionUsedType>(AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId,
+        isSecureGrant ? SECURE_PASTE_PERMISSION : READ_PASTEBOARD_PERMISSION));
     AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = READ_PASTEBOARD_PERMISSION;
-    info.successCount = isGrant ? 1 : 0;
-    info.failCount = isGrant ? 0 : 1;
+    info.successCount = 1;
+    info.failCount = 0;
     info.type = permUsedType;
     int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
     if (result != RET_SUCCESS) {
@@ -541,6 +541,8 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}zu, isremote=%{public}d", fileSize,
+        static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
         EstablishP2PLink();
     }
@@ -750,7 +752,6 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
 void PasteboardService::EstablishP2PLink()
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink");
     auto networkId = currentEvent_.deviceId;
     auto bundles = p2pMap_.Find(networkId).second;
     auto callPid = IPCSkeleton::GetCallingPid();
@@ -1015,7 +1016,9 @@ bool PasteboardService::HasPasteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        if (GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
+        ScreenEvent screenStatus = GetCurrentScreenStatus();
+        if (screenStatus != ScreenEvent::ScreenUnlocked) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screenStatus:%{public}d.", screenStatus);
             return false;
         }
         auto evt = GetValidDistributeEvent(userId);
@@ -1850,6 +1853,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         }
         Uri uri = *(item->GetOrginUri());
         if (!IsBundleOwnUriPermission(data.GetOrginAuthority(), uri) && !item->HasGrantUriPermission()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "orginuri=%{public}s, no permission", uri.ToString().c_str());
             continue;
         }
         HmdfsUriInfo hui;
@@ -1861,7 +1865,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         item->SetConvertUri(hui.uriStr);
         fileSize += hui.fileSize;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
     data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
 }
 

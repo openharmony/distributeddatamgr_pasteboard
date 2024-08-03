@@ -20,17 +20,16 @@
 #include <functional>
 #include <memory>
 #include <shared_mutex>
-#include "datashare_observer.h"
+#include "data_ability_observer_stub.h"
 
 namespace OHOS::MiscServices {
-class PastedSwitchObserver : public DataShare::DataShareObserver {
+class PastedSwitchObserver : public AAFwk::DataAbilityObserverStub {
 public:
-    using ChangeInfo = DataShare::DataShareObserver::ChangeInfo;
-    using ObserverCallback = std::function<void(const ChangeInfo&)>;
+    using ObserverCallback = std::function<void()>;
     explicit PastedSwitchObserver(ObserverCallback func): func_(func) {}
     ~PastedSwitchObserver() {}
 
-    void OnChange(const ChangeInfo &changeInfo) override;
+    void OnChange() override;
 private:
     ObserverCallback func_;
 };
@@ -42,7 +41,7 @@ public:
     void DeInit();
 private:
     void SetSwitch();
-    std::shared_ptr<PastedSwitchObserver> switchObserver_;
+    sptr<PastedSwitchObserver> switchObserver_;
 };
 } // namespace OHOS::MiscServices
 
