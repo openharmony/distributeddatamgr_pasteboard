@@ -541,7 +541,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
-        return result
+        return result;
     }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}d, isremote=%{public}d", fileSize,
