@@ -124,6 +124,7 @@ enum ErrorCode : std::int32_t {
     GET_REMOTE_DATA_ERROR,
     SEND_BROADCAST_ERROR,
     SYNC_DATA_ERROR,
+    URI_GRANT_ERROR,
 };
 
 static constexpr char DOMAIN[] = "DISTDATAMGR";
@@ -142,6 +143,7 @@ constexpr const char* RECEIVE_BROADCAST_TIME = "RECEIVE_BROADCAST_TIME_64";
 constexpr const char* SEQ_ID = "SEQ_ID";
 constexpr const char* CONCURRENT_ID = "CONCURRENT_ID";
 constexpr const char* DIS_SYNC_TIME = "DIS_SYNC_TIME";
+constexpr const char* PACKAGE_NAME = "PACKAGE_NAME";
 static constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                    \

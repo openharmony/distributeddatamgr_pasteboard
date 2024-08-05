@@ -61,6 +61,7 @@ const std::map<int32_t, int32_t> ERROR_CODE_COVERT_TABLE = {
     {static_cast<int32_t>(PasteboardError::E_REMOTE_TASK), RadarReporter::REMOTE_TASK_ERROR},
     {static_cast<int32_t>(PasteboardError::E_INVALID_EVENT), RadarReporter::INVALID_EVENT_ERROR},
     {static_cast<int32_t>(PasteboardError::E_GET_REMOTE_DATA), RadarReporter::GET_REMOTE_DATA_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_URI_GRANT_ERROR), RadarReporter::URI_GRANT_ERROR},
     {ERR_INVALID_VALUE, RadarReporter::INVALID_RETURN_VALUE_ERROR},
     {ERR_INVALID_OPERATION, RadarReporter::INVALID_RETURN_VALUE_ERROR},
 };
@@ -180,17 +181,19 @@ void PasteboardClient::Clear()
 
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
-    std::string currentId = "GetPasteData_" + std::to_string(getpid()) + "_" + std::to_string(getSequenceId_);
+    std::string currentPid = std::to_string(getpid());
+    std::string currentId = "GetPasteData_" + currentPid + "_" + std::to_string(getSequenceId_);
     ++getSequenceId_;
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId);
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
+        RadarReporter::PACKAGE_NAME, currentPid);
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            RadarReporter::ERROR_CODE, RadarReporter::OBTAIN_SERVER_SA_ERROR);
+            RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::ERROR_CODE, RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t syncTime = 0;
@@ -203,16 +206,16 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            RadarReporter::DIS_SYNC_TIME, syncTime);
+            RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME, currentPid);
     } else {
-        int32_t errorCode = RadarReporter::OTHER_ERROR;
+        int32_t errorCode = ret;
         auto operatorIter = ERROR_CODE_COVERT_TABLE.find(ret);
         if (operatorIter != ERROR_CODE_COVERT_TABLE.end()) {
             errorCode = operatorIter->second;
         }
-        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::ERROR_CODE, errorCode);
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE,
+            RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME,
+            RadarReporter::PACKAGE_NAME, currentPid, syncTime, RadarReporter::ERROR_CODE, errorCode);
     }
     return ret;
 }
@@ -329,7 +332,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END);
     } else {
-        int32_t errorCode = RadarReporter::OTHER_ERROR;
+        int32_t errorCode = ret;
         auto operatorIter = ERROR_CODE_COVERT_TABLE.find(ret);
         if (operatorIter != ERROR_CODE_COVERT_TABLE.end()) {
             errorCode = operatorIter->second;
