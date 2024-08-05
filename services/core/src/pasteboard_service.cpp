@@ -540,6 +540,9 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         std::string targetBundleName = GetAppBundleName(appInfo);
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
+    if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
+        return result
+    }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}d, isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
@@ -547,8 +550,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         EstablishP2PLink();
     }
     GetPasteDataDot(data, appInfo.bundleName);
-    auto ret = GrantUriPermission(data, appInfo.bundleName);
-    return (result == static_cast<int32_t>(PasteboardError::E_OK)) ? ret : result;
+    return GrantUriPermission(data, appInfo.bundleName);
 }
 
 PasteboardService::RemoteDataTaskManager::DataTask PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(const
