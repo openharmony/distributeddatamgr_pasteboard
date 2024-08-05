@@ -184,14 +184,16 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     std::string currentId = "GetPasteData_" + std::to_string(getpid()) + "_" + std::to_string(getSequenceId_);
     ++getSequenceId_;
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId);
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
+        RadarReporter::PACKAGE_NAME, std::to_string(getpid()));
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            RadarReporter::ERROR_CODE, RadarReporter::OBTAIN_SERVER_SA_ERROR);
+            RadarReporter::PACKAGE_NAME, std::to_string(getpid()), RadarReporter::ERROR_CODE,
+            RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t syncTime = 0;
