@@ -1466,11 +1466,7 @@ void PasteboardService::UpdateShareOption(PasteData &pasteData)
 inline bool PasteboardService::IsCallerUidValid()
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (uid_ == -1) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "uid load error.");
-        return false;
-    }
-    if (callingUid == EDM_UID || callingUid == uid_) {
+    if (callingUid == EDM_UID || (uid_ != -1 && callingUid == uid_)) {
         return true;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callingUid error: %{public}d.", callingUid);
