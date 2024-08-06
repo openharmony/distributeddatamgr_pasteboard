@@ -177,6 +177,7 @@ void PasteboardService::OnStart()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     EventCenter::GetInstance().Subscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE, RemotePasteboardChange());
     HiViewAdapter::StartTimerThread();
+    ffrtTimer_ = std::make_shared<FFRTTimer>("pasteboard_service");
     return;
 }
 
@@ -544,7 +545,9 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}zu, isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
-        EstablishP2PLink();
+        data.SetPasteId(pasteId_);
+        pasteId_ ++;
+        EstablishP2PLink(data);
     }
     GetPasteDataDot(data, appInfo.bundleName);
     GrantUriPermission(data, appInfo.bundleName);
@@ -749,19 +752,15 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
     });
 }
 
-void PasteboardService::EstablishP2PLink()
+void PasteboardService::EstablishP2PLink(PasteData &data)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     auto networkId = currentEvent_.deviceId;
-    auto bundles = p2pMap_.Find(networkId).second;
+    auto tasks = p2pMap_.Find(networkId).second;
     auto callPid = IPCSkeleton::GetCallingPid();
-    bundles.emplace_back(callPid);
-    bool needOpen = p2pMap_.ComputeIfAbsent(networkId, [&bundles] (const auto& key) {
-        return bundles;
-    });
-    if (!needOpen) {
-        return;
-    }
+    int32_t pasteId = data.GetPasteId();
+    tasks.insert(pair<int32_t, int32_t>(pasteId, callPid));
+    p2pMap_.InsertOrAssign(networkId, tasks);
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != RESULT_OK) {
@@ -782,50 +781,35 @@ void PasteboardService::EstablishP2PLink()
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
     }
-    FFRTTask task = [this, networkId, callPid] {
+    FFRTTask task = [this, networkId, pasteId] {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
-        PasteComplete(networkId);
+        PasteComplete(networkId, pasteId);
     };
     if (ffrtTimer_ != nullptr) {
-        ffrtTimer_->SetTimer(TIMER_ID_USER_ACTIVITY_OFF, task, MIN_TRANMISSION_TIME);
+        ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
     } else {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "%{public}s: SetTimer(%{public}s) failed, timer is null",
-            __func__, std::to_string(delayTime).c_str());
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "%{public}s: SetTimer failed, timer is null", __func__);
     }
 #endif
 }
 
-void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid)
+void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid, bool needClose)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
+    if (!needClose) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "do not need close connection");
+        return;
+    }
+    p2pMap_.Erase(networkId);
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
         return;
     }
-    // 查看当前组网设备还是否有应用在用通道
-    auto it = p2pMap_.Find(networkId);
-    auto bundles = it.second;
-    for (auto iter = bundles.begin(); iter != bundles.end();) {
-        if (iter == pid) {
-            iter = bundles.erase(iter);
-        } else {
-            iter ++;
-        }
-    }
-    bundles.Erase(iter);
-    bool needClose = p2pMap_.ComputeIfPresent(networkId, [&bundles] (const auto& key, auto & value) {
-        if (bundles.empty()) {
-            return true;
-        }
-        return false;
-    });
-    if (needClose) {
-        auto status = DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
-        if (status != RESULT_OK) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "close p2p error, status:%{public}d", status);
-        }
+    auto status = DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
+    if (status != RESULT_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "close p2p error, status:%{public}d", status);
     }
     auto plugin = GetClipPlugin();
     if (plugin == nullptr) {
@@ -839,31 +823,23 @@ void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid)
 #endif
 }
 
-void PasteboardService::PasteStart()
+void PasteboardService::PasteStart(int32_t pasteId)
 {
-    // 停止定时任务
     if (ffrtTimer_ != nullptr) {
-        ffrtTimer_->CancelTimer(TIMER_ID_USER_ACTIVITY_OFF);
+        ffrtTimer_->CancelTimer(pasteId);
     }
 }
 
-void PasteboardService::PasteComplete(std::string deviceId)
+void PasteboardService::PasteComplete(std::string deviceId, int32_t pasteId)
 {
-    // 应用主动关通道
     auto pid = IPCSkeleton::GetCallingPid();
-    CloseP2PLink(deviceId, pid);
-}
-
-int32_t PasteboardService::OnAppExit(pid_t uid, pid_t pid, uint32_t tokenId, const std::string &bundleName)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
-        "AppExit uid=%{public}d, pid=%{public}d, tokenId=0x%{public}x, bundleName=%{public}s", uid, pid, tokenId,
-        bundleName.c_str());
-    p2pMap_.ForEachCopies([](auto &key, auto &value) {
-        CloseP2PLink(key, static_cast<int32_t>(pid));
+    auto tasks = p2pMap_.Find(deviceId).second;
+    tasks.erase(pasteId);
+    p2pMap_.ComputeIfPresent(networkId, [&tasks] (const auto& key, auto & value) {
         return false;
     });
-    return E_OK;
+    auto needClose = tasks.empty();
+    CloseP2PLink(deviceId, pid, needClose);
 }
 
 void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
@@ -1181,6 +1157,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     pasteData->SetTime(time);
     pasteData->SetScreenStatus(GetCurrentScreenStatus());
     pasteData->SetTokenId(tokenId);
+
     UpdateShareOption(*pasteData);
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);

@@ -141,7 +141,7 @@ private:
     std::unordered_map<uint32_t, FFRTMutex> mutexMap_;
 };
 
-class FFRTTimer {
+class API_EXPORT FFRTTimer {
 public:
     FFRTTimer();
     FFRTTimer(const char *timer_name);

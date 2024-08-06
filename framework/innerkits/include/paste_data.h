@@ -129,6 +129,8 @@ public:
     bool IsDelayData() const;
     bool Marshalling(Parcel &parcel) const override;
     static PasteData* Unmarshalling(Parcel &parcel);
+    void SetPasteId(const std::string &time);
+    int32_t GetPasteId();
 
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
     static std::string sharePath;
@@ -151,6 +153,7 @@ private:
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste
     bool isDelayData_ = false;
+    int32_t pasteId_ = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -496,6 +496,16 @@ bool PasteData::IsDelayData() const
     return isDelayData_;
 }
 
+void PasteData::SetPasteId(int32_t pasteId) const
+{
+    pasteId_ = pasteId;
+}
+
+int32_t PasteData::GetPasteId(int32_t pasteId) const
+{
+    return pasteId_;
+}
+
 bool PasteData::Marshalling(Parcel &parcel) const
 {
     std::vector<uint8_t> pasteDataTlv(0);

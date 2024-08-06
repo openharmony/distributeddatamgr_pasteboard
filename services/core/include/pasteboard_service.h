@@ -122,7 +122,6 @@ public:
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     void NotifyDelayGetterDied(int32_t userId);
     bool IsFocusedApp(uint32_t tokenId);
-    int32_t OnAppExit(pid_t uid, pid_t pid, uint32_t tokenId, const std::string &bundleName) override;
 
 private:
     using Event = ClipPlugin::GlobalEvent;
@@ -210,8 +209,8 @@ private:
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
-    void EstablishP2PLink();
-    void CloseP2PLink(const std::string& networkId, uint32_t pid = 0);
+    void EstablishP2PLink(PasteData &data);
+    void CloseP2PLink(const std::string& networkId, uint32_t pid = 0, bool needClose);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
@@ -267,8 +266,10 @@ private:
         { MIMETYPE_PIXELMAP, PIXELMAP_INDEX }
     };
 
-    ConcurrentMap<std::string, std::vector<std::string>> p2pMap_;
+    ConcurrentMap<std::string, std::map<int32_t, int32_t>> p2pMap_;
     std::shared_ptr<FFRTTimer> ffrtTimer_;
+    std::atomic<int32_t> pasteId_ = 0;
+
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
     PastedSwitch switch_;
 
