@@ -54,6 +54,7 @@ bool Config::Unmarshal(const Serializable::json &node)
     GetValue(node, GET_NAME(features), features);
     GetValue(node, GET_NAME(plugins), plugins);
     GetValue(node, GET_NAME(components), components);
+    GetValue(node, GET_NAME(bundles), bundles);
     GetValue(node, GET_NAME(uid), uid);
     return ret;
 }
