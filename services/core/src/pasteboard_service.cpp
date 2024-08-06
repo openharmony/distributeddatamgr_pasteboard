@@ -75,7 +75,6 @@ constexpr const char* SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
 constexpr const char* READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBOARD";
 constexpr const char* TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.datafiles_trans_ctrl";
 
-const std::int32_t CALL_UID = 5557;
 const std::int32_t INVAILD_VERSION = -1;
 const std::int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 const std::int32_t CTRLV_EVENT_SIZE = 2;
@@ -145,6 +144,7 @@ void PasteboardService::OnStart()
     Loader loader;
     loader.LoadComponents();
     bundles_ = loader.LoadBundles();
+    uid_ = loader.LoadUid();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
     moduleConfig_.Init();
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
@@ -1466,7 +1466,7 @@ void PasteboardService::UpdateShareOption(PasteData &pasteData)
 inline bool PasteboardService::IsCallerUidValid()
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid == EDM_UID || callingUid == CALL_UID) {
+    if (callingUid == EDM_UID || callingUid == uid_) {
         return true;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callingUid error: %{public}d.", callingUid);
