@@ -29,7 +29,6 @@ public:
         bool Marshal(json &node) const override;
         bool Unmarshal(const json &node) override;
     };
-    };
     std::string processLabel;
     std::string version;
     std::vector<std::string> features;
