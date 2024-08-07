@@ -140,6 +140,7 @@ public:
     static const std::string SHARE_PATH_PREFIX;
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
     static const std::string REMOTE_FILE_SIZE;
+    static const std::string REMOTE_FILE_SIZE_LONG;
 
 private:
     void RefreshMimeProp();

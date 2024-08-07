@@ -35,6 +35,7 @@
 #include "loader.h"
 #include "mem_mgr_client.h"
 #include "mem_mgr_proxy.h"
+#include "int_wrapper.h"
 #include "long_wrapper.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
@@ -544,10 +545,12 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         return result;
     }
     int64_t fileSize = 0L;
-    auto value = data.GetProperty().additions.GetParam(PasteData::REMOTE_FILE_SIZE);
+    auto value = data.GetProperty().additions.GetParam(PasteData::REMOTE_FILE_SIZE_LONG);
     AAFwk::ILong *ao = AAFwk::ILong::Query(value);
     if (ao != nullptr) {
         fileSize = AAFwk::Long::Unbox(ao);
+    } else {
+        fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
@@ -1832,7 +1835,8 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         fileSize += hui.fileSize;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
-    data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Long::Box(fileSize));
+    data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
+    data.SetAddition(PasteData::REMOTE_FILE_SIZE_LONG, AAFwk::Long::Box(fileSize));
 }
 
 std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
