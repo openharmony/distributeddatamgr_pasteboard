@@ -74,11 +74,8 @@ RetDataI64 FfiOHOSCreateArrayBufPasteData(const char* mimeType, uint8_t *buffPtr
     return ret;
 }
 
-char *MallocCString(const std::string& origin)
+char *PasteBoardMallocCString(const std::string& origin)
 {
-    if (origin.empty()) {
-        return nullptr;
-    }
     auto len = origin.length() + 1;
     char* res = static_cast<char*>(malloc(sizeof(char) * len));
     if (res == nullptr) {
@@ -105,19 +102,19 @@ void FillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRec
     retPtr->pixelMap = ERR_INVALID_INSTANCE_CODE;
     if (record->GetHtmlText() != nullptr) {
         std::string resHtmlText = *(record->GetHtmlText());
-        retPtr->htmlText =  MallocCString(resHtmlText);
+        retPtr->htmlText =  PasteBoardMallocCString(resHtmlText);
     }
     if (!record->GetMimeType().empty()) {
         std::string resMimeType = record->GetMimeType();
-        retPtr->mimeType =  MallocCString(resMimeType);
+        retPtr->mimeType =  PasteBoardMallocCString(resMimeType);
     }
     if (record->GetPlainText() != nullptr) {
         std::string resPlainText = *(record->GetPlainText());
-        retPtr->plainText =  MallocCString(resPlainText);
+        retPtr->plainText =  PasteBoardMallocCString(resPlainText);
     }
     if (record->GetUri() != nullptr) {
         std::string resUri = record->GetUri()->ToString();
-        retPtr->uri = MallocCString(resUri);
+        retPtr->uri = PasteBoardMallocCString(resUri);
     }
     std::shared_ptr<PixelMap> pixelMap = record->GetPixelMap();
     auto nativeImage = FFIData::Create<PixelMapImpl>(move(pixelMap));
@@ -228,7 +225,7 @@ RetDataCString FfiOHOSPasteDataGetPrimaryText(int64_t id)
     
     std::shared_ptr<std::string> p = pasteData->GetPrimaryText();
     if (p != nullptr) {
-        ret.data = MallocCString(*p);
+        ret.data = PasteBoardMallocCString(*p);
         if (ret.data == nullptr) {
             ret.code = ERR_CODE_PARAM_INVALID;
             return ret;
@@ -252,7 +249,7 @@ RetDataCString FfiOHOSPasteDataRecordToPlainText(int64_t id)
     }
 
     std::string res = instance->GetRealPasteDataRecord()->ConvertToText();
-    ret.data = MallocCString(res);
+    ret.data = PasteBoardMallocCString(res);
     if (ret.data == nullptr) {
         ret.code = ERR_CODE_PARAM_INVALID;
         return ret;
@@ -281,7 +278,7 @@ RetDataCString FfiOHOSPasteDataGetPrimaryHtml(int64_t id)
 
     std::shared_ptr<std::string> p = pasteData->GetPrimaryHtml();
     if (p != nullptr) {
-        ret.data = MallocCString(*p);
+        ret.data = PasteBoardMallocCString(*p);
         if (ret.data == nullptr) {
             ret.code = ERR_CODE_PARAM_INVALID;
             return ret;
@@ -312,7 +309,7 @@ RetDataCString FfiOHOSPasteDataGetPrimaryUri(int64_t id)
     std::shared_ptr<OHOS::Uri> p = pasteData->GetPrimaryUri();
     if (p != nullptr) {
         std::string uri = p->ToString();
-        ret.data = MallocCString(uri);
+        ret.data = PasteBoardMallocCString(uri);
         if (ret.data == nullptr) {
             ret.code = ERR_CODE_PARAM_INVALID;
             return ret;
@@ -374,7 +371,7 @@ RetDataCString FfiOHOSPasteDataGetPrimaryMimeType(int64_t id)
 
     std::shared_ptr<std::string> mimeType = pasteData->GetPrimaryMimeType();
     if (mimeType != nullptr) {
-        ret.data = MallocCString(*mimeType);
+        ret.data = PasteBoardMallocCString(*mimeType);
         if (ret.data == nullptr) {
             ret.code = ERR_CODE_PARAM_INVALID;
             return ret;
@@ -432,7 +429,7 @@ int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
     }
 
     PasteDataProperty property = pasteData->GetProperty();
-    retPtr->tag = MallocCString(property.tag);
+    retPtr->tag = PasteBoardMallocCString(property.tag);
     if (retPtr->tag == nullptr) {
         return ERR_CODE_PARAM_INVALID;
     }
@@ -507,7 +504,7 @@ RetDataCString FfiOHOSPasteDataGetTag(int64_t id)
 
     std::string tag = pasteData->GetTag();
     if (!tag.empty()) {
-        ret.data = MallocCString(tag);
+        ret.data = PasteBoardMallocCString(tag);
         if (ret.data == nullptr) {
             ret.code = ERR_CODE_PARAM_INVALID;
             return ret;
@@ -960,7 +957,7 @@ RetDataCString FfiOHOSSystemPasteboardGetDataSource(int64_t id)
         return ret;
     }
     std::string res = instance->GetDataSource();
-    ret.data = MallocCString(res);
+    ret.data = PasteBoardMallocCString(res);
     if (ret.data == nullptr) {
         ret.code = ERR_CODE_PARAM_INVALID;
         return ret;

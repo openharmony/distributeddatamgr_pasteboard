@@ -75,7 +75,6 @@ constexpr const char* SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
 constexpr const char* READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBOARD";
 constexpr const char* TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.datafiles_trans_ctrl";
 
-const std::int32_t CALL_UID = 5557;
 const std::int32_t INVAILD_VERSION = -1;
 const std::int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 const std::int32_t CTRLV_EVENT_SIZE = 2;
@@ -145,6 +144,7 @@ void PasteboardService::OnStart()
     Loader loader;
     loader.LoadComponents();
     bundles_ = loader.LoadBundles();
+    uid_ = loader.LoadUid();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
     moduleConfig_.Init();
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
@@ -541,16 +541,18 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         std::string targetBundleName = GetAppBundleName(appInfo);
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
+    if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
+        return result;
+    }
     auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}zu, isremote=%{public}d", fileSize,
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}d, isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
         EstablishP2PLink(data);
     }
     }
     GetPasteDataDot(data, appInfo.bundleName);
-    GrantUriPermission(data, appInfo.bundleName);
-    return result;
+    return GrantUriPermission(data, appInfo.bundleName);
 }
 
 PasteboardService::RemoteDataTaskManager::DataTask PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(const
@@ -764,16 +766,19 @@ void PasteboardService::EstablishP2PLink(PasteData &data)
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
+        p2pMap_.Erase(networkId);
         return;
     }
     auto plugin = GetClipPlugin();
     if (plugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
+        p2pMap_.Erase(networkId);
         return;
     }
     auto status = DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "open p2p error, status:%{public}d", status);
+        p2pMap_.Erase(networkId);
         return;
     }
     status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
@@ -822,7 +827,6 @@ void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid,
 #endif
 }
 
-
 void PasteboardService::PasteStart(const int32_t &pasteId)
 {
     if (ffrtTimer_ != nullptr) {
@@ -843,19 +847,20 @@ void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t
     CloseP2PLink(deviceId, pid, needClose);
 }
 
-void PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
+int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
 {
     std::vector<Uri> grantUris;
     CheckUriPermission(data, grantUris, targetBundleName);
     if (grantUris.size() == 0) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no uri.");
-        return;
+        return static_cast<int32_t>(PasteboardError::E_OK);
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri size: %{public}u, targetBundleName is %{public}s",
         static_cast<uint32_t>(grantUris.size()), targetBundleName.c_str());
     size_t offset = 0;
     size_t length = grantUris.size();
     size_t count = MAX_URI_COUNT;
+    bool grantSuccess = true;
     while (length > offset) {
         if (length - offset < MAX_URI_COUNT) {
             count = length - offset;
@@ -866,10 +871,12 @@ void PasteboardService::GrantUriPermission(PasteData &data, const std::string &t
         if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
             readBundles_.insert(targetBundleName);
         }
-        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_URI_AUTHORITY, permissionCode);
+        grantSuccess = grantSuccess && (permissionCode == 0);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
         offset += count;
     }
+    return grantSuccess ? static_cast<int32_t>(PasteboardError::E_OK) :
+        static_cast<int32_t>(PasteboardError::E_URI_GRANT_ERROR);
 }
 
 void PasteboardService::CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris,
@@ -894,7 +901,7 @@ void PasteboardService::CheckUriPermission(PasteData &data, std::vector<Uri> &gr
         }
         auto hasGrantUriPermission = item->HasGrantUriPermission();
         if (uri == nullptr || (!IsBundleOwnUriPermission(data.GetOrginAuthority(), *uri) && !hasGrantUriPermission)) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri is null:%{public}d, not grant permission: %{public}d.",
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri is null:%{public}d, not grant permission: %{public}d.",
                 uri == nullptr, hasGrantUriPermission);
             continue;
         }
@@ -1486,7 +1493,7 @@ void PasteboardService::UpdateShareOption(PasteData &pasteData)
 inline bool PasteboardService::IsCallerUidValid()
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid == EDM_UID || callingUid == CALL_UID) {
+    if (callingUid == EDM_UID || (uid_ != -1 && callingUid == uid_)) {
         return true;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "callingUid error: %{public}d.", callingUid);

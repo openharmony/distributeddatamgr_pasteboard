@@ -202,7 +202,7 @@ private:
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
-    void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
+    int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
     bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
@@ -288,6 +288,7 @@ private:
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;
+    int32_t uid_ = -1;
     RemoteDataTaskManager  taskMgr_;
     pid_t setPasteDataUId_ = 0;
     static constexpr const pid_t TESE_SERVER_UID = 3500;
