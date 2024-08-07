@@ -510,7 +510,7 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, 
     if (!isGrant) {
         return;
     }
-    auto permUsedType = static_cast<PermissionUsedType>(AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId,
+    auto permUsedType = static_cast<PermissionUsedType>(AccessTokenKit::GetPermissionUsedType(tokenId,
         isSecureGrant ? SECURE_PASTE_PERMISSION : READ_PASTEBOARD_PERMISSION));
     AddPermParamInfo info;
     info.tokenId = tokenId;
