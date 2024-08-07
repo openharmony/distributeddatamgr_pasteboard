@@ -421,7 +421,7 @@ int32_t PasteboardServiceProxy::RemoveAppShareOptions()
     return reply.ReadInt32();
 }
 
-int32_t PasteboardServiceProxy::PasteStart()
+int32_t PasteboardServiceProxy::PasteStart(const int32_t &pasteId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -430,13 +430,17 @@ int32_t PasteboardServiceProxy::PasteStart()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
+    if (!data.WriteInt32(pasteId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PASTE_START, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
     }
 }
 
-int32_t PasteboardServiceProxy::PasteComplete(std::string deviceId)
+int32_t PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const int32_t &pasteId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -447,6 +451,10 @@ int32_t PasteboardServiceProxy::PasteComplete(std::string deviceId)
     }
     if (!data.WriteString(deviceId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteInt32(pasteId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
         return ERR_INVALID_VALUE;
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PASTE_COMPLETE, data, reply, option);

@@ -123,14 +123,6 @@ public:
     static int CancelTask(FFRTHandle& handle, std::shared_ptr<FFRTQueue> queue);
 };
 
-enum FFRTTimerId {
-    TIMER_ID_SLEEP,
-    TIMER_ID_HIBERNATE,
-    TIMER_ID_USER_ACTIVITY_OFF,
-    TIMER_ID_USER_ACTIVITY_TIMEOUT,
-    TIMER_ID_SCREEN_TIMEOUT_CHECK,
-};
-
 class FFRTMutexMap {
 public:
     FFRTMutexMap() = default;

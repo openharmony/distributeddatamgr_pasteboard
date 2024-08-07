@@ -393,13 +393,16 @@ PasteboardServiceStub::~PasteboardServiceStub()
 
 int32_t PasteboardServiceStub::OnPasteStart(MessageParcel &data, MessageParcel &reply)
 {
-    PasteStart();
+    PasteStart(pasteId);
+    return ERR_OK;
 }
 
 int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParcel &reply)
 {
     std::string deviceId = data.ReadString();
-    PasteComplete(deviceId);
+    int32_t pasteId = data.WriteInt32();
+    PasteComplete(deviceId, pasteId);
+    return ERR_OK;
 }
 } // namespace MiscServices
 } // namespace OHOS

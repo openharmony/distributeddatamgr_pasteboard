@@ -545,9 +545,8 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}zu, isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
-        data.SetPasteId(pasteId_);
-        pasteId_ ++;
         EstablishP2PLink(data);
+    }
     }
     GetPasteDataDot(data, appInfo.bundleName);
     GrantUriPermission(data, appInfo.bundleName);
@@ -759,7 +758,7 @@ void PasteboardService::EstablishP2PLink(PasteData &data)
     auto tasks = p2pMap_.Find(networkId).second;
     auto callPid = IPCSkeleton::GetCallingPid();
     int32_t pasteId = data.GetPasteId();
-    tasks.insert(pair<int32_t, int32_t>(pasteId, callPid));
+    tasks.insert(std::pair<int32_t, int32_t>(pasteId, callPid));
     p2pMap_.InsertOrAssign(networkId, tasks);
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
@@ -800,7 +799,6 @@ void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid,
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "do not need close connection");
         return;
     }
-    p2pMap_.Erase(networkId);
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != RESULT_OK) {
@@ -811,6 +809,7 @@ void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid,
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "close p2p error, status:%{public}d", status);
     }
+    p2pMap_.Erase(networkId);
     auto plugin = GetClipPlugin();
     if (plugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
@@ -823,19 +822,21 @@ void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid,
 #endif
 }
 
-void PasteboardService::PasteStart(int32_t pasteId)
+
+void PasteboardService::PasteStart(const int32_t &pasteId)
 {
     if (ffrtTimer_ != nullptr) {
         ffrtTimer_->CancelTimer(pasteId);
     }
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is nullptr");
 }
 
-void PasteboardService::PasteComplete(std::string deviceId, int32_t pasteId)
+void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t &pasteId)
 {
     auto pid = IPCSkeleton::GetCallingPid();
     auto tasks = p2pMap_.Find(deviceId).second;
     tasks.erase(pasteId);
-    p2pMap_.ComputeIfPresent(networkId, [&tasks] (const auto& key, auto & value) {
+    p2pMap_.ComputeIfPresent(deviceId, [&tasks] (const auto& key, auto & value) {
         return false;
     });
     auto needClose = tasks.empty();

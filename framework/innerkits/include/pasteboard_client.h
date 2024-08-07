@@ -330,14 +330,14 @@ public:
     * @descrition Utilized to notify pasteboard service while reading PasteData, in this case, the service will help to preserve the context and resources
     * @return void.
     */
-    void PasteStart();
+    void PasteStart(const int32_t &pasteId);
 
     /**
      * PasteComplete
      * @descrition Invoked to notify pasteboard service the utilization of PasteData has completed and occupied resources can be released for further usage
      * @return void.
      */
-    void PasteComplete(std::string deviceId);
+    void PasteComplete(const std::string &deviceId, const int32_t &pasteId);
 
 private:
     sptr<IPasteboardService> GetPasteboardService();

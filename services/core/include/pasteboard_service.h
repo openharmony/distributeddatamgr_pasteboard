@@ -113,8 +113,8 @@ public:
     virtual int32_t RemoveAppShareOptions() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
-    virtual void PasteStart();
-    virtual void PasteComplete();
+    virtual void PasteStart(const int32_t &pasteId);
+    virtual void PasteComplete(const std::string &deviceId, const int32_t &pasteId);
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
@@ -138,7 +138,7 @@ private:
     static constexpr const pid_t EDM_UID = 3057;
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
-    static constexpr int MIN_TRANMISSION_TIME = 30;
+    static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; //ms
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 4000;
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
@@ -266,10 +266,9 @@ private:
         { MIMETYPE_PIXELMAP, PIXELMAP_INDEX }
     };
 
-    ConcurrentMap<std::string, std::map<int32_t, int32_t>> p2pMap_;
     std::shared_ptr<FFRTTimer> ffrtTimer_;
     std::atomic<int32_t> pasteId_ = 0;
-
+    ConcurrentMap<std::string, std::map<int32_t, int32_t>> p2pMap_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
     PastedSwitch switch_;
 

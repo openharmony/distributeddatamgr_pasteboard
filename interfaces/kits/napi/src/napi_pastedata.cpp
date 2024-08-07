@@ -962,7 +962,8 @@ napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getTag", GetTag), DECLARE_NAPI_FUNCTION("hasMimeType", HasMimeType),
         DECLARE_NAPI_FUNCTION("hasType", HasType), DECLARE_NAPI_FUNCTION("removeRecordAt", RemoveRecordAt),
         DECLARE_NAPI_FUNCTION("removeRecord", RemoveRecord), DECLARE_NAPI_FUNCTION("replaceRecordAt", ReplaceRecordAt),
-        DECLARE_NAPI_FUNCTION("replaceRecord", ReplaceRecord), DECLARE_NAPI_FUNCTION("setProperty", SetProperty) };
+        DECLARE_NAPI_FUNCTION("replaceRecord", ReplaceRecord), DECLARE_NAPI_FUNCTION("setProperty", SetProperty),
+        DECLARE_NAPI_FUNCTION("pasteStart", PasteStart), DECLARE_NAPI_FUNCTION("pasteComplete", PasteComplete)};
 
     napi_value constructor;
     napi_define_class(env, "PasteData", NAPI_AUTO_LENGTH, New, nullptr,
@@ -1040,23 +1041,36 @@ bool PasteDataNapi::IsPasteData(napi_env env, napi_value in)
     return isPasteData;
 }
 
-napi_status PasteDataNapi::PasteStart(napi_env env, napi_callback_info info)
+napi_value PasteDataNapi::PasteStart(napi_env env, napi_callback_info info)
 {
-    PasteboardClient::GetInstance()->PasteStart();
-    return nullptr;
-}
-
-napi_status PasteDataNapi::PasteComplete(napi_env env, napi_callback_info info)
-{
-    napi_value thisValue = nullptr;
+    napi_value thisVar = nullptr;
     PasteDataNapi *obj = nullptr;
+    size_t argc = 1;
+    napi_value argv[1] = { 0 };
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
         return nullptr;
     }
     std::string deviceId = obj->value->GetDeviceId();
-    PasteboardClient::GetInstance()->PasteComplete(deviceId);
+    PasteboardClient::GetInstance()->PasteStart(deviceId);
+    return nullptr;
+}
+
+napi_value PasteDataNapi::PasteComplete(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    PasteDataNapi *obj = nullptr;
+    size_t argc = 1;
+    napi_value argv[1] = { 0 };
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
+        return nullptr;
+    }
+    std::string deviceId = obj->value_->GetDeviceId();
+    std::string pasteId = obj->value_->GetPasteId();
+    PasteboardClient::GetInstance()->PasteComplete(deviceId, pasteId);
     return nullptr;
 }
 } // namespace MiscServicesNapi
