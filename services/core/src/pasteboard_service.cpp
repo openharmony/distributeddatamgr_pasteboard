@@ -35,7 +35,7 @@
 #include "loader.h"
 #include "mem_mgr_client.h"
 #include "mem_mgr_proxy.h"
-#include "int_wrapper.h"
+#include "long_wrapper.h"
 #include "native_token_info.h"
 #include "os_account_manager.h"
 #include "parameters.h"
@@ -543,8 +543,13 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
         return result;
     }
-    auto fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}d, isremote=%{public}d", fileSize,
+    int64_t fileSize = 0L;
+    auto value = data.GetProperty().additions.GetParam(PasteData::REMOTE_FILE_SIZE);
+    AAFwk::ILong *ao = AAFwk::ILong::Query(value);
+    if (ao != nullptr) {
+        fileSize = AAFwk::Long::Unbox(ao);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
         EstablishP2PLink();
@@ -1827,7 +1832,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         fileSize += hui.fileSize;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
-    data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
+    data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Long::Box(fileSize));
 }
 
 std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
