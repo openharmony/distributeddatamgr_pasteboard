@@ -507,7 +507,7 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, 
         return;
     }
     bool isGrant = isReadGrant || isSecureGrant;
-    if (!isGrant || AccessTokenKit::GetTokenTypeFlag(tokenId) != TOKEN_HAP) {
+    if (!isGrant) {
         return;
     }
     auto permUsedType = static_cast<PermissionUsedType>(AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId,
@@ -518,11 +518,9 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, 
     info.successCount = 1;
     info.failCount = 0;
     info.type = permUsedType;
-    if (AccessTokenKit::GetTokenTypeFlag(tokenId) == TOKEN_HAP) {
-        int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
-        if (result != RET_SUCCESS) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "add record failed, result is %{public}d", result);
-        }
+    int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
+    if (result != RET_SUCCESS) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "add record failed, result is %{public}d", result);
     }
     return;
 }
