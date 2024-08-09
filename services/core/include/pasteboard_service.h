@@ -115,6 +115,7 @@ public:
     virtual void OnStop() override;
     virtual void PasteStart(const int32_t &pasteId);
     virtual void PasteComplete(const std::string &deviceId, const int32_t &pasteId);
+    virtual int32_t RegisterClientDeathObserver(sptr observer) override;
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
@@ -293,6 +294,38 @@ private:
     pid_t setPasteDataUId_ = 0;
     static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;
+    class PasteboardClientDeathObserverImpl {
+    public:
+        PasteboardClientDeathObserverImpl(PasteboardService &service, sptr observer);
+        explicit PasteboardClientDeathObserverImpl(PasteboardService &service);
+        explicit PasteboardClientDeathObserverImpl(PasteboardClientDeathObserverImpl &&impl);
+        PasteboardClientDeathObserverImpl &operator=(PasteboardClientDeathObserverImpl &&impl);
+        virtual ~PasteboardClientDeathObserverImpl();
+
+        pid_t GetPid() const;
+    private:
+        class PasteboardDeathRecipient : public IRemoteObject::DeathRecipient {
+        public:
+            explicit PasteboardDeathRecipient(PasteboardClientDeathObserverImpl &pasteboardClientDeathObserverImpl);
+            virtual ~PasteboardDeathRecipient();
+            void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+
+        private:
+            PasteboardClientDeathObserverImpl &pasteboardClientDeathObserverImpl_;
+        };
+        void Reset();
+        pid_t uid_;
+        pid_t pid_;
+        uint32_t token_;
+        PasteboardService &dataService_;
+        sptr<IRemoteObject> observerProxy_;
+        sptr<PasteboardDeathRecipient> deathRecipient_;
+    };
+    int32_t AppExit(pid_t uid, pid_t pid, uint32_t token);
+    ConcurrentMap<pid_t, PasteboardClientDeathObserverImpl> clients_;
+    static constexpr pid_t INVALID_UID = -1;
+    static constexpr pid_t INVALID_PID = -1;
+    static constexpr uint32_t INVALID_TOKEN = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

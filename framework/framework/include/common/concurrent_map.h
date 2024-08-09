@@ -234,6 +234,14 @@ public:
         return true;
     }
 
+    template<typename... Args>
+    bool Emplace(Args &&... allArgs) noexcept
+    {
+        std::lock_guard<decltype(mutex)> lock(mutex);
+        auto it = entries_.emplace(std::forward<_Args>(allArgs)...);
+        return it.second;
+    }
+
 private:
     std::map<_Key, _Tp> Steal() noexcept
     {

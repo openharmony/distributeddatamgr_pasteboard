@@ -31,6 +31,7 @@
 #include "system_ability_definition.h"
 #include "pasteboard_web_controller.h"
 #include "pasteboard_utils.h"
+#include "ipasteboard_client_death_observer.h"
 using namespace OHOS::Media;
 
 namespace OHOS {
@@ -69,6 +70,7 @@ sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
+sptr clientDeathObserverPtr_;
 PasteboardClient::PasteboardClient(){};
 PasteboardClient::~PasteboardClient()
 {
@@ -607,5 +609,25 @@ void PasteboardSaDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "PasteboardSaDeathRecipient on remote systemAbility died.");
     PasteboardClient::GetInstance()->OnRemoteSaDied(object);
 }
+
+void PasteboardClient::RegisterClientDeathObserver()
+{
+    if (pasteboardServiceProxy_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard service is nullptr.");
+        return;
+    }
+    if (clientDeathObserverPtr_ == nullptr) {
+        clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
+    }
+    if (clientDeathObserverPtr_ == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "create ClientDeathObserver failed.");
+        return;
+    }
+    auto ret = pasteboardServiceProxy_->RegisterClientDeathObserver(clientDeathObserverPtr_);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "RegisterClientDeathObserver failed.");
+    }
+}
+
 } // namespace MiscServices
 } // namespace OHOS

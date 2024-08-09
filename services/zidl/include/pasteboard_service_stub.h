@@ -55,6 +55,7 @@ private:
     bool IsObserverValid(MessageParcel &data, uint32_t &type, sptr<IPasteboardChangedObserver> &callback);
     int32_t OnPasteStart(MessageParcel &data, MessageParcel &reply);
     int32_t OnPasteComplete(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply);
 
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
     static constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;

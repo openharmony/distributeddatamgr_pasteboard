@@ -366,6 +366,7 @@ private:
     };
     static StaticDestoryMonitor staticDestoryMonitor_;
     void RebuildWebviewPasteData(PasteData &pasteData);
+    void RegisterClientDeathObserver();
 };
 } // namespace MiscServices
 } // namespace OHOS

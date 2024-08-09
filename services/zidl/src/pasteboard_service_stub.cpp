@@ -59,6 +59,12 @@ PasteboardServiceStub::PasteboardServiceStub()
             &PasteboardServiceStub::OnSetAppShareOptions;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_APP_SHARE_OPTIONS)] =
             &PasteboardServiceStub::OnRemoveAppShareOptions;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PASTE_START)] =
+            &PasteboardServiceStub::OnPasteStart;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PASTE_COMPLETE)] =
+            &PasteboardServiceStub::OnPasteComplete;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER)] =
+            &PasteboardServiceStub::OnRegisterClientDeathObserver;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -403,6 +409,19 @@ int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParce
     int32_t pasteId = data.WriteInt32();
     PasteComplete(deviceId, pasteId);
     return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply)
+{
+sptr pasteboardClientDeathObserverProxy = data.ReadRemoteObject();
+if (pasteboardClientDeathObserverProxy == nullptr) {
+return -1;
+}
+int32_t status = RegisterClientDeathObserver(std::move(pasteboardClientDeathObserverProxy));
+if (!reply.WriteInt32(static_cast(status))) {
+return -1;
+}
+return 0;
 }
 } // namespace MiscServices
 } // namespace OHOS
