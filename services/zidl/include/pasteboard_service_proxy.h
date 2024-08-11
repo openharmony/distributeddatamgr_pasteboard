@@ -46,7 +46,7 @@ public:
     virtual int32_t RemoveAppShareOptions() override;
     virtual void PasteStart(const int32_t &pasteId) override;
     virtual void PasteComplete(const std::string &deviceId, const int32_t &pasteId) override;
-    virtual int32_t RegisterClientDeathObserver(sptr observer) override;
+    virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
 
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;

@@ -413,15 +413,15 @@ int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParce
 
 int32_t PasteboardServiceStub::OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply)
 {
-sptr pasteboardClientDeathObserverProxy = data.ReadRemoteObject();
-if (pasteboardClientDeathObserverProxy == nullptr) {
-return -1;
-}
-int32_t status = RegisterClientDeathObserver(std::move(pasteboardClientDeathObserverProxy));
-if (!reply.WriteInt32(static_cast(status))) {
-return -1;
-}
-return 0;
+    sptr<IRemoteObject> pasteboardClientDeathObserverProxy = data.ReadRemoteObject();
+    if (pasteboardClientDeathObserverProxy == nullptr) {
+        return -1;
+    }
+    int32_t status = RegisterClientDeathObserver(std::move(pasteboardClientDeathObserverProxy));
+    if (!reply.WriteInt32(static_cast(status))) {
+        return -1;
+    }
+    return 0;
 }
 } // namespace MiscServices
 } // namespace OHOS

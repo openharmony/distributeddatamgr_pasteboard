@@ -115,7 +115,7 @@ public:
     virtual void OnStop() override;
     virtual void PasteStart(const int32_t &pasteId);
     virtual void PasteComplete(const std::string &deviceId, const int32_t &pasteId);
-    virtual int32_t RegisterClientDeathObserver(sptr observer) override;
+    virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
@@ -211,7 +211,7 @@ private:
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void EstablishP2PLink(PasteData &data);
-    void CloseP2PLink(const std::string& networkId, uint32_t pid = 0, bool needClose);
+    void CloseP2PLink(const std::string& networkId);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
@@ -269,7 +269,7 @@ private:
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
     std::atomic<int32_t> pasteId_ = 0;
-    ConcurrentMap<std::string, std::map<int32_t, int32_t>> p2pMap_;
+    ConcurrentMap<std::string, ConcurrentMap<int32_t, int32_t>> p2pMap_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
     PastedSwitch switch_;
 
@@ -296,7 +296,7 @@ private:
     std::mutex eventMutex_;
     class PasteboardClientDeathObserverImpl {
     public:
-        PasteboardClientDeathObserverImpl(PasteboardService &service, sptr observer);
+        PasteboardClientDeathObserverImpl(PasteboardService &service, sptr<IRemoteObject> observer);
         explicit PasteboardClientDeathObserverImpl(PasteboardService &service);
         explicit PasteboardClientDeathObserverImpl(PasteboardClientDeathObserverImpl &&impl);
         PasteboardClientDeathObserverImpl &operator=(PasteboardClientDeathObserverImpl &&impl);

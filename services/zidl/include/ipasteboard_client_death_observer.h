@@ -19,7 +19,7 @@ public:
 
 class PasteboardClientDeathObserverProxy : public IRemoteProxy {
 public:
-    explicit PasteboardClientDeathObserverProxy(const sptr &impl) : IRemoteProxy(impl){};
+    explicit PasteboardClientDeathObserverProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy(impl){};
     ~PasteboardClientDeathObserverProxy() = default;
 
 private:

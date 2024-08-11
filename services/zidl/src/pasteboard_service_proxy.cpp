@@ -463,7 +463,7 @@ int32_t PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const
     }
 }
 
-int32_t PasteboardServiceProxy::RegisterClientDeathObserver(sptr observer)
+int32_t PasteboardServiceProxy::RegisterClientDeathObserver(sptr<IRemoteObject> observer)
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer is nullptr");

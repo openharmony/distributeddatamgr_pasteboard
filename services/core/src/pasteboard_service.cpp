@@ -556,6 +556,9 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
+        data.SetPasteId(pasteId);
+        data.deviceId_ = event.second.deviceId;
+        pasteId ++;
         EstablishP2PLink(data);
     }
     }
@@ -768,7 +771,7 @@ void PasteboardService::EstablishP2PLink(PasteData &data)
     auto tasks = p2pMap_.Find(networkId).second;
     auto callPid = IPCSkeleton::GetCallingPid();
     int32_t pasteId = data.GetPasteId();
-    tasks.insert(std::pair<int32_t, int32_t>(pasteId, callPid));
+    tasks.InsertOrAssign(pasteId, callPid);
     p2pMap_.InsertOrAssign(networkId, tasks);
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
@@ -805,13 +808,9 @@ void PasteboardService::EstablishP2PLink(PasteData &data)
 #endif
 }
 
-void PasteboardService::CloseP2PLink(const std::string& networkId, uint32_t pid, bool needClose)
+void PasteboardService::CloseP2PLink(const std::string& networkId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    if (!needClose) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "do not need close connection");
-        return;
-    }
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != RESULT_OK) {
@@ -846,13 +845,15 @@ void PasteboardService::PasteStart(const int32_t &pasteId)
 void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t &pasteId)
 {
     auto pid = IPCSkeleton::GetCallingPid();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deviceId is %{public}s, taskId is %{public}d",
+        deviceId.c_str(), pasteId);
     auto tasks = p2pMap_.Find(deviceId).second;
-    tasks.erase(pasteId);
-    p2pMap_.ComputeIfPresent(deviceId, [&tasks] (const auto& key, auto & value) {
-        return false;
-    });
-    auto needClose = tasks.empty();
-    CloseP2PLink(deviceId, pid, needClose);
+    tasks.Erase(pasteId);
+    if(tasks.Empty()) {
+        CloseP2PLink(deviceId);
+    } else {
+        p2pMap_.InsertOrAssign(deviceId, tasks);
+    }
 }
 
 int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
@@ -2008,17 +2009,37 @@ void PasteboardService::CommonEventSubscriber()
 
 int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "AppExit");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid is %{public}d", pid);
     PasteboardClientDeathObserverImpl impl(*this);
     clients_.ComputeIfPresent(pid, [&impl](auto &, auto &value) {
         impl = std::move(value);
     return false;
     });
+    p2pMap_.ForEachCopies([pid, this](auto &key, auto &value) {
+        auto tasks = p2pMap_.Find(key).second;
+        std::vector<int32_t> deleteValues;
+        tasks.ForEachCopies([pid, &deleteValues](auto &key, auto &value) {
+            if (value == pid) {
+                deleteValues.emplace_back(key);
+            }
+            return false;
+        });
+        for (int32_t key : deleteValues) {
+            tasks.Erase(key);
+            PasteStart(key);
+        }
+        if (tasks.Empty()) {
+            CloseP2PLink(key);
+        } else {
+            p2pMap_.InsertOrAssign(key, tasks);
+        }
+        return false;
+    });
     return ERR_OK;
 }
 
 PasteboardService::PasteboardClientDeathObserverImpl::PasteboardClientDeathObserverImpl(PasteboardService &service,
-    sptr observer) : dataService_(service), observerProxy_(std::move(observer)),
+    sptr<IRemoteObject> observer) : dataService_(service), observerProxy_(std::move(observer)),
     deathRecipient_(new PasteboardDeathRecipient(*this))
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardClientDeathObserverImpl");
@@ -2083,7 +2104,8 @@ PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::
 {
 }
 
-void PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::OnRemoteDied(const wptr &remote)
+void PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::OnRemoteDied(
+    const wptr<IRemoteObject>& &remote)
 {
     (void) remote;
     auto uid = pasteboardClientDeathObserverImpl_.uid_;
@@ -2097,9 +2119,10 @@ PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::
 
 }
 
-int32_t PasteboardService::RegisterClientDeathObserver(sptr observer)
+int32_t PasteboardService::RegisterClientDeathObserver(sptr<IRemoteObject> observer)
 {
-    clients_.Emplace(std::piecewise_construct, std::forward_as_tuple(IPCSkeleton::GetCallingPid()), std::forward_as_tuple(*this, observer));
+    clients_.Emplace(std::piecewise_construct, std::forward_as_tuple(IPCSkeleton::GetCallingPid()),
+        std::forward_as_tuple(*this, observer));
     return ERR_OK;
 }
 

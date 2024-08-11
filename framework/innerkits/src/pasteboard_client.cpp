@@ -70,7 +70,7 @@ sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
-sptr clientDeathObserverPtr_;
+sptr<IRemoteObject> clientDeathObserverPtr_;
 PasteboardClient::PasteboardClient(){};
 PasteboardClient::~PasteboardClient()
 {
@@ -532,6 +532,7 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
         }
         remoteObject->AddDeathRecipient(deathRecipient_);
         pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
+        RegisterClientDeathObserver();
         return pasteboardServiceProxy_;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
@@ -552,6 +553,7 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
         return nullptr;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
+    RegisterClientDeathObserver();
     return pasteboardServiceProxy_;
 }
 
@@ -586,7 +588,7 @@ void PasteboardClient::PasteStart(const int32_t &pasteId)
 {
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
-        return false;
+        return;
     }
     proxyService->PasteStart(pasteId);
 }
@@ -595,7 +597,7 @@ void PasteboardClient::PasteComplete(const std::string &deviceId, const int32_t 
 {
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
-        return false;
+        return;
     }
     proxyService->PasteComplete(deviceId, pasteId);
 }
