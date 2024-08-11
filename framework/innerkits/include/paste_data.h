@@ -129,7 +129,7 @@ public:
     bool IsDelayData() const;
     bool Marshalling(Parcel &parcel) const override;
     static PasteData* Unmarshalling(Parcel &parcel);
-    void SetPasteId(const int32_t &pasteId);
+    void SetPasteId(const int32_t pasteId);
     int32_t GetPasteId() const;
     std::string GetDeviceId() const;
 
@@ -156,7 +156,7 @@ private:
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste
     bool isDelayData_ = false;
-    int32_t pasteId_ = 0;
+    uint32_t pasteId_ = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -1047,8 +1047,9 @@ napi_value PasteDataNapi::PasteStart(napi_env env, napi_callback_info info)
     PasteDataNapi *obj = nullptr;
     size_t argc = 1;
     napi_value argv[1] = { 0 };
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    if ((status != napi_ok) || (obj == nullptr) || (obj->value_ == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
         return nullptr;
     }
@@ -1063,8 +1064,9 @@ napi_value PasteDataNapi::PasteComplete(napi_env env, napi_callback_info info)
     PasteDataNapi *obj = nullptr;
     size_t argc = 1;
     napi_value argv[1] = { 0 };
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    if ((status != napi_ok) || (obj == nullptr) || (obj->value_ == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
         return nullptr;
     }

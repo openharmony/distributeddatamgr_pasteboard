@@ -584,7 +584,7 @@ void PasteboardClient::OnRemoteSaDied(const wptr<IRemoteObject> &remote)
     pasteboardServiceProxy_ = nullptr;
 }
 
-void PasteboardClient::PasteStart(const int32_t &pasteId)
+void PasteboardClient::PasteStart(const int32_t pasteId)
 {
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
@@ -593,7 +593,7 @@ void PasteboardClient::PasteStart(const int32_t &pasteId)
     proxyService->PasteStart(pasteId);
 }
 
-void PasteboardClient::PasteComplete(const std::string &deviceId, const int32_t &pasteId)
+void PasteboardClient::PasteComplete(const std::string &deviceId, const int32_t pasteId)
 {
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
@@ -627,7 +627,7 @@ void PasteboardClient::RegisterClientDeathObserver()
     }
     auto ret = pasteboardServiceProxy_->RegisterClientDeathObserver(clientDeathObserverPtr_);
     if (ret != ERR_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "RegisterClientDeathObserver failed.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed. ret is %{public}d", ret);
     }
 }
 

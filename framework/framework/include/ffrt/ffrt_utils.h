@@ -123,16 +123,6 @@ public:
     static int CancelTask(FFRTHandle& handle, std::shared_ptr<FFRTQueue> queue);
 };
 
-class FFRTMutexMap {
-public:
-    FFRTMutexMap() = default;
-    ~FFRTMutexMap() = default;
-    void Lock(uint32_t mutexId);
-    void Unlock(uint32_t mutexId);
-private:
-    std::unordered_map<uint32_t, FFRTMutex> mutexMap_;
-};
-
 class API_EXPORT FFRTTimer {
 public:
     FFRTTimer();

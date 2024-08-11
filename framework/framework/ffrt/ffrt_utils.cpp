@@ -72,16 +72,6 @@ int FFRTUtils::CancelTask(FFRTHandle& handle, std::shared_ptr<FFRTQueue> queue)
     return queue->cancel(handle);
 }
 
-void FFRTMutexMap::Lock(uint32_t mutexId)
-{
-    mutexMap_[mutexId].lock();
-}
-
-void FFRTMutexMap::Unlock(uint32_t mutexId)
-{
-    mutexMap_[mutexId].unlock();
-}
-
 FFRTTimer::FFRTTimer(): queue_("ffrt_timer")
 {
 }

@@ -421,7 +421,7 @@ int32_t PasteboardServiceProxy::RemoveAppShareOptions()
     return reply.ReadInt32();
 }
 
-int32_t PasteboardServiceProxy::PasteStart(const int32_t &pasteId)
+int32_t PasteboardServiceProxy::PasteStart(const int32_t pasteId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -440,7 +440,7 @@ int32_t PasteboardServiceProxy::PasteStart(const int32_t &pasteId)
     }
 }
 
-int32_t PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const int32_t &pasteId)
+int32_t PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const int32_t pasteId)
 {
     MessageParcel data;
     MessageParcel reply;

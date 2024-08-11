@@ -227,7 +227,7 @@ void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::s
 PasteboardService::DelayGetterDeathRecipient::DelayGetterDeathRecipient(int32_t userId, PasteboardService &service)
     : userId_(userId), service_(service)
 {
-    PASTEBOARD_HILOGI(PASTEB OARD_MODULE_SERVICE, "Construct Delay Getter Death Recipient");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Construct Delay Getter Death Recipient");
 }
 
 void PasteboardService::DelayGetterDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
@@ -834,7 +834,7 @@ void PasteboardService::CloseP2PLink(const std::string& networkId)
 #endif
 }
 
-void PasteboardService::PasteStart(const int32_t &pasteId)
+void PasteboardService::PasteStart(const int32_t pasteId)
 {
     if (ffrtTimer_ != nullptr) {
         ffrtTimer_->CancelTimer(pasteId);
@@ -842,7 +842,7 @@ void PasteboardService::PasteStart(const int32_t &pasteId)
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is nullptr");
 }
 
-void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t &pasteId)
+void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t pasteId)
 {
     auto pid = IPCSkeleton::GetCallingPid();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deviceId is %{public}s, taskId is %{public}d",
