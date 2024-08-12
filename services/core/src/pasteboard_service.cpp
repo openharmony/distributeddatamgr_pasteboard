@@ -768,11 +768,15 @@ void PasteboardService::EstablishP2PLink(PasteData &data)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     auto networkId = currentEvent_.deviceId;
-    auto tasks = p2pMap_.Find(networkId).second;
     auto callPid = IPCSkeleton::GetCallingPid();
     int32_t pasteId = data.GetPasteId();
-    tasks.InsertOrAssign(pasteId, callPid);
-    p2pMap_.InsertOrAssign(networkId, tasks);
+    p2pMap_.Compute(networkId, [pasteId, callPid] (const auto& key, auto& value) {
+        value.Compute(pasteId, [callPid] (const auto& key, auto& value) {
+            value = callPid;
+            return true;
+        });
+        return true;
+    });
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != RESULT_OK) {
@@ -847,13 +851,16 @@ void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t
     auto pid = IPCSkeleton::GetCallingPid();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deviceId is %{public}s, taskId is %{public}d",
         deviceId.c_str(), pasteId);
-    auto tasks = p2pMap_.Find(deviceId).second;
-    tasks.Erase(pasteId);
-    if(tasks.Empty()) {
-        CloseP2PLink(deviceId);
-    } else {
-        p2pMap_.InsertOrAssign(deviceId, tasks);
-    }
+    p2pMap_.Compute(deviceId, [pasteId, deviceId, this] (const auto& key, auto& value) {
+        value.Compute(pasteId, [deviceId, this] (const auto& key, auto& value) {
+            return false;
+        });
+        if(value.Empty()) {
+            CloseP2PLink(deviceId);
+            return false;
+        }
+        return true;
+    });
 }
 
 int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
@@ -2009,29 +2016,26 @@ void PasteboardService::CommonEventSubscriber()
 
 int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid is %{public}d", pid);
+
     PasteboardClientDeathObserverImpl impl(*this);
     clients_.ComputeIfPresent(pid, [&impl](auto &, auto &value) {
         impl = std::move(value);
-    return false;
+        return false;
     });
-    p2pMap_.ForEachCopies([pid, this](auto &key, auto &value) {
-        auto tasks = p2pMap_.Find(key).second;
-        std::vector<int32_t> deleteValues;
-        tasks.ForEachCopies([pid, &deleteValues](auto &key, auto &value) {
+    p2pMap_.ForEach([pid, this](auto &key, auto &value) {
+        std::vector<int32_t> deleValue;
+        value.ForEach([pid, &deleValue](auto &key, auto &value) {
             if (value == pid) {
-                deleteValues.emplace_back(key);
+                deleValue.emplace_back(key);
             }
             return false;
         });
-        for (int32_t key : deleteValues) {
-            tasks.Erase(key);
+        for (int32_t key : deleValue) {
+            value.Erase(key);
             PasteStart(key);
         }
-        if (tasks.Empty()) {
+        if (value.Empty()) {
             CloseP2PLink(key);
-        } else {
-            p2pMap_.InsertOrAssign(key, tasks);
         }
         return false;
     });
