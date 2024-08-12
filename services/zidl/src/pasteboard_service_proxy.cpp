@@ -432,7 +432,7 @@ void PasteboardServiceProxy::PasteStart(const int32_t pasteId)
     }
     if (!data.WriteInt32(pasteId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
-        return ERR_INVALID_VALUE;
+        return;
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PASTE_START, data, reply, option);
     if (result != ERR_NONE) {
@@ -451,11 +451,11 @@ void PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const in
     }
     if (!data.WriteString(deviceId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
-        return ERR_INVALID_VALUE;
+        return;
     }
     if (!data.WriteInt32(pasteId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
-        return ERR_INVALID_VALUE;
+        return;
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PASTE_COMPLETE, data, reply, option);
     if (result != ERR_NONE) {

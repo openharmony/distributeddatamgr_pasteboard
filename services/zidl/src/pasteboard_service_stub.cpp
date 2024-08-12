@@ -419,7 +419,7 @@ int32_t PasteboardServiceStub::OnRegisterClientDeathObserver(MessageParcel &data
         return ERR_INVALID_VALUE;
     }
     int32_t status = RegisterClientDeathObserver(std::move(pasteboardClientDeathObserverProxy));
-    if (!reply.WriteInt32(static_cast(status))) {
+    if (!reply.WriteInt32(static_cast<int32_t>(status))) {
         return ERR_INVALID_VALUE;
     }
     return ERR_OK;
