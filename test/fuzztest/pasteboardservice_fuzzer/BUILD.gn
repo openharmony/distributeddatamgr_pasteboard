@@ -61,6 +61,7 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "c_utils:utils",
     "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "image_framework:image_native",
     "input:libmmi-client",
@@ -68,7 +69,6 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "udmf:udmf_client",
-    "ffrt:libffrt",
   ]
 }
 
