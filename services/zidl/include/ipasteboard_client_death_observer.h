@@ -6,24 +6,25 @@
 #include "iremote_stub.h"
 namespace OHOS {
 namespace MiscServices {
-class IPasteboardClientDeathObserver : public IRemoteBroker {
+class IPasteboardClientDeathObserver : public IRemoteBroker<IPasteboardClientDeathObserver> {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.DataShare.IDataShareClientDeathObserver");
 };
 
-class PasteboardClientDeathObserverStub : public IRemoteStub {
+class PasteboardClientDeathObserverStub : public IRemoteStub<IPasteboardClientDeathObserver> {
 public:
     PasteboardClientDeathObserverStub();
     virtual ~PasteboardClientDeathObserverStub();
 };
 
-class PasteboardClientDeathObserverProxy : public IRemoteProxy {
+class PasteboardClientDeathObserverProxy : public IRemoteProxy<IPasteboardClientDeathObserver> {
 public:
-    explicit PasteboardClientDeathObserverProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy(impl){};
+    explicit PasteboardClientDeathObserverProxy(const sptr<IRemoteObject> &impl)
+        : IRemoteProxy<IPasteboardClientDeathObserver>(impl){};
     ~PasteboardClientDeathObserverProxy() = default;
 
 private:
-    static inline BrokerDelegator delegator_;
+    static inline BrokerDelegator<IPasteboardClientDeathObserver> delegator_;
 };
 } // namespace MiscServices
 } // namespace OHOS
