@@ -2013,7 +2013,7 @@ void PasteboardService::CommonEventSubscriber()
 
 int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
 {
-    std::vectorstd::string networkIds;
+    std::vector<std::string> networkIds;
     p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
         pidMap.EraseIf([pid, this](auto &key, auto &value) {
             if (value == pid) {
