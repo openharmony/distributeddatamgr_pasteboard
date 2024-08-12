@@ -850,7 +850,7 @@ void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t
         value.ComputeIfPresent(pasteId, [deviceId] (const auto& key, auto& value) {
             return false;
         });
-        if(value.Empty()) {
+        if (value.Empty()) {
             CloseP2PLink(deviceId);
             return false;
         }
@@ -1995,7 +1995,6 @@ void PasteboardService::PasteboardEventSubscriber()
                 CloseP2PLink(networkId);
                 p2pMap_.Erase(networkId);
             }
-
         });
 }
 
@@ -2031,7 +2030,6 @@ int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
         return false;
     });
     for (std::string key : networkIds) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dele key is %{public}s", key.c_str());
         CloseP2PLink(key);
     }
     return ERR_OK;
@@ -2041,7 +2039,6 @@ PasteboardService::PasteboardClientDeathObserverImpl::PasteboardClientDeathObser
     sptr<IRemoteObject> observer) : dataService_(service), observerProxy_(std::move(observer)),
     deathRecipient_(new PasteboardDeathRecipient(*this))
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardClientDeathObserverImpl");
     uid_ = IPCSkeleton::GetCallingUid();
     pid_ = IPCSkeleton::GetCallingPid();
     token_ = IPCSkeleton::GetCallingTokenID();
@@ -2090,7 +2087,6 @@ void PasteboardService::PasteboardClientDeathObserverImpl::Reset()
 
 PasteboardService::PasteboardClientDeathObserverImpl::~PasteboardClientDeathObserverImpl()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "~KvStoreClientDeathObserverImpl");
     if (deathRecipient_ != nullptr && observerProxy_ != nullptr) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "remove death recipient");
         observerProxy_->RemoveDeathRecipient(deathRecipient_);
@@ -2115,7 +2111,6 @@ void PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipi
 
 PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::~PasteboardDeathRecipient()
 {
-
 }
 
 int32_t PasteboardService::RegisterClientDeathObserver(sptr<IRemoteObject> observer)

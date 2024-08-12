@@ -481,7 +481,7 @@ int32_t PasteboardServiceProxy::RegisterClientDeathObserver(sptr<IRemoteObject> 
         return ERR_INVALID_VALUE;
     }
     auto result = Remote()->SendRequest(
-    PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER, data, reply, option);
+        PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Send request failed, error code: %{public}d.", result);
         return result;

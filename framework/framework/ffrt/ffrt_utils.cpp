@@ -157,5 +157,5 @@ void FFRTTimer::CancelTimerInner(uint32_t timerId)
         handleMap_[timerId] = nullptr;
     }
 }
-} // namespace PowerMgr
+} // namespace MiscServices
 } // namespace OHOS

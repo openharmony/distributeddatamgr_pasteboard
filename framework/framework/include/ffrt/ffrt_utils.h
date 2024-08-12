@@ -137,10 +137,7 @@ private:
     std::unordered_map<uint32_t, FFRTHandle> handleMap_;
     std::unordered_map<uint32_t, uint32_t> taskId_;
 };
-} // namespace PowerMgr
+} // namespace MiscServices
 } // namespace OHOS
-
-#endif // POWERMGR_FFRT_UTILS_H
-
 
 #endif //DISTRIBUTEDDATAMGR_PASTEBOARD_FFRT_UTILS_H
