@@ -1071,7 +1071,7 @@ napi_value PasteDataNapi::PasteComplete(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::string deviceId = obj->value_->GetDeviceId();
-    std::string pasteId = obj->value_->GetPasteId();
+    uint32_t pasteId = obj->value_->GetPasteId();
     PasteboardClient::GetInstance()->PasteComplete(deviceId, pasteId);
     return nullptr;
 }

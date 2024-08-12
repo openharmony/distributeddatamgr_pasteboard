@@ -52,13 +52,6 @@ public:
     static void SubmitTask(const FFRTTask& task);
 
     /**
-     * Submit an FFRT task blocks the current thread and waits for the task to complete.
-     *
-     * @param task FFRT task.
-     */
-    static void SubmitTaskSync(const FFRTTask& task);
-
-    /**
      * Submit an FFRT serial task without blocking the current thread.
      *
      * @param task FFRT task.

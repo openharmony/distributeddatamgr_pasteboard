@@ -556,9 +556,9 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
+        pasteId++;
         data.SetPasteId(pasteId);
         data.deviceId_ = event.second.deviceId;
-        pasteId ++;
         EstablishP2PLink(data);
     }
     }
@@ -777,6 +777,12 @@ void PasteboardService::EstablishP2PLink(PasteData &data)
         });
         return true;
     });
+    if (ffrtTimer_ != nullptr) {
+        FFRTTask task = [this, networkId, pasteId] {
+            PasteComplete(networkId, pasteId);
+        };
+        ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
+    }
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != RESULT_OK) {
@@ -800,15 +806,6 @@ void PasteboardService::EstablishP2PLink(PasteData &data)
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
     }
-    FFRTTask task = [this, networkId, pasteId] {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink");
-        PasteComplete(networkId, pasteId);
-    };
-    if (ffrtTimer_ != nullptr) {
-        ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
-    } else {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "%{public}s: SetTimer failed, timer is null", __func__);
-    }
 #endif
 }
 
@@ -825,7 +822,6 @@ void PasteboardService::CloseP2PLink(const std::string& networkId)
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "close p2p error, status:%{public}d", status);
     }
-    p2pMap_.Erase(networkId);
     auto plugin = GetClipPlugin();
     if (plugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
@@ -843,16 +839,15 @@ void PasteboardService::PasteStart(const int32_t pasteId)
     if (ffrtTimer_ != nullptr) {
         ffrtTimer_->CancelTimer(pasteId);
     }
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is nullptr");
 }
 
 void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t pasteId)
 {
     auto pid = IPCSkeleton::GetCallingPid();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deviceId is %{public}s, taskId is %{public}d",
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deviceId is %{public}.6s, taskId is %{public}d",
         deviceId.c_str(), pasteId);
-    p2pMap_.Compute(deviceId, [pasteId, deviceId, this] (const auto& key, auto& value) {
-        value.Compute(pasteId, [deviceId, this] (const auto& key, auto& value) {
+    p2pMap_.ComputeIfPresent(deviceId, [pasteId, deviceId, this] (const auto& key, auto& value) {
+        value.ComputeIfPresent(pasteId, [deviceId] (const auto& key, auto& value) {
             return false;
         });
         if(value.Empty()) {
@@ -1996,7 +1991,11 @@ void PasteboardService::PasteboardEventSubscriber()
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
                 return;
             }
-            CloseP2PLink(networkId);
+            if (p2pMap_.Find(networkId).second.Empty()) {
+                CloseP2PLink(networkId);
+                p2pMap_.Erase(networkId);
+            }
+
         });
 }
 
@@ -2016,29 +2015,25 @@ void PasteboardService::CommonEventSubscriber()
 
 int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
 {
-
-    PasteboardClientDeathObserverImpl impl(*this);
-    clients_.ComputeIfPresent(pid, [&impl](auto &, auto &value) {
-        impl = std::move(value);
-        return false;
-    });
-    p2pMap_.ForEach([pid, this](auto &key, auto &value) {
-        std::vector<int32_t> deleValue;
-        value.ForEach([pid, &deleValue](auto &key, auto &value) {
+    std::vectorstd::string networkIds;
+    p2pMap_.EraseIf([pid, &networkIds, this](auto &key, auto &value) {
+        value.EraseIf([pid, this](auto &key, auto &value) {
             if (value == pid) {
-                deleValue.emplace_back(key);
+                PasteStart(key);
+                return true;
             }
             return false;
         });
-        for (int32_t key : deleValue) {
-            value.Erase(key);
-            PasteStart(key);
-        }
         if (value.Empty()) {
-            CloseP2PLink(key);
+            networkIds.emplace_back(key);
+            return true;
         }
         return false;
     });
+    for (std::string key : networkIds) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dele key is %{public}s", key.c_str());
+        CloseP2PLink(key);
+    }
     return ERR_OK;
 }
 

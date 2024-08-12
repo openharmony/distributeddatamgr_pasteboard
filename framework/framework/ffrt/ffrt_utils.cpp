@@ -23,12 +23,6 @@ void FFRTUtils::SubmitTask(const FFRTTask& task)
     ffrt::submit(task);
 }
 
-void FFRTUtils::SubmitTaskSync(const FFRTTask& task)
-{
-    ffrt::submit(task);
-    ffrt::wait();
-}
-
 void FFRTUtils::SubmitQueueTasks(const std::vector<FFRTTask>& tasks, FFRTQueue& queue)
 {
     if (tasks.empty()) {

@@ -763,12 +763,12 @@ std::string PasteData::GetDeviceId() const
     return deviceId_;
 }
 
- PasteData::SetPasteId(int32_t pasteId) const
+void PasteData::SetPasteId(int32_t pasteId) const
 {
     pasteId_ = pasteId;
 }
 
-void PasteData::GetPasteId()
+int32_t PasteData::GetPasteId()
 {
     return pasteId_;
 }
