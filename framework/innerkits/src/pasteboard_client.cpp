@@ -614,10 +614,6 @@ void PasteboardSaDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 
 void PasteboardClient::RegisterClientDeathObserver()
 {
-    if (pasteboardServiceProxy_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard service is nullptr.");
-        return;
-    }
     if (clientDeathObserverPtr_ == nullptr) {
         clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
     }
@@ -625,11 +621,14 @@ void PasteboardClient::RegisterClientDeathObserver()
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "create ClientDeathObserver failed.");
         return;
     }
-    auto ret = pasteboardServiceProxy_->RegisterClientDeathObserver(clientDeathObserverPtr_);
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    auto ret = proxyService->RegisterClientDeathObserver(clientDeathObserverPtr_);
     if (ret != ERR_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed. ret is %{public}d", ret);
     }
 }
-
 } // namespace MiscServices
 } // namespace OHOS

@@ -23,7 +23,7 @@ namespace OHOS {
 namespace MiscServices {
 class IPasteboardClientDeathObserver : public IRemoteBroker<IPasteboardClientDeathObserver> {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.DataShare.IDataShareClientDeathObserver");
+    DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.MiscServices.IPasteboardClientDeathObserver");
 };
 
 class PasteboardClientDeathObserverStub : public IRemoteStub<IPasteboardClientDeathObserver> {

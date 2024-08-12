@@ -556,11 +556,10 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
-        pasteId++;
+        auto pasteId = pasteId_++;
         data.SetPasteId(pasteId);
         data.deviceId_ = event.second.deviceId;
-        EstablishP2PLink(data);
-    }
+        EstablishP2PLink(data.deviceId_, data.GetPasteId());
     }
     GetPasteDataDot(data, appInfo.bundleName);
     return GrantUriPermission(data, appInfo.bundleName);
@@ -764,12 +763,10 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
     });
 }
 
-void PasteboardService::EstablishP2PLink(PasteData &data)
+void PasteboardService::EstablishP2PLink(const std::string& networkId, int32_t pasteId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    auto networkId = currentEvent_.deviceId;
     auto callPid = IPCSkeleton::GetCallingPid();
-    int32_t pasteId = data.GetPasteId();
     p2pMap_.Compute(networkId, [pasteId, callPid] (const auto& key, auto& value) {
         value.Compute(pasteId, [callPid] (const auto& key, auto& value) {
             value = callPid;
