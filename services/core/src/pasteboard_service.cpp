@@ -2099,7 +2099,7 @@ PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::
 }
 
 void PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::OnRemoteDied(
-    const wptr<IRemoteObject>& &remote)
+    const wptr<IRemoteObject> &remote)
 {
     (void) remote;
     auto uid = pasteboardClientDeathObserverImpl_.uid_;
