@@ -113,8 +113,8 @@ public:
     virtual int32_t RemoveAppShareOptions() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
-    virtual void PasteStart(const int32_t pasteId);
-    virtual void PasteComplete(const std::string &deviceId, const int32_t pasteId);
+    virtual void PasteStart(const int32_t pasteId) override;
+    virtual void PasteComplete(const std::string &deviceId, const int32_t pasteId) override;
     virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;

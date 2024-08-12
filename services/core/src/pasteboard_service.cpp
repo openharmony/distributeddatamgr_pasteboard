@@ -824,7 +824,7 @@ void PasteboardService::CloseP2PLink(const std::string& networkId)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
         return;
     }
-    auto status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::IDLE);
+    status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::IDLE);
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state idle error, status:%{public}d", status);
     }
@@ -1994,7 +1994,7 @@ void PasteboardService::PasteboardEventSubscriber()
                 }
                 return false;
             });
-        }
+        });
 }
 
 void PasteboardService::CommonEventSubscriber()
