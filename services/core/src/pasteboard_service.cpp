@@ -561,7 +561,6 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         data.deviceId_ = event.second.deviceId;
         EstablishP2PLink(data.deviceId_, data.GetPasteId());
     }
-    }
     GetPasteDataDot(data, appInfo.bundleName);
     return GrantUriPermission(data, appInfo.bundleName);
 }
