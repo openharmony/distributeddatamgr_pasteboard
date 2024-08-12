@@ -399,6 +399,7 @@ PasteboardServiceStub::~PasteboardServiceStub()
 
 int32_t PasteboardServiceStub::OnPasteStart(MessageParcel &data, MessageParcel &reply)
 {
+    int32_t pasteId = data.ReadInt32();
     PasteStart(pasteId);
     return ERR_OK;
 }
@@ -406,7 +407,7 @@ int32_t PasteboardServiceStub::OnPasteStart(MessageParcel &data, MessageParcel &
 int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParcel &reply)
 {
     std::string deviceId = data.ReadString();
-    int32_t pasteId = data.WriteInt32();
+    int32_t pasteId = data.ReadInt32();
     PasteComplete(deviceId, pasteId);
     return ERR_OK;
 }

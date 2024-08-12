@@ -21,7 +21,7 @@
 #include "iremote_stub.h"
 namespace OHOS {
 namespace MiscServices {
-class IPasteboardClientDeathObserver : public IRemoteBroker<IPasteboardClientDeathObserver> {
+class IPasteboardClientDeathObserver : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.MiscServices.IPasteboardClientDeathObserver");
 };
@@ -39,7 +39,7 @@ public:
     ~PasteboardClientDeathObserverProxy() = default;
 
 private:
-    static inline BrokerDelegator<IPasteboardClientDeathObserver> delegator_;
+    static inline BrokerDelegator<PasteboardClientDeathObserverProxy> delegator_;
 };
 } // namespace MiscServices
 } // namespace OHOS
