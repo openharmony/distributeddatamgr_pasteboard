@@ -75,8 +75,7 @@ PasteData::~PasteData()
 }
 
 PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthority_), valid_(data.valid_),
-    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), pasteId_(data.pasteId_),
-    deviceId_(data.deviceId_)
+    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), pasteId_(data.pasteId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {
@@ -763,12 +762,12 @@ std::string PasteData::GetDeviceId() const
     return deviceId_;
 }
 
-void PasteData::SetPasteId(int32_t pasteId) const
+void PasteData::SetPasteId(const int32_t pasteId)
 {
     pasteId_ = pasteId;
 }
 
-int32_t PasteData::GetPasteId()
+int32_t PasteData::GetPasteId() const
 {
     return pasteId_;
 }
