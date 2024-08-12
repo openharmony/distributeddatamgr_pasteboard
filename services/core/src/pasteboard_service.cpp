@@ -561,6 +561,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         data.deviceId_ = event.second.deviceId;
         EstablishP2PLink(data.deviceId_, data.GetPasteId());
     }
+    }
     GetPasteDataDot(data, appInfo.bundleName);
     return GrantUriPermission(data, appInfo.bundleName);
 }
@@ -840,7 +841,6 @@ void PasteboardService::PasteStart(const int32_t pasteId)
 
 void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t pasteId)
 {
-    auto pid = IPCSkeleton::GetCallingPid();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deviceId is %{public}.6s, taskId is %{public}d",
         deviceId.c_str(), pasteId);
     p2pMap_.ComputeIfPresent(deviceId, [pasteId, deviceId, this] (const auto& key, auto& value) {
@@ -1988,11 +1988,13 @@ void PasteboardService::PasteboardEventSubscriber()
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
                 return;
             }
-            if (p2pMap_.Find(networkId).second.Empty()) {
-                CloseP2PLink(networkId);
-                p2pMap_.Erase(networkId);
-            }
-        });
+            p2pMap_.EraseIf([networkId, this](auto &key, auto &value) {
+                if (key == networkId) {
+                    CloseP2PLink(networkId);
+                    return true;
+                }
+                return false;
+            });
 }
 
 void PasteboardService::CommonEventSubscriber()
@@ -2012,22 +2014,22 @@ void PasteboardService::CommonEventSubscriber()
 int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
 {
     std::vectorstd::string networkIds;
-    p2pMap_.EraseIf([pid, &networkIds, this](auto &key, auto &value) {
-        value.EraseIf([pid, this](auto &key, auto &value) {
+    p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
+        pidMap.EraseIf([pid, this](auto &key, auto &value) {
             if (value == pid) {
                 PasteStart(key);
                 return true;
             }
             return false;
         });
-        if (value.Empty()) {
-            networkIds.emplace_back(key);
+        if (pidMap.Empty()) {
+            networkIds.emplace_back(networkId);
             return true;
         }
         return false;
     });
-    for (std::string key : networkIds) {
-        CloseP2PLink(key);
+    for (const auto& id: networkIds) {
+        CloseP2PLink(id);
     }
     return ERR_OK;
 }
