@@ -1982,7 +1982,7 @@ void PasteboardService::PasteboardEventSubscriber()
 {
     EventCenter::GetInstance().Subscribe(PasteboardEvent::DISCONNECT,
         [this](const OHOS::MiscServices::Event& event) {
-            auto& evt = static_cast<const PasteboardEvent&>(event);
+            auto &evt = static_cast<const PasteboardEvent &>(event);
             auto networkId = evt.GetNetworkId();
             if (networkId.empty()) {
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
@@ -1995,6 +1995,7 @@ void PasteboardService::PasteboardEventSubscriber()
                 }
                 return false;
             });
+        }
 }
 
 void PasteboardService::CommonEventSubscriber()
