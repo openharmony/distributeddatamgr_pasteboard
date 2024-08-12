@@ -20,7 +20,6 @@
 #include "i_pasteboard_observer.h"
 #include "iremote_broker.h"
 #include "paste_data.h"
-#include "ipasteboard_client_death_observer.h"
 
 namespace OHOS {
 namespace MiscServices {

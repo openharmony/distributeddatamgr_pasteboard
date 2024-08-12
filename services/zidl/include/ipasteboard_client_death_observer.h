@@ -19,6 +19,8 @@
 #include "iremote_broker.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
+#include "api/visibility.h"
+
 namespace OHOS {
 namespace MiscServices {
 class IPasteboardClientDeathObserver : public IRemoteBroker {
@@ -32,7 +34,7 @@ public:
     virtual ~PasteboardClientDeathObserverStub();
 };
 
-class PasteboardClientDeathObserverProxy : public IRemoteProxy<IPasteboardClientDeathObserver> {
+class API_EXPORT PasteboardClientDeathObserverProxy : public IRemoteProxy<IPasteboardClientDeathObserver> {
 public:
     explicit PasteboardClientDeathObserverProxy(const sptr<IRemoteObject> &impl)
         : IRemoteProxy<IPasteboardClientDeathObserver>(impl){};
