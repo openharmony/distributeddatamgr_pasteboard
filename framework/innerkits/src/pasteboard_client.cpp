@@ -71,7 +71,10 @@ PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
 sptr<IRemoteObject> clientDeathObserverPtr_;
-PasteboardClient::PasteboardClient(){};
+PasteboardClient::PasteboardClient()
+{
+    Init();
+};
 PasteboardClient::~PasteboardClient()
 {
     auto proxyService = GetPasteboardService();
@@ -80,6 +83,25 @@ PasteboardClient::~PasteboardClient()
         if (remoteObject != nullptr) {
             remoteObject->RemoveDeathRecipient(deathRecipient_);
         }
+    }
+}
+
+void PasteboardClient::Init()
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    if (clientDeathObserverPtr_ == nullptr) {
+        clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
+    }
+    if (clientDeathObserverPtr_ == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "create ClientDeathObserver failed.");
+        return;
+    }
+    auto ret = proxyService->RegisterClientDeathObserver(clientDeathObserverPtr_);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed. ret is %{public}d", ret);
     }
 }
 
@@ -532,7 +554,6 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
         }
         remoteObject->AddDeathRecipient(deathRecipient_);
         pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
-        RegisterClientDeathObserver();
         return pasteboardServiceProxy_;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
@@ -553,7 +574,6 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
         return nullptr;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
-    RegisterClientDeathObserver();
     return pasteboardServiceProxy_;
 }
 
@@ -610,25 +630,6 @@ void PasteboardSaDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "PasteboardSaDeathRecipient on remote systemAbility died.");
     PasteboardClient::GetInstance()->OnRemoteSaDied(object);
-}
-
-void PasteboardClient::RegisterClientDeathObserver()
-{
-    if (clientDeathObserverPtr_ == nullptr) {
-        clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
-    }
-    if (clientDeathObserverPtr_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "create ClientDeathObserver failed.");
-        return;
-    }
-    auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
-    auto ret = proxyService->RegisterClientDeathObserver(clientDeathObserverPtr_);
-    if (ret != ERR_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed. ret is %{public}d", ret);
-    }
 }
 } // namespace MiscServices
 } // namespace OHOS
