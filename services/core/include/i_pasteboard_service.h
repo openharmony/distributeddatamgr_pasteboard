@@ -41,6 +41,9 @@ public:
     virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) = 0;
     virtual int32_t SetAppShareOptions(const ShareOption &shareOptions) = 0;
     virtual int32_t RemoveAppShareOptions() = 0;
+    virtual void PasteStart(const int32_t pasteId) = 0;
+    virtual void PasteComplete(const std::string &deviceId, const int32_t pasteId) = 0;
+    virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.miscservices.pasteboard.IPasteboardService");
 };
 } // namespace MiscServices

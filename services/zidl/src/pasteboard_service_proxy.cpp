@@ -420,5 +420,74 @@ int32_t PasteboardServiceProxy::RemoveAppShareOptions()
     }
     return reply.ReadInt32();
 }
+
+void PasteboardServiceProxy::PasteStart(const int32_t pasteId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    if (!data.WriteInt32(pasteId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
+        return;
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PASTE_START, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+}
+
+void PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const int32_t pasteId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    if (!data.WriteString(deviceId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
+        return;
+    }
+    if (!data.WriteInt32(pasteId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
+        return;
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PASTE_COMPLETE, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+}
+
+int32_t PasteboardServiceProxy::RegisterClientDeathObserver(sptr<IRemoteObject> observer)
+{
+    if (observer == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write interface token failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteRemoteObject(observer)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remote observer failed.");
+        return ERR_INVALID_VALUE;
+    }
+    auto result = Remote()->SendRequest(
+        PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Send request failed, error code: %{public}d.", result);
+        return result;
+    }
+    return reply.ReadInt32();
+}
+
 } // namespace MiscServices
 } // namespace OHOS

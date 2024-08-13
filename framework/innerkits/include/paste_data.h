@@ -129,6 +129,9 @@ public:
     bool IsDelayData() const;
     bool Marshalling(Parcel &parcel) const override;
     static PasteData* Unmarshalling(Parcel &parcel);
+    void SetPasteId(const int32_t pasteId);
+    int32_t GetPasteId() const;
+    std::string GetDeviceId() const;
 
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
     static std::string sharePath;
@@ -140,6 +143,7 @@ public:
     static const std::string SHARE_PATH_PREFIX;
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
     static const std::string REMOTE_FILE_SIZE;
+    std::string deviceId_;
     static const std::string REMOTE_FILE_SIZE_LONG;
 
 private:
@@ -152,6 +156,7 @@ private:
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste
     bool isDelayData_ = false;
+    uint32_t pasteId_ = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

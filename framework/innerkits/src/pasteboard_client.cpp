@@ -31,6 +31,7 @@
 #include "system_ability_definition.h"
 #include "pasteboard_web_controller.h"
 #include "pasteboard_utils.h"
+#include "ipasteboard_client_death_observer.h"
 using namespace OHOS::Media;
 
 namespace OHOS {
@@ -69,7 +70,11 @@ sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
-PasteboardClient::PasteboardClient(){};
+sptr<IRemoteObject> clientDeathObserverPtr_;
+PasteboardClient::PasteboardClient()
+{
+    Init();
+};
 PasteboardClient::~PasteboardClient()
 {
     auto proxyService = GetPasteboardService();
@@ -78,6 +83,25 @@ PasteboardClient::~PasteboardClient()
         if (remoteObject != nullptr) {
             remoteObject->RemoveDeathRecipient(deathRecipient_);
         }
+    }
+}
+
+void PasteboardClient::Init()
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    if (clientDeathObserverPtr_ == nullptr) {
+        clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
+    }
+    if (clientDeathObserverPtr_ == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "create ClientDeathObserver failed.");
+        return;
+    }
+    auto ret = proxyService->RegisterClientDeathObserver(clientDeathObserverPtr_);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed. ret is %{public}d", ret);
     }
 }
 
@@ -578,6 +602,24 @@ void PasteboardClient::OnRemoteSaDied(const wptr<IRemoteObject> &remote)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnRemoteSaDied start.");
     std::lock_guard<std::mutex> lock(instanceLock_);
     pasteboardServiceProxy_ = nullptr;
+}
+
+void PasteboardClient::PasteStart(const int32_t pasteId)
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    proxyService->PasteStart(pasteId);
+}
+
+void PasteboardClient::PasteComplete(const std::string &deviceId, const int32_t pasteId)
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    proxyService->PasteComplete(deviceId, pasteId);
 }
 
 PasteboardSaDeathRecipient::PasteboardSaDeathRecipient()

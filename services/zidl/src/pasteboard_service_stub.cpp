@@ -59,6 +59,12 @@ PasteboardServiceStub::PasteboardServiceStub()
             &PasteboardServiceStub::OnSetAppShareOptions;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_APP_SHARE_OPTIONS)] =
             &PasteboardServiceStub::OnRemoveAppShareOptions;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PASTE_START)] =
+            &PasteboardServiceStub::OnPasteStart;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PASTE_COMPLETE)] =
+            &PasteboardServiceStub::OnPasteComplete;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER)] =
+            &PasteboardServiceStub::OnRegisterClientDeathObserver;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -389,6 +395,34 @@ int32_t PasteboardServiceStub::OnRemoveAppShareOptions(MessageParcel &data, Mess
 PasteboardServiceStub::~PasteboardServiceStub()
 {
     memberFuncMap_.clear();
+}
+
+int32_t PasteboardServiceStub::OnPasteStart(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pasteId = data.ReadInt32();
+    PasteStart(pasteId);
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParcel &reply)
+{
+    std::string deviceId = data.ReadString();
+    int32_t pasteId = data.ReadInt32();
+    PasteComplete(deviceId, pasteId);
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> pasteboardClientDeathObserverProxy = data.ReadRemoteObject();
+    if (pasteboardClientDeathObserverProxy == nullptr) {
+        return ERR_INVALID_VALUE;
+    }
+    int32_t status = RegisterClientDeathObserver(std::move(pasteboardClientDeathObserverProxy));
+    if (!reply.WriteInt32(static_cast<int32_t>(status))) {
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
 }
 } // namespace MiscServices
 } // namespace OHOS

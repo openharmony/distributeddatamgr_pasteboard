@@ -72,7 +72,7 @@ public:
     {
         std::lock_guard<decltype(mutex_)> lock(mutex_);
         auto it = entries_.emplace(std::forward<_Args>(allArgs)...);
-        return it->second;
+        return it.second;
     }
 
     std::pair<bool, mapped_type> Find(const key_type &key) const noexcept

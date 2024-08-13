@@ -61,6 +61,7 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "c_utils:utils",
     "data_share:datashare_consumer",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "image_framework:image_native",
     "input:libmmi-client",

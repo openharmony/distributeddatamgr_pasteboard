@@ -34,6 +34,8 @@ enum TAG_PASTEBOARD : uint16_t {
     TAG_DRAGGED_DATA_FLAG,
     TAG_LOCAL_PASTE_FLAG,
     TAG_DELAY_DATA_FLAG,
+    TAG_DEVICE_ID,
+    TAG_PASTE_ID,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -73,7 +75,7 @@ PasteData::~PasteData()
 }
 
 PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthority_), valid_(data.valid_),
-    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_)
+    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), pasteId_(data.pasteId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {
@@ -100,6 +102,8 @@ PasteData& PasteData::operator=(const PasteData &data)
     this->isLocalPaste_ = data.isLocalPaste_;
     this->props_ = data.props_;
     this->records_.clear();
+    this->deviceId_ = data.deviceId_;
+    this->pasteId_ = data.pasteId_;
     for (const auto &item : data.records_) {
         this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
     }
@@ -425,6 +429,8 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_DRAGGED_DATA_FLAG, isDraggedData_) && ret;
     ret = Write(buffer, TAG_LOCAL_PASTE_FLAG, isLocalPaste_) && ret;
     ret = Write(buffer, TAG_DELAY_DATA_FLAG, isDelayData_) && ret;
+    ret = Write(buffer, TAG_DEVICE_ID, deviceId_) && ret;
+    ret = Write(buffer, TAG_PASTE_ID, pasteId_) && ret;
     return ret;
 }
 
@@ -454,6 +460,14 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && ReadValue(buffer, isDelayData_, head);
                 break;
             }
+            case TAG_DEVICE_ID: {
+                ret = ret && ReadValue(buffer, deviceId_, head);
+                break;
+            }
+            case TAG_PASTE_ID: {
+                ret = ret && ReadValue(buffer, pasteId_, head);
+                break;
+            }
             default:
                 ret = ret && Skip(head.len, buffer.size());
                 break;
@@ -474,6 +488,8 @@ size_t PasteData::Count()
     expectSize += TLVObject::Count(isDraggedData_);
     expectSize += TLVObject::Count(isLocalPaste_);
     expectSize += TLVObject::Count(isDelayData_);
+    expectSize += TLVObject::Count(deviceId_);
+    expectSize += TLVObject::Count(pasteId_);
     return expectSize;
 }
 
@@ -739,6 +755,21 @@ void PasteData::ShareOptionToString(ShareOption shareOption, std::string &out)
     } else {
         out = "CrossDevice";
     }
+}
+
+std::string PasteData::GetDeviceId() const
+{
+    return deviceId_;
+}
+
+void PasteData::SetPasteId(const int32_t pasteId)
+{
+    pasteId_ = pasteId;
+}
+
+int32_t PasteData::GetPasteId() const
+{
+    return pasteId_;
 }
 } // namespace MiscServices
 } // namespace OHOS

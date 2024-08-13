@@ -178,6 +178,7 @@ void PasteboardService::OnStart()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     EventCenter::GetInstance().Subscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE, RemotePasteboardChange());
     HiViewAdapter::StartTimerThread();
+    ffrtTimer_ = std::make_shared<FFRTTimer>("pasteboard_service");
     return;
 }
 
@@ -555,7 +556,10 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
-        EstablishP2PLink();
+        auto pasteId = pasteId_++;
+        data.SetPasteId(pasteId);
+        data.deviceId_ = event.second.deviceId;
+        EstablishP2PLink(data.deviceId_, data.GetPasteId());
     }
     GetPasteDataDot(data, appInfo.bundleName);
     return GrantUriPermission(data, appInfo.bundleName);
@@ -759,16 +763,22 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
     });
 }
 
-void PasteboardService::EstablishP2PLink()
+void PasteboardService::EstablishP2PLink(const std::string& networkId, int32_t pasteId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    auto networkId = currentEvent_.deviceId;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLink deviceId:%{public}.6s", networkId.c_str());
-    bool needOpen = p2pMap_.ComputeIfAbsent(networkId, [] (const auto& key) {
-        return 1;
+    auto callPid = IPCSkeleton::GetCallingPid();
+    p2pMap_.Compute(networkId, [pasteId, callPid] (const auto& key, auto& value) {
+        value.Compute(pasteId, [callPid] (const auto& key, auto& value) {
+            value = callPid;
+            return true;
+        });
+        return true;
     });
-    if (!needOpen) {
-        return;
+    if (ffrtTimer_ != nullptr) {
+        FFRTTask task = [this, networkId, pasteId] {
+            PasteComplete(networkId, pasteId);
+        };
+        ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
     }
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
@@ -793,12 +803,6 @@ void PasteboardService::EstablishP2PLink()
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
     }
-    std::thread thread([this, networkId]() mutable {
-        std::this_thread::sleep_for(std::chrono::seconds(MIN_TRANMISSION_TIME));
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink deviceId:%{public}.6s", networkId.c_str());
-        CloseP2PLink(networkId);
-    });
-    thread.detach();
 #endif
 }
 
@@ -811,25 +815,43 @@ void PasteboardService::CloseP2PLink(const std::string& networkId)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
         return;
     }
-    bool needClose = p2pMap_.ComputeIfPresent(networkId, [] (const auto& key, auto & value) {
-        return false;
-    });
-    if (needClose) {
-        auto status = DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
-        if (status != RESULT_OK) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "close p2p error, status:%{public}d", status);
-        }
+    auto status = DistributedFileDaemonManager::GetInstance().CloseP2PConnection(remoteDevice);
+    if (status != RESULT_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "close p2p error, status:%{public}d", status);
     }
     auto plugin = GetClipPlugin();
     if (plugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
         return;
     }
-    auto status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::IDLE);
+    status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::IDLE);
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state idle error, status:%{public}d", status);
     }
 #endif
+}
+
+void PasteboardService::PasteStart(const int32_t pasteId)
+{
+    if (ffrtTimer_ != nullptr) {
+        ffrtTimer_->CancelTimer(pasteId);
+    }
+}
+
+void PasteboardService::PasteComplete(const std::string &deviceId, const int32_t pasteId)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deviceId is %{public}.6s, taskId is %{public}d",
+        deviceId.c_str(), pasteId);
+    p2pMap_.ComputeIfPresent(deviceId, [pasteId, deviceId, this] (const auto& key, auto& value) {
+        value.ComputeIfPresent(pasteId, [deviceId] (const auto& key, auto& value) {
+            return false;
+        });
+        if (value.Empty()) {
+            CloseP2PLink(deviceId);
+            return false;
+        }
+        return true;
+    });
 }
 
 int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
@@ -1150,6 +1172,7 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     pasteData->SetTime(time);
     pasteData->SetScreenStatus(GetCurrentScreenStatus());
     pasteData->SetTokenId(tokenId);
+
     UpdateShareOption(*pasteData);
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
@@ -1958,13 +1981,19 @@ void PasteboardService::PasteboardEventSubscriber()
 {
     EventCenter::GetInstance().Subscribe(PasteboardEvent::DISCONNECT,
         [this](const OHOS::MiscServices::Event& event) {
-            auto& evt = static_cast<const PasteboardEvent&>(event);
+            auto &evt = static_cast<const PasteboardEvent &>(event);
             auto networkId = evt.GetNetworkId();
             if (networkId.empty()) {
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
                 return;
             }
-            CloseP2PLink(networkId);
+            p2pMap_.EraseIf([networkId, this](auto &key, auto &value) {
+                if (key == networkId) {
+                    CloseP2PLink(networkId);
+                    return true;
+                }
+                return false;
+            });
         });
 }
 
@@ -1980,6 +2009,114 @@ void PasteboardService::CommonEventSubscriber()
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
     commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo);
     EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
+}
+
+int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
+{
+    std::vector<std::string> networkIds;
+    p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
+        pidMap.EraseIf([pid, this](auto &key, auto &value) {
+            if (value == pid) {
+                PasteStart(key);
+                return true;
+            }
+            return false;
+        });
+        if (pidMap.Empty()) {
+            networkIds.emplace_back(networkId);
+            return true;
+        }
+        return false;
+    });
+    for (const auto& id: networkIds) {
+        CloseP2PLink(id);
+    }
+    return ERR_OK;
+}
+
+PasteboardService::PasteboardClientDeathObserverImpl::PasteboardClientDeathObserverImpl(PasteboardService &service,
+    sptr<IRemoteObject> observer) : dataService_(service), observerProxy_(std::move(observer)),
+    deathRecipient_(new PasteboardDeathRecipient(*this))
+{
+    uid_ = IPCSkeleton::GetCallingUid();
+    pid_ = IPCSkeleton::GetCallingPid();
+    token_ = IPCSkeleton::GetCallingTokenID();
+    if (observerProxy_ != nullptr) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add death recipient");
+        observerProxy_->AddDeathRecipient(deathRecipient_);
+    } else {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observerProxy_ is nullptr");
+    }
+}
+
+PasteboardService::PasteboardClientDeathObserverImpl::PasteboardClientDeathObserverImpl(PasteboardService &service)
+    : dataService_(service)
+{
+    Reset();
+}
+
+PasteboardService::PasteboardClientDeathObserverImpl::PasteboardClientDeathObserverImpl(
+    PasteboardClientDeathObserverImpl &&impl)
+    : uid_(impl.uid_), pid_(impl.pid_), token_(impl.token_), dataService_(impl.dataService_)
+{
+    impl.Reset();
+}
+
+PasteboardService::PasteboardClientDeathObserverImpl &PasteboardService::PasteboardClientDeathObserverImpl::operator=(
+    PasteboardService::PasteboardClientDeathObserverImpl &&impl)
+{
+    uid_ = impl.uid_;
+    pid_ = impl.pid_;
+    token_ = impl.token_;
+    impl.Reset();
+    return *this;
+}
+
+pid_t PasteboardService::PasteboardClientDeathObserverImpl::GetPid() const
+{
+    return pid_;
+}
+
+void PasteboardService::PasteboardClientDeathObserverImpl::Reset()
+{
+    uid_ = INVALID_UID;
+    pid_ = INVALID_PID;
+    token_ = INVALID_TOKEN;
+}
+
+PasteboardService::PasteboardClientDeathObserverImpl::~PasteboardClientDeathObserverImpl()
+{
+    if (deathRecipient_ != nullptr && observerProxy_ != nullptr) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "remove death recipient");
+        observerProxy_->RemoveDeathRecipient(deathRecipient_);
+    }
+}
+
+PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::PasteboardDeathRecipient(
+    PasteboardClientDeathObserverImpl &pasteboardClientDeathObserverImpl)
+    : pasteboardClientDeathObserverImpl_(pasteboardClientDeathObserverImpl)
+{
+}
+
+void PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::OnRemoteDied(
+    const wptr<IRemoteObject> &remote)
+{
+    (void) remote;
+    auto uid = pasteboardClientDeathObserverImpl_.uid_;
+    auto pid = pasteboardClientDeathObserverImpl_.pid_;
+    auto token = pasteboardClientDeathObserverImpl_.token_;
+    pasteboardClientDeathObserverImpl_.dataService_.AppExit(uid, pid, token);
+}
+
+PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::~PasteboardDeathRecipient()
+{
+}
+
+int32_t PasteboardService::RegisterClientDeathObserver(sptr<IRemoteObject> observer)
+{
+    clients_.Emplace(std::piecewise_construct, std::forward_as_tuple(IPCSkeleton::GetCallingPid()),
+        std::forward_as_tuple(*this, observer));
+    return ERR_OK;
 }
 
 std::function<void(const OHOS::MiscServices::Event &)> PasteboardService::RemotePasteboardChange()
