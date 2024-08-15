@@ -341,13 +341,13 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "data is invalid");
         return false;
     }
+    if (IsDataAged()) {
+        return false;
+    }
     auto screenStatus = GetCurrentScreenStatus();
     if (pasteData.GetScreenStatus() > screenStatus) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "current screen is %{public}d, set data screen is %{public}d.",
             screenStatus, pasteData.GetScreenStatus());
-        return false;
-    }
-    if (IsDataAged()) {
         return false;
     }
     switch (pasteData.GetShareOption()) {
@@ -1858,7 +1858,8 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         fileSize += hui.fileSize;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
-    data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
+    int32_t fileIntSize = (fileSize > INT_MAX) ? INT_MAX : static_cast<int32_t>(fileSize);
+    data.SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileIntSize));
     data.SetAddition(PasteData::REMOTE_FILE_SIZE_LONG, AAFwk::Long::Box(fileSize));
 }
 
