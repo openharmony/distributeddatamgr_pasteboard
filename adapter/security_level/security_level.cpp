@@ -22,7 +22,6 @@ namespace OHOS::MiscServices {
 uint32_t SecurityLevel::GetDeviceSecurityLevel()
 {
     if (securityLevel_ > DATA_SEC_LEVEL0) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get highest level : %{public}u", securityLevel_);
         return securityLevel_;
     }
     return GetSensitiveLevel();
