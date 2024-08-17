@@ -1032,6 +1032,10 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
         auto userId = GetCurrentAccountId();
         auto event = GetValidDistributeEvent(userId);
         if (event.first) {
+            auto it = std::find(event.second.dataType.begin(), event.second.dataType.end(), mimeType);
+            if (it != event.second.dataType.end()) {
+                return true;
+            }
             PasteData data;
             int32_t syncTime = 0;
             if (GetRemoteData(userId, event.second, data, syncTime) != static_cast<int32_t>(PasteboardError::E_OK)) {
