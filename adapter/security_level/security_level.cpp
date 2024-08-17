@@ -19,7 +19,7 @@
 
 namespace OHOS::MiscServices {
 
-SecurityLevel::Init(std::string deviceId)
+void SecurityLevel::Init(std::string deviceId)
 {
     deviceId_ = std::move(deviceId);
     securityLevel_ = DATA_SEC_LEVEL1;
