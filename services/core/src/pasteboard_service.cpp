@@ -150,8 +150,6 @@ void PasteboardService::OnStart()
     moduleConfig_.Init();
     auto ret = DATASL_OnStart();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", ret);
-    auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
-    securityLevel_.Init(udid);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
     if (Init() != ERR_OK) {

@@ -22,15 +22,11 @@
 namespace OHOS::MiscServices {
 class SecurityLevel {
 public:
-    void Init(std::string deviceId);
     uint32_t GetDeviceSecurityLevel();
 private:
     bool InitDEVSLQueryParams(DEVSLQueryParams *params, const std::string &udid);
     uint32_t GetSensitiveLevel();
-    std::string deviceId_ {};
-    uint32_t securityLevel_ = 0;
+    uint32_t securityLevel_ = DATA_SEC_LEVEL0;
 };
-
 } // namespace OHOS::MiscServices
-
 #endif // OHOS_PASTEBOARD_SECURITY_LEVEL_H
