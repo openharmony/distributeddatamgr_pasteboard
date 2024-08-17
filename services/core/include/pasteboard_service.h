@@ -34,7 +34,6 @@
 #include "clip/clip_plugin.h"
 #include "common/block_object.h"
 #include "common/concurrent_map.h"
-#include "dev_slinfo_mgr.h"
 #include "distributed_module_config.h"
 #include "eventcenter/event_center.h"
 #include "pasteboard_switch.h"
@@ -50,6 +49,7 @@
 #include "privacy_kit.h"
 #include "input_manager.h"
 #include "ffrt_utils.h"
+#include "security_level.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -287,8 +287,6 @@ private:
     void UpdateShareOption(PasteData &pasteData);
     void PasteboardEventSubscriber();
     void CommonEventSubscriber();
-    bool InitDEVSLQueryParams(DEVSLQueryParams *params, const std::string &udid);
-    uint32_t GetSensitiveLevel();
     std::function<void(const OHOS::MiscServices::Event &)> RemotePasteboardChange();
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
@@ -298,7 +296,7 @@ private:
     pid_t setPasteDataUId_ = 0;
     static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;
-    uint32_t deviceSecLevel_ = 0;
+    SecurityLevel securityLevel_;
     class PasteboardClientDeathObserverImpl {
     public:
         PasteboardClientDeathObserverImpl(PasteboardService &service, sptr<IRemoteObject> observer);
