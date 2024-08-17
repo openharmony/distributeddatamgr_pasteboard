@@ -2,11 +2,11 @@
   "string":[
     {
       "name":"pasteboard_title",
-      "value":"[TS_940609]_Cross-Device Clipboard"
+      "value":"[TS_940609]_Cross-device clipboard"
     },
     {
       "name":"pasteboard_desc",
-      "value":"[TS_940611]_Copy on one device, paste on another.\n\nDevices need to be close to each other, have Cross-device clipboard, WLAN, and Bluetooth enabled, and be using the same HUAWEI ID."
+      "value":"[TS_940611]_Copy on one device, paste on another.\n\nDevices need to be close to each other, have this feature, WLAN, and Bluetooth enabled, and be using the same HUAWEI ID."
     },
     {
       "name":"PasteboardSwitchAbility_desc",
