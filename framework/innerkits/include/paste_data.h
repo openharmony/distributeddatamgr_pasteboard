@@ -49,7 +49,7 @@ struct API_EXPORT PasteDataProperty : public TLVObject {
     bool isRemote = false;
     std::string bundleName;
     std::string setTime;
-    ScreenEvent screenStatus;
+    ScreenEvent screenStatus = ScreenEvent::Default;
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;

@@ -339,13 +339,13 @@ bool PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "data is invalid");
         return false;
     }
+    if (IsDataAged()) {
+        return false;
+    }
     auto screenStatus = GetCurrentScreenStatus();
     if (pasteData.GetScreenStatus() > screenStatus) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "current screen is %{public}d, set data screen is %{public}d.",
             screenStatus, pasteData.GetScreenStatus());
-        return false;
-    }
-    if (IsDataAged()) {
         return false;
     }
     switch (pasteData.GetShareOption()) {
