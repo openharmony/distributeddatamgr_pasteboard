@@ -49,6 +49,7 @@
 #include "privacy_kit.h"
 #include "input_manager.h"
 #include "ffrt_utils.h"
+#include "security_level.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -201,6 +202,7 @@ private:
     int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
     int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
+    int64_t GetFileSize(PasteData &data);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
@@ -294,6 +296,7 @@ private:
     pid_t setPasteDataUId_ = 0;
     static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;
+    SecurityLevel securityLevel_;
     class PasteboardClientDeathObserverImpl {
     public:
         PasteboardClientDeathObserverImpl(PasteboardService &service, sptr<IRemoteObject> observer);
