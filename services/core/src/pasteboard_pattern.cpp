@@ -1,11 +1,25 @@
+/*
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "pasteboard_service.h"
 
 #include <bitset>
 #include <unistd.h>
 
 namespace OHOS::MiscServices {
-PasteboardService::PatternCheckerFactory &PasteboardService::PatternCheckerFactory::
-GetInstance()
+PasteboardService::PatternCheckerFactory &PasteboardService::PatternCheckerFactory::GetInstance()
 {
     static PatternCheckerFactory instance;
     return instance;
@@ -19,8 +33,8 @@ void PasteboardService::PatternCheckerFactory::InitPatternCheckers()
         inited_ = true;
     }
 }
-std::shared_ptr<PasteboardService::PatternChecker> PasteboardService::
-PatternCheckerFactory::GetPatternChecker(const Pattern &pattern)
+std::shared_ptr<PasteboardService::PatternChecker> PasteboardService::PatternCheckerFactory::GetPatternChecker(
+    const Pattern &pattern)
 {
     auto it = patternCheckers_.find(pattern);
     if (it == patternCheckers_.end()) {
@@ -29,7 +43,7 @@ PatternCheckerFactory::GetPatternChecker(const Pattern &pattern)
     return it->second;
 }
 void PasteboardService::PatternCheckerFactory::RegisterPatternChecker(
-    const Pattern &pattern, 
+    const Pattern &pattern,
     const std::shared_ptr<PasteboardService::PatternChecker> checker)
 {
     patternCheckers_.insert_or_assign(pattern, checker);
@@ -64,7 +78,7 @@ std::unordered_set<Pattern> PasteboardService::ExistedPatterns(const std::unorde
     bool hasHTML = HasDataType(MIMETYPE_TEXT_HTML);
     bool hasPlain = HasDataType(MIMETYPE_TEXT_PLAIN);
     if (!hasHTML && !hasPlain) {
-        return {};   
+        return {};
     }
     // 2
     int32_t userId = GetCurrentAccountId();
@@ -92,7 +106,7 @@ std::unordered_set<Pattern> PasteboardService::ExistedPatterns(const std::unorde
                 }
                 std::shared_ptr<PatternChecker> checkerSP = PatternCheckerFactory
                 ::GetInstance().GetPatternChecker(pattern);
-                if (checkerSP==nullptr){
+                if (checkerSP==nullptr) {
                     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetPatternChecker nullptr error!");
                     break;
                 }
@@ -105,4 +119,4 @@ std::unordered_set<Pattern> PasteboardService::ExistedPatterns(const std::unorde
     // 5
     return existedPatterns;
 }
-}// namespace OHOS::MiscServices
+} // namespace OHOS::MiscServices

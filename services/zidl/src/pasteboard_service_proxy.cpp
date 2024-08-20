@@ -308,7 +308,7 @@ std::unordered_set<Pattern> PasteboardServiceProxy::ExistedPatterns(const std::u
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return {};
     }
-    uint32_t size=0;
+    uint32_t size = 0;
     if (!reply.ReadUint32(size)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read size of existed patterns");
         return {};

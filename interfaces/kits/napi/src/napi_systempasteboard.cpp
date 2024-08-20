@@ -855,7 +855,7 @@ napi_value SystemPasteboardNapi::ExistedPatternsAsync(napi_env env, napi_callbac
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         if ((!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The number of arguments must be grater than zero.")) ||
-            (!CheckArgsType(env, argv[0], napi_object, 
+            (!CheckArgsType(env, argv[0], napi_object,
             "Parameter error. The type of patterns must be uint32 array."))) {
             return napi_invalid_arg;
         }
@@ -874,9 +874,9 @@ napi_value SystemPasteboardNapi::ExistedPatternsAsync(napi_env env, napi_callbac
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec Detect ExistedPatternsAsync");
         context->patternsExisted = PasteboardClient::GetInstance()->ExistedPatterns(context->patternsToCheck);
         int i = 0;
-        for(auto pattern:context->patternsExisted) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Detect ExistedPatterns result%{public}d = %{public}d", 
-            i, static_cast<uint32_t>(pattern));
+        for (auto pattern:context->patternsExisted) {
+            PASTEBOARD_HILOGD(
+                PASTEBOARD_MODULE_JS_NAPI, "Detect ExistedPatterns result%{public}d = %{public}u", i, static_cast<uint32_t>(pattern));
             ++i;
         }
         context->status = napi_ok;
