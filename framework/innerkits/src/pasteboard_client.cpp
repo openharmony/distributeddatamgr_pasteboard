@@ -533,6 +533,17 @@ bool PasteboardClient::HasDataType(const std::string &mimeType)
     return ret;
 }
 
+std::unordered_set<Pattern> PasteboardClient::ExistedPatterns(const std::unordered_set<Pattern> &patternsToCheck)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ExistedPatterns start.");
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return {};
+    }
+    return proxyService->ExistedPatterns(patternsToCheck);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ExistedPatterns end.");
+}
+
 sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
 {
     std::unique_lock<std::mutex> lock(instanceLock_);

@@ -28,6 +28,8 @@
 #include <sys/time.h>
 #include <system_ability_definition.h>
 #include <thread>
+#include <unordered_set>
+#include <regex>
 
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
@@ -49,6 +51,7 @@
 #include "privacy_kit.h"
 #include "input_manager.h"
 #include "ffrt_utils.h"
+#include "security_level.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -100,6 +103,7 @@ public:
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) override;
     virtual bool IsRemoteData() override;
     virtual bool HasDataType(const std::string &mimeType) override;
+    virtual std::unordered_set<Pattern> ExistedPatterns(const std::unordered_set<Pattern> &patternsToCheck) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
     virtual void SubscribeObserver(PasteboardObserverType type,
         const sptr<IPasteboardChangedObserver> &observer) override;
@@ -152,6 +156,47 @@ private:
         PasteboardService &service_;
     };
 
+    class PatternChecker {
+    public:
+        virtual bool IsExist(const std::string &content) = 0;
+        virtual ~PatternChecker() {}
+    };
+    class PatternCheckerFactory {
+    public:
+        static PatternCheckerFactory &GetInstance();
+        void InitPatternCheckers();
+        std::shared_ptr<PatternChecker> GetPatternChecker(const Pattern &pattern);
+    private:
+        PatternCheckerFactory() {inited_ = false;}
+        ~PatternCheckerFactory() {}
+        PatternCheckerFactory(const PatternCheckerFactory &) = delete;
+        PatternCheckerFactory &operator=(const PatternCheckerFactory &) = delete;
+        void RegisterPatternChecker(const Pattern &pattern, std::shared_ptr<PatternChecker> registChecker);
+        std::map<Pattern, std::shared_ptr<PatternChecker>> patternCheckers_;
+        bool inited_;
+    };
+    class URLPatternChecker : public PatternChecker {
+    public:
+        URLPatternChecker() {}
+        bool IsExist(const std::string &content) override;
+    private:
+        static std::regex urlRegex_;
+    };
+    class NumberPatternChecker : public PatternChecker {
+    public:
+        NumberPatternChecker() {}
+        bool IsExist(const std::string &content) override;
+    private:
+        static std::regex numberRegex_;
+    };
+    class EmailAddressPatternChecker : public PatternChecker {
+    public:
+        EmailAddressPatternChecker() {}
+        bool IsExist(const std::string &content) override;
+    private:
+        static std::regex emailAddressRegex_;
+    };
+
     class RemoteDataTaskManager {
     public:
         struct TaskContext {
@@ -201,6 +246,7 @@ private:
     int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
     int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
+    int64_t GetFileSize(PasteData &data);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
@@ -294,6 +340,7 @@ private:
     pid_t setPasteDataUId_ = 0;
     static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;
+    SecurityLevel securityLevel_;
     class PasteboardClientDeathObserverImpl {
     public:
         PasteboardClientDeathObserverImpl(PasteboardService &service, sptr<IRemoteObject> observer);

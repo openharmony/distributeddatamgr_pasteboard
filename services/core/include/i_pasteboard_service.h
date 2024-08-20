@@ -32,6 +32,7 @@ public:
     virtual bool IsRemoteData() = 0;
     virtual int32_t GetDataSource(std::string &bundleName) = 0;
     virtual bool HasDataType(const std::string &mimeType) = 0;
+    virtual std::unordered_set<Pattern> ExistedPatterns(const std::unordered_set<Pattern> &patternsToCheck) = 0;
     virtual void SubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) = 0;
     virtual void UnsubscribeObserver(PasteboardObserverType type,
         const sptr<IPasteboardChangedObserver> &observer) = 0;

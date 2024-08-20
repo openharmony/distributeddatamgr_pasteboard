@@ -212,6 +212,26 @@ struct GetUnifiedContextInfo : public AsyncCall::Context {
     }
 };
 
+struct ExistedPatternsContextInfo : public AsyncCall::Context {
+    std::unordered_set<MiscServices::Pattern> patternsExisted;
+    std::unordered_set<MiscServices::Pattern> patternsToCheck;
+    napi_status status = napi_generic_failure;
+    ExistedPatternsContextInfo() : Context(nullptr, nullptr){};
+
+    napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
+    {
+        NAPI_ASSERT_BASE(env, self != nullptr, "self is nullptr", napi_invalid_arg);
+        return Context::operator()(env, argc, argv, self);
+    }
+    napi_status operator()(napi_env env, napi_value *result) override
+    {
+        if (status != napi_ok) {
+            return status;
+        }
+        return Context::operator()(env, result);
+    }
+};
+
 class SystemPasteboardNapi {
 public:
     static napi_value SystemPasteboardInit(napi_env env, napi_value exports);
@@ -236,6 +256,7 @@ private:
     static napi_value IsRemoteData(napi_env env, napi_callback_info info);
     static napi_value GetDataSource(napi_env env, napi_callback_info info);
     static napi_value HasDataType(napi_env env, napi_callback_info info);
+    static napi_value ExistedPatternsAsync(napi_env env, napi_callback_info info);
     static napi_value ClearDataSync(napi_env env, napi_callback_info info);
     static napi_value GetDataSync(napi_env env, napi_callback_info info);
     static napi_value SetDataSync(napi_env env, napi_callback_info info);

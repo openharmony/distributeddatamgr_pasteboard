@@ -253,6 +253,28 @@ napi_value PasteboardNapi::JScreateShareOption(napi_env env, napi_callback_info 
     return jsShareOption;
 }
 
+napi_value PasteboardNapi::JScreatePattern(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreatePattern is called!");
+
+    napi_value jsPattern = nullptr;
+    napi_create_object(env, &jsPattern);
+
+    napi_value jsURL = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::URL));
+    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "url", jsURL));
+    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "URL", jsURL));
+
+    napi_value jsNumber = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::Number));
+    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "Number", jsNumber));
+    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "NUMBER", jsNumber));
+
+    napi_value jsEmailAddress = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::EmailAddress));
+    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "EmailAddress", jsEmailAddress));
+    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "EMAILADDRESS", jsEmailAddress));
+
+    return jsPattern;
+}
+
 napi_value PasteboardNapi::JScreatePlainTextRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreatePlainTextRecord is called!");
@@ -457,6 +479,8 @@ napi_value PasteboardNapi::PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createRecord", JSCreateRecord),
         DECLARE_NAPI_FUNCTION("getSystemPasteboard", JSgetSystemPasteboard),
         DECLARE_NAPI_GETTER("ShareOption", JScreateShareOption),
+        DECLARE_NAPI_GETTER("ShareOption", JScreateShareOption),
+        DECLARE_NAPI_GETTER("Pattern", JScreatePattern),
         DECLARE_NAPI_PROPERTY("MAX_RECORD_NUM", CreateNapiNumber(env, PasteData::MAX_RECORD_NUM)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_PIXELMAP", CreateNapiString(env, MIMETYPE_PIXELMAP)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_HTML", CreateNapiString(env, MIMETYPE_TEXT_HTML)),

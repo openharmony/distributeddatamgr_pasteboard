@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 #include "paste_data_record.h"
 #include "pasteboard_hilog.h"
@@ -33,6 +34,7 @@
 namespace OHOS {
 namespace MiscServices {
 enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
+enum class Pattern : uint32_t { URL = 0, Number, EmailAddress, PatternCount_ };
 enum ScreenEvent : int32_t { Default = 0, ScreenLocked, ScreenUnlocked };
 struct API_EXPORT PasteDataProperty : public TLVObject {
     PasteDataProperty() = default;

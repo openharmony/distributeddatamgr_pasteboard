@@ -47,6 +47,7 @@ private:
     static napi_value JScreateHtmlTextRecord(napi_env env, napi_callback_info info);
     static napi_value JScreateWantRecord(napi_env env, napi_callback_info info);
     static napi_value JScreateShareOption(napi_env env, napi_callback_info info);
+    static napi_value JScreatePattern(napi_env env, napi_callback_info info);
     static napi_value JScreatePlainTextRecord(napi_env env, napi_callback_info info);
     static napi_value JScreatePixelMapRecord(napi_env env, napi_callback_info info);
     static napi_value JScreateUriRecord(napi_env env, napi_callback_info info);

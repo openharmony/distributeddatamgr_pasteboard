@@ -16,6 +16,7 @@
 
 #include <bitset>
 #include <unistd.h>
+#include <regex>
 
 #include "ability_manager_client.h"
 #include "tokenid_kit.h"
@@ -148,6 +149,8 @@ void PasteboardService::OnStart()
     uid_ = loader.LoadUid();
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
     moduleConfig_.Init();
+    auto ret = DATASL_OnStart();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", ret);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
     if (Init() != ERR_OK) {
@@ -545,14 +548,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
         return result;
     }
-    int64_t fileSize = 0L;
-    auto value = data.GetProperty().additions.GetParam(PasteData::REMOTE_FILE_SIZE_LONG);
-    AAFwk::ILong *ao = AAFwk::ILong::Query(value);
-    if (ao != nullptr) {
-        fileSize = AAFwk::Long::Unbox(ao);
-    } else {
-        fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
-    }
+    int64_t fileSize = GetFileSize(data);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
@@ -563,6 +559,19 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     }
     GetPasteDataDot(data, appInfo.bundleName);
     return GrantUriPermission(data, appInfo.bundleName);
+}
+
+int64_t PasteboardService::GetFileSize(PasteData &data)
+{
+    int64_t fileSize = 0L;
+    auto value = data.GetProperty().additions.GetParam(PasteData::REMOTE_FILE_SIZE_LONG);
+    AAFwk::ILong *ao = AAFwk::ILong::Query(value);
+    if (ao != nullptr) {
+        fileSize = AAFwk::Long::Unbox(ao);
+    } else {
+        fileSize = data.GetProperty().additions.GetIntParam(PasteData::REMOTE_FILE_SIZE, -1);
+    }
+    return fileSize;
 }
 
 PasteboardService::RemoteDataTaskManager::DataTask PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(const
@@ -1032,6 +1041,10 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
         auto userId = GetCurrentAccountId();
         auto event = GetValidDistributeEvent(userId);
         if (event.first) {
+            auto it = std::find(event.second.dataType.begin(), event.second.dataType.end(), mimeType);
+            if (it != event.second.dataType.end()) {
+                return true;
+            }
             PasteData data;
             int32_t syncTime = 0;
             if (GetRemoteData(userId, event.second, data, syncTime) != static_cast<int32_t>(PasteboardError::E_OK)) {
@@ -1829,7 +1842,6 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     return true;
 }
 
-
 void PasteboardService::GenerateDistributedUri(PasteData &data)
 {
     auto userId = GetCurrentAccountId();
@@ -1867,6 +1879,11 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
 {
     auto isOn = moduleConfig_.IsOn();
     std::lock_guard<decltype(mutex)> lockGuard(mutex);
+    auto securityLevel = securityLevel_.GetDeviceSecurityLevel();
+    if (isOn && (securityLevel < DATA_SEC_LEVEL3)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "device sec level is %{public}u less than 3.", securityLevel);
+        return nullptr;
+    }
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;
     }
@@ -1897,6 +1914,11 @@ void PasteboardService::OnConfigChange(bool isOn)
     std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (!isOn) {
         clipPlugin_ = nullptr;
+        return;
+    }
+    auto securityLevel = securityLevel_.GetDeviceSecurityLevel();
+    if (securityLevel < DATA_SEC_LEVEL3) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "device sec level is %{public}u less than 3.", securityLevel);
         return;
     }
     if (clipPlugin_ != nullptr) {

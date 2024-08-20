@@ -39,6 +39,7 @@
           "device_info_manager",
           "device_manager",
           "data_share",
+          "dataclassification",
           "dfs_service",
           "dlp_permission_service",
           "eventhandler",
@@ -106,7 +107,7 @@
         ],
         "test": [
           "//foundation/distributeddatamgr/pasteboard/framework/test:PasteboardFrameworkTest",
-          "//foundation/distributeddatamgr/pasteboard/services/test:PasteboardServiceTest",
+          "//foundation/distributeddatamgr/pasteboard/services/test:unittest",
           "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest",
           "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardapi:unittest",
           "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardperf:unittest"

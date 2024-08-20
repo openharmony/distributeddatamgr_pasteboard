@@ -237,6 +237,131 @@ HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
 }
 
 /**
+* @tc.name: PasteboardTest001
+* @tc.desc: Create paste board test.
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
+{
+    auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record1");
+    ASSERT_TRUE(record != nullptr);
+    std::string plainText = "plain text";
+    auto data = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(data != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData pasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get.");
+    auto primaryText = pasteData.GetPrimaryText();
+    ASSERT_TRUE(primaryText != nullptr);
+    ASSERT_TRUE(*primaryText == plainText);
+}
+
+/**
+* @tc.name: ExistedPatterns001
+* @tc.desc: check existence of URL
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardServiceTest, ExistedPatterns001, TestSize.Level0)
+{
+    std::string plainText1 = "【最高888元，每天三次抢红I包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开手机淘宝即可 查看，淘口令："
+    "(￥oFn2bqKbHxv￥https://github.com/makelove/Taobao_to"
+    "psdk/blob/master/%E6%B7%98%E5%8F%A3%E4%BB%A4%E8%A7%84%E5%88%99.md）";
+    auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
+    PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    std::unordered_set<Pattern> patternsToCheck{Pattern::URL};
+    auto ret1 = PasteboardClient::GetInstance()->ExistedPatterns(patternsToCheck);
+    ASSERT_EQ(ret1, patternsToCheck);
+    std::string plainText2 = "【最高888元，每天三次抢红I包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开手机淘宝即可 查看，淘口令："
+    "(￥oFn2bqKbHxv￥软骨素用3人员为bdfdgse）";
+    auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
+    PasteboardClient::GetInstance()->SetPasteData(*newData2);
+    auto ret2 = PasteboardClient::GetInstance()->ExistedPatterns(patternsToCheck);
+    ASSERT_EQ(ret2, std::unordered_set<Pattern>());
+    std::string plainText3 = "来自网盘分享文件：\n"
+    "「格式测试」\n"
+    "链接：\n"
+    "https://pre-drive.uc.cn/s/42e1d77f3dab4"
+    "网盘——上传下载不限速，网速有多快，速度就有多快。复制整段内容后打开最新版「浏览器」打开:\n"
+    "~b00433tddj~";
+    auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
+    PasteboardClient::GetInstance()->SetPasteData(*newData3);
+    std::unordered_set<Pattern> patternsToCheck3{Pattern::URL, Pattern::Number};
+    auto ret3 = PasteboardClient::GetInstance()->ExistedPatterns(patternsToCheck3);
+    ASSERT_EQ(ret3, patternsToCheck3);
+}
+
+/**
+* @tc.name: ExistedPatterns002
+* @tc.desc: check existence of Number
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardServiceTest, ExistedPatterns002, TestSize.Level0)
+{
+    std::string plainText1 = "【最高888元，每天三次抢红I包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开手机淘宝即可 查看，淘口令："
+    "(￥oFn2bqKbHxv￥https://github.com/makelove/Taobao_to"
+    "psdk/blob/master/%E6%B7%98%E5%8F%A3%E4%BB%A4%E8%A7%84%E5%88%99.md）";
+    auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
+    PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    std::unordered_set<Pattern> patternsToCheck{Pattern::Number, Pattern::URL};
+    auto ret1 = PasteboardClient::GetInstance()->ExistedPatterns(patternsToCheck);
+    ASSERT_EQ(ret1, patternsToCheck);
+    std::string plainText2 = "【最高元，每天三次抢红包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开手机淘宝即可 查看，淘口令：trfwrtg"
+    "(￥￥软骨素用人员为bdfdgse https://github.com/makelove）";
+    auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
+    PasteboardClient::GetInstance()->SetPasteData(*newData2);
+    auto ret2 = PasteboardClient::GetInstance()->ExistedPatterns(patternsToCheck);
+    std::unordered_set<Pattern> expected2{Pattern::URL};
+    ASSERT_EQ(ret2, expected2);
+}
+
+/**
+* @tc.name: ExistedPatterns003
+* @tc.desc: check existence of Email Address
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardServiceTest, ExistedPatterns003, TestSize.Level0)
+{
+    std::string plainText1 = "【最高888元，每天三次抢红I包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开手机淘宝即可 查看，淘口令："
+    "(￥oFn2bqKbHxv￥1289w2iuj@163.com）";
+    auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
+    PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    std::unordered_set<Pattern> patternsToCheck{Pattern::Number, Pattern::URL, Pattern::EmailAddress};
+    auto ret1 = PasteboardClient::GetInstance()->ExistedPatterns(patternsToCheck);
+    std::unordered_set<Pattern> expected1{Pattern::Number, Pattern::EmailAddress};
+    ASSERT_EQ(ret1, expected1);
+    std::string plainText2 = "【最高元，每天三次抢红包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开手机淘宝即可 查看，淘口令：trfwrtg"
+    "(￥￥软骨素用人员为bdfdgse https://github.com/makelove/ usdq12_22swe@192.168.1.35）";
+    auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
+    PasteboardClient::GetInstance()->SetPasteData(*newData2);
+    auto ret2 = PasteboardClient::GetInstance()->ExistedPatterns(patternsToCheck);
+    std::unordered_set<Pattern> expected2{Pattern::Number, Pattern::URL, Pattern::EmailAddress};
+    ASSERT_EQ(ret2, expected2);
+    std::string plainText3 = "【最高元，每天三次抢红aefw包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开sfsdf手机淘宝即可 查看，淘口令：defeqfdt）";
+    auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
+    PasteboardClient::GetInstance()->SetPasteData(*newData3);
+    auto ret3 = PasteboardClient::GetInstance()->ExistedPatterns(patternsToCheck);
+    ASSERT_EQ(ret3, std::unordered_set<Pattern>{});
+}
+
+/**
 * @tc.name: PasteRecordTest001
 * @tc.desc: Create paste board record test.
 * @tc.type: FUNC

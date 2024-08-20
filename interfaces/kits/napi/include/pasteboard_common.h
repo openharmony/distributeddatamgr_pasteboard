@@ -20,14 +20,19 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "pasteboard_js_err.h"
+#include "paste_data.h"
+
 namespace OHOS {
 namespace MiscServicesNapi {
+using namespace OHOS::MiscServices;
 napi_value GetCallbackErrorValue(napi_env env, int32_t errorCode);
 void SetCallback(const napi_env &env, const napi_ref &callbackIn, const napi_value *result);
 napi_value NapiGetNull(napi_env env);
 napi_value CreateNapiNumber(napi_env env, int32_t num);
 napi_value CreateNapiString(napi_env env, std::string str);
 bool GetValue(napi_env env, napi_value in, std::string &out);
+bool GetValue(napi_env env, napi_value in, std::unordered_set<MiscServices::Pattern> &out);
+napi_status SetValue(napi_env env, std::unordered_set<MiscServices::Pattern> &in, napi_value **result);
 bool CheckArgsType(napi_env env, napi_value in, napi_valuetype expectedType, const char *message);
 bool CheckExpression(napi_env env, bool expression, MiscServices::JSErrorCode errCode, const char *message);
 bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeType);

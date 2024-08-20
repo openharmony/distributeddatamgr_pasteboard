@@ -90,6 +90,54 @@ bool GetValue(napi_env env, napi_value in, std::string &out)
     return true;
 }
 
+/* napi_value <-> std::unordered_set */
+bool GetValue(napi_env env, napi_value in, std::unordered_set<MiscServices::Pattern> &out)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
+    NAPI_ASSERT_BASE(env, type == napi_object, "Wrong argument type. uint32 array expected.", false);
+    
+    uint32_t len = 0;
+    napi_status status = napi_get_array_length(env, in, &len);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length status = %{public}d", status);
+    if ((status != napi_ok) | (len < 0)) {
+        return false;
+    }
+
+    for (uint32_t i = 0; i < len; i++) {
+        napi_value element; 
+        napi_status status = napi_get_element(env, in, i, &element);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_get_element%{public}d status = %{public}d", i, status);
+        if (status != napi_ok) return false;
+        uint32_t pattern;
+        status = napi_get_value_uint32(env, element, &pattern);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_get_value_uint32 status = %{public}d", status);
+        if (status != napi_ok) return false;
+        out.insert(static_cast<MiscServices::Pattern>(pattern));
+    }
+    return true;
+}
+
+/* napi_value <-> std::unordered_set */
+napi_status SetValue(napi_env env, std::unordered_set<MiscServices::Pattern> &in, napi_value **result)
+{
+    napi_status status = napi_create_array(env, *result);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_create_array status = %{public}d", status);
+    if (status != napi_ok) return status;
+    int i = 0;
+    for(auto pattern : in) {
+        napi_value element;
+        status = napi_create_uint32(env, static_cast<uint32_t>(pattern), &element);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_create_uint32 status = %{public}d", status);
+        if (status != napi_ok) return status;
+        status = napi_set_element(env, **result, i, element);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_set_element %{public}d status = %{public}d", i, status);
+        if (status != napi_ok) return status;
+        ++i;
+    }
+    return status;
+}
+
 bool CheckArgsType(napi_env env, napi_value in, napi_valuetype expectedType, const char *message)
 {
     napi_valuetype type = napi_undefined;

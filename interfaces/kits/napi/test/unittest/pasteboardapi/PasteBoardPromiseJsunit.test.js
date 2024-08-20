@@ -1486,6 +1486,28 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
+   * @tc.name      pasteboard_promise_test53
+   * @tc.desc      Adds PlainTextData = 'Hello 中国!@#$%^&*()_+{}\?. 123'
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test53', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData53 = 'Hello 中国!@#$%^&*()_+{}?. 123';
+    const pasteData = pasteboard.createPlainTextData(textData3);
+    await systemPasteboard.setPasteData(pasteData);
+    const res3 = await systemPasteboard.hasPasteData();
+    expect(res3).assertEqual(true);
+    const patterns53 = [pasteboard.Pattern.URL, pasteboard.Pattern.Number];
+    systemPasteboard.detectPatterns(patterns53).then((data) => {
+      const patternsRight53 = [pasteboard.Pattern.Number];
+      expect(data).assertEqual(patternsRight53);
+      done();
+    });
+  });
+
+  /**
    *  The callback function is used for pasteboard content changes
    */
   function contentChanges() {
