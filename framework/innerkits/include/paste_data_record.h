@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 
+#include "common/constant.h"
 #include "message_parcel.h"
 #include "pixel_map.h"
 #include "string_ex.h"
@@ -29,14 +30,6 @@
 #include "want.h"
 namespace OHOS {
 namespace MiscServices {
-namespace {
-const std::string MIMETYPE_PIXELMAP = "pixelMap";
-const std::string MIMETYPE_TEXT_HTML = "text/html";
-const std::string MIMETYPE_TEXT_PLAIN = "text/plain";
-const std::string MIMETYPE_TEXT_URI = "text/uri";
-const std::string MIMETYPE_TEXT_WANT = "text/want";
-} // namespace
-
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
 
 class API_EXPORT MineCustomData : public TLVObject {
