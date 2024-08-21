@@ -21,8 +21,8 @@ namespace OHOS {
 namespace MiscServices {
 namespace RadarReporter {
 using namespace OHOS::HiviewDFX;
-static constexpr int DIST_DATA_MGR_SYS_ID = 0xd;
-static constexpr int PASTEBOARD_ID = 8;
+constexpr int DIST_DATA_MGR_SYS_ID = 0xd;
+constexpr int PASTEBOARD_ID = 8;
 enum BizScene : std::int32_t {
     DFX_SET_PASTEBOARD = 1,
     DFX_DISTRIBUTED_PASTEBOARD_BROADCAST_SEND = 2,
@@ -131,13 +131,13 @@ enum ErrorCode : std::int32_t {
 
 class PasteboardDfxUntil {
 public:
-    static std::string GetAnonymousID(std:: string deviceId);
+    static std::string GetAnonymousID(std::string deviceId);
 private:
-    static constexpr int MIN_ID_LEN = 10;
-    static constexpr int MASK_ID_LEN = 5;
+    static constexpr int minIdLen = 10;
+    static constexpr int maskIdLen = 5;
 };
 
-static constexpr char DOMAIN[] = "DISTDATAMGR";
+constexpr char DOMAIN[] = "DISTDATAMGR";
 constexpr const char* EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOR";
 constexpr const char* ORG_PKG = "distributeddata";
 constexpr const char* BIZ_STATE = "BIZ_STATE";
@@ -155,7 +155,7 @@ constexpr const char* CONCURRENT_ID = "CONCURRENT_ID";
 constexpr const char* DIS_SYNC_TIME = "DIS_SYNC_TIME";
 constexpr const char* PACKAGE_NAME = "PACKAGE_NAME";
 constexpr const char* PEER_NET_ID = "PEER_NET_ID";
-static constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
+constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                    \
 ({                                                                                         \
