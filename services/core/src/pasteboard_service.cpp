@@ -536,7 +536,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     CalculateTimeConsuming::SetBeginTime();
     auto appInfo = GetAppInfo(tokenId);
     int32_t result = static_cast<int32_t>(PasteboardError::E_OK);
-    std::string peerNetId= "";
+    std::string peerNetId = "";
     auto event = GetValidDistributeEvent(appInfo.userId);
     if (!event.first || GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
         result = GetLocalData(appInfo, data);
@@ -558,7 +558,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
-        data.SetPasteId(pasteId);
+        data.SetPasteId(pasteId_);
         data.deviceId_ = event.second.deviceId;
         EstablishP2PLink(data.deviceId_, data.GetPasteId());
     }

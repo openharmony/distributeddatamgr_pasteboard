@@ -126,7 +126,7 @@ public:
     void CancelTimer(const std::string &timerId);
     void SetTimer(const std::string &timerId, FFRTTask& task);
     void SetTimer(const std::string &timerId, FFRTTask& task, uint32_t delayMs);
-    uint32_t GetTaskId(std::string &timerId);
+    uint32_t GetTaskId(const std::string &timerId);
 private:
     /* inner functions must be called when mutex_ is locked */
     void CancelAllTimerInner();

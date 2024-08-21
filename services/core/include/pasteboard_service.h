@@ -212,7 +212,7 @@ private:
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
-    void EstablishP2PLink(const std::string& networkId, int32_t pasteId);
+    void EstablishP2PLink(const std::string& networkId, const std::string &pasteId);
     void CloseP2PLink(const std::string& networkId);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
@@ -271,7 +271,7 @@ private:
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
     std::string pasteId_;
-    ConcurrentMap<std::string, ConcurrentMap<int32_t, int32_t>> p2pMap_;
+    ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
     PastedSwitch switch_;
 

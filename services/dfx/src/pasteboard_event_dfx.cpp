@@ -16,12 +16,15 @@
 #include "pasteboard_event_dfx.h"
 
 namespace OHOS {
-namespace MiscServices{
-std::string PasteboardDfxUntil::GetAnonymousID(std:: string deviceId) {
+namespace MiscServices {
+namespace RadarReporter {
+std::string PasteboardDfxUntil::GetAnonymousID(std::string deviceId)
+{
     if (deviceId.empty() || deviceId.length() < MIN_ID_LEN) {
         return "unknown";
     }
     return deviceId.substr(0, MASK_ID_LEN) + "**" + deviceId.substr(deviceId.length() - MASK_ID_LEN);
 }
+} // namespace RadarReporter
 } // namespace MiscServices
 } // namespace OHOS
