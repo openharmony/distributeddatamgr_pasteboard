@@ -35,6 +35,10 @@
     {
       "name": "multi_device_collaboration",
       "value": "More connectivity options"
+    },
+    {
+      "name": "update_version_prompt",
+      "value": "The peer party must upgrade to HarmonyOS NEXT or later."
     }
   ]
 }

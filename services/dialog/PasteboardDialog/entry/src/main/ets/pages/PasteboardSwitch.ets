@@ -119,7 +119,7 @@ getStringSync() {
   }
 
   getImageArray() {
-    console.info(TAG + 'getStringSync in');
+    console.info(TAG + 'getImageArray in');
     for (let i = 1; i <= CommonConstants.IMAGE_COUNT; i++) {
       this.imageArray.push({
         src: $r(`app.media.pasteboard_${i}`)
@@ -293,6 +293,32 @@ getStringSync() {
               .borderRadius(this.is2in1 ? CommonConstants.PC_BORDER_RADIUS : CommonConstants.NON_PC_BORDER_RADIUS)
               .accessibilityText(this.title)
             }.width('100%')
+
+          Column() {
+            Flex({
+              direction: FlexDirection.Row,
+              justifyContent: FlexAlign.Start,
+              alignItems: ItemAlign.Center
+            }) {
+              SymbolGlyph($r('sys.symbol.info_circle_fill'))
+                .fontWeight(FontWeight.Medium)
+                .fontSize(CommonConstants.SYMBOL_INFO_CIRCLE)
+                .fontColor([$r('sys.color.ohos_id_color_activated')])
+                .margin({ right: CommonConstants.SYMBOL_MARGIN_RIGHT })
+
+              Text($r('app.string.update_version_prompt'))
+                .fontSize($r('sys.float.ohos_id_text_size_body3'))
+                .fontWeight(FontWeight.Medium)
+                .fontColor($r('sys.color.ohos_id_color_text_primary'))
+                .textAlign(TextAlign.Center)
+                .lineHeight(CommonConstants.UPDATE_PROMPT_LINE_HEIGHT)
+            }
+            .margin({ top: CommonConstants.UPDATE_PROMPT_MARGIN_TOP })
+          }
+          .padding({
+            left: CommonConstants.TEXT_LIST_ALIGN_DISTANCE,
+            right: CommonConstants.TEXT_LIST_ALIGN_DISTANCE
+          })
         }
         .width('100%')
         .padding({ left: this.gapLength, right: this.gapLength })
@@ -306,7 +332,7 @@ getStringSync() {
       .align(Alignment.TopStart)
       .friction(0.6)
       .edgeEffect(EdgeEffect.Spring)
-      .onScroll((xOffset: number, yOffset: number) => {
+      .onWillScroll((xOffset: number, yOffset: number) => {
         console.info(TAG + 'onScroll : xOffset:' + xOffset + ' ; yOffset' + yOffset);
       })
       .onScrollEdge(() => {
