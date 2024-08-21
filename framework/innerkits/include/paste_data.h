@@ -156,7 +156,7 @@ private:
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste
     bool isDelayData_ = false;
-    std::string pasteId_ = "default";
+    std::string pasteId_;
 };
 } // namespace MiscServices
 } // namespace OHOS
