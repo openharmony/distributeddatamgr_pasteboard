@@ -1857,12 +1857,13 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)
 {
+    std::vector<std::string> uris;
+    std::vector<size_t> indexs;
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return;
     }
-    size_t fileSize = 0;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
@@ -1873,14 +1874,29 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "orginuri=%{public}s, no permission", uri.ToString().c_str());
             continue;
         }
-        HmdfsUriInfo hui;
-        auto ret = RemoteFileShare::GetDfsUriFromLocal(uri.ToString(), userId, hui);
-        if (ret != 0) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "creat uri failed: %{public}d", ret);
-            continue;
+        uris.emplace_back(uri.ToString());
+        indexs.emplace_back(i);
+    }
+    size_t fileSize = 0;
+    std::unordered_map<std::string, HmdfsUriInfo> dfsUris;
+    if (!uris.empty()) {
+        int ret = RemoteFileShare::GetDfsUrisFromLocal(uris, userId, dfsUris);
+        if (ret != 0 || dfsUris.empty()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get remoteUri failed, ret = %{public}d, userId: %{public}d,"
+                "uri size:%{public}zu.", ret, userId, uris.size());
+            return;
         }
-        item->SetConvertUri(hui.uriStr);
-        fileSize += hui.fileSize;
+        for (size_t i = 0; i < indexs.size(); i++) {
+            auto item = data.GetRecordAt(indexs[i]);
+            if (item == nullptr || item->GetOrginUri() == nullptr) {
+                continue;
+            }
+            auto it = dfsUris.find(item->GetOrginUri()->ToString());
+            if (it != dfsUris.end()) {
+                item->SetConvertUri(it->second.uriStr);
+                fileSize += it->second.fileSize;
+            }
+        }
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "file size: %{public}zu", fileSize);
     int32_t fileIntSize = (fileSize > INT_MAX) ? INT_MAX : static_cast<int32_t>(fileSize);
