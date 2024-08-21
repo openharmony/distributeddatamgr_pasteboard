@@ -135,7 +135,7 @@ void CheckHTMLText(Patterns &patternsOut, const Patterns &patternsIn, const std:
     std::sregex_token_iterator iter(htmlText.begin(), htmlText.end(), imgRegex, -1);
     std::sregex_token_iterator end;
     while (iter != end) {
-        CheckPlainText(patternsOut, patternsIn ,*iter++);
+        CheckPlainText(patternsOut, patternsIn, *iter++);
     }
 }
 void CheckURI(Patterns &patternsOut, const std::string &uriText)
