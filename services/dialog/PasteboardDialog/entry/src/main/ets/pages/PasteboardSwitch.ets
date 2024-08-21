@@ -21,9 +21,9 @@ import { BusinessError } from '@ohos.base';
 import { EditableLeftIconType, EditableTitleBar } from '@ohos.arkui.advanced.EditableTitleBar';
 import mediaQuery from '@ohos.mediaquery';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
+import CommonConstants from '../common/constants/CommonConstants';
 
 const TAG = '[PasteboardSwitch_Page] : ';
-const IMAGE_COUNT: number = 167;
 let context = getContext(this) as common.UIAbilityContext;
 let localStorage = LocalStorage.getShared();
 
@@ -33,8 +33,8 @@ interface switchStatus {
 }
 
 let switchState: switchStatus = {
-  open: '1',
-  close: '0'
+  open: CommonConstants.SWITCH_STATUS_OPEN,
+  close: CommonConstants.SWITCH_STATUS_CLOSE
 }
 
 @Entry
@@ -46,15 +46,19 @@ struct PasteboardSwitch {
   @State screenHeight: number = 0;
   @State screenWidth: number = 0;
   @State shortSideSize: number = 0;
-  @State videoHeight: number = 0;
-  @State videoWidth: number = 0;
+  @State imageAnimatorHeight: number = 0;
+  @State imageAnimatorWidth: number = 0;
   @State textWidth: number = 0;
   @State gapLength: number = 0;
   @State videoSrc: Resource = $rawfile('clipboard.mp4');
   @State isShow: boolean = false;
   @State is2in1: boolean = false;
   @State portraitFunc: mediaQuery.MediaQueryResult | void | null = null;
-  @State images: Array<ImageFrameInfo> = [];
+  @State contentHeight: number = 0;
+  @State imageArray: Array<ImageFrameInfo> = [];
+  @State animationState: AnimationStatus = AnimationStatus.Running;
+  @State reverse: boolean = false;
+  @State iterations: number = -1;
   private videoController: VideoController | undefined = undefined;
   private listener: mediaQuery.MediaQueryListener = mediaQuery.matchMediaSync('(dark-mode:true)');
   private extContext?: common.UIExtensionContext;
@@ -71,17 +75,60 @@ struct PasteboardSwitch {
     }
   }
 
-  getVideoSize() {
-    console.log(TAG + 'getVideoSize in, deviceInfo.deviceType : ' + deviceInfo.deviceType);
+   /**
+   * @description Calculate the ImageAnimator size
+   *   Calculation rule:
+   *    1.general phone & pad : screen height/2 compare with width,shorter is ImageAnimator width
+   *    2.pc: screen height/2 compare with width,shorter is ImageAnimator height
+   *    3.ratio: 3:2
+   * @param height
+   * @param width
+   */
+  getImageAnimatorSize(height: Length, width: Length) {
+    console.log(TAG + 'getImageAnimatorSize in, deviceInfo.deviceType : ' + deviceInfo.deviceType);
+    let totalHeight = height as number;
+    this.shortSideSize = width < totalHeight / 2 ? width as number : totalHeight / 2 as number;
     if (deviceInfo.deviceType === 'phone' || deviceInfo.deviceType === 'tablet') {
-      this.videoWidth = this.shortSideSize * 0.8;
-      this.videoHeight = this.shortSideSize * 0.8 * 2 / 3;
+      this.imageAnimatorWidth = this.shortSideSize * 0.8;
+      this.imageAnimatorHeight = this.shortSideSize * 0.8 * 2 / 3;
     } else if (deviceInfo.deviceType === '2in1') {
-      this.videoWidth = this.shortSideSize * 0.8 * 3 / 2;
-      this.videoHeight = this.shortSideSize * 0.8;
+      this.imageAnimatorWidth = this.shortSideSize * 0.8 * 3 / 2;
+      this.imageAnimatorHeight = this.shortSideSize * 0.8;
     }
-    console.log(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.videoWidth = ' + this.videoWidth + ', this.videoHeight = ' + this.videoHeight);
+    console.log(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.imageAnimatorWidth = ' +
+        this.imageAnimatorWidth + ', this.imageAnimatorHeight = ' + this.imageAnimatorHeight);
   }
+
+getStringSync() {
+    console.log(TAG + 'getStringSync in');
+    try {
+      context.resourceManager.getStringValue($r('app.string.pasteboard_title')
+        .id, (error: BusinessError, value: string) => {
+        if (error != null) {
+          console.error(TAG + 'error is ' + error);
+        } else {
+          this.title = value;
+          console.info(TAG + '<aboutToAppear> this.title : ' + this.title);
+        }
+      })
+    } catch (error) {
+      let code: number = (error as BusinessError).code;
+      let message: string = (error as BusinessError).message;
+      console.error(TAG + `callback getStringValue failed,error code: ${code},message: ${message}.`);
+    }
+  }
+
+  getImageArray() {
+    console.info(TAG + 'getStringSync in');
+    for (let i = 1; i <= CommonConstants.IMAGE_COUNT; i++) {
+      this.imageArray.push({
+        src: $r(`app.media.pasteboard_${i}`)
+        duration: (i == CommonConstants.IMAGE_COUNT) ? CommonConstants.IMG_ANIMATOR_OVER_DURATION
+                                                     : CommonConstants.IMG_ANIMATOR_NORMAL_DURATION
+      })
+    }
+  }
+
 
   @Builder
   NavigationTitle() {
@@ -100,6 +147,7 @@ struct PasteboardSwitch {
     display.getAllDisplays((err, data) => {
       this.screenWidth = px2vp(data[0].width);
       this.screenHeight = px2vp(data[0].height);
+      this.contentHeight = this.screenHeight;
       console.log(TAG + 'screenWidth = ' + this.screenWidth + '; screenHeight = ' + this.screenHeight);
     })
     if (this.videoController) {
@@ -129,21 +177,8 @@ struct PasteboardSwitch {
       })
     }
 
-    try {
-      context.resourceManager.getStringValue($r('app.string.pasteboard_title')
-        .id, (error: BusinessError, value: string) => {
-        if (error != null) {
-          console.error(TAG + 'error is ' + error);
-        } else {
-          this.title = value;
-          console.info(TAG + '<aboutToAppear> this.title : ' + this.title);
-        }
-      })
-    } catch (error) {
-      let code: number = (error as BusinessError).code;
-      let message: string = (error as BusinessError).message;
-      console.error(TAG + `callback getStringValue failed,error code: ${code},message: ${message}.`);
-    }
+    this.getStringSync();
+    this.getImageArray();
 
     this.listener.on('change', (mediaQueryResult: mediaQuery.MediaQueryResult) => {
       this.onPortrait(mediaQueryResult);
@@ -154,9 +189,9 @@ struct PasteboardSwitch {
   getGapLength() {
     console.log(TAG + 'getGapLength in, deviceInfo.deviceType : ' + deviceInfo.deviceType);
     if (deviceInfo.deviceType == 'phone') {
-      this.gapLength = 16;
+      this.gapLength = CommonConstants.GENERAL_PHONE_GAP_LENGTH;
     } else if (deviceInfo.deviceType == '2in1' || deviceInfo.deviceType == 'tablet') {
-      this.gapLength = 24;
+      this.gapLength = CommonConstants.PC_PAD_GAP_LENGTH;
     }
     console.log(TAG + 'this.gapLength : ' + this.gapLength);
   }
@@ -189,23 +224,35 @@ struct PasteboardSwitch {
       }
 
       Scroll(this.scroller) {
-        Row() {
-          Column() {
+        Column() {
           ImageAnimator()
-            .images(this.images)
-            .state(AnimationStatus.Running)
-            .iterations(-1)
-            .width(this.videoWidth)
-            .height(this.videoHeight)
-            .margin({ left: 35, right: 35, bottom: 24 })
+            .images(this.imageArray)
+            .state(this.animationState)
+            .reverse(this.reverse)
+            .fillMode(this.iterations)
+            .iterations(this.iterations)
+            .width(this.imageAnimatorWidth)
+            .height(this.imageAnimatorHeight)
+            .onStart(() => {
+              console.info(TAG + 'ImageAnimator Start');
+            })
+            .onFinish(() => {
+              console.info(TAG + 'ImageAnimator Finish');
+            })
 
           Text($r('app.string.pasteboard_desc'))
             .fontSize($r('sys.float.ohos_id_text_size_body2'))
             .fontWeight(FontWeight.Regular)
-            .margin({ bottom: 32 })
+            .margin({ bottom: CommonConstants.CONTINUE_DESC_TEXT_MARGIN_BOTTOM })
             .fontColor($r('sys.color.ohos_id_color_text_secondary'))
             .textAlign(TextAlign.Center)
             .width('100%')
+            .maxLines(10)
+            .onAreaChange((oldArea: Area, newArea: Area) => {
+              console.info(TAG + 'Text:continue desc, oldArea.height = ' + oldArea.height +
+                ', newArea.height = ' + newArea.height);
+            })
+
 
           Column() {
             Flex({
@@ -217,43 +264,45 @@ struct PasteboardSwitch {
                 .fontSize($r('sys.float.ohos_id_text_size_sub_title2'))
                 .fontWeight(FontWeight.Medium)
                 .fontColor($r('sys.color.ohos_id_color_text_primary'))
+                .accessibilityLevel('no')
 
-                Toggle({ type: ToggleType.Switch, isOn: this.isSwitchOn })
-                  .width(36)
-                  .height(20)
-                  .hoverEffect(HoverEffect.None)
-                  .onChange((isOn: boolean) => {
-                    console.log(TAG + 'isOn:' + isOn);
-                    this.isSwitchOn = isOn;
-                    AppStorage.setAndLink('isSwitchOn', isOn);
-                    if (isOn) { // open
-                      let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open);
-                      console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is on');
-                    } else { // close
-                      let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close);
-                      console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is close');
-                    }
-                  })
+              Toggle({ type: ToggleType.Switch, isOn: this.isSwitchOn })
+                .width(CommonConstants.CONTINUE_SWITCH_WIDTH)
+                .height(CommonConstants.CONTINUE_SWITCH_HEIGHT)
+                .hoverEffect(HoverEffect.None)
+                .onChange((isOn: boolean) => {
+                  console.log(TAG + 'isOn:' + isOn);
+                  this.isSwitchOn = isOn;
+                  AppStorage.setAndLink('isSwitchOn', isOn);
+                  if (isOn) {
+                    let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open);
+                    console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is on');
+                  } else {
+                    let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close);
+                    console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is close');
+                  }
+                })
               }
-              .height(this.is2in1 ? 48 : 56)
+              .height(this.is2in1 ? CommonConstants.PC_LIST_HEIGHT : CommonConstants.PHONE_LIST_HEIGHT)
               .width('100%')
-              .padding({ left: 12, right: 12 })
+              .padding({
+              left: CommonConstants.TEXT_LIST_ALIGN_DISTANCE,
+              right: CommonConstants.TEXT_LIST_ALIGN_DISTANCE
+              })
               .backgroundColor($r('sys.color.ohos_id_color_list_card_bg'))
-              .borderRadius(this.is2in1 ? 16 : 20)
+              .borderRadius(this.is2in1 ? CommonConstants.PC_BORDER_RADIUS : CommonConstants.NON_PC_BORDER_RADIUS)
+              .accessibilityText(this.title)
             }.width('100%')
-          }.padding({ left: this.gapLength, right: this.gapLength }).width('100%').height('100%')
         }
         .width('100%')
-        .height('100%')
-        .alignItems(VerticalAlign.Top)
+        .padding({ left: this.gapLength, right: this.gapLength })
+        .margin({ bottom: this.contentHeight * 0.09 })
         .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
       }
       .width('100%')
-      .height('100%')
+      .height(this.screenHeight)
       .scrollable(ScrollDirection.Vertical)
-      .scrollBar(BarState.On)
-      .scrollBarColor(Color.Gray)
-      .scrollBarWidth(4)
+      .scrollBar(BarState.Off)
       .align(Alignment.TopStart)
       .friction(0.6)
       .edgeEffect(EdgeEffect.Spring)
@@ -266,15 +315,18 @@ struct PasteboardSwitch {
       .onScrollStop(() => {
         console.info('Scroll Stop');
       })
+      .onAreaChange((oldArea: Area, newArea: Area) => {
+        console.log(TAG + 'Scroll, oldArea.height = ' + oldArea.height + ', newArea.height = ' + newArea.height);
+      })
     }
     .width('100%')
     .height('100%')
     .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
     .onAreaChange((oldArea: Area, newArea: Area) => {
-      let fullHeight = newArea.height as number;
-      this.shortSideSize = newArea.width < fullHeight / 2 ? newArea.width as number : fullHeight / 2 as number;
-      this.getVideoSize();
-      console.log(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.videoWidth = ' + this.videoWidth + ', this.videoHeight = ' + this.videoHeight);
+      console.log(TAG + 'build column , oldArea.height = ' + oldArea.height + ', newArea.height = ' + newArea.height);
+      this.getImageAnimatorSize(newArea.height, newArea.width);
+      console.info(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.imageAnimatorWidth = ' +
+      this.imageAnimatorWidth + ', this.imageAnimatorHeight = ' + this.imageAnimatorHeight);
     })
   }
 }
