@@ -1153,7 +1153,7 @@ describe('PasteBoardJSTest', function () {
              return;
            }
            const patternsRight = [pasteboard.Pattern.URL, pasteboard.Pattern.EmailAddress];
-           expect(data).assertEqual(patterns);
+           expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
            done();
          });
        });

@@ -29,7 +29,6 @@
 #include <system_ability_definition.h>
 #include <thread>
 #include <unordered_set>
-#include <regex>
 
 #include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
@@ -52,6 +51,7 @@
 #include "input_manager.h"
 #include "ffrt_utils.h"
 #include "security_level.h"
+#include "pasteboard_pattern.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -154,47 +154,6 @@ private:
     private:
         int32_t userId_ = ERROR_USERID;
         PasteboardService &service_;
-    };
-
-    class PatternChecker {
-    public:
-        virtual bool IsExist(const std::string &content) = 0;
-        virtual ~PatternChecker() {}
-    };
-    class PatternCheckerFactory {
-    public:
-        static PatternCheckerFactory &GetInstance();
-        void InitPatternCheckers();
-        std::shared_ptr<PatternChecker> GetPatternChecker(const Pattern &pattern);
-    private:
-        PatternCheckerFactory() {inited_ = false;}
-        ~PatternCheckerFactory() {}
-        PatternCheckerFactory(const PatternCheckerFactory &) = delete;
-        PatternCheckerFactory &operator=(const PatternCheckerFactory &) = delete;
-        void RegisterPatternChecker(const Pattern &pattern, std::shared_ptr<PatternChecker> registChecker);
-        std::map<Pattern, std::shared_ptr<PatternChecker>> patternCheckers_;
-        bool inited_;
-    };
-    class URLPatternChecker : public PatternChecker {
-    public:
-        URLPatternChecker() {}
-        bool IsExist(const std::string &content) override;
-    private:
-        static std::regex urlRegex_;
-    };
-    class NumberPatternChecker : public PatternChecker {
-    public:
-        NumberPatternChecker() {}
-        bool IsExist(const std::string &content) override;
-    private:
-        static std::regex numberRegex_;
-    };
-    class EmailAddressPatternChecker : public PatternChecker {
-    public:
-        EmailAddressPatternChecker() {}
-        bool IsExist(const std::string &content) override;
-    private:
-        static std::regex emailAddressRegex_;
     };
 
     class RemoteDataTaskManager {
