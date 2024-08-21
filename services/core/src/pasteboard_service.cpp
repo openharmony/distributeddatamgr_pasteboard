@@ -550,7 +550,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     }
     RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_DATA_INFO, DFX_SUCCESS, CONCURRENT_ID, pasteId_, GET_DATA_APP,
         appInfo.bundleName, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
-        DMAdapter::GetInstance().GetLocalDeviceType(), PEER_NET_ID, peerNetId);
+        DMAdapter::GetInstance().GetLocalDeviceType(), PEER_NET_ID, PasteboardDfxUntil::GetAnonymousID(peerNetId));
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
         return result;
     }

@@ -129,6 +129,14 @@ enum ErrorCode : std::int32_t {
     URI_GRANT_ERROR,
 };
 
+class PasteboardDfxUntil {
+public:
+    static std::string GetAnonymousID(std:: string deviceId);
+private:
+    static constexpr int MIN_ID_LEN = 10;
+    static constexpr int MASK_ID_LEN = 5;
+};
+
 static constexpr char DOMAIN[] = "DISTDATAMGR";
 constexpr const char* EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOR";
 constexpr const char* ORG_PKG = "distributeddata";
