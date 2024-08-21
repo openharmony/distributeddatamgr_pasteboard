@@ -237,31 +237,6 @@ HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardTest001
-* @tc.desc: Create paste board test.
-* @tc.type: FUNC
-*/
-HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
-{
-    auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record1");
-    ASSERT_TRUE(record != nullptr);
-    std::string plainText = "plain text";
-    auto data = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    ASSERT_TRUE(data != nullptr);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    auto has = PasteboardClient::GetInstance()->HasPasteData();
-    ASSERT_TRUE(has == true);
-    PasteData pasteData;
-    ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get.");
-    auto primaryText = pasteData.GetPrimaryText();
-    ASSERT_TRUE(primaryText != nullptr);
-    ASSERT_TRUE(*primaryText == plainText);
-}
-
-/**
 * @tc.name: ExistedPatterns001
 * @tc.desc: check existence of URL
 * @tc.type: FUNC
