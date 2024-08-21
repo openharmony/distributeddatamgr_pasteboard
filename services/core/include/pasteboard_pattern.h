@@ -22,11 +22,13 @@
 
 namespace OHOS::MiscServices {
 using Patterns = std::unordered_set<Pattern>;
+
 class PatternChecker {
 public:
     virtual bool IsExist(const std::string &content) = 0;
     virtual ~PatternChecker() {}
 };
+
 class PatternCheckerFactory {
 public:
     static PatternCheckerFactory &GetInstance();
@@ -41,6 +43,7 @@ private:
     std::map<Pattern, std::shared_ptr<PatternChecker>> patternCheckers_;
     bool inited_;
 };
+
 class URLPatternChecker : public PatternChecker {
 public:
     URLPatternChecker() {}
@@ -48,6 +51,7 @@ public:
 private:
     static std::regex urlRegex_;
 };
+
 class NumberPatternChecker : public PatternChecker {
 public:
     NumberPatternChecker() {}
@@ -55,6 +59,7 @@ public:
 private:
     static std::regex numberRegex_;
 };
+
 class EmailAddressPatternChecker : public PatternChecker {
 public:
     EmailAddressPatternChecker() {}
@@ -62,9 +67,10 @@ public:
 private:
     static std::regex emailAddressRegex_;
 };
-void CheckPlainText(Patterns &patternsOut, const Patterns &PatternsIn, std::string plainText);
-void CheckHTMLText(Patterns &patternsOut, const Patterns &PatternsIn, std::string htmlText);
-void CheckURI(Patterns &patternsOut, std::string uriText);
+
+void CheckPlainText(Patterns &patternsOut, const Patterns &PatternsIn, const std::string &plainText);
+void CheckHTMLText(Patterns &patternsOut, const Patterns &PatternsIn, const std::string &htmlText);
+void CheckURI(Patterns &patternsOut, const std::string &uriText);
 const Patterns ExistedPatterns(const Patterns &patternsToCheck,
     const std::shared_ptr<PasteData> pasteDataSP,
     const bool hasHTML, const bool hasPlain, const bool hasURI);

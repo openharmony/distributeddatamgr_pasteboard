@@ -15,8 +15,7 @@
 
 #include "pasteboard_pattern.h"
 
-#include <bitset>
-#include <unistd.h>
+#include <sstream>
 
 namespace OHOS::MiscServices {
 PatternCheckerFactory &PatternCheckerFactory::GetInstance()
@@ -24,6 +23,7 @@ PatternCheckerFactory &PatternCheckerFactory::GetInstance()
     static PatternCheckerFactory instance;
     return instance;
 }
+
 void PatternCheckerFactory::InitPatternCheckers()
 {
     if (!inited_) {
@@ -33,6 +33,7 @@ void PatternCheckerFactory::InitPatternCheckers()
         inited_ = true;
     }
 }
+
 std::shared_ptr<PatternChecker> PatternCheckerFactory::GetPatternChecker(
     const Pattern &pattern)
 {
@@ -42,28 +43,35 @@ std::shared_ptr<PatternChecker> PatternCheckerFactory::GetPatternChecker(
     }
     return it->second;
 }
+
 void PatternCheckerFactory::RegisterPatternChecker(
     const Pattern &pattern,
     const std::shared_ptr<PatternChecker> checker)
 {
     patternCheckers_.insert_or_assign(pattern, checker);
 }
+
 bool URLPatternChecker::IsExist(const std::string &content)
 {
     return std::regex_search(content, urlRegex_);
 }
+
 bool NumberPatternChecker::IsExist(const std::string &content)
 {
     return std::regex_search(content, numberRegex_);
 }
+
 bool EmailAddressPatternChecker::IsExist(
     const std::string &content)
 {
     return std::regex_search(content, emailAddressRegex_);
 }
+
 std::regex URLPatternChecker::urlRegex_("(?:(https?|file)://|www\\.)"
     "[-a-z0-9+&@#/%?=~_|!:,.;]*[-a-z0-9+&@#/%=~_]");
+
 std::regex NumberPatternChecker::numberRegex_("[-+]?[0-9]*\\.?[0-9]+");
+
 std::regex EmailAddressPatternChecker::emailAddressRegex_("(([a-zA-Z0-9_\\-\\.]+)@"
     "((?:\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|"
     "([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*))"
@@ -76,9 +84,8 @@ const Patterns ExistedPatterns(const Patterns &patternsToCheck,
     bool needCheckURI = (patternsToCheck.find(Pattern::URL) != patternsToCheck.end());
     PatternCheckerFactory::GetInstance().InitPatternCheckers();
     std::unordered_set<Pattern> existedPatterns;
-    int recordsSize = pasteDataSP->GetRecordCount();
-    for (int i = 0; i != recordsSize; i++) {
-        std::shared_ptr<PasteDataRecord> record = pasteDataSP->GetRecordAt(i);
+
+    for (auto& record : pasteDataSP->AllRecords()) {
         if (patternsToCheck == existedPatterns) {
             break;
         }
@@ -91,7 +98,7 @@ const Patterns ExistedPatterns(const Patterns &patternsToCheck,
             CheckHTMLText(existedPatterns, patternsToCheck, recordText);
         }
         if (needCheckURI && hasURI && record->GetUri() != nullptr &&
-            existedPatterns.find(Pattern::URL) == patternsTo.end()) {
+            existedPatterns.find(Pattern::URL) == patternsToCheck.end()) {
             std::string recordText = record->GetUri()->ToString();
             CheckURI(existedPatterns, recordText);
         }
@@ -99,7 +106,7 @@ const Patterns ExistedPatterns(const Patterns &patternsToCheck,
     return existedPatterns;
 }
 
-void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, std::string plainText)
+void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &plainText)
 {
     for (Pattern pattern : patternsIn) {
         if (patternsOut.find(pattern) != patternsOut.end()) {
@@ -117,11 +124,21 @@ void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, std::stri
     }
 }
 
-void CheckHTMLText(Patterns &patternsOut, const Patterns &patternsIn, std::string htmlText)
+void CheckHTMLText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &htmlText)
 {
-    CheckPlainText(patternsOut, patternsIn, htmlText);
+    // borrow from #include "pasteboard_web_controller.h"
+    const std::string IMG_TAG_PATTERN = "<img.*?data-ohos=.*?>";
+    const std::string IMG_TAG_SRC_PATTERN = "src=(['\"])(.*?)\\1";
+    const std::string imgTagPattern = IMG_TAG_PATTERN + "|" + IMG_TAG_SRC_PATTERN;
+    std::regex imgRegex(imgTagPattern);
+    // use -1 to remove imgTag and split htmlText and check Patterns
+    std::sregex_token_iterator iter(htmlText.begin(), htmlText.end(), imgRegex, -1);
+    std::sregex_token_iterator end;
+    while (iter != end) {
+        CheckPlainText(patternsOut, patternsIn ,*iter++);
+    }
 }
-void CheckURI(Patterns &patternsOut, std::string uriText)
+void CheckURI(Patterns &patternsOut, const std::string &uriText)
 {
     URLPatternChecker urlChecker;
     if (urlChecker.IsExist(uriText)) {
