@@ -876,7 +876,8 @@ napi_value SystemPasteboardNapi::ExistedPatternsAsync(napi_env env, napi_callbac
         int i = 0;
         for (auto pattern:context->patternsExisted) {
             PASTEBOARD_HILOGD(
-                PASTEBOARD_MODULE_JS_NAPI, "Detect ExistedPatterns result%{public}d = %{public}u", i, static_cast<uint32_t>(pattern));
+                PASTEBOARD_MODULE_JS_NAPI,
+                "Detect ExistedPatterns result%{public}d = %{public}u", i, static_cast<uint32_t>(pattern));
             ++i;
         }
         context->status = napi_ok;

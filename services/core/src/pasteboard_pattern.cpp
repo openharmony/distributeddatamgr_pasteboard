@@ -90,8 +90,8 @@ const Patterns ExistedPatterns(const Patterns &patternsToCheck,
             std::string recordText = *(record->GetHtmlText());
             CheckHTMLText(existedPatterns, patternsToCheck, recordText);
         }
-        if (needCheckURI && hasURI && record->GetUri() != nullptr && 
-        existedPatterns.find(Pattern::URL) == patternsToCheck.end()) {
+        if (needCheckURI && hasURI && record->GetUri() != nullptr &&
+            existedPatterns.find(Pattern::URL) == patternsTo.end()) {
             std::string recordText = record->GetUri()->ToString();
             CheckURI(existedPatterns, recordText);
         }
