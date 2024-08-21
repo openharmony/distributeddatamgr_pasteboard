@@ -114,8 +114,8 @@ public:
     virtual int32_t RemoveAppShareOptions() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
-    virtual void PasteStart(const int32_t pasteId) override;
-    virtual void PasteComplete(const std::string &deviceId, const int32_t pasteId) override;
+    virtual void PasteStart(const std::string &pasteId) override;
+    virtual void PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
     virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;
@@ -270,7 +270,7 @@ private:
     };
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
-    std::atomic<int32_t> pasteId_ = 0;
+    std::string pasteId_;
     ConcurrentMap<std::string, ConcurrentMap<int32_t, int32_t>> p2pMap_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
     PastedSwitch switch_;

@@ -96,24 +96,24 @@ void FFRTTimer::CancelAllTimer()
     mutex_.unlock();
 }
 
-void FFRTTimer::CancelTimer(uint32_t timerId)
+void FFRTTimer::CancelTimer(const std::string &timerId)
 {
     mutex_.lock();
     CancelTimerInner(timerId);
     mutex_.unlock();
 }
 
-void FFRTTimer::SetTimer(uint32_t timerId, FFRTTask& task)
+void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask& task)
 {
     mutex_.lock();
     CancelTimerInner(timerId);
     ++taskId_[timerId];
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}u] Add Task[%{public}u]", timerId, taskId_[timerId]);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Add Task[%{public}u]", timerId, taskId_[timerId]);
     FFRTUtils::SubmitTask(task);
     mutex_.unlock();
 }
 
-void FFRTTimer::SetTimer(uint32_t timerId, FFRTTask& task, uint32_t delayMs)
+void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask& task, uint32_t delayMs)
 {
     if (delayMs == 0) {
         return SetTimer(timerId, task);
@@ -122,13 +122,13 @@ void FFRTTimer::SetTimer(uint32_t timerId, FFRTTask& task, uint32_t delayMs)
     mutex_.lock();
     CancelTimerInner(timerId);
     ++taskId_[timerId];
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}u] Add Task[%{public}u] with delay = %{public}u",
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Add Task[%{public}u] with delay = %{public}u",
         timerId, taskId_[timerId], delayMs);
     handleMap_[timerId] = FFRTUtils::SubmitDelayTask(task, delayMs, queue_);
     mutex_.unlock();
 }
 
-uint32_t FFRTTimer::GetTaskId(uint32_t timerId)
+uint32_t FFRTTimer::GetTaskId(const std::string &timerId)
 {
     mutex_.lock();
     uint32_t id = taskId_[timerId];
@@ -141,17 +141,17 @@ void FFRTTimer::CancelAllTimerInner()
 {
     for (auto &p : handleMap_) {
         if (p.second != nullptr) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}u] Cancel Task[%{public}u]", p.first,
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Cancel Task[%{public}u]", p.first,
                 taskId_[p.first]);
             FFRTUtils::CancelTask(p.second, queue_);
         }
     }
 }
 
-void FFRTTimer::CancelTimerInner(uint32_t timerId)
+void FFRTTimer::CancelTimerInner(const std::string &timerId)
 {
     if (handleMap_[timerId] != nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}u] Cancel Task[%{public}u]", timerId,
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Cancel Task[%{public}u]", timerId,
             taskId_[timerId]);
         FFRTUtils::CancelTask(handleMap_[timerId], queue_);
         handleMap_[timerId] = nullptr;

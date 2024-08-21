@@ -331,7 +331,7 @@ public:
     *     preserve the context and resources
     * @return void.
     */
-    void PasteStart(const int32_t pasteId);
+    void PasteStart(const std::string &pasteId);
 
     /**
      * PasteComplete
@@ -339,7 +339,7 @@ public:
      *     resources can be released for further usage
      * @return void.
      */
-    void PasteComplete(const std::string &deviceId, const int32_t pasteId);
+    void PasteComplete(const std::string &deviceId, const std::string &pasteId);
 
 private:
     sptr<IPasteboardService> GetPasteboardService();

@@ -64,9 +64,11 @@ enum BizStageGetPasteboard : std::int32_t {
     DFX_CHECK_GET_SERVER = 1,
     DFX_CHECK_GET_DELAY_PASTE = 2,
     DFX_CHECK_GET_AUTHORITY = 3,
-    DFX_CHECK_GET_URI_AUTHORITY = 4,
+    DFX_GET_DATA_INFO = 4,
     DFX_LOCAL_PASTE_END = 5,
     DFX_DISTRIBUTED_PASTE_END = 6,
+    DFX_DISTRIBUTED_FILE_START = 7,
+    DFX_DISTRIBUTED_FILE_END = 8,
 };
 
 enum BizStageClearPasteboard : std::int32_t {
@@ -144,6 +146,7 @@ constexpr const char* SEQ_ID = "SEQ_ID";
 constexpr const char* CONCURRENT_ID = "CONCURRENT_ID";
 constexpr const char* DIS_SYNC_TIME = "DIS_SYNC_TIME";
 constexpr const char* PACKAGE_NAME = "PACKAGE_NAME";
+constexpr const char* PEER_NET_ID = "PEER_NET_ID";
 static constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                    \

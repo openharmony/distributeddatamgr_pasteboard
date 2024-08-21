@@ -421,7 +421,7 @@ int32_t PasteboardServiceProxy::RemoveAppShareOptions()
     return reply.ReadInt32();
 }
 
-void PasteboardServiceProxy::PasteStart(const int32_t pasteId)
+void PasteboardServiceProxy::PasteStart(const std::string &pasteId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -430,7 +430,7 @@ void PasteboardServiceProxy::PasteStart(const int32_t pasteId)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return;
     }
-    if (!data.WriteInt32(pasteId)) {
+    if (!data.WriteString(pasteId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
         return;
     }
@@ -440,7 +440,7 @@ void PasteboardServiceProxy::PasteStart(const int32_t pasteId)
     }
 }
 
-void PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const int32_t pasteId)
+void PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const std::string &pasteId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -453,7 +453,7 @@ void PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const in
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
         return;
     }
-    if (!data.WriteInt32(pasteId)) {
+    if (!data.WriteString(pasteId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
         return;
     }

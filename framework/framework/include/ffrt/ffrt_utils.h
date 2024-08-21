@@ -123,19 +123,19 @@ public:
     ~FFRTTimer();
     void Clear();
     void CancelAllTimer();
-    void CancelTimer(uint32_t timerId);
-    void SetTimer(uint32_t timerId, FFRTTask& task);
-    void SetTimer(uint32_t timerId, FFRTTask& task, uint32_t delayMs);
-    uint32_t GetTaskId(uint32_t timerId);
+    void CancelTimer(const std::string &timerId);
+    void SetTimer(const std::string &timerId, FFRTTask& task);
+    void SetTimer(const std::string &timerId, FFRTTask& task, uint32_t delayMs);
+    uint32_t GetTaskId(std::string &timerId);
 private:
     /* inner functions must be called when mutex_ is locked */
     void CancelAllTimerInner();
-    void CancelTimerInner(uint32_t timerId);
+    void CancelTimerInner(const std::string &timerId);
 
     FFRTMutex mutex_;
     FFRTQueue queue_;
-    std::unordered_map<uint32_t, FFRTHandle> handleMap_;
-    std::unordered_map<uint32_t, uint32_t> taskId_;
+    std::unordered_map<std::string, FFRTHandle> handleMap_;
+    std::unordered_map<std::string, uint32_t> taskId_;
 };
 } // namespace MiscServices
 } // namespace OHOS

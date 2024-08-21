@@ -762,12 +762,12 @@ std::string PasteData::GetDeviceId() const
     return deviceId_;
 }
 
-void PasteData::SetPasteId(const int32_t pasteId)
+void PasteData::SetPasteId(const std::string &pasteId)
 {
     pasteId_ = pasteId;
 }
 
-int32_t PasteData::GetPasteId() const
+std::string PasteData::GetPasteId() const
 {
     return pasteId_;
 }
