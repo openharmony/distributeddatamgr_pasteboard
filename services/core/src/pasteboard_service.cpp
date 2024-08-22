@@ -852,6 +852,9 @@ void PasteboardService::PasteStart(const std::string &pasteId)
 
 void PasteboardService::PasteComplete(const std::string &deviceId, const std::string &pasteId)
 {
+    if (deviceId.empty()) {
+        return;
+    }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deviceId is %{public}.6s, taskId is %{public}s",
         deviceId.c_str(), pasteId.c_str());
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_DISTRIBUTED_FILE_END, RadarReporter::DFX_SUCCESS,
