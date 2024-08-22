@@ -270,7 +270,6 @@ private:
     };
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
-    std::string pasteId_;
     ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
     PastedSwitch switch_;
