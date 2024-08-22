@@ -114,8 +114,8 @@ public:
     virtual int32_t RemoveAppShareOptions() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
-    virtual void PasteStart(const int32_t pasteId) override;
-    virtual void PasteComplete(const std::string &deviceId, const int32_t pasteId) override;
+    virtual void PasteStart(const std::string &pasteId) override;
+    virtual void PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
     virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;
@@ -212,7 +212,7 @@ private:
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
-    void EstablishP2PLink(const std::string& networkId, int32_t pasteId);
+    void EstablishP2PLink(const std::string& networkId, const std::string &pasteId);
     void CloseP2PLink(const std::string& networkId);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
@@ -270,8 +270,8 @@ private:
     };
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
-    std::atomic<int32_t> pasteId_ = 0;
-    ConcurrentMap<std::string, ConcurrentMap<int32_t, int32_t>> p2pMap_;
+    std::string pasteId_;
+    ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
     PastedSwitch switch_;
 

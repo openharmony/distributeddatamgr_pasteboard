@@ -1053,7 +1053,7 @@ napi_value PasteDataNapi::PasteStart(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
         return nullptr;
     }
-    uint32_t pasteId = obj->value_->GetPasteId();
+    std::string pasteId = obj->value_->GetPasteId();
     PasteboardClient::GetInstance()->PasteStart(pasteId);
     return nullptr;
 }
@@ -1071,7 +1071,7 @@ napi_value PasteDataNapi::PasteComplete(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::string deviceId = obj->value_->GetDeviceId();
-    uint32_t pasteId = obj->value_->GetPasteId();
+    std::string pasteId = obj->value_->GetPasteId();
     PasteboardClient::GetInstance()->PasteComplete(deviceId, pasteId);
     return nullptr;
 }
