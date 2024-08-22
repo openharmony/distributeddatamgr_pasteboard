@@ -206,8 +206,9 @@ void PasteboardClient::Clear()
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
     std::string currentPid = std::to_string(getpid());
-    std::string currentId = "GetPasteData_" + currentPid + "_" + std::to_string(getSequenceId_);
     ++getSequenceId_;
+    auto tmpSequenceId = getSequenceId_;
+    std::string currentId = "GetPasteData_" + currentPid + "_" + std::to_string(tmpSequenceId);
     pasteData.SetPasteId(currentId);
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
         RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
