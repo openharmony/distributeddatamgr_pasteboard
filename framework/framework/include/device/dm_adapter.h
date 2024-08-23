@@ -40,6 +40,7 @@ public:
     };
     static DMAdapter &GetInstance();
     bool Initialize(const std::string &pkgName);
+    void UnInitialize();
     const std::string &GetLocalDeviceUdid();
     const std::string GetLocalNetworkId();
     std::string GetUdidByNetworkId(const std::string &networkId);
