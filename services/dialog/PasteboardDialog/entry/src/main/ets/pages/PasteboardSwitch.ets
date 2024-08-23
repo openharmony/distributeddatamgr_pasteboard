@@ -122,7 +122,7 @@ getStringSync() {
     console.info(TAG + 'getImageArray in');
     for (let i = 1; i <= CommonConstants.IMAGE_COUNT; i++) {
       this.imageArray.push({
-        src: $r(`app.media.pasteboard_${i}`)
+        src: $r(`app.media.pasteboard_${i}`),
         duration: (i == CommonConstants.IMAGE_COUNT) ? CommonConstants.IMG_ANIMATOR_OVER_DURATION
                                                      : CommonConstants.IMG_ANIMATOR_NORMAL_DURATION
       })
@@ -168,13 +168,6 @@ getStringSync() {
     if (this.isSwitchOn) {
       let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open);
       console.log(TAG + 'set value success :' + status + '; set:distributed_pasteboard_switch is 1');
-    }
-
-    for (let i = 1; i <= IMAGE_COUNT; i++) {
-      this.images.push({
-        src: `resources/base/media/pasteboard_${i}.png`,
-        duration: (i == IMAGE_COUNT) ? 1000 : 30
-      })
     }
 
     this.getStringSync();
