@@ -65,10 +65,9 @@ void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std
         if (patternsOut.find(pattern) != patternsOut.end()) {
             continue;
         }
-        static_cast<uint32_t>(pattern);
         uint32_t patternUint32 = static_cast<uint32_t>(pattern);
         if (patternToRegexMap.find(patternUint32) == patternToRegexMap.end()) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard_pattern.cpp, unexpected Pattern value!");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard pattern, unexpected Pattern value!");
             continue;
         }
         std::regex curRegex(patternToRegexMap.at(patternUint32));

@@ -1065,6 +1065,10 @@ std::unordered_set<Pattern> PasteboardService::DetectPatterns(const std::unorder
     }
     int32_t userId = GetCurrentAccountId();
     std::shared_ptr<PasteData> pasteDataSP = clips_.Find(userId).second;
+    if (!pasteDataSP) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PasteData null error!");
+        return {};
+    }
     return OHOS::MiscServices::DetectPatterns(patternsToCheck, *pasteDataSP, hasHTML, hasPlain, hasURI);
 }
 
