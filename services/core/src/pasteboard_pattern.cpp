@@ -33,9 +33,8 @@ static const std::unordered_map<uint32_t, std::string> patternToRegexMap = {
 
 const Patterns DetectPatterns(const Patterns &patternsToCheck,
     const PasteData &pasteData,
-    const bool hasHTML, const bool hasPlain, const bool hasURI)
+    const bool hasHTML, const bool hasPlain)
 {
-    bool needCheckURI = (patternsToCheck.find(Pattern::URL) != patternsToCheck.end());
     std::unordered_set<Pattern> existedPatterns;
     for (auto& record : pasteData.AllRecords()) {
         if (patternsToCheck == existedPatterns) {
@@ -48,12 +47,6 @@ const Patterns DetectPatterns(const Patterns &patternsToCheck,
         if (hasHTML && record->GetHtmlText() != nullptr) {
             std::string recordText = *(record->GetHtmlText());
             CheckPlainText(existedPatterns, patternsToCheck, recordText);
-        }
-        if (needCheckURI && hasURI && record->GetUri() != nullptr &&
-            existedPatterns.find(Pattern::URL) == patternsToCheck.end()) {
-            std::string recordText = record->GetUri()->ToString();
-            Patterns urlPattern{Pattern::URL};
-            CheckPlainText(existedPatterns, urlPattern, recordText);
         }
     }
     return existedPatterns;

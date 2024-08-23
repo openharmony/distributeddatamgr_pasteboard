@@ -535,10 +535,9 @@ bool PasteboardClient::HasDataType(const std::string &mimeType)
 
 std::unordered_set<Pattern> PasteboardClient::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
 {
-    Patterns patternsAll{Pattern::URL, Pattern::Number, Pattern::EmailAddress};
     Patterns patternsFiltered;
     for (auto pattern : patternsAll) {
-        if (patternsToCheck.find(patterm) != patternsToCheck.end()) {
+        if (patternsToCheck.find(pattern) != patternsToCheck.end()) {
             patternsFiltered.insert(pattern);
         }
     }
