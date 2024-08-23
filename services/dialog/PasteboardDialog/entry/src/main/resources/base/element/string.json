@@ -1,44 +1,44 @@
 {
-    "string":[
-        {
-            "name":"entry_desc",
-            "value":"Pasteboard dialog"
-        },
-        {
-            "name":"ToastExtensionAbility_desc",
-            "value":"Pasteboard toast extension"
-        },
-        {
-            "name":"ToastExtensionAbility_label",
-            "value":"Pasteboard Toast"
-        },
-        {
-            "name":"typeface",
-            "value":"HarmonyHeiTi"
-        },
-        {
-            "name":"PasteboardSwitchAbility_desc",
-            "value":"description"
-        },
-        {
-            "name":"PasteboardSwitchAbility_label",
-            "value":"label"
-        },
-        {
-            "name":"pasteboard_title",
-            "value":"Cross-device clipboard"
-        },
-        {
-            "name":"pasteboard_desc",
-            "value":"Copy on one device, paste on another.\n\nDevices need to be close to each other, have this feature, WLAN, and Bluetooth enabled, and be using the same HUAWEI ID."
-        },
-        {
-            "name":"multi_device_collaboration",
-            "value":"More connectivity options"
-        },
-        {
-            "name": "update_version_prompt",
-            "value": "The peer party must upgrade to HarmonyOS NEXT or later."
-        }
-    ]
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "Pasteboard dialog"
+    },
+    {
+      "name": "ToastExtensionAbility_desc",
+      "value": "Pasteboard toast extension"
+    },
+    {
+      "name": "ToastExtensionAbility_label",
+      "value": "Pasteboard Toast"
+    },
+    {
+      "name": "typeface",
+      "value": "HarmonyHeiTi"
+    },
+    {
+      "name": "PasteboardSwitchAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "PasteboardSwitchAbility_label",
+      "value": "label"
+    },
+    {
+      "name": "pasteboard_title",
+      "value": "Cross-device clipboard"
+    },
+    {
+      "name": "pasteboard_desc",
+      "value": "Copy on one device, paste on another.\n\nDevices need to be close to each other, have this feature, WLAN, and Bluetooth enabled, and be using the same HUAWEI ID."
+    },
+    {
+      "name": "multi_device_collaboration",
+      "value": "More connectivity options"
+    },
+    {
+      "name": "update_version_prompt",
+      "value": "The peer party must upgrade to HarmonyOS NEXT or later."
+    }
+  ]
 }
