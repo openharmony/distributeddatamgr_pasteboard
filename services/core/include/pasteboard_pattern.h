@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,6 @@ enum class Pattern : uint32_t { URL = 0, Number, EmailAddress, PatternCount };
 using Patterns = std::unordered_set<Pattern>;
   
 void CheckPlainText(Patterns &patternsOut, const Patterns &PatternsIn, const std::string &plainText);
-// const std::string stripHtmlTags(const std::string &html);
 const Patterns DetectPatterns(const Patterns &patternsToCheck,
     const PasteData &pasteData,
     const bool hasHTML, const bool hasPlain, const bool hasURI);

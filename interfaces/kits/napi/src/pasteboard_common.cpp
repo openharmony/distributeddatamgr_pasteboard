@@ -100,7 +100,7 @@ bool GetValue(napi_env env, napi_value in, std::unordered_set<MiscServices::Patt
     uint32_t len = 0;
     napi_status status = napi_get_array_length(env, in, &len);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length status = %{public}d", status);
-    if ((status != napi_ok)) {
+    if (status != napi_ok) {
         return false;
     }
 
@@ -127,16 +127,22 @@ napi_status SetValue(napi_env env, std::unordered_set<MiscServices::Pattern> &in
 {
     napi_status status = napi_create_array_with_length(env, in.size(), &result);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_create_array_with_length status = %{public}d", status);
-    if (status != napi_ok) return status;
+    if (status != napi_ok) {
+        return status;
+    }
     int i = 0;
     for (auto pattern : in) {
         napi_value element;
         status = napi_create_uint32(env, static_cast<uint32_t>(pattern), &element);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_create_uint32 status = %{public}d", status);
-        if (status != napi_ok) return status;
+        if (status != napi_ok) {
+            return status;
+        }
         status = napi_set_element(env, result, i, element);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_set_element %{public}d status = %{public}d", i, status);
-        if (status != napi_ok) return status;
+        if (status != napi_ok) {
+            return status;
+        }
         ++i;
     }
     return status;

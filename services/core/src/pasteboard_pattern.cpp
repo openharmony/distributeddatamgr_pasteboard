@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Copyright (c)2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,7 +47,6 @@ const Patterns DetectPatterns(const Patterns &patternsToCheck,
         }
         if (hasHTML && record->GetHtmlText() != nullptr) {
             std::string recordText = *(record->GetHtmlText());
-            // std::string pureText = stripHtmlTags(recordText);
             CheckPlainText(existedPatterns, patternsToCheck, recordText);
         }
         if (needCheckURI && hasURI && record->GetUri() != nullptr &&
@@ -78,32 +77,5 @@ void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std
         }
     }
 }
-
-// std::string stripHtmlTags(const std::string& html)
-// {
-//     htmlDocPtr doc = htmlReadMemory(html.c_str(), html.length(), "HTML", NULL, HTML_PARSE_RECOVER);
-//     htmlNodePtr cur = doc->children;
-//     while (cur != NULL) {
-//         if (cur->type == XML_ELEMENT_NODE) {
-//             stripHtmlTags(cur);
-//             xmlNodePtr next = cur->next;
-//             xmlUnlinkNode(cur);
-//             xmlFreeNode(cur);
-//             cur = next;
-//         } else if (cur->type == XML_TEXT_NODE) {
-//             xmlNodePtr next = cur->next;
-//             xmlChar* content = xmlNodeGetContent(cur);
-//             if (content) {
-//                 std::string text((const char*)content);
-//                 xmlFree(content);
-//                 return text;
-//             }
-//             cur = next;
-//         }
-//         cur = cur->next;
-//     }
-//     xmlFreeDoc(doc);
-//     return "";
-// }
 
 } // namespace OHOS::MiscServices

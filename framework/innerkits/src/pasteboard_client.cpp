@@ -535,13 +535,20 @@ bool PasteboardClient::HasDataType(const std::string &mimeType)
 
 std::unordered_set<Pattern> PasteboardClient::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
 {
+    Patterns patternsAll{Pattern::URL, Pattern::Number, Pattern::EmailAddress};
+    Patterns patternsFiltered;
+    for (auto pattern : patternsAll) {
+        if (patternsToCheck.find(patterm) != patternsToCheck.end()) {
+            patternsFiltered.insert(pattern);
+        }
+    }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "DetectPatterns start.");
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         return {};
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "DetectPatterns end.");
-    return proxyService->DetectPatterns(patternsToCheck);
+    return proxyService->DetectPatterns(patternsFiltered);
 }
 
 sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
