@@ -295,8 +295,8 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
         {0, 0, 2, 3, 2, 3, 6, 6},
         {0, 1, 2, 3, 4, 5, 6, 7}
     };
-    for(int i = 0; i != 8; ++i){
-        for(int j = 0; j != 8; ++j){
+    for (int i = 0; i != 8; ++i) {
+        for (int j = 0; j != 8; ++j) {
             auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(
                 plainTextVec[i]);
             PasteboardClient::GetInstance()->SetPasteData(*newData);
