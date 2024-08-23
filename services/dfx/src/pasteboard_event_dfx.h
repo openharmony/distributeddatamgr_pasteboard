@@ -131,7 +131,7 @@ enum ErrorCode : std::int32_t {
 
 class PasteboardDfxUntil {
 public:
-    static std::string GetAnonymousID(std::string deviceId);
+    static std::string GetAnonymousID(const std::string &deviceId);
 private:
     static constexpr int minIdLen = 10;
     static constexpr int maskIdLen = 5;
