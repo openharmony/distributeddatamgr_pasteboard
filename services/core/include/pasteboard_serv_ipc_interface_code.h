@@ -39,7 +39,7 @@ enum PasteboardServiceInterfaceCode {
     PASTE_START = 15,
     PASTE_COMPLETE = 16,
     REGISTER_CLIENT_DEATH_OBSERVER = 17,
-    EXISTED_PATTERNS = 18,
+    DETECT_PATTERNS = 18,
 };
 
 enum PasteboardObserverInterfaceCode {

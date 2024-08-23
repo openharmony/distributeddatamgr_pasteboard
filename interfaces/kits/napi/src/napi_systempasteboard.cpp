@@ -848,10 +848,10 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
     return result;
 }
 
-napi_value SystemPasteboardNapi::ExistedPatternsAsync(napi_env env, napi_callback_info info)
+napi_value SystemPasteboardNapi::DetectPatternsAsync(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Detect ExistedPatternsAsync is called!");
-    auto context = std::make_shared<ExistedPatternsContextInfo>();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Detect DetectPatternsAsync is called!");
+    auto context = std::make_shared<DetectPatternsContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         if ((!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The number of arguments must be grater than zero.")) ||
@@ -866,20 +866,13 @@ napi_value SystemPasteboardNapi::ExistedPatternsAsync(napi_env env, napi_callbac
         return napi_ok;
     };
     auto output = [context](napi_env env, napi_value *result) -> napi_status {
-        napi_status status = SetValue(env, context->patternsExisted, &result);
+        napi_status status = SetValue(env, context->patternsDetect, *result);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SetValue status = %{public}d", status);
         return status;
     };
     auto exec = [context](AsyncCall::Context *ctx) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec Detect ExistedPatternsAsync");
-        context->patternsExisted = PasteboardClient::GetInstance()->ExistedPatterns(context->patternsToCheck);
-        int i = 0;
-        for (auto pattern:context->patternsExisted) {
-            PASTEBOARD_HILOGD(
-                PASTEBOARD_MODULE_JS_NAPI,
-                "Detect ExistedPatterns result%{public}d = %{public}u", i, static_cast<uint32_t>(pattern));
-            ++i;
-        }
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec Detect DetectPatternsAsync");
+        context->patternsDetect = PasteboardClient::GetInstance()->DetectPatterns(context->patternsToCheck);
         context->status = napi_ok;
     };
     context->SetAction(std::move(input), std::move(output));
@@ -1008,7 +1001,7 @@ napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value e
         DECLARE_NAPI_FUNCTION("isRemoteData", IsRemoteData),
         DECLARE_NAPI_FUNCTION("getDataSource", GetDataSource),
         DECLARE_NAPI_FUNCTION("hasDataType", HasDataType),
-        DECLARE_NAPI_FUNCTION("detectPatterns", ExistedPatternsAsync),
+        DECLARE_NAPI_FUNCTION("detectPatterns", DetectPatternsAsync),
         DECLARE_NAPI_FUNCTION("clearDataSync", ClearDataSync),
         DECLARE_NAPI_FUNCTION("getDataSync", GetDataSync),
         DECLARE_NAPI_FUNCTION("hasDataSync", HasDataSync),

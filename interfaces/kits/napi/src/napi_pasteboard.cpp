@@ -255,8 +255,6 @@ napi_value PasteboardNapi::JScreateShareOption(napi_env env, napi_callback_info 
 
 napi_value PasteboardNapi::JScreatePattern(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreatePattern is called!");
-
     napi_value jsPattern = nullptr;
     napi_create_object(env, &jsPattern);
 

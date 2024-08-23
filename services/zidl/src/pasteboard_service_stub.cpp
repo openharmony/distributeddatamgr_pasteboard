@@ -49,8 +49,8 @@ PasteboardServiceStub::PasteboardServiceStub()
             &PasteboardServiceStub::OnGetDataSource;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::HAS_DATA_TYPE)] =
             &PasteboardServiceStub::OnHasDataType;
-    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::EXISTED_PATTERNS)] =
-            &PasteboardServiceStub::OnExistedPatterns;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DETECT_PATTERNS)] =
+            &PasteboardServiceStub::OnDetectPatterns;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION)] =
             &PasteboardServiceStub::OnSetGlobalShareOption;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION)] =
@@ -295,7 +295,7 @@ int32_t PasteboardServiceStub::OnHasDataType(MessageParcel &data, MessageParcel 
     return ERR_OK;
 }
 
-int32_t PasteboardServiceStub::OnExistedPatterns(MessageParcel &data, MessageParcel &reply)
+int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     uint32_t size = 0;
@@ -304,7 +304,7 @@ int32_t PasteboardServiceStub::OnExistedPatterns(MessageParcel &data, MessagePar
         return ERR_INVALID_VALUE;
     }
     size_t readAbleSize = data.GetReadableBytes();
-    if (size > readAbleSize || size > static_cast<uint32_t>(Pattern::PatternCount_)) {
+    if (size > readAbleSize || size > static_cast<uint32_t>(Pattern::PatternCount)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read oversize failed.");
         return ERR_INVALID_VALUE;
     }
@@ -317,7 +317,7 @@ int32_t PasteboardServiceStub::OnExistedPatterns(MessageParcel &data, MessagePar
         }
         patternsToCheck.insert(static_cast<Pattern>(pattern));
     }
-    std::unordered_set<Pattern> existedPatterns = ExistedPatterns(patternsToCheck);
+    std::unordered_set<Pattern> existedPatterns = DetectPatterns(patternsToCheck);
     if (!reply.WriteUint32(static_cast<uint32_t>(existedPatterns.size()))) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write size failed.");
         return ERR_INVALID_VALUE;
