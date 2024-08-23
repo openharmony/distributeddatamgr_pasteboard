@@ -18,7 +18,7 @@
 namespace OHOS {
 namespace MiscServices {
 namespace RadarReporter {
-std::string PasteboardDfxUntil::GetAnonymousID(std::string deviceId)
+std::string PasteboardDfxUntil::GetAnonymousID(const std::string &deviceId)
 {
     if (deviceId.empty() || deviceId.length() < minIdLen) {
         return "unknown";

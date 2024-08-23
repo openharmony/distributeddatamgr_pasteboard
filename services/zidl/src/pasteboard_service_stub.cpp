@@ -104,7 +104,9 @@ int32_t PasteboardServiceStub::OnClear(MessageParcel &data, MessageParcel &reply
 int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel &reply)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
+    std::string pasteId = data.ReadString();
     PasteData pasteData{};
+    pasteData.SetPasteId(pasteId);
     int32_t syncTime = 0;
     auto result = GetPasteData(pasteData, syncTime);
     HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::PASTE_STATE, result);

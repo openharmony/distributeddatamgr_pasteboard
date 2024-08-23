@@ -123,6 +123,10 @@ __attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteDat
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return ERR_INVALID_VALUE;
     }
+    if (!data.WriteString(pasteData.GetPasteId())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);

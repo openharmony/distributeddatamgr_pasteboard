@@ -487,7 +487,6 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
 {
     PasteboardTrace tracer("PasteboardService GetPasteData");
-    pasteId_ = data.GetPasteId();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto callPid = IPCSkeleton::GetCallingPid();
     auto appInfo = GetAppInfo(tokenId);
@@ -495,7 +494,7 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
     bool isTestServerSetPasteData = developerMode && setPasteDataUId_ == TESE_SERVER_UID;
     if (!VerifyPermission(tokenId) && !isTestServerSetPasteData) {
         RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_AUTHORITY, DFX_SUCCESS, GET_DATA_APP, appInfo.bundleName,
-            RadarReporter::CONCURRENT_ID, pasteId_);
+            RadarReporter::CONCURRENT_ID, data.GetPasteId());
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, callingPid is %{public}d", callPid);
         return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
     }
@@ -537,6 +536,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     auto appInfo = GetAppInfo(tokenId);
     int32_t result = static_cast<int32_t>(PasteboardError::E_OK);
     std::string peerNetId = "";
+    std::string pasteId = data.GetPasteId();
     auto event = GetValidDistributeEvent(appInfo.userId);
     if (!event.first || GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
         result = GetLocalData(appInfo, data);
@@ -548,7 +548,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         std::string targetBundleName = GetAppBundleName(appInfo);
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
-    RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_DATA_INFO, DFX_SUCCESS, CONCURRENT_ID, pasteId_, GET_DATA_APP,
+    RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_DATA_INFO, DFX_SUCCESS, CONCURRENT_ID, pasteId, GET_DATA_APP,
         appInfo.bundleName, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
         DMAdapter::GetInstance().GetLocalDeviceType(), PEER_NET_ID, PasteboardDfxUntil::GetAnonymousID(peerNetId));
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
@@ -558,7 +558,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64", isremote=%{public}d", fileSize,
         static_cast<int>(data.IsRemote()));
     if (data.IsRemote() && fileSize > 0) {
-        data.SetPasteId(pasteId_);
+        data.SetPasteId(pasteId);
         data.deviceId_ = event.second.deviceId;
         EstablishP2PLink(data.deviceId_, data.GetPasteId());
     }
@@ -709,6 +709,7 @@ int32_t PasteboardService::GetRemotePasteData(int32_t userId, const Event &event
 
 int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
 {
+    std::string pasteId = data.GetPasteId();
     auto it = clips_.Find(appInfo.userId);
     auto tempTime = copyTime_.Find(appInfo.userId);
     if (!it.first || !tempTime.first) {
@@ -725,7 +726,7 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     auto isDelayData = it.second->IsDelayData();
     if (isDelayData) {
         GetDelayPasteData(appInfo, data);
-        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_DELAY_PASTE, DFX_SUCCESS, CONCURRENT_ID, pasteId_);
+        RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_DELAY_PASTE, DFX_SUCCESS, CONCURRENT_ID, pasteId);
     }
     data.SetBundleName(appInfo.bundleName);
     auto result = copyTime_.Find(appInfo.userId);
