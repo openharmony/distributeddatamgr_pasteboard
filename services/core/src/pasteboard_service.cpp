@@ -1055,17 +1055,17 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
     return HasLocalDataType(mimeType);
 }
 
-std::unordered_set<Pattern> PasteboardService::ExistedPatterns(const std::unordered_set<Pattern> &patternsToCheck)
+std::unordered_set<Pattern> PasteboardService::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
 {
     bool hasHTML = HasDataType(MIMETYPE_TEXT_HTML);
-    bool hasPlain = HasDataType(MIMETYPE_TEXT_PLAIN);
-    bool hasURI = HasDataType(MIMETYPE_TEXT_URI);
+    bool hasPlain = HasLocalDataType(MIMETYPE_TEXT_PLAIN);
+    bool hasURI = HasLocalDataType(MIMETYPE_TEXT_URI);
     if (!hasHTML && !hasPlain && !hasURI) {
         return {};
     }
     int32_t userId = GetCurrentAccountId();
     std::shared_ptr<PasteData> pasteDataSP = clips_.Find(userId).second;
-    return OHOS::MiscServices::ExistedPatterns(patternsToCheck, pasteDataSP, hasHTML, hasPlain, hasURI);
+    return OHOS::MiscServices::DetectPatterns(patternsToCheck, *pasteDataSP, hasHTML, hasPlain, hasURI);
 }
 
 std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEvent(int32_t user)

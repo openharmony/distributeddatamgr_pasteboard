@@ -26,6 +26,7 @@
 #include "pasteboard_observer.h"
 #include "unified_data.h"
 #include "want.h"
+#include "pasteboard_pattern.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -214,12 +215,12 @@ public:
     bool HasDataType(const std::string &mimeType);
 
     /**
-     * ExistedPatterns
+     * DetectPatterns
      * @description Checks the specified patterns contained in clipboard, and removes if not found.
      * @param patternsToCheck A reference to an unordered_set of Pattern to check against the clipboard.
-     * @return Returns ExistedPatterns.
+     * @return Returns DetectPatterns.
      */
-    std::unordered_set<Pattern> ExistedPatterns(const std::unordered_set<Pattern> &patternsToCheck);
+    Patterns DetectPatterns(const Patterns &patternsToCheck);
 
     /**
      * Subscribe

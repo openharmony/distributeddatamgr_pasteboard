@@ -14,6 +14,7 @@
  */
 
 #include "pasteboard_client.h"
+#include "pasteboard_pattern.h"
 #include "unistd.h"
 #include <gtest/gtest.h>
 
@@ -22,12 +23,13 @@ using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::Media;
 constexpr const uid_t EDM_UID = 3057;
+using Patterns = std::unordered_set<Pattern>;
 class PasteboardClientTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
-    void SetUp();
-    void TearDown();
+    void SetUp() override;
+    void TearDown() override;
 };
 
 void PasteboardClientTest::SetUpTestCase(void)
@@ -256,4 +258,152 @@ HWTEST_F(PasteboardClientTest, RemoveGlobalShareOption, TestSize.Level0)
     EXPECT_TRUE(result.find(100) == result.end());
     PasteboardClient::GetInstance()->RemoveGlobalShareOption({200, 300});
 }
+
+/**
+* @tc.name: DetectPatterns001
+* @tc.desc: Cover Permutation
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
+{
+    std::string plainText("每天三次抢红I包机会，速抢！】qd rqdswww.comsski,.sjopwe"
+    "ihhtpsdhttp我也带过去给他№のjioijhhu");
+    std::string plainText0("https://github.com/makelove/Taobao_to"
+    "psdk/blob/master.md）");
+    std::string plainText1("最高888元82h7");
+    std::string plainText2("uhiyqydueuw@kahqw.oisko.sji");
+
+    std::vector<std::string> plainTextVec{
+        plainText, plainText+plainText0, plainText+plainText1, plainText+plainText2,
+        plainText+plainText0+plainText1, plainText0+plainText2+plainText, plainText1+plainText+plainText2,
+        plainText0+plainText1+plainText+plainText2
+    };
+    std::vector<Patterns> patternsVec{
+        {}, {Pattern::URL}, {Pattern::Number}, {Pattern::EmailAddress},
+        {Pattern::URL, Pattern::Number}, {Pattern::URL, Pattern::EmailAddress},
+        {Pattern::Number, Pattern::EmailAddress}, {Pattern::URL, Pattern::Number, Pattern::EmailAddress}
+    };
+    std::vector<std::vector<int>> patternsRightIndexVec{
+        {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 1, 1, 0, 1},
+        {0, 0, 2, 0, 2, 0, 2, 2},
+        {0, 0, 0, 3, 0, 3, 3, 3},
+        {0, 1, 2, 0, 4, 1, 2, 4},
+        {0, 1, 0, 3, 1, 5, 3, 5},
+        {0, 0, 2, 3, 2, 3, 6, 6},
+        {0, 1, 2, 3, 4, 5, 6, 7}
+    };
+    for(int i = 0; i != 8; ++i){
+        for(int j = 0; j != 8; ++j){
+            auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(
+                plainTextVec[i]);
+            PasteboardClient::GetInstance()->SetPasteData(*newData);
+            auto ret = PasteboardClient::GetInstance()->DetectPatterns(
+                patternsVec[j]);
+            int rightIndex = patternsRightIndexVec[i][j];
+            ASSERT_EQ(ret, patternsVec[rightIndex]);
+        }
+    }
+}
+
+/**
+* @tc.name: DetectPatterns002
+* @tc.desc: check HTML
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
+{
+    std::string htmlText1 = "<!DOCTYPE html><html><head><title>"
+    "超链接示例</title></head><body><h2>访问我的网站</h2>"
+    "<p>点击下面的链接访问我的<a href=\"https://example.com\">"
+    "个人网站</a>。</p></body></html>";
+    auto newData1 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText1);
+    PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    std::unordered_set<Pattern> patternsToCheck1{Pattern::URL, Pattern::EmailAddress};
+    auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck1);
+    std::unordered_set<Pattern> expected1{Pattern::URL};
+    ASSERT_EQ(ret1, expected1);
+}
+
+/**
+* @tc.name: DetectPatterns003
+* @tc.desc: Outlier force cast uint32_t to unsurportted Pattern
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
+{
+    std::string plainText1 = "来自网盘分享文件：\n"
+    "「格式测试」\n"
+    "链接：\n"
+    "https://pre-drive.uc.cn/s/42e1d77f3dab4"
+    "网盘——上传下载不限速，网速有多快，速度就有多快。复制整段内容后打开最新版「浏览器」打开:\n"
+    "~b00433tddj~";
+    auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
+    PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    std::unordered_set<Pattern> patternsToCheck{
+        Pattern::Number, Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(1023)};
+    auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
+    std::unordered_set<Pattern> expected1{Pattern::Number, Pattern::URL};
+    ASSERT_EQ(ret1, expected1);
+    std::string plainText2 = "【最高元，每天三次抢红包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开手机淘宝即可 查看，淘口令：trfwrtg"
+    "(￥￥软骨素用人员为bdfdgse https://github.com/makelove/ usdq12_22swe@163.com）";
+    auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
+    PasteboardClient::GetInstance()->SetPasteData(*newData2);
+    auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
+    std::unordered_set<Pattern> expected2{Pattern::Number, Pattern::URL, Pattern::EmailAddress};
+    ASSERT_EQ(ret2, expected2);
+    std::string plainText3 = "【最高元，每天三次抢红aefw包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开sfsdf手机淘宝即可 查看，淘口令：defeqfdt）";
+    auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
+    PasteboardClient::GetInstance()->SetPasteData(*newData3);
+    auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
+    ASSERT_EQ(ret3, std::unordered_set<Pattern>{});
+}
+
+/**
+* @tc.name: DetectPatterns004
+* @tc.desc: Outlier force cast uint32_t 0xffffffff to unsurportted Pattern
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
+{
+    std::string plainText1 = "来自网盘分享文件：\n"
+    "「格式测试」\n"
+    "链接：\n"
+    "https://pre-drive.uc.cn/s/42e1d77f3dab4"
+    "网盘——上传下载不限速，网速有多快，速度就有多快。复制整段内容后打开最新版「浏览器」打开:\n"
+    "~b00433tddj~";
+    auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
+    PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    std::unordered_set<Pattern> patternsToCheck{
+        Pattern::Number, Pattern::URL, Pattern::EmailAddress, 
+        static_cast<Pattern>(0xffffffff), static_cast<Pattern>(0xffffff1a)};
+    auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
+    std::unordered_set<Pattern> expected1{Pattern::Number, Pattern::URL};
+    ASSERT_EQ(ret1, expected1);
+    std::string plainText2 = "【最高元，每天三次抢红包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开手机淘宝即可 查看，淘口令：trfwrtg"
+    "(￥￥软骨素用人员为bdfdgse https://github.com/makelove/ usdq12_22swe@163.com）";
+    auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
+    PasteboardClient::GetInstance()->SetPasteData(*newData2);
+    auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
+    std::unordered_set<Pattern> expected2{Pattern::Number, Pattern::URL, Pattern::EmailAddress};
+    ASSERT_EQ(ret2, expected2);
+    std::string plainText3 = "【最高元，每天三次抢红aefw包机会，速抢！】"
+    "年货合家欢，五折开抢！复制此条信息，打开sfsdf手机淘宝即可 查看，淘口令：defeqfdt）";
+    auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
+    PasteboardClient::GetInstance()->SetPasteData(*newData3);
+    auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
+    ASSERT_EQ(ret3, std::unordered_set<Pattern>{});
+}
+
 } // namespace OHOS::MiscServices

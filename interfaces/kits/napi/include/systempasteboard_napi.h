@@ -212,11 +212,11 @@ struct GetUnifiedContextInfo : public AsyncCall::Context {
     }
 };
 
-struct ExistedPatternsContextInfo : public AsyncCall::Context {
-    std::unordered_set<MiscServices::Pattern> patternsExisted;
+struct DetectPatternsContextInfo : public AsyncCall::Context {
+    std::unordered_set<MiscServices::Pattern> patternsDetect;
     std::unordered_set<MiscServices::Pattern> patternsToCheck;
     napi_status status = napi_generic_failure;
-    ExistedPatternsContextInfo() : Context(nullptr, nullptr){};
+    DetectPatternsContextInfo() : Context(nullptr, nullptr){};
 
     napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
     {
@@ -256,7 +256,7 @@ private:
     static napi_value IsRemoteData(napi_env env, napi_callback_info info);
     static napi_value GetDataSource(napi_env env, napi_callback_info info);
     static napi_value HasDataType(napi_env env, napi_callback_info info);
-    static napi_value ExistedPatternsAsync(napi_env env, napi_callback_info info);
+    static napi_value DetectPatternsAsync(napi_env env, napi_callback_info info);
     static napi_value ClearDataSync(napi_env env, napi_callback_info info);
     static napi_value GetDataSync(napi_env env, napi_callback_info info);
     static napi_value SetDataSync(napi_env env, napi_callback_info info);

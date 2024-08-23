@@ -118,6 +118,7 @@ void FuzzPastedata(const uint8_t *rawData, size_t size)
     pasteData2.GetTime();
     PasteboardClient::GetInstance()->SetPasteData(pasteData2);
     PasteboardClient::GetInstance()->HasDataType(std::string(reinterpret_cast<const char *>(rawData), size));
+    PasteboardClient::GetInstance()->DetedtPatterns()
     PasteboardClient::GetInstance()->IsRemoteData();
 
     std::string bundlename = pasteData2.GetBundleName();

@@ -15,77 +15,29 @@
 
 #include "pasteboard_pattern.h"
 
-#include <sstream>
+#include <unordered_map>
+#include <libxml/HTMLparser.h>
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
 
 namespace OHOS::MiscServices {
-PatternCheckerFactory &PatternCheckerFactory::GetInstance()
-{
-    static PatternCheckerFactory instance;
-    return instance;
-}
+static const std::unordered_map<uint32_t, std::string> patternToRegexMap = {
+    { static_cast<uint32_t>(Pattern::URL), std::string("(?:(https?|file)://|www\\.)"
+                                                "[-a-z0-9+&@#/%?=~_|!:,.;]*[-a-z0-9+&@#/%=~_]")},
+    { static_cast<uint32_t>(Pattern::Number), std::string("[-+]?[0-9]*\\.?[0-9]+")},
+    { static_cast<uint32_t>(Pattern::EmailAddress), std::string("(([a-zA-Z0-9_\\-\\.]+)@"
+                                                "((?:\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|"
+                                                "([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*))"
+                                                "([a-zA-Z]{2,}|[0-9]{1,3}))")},
+};
 
-void PatternCheckerFactory::InitPatternCheckers()
-{
-    if (!inited_) {
-        RegisterPatternChecker(Pattern::URL, std::make_shared<URLPatternChecker>());
-        RegisterPatternChecker(Pattern::Number, std::make_shared<NumberPatternChecker>());
-        RegisterPatternChecker(Pattern::EmailAddress, std::make_shared<EmailAddressPatternChecker>());
-        inited_ = true;
-    }
-}
-
-std::shared_ptr<PatternChecker> PatternCheckerFactory::GetPatternChecker(
-    const Pattern &pattern)
-{
-    auto it = patternCheckers_.find(pattern);
-    if (it == patternCheckers_.end()) {
-        return nullptr;
-    }
-    return it->second;
-}
-
-void PatternCheckerFactory::RegisterPatternChecker(
-    const Pattern &pattern,
-    const std::shared_ptr<PatternChecker> checker)
-{
-    patternCheckers_.insert_or_assign(pattern, checker);
-}
-
-bool URLPatternChecker::IsExist(const std::string &content)
-{
-    return std::regex_search(content, urlRegex_);
-}
-
-bool NumberPatternChecker::IsExist(const std::string &content)
-{
-    return std::regex_search(content, numberRegex_);
-}
-
-bool EmailAddressPatternChecker::IsExist(
-    const std::string &content)
-{
-    return std::regex_search(content, emailAddressRegex_);
-}
-
-std::regex URLPatternChecker::urlRegex_("(?:(https?|file)://|www\\.)"
-    "[-a-z0-9+&@#/%?=~_|!:,.;]*[-a-z0-9+&@#/%=~_]");
-
-std::regex NumberPatternChecker::numberRegex_("[-+]?[0-9]*\\.?[0-9]+");
-
-std::regex EmailAddressPatternChecker::emailAddressRegex_("(([a-zA-Z0-9_\\-\\.]+)@"
-    "((?:\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|"
-    "([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*))"
-    "([a-zA-Z]{2,}|[0-9]{1,3}))");
-
-const Patterns ExistedPatterns(const Patterns &patternsToCheck,
-    const std::shared_ptr<PasteData> pasteDataSP,
+const Patterns DetectPatterns(const Patterns &patternsToCheck,
+    const PasteData &pasteData,
     const bool hasHTML, const bool hasPlain, const bool hasURI)
 {
     bool needCheckURI = (patternsToCheck.find(Pattern::URL) != patternsToCheck.end());
-    PatternCheckerFactory::GetInstance().InitPatternCheckers();
     std::unordered_set<Pattern> existedPatterns;
-
-    for (auto& record : pasteDataSP->AllRecords()) {
+    for (auto& record : pasteData.AllRecords()) {
         if (patternsToCheck == existedPatterns) {
             break;
         }
@@ -95,12 +47,14 @@ const Patterns ExistedPatterns(const Patterns &patternsToCheck,
         }
         if (hasHTML && record->GetHtmlText() != nullptr) {
             std::string recordText = *(record->GetHtmlText());
-            CheckHTMLText(existedPatterns, patternsToCheck, recordText);
+            // std::string pureText = stripHtmlTags(recordText);
+            CheckPlainText(existedPatterns, patternsToCheck, recordText);
         }
         if (needCheckURI && hasURI && record->GetUri() != nullptr &&
             existedPatterns.find(Pattern::URL) == patternsToCheck.end()) {
             std::string recordText = record->GetUri()->ToString();
-            CheckURI(existedPatterns, recordText);
+            Patterns urlPattern{Pattern::URL};
+            CheckPlainText(existedPatterns, urlPattern, recordText);
         }
     }
     return existedPatterns;
@@ -112,37 +66,44 @@ void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std
         if (patternsOut.find(pattern) != patternsOut.end()) {
             continue;
         }
-        std::shared_ptr<PatternChecker> checkerSP = PatternCheckerFactory
-        ::GetInstance().GetPatternChecker(pattern);
-        if (checkerSP==nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetPatternChecker nullptr error!");
-            break;
+        static_cast<uint32_t>(pattern);
+        uint32_t patternUint32 = static_cast<uint32_t>(pattern);
+        if (patternToRegexMap.find(patternUint32) == patternToRegexMap.end()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard_pattern.cpp, unexpected Pattern value!");
+            continue;
         }
-        if (checkerSP->IsExist(plainText)) {
+        std::regex curRegex(patternToRegexMap.at(patternUint32));
+        if (std::regex_search(plainText, curRegex)) {
             patternsOut.insert(pattern);
         }
     }
 }
 
-void CheckHTMLText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &htmlText)
-{
-    // borrow from #include "pasteboard_web_controller.h"
-    const std::string IMG_TAG_PATTERN = "<img.*?data-ohos=.*?>";
-    const std::string IMG_TAG_SRC_PATTERN = "src=(['\"])(.*?)\\1";
-    const std::string imgTagPattern = IMG_TAG_PATTERN + "|" + IMG_TAG_SRC_PATTERN;
-    std::regex imgRegex(imgTagPattern);
-    // use -1 to remove imgTag and split htmlText and check Patterns
-    std::sregex_token_iterator iter(htmlText.begin(), htmlText.end(), imgRegex, -1);
-    std::sregex_token_iterator end;
-    while (iter != end) {
-        CheckPlainText(patternsOut, patternsIn, *iter++);
-    }
-}
-void CheckURI(Patterns &patternsOut, const std::string &uriText)
-{
-    URLPatternChecker urlChecker;
-    if (urlChecker.IsExist(uriText)) {
-        patternsOut.insert(Pattern::URL);
-    }
-}
+// std::string stripHtmlTags(const std::string& html)
+// {
+//     htmlDocPtr doc = htmlReadMemory(html.c_str(), html.length(), "HTML", NULL, HTML_PARSE_RECOVER);
+//     htmlNodePtr cur = doc->children;
+//     while (cur != NULL) {
+//         if (cur->type == XML_ELEMENT_NODE) {
+//             stripHtmlTags(cur);
+//             xmlNodePtr next = cur->next;
+//             xmlUnlinkNode(cur);
+//             xmlFreeNode(cur);
+//             cur = next;
+//         } else if (cur->type == XML_TEXT_NODE) {
+//             xmlNodePtr next = cur->next;
+//             xmlChar* content = xmlNodeGetContent(cur);
+//             if (content) {
+//                 std::string text((const char*)content);
+//                 xmlFree(content);
+//                 return text;
+//             }
+//             cur = next;
+//         }
+//         cur = cur->next;
+//     }
+//     xmlFreeDoc(doc);
+//     return "";
+// }
+
 } // namespace OHOS::MiscServices

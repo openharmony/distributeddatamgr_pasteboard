@@ -283,9 +283,9 @@ bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
     return reply.ReadBool();
 }
 
-std::unordered_set<Pattern> PasteboardServiceProxy::ExistedPatterns(const std::unordered_set<Pattern> &patternsToCheck)
+std::unordered_set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "DetectPatterns proxy start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -303,7 +303,7 @@ std::unordered_set<Pattern> PasteboardServiceProxy::ExistedPatterns(const std::u
             return {};
         }
     }
-    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::EXISTED_PATTERNS, data, reply, option);
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::DETECT_PATTERNS, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return {};
@@ -322,7 +322,7 @@ std::unordered_set<Pattern> PasteboardServiceProxy::ExistedPatterns(const std::u
         }
         existedPatterns.insert(static_cast<Pattern>(pattern));
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "DetectPatterns proxy end.");
     return existedPatterns;
 }
 

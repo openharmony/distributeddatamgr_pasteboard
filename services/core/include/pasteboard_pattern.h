@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,62 +17,18 @@
 #define PASTE_BOARD_PATTERN_H
 
 #include <regex>
+#include <unordered_set>
 
 #include "paste_data.h"
 
 namespace OHOS::MiscServices {
+enum class Pattern : uint32_t { URL = 0, Number, EmailAddress, PatternCount };
 using Patterns = std::unordered_set<Pattern>;
-
-class PatternChecker {
-public:
-    virtual bool IsExist(const std::string &content) = 0;
-    virtual ~PatternChecker() {}
-};
-
-class PatternCheckerFactory {
-public:
-    static PatternCheckerFactory &GetInstance();
-    void InitPatternCheckers();
-    std::shared_ptr<PatternChecker> GetPatternChecker(const Pattern &pattern);
-private:
-    PatternCheckerFactory() {inited_ = false;}
-    ~PatternCheckerFactory() {}
-    PatternCheckerFactory(const PatternCheckerFactory &) = delete;
-    PatternCheckerFactory &operator=(const PatternCheckerFactory &) = delete;
-    void RegisterPatternChecker(const Pattern &pattern, std::shared_ptr<PatternChecker> registChecker);
-    std::map<Pattern, std::shared_ptr<PatternChecker>> patternCheckers_;
-    bool inited_;
-};
-
-class URLPatternChecker : public PatternChecker {
-public:
-    URLPatternChecker() {}
-    bool IsExist(const std::string &content) override;
-private:
-    static std::regex urlRegex_;
-};
-
-class NumberPatternChecker : public PatternChecker {
-public:
-    NumberPatternChecker() {}
-    bool IsExist(const std::string &content) override;
-private:
-    static std::regex numberRegex_;
-};
-
-class EmailAddressPatternChecker : public PatternChecker {
-public:
-    EmailAddressPatternChecker() {}
-    bool IsExist(const std::string &content) override;
-private:
-    static std::regex emailAddressRegex_;
-};
-
+  
 void CheckPlainText(Patterns &patternsOut, const Patterns &PatternsIn, const std::string &plainText);
-void CheckHTMLText(Patterns &patternsOut, const Patterns &PatternsIn, const std::string &htmlText);
-void CheckURI(Patterns &patternsOut, const std::string &uriText);
-const Patterns ExistedPatterns(const Patterns &patternsToCheck,
-    const std::shared_ptr<PasteData> pasteDataSP,
+// const std::string stripHtmlTags(const std::string &html);
+const Patterns DetectPatterns(const Patterns &patternsToCheck,
+    const PasteData &pasteData,
     const bool hasHTML, const bool hasPlain, const bool hasURI);
 } // namespace OHOS::MiscServices
 

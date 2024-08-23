@@ -1119,47 +1119,6 @@ describe('PasteBoardJSTest', function () {
       });
     });
   });
-  
-  /**
-  * @tc.name      pasteboard_callback_test24
-  * @tc.desc      detectPatterns test
-  * @tc.type      Function
-  * @tc.require   AR000H5GKU
-  */
- it('pasteboard_callback_test24', 0, async function (done) {
-   const systemPasteboard = pasteboard.getSystemPasteboard();
-   systemPasteboard.clear((err, data) => {
-     if (err) {
-       console.error('f_test24: systemPasteboard.clear callback error:' + err);
-       return;
-     }
-     const uriText24 = 'ashsjn https://www.baidu.com/  aaa@bju.com';
-     const pasteData = pasteboard.createPlainTextData(uriText24);
-     systemPasteboard.setPasteData(pasteData, (err, data) => {
-       if (err) {
-         console.error('f_test24: systemPasteboard.setPasteData callback error:' + err);
-         return;
-       }
-       systemPasteboard.hasPasteData((err, data) => {
-         if (err) {
-           console.error('f_test24: systemPasteboard.hasPasteData callback error:' + err);
-           return;
-         }
-         expect(data).assertEqual(true);
-         const patterns = [pasteboard.Pattern.URL, pasteboard.Pattern.Number, pasteboard.Pattern.EmailAddress];
-         systemPasteboard.detectPatterns(patterns, (err, data) => {
-           if (err) {
-             console.error('f_test24: systemPasteboard.detectPatterns callback error:' + err);
-             return;
-           }
-           const patternsRight = [pasteboard.Pattern.URL, pasteboard.Pattern.EmailAddress];
-           expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
-           done();
-         });
-       });
-     });
-   });
- });
 
   /**
    *  The callback function is used for pasteboard content changes
