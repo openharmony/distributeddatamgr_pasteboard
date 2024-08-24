@@ -1545,17 +1545,17 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test54', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = "<!DOCTYPE html><html><head><title>"
-    "超链接示例</title></head><body><h2>访问我的网站</h2>"
-    "<p>点击下面的链接访问我的<a href=\"https://example.com\">"
-    "个人网站</a>。</p></body></html>";
+    const textData = "<!DOCTYPE html><html><head><title>" +
+    "超链接示例</title></head><body><h2>访问我的网站</h2>" +
+    "<p>点击下面的链接访https://example.com问我的<a href=\"https://example.com\">" +
+    "个人网qwiuy218hw@huedqw.dsh站</a>。</p></body></html>";
     const pasteData = pasteboard.createHtmlData(textData);
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
-    const patterns = [pasteboard.Pattern.URL, pasteboard.Pattern.Number];
+    const patterns = [pasteboard.Pattern.EmailAddress, pasteboard.Pattern.Number];
     systemPasteboard.detectPatterns(patterns).then((data) => {
-      const patternsRight = [];
+      const patternsRight = [Pattern.EmailAddress];
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
@@ -1573,15 +1573,15 @@ describe('PasteBoardJSTest', function () {
   it('pasteboard_promise_test55', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
-    const textData = "<!DOCTYPE html><html><head><title>"
-    "超链接示例</title></head><body><h2>访问我的网站</h2>"
-    "<p>点击下面的链接访问我的<a href=\"https://example.com\">"
+    const textData = "<!DOCTYPE html><html><head><title>" +
+    "超链接示例</title></head><body><h2>访问我的网站</h2>" +
+    "<p>点击下面的链接访问我的<a href=\"https://example.com\">" +
     "个人网站ioadhoa@wdoiewf.com</a>。</p></body></html>";
     const pasteData = pasteboard.createPlainTextData(textData);
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
-    const patterns = [pasteboard.Pattern.EmailAddress,
+    const patterns = [pasteboard.Pattern.EmailAddress, pasteboard.Pattern.URL,
       10, 23, pasteboard.Pattern.Number];
     systemPasteboard.detectPatterns(patterns).then((data) => {
       const patternsRight = [pasteboard.Pattern.EmailAddress];

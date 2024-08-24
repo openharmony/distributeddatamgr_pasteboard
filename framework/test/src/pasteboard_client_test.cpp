@@ -327,6 +327,17 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck1);
     std::unordered_set<Pattern> expected1{Pattern::URL};
     ASSERT_EQ(ret1, expected1);
+
+    std::string htmlText2 = "<!DOCTYPE html><html><head><title>"
+    "超链接示例</title></head><body><h2>访问我的网站</h2>"
+    "<p>点击下面的链接访https://example.com问我的<a href=\"https://example.com\">"
+    "个人网站weqkqo23334@example.com</a>。</p></body></html>";
+    auto newData2 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText2);
+    PasteboardClient::GetInstance()->SetPasteData(*newData2);
+    std::unordered_set<Pattern> patternsToCheck2{Pattern::URL, Pattern::EmailAddress, Pattern::Number};
+    auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck2);
+    std::unordered_set<Pattern> expected1{Pattern::URL, Pattern::EmailAddress};
+    ASSERT_EQ(ret2, expected2);
 }
 
 /**
