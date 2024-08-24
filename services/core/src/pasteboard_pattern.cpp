@@ -31,28 +31,6 @@ static const std::unordered_map<uint32_t, std::string> patternToRegexMap = {
                                                 "([a-zA-Z]{2,}|[0-9]{1,3}))")},
 };
 
-const Patterns DetectPatterns(const Patterns &patternsToCheck,
-    const PasteData &pasteData,
-    const bool hasHTML, const bool hasPlain)
-{
-    std::unordered_set<Pattern> existedPatterns;
-    for (auto& record : pasteData.AllRecords()) {
-        if (patternsToCheck == existedPatterns) {
-            break;
-        }
-        if (hasPlain && record->GetPlainText() != nullptr) {
-            std::string recordText = *(record->GetPlainText());
-            CheckPlainText(existedPatterns, patternsToCheck, recordText);
-        }
-        if (hasHTML && record->GetHtmlText() != nullptr) {
-            std::string htmlText = *(record->GetHtmlText());
-            std::string recordText = removeHtmlTags(htmlText);
-            CheckPlainText(existedPatterns, patternsToCheck, recordText);
-        }
-    }
-    return existedPatterns;
-}
-
 void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &plainText)
 {
     for (Pattern pattern : patternsIn) {
@@ -71,10 +49,62 @@ void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std
     }
 }
 
-const std::string removeHtmlTags(const std::string& html)
+std::string stringAppend(const std::string& dest, const char* src)
 {
-    std::regex htmlTags("<[^>]*>");
-    return std::regex_replace(html, htmlTags, "");
+    return dest + std::string(src) + "\n";
 }
-
+std::string extractLeafNodes(xmlNode* a_node)
+{
+    std::string result;
+    if (a_node == nullptr) return result;
+    if (a_node->type == XML_TEXT_NODE) {
+        xmlChar* trimmed = xmlNodeGetContent(a_node);
+        if (trimmed) {
+            xmlChar* trimmed_final = xmlStrstrim(trimmed, " \t\n");
+            if (trimmed_final) {
+                result = stringAppend(result, (const char*)trimmed_final);
+                xmlFree(trimmed_final);
+            }
+            xmlFree(trimmed);
+        }
+    } else if (a_node->type == XML_ELEMENT_NODE) {
+        for (xmlNode* child = a_node->children; child != nullptr; child = child->next) {
+            result = stringAppend(result, extract_leaf_nodes(child));
+        }
+    }
+    return result;
+}
+const std::string extractHtmlContent(const std::string& html_str)
+{
+    xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
+    if (doc == nullptr) {
+        std::cerr << "Error parsing HTML" << std::endl;
+        return "";
+    }
+    std::string result = extractLeafNodes(xmlDocGetRootElement(doc));
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
+    return result;
+}
+const Patterns DetectPatterns(const Patterns &patternsToCheck,
+    const PasteData &pasteData,
+    const bool hasHTML, const bool hasPlain)
+{
+    std::unordered_set<Pattern> existedPatterns;
+    for (auto& record : pasteData.AllRecords()) {
+        if (patternsToCheck == existedPatterns) {
+            break;
+        }
+        if (hasPlain && record->GetPlainText() != nullptr) {
+            std::string recordText = *(record->GetPlainText());
+            CheckPlainText(existedPatterns, patternsToCheck, recordText);
+        }
+        if (hasHTML && record->GetHtmlText() != nullptr) {
+            std::string htmlText = *(record->GetHtmlText());
+            std::string recordText = extractHtmlContent(htmlText);
+            CheckPlainText(existedPatterns, patternsToCheck, recordText);
+        }
+    }
+    return existedPatterns;
+}
 } // namespace OHOS::MiscServices

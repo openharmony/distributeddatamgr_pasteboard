@@ -1507,7 +1507,7 @@ describe('PasteBoardJSTest', function () {
       [pasteboard.Pattern.URL, pasteboard.Pattern.EmailAddress],
       [pasteboard.Pattern.Number, pasteboard.Pattern.EmailAddress],
       [pasteboard.Pattern.EmailAddress, pasteboard.Pattern.URL, pasteboard.Pattern.Number]];
-    const answerArr = [
+    const answerIndexArr = [
       [0, 0, 0, 0, 0, 0, 0, 0],
       [0, 1, 0, 0, 1, 1, 0, 1],
       [0, 0, 2, 0, 2, 0, 2, 2],
@@ -1525,7 +1525,7 @@ describe('PasteBoardJSTest', function () {
         expect(res).assertEqual(true);
         const patterns = patternsArr[j];
         systemPasteboard.detectPatterns(patterns).then((data) => {
-          const patternsRight = answerArr[i][j];
+          const patternsRight = patternsArr[answerIndexArr[i][j]];
           expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
           done();
         }).catch((error)=>{
