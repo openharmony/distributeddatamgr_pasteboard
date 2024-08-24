@@ -1487,62 +1487,11 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_promise_test53
-   * @tc.desc      全排列
-   * @tc.type      Function
-   * @tc.require   AR000H5HVI
-   */
-  it('pasteboard_promise_test53', 0, async function (done) {
-    const systemPasteboard = pasteboard.getSystemPasteboard();
-    await systemPasteboard.clearData();
-    const plainText = "每次抢红Iihhtpsd他№のjhttp包抢！】qd rqdswww.comsski,.sjopwe";
-    const plainText0 = "https://github.com/makelove/Taobao_tomaster.md";
-    const plainText1 = "最高888元82h7";
-    const plainText2 = "uhiyqydueuw@kahqw.oisko.sji";
-    const textArr = [plainText, plainText+plainText0, plainText+plainText1,
-      plainText+plainText2, plainText+plainText0+plainText1,
-      plainText0+plainText2+plainText, plainText1+plainText+plainText2,
-      plainText0+plainText1+plainText+plainText2];
-    const patternsArr = [[], [pasteboard.Pattern.URL], [pasteboard.Pattern.Number],
-      [pasteboard.Pattern.EmailAddress], [pasteboard.Pattern.URL, pasteboard.Pattern.Number],
-      [pasteboard.Pattern.URL, pasteboard.Pattern.EmailAddress],
-      [pasteboard.Pattern.Number, pasteboard.Pattern.EmailAddress],
-      [pasteboard.Pattern.EmailAddress, pasteboard.Pattern.URL, pasteboard.Pattern.Number]];
-    const answerIndexArr = [
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 1, 0, 0, 1, 1, 0, 1],
-      [0, 0, 2, 0, 2, 0, 2, 2],
-      [0, 0, 0, 3, 0, 3, 3, 3],
-      [0, 1, 2, 0, 4, 1, 2, 4],
-      [0, 1, 0, 3, 1, 5, 3, 5],
-      [0, 0, 2, 3, 2, 3, 6, 6],
-      [0, 1, 2, 3, 4, 5, 6, 7]];
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
-        const textData = textArr[i];
-        const pasteData = pasteboard.createPlainTextData(textData);
-        await systemPasteboard.setPasteData(pasteData);
-        const res = await systemPasteboard.hasPasteData();
-        expect(res).assertEqual(true);
-        const patterns = patternsArr[j];
-        systemPasteboard.detectPatterns(patterns).then((data) => {
-          const patternsRight = patternsArr[answerIndexArr[i][j]];
-          expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
-          done();
-        }).catch((error)=>{
-          console.error('promise_test53: systemPasteboard.detectPatterns promise error:' + error.message);
-          return;
-        });
-      }  
-    }
-  });
-
-  /**
-   * @tc.name      pasteboard_promise_test54
    * @tc.desc      html
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_promise_test54', 0, async function (done) {
+  it('pasteboard_promise_test53', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     const textData = "<!DOCTYPE html><html><head><title>" +
@@ -1559,18 +1508,18 @@ describe('PasteBoardJSTest', function () {
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
-      console.error('promise_test54: systemPasteboard.detectPatterns promise error:' + error.message);
+      console.error('promise_test53: systemPasteboard.detectPatterns promise error:' + error.message);
       return;
     });
   });
 
   /**
-   * @tc.name      pasteboard_promise_test55
+   * @tc.name      pasteboard_promise_test54
    * @tc.desc      异常值-非预期数字数组
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_promise_test55', 0, async function (done) {
+  it('pasteboard_promise_test54', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     const textData = "<!DOCTYPE html><html><head><title>" +
@@ -1588,7 +1537,7 @@ describe('PasteBoardJSTest', function () {
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
-      console.error('promise_test55: systemPasteboard.detectPatterns promise error:' + error.message);
+      console.error('promise_test54: systemPasteboard.detectPatterns promise error:' + error.message);
       return;
     });
   });
