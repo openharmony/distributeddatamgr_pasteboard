@@ -336,7 +336,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
     std::unordered_set<Pattern> patternsToCheck2{Pattern::URL, Pattern::EmailAddress, Pattern::Number};
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck2);
-    std::unordered_set<Pattern> expected1{Pattern::URL, Pattern::EmailAddress};
+    std::unordered_set<Pattern> expected2{Pattern::URL, Pattern::EmailAddress};
     ASSERT_EQ(ret2, expected2);
 }
 
