@@ -126,12 +126,12 @@ ohos_shared_library("pasteboard_service") {
     "init:libbegetutil",
     "input:libmmi-client",
     "ipc:ipc_core",
+    "libxml2:libxml2",
     "memmgr:memmgrclient",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "time_service:time_client",
-    "libxml2:libxml2",
   ]
   if (scene_board_enabled) {
     external_deps += [ "window_manager:libwm_lite" ]

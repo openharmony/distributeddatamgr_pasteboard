@@ -53,6 +53,7 @@
           "ipc",
           "image_framework",
           "libuv",
+          "libxml2",
           "memmgr",
           "napi",
           "os_account",
@@ -62,8 +63,7 @@
           "time_service",
           "udmf",
           "window_manager",
-          "ffrt",
-          "libxml2"
+          "ffrt"
         ]
         },
       "build": {
