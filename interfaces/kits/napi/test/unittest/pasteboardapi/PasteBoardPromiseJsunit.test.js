@@ -1581,7 +1581,7 @@ describe('PasteBoardJSTest', function () {
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
-    const patterns = [pasteboard.Pattern.EmailAddress, pasteboard.Pattern.URL,
+    const patterns = [pasteboard.Pattern.EmailAddress,
       10, 23, pasteboard.Pattern.Number];
     systemPasteboard.detectPatterns(patterns).then((data) => {
       const patternsRight = [pasteboard.Pattern.EmailAddress];
