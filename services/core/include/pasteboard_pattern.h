@@ -32,4 +32,4 @@ const Patterns DetectPatterns(const Patterns &patternsToCheck,
     const bool hasHTML, const bool hasPlain);
 } // namespace OHOS::MiscServices
 
-#endif // PASTE_BOARD_SERVICE_H
+#endif // PASTE_BOARD_PATTERN_H
