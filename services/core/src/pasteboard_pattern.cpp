@@ -22,8 +22,8 @@
 
 namespace OHOS::MiscServices {
 static const std::unordered_map<uint32_t, std::string> patternToRegexMap = {
-    { static_cast<uint32_t>(Pattern::URL), std::string("(?:(https?|file)://|www\\.)"
-                                                "[-a-z0-9+&@#/%?=~_|!:,.;]*[-a-z0-9+&@#/%=~_]")},
+    { static_cast<uint32_t>(Pattern::URL), std::string("[a-zA-Z0-9+.-]+://[-a-zA-Z0-9+&@#/%?"
+                                                "=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_]")},
     { static_cast<uint32_t>(Pattern::Number), std::string("[-+]?[0-9]*\\.?[0-9]+")},
     { static_cast<uint32_t>(Pattern::EmailAddress), std::string("(([a-zA-Z0-9_\\-\\.]+)@"
                                                 "((?:\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|"
@@ -45,7 +45,8 @@ const Patterns DetectPatterns(const Patterns &patternsToCheck,
             CheckPlainText(existedPatterns, patternsToCheck, recordText);
         }
         if (hasHTML && record->GetHtmlText() != nullptr) {
-            std::string recordText = *(record->GetHtmlText());
+            std::string htmlText = *(record->GetHtmlText());
+            std::string recordText = removeHtmlTags(htmlText);
             CheckPlainText(existedPatterns, patternsToCheck, recordText);
         }
     }
@@ -68,6 +69,12 @@ void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std
             patternsOut.insert(pattern);
         }
     }
+}
+
+const std::string removeHtmlTags(const std::string& html)
+{
+    std::regex htmlTags("<[^>]*>");
+    return std::regex_replace(html, htmlTags, "");
 }
 
 } // namespace OHOS::MiscServices

@@ -25,7 +25,7 @@ namespace OHOS::MiscServices {
 enum class Pattern : uint32_t { URL = 0, Number, EmailAddress, PatternCount };
 using Patterns = std::unordered_set<Pattern>;
 const Patterns patternsAll{Pattern::URL, Pattern::Number, Pattern::EmailAddress};
-  
+const std::string removeHtmlTags(const std::string& html);  
 void CheckPlainText(Patterns &patternsOut, const Patterns &PatternsIn, const std::string &plainText);
 const Patterns DetectPatterns(const Patterns &patternsToCheck,
     const PasteData &pasteData,

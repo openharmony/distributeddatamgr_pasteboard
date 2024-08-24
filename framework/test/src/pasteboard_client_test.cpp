@@ -385,7 +385,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
     auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
     std::unordered_set<Pattern> patternsToCheck{
-        Pattern::Number, Pattern::URL, Pattern::EmailAddress, 
+        Pattern::Number, Pattern::URL, Pattern::EmailAddress,
         static_cast<Pattern>(0xffffffff), static_cast<Pattern>(0xffffff1a)};
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
     std::unordered_set<Pattern> expected1{Pattern::Number, Pattern::URL};
