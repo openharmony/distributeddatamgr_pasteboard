@@ -31,6 +31,7 @@
 #include "system_ability_definition.h"
 #include "pasteboard_web_controller.h"
 #include "pasteboard_utils.h"
+#include "ipasteboard_client_death_observer.h"
 using namespace OHOS::Media;
 
 namespace OHOS {
@@ -61,6 +62,7 @@ const std::map<int32_t, int32_t> ERROR_CODE_COVERT_TABLE = {
     {static_cast<int32_t>(PasteboardError::E_REMOTE_TASK), RadarReporter::REMOTE_TASK_ERROR},
     {static_cast<int32_t>(PasteboardError::E_INVALID_EVENT), RadarReporter::INVALID_EVENT_ERROR},
     {static_cast<int32_t>(PasteboardError::E_GET_REMOTE_DATA), RadarReporter::GET_REMOTE_DATA_ERROR},
+    {static_cast<int32_t>(PasteboardError::E_URI_GRANT_ERROR), RadarReporter::URI_GRANT_ERROR},
     {ERR_INVALID_VALUE, RadarReporter::INVALID_RETURN_VALUE_ERROR},
     {ERR_INVALID_OPERATION, RadarReporter::INVALID_RETURN_VALUE_ERROR},
 };
@@ -68,7 +70,11 @@ sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
-PasteboardClient::PasteboardClient(){};
+sptr<IRemoteObject> clientDeathObserverPtr_;
+PasteboardClient::PasteboardClient()
+{
+    Init();
+};
 PasteboardClient::~PasteboardClient()
 {
     auto proxyService = GetPasteboardService();
@@ -77,6 +83,25 @@ PasteboardClient::~PasteboardClient()
         if (remoteObject != nullptr) {
             remoteObject->RemoveDeathRecipient(deathRecipient_);
         }
+    }
+}
+
+void PasteboardClient::Init()
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    if (clientDeathObserverPtr_ == nullptr) {
+        clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
+    }
+    if (clientDeathObserverPtr_ == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "create ClientDeathObserver failed.");
+        return;
+    }
+    auto ret = proxyService->RegisterClientDeathObserver(clientDeathObserverPtr_);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed. ret is %{public}d", ret);
     }
 }
 
@@ -180,17 +205,20 @@ void PasteboardClient::Clear()
 
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
-    std::string currentId = "GetPasteData_" + std::to_string(getpid()) + "_" + std::to_string(getSequenceId_);
-    ++getSequenceId_;
+    std::string currentPid = std::to_string(getpid());
+    uint32_t tmpSequenceId = getSequenceId_++;
+    std::string currentId = "GetPasteData_" + currentPid + "_" + std::to_string(tmpSequenceId);
+    pasteData.SetPasteId(currentId);
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId);
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
+        RadarReporter::PACKAGE_NAME, currentPid);
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData start.");
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            RadarReporter::ERROR_CODE, RadarReporter::OBTAIN_SERVER_SA_ERROR);
+            RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::ERROR_CODE, RadarReporter::OBTAIN_SERVER_SA_ERROR);
         return static_cast<int32_t>(PasteboardError::E_SA_DIED);
     }
     int32_t syncTime = 0;
@@ -201,18 +229,24 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
-        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            RadarReporter::DIS_SYNC_TIME, syncTime);
+        if (pasteData.deviceId_.empty()) {
+            RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
+                RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+                RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME, currentPid);
+        } else {
+            RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
+                RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
+                RadarReporter::PACKAGE_NAME, currentPid);
+        }
     } else {
-        int32_t errorCode = RadarReporter::OTHER_ERROR;
+        int32_t errorCode = ret;
         auto operatorIter = ERROR_CODE_COVERT_TABLE.find(ret);
         if (operatorIter != ERROR_CODE_COVERT_TABLE.end()) {
             errorCode = operatorIter->second;
         }
-        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::ERROR_CODE, errorCode);
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE,
+            RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME,
+            RadarReporter::PACKAGE_NAME, currentPid, syncTime, RadarReporter::ERROR_CODE, errorCode);
     }
     return ret;
 }
@@ -329,7 +363,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END);
     } else {
-        int32_t errorCode = RadarReporter::OTHER_ERROR;
+        int32_t errorCode = ret;
         auto operatorIter = ERROR_CODE_COVERT_TABLE.find(ret);
         if (operatorIter != ERROR_CODE_COVERT_TABLE.end()) {
             errorCode = operatorIter->second;
@@ -575,6 +609,26 @@ void PasteboardClient::OnRemoteSaDied(const wptr<IRemoteObject> &remote)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnRemoteSaDied start.");
     std::lock_guard<std::mutex> lock(instanceLock_);
     pasteboardServiceProxy_ = nullptr;
+}
+
+void PasteboardClient::PasteStart(const std::string &pasteId)
+{
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_DISTRIBUTED_FILE_START,
+        RadarReporter::DFX_SUCCESS, RadarReporter::CONCURRENT_ID, pasteId);
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    proxyService->PasteStart(pasteId);
+}
+
+void PasteboardClient::PasteComplete(const std::string &deviceId, const std::string &pasteId)
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    proxyService->PasteComplete(deviceId, pasteId);
 }
 
 PasteboardSaDeathRecipient::PasteboardSaDeathRecipient()

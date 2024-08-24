@@ -44,6 +44,9 @@ public:
     virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
     virtual int32_t SetAppShareOptions(const ShareOption &shareOptions) override;
     virtual int32_t RemoveAppShareOptions() override;
+    virtual void PasteStart(const std::string &pasteId) override;
+    virtual void PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
+    virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
 
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;

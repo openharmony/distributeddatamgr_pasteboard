@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,21 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_PASTEBOARD_SERVICES_LOAD_LOADER_H
-#define OHOS_PASTEBOARD_SERVICES_LOAD_LOADER_H
-#include "config.h"
+#ifndef OHOS_PASTEBOARD_SECURITY_LEVEL_H
+#define OHOS_PASTEBOARD_SECURITY_LEVEL_H
+#include <string>
+
+#include "dev_slinfo_mgr.h"
+
 namespace OHOS::MiscServices {
-class Loader {
+class SecurityLevel {
 public:
-    Loader();
-    ~Loader();
-    void LoadComponents();
-    std::vector<std::string> LoadBundles();
-    int32_t LoadUid();
+    uint32_t GetDeviceSecurityLevel();
 private:
-    using Constructor = void (*)(const char *);
-    Config LoadConfig();
-    static constexpr const char *CONF_FILE = "/system/etc/pasteboard/conf/pasteboard.json";
+    bool InitDEVSLQueryParams(DEVSLQueryParams *params, const std::string &udid);
+    uint32_t GetSensitiveLevel();
+    uint32_t securityLevel_ = DATA_SEC_LEVEL0;
 };
 } // namespace OHOS::MiscServices
-#endif // OHOS_PASTEBOARD_SERVICES_LOAD_LOADER_H
+#endif // OHOS_PASTEBOARD_SECURITY_LEVEL_H

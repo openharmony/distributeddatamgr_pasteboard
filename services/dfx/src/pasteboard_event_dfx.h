@@ -21,8 +21,8 @@ namespace OHOS {
 namespace MiscServices {
 namespace RadarReporter {
 using namespace OHOS::HiviewDFX;
-static constexpr int DIST_DATA_MGR_SYS_ID = 0xd;
-static constexpr int PASTEBOARD_ID = 8;
+constexpr int DIST_DATA_MGR_SYS_ID = 0xd;
+constexpr int PASTEBOARD_ID = 8;
 enum BizScene : std::int32_t {
     DFX_SET_PASTEBOARD = 1,
     DFX_DISTRIBUTED_PASTEBOARD_BROADCAST_SEND = 2,
@@ -64,9 +64,11 @@ enum BizStageGetPasteboard : std::int32_t {
     DFX_CHECK_GET_SERVER = 1,
     DFX_CHECK_GET_DELAY_PASTE = 2,
     DFX_CHECK_GET_AUTHORITY = 3,
-    DFX_CHECK_GET_URI_AUTHORITY = 4,
+    DFX_GET_DATA_INFO = 4,
     DFX_LOCAL_PASTE_END = 5,
     DFX_DISTRIBUTED_PASTE_END = 6,
+    DFX_DISTRIBUTED_FILE_START = 7,
+    DFX_DISTRIBUTED_FILE_END = 8,
 };
 
 enum BizStageClearPasteboard : std::int32_t {
@@ -124,9 +126,18 @@ enum ErrorCode : std::int32_t {
     GET_REMOTE_DATA_ERROR,
     SEND_BROADCAST_ERROR,
     SYNC_DATA_ERROR,
+    URI_GRANT_ERROR,
 };
 
-static constexpr char DOMAIN[] = "DISTDATAMGR";
+class PasteboardDfxUntil {
+public:
+    static std::string GetAnonymousID(const std::string &deviceId);
+private:
+    static constexpr int minIdLen = 10;
+    static constexpr int maskIdLen = 5;
+};
+
+constexpr char DOMAIN[] = "DISTDATAMGR";
 constexpr const char* EVENT_NAME = "DISTRIBUTED_PASTEBOARD_BEHAVIOR";
 constexpr const char* ORG_PKG = "distributeddata";
 constexpr const char* BIZ_STATE = "BIZ_STATE";
@@ -142,7 +153,9 @@ constexpr const char* RECEIVE_BROADCAST_TIME = "RECEIVE_BROADCAST_TIME_64";
 constexpr const char* SEQ_ID = "SEQ_ID";
 constexpr const char* CONCURRENT_ID = "CONCURRENT_ID";
 constexpr const char* DIS_SYNC_TIME = "DIS_SYNC_TIME";
-static constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
+constexpr const char* PACKAGE_NAME = "PACKAGE_NAME";
+constexpr const char* PEER_NET_ID = "PEER_NET_ID";
+constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                    \
 ({                                                                                         \

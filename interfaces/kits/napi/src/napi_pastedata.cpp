@@ -962,7 +962,8 @@ napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getTag", GetTag), DECLARE_NAPI_FUNCTION("hasMimeType", HasMimeType),
         DECLARE_NAPI_FUNCTION("hasType", HasType), DECLARE_NAPI_FUNCTION("removeRecordAt", RemoveRecordAt),
         DECLARE_NAPI_FUNCTION("removeRecord", RemoveRecord), DECLARE_NAPI_FUNCTION("replaceRecordAt", ReplaceRecordAt),
-        DECLARE_NAPI_FUNCTION("replaceRecord", ReplaceRecord), DECLARE_NAPI_FUNCTION("setProperty", SetProperty) };
+        DECLARE_NAPI_FUNCTION("replaceRecord", ReplaceRecord), DECLARE_NAPI_FUNCTION("setProperty", SetProperty),
+        DECLARE_NAPI_FUNCTION("pasteStart", PasteStart), DECLARE_NAPI_FUNCTION("pasteComplete", PasteComplete)};
 
     napi_value constructor;
     napi_define_class(env, "PasteData", NAPI_AUTO_LENGTH, New, nullptr,
@@ -1038,6 +1039,41 @@ bool PasteDataNapi::IsPasteData(napi_env env, napi_value in)
     NAPI_CALL_BASE(env, napi_instanceof(env, in, constructor, &isPasteData), false);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "isPasteData is [%{public}d]", isPasteData);
     return isPasteData;
+}
+
+napi_value PasteDataNapi::PasteStart(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    PasteDataNapi *obj = nullptr;
+    size_t argc = 1;
+    napi_value argv[1] = { 0 };
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr) || (obj->value_ == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
+        return nullptr;
+    }
+    std::string pasteId = obj->value_->GetPasteId();
+    PasteboardClient::GetInstance()->PasteStart(pasteId);
+    return nullptr;
+}
+
+napi_value PasteDataNapi::PasteComplete(napi_env env, napi_callback_info info)
+{
+    napi_value thisVar = nullptr;
+    PasteDataNapi *obj = nullptr;
+    size_t argc = 1;
+    napi_value argv[1] = { 0 };
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr) || (obj->value_ == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap failed");
+        return nullptr;
+    }
+    std::string deviceId = obj->value_->GetDeviceId();
+    std::string pasteId = obj->value_->GetPasteId();
+    PasteboardClient::GetInstance()->PasteComplete(deviceId, pasteId);
+    return nullptr;
 }
 } // namespace MiscServicesNapi
 } // namespace OHOS

@@ -325,6 +325,22 @@ public:
      */
     void LoadSystemAbilityFail();
 
+    /**
+    * PasteStart
+    * @descrition Utilized to notify pasteboard service while reading PasteData, in this case, the service will help to
+    *     preserve the context and resources
+    * @return void.
+    */
+    void PasteStart(const std::string &pasteId);
+
+    /**
+     * PasteComplete
+     * @descrition Invoked to notify pasteboard service the utilization of PasteData has completed and occupied
+     *     resources can be released for further usage
+     * @return void.
+     */
+    void PasteComplete(const std::string &deviceId, const std::string &pasteId);
+
 private:
     sptr<IPasteboardService> GetPasteboardService();
     static void RetainUri(PasteData &pasteData);
@@ -352,6 +368,7 @@ private:
     };
     static StaticDestoryMonitor staticDestoryMonitor_;
     void RebuildWebviewPasteData(PasteData &pasteData);
+    void Init();
 };
 } // namespace MiscServices
 } // namespace OHOS
