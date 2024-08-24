@@ -146,7 +146,6 @@ void PasteboardService::OnStart()
     loader.LoadComponents();
     bundles_ = loader.LoadBundles();
     uid_ = loader.LoadUid();
-    DMAdapter::GetInstance().Initialize(appInfo.bundleName);
     moduleConfig_.Init();
     auto ret = DATASL_OnStart();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", ret);
@@ -192,7 +191,7 @@ void PasteboardService::OnStop()
     }
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
-
+    DMAdapter::GetInstance().UnInitialize();
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
