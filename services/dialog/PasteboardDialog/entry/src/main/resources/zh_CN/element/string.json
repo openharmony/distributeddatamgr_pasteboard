@@ -39,6 +39,10 @@
     {
       "name": "multi_device_collaboration",
       "value": "多设备协同"
+    },
+    {
+      "name": "update_version_prompt",
+      "value": "对方需升级至 HarmonyOS NEXT 及以上版本。"
     }
   ]
 }
