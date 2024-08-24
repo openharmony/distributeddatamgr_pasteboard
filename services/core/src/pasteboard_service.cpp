@@ -875,11 +875,9 @@ int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string
         auto sendValues = std::vector<Uri>(grantUris.begin() + offset, grantUris.begin() + offset + count);
         auto permissionCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(sendValues,
             AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
-        {
-            std::lock_guard<std::mutex> lock(bundleMutex_);
-            if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
-                readBundles_.insert(targetBundleName);
-            }
+        std::lock_guard<std::mutex> lock(bundleMutex_);
+        if (permissionCode == 0 && readBundles_.count(targetBundleName) == 0) {
+            readBundles_.insert(targetBundleName);
         }
         grantSuccess = grantSuccess && (permissionCode == 0);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
@@ -921,13 +919,11 @@ void PasteboardService::CheckUriPermission(PasteData &data, std::vector<Uri> &gr
 
 void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData)
 {
-    {
-        std::lock_guard <std::mutex> lock(bundleMutex_);
-        if (readBundles_.empty() == 0 || pasteData == nullptr) {
-            return;
-        }
-        decltype(readBundles_) bundles(std::move(readBundles_));
+    std::lock_guard<std::mutex> lock(bundleMutex_);
+    if (readBundles_.empty() == 0 || pasteData == nullptr) {
+        return;
     }
+    decltype(readBundles_) bundles(std::move(readBundles_));
     std::thread thread([pasteData, bundles] () {
         auto& permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
         for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {

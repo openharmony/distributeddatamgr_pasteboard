@@ -254,7 +254,7 @@ private:
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint16_t> sequenceId_ = 0;
     static std::mutex historyMutex_;
-    static std::mutex bundleMutex_;
+    std::mutex bundleMutex_;
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
