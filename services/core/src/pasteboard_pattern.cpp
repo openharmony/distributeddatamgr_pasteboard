@@ -17,8 +17,7 @@
 
 #include <unordered_map>
 #include <libxml/HTMLparser.h>
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 namespace OHOS::MiscServices {
 static const std::unordered_map<uint32_t, std::string> patternToRegexMap = {
@@ -31,61 +30,6 @@ static const std::unordered_map<uint32_t, std::string> patternToRegexMap = {
                                                 "([a-zA-Z]{2,}|[0-9]{1,3}))")},
 };
 
-void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &plainText)
-{
-    for (Pattern pattern : patternsIn) {
-        if (patternsOut.find(pattern) != patternsOut.end()) {
-            continue;
-        }
-        uint32_t patternUint32 = static_cast<uint32_t>(pattern);
-        if (patternToRegexMap.find(patternUint32) == patternToRegexMap.end()) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard pattern, unexpected Pattern value!");
-            continue;
-        }
-        std::regex curRegex(patternToRegexMap.at(patternUint32));
-        if (std::regex_search(plainText, curRegex)) {
-            patternsOut.insert(pattern);
-        }
-    }
-}
-
-std::string stringAppend(const std::string& dest, const char* src)
-{
-    return dest + std::string(src) + "\n";
-}
-std::string extractLeafNodes(xmlNode* a_node)
-{
-    std::string result;
-    if (a_node == nullptr) return result;
-    if (a_node->type == XML_TEXT_NODE) {
-        xmlChar* trimmed = xmlNodeGetContent(a_node);
-        if (trimmed) {
-            xmlChar* trimmed_final = xmlStrstrim(trimmed, " \t\n");
-            if (trimmed_final) {
-                result = stringAppend(result, (const char*)trimmed_final);
-                xmlFree(trimmed_final);
-            }
-            xmlFree(trimmed);
-        }
-    } else if (a_node->type == XML_ELEMENT_NODE) {
-        for (xmlNode* child = a_node->children; child != nullptr; child = child->next) {
-            result = stringAppend(result, extract_leaf_nodes(child));
-        }
-    }
-    return result;
-}
-const std::string extractHtmlContent(const std::string& html_str)
-{
-    xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
-    if (doc == nullptr) {
-        std::cerr << "Error parsing HTML" << std::endl;
-        return "";
-    }
-    std::string result = extractLeafNodes(xmlDocGetRootElement(doc));
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
-    return result;
-}
 const Patterns DetectPatterns(const Patterns &patternsToCheck,
     const PasteData &pasteData,
     const bool hasHTML, const bool hasPlain)
@@ -106,5 +50,38 @@ const Patterns DetectPatterns(const Patterns &patternsToCheck,
         }
     }
     return existedPatterns;
+}
+
+void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &plainText)
+{
+    for (Pattern pattern : patternsIn) {
+        if (patternsOut.find(pattern) != patternsOut.end()) {
+            continue;
+        }
+        uint32_t patternUint32 = static_cast<uint32_t>(pattern);
+        if (patternToRegexMap.find(patternUint32) == patternToRegexMap.end()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard pattern, unexpected Pattern value!");
+            continue;
+        }
+        std::regex curRegex(patternToRegexMap.at(patternUint32));
+        if (std::regex_search(plainText, curRegex)) {
+            patternsOut.insert(pattern);
+        }
+    }
+}
+
+const std::string extractHtmlContent(const std::string &html_str)
+{
+    xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
+    if (doc == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
+        return "";
+    }
+    xmlChar *xmlStr = xmlNodeGetContent(xmlDocGetRootElement(doc));
+    std::string result(reinterpret_cast<const char*>(xmlStr));
+    xmlFree(xmlStr);
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
+    return result;
 }
 } // namespace OHOS::MiscServices

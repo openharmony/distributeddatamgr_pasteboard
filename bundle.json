@@ -62,7 +62,8 @@
           "time_service",
           "udmf",
           "window_manager",
-          "ffrt"
+          "ffrt",
+          "libxml2"
         ]
         },
       "build": {

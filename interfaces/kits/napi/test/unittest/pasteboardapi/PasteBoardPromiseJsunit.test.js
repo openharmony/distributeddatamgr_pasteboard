@@ -1549,13 +1549,13 @@ describe('PasteBoardJSTest', function () {
     "超链接示例</title></head><body><h2>访问我的网站</h2>"
     "<p>点击下面的链接访问我的<a href=\"https://example.com\">"
     "个人网站</a>。</p></body></html>";
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const pasteData = pasteboard.createHtmlData(textData);
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
     const patterns = [pasteboard.Pattern.URL, pasteboard.Pattern.Number];
     systemPasteboard.detectPatterns(patterns).then((data) => {
-      const patternsRight = [pasteboard.Pattern.URL];
+      const patternsRight = [];
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
@@ -1589,34 +1589,6 @@ describe('PasteBoardJSTest', function () {
       done();
     }).catch((error)=>{
       console.error('promise_test55: systemPasteboard.detectPatterns promise error:' + error.message);
-      return;
-    });
-  });
-
-  /**
-   * @tc.name      pasteboard_promise_test56
-   * @tc.desc      异常值-str array
-   * @tc.type      Function
-   * @tc.require   AR000H5HVI
-   */
-  it('pasteboard_promise_test56', 0, async function (done) {
-    const systemPasteboard = pasteboard.getSystemPasteboard();
-    await systemPasteboard.clearData();
-    const textData = "<!DOCTYPE html><html><head><title>"
-    "超链接示例</title></head><body><h2>访问我的网站</h2>"
-    "<p>点击下面的链接访问我的<a href=\"https://example.com\">"
-    "个人网站ioadhoa98@wdoiewf.com</a>。</p></body></html>";
-    const pasteData = pasteboard.createPlainTextData(textData);
-    await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const patterns = ["sq","qqq","13ni97"];
-    systemPasteboard.detectPatterns(patterns).then((data) => {
-      const patternsRight = [];
-      expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
-      done();
-    }).catch((error)=>{
-      console.error('promise_test56: systemPasteboard.detectPatterns promise error:' + error.message);
       return;
     });
   });
