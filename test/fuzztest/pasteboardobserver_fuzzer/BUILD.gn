@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,16 +19,15 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("PasteboardServiceFuzzTest") {
+ohos_fuzztest("PasteboardObserverFuzzTest") {
   module_out_path = "pasteboard/pasteboard"
 
   fuzz_config_file =
-      "${pasteboard_root_path}/test/fuzztest/pasteboardservice_fuzzer"
+      "${pasteboard_root_path}/test/fuzztest/pasteboardobserver_fuzzer"
 
   configs = [ "${pasteboard_service_path}:pasteboard_service_config" ]
 
   include_dirs = [
-    "${pasteboard_root_path}/framework/uri",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_service_path}/core/include",
   ]
@@ -40,15 +39,11 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [
-    "${pasteboard_root_path}/framework/uri/copy_uri_handler.cpp",
-    "pasteboardservice_fuzzer.cpp",
-  ]
+  sources = [ "pasteboardobserver_fuzzer.cpp" ]
 
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_root_path}/framework/uri:pasteboard_uri",
     "${pasteboard_service_path}:pasteboard_service",
   ]
 
@@ -80,7 +75,7 @@ group("fuzztest") {
   deps = []
   deps += [
     # deps file
-    ":PasteboardServiceFuzzTest",
+    ":PasteboardObserverFuzzTest",
   ]
 }
 ###############################################################################
