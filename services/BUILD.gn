@@ -16,7 +16,10 @@ import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 config("pasteboard_service_config") {
   visibility = [ ":*" ]
-  visibility += [ "//foundation/distributeddatamgr/pasteboard/test/fuzztest/pasteboardservice_fuzzer/*" ]
+  visibility += [
+    "${pasteboard_root_path}/test/fuzztest/pasteboardobserver_fuzzer/*",
+    "${pasteboard_root_path}/test/fuzztest/pasteboardservice_fuzzer/*",
+  ]
   include_dirs = [
     "dfx/src",
     "dfx/src/behaviour",
