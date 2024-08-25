@@ -55,6 +55,8 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD[PASTEBOARD_MODULE_BUTT] 
     { LOG_CORE, PASTEBOARD_JS_NAPI, "PBJS" },
 };
 
+#define FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+
 // In order to improve performance, do not check the module range.
 // Besides, make sure module is less than PASTEBOARD_MODULE_BUTT.
 #define PASTEBOARD_HILOGF(module, ...)                                                                    \
