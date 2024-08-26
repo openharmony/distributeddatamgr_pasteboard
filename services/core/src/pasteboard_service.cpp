@@ -876,9 +876,9 @@ int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string
         auto permissionCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(sendValues,
             AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
         if (permissionCode == 0) {
-            std::lock_guardstd::mutex lock(bundleMutex_);
-            if (readBundles_.count(value) == 0) {
-                readBundles_.insert(value);
+            std::lock_guard<std::mutex> lock(bundleMutex_);
+            if (readBundles_.count(targetBundleName) == 0) {
+                readBundles_.insert(targetBundleName);
             }
         }
         grantSuccess = grantSuccess && (permissionCode == 0);
@@ -923,7 +923,7 @@ void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData
 {
     std::set<std::string> bundles;
     {
-        std::lock_guardstd::mutex lock(bundleMutex_);
+        std::lock_guard<std::mutex> lock(bundleMutex_);
         bundles = std::move(readBundles_);
     }
     if (pasteData == nullptr || bundles.empty()) {
