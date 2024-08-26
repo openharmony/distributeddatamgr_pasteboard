@@ -270,8 +270,8 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
 {
     std::string plainText("r法塔赫已经，速tdghf！】qd rqdswww.comsski,.sjopwe"
     "ihhtpsdhttp我也带过去给他№のjioijhhu");
-    std::string plainText0("https://1413giqwr2theeeeeefub.c43om/m22a222k22el352ove/Taobao_to"
-    "psetdttk/bl4ob/mwwasewwter.md）");
+    std::string plainText0("https://giedqwrtheeeeeefub.cerm/meeeelkove/obaklo_tjokl"
+    "psetkjdttk/bkkjob/mwjweww.md）");
     std::string plainText1("2我就破888芙蓉王82h7");
     std::string plainText2("uhiyqydueuw@kahqw.oisko.sji");
 
@@ -318,8 +318,8 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
 HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
 {
     std::string htmlText1 = "<!DOCTYPE html><html><head><title>"
-    "超链接示例</title></head><body><h2>访问我的网站</h2>"
-    "<p>点击下面的链接访问我的<a href=\"https://exq23amwerwqple.com\">"
+    "超链案头研究。，封为啊啊</title></head><body><h2>发高热</h2>"
+    "<p>隔热隔热的氛围<a href=\"https://exq23amwerwqple.com\">"
     "个人网站https://ex24t33tamp65hhle.com</a>。</p></body></html>";
     auto newData1 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
@@ -329,9 +329,9 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
     ASSERT_EQ(ret1, expected1);
 
     std::string htmlText2 = "<!DOCTYPE html><html><head><title>"
-    "超链接示例</title></head><body><h2>访问我的网站</h2>"
-    "<p>点击下面的链接访https://examjjuyewple.com问我的<a href=\"https://ehhgxametgeple.com\">"
-    "个人网站weqkqo@exaetmple.com</a>。</p></body></html>";
+    "各个环节</title></head><body><h2>妈妈那边的</h2>"
+    "<p>啊啊分，凤凰方法，环境https://examjjuyewple.com问我的<a href=\"https://ehhgxametgeple.com\">"
+    "阿婆吗weqkqo@exaetmple.com</a>。？？？？打法</p></body></html>";
     auto newData2 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
     std::unordered_set<Pattern> patternsToCheck2{Pattern::URL, Pattern::EmailAddress, Pattern::Number};

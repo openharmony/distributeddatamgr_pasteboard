@@ -1495,9 +1495,9 @@ describe('PasteBoardJSTest', function () {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     const textData = "<!DOCTYPE html><html><head><title>" +
-    "超链接示例</title></head><body><h2>访问我的网站</h2>" +
-    "<p>点击下面的链接访https://exampsao93le.com问我的<a href=\"https://exaeqdwe3rfmple.com\">" +
-    "个人网qwiuy218hw@huedqw.dsh站</a>。</p></body></html>";
+    "的厚爱hi哦</title></head><body><h2>恶风无关痛痒和</h2>" +
+    "<p>Greg任何人https://exampsaole.com问我的<a href=\"https://exaeqdwerfmple.com\">" +
+    "如果qwiuyhw@huedqw.dsh站</a>。</p></body></html>";
     const pasteData = pasteboard.createHtmlData(textData);
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
@@ -1523,9 +1523,9 @@ describe('PasteBoardJSTest', function () {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     const textData = "<!DOCTYPE html><html><head><title>" +
-    "超链接示例</title></head><body><h2>访问我的网站</h2>" +
-    "<p>点击下面的链接访问我的<a href=\"https://example.com\">" +
-    "个人网站ioadhoa@wdoiewf.com</a>。</p></body></html>";
+    "，尽快改好Greg就就。、</title></head><body><h2>访如果如果</h2>" +
+    "<p>搞了个<a href=\"https://grehtjeffxample.com\">" +
+    "剖一个v给ioadhoa@wdoiewf.com</a>。</p></body></html>";
     const pasteData = pasteboard.createHtmlData(textData);
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();

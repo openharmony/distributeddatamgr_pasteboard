@@ -266,8 +266,7 @@ napi_value PasteboardNapi::JScreatePattern(napi_env env, napi_callback_info info
 
     napi_value jsEmailAddress = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::EmailAddress));
     NAPI_CALL(env, napi_set_named_property(env, jsPattern, "EMAIL_ADDRESS", jsEmailAddress));
-
-
+    
     return jsPattern;
 }
 
