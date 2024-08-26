@@ -285,7 +285,6 @@ bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
 
 std::unordered_set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "DetectPatterns proxy start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -322,7 +321,6 @@ std::unordered_set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::un
         }
         existedPatterns.insert(static_cast<Pattern>(pattern));
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "DetectPatterns proxy end.");
     return existedPatterns;
 }
 

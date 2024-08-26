@@ -850,7 +850,6 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
 
 napi_value SystemPasteboardNapi::DetectPatternsAsync(napi_env env, napi_callback_info info)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Detect DetectPatternsAsync is called!");
     auto context = std::make_shared<DetectPatternsContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         if ((!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
@@ -867,11 +866,9 @@ napi_value SystemPasteboardNapi::DetectPatternsAsync(napi_env env, napi_callback
     };
     auto output = [context](napi_env env, napi_value *result) -> napi_status {
         napi_status status = SetValue(env, context->patternsDetect, *result);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SetValue status = %{public}d", status);
         return status;
     };
     auto exec = [context](AsyncCall::Context *ctx) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec Detect DetectPatternsAsync");
         context->patternsDetect = PasteboardClient::GetInstance()->DetectPatterns(context->patternsToCheck);
         context->status = napi_ok;
     };

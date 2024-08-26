@@ -77,7 +77,16 @@ const std::string extractHtmlContent(const std::string &html_str)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
         return "";
     }
-    xmlChar *xmlStr = xmlNodeGetContent(xmlDocGetRootElement(doc));
+    xmlNode *rootNode = xmlDocGetRootElement(doc);
+    if (rootNode == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
+        return "";   
+    }
+    xmlChar *xmlStr = xmlNodeGetContent(rootNode);
+    if (xmlStr == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
+        return "";   
+    }
     std::string result(reinterpret_cast<const char*>(xmlStr));
     xmlFree(xmlStr);
     xmlFreeDoc(doc);

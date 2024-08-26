@@ -297,7 +297,6 @@ int32_t PasteboardServiceStub::OnHasDataType(MessageParcel &data, MessageParcel 
 
 int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     uint32_t size = 0;
     if (!data.ReadUint32(size)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read size failed.");
@@ -328,7 +327,6 @@ int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParc
             return ERR_INVALID_VALUE;
         }
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }
 

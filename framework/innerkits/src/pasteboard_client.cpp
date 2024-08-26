@@ -541,12 +541,12 @@ std::unordered_set<Pattern> PasteboardClient::DetectPatterns(const std::unordere
             patternsFiltered.insert(pattern);
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "DetectPatterns start.");
+
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         return {};
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "DetectPatterns end.");
+
     return proxyService->DetectPatterns(patternsFiltered);
 }
 
