@@ -1597,7 +1597,7 @@ describe('PasteBoardJSTest', function () {
       done();
     }).catch((error)=>{
       console.error('promise_test56: systemPasteboard.detectPatterns promise error:' + error.message);
-      expect(401).assertEqual(error);
+      expect(401).assertEqual(error.code);
       return;
     });
   });
