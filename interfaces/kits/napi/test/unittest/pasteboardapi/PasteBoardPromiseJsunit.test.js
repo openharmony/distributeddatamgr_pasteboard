@@ -1502,9 +1502,9 @@ describe('PasteBoardJSTest', function () {
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
-    const patterns = [pasteboard.Pattern.Email_Address, pasteboard.Pattern.Number];
+    const patterns = [pasteboard.Pattern.EMAIL_ADDRESS, pasteboard.Pattern.NUMBER];
     systemPasteboard.detectPatterns(patterns).then((data) => {
-      const patternsRight = [pasteboard.Pattern.Email_Address];
+      const patternsRight = [pasteboard.Pattern.EMAIL_ADDRESS];
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
@@ -1526,18 +1526,49 @@ describe('PasteBoardJSTest', function () {
     "超链接示例</title></head><body><h2>访问我的网站</h2>" +
     "<p>点击下面的链接访问我的<a href=\"https://example.com\">" +
     "个人网站ioadhoa@wdoiewf.com</a>。</p></body></html>";
-    const pasteData = pasteboard.createPlainTextData(textData);
+    const pasteData = pasteboard.createHtmlData(textData);
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
-    const patterns = [pasteboard.Pattern.Email_Address,
-      10, 23, pasteboard.Pattern.Number];
+    const patterns = [pasteboard.Pattern.EMAIL_ADDRESS,
+      10, 23, pasteboard.Pattern.NUMBER];
     systemPasteboard.detectPatterns(patterns).then((data) => {
-      const patternsRight = [pasteboard.Pattern.Email_Address];
+      const patternsRight = [pasteboard.Pattern.EMAIL_ADDRESS];
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
       console.error('promise_test54: systemPasteboard.detectPatterns promise error:' + error.message);
+      return;
+    });
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test55
+   * @tc.desc      plaintext
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test55', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "「而飞过海」\n" +
+    "方法：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns = [pasteboard.Pattern.EMAIL_ADDRESS,
+      pasteboard.Pattern.URL, pasteboard.Pattern.NUMBER];
+    systemPasteboard.detectPatterns(patterns).then((data) => {
+      const patternsRight = [pasteboard.Pattern.NUMBER, pasteboard.Pattern.URL];
+      expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
+      done();
+    }).catch((error)=>{
+      console.error('promise_test55: systemPasteboard.detectPatterns promise error:' + error.message);
       return;
     });
   });
