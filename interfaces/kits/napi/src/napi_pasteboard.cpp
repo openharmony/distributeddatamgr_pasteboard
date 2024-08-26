@@ -267,8 +267,9 @@ napi_value PasteboardNapi::JScreatePattern(napi_env env, napi_callback_info info
     NAPI_CALL(env, napi_set_named_property(env, jsPattern, "NUMBER", jsNumber));
 
     napi_value jsEmailAddress = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::EmailAddress));
-    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "EmailAddress", jsEmailAddress));
-    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "EMAILADDRESS", jsEmailAddress));
+    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "Email_Address", jsEmailAddress));
+    NAPI_CALL(env, napi_set_named_property(env, jsPattern, "EMAIL_ADDRESS", jsEmailAddress));
+
 
     return jsPattern;
 }

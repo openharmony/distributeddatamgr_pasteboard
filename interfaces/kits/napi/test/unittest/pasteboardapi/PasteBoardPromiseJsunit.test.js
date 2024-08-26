@@ -1496,15 +1496,15 @@ describe('PasteBoardJSTest', function () {
     await systemPasteboard.clearData();
     const textData = "<!DOCTYPE html><html><head><title>" +
     "超链接示例</title></head><body><h2>访问我的网站</h2>" +
-    "<p>点击下面的链接访https://example.com问我的<a href=\"https://example.com\">" +
+    "<p>点击下面的链接访https://exampsao93le.com问我的<a href=\"https://exaeqdwe3rfmple.com\">" +
     "个人网qwiuy218hw@huedqw.dsh站</a>。</p></body></html>";
     const pasteData = pasteboard.createHtmlData(textData);
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
-    const patterns = [pasteboard.Pattern.EmailAddress, pasteboard.Pattern.Number];
+    const patterns = [pasteboard.Pattern.Email_Address, pasteboard.Pattern.Number];
     systemPasteboard.detectPatterns(patterns).then((data) => {
-      const patternsRight = [pasteboard.Pattern.EmailAddress];
+      const patternsRight = [pasteboard.Pattern.Email_Address];
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
@@ -1530,10 +1530,10 @@ describe('PasteBoardJSTest', function () {
     await systemPasteboard.setPasteData(pasteData);
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
-    const patterns = [pasteboard.Pattern.EmailAddress,
+    const patterns = [pasteboard.Pattern.Email_Address,
       10, 23, pasteboard.Pattern.Number];
     systemPasteboard.detectPatterns(patterns).then((data) => {
-      const patternsRight = [pasteboard.Pattern.EmailAddress];
+      const patternsRight = [pasteboard.Pattern.Email_Address];
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
