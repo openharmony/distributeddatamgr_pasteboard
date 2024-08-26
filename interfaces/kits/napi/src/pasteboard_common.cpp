@@ -95,7 +95,10 @@ bool GetValue(napi_env env, napi_value in, std::unordered_set<MiscServices::Patt
 {
     bool isArray = false;
     NAPI_CALL_BASE(env, napi_is_array(env, in, &isArray), false);
-    NAPI_ASSERT_BASE(env, isArray, "Wrong argument type. pattern/uint32 array expected.", false);
+    if (!isArray) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type. pattern/uint32 array expected.");
+        return false;
+    }
     
     uint32_t len = 0;
     napi_status status = napi_get_array_length(env, in, &len);

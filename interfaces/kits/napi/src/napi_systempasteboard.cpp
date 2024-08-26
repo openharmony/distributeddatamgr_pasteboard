@@ -852,10 +852,8 @@ napi_value SystemPasteboardNapi::DetectPatternsAsync(napi_env env, napi_callback
 {
     auto context = std::make_shared<DetectPatternsContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        if ((!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The number of arguments must be grater than zero.")) ||
-            (!CheckArgsType(env, argv[0], napi_object,
-            "Parameter error. The type of patterns must be uint32 array."))) {
+        if (!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The number of arguments must be grater than zero.")) {
             return napi_invalid_arg;
         }
         if (!GetValue(env, argv[0], context->patternsToCheck)) {
