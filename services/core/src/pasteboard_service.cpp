@@ -1068,8 +1068,8 @@ std::unordered_set<Pattern> PasteboardService::DetectPatterns(const std::unorder
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "error, no PasteData !");
         return {};
     }
-    std::shared_ptr<PasteData> pasteDataSP = it.second;
-    return OHOS::MiscServices::DetectPatterns(patternsToCheck, *pasteDataSP, hasHTML, hasPlain);
+    std::shared_ptr<PasteData> pasteData = it.second;
+    return OHOS::MiscServices::DetectPatterns(patternsToCheck, *pasteData, hasHTML, hasPlain);
 }
 
 std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEvent(int32_t user)

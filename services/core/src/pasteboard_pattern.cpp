@@ -43,8 +43,7 @@ const Patterns DetectPatterns(const Patterns &patternsToCheck,
             CheckPlainText(existedPatterns, patternsToCheck, recordText);
         }
         if (hasHTML && record->GetHtmlText() != nullptr) {
-            std::string htmlText = *(record->GetHtmlText());
-            std::string recordText = extractHtmlContent(htmlText);
+            std::string recordText = extractHtmlContent(*(record->GetHtmlText()));
             CheckPlainText(existedPatterns, patternsToCheck, recordText);
         }
     }
@@ -73,26 +72,25 @@ const std::string extractHtmlContent(const std::string &html_str)
 {
     xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
     if (doc == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!");
         xmlFreeDoc(doc);
         return "";
     }
     xmlNode *rootNode = xmlDocGetRootElement(doc);
     if (rootNode == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!L");
         xmlFreeDoc(doc);
         return "";
     }
     xmlChar *xmlStr = xmlNodeGetContent(rootNode);
     if (xmlStr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
-        xmlFree(xmlStr);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!");
         xmlFreeDoc(doc);
         return "";
     }
     std::string result(reinterpret_cast<const char*>(xmlStr));
     xmlFree(xmlStr);
     xmlFreeDoc(doc);
-    return result;
+    return reinterpret_cast<const char*>(xmlStr);
 }
 } // namespace OHOS::MiscServices
