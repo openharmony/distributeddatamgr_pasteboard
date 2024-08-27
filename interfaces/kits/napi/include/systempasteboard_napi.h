@@ -213,8 +213,8 @@ struct GetUnifiedContextInfo : public AsyncCall::Context {
 };
 
 struct DetectPatternsContextInfo : public AsyncCall::Context {
-    std::unordered_set<MiscServices::Pattern> patternsDetect;
-    std::unordered_set<MiscServices::Pattern> patternsToCheck;
+    std::set<MiscServices::Pattern> patternsDetect;
+    std::set<MiscServices::Pattern> patternsToCheck;
     napi_status status = napi_generic_failure;
     DetectPatternsContextInfo() : Context(nullptr, nullptr){};
 
