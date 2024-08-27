@@ -545,7 +545,7 @@ std::set<Pattern> PasteboardClient::DetectPatterns(const std::set<Pattern> &patt
         return {};
     }
 
-    return proxyService->DetectPatterns(patternsFiltered);
+    return proxyService->DetectPatterns(patternsToCheck);
 }
 
 sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
