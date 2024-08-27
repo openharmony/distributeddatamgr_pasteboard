@@ -707,6 +707,7 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>&
         // setData has 1 arg
         if (!CheckExpression(
             env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
+            return napi_invalid_arg;
         }
         UDMF::UnifiedDataNapi* unifiedDataNapi = nullptr;
         context->status = napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
