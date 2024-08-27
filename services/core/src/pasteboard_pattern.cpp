@@ -31,8 +31,7 @@ static const std::unordered_map<uint32_t, std::string> patternToRegexMap = {
 };
 
 const Patterns DetectPatterns(const Patterns &patternsToCheck,
-    const PasteData &pasteData,
-    const bool hasHTML, const bool hasPlain)
+    const PasteData &pasteData, bool hasHTML, bool hasPlain)
 {
     std::unordered_set<Pattern> existedPatterns;
     for (auto& record : pasteData.AllRecords()) {

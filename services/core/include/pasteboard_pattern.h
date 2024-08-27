@@ -28,7 +28,6 @@ const Patterns patternsAll{Pattern::URL, Pattern::Number, Pattern::EmailAddress}
 const std::string extractHtmlContent(const std::string &html_str);
 void CheckPlainText(Patterns &patternsOut, const Patterns &PatternsIn, const std::string &plainText);
 const Patterns DetectPatterns(const Patterns &patternsToCheck,
-    const PasteData &pasteData,
-    const bool hasHTML, const bool hasPlain);
+    const PasteData &pasteData, bool hasHTML, bool hasPlain);
 } // namespace OHOS::MiscServices
 #endif // PASTE_BOARD_PATTERN_H
