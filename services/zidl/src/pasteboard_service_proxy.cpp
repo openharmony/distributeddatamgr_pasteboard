@@ -292,12 +292,12 @@ std::unordered_set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::un
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return {};
     }
-    if (!data.WriteUInt32(static_cast<uint32_t>(patternsToCheck.size()))) {
+    if (!data.WriteUint32(static_cast<uint32_t>(patternsToCheck.size()))) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write size of patterns to check");
         return {};
     }
     for (const auto &pattern : patternsToCheck) {
-        if (!data.WriteUInt32(static_cast<uint32_t>(pattern))) {
+        if (!data.WriteUint32(static_cast<uint32_t>(pattern))) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pattern to check");
             return {};
         }
@@ -315,7 +315,7 @@ std::unordered_set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::un
     std::unordered_set<Pattern> existedPatterns;
     for (uint32_t i = 0; i < size; i++) {
         uint32_t pattern;
-        if (!reply.ReadUInt32(pattern)) {
+        if (!reply.ReadUint32(pattern)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read existed pattern");
             return {};
         }
