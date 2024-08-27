@@ -22,7 +22,6 @@
 
 namespace OHOS {
 namespace MiscServicesNapi {
-using namespace OHOS::MiscServices;
 const size_t ARGC_TYPE_SET2 = 2;
 constexpr size_t STR_TAIL_LENGTH = 1;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;

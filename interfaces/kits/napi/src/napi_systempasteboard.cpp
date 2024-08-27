@@ -848,7 +848,7 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
     return result;
 }
 
-napi_value SystemPasteboardNapi::DetectPatternsAsync(napi_env env, napi_callback_info info)
+napi_value SystemPasteboardNapi::DetectPatterns(napi_env env, napi_callback_info info)
 {
     auto context = std::make_shared<DetectPatternsContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
@@ -998,7 +998,7 @@ napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value e
         DECLARE_NAPI_FUNCTION("isRemoteData", IsRemoteData),
         DECLARE_NAPI_FUNCTION("getDataSource", GetDataSource),
         DECLARE_NAPI_FUNCTION("hasDataType", HasDataType),
-        DECLARE_NAPI_FUNCTION("detectPatterns", DetectPatternsAsync),
+        DECLARE_NAPI_FUNCTION("detectPatterns", DetectPatterns),
         DECLARE_NAPI_FUNCTION("clearDataSync", ClearDataSync),
         DECLARE_NAPI_FUNCTION("getDataSync", GetDataSync),
         DECLARE_NAPI_FUNCTION("hasDataSync", HasDataSync),

@@ -256,7 +256,7 @@ private:
     static napi_value IsRemoteData(napi_env env, napi_callback_info info);
     static napi_value GetDataSource(napi_env env, napi_callback_info info);
     static napi_value HasDataType(napi_env env, napi_callback_info info);
-    static napi_value DetectPatternsAsync(napi_env env, napi_callback_info info);
+    static napi_value DetectPatterns(napi_env env, napi_callback_info info);
     static napi_value ClearDataSync(napi_env env, napi_callback_info info);
     static napi_value GetDataSync(napi_env env, napi_callback_info info);
     static napi_value SetDataSync(napi_env env, napi_callback_info info);
