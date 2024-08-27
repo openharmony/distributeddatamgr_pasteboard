@@ -853,12 +853,12 @@ napi_value SystemPasteboardNapi::DetectPatterns(napi_env env, napi_callback_info
     auto context = std::make_shared<DetectPatternsContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         if (!CheckExpression(env, argc == ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The number of arguments must be grater than zero.")) {
+            "Parameter error. The number of arguments must be one.")) {
             return napi_invalid_arg;
         }
         bool getValueRes = GetValue(env, argv[0], context->patternsToCheck);
         if (!CheckExpression(env, getValueRes, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. Array<Pattern> or Array<number> expected.")) {
+            "Parameter error. Array<Pattern> expected.")) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue.");
             return napi_invalid_arg;
         }
