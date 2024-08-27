@@ -101,7 +101,7 @@ public:
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) override;
     virtual bool IsRemoteData() override;
     virtual bool HasDataType(const std::string &mimeType) override;
-    virtual Patterns DetectPatterns(const Patterns &patternsToCheck) override;
+    virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
     virtual void SubscribeObserver(PasteboardObserverType type,
         const sptr<IPasteboardChangedObserver> &observer) override;

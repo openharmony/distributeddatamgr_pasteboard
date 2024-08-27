@@ -16,7 +16,6 @@
 
 #include <bitset>
 #include <unistd.h>
-#include <regex>
 
 #include "ability_manager_client.h"
 #include "tokenid_kit.h"
@@ -1055,7 +1054,7 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
     return HasLocalDataType(mimeType);
 }
 
-std::unordered_set<Pattern> PasteboardService::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
+std::set<Pattern> PasteboardService::DetectPatterns(const std::set<Pattern> &patternsToCheck)
 {
     bool hasPlain = HasLocalDataType(MIMETYPE_TEXT_PLAIN);
     bool hasHTML = HasLocalDataType(MIMETYPE_TEXT_HTML);
@@ -1069,7 +1068,7 @@ std::unordered_set<Pattern> PasteboardService::DetectPatterns(const std::unorder
         return {};
     }
     std::shared_ptr<PasteData> pasteData = it.second;
-    return OHOS::MiscServices::DetectPatterns(patternsToCheck, *pasteData, hasHTML, hasPlain);
+    return OHOS::MiscServices::PatternDetection::Detect(patternsToCheck, *pasteData, hasHTML, hasPlain);
 }
 
 std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEvent(int32_t user)

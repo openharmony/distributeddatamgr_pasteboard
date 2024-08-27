@@ -217,10 +217,10 @@ public:
     /**
      * DetectPatterns
      * @description Checks the specified patterns contained in clipboard, and removes if not found.
-     * @param patternsToCheck A reference to an unordered_set of Pattern to check against the clipboard.
+     * @param patternsToCheck A reference to an set of Pattern to check against the clipboard.
      * @return Returns DetectPatterns.
      */
-    Patterns DetectPatterns(const Patterns &patternsToCheck);
+    std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck);
 
     /**
      * Subscribe

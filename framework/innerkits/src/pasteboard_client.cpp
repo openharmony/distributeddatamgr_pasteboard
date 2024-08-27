@@ -533,17 +533,15 @@ bool PasteboardClient::HasDataType(const std::string &mimeType)
     return ret;
 }
 
-std::unordered_set<Pattern> PasteboardClient::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
+std::set<Pattern> PasteboardClient::DetectPatterns(const std::set<Pattern> &patternsToCheck)
 {
-    Patterns patternsFiltered;
-    for (auto pattern : patternsAll) {
-        if (patternsToCheck.find(pattern) != patternsToCheck.end()) {
-            patternsFiltered.insert(pattern);
-        }
-    }
-
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
+        return {};
+    }
+
+    if (!PatternDetection::IsAllValid(patternsToCheck)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid number in Pattern set!");
         return {};
     }
 

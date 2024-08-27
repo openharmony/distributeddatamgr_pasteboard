@@ -30,7 +30,7 @@ public:
     virtual void Clear() override;
     virtual int32_t GetPasteData(PasteData &data, int32_t &syncTime) override;
     virtual bool HasPasteData() override;
-    virtual std::unordered_set<Pattern> DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck) override;
+    virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) override;
     virtual bool IsRemoteData() override;
     virtual int32_t GetDataSource(std::string &bundleName) override;

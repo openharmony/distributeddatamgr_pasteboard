@@ -307,7 +307,7 @@ int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParc
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read oversize failed.");
         return ERR_INVALID_VALUE;
     }
-    std::unordered_set<Pattern> patternsToCheck;
+    std::set<Pattern> patternsToCheck;
     for (uint32_t i = 0; i < size; i++) {
         uint32_t pattern;
         if (!data.ReadUint32(pattern)) {
@@ -316,7 +316,7 @@ int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParc
         }
         patternsToCheck.insert(static_cast<Pattern>(pattern));
     }
-    std::unordered_set<Pattern> existedPatterns = DetectPatterns(patternsToCheck);
+    std::set<Pattern> existedPatterns = DetectPatterns(patternsToCheck);
     if (!reply.WriteUint32(static_cast<uint32_t>(existedPatterns.size()))) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write size failed.");
         return ERR_INVALID_VALUE;

@@ -97,7 +97,7 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
     }
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    std::unordered_set<Pattern> patternsToCheck = {Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(code)};
+    std::set<Pattern> patternsToCheck = {Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(code)};
     PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
 }
 
@@ -160,7 +160,7 @@ void FuzzPasteboardclientCreateData(const uint8_t *rawData, size_t size)
         pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
     }
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
-    std::unordered_set<Pattern> patternsToCheck = {Pattern::URL, Pattern::Number, static_cast<Pattern>(code)};
+    std::set<Pattern> patternsToCheck = {Pattern::URL, Pattern::Number, static_cast<Pattern>(code)};
     PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
 }
 } // namespace OHOS

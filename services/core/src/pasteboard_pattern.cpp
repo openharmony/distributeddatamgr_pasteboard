@@ -20,44 +20,53 @@
 #include <libxml/tree.h>
 
 namespace OHOS::MiscServices {
-static const std::unordered_map<uint32_t, std::string> patternToRegexMap = {
+std::map<uint32_t, std::string> PatternDetection::patternToRegexMap_{
     { static_cast<uint32_t>(Pattern::URL), std::string("[a-zA-Z0-9+.-]+://[-a-zA-Z0-9+&@#/%?"
                                                 "=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_]")},
     { static_cast<uint32_t>(Pattern::Number), std::string("[-+]?[0-9]*\\.?[0-9]+")},
     { static_cast<uint32_t>(Pattern::EmailAddress), std::string("(([a-zA-Z0-9_\\-\\.]+)@"
                                                 "((?:\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|"
                                                 "([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*))"
-                                                "([a-zA-Z]{2,}|[0-9]{1,3}))")},
-};
+                                                "([a-zA-Z]{2,}|[0-9]{1,3}))")},};
 
-const Patterns DetectPatterns(const Patterns &patternsToCheck,
+std::set<Pattern> PatternDetection::Detect(const Patterns &patternsToCheck,
     const PasteData &pasteData, bool hasHTML, bool hasPlain)
 {
-    std::unordered_set<Pattern> existedPatterns;
+    Patterns existedPatterns;
     for (auto& record : pasteData.AllRecords()) {
         if (patternsToCheck == existedPatterns) {
             break;
         }
         if (hasPlain && record->GetPlainText() != nullptr) {
             std::string recordText = *(record->GetPlainText());
-            CheckPlainText(existedPatterns, patternsToCheck, recordText);
+            DetectPlainText(existedPatterns, patternsToCheck, recordText);
         }
         if (hasHTML && record->GetHtmlText() != nullptr) {
             std::string recordText = extractHtmlContent(*(record->GetHtmlText()));
-            CheckPlainText(existedPatterns, patternsToCheck, recordText);
+            DetectPlainText(existedPatterns, patternsToCheck, recordText);
         }
     }
     return existedPatterns;
 }
 
-void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &plainText)
+static IsAllValid(const std::set<Pattern> &patterns)
+{
+    for (Pattern &pattern:patterns) {
+        if (pattern >= Pattern::PatternCount) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void PatternDetection::DetectPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &plainText)
 {
     for (Pattern pattern : patternsIn) {
         if (patternsOut.find(pattern) != patternsOut.end()) {
             continue;
         }
         uint32_t patternUint32 = static_cast<uint32_t>(pattern);
-        if (patternToRegexMap.find(patternUint32) == patternToRegexMap.end()) {
+        if (patternToRegexMap.find(patternUint32) == patternToRegexMap_.end()) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard pattern, unexpected Pattern value!");
             continue;
         }
@@ -68,17 +77,16 @@ void CheckPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std
     }
 }
 
-const std::string extractHtmlContent(const std::string &html_str)
+std::string PatternDetection::ExtractHtmlContent(const std::string &html_str)
 {
     xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
     if (doc == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!");
-        xmlFreeDoc(doc);
         return "";
     }
     xmlNode *rootNode = xmlDocGetRootElement(doc);
     if (rootNode == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!L");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!");
         xmlFreeDoc(doc);
         return "";
     }

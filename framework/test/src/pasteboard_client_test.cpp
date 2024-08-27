@@ -23,7 +23,7 @@ using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::Media;
 constexpr const uid_t EDM_UID = 3057;
-using Patterns = std::unordered_set<Pattern>;
+using Patterns = std::set<Pattern>;
 class PasteboardClientTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -323,9 +323,9 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
     "个人网站https://ex24t33tamp65hhle.com</a>。</p></body></html>";
     auto newData1 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    std::unordered_set<Pattern> patternsToCheck1{Pattern::URL, Pattern::EmailAddress};
+    Patterns patternsToCheck1{Pattern::URL, Pattern::EmailAddress};
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck1);
-    std::unordered_set<Pattern> expected1{Pattern::URL};
+    Patterns expected1{Pattern::URL};
     ASSERT_EQ(ret1, expected1);
 
     std::string htmlText2 = "<!DOCTYPE html><html><head><title>"
@@ -334,9 +334,9 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
     "阿婆吗weqkqo@exaetmple.com</a>。？？？？打法</p></body></html>";
     auto newData2 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
-    std::unordered_set<Pattern> patternsToCheck2{Pattern::URL, Pattern::EmailAddress, Pattern::Number};
+    Patterns patternsToCheck2{Pattern::URL, Pattern::EmailAddress, Pattern::Number};
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck2);
-    std::unordered_set<Pattern> expected2{Pattern::URL, Pattern::EmailAddress};
+    Patterns expected2{Pattern::URL, Pattern::EmailAddress};
     ASSERT_EQ(ret2, expected2);
 }
 
@@ -357,10 +357,10 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
     "~b0043fg3423tddj~";
     auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    std::unordered_set<Pattern> patternsToCheck{
+    Patterns patternsToCheck{
         Pattern::Number, Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(1023)};
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    std::unordered_set<Pattern> expected1{Pattern::Number, Pattern::URL};
+    Patterns expected1{Pattern::Number, Pattern::URL};
     ASSERT_EQ(ret1, expected1);
     std::string plainText2 = "【撒迪化，等我i却很难，无穷花的！】"
     "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg"
@@ -368,14 +368,14 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
     auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    std::unordered_set<Pattern> expected2{Pattern::Number, Pattern::URL, Pattern::EmailAddress};
+    Patterns expected2{Pattern::Number, Pattern::URL, Pattern::EmailAddress};
     ASSERT_EQ(ret2, expected2);
     std::string plainText3 = "【撒迪化，等我i却很难，无穷花的！】"
     "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg";
     auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
     PasteboardClient::GetInstance()->SetPasteData(*newData3);
     auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    ASSERT_EQ(ret3, std::unordered_set<Pattern>{});
+    ASSERT_EQ(ret3, Patterns{});
 }
 
 /**
@@ -395,11 +395,11 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
     "~b0043fg3423tddj~";
     auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    std::unordered_set<Pattern> patternsToCheck{
+    std::set<Pattern> patternsToCheck{
         Pattern::Number, Pattern::URL, Pattern::EmailAddress,
         static_cast<Pattern>(0xffffffff), static_cast<Pattern>(0xffffff1a)};
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    std::unordered_set<Pattern> expected1{Pattern::Number, Pattern::URL};
+    std::set<Pattern> expected1{Pattern::Number, Pattern::URL};
     ASSERT_EQ(ret1, expected1);
     std::string plainText2 = "【撒迪化，等我i却很难，无穷花的！】"
     "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg"
@@ -407,14 +407,14 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
     auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    std::unordered_set<Pattern> expected2{Pattern::Number, Pattern::URL, Pattern::EmailAddress};
+    std::set<Pattern> expected2{Pattern::Number, Pattern::URL, Pattern::EmailAddress};
     ASSERT_EQ(ret2, expected2);
     std::string plainText3 = "【撒迪化，等我i却很难，无穷花的！】"
     "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg";
     auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
     PasteboardClient::GetInstance()->SetPasteData(*newData3);
     auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    ASSERT_EQ(ret3, std::unordered_set<Pattern>{});
+    ASSERT_EQ(ret3, std::set<Pattern>{});
 }
 
 } // namespace OHOS::MiscServices

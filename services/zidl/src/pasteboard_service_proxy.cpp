@@ -283,7 +283,7 @@ bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
     return reply.ReadBool();
 }
 
-std::unordered_set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
+std::set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::set<Pattern> &patternsToCheck)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -312,7 +312,7 @@ std::unordered_set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::un
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read size of existed patterns");
         return {};
     }
-    std::unordered_set<Pattern> existedPatterns;
+    std::set<Pattern> existedPatterns;
     for (uint32_t i = 0; i < size; i++) {
         uint32_t pattern;
         if (!reply.ReadUint32(pattern)) {

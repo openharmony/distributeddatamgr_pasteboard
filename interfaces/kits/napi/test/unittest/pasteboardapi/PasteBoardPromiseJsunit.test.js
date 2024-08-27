@@ -1515,40 +1515,11 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_promise_test54
-   * @tc.desc      异常值-非预期数字数组
-   * @tc.type      Function
-   * @tc.require   AR000H5HVI
-   */
-  it('pasteboard_promise_test54', 0, async function (done) {
-    const systemPasteboard = pasteboard.getSystemPasteboard();
-    await systemPasteboard.clearData();
-    const textData = "<!DOCTYPE html><html><head><title>" +
-    "，尽快改好Greg就就。、</title></head><body><h2>访如果如果</h2>" +
-    "<p>搞了个<a href=\"https://grehtjeffxample.com\">" +
-    "剖一个v给ioadhoa@wdoiewf.com</a>。</p></body></html>";
-    const pasteData = pasteboard.createHtmlData(textData);
-    await systemPasteboard.setPasteData(pasteData);
-    const res = await systemPasteboard.hasPasteData();
-    expect(res).assertEqual(true);
-    const patterns = [pasteboard.Pattern.EMAIL_ADDRESS,
-      10, 23, pasteboard.Pattern.NUMBER];
-    systemPasteboard.detectPatterns(patterns).then((data) => {
-      const patternsRight = [pasteboard.Pattern.EMAIL_ADDRESS];
-      expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
-      done();
-    }).catch((error)=>{
-      console.error('promise_test54: systemPasteboard.detectPatterns promise error:' + error.message);
-      return;
-    });
-  });
-
-  /**
-   * @tc.name      pasteboard_promise_test55
    * @tc.desc      plaintext
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
-  it('pasteboard_promise_test55', 0, async function (done) {
+  it('pasteboard_promise_test54', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     const textData = "部分人的十点半：\n" +
@@ -1568,7 +1539,7 @@ describe('PasteBoardJSTest', function () {
       expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
       done();
     }).catch((error)=>{
-      console.error('promise_test55: systemPasteboard.detectPatterns promise error:' + error.message);
+      console.error('promise_test54: systemPasteboard.detectPatterns promise error:' + error.message);
       return;
     });
   });

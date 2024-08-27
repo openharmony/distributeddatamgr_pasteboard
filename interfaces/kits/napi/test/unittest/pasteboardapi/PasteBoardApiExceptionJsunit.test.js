@@ -906,4 +906,30 @@ describe('PasteBoardJSTest', function () {
     done();
   });
 
+  /**
+   * @tc.name      pasteboard_exception_test32
+   * @tc.desc      异常值-非预期数字数组
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_exception_test32', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "<!DOCTYPE html><html><head><title>" +
+    "，尽快改好Greg就就。、</title></head><body><h2>访如果如果</h2>" +
+    "<p>搞了个<a href=\"https://grehtjeffxample.com\">" +
+    "剖一个v给ioadhoa@wdoiewf.com</a>。</p></body></html>";
+    const pasteData = pasteboard.createHtmlData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns1 = [0, 1, 23789, 238];
+    try {
+      await systemPasteboard.detectPatterns(patterns1);
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
 });

@@ -122,13 +122,18 @@ bool GetValue(napi_env env, napi_value in, std::unordered_set<MiscServices::Patt
                 PASTEBOARD_MODULE_JS_NAPI, "napi_get_value_uint32 err status = %{public}d", status);
             return false;
         }
-        out.insert(static_cast<MiscServices::Pattern>(pattern));
+        if (pattern >= Pattern::PatternCount) {
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "Unsurportted pattern value: %{public}d", pattern);
+            return false; 
+        }
+        out.insert(static_cast<Pattern>(pattern));
     }
     return true;
 }
 
 /* napi_value <-> std::unordered_set */
-napi_status SetValue(napi_env env, std::unordered_set<MiscServices::Pattern> &in, napi_value &result)
+napi_status SetValue(napi_env env, std::unordered_set<Pattern> &in, napi_value &result)
 {
     napi_status status = napi_create_array_with_length(env, in.size(), &result);
     if (status != napi_ok) {
