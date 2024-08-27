@@ -111,15 +111,15 @@ bool GetValue(napi_env env, napi_value in, std::unordered_set<MiscServices::Patt
         napi_value element;
         napi_status status = napi_get_element(env, in, i, &element);
         if (status != napi_ok) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI,
-            "napi_get_element%{public}d err status = %{public}d", i, status);
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "napi_get_element%{public}d err status = %{public}d", i, status);
             return false;
         }
         uint32_t pattern;
         status = napi_get_value_uint32(env, element, &pattern);
         if (status != napi_ok) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI,
-            "napi_get_value_uint32 err status = %{public}d", status);
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "napi_get_value_uint32 err status = %{public}d", status);
             return false;
         }
         out.insert(static_cast<MiscServices::Pattern>(pattern));
@@ -145,7 +145,8 @@ napi_status SetValue(napi_env env, std::unordered_set<MiscServices::Pattern> &in
         }
         status = napi_set_element(env, result, i, element);
         if (status != napi_ok) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_set_element %{public}d err status = %{public}d", i, status);
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "napi_set_element %{public}d err status = %{public}d", i, status);
             return status;
         }
         ++i;
