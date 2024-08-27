@@ -1057,7 +1057,7 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
 
 std::unordered_set<Pattern> PasteboardService::DetectPatterns(const std::unordered_set<Pattern> &patternsToCheck)
 {
-    bool hasPlain = HasDataType(MIMETYPE_TEXT_PLAIN);
+    bool hasPlain = HasLocalDataType(MIMETYPE_TEXT_PLAIN);
     bool hasHTML = HasLocalDataType(MIMETYPE_TEXT_HTML);
     if (!hasHTML && !hasPlain) {
         return {};
