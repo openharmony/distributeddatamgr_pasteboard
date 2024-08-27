@@ -75,22 +75,25 @@ const std::string extractHtmlContent(const std::string &html_str)
     xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
     if (doc == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
+        xmlFreeDoc(doc);
         return "";
     }
     xmlNode *rootNode = xmlDocGetRootElement(doc);
     if (rootNode == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
-        return "";   
+        xmlFreeDoc(doc);
+        return "";
     }
     xmlChar *xmlStr = xmlNodeGetContent(rootNode);
     if (xmlStr == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "DetectPattern, Error parsing HTML");
-        return "";   
+        xmlFree(xmlStr);
+        xmlFreeDoc(doc);
+        return "";
     }
     std::string result(reinterpret_cast<const char*>(xmlStr));
     xmlFree(xmlStr);
     xmlFreeDoc(doc);
-    xmlCleanupParser();
     return result;
 }
 } // namespace OHOS::MiscServices
