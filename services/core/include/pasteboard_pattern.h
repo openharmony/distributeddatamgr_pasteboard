@@ -29,12 +29,13 @@ public:
     using Patterns = std::set<Pattern>;
     static const Patterns Detect(const std::set<Pattern> &patternsToCheck,
         const PasteData &pasteData, bool hasHTML, bool hasPlain);
-    static IsAllValid(const std::set<Pattern> &patterns);
+    static bool IsAllValid(const std::set<Pattern> &patterns);
 private:
     static std::string ExtractHtmlContent(const std::string &html_str);
     static void DetectPlainText(std::set<Pattern> &patternsOut, const std::set<Pattern> &PatternsIn,
         const std::string &plainText);
 
     static std::map<uint32_t, std::string> patternToRegexMap_;
+};
 } // namespace OHOS::MiscServices
 #endif // PASTE_BOARD_PATTERN_H

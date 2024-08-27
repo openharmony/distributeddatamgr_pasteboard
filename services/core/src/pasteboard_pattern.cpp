@@ -49,7 +49,7 @@ std::set<Pattern> PatternDetection::Detect(const Patterns &patternsToCheck,
     return existedPatterns;
 }
 
-static IsAllValid(const std::set<Pattern> &patterns)
+static bool PatternDetection::IsAllValid(const std::set<Pattern> &patterns)
 {
     for (Pattern &pattern:patterns) {
         if (pattern >= Pattern::PatternCount) {
