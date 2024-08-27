@@ -90,8 +90,8 @@ bool GetValue(napi_env env, napi_value in, std::string &out)
     return true;
 }
 
-/* napi_value <-> std::unordered_set */
-bool GetValue(napi_env env, napi_value in, std::unordered_set<MiscServices::Pattern> &out)
+/* napi_value <-> std::set<Pattern> */
+bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
 {
     bool isArray = false;
     NAPI_CALL_BASE(env, napi_is_array(env, in, &isArray), false);
@@ -132,8 +132,8 @@ bool GetValue(napi_env env, napi_value in, std::unordered_set<MiscServices::Patt
     return true;
 }
 
-/* napi_value <-> std::unordered_set */
-napi_status SetValue(napi_env env, std::unordered_set<Pattern> &in, napi_value &result)
+/* napi_value <-> std::set<Pattern> */
+napi_status SetValue(napi_env env, std::set<Pattern> &in, napi_value &result)
 {
     napi_status status = napi_create_array_with_length(env, in.size(), &result);
     if (status != napi_ok) {
