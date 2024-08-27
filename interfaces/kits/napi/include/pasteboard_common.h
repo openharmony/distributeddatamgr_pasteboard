@@ -24,7 +24,6 @@
 
 namespace OHOS {
 namespace MiscServicesNapi {
-using namespace OHOS::MiscServices;
 napi_value GetCallbackErrorValue(napi_env env, int32_t errorCode);
 void SetCallback(const napi_env &env, const napi_ref &callbackIn, const napi_value *result);
 napi_value NapiGetNull(napi_env env);
