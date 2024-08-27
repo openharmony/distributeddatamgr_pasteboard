@@ -309,8 +309,8 @@ int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParc
     }
     std::unordered_set<Pattern> patternsToCheck;
     for (uint32_t i = 0; i < size; i++) {
-        int32_t pattern;
-        if (!data.ReadInt32(pattern)) {
+        uint32_t pattern;
+        if (!data.ReadUInt32(pattern)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read pattern failed.");
             return ERR_INVALID_VALUE;
         }
@@ -322,7 +322,7 @@ int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParc
         return ERR_INVALID_VALUE;
     }
     for (const auto &pattern : existedPatterns) {
-        if (!reply.WriteInt32(static_cast<int32_t>(pattern))) {
+        if (!reply.WriteUInt32(static_cast<uint32_t>(pattern))) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write pattern failed.");
             return ERR_INVALID_VALUE;
         }
