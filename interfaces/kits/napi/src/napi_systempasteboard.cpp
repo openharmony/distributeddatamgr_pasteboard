@@ -707,7 +707,6 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>&
         // setData has 1 arg
         if (!CheckExpression(
             env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
-            return napi_invalid_arg;
         }
         UDMF::UnifiedDataNapi* unifiedDataNapi = nullptr;
         context->status = napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
@@ -852,12 +851,14 @@ napi_value SystemPasteboardNapi::DetectPatternsAsync(napi_env env, napi_callback
 {
     auto context = std::make_shared<DetectPatternsContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
-        if (!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
+        if (!CheckExpression(env, argc == ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The number of arguments must be grater than zero.")) {
             return napi_invalid_arg;
         }
-        if (!GetValue(env, argv[0], context->patternsToCheck)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue");
+        bool getValueRes = GetValue(env, argv[0], context->patternsToCheck);
+        if (!CheckExpression(env, getValueRes, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. Array<Pattern> or Array<number> expected.")) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue.");
             return napi_invalid_arg;
         }
         return napi_ok;

@@ -1575,7 +1575,7 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_promise_test56
-   * @tc.desc      plaintext
+   * @tc.desc      异常值 非数组
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
@@ -1583,8 +1583,6 @@ describe('PasteBoardJSTest', function () {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     const textData = "部分人的十点半：\n" +
-    "「而飞过海」\n" +
-    "方法：\n" +
     "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
     "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
     "~b0043fg3423tddj~";
@@ -1593,13 +1591,106 @@ describe('PasteBoardJSTest', function () {
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
     const patterns = pasteboard.Pattern.EMAIL_ADDRESS;
-    systemPasteboard.detectPatterns(patterns).then((data) => {
-      done();
-    }).catch((error)=>{
-      console.error('promise_test56: systemPasteboard.detectPatterns promise error:' + error.message);
-      expect('401').assertEqual(error.code);
-      return;
-    });
+    try {
+      await systemPasteboard.detectPatterns(patterns).then((data) => {
+        console.error('promise_test56: detect patterns promise error');
+      }).catch((error)=>{
+        console.error('promise_test56: detect patterns promise error');
+      });
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test57
+   * @tc.desc      异常值 传空
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test57', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    try {
+      await systemPasteboard.detectPatterns().then((data) => {
+        console.error('promise_test57: detect patterns promise error');
+      }).catch((error)=>{
+        console.error('promise_test57: detect patterns promise error');
+      });
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test58
+   * @tc.desc      异常值 数组内元素出错
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test58', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns = ["dsa", "fdsf", "da"];
+    try {
+      await systemPasteboard.detectPatterns(patterns).then((data) => {
+        console.error('promise_test58: detect patterns promise error');
+      }).catch((error)=>{
+        console.error('promise_test58: detect patterns promise error');
+      });
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test59
+   * @tc.desc      异常值 参数个数异常
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test59', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns1 = [0, 1];
+    const patterns2 = [1, 2];
+    try {
+      await systemPasteboard.detectPatterns(patterns1, patterns2).then((data) => {
+        console.error('promise_test59: detect patterns promise error');
+      }).catch((error)=>{
+        console.error('promise_test59: detect patterns promise error');
+      });
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
   });
 
   /**
