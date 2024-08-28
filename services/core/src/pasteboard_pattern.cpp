@@ -49,7 +49,7 @@ const std::set<Pattern> PatternDetection::Detect(const std::set<Pattern> &patter
     return existedPatterns;
 }
 
-bool PatternDetection::IsAllValid(const std::set<Pattern> &patterns)
+bool PatternDetection::IsValid(const std::set<Pattern> &patterns)
 {
     for (Pattern pattern : patterns) {
         if (pattern >= Pattern::PatternCount) {
@@ -67,11 +67,12 @@ void PatternDetection::DetectPlainText(std::set<Pattern> &patternsOut,
             continue;
         }
         uint32_t patternUint32 = static_cast<uint32_t>(pattern);
-        if (patternToRegexMap_.find(patternUint32) == patternToRegexMap_.end()) {
+        auto it = patternToRegexMap_.find(patternUint32);
+        if (it == patternToRegexMap_.end()) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard pattern, unexpected Pattern value!");
             continue;
         }
-        std::regex curRegex(patternToRegexMap_.at(patternUint32));
+        std::regex curRegex(it->second);
         if (std::regex_search(plainText, curRegex)) {
             patternsOut.insert(pattern);
         }

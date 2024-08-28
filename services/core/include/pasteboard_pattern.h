@@ -28,7 +28,7 @@ class __attribute__((visibility("default"))) PatternDetection {
 public:
     static const std::set<Pattern> Detect(const std::set<Pattern> &patternsToCheck,
         const PasteData &pasteData, bool hasHTML, bool hasPlain);
-    static bool IsAllValid(const std::set<Pattern> &patterns);
+    static bool IsValid(const std::set<Pattern> &patterns);
 private:
     static std::string ExtractHtmlContent(const std::string &html_str);
     static void DetectPlainText(std::set<Pattern> &patternsOut, const std::set<Pattern> &PatternsIn,
