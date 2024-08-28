@@ -15,7 +15,7 @@
 
 #ifndef OHOS_PASTEBOARD_SERVICES_DEVICE_DM_ADAPTER_H
 #define OHOS_PASTEBOARD_SERVICES_DEVICE_DM_ADAPTER_H
-#include <mutex>
+#include <shared_mutex>
 #include <string>
 
 #include "api/visibility.h"
@@ -47,9 +47,11 @@ public:
     std::vector<std::string> GetNetworkIds();
     int32_t GetLocalDeviceType();
     bool IsSameAccount(const std::string &networkId);
+    void SetDevices();
 
     #ifdef PB_DEVICE_MANAGER_ENABLE
     int32_t GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice);
+    std::vector<DmDeviceInfo> GetDevices();
     #endif
     std::string GetDeviceName(const std::string &networkId);
     void Register(DMObserver *observer);
@@ -68,6 +70,10 @@ private:
     mutable std::mutex mutex_{};
     std::string localDeviceUdid_{};
     ConcurrentMap<DMObserver *, DMObserver *> observers_;
+    #ifdef PB_DEVICE_MANAGER_ENABLE
+    std::shared_mutex dmMutex_;
+    std::vector<DmDeviceInfo> devices_;
+    #endif
 };
 } // namespace OHOS::MiscServices
 #endif // OHOS_PASTEBOARD_SERVICES_DEVICE_DM_ADAPTER_H
