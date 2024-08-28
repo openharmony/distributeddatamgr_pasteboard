@@ -14,7 +14,6 @@
  */
 
 #include "pasteboard_client.h"
-#include "pasteboard_pattern.h"
 #include "unistd.h"
 #include <gtest/gtest.h>
 
