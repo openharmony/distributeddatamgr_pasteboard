@@ -51,7 +51,7 @@ const std::set<Pattern> PatternDetection::Detect(const std::set<Pattern> &patter
 
 bool PatternDetection::IsAllValid(const std::set<Pattern> &patterns)
 {
-    for (Pattern pattern:patterns) {
+    for (Pattern pattern : patterns) {
         if (pattern >= Pattern::PatternCount) {
             return false;
         }
