@@ -1114,25 +1114,33 @@ bool PasteboardService::HasLocalDataType(const std::string &mimeType)
     auto userId = GetCurrentAccountId();
     auto it = clips_.Find(userId);
     if (!it.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "can not find data");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "can not find data. userId: %{public}d, mimeType: %{public}s",
+            userId, mimeType.c_str());
         return false;
     }
     if (it.second == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr. userId: %{public}d, mimeType: %{public}s",
+            userId, mimeType.c_str());
+        return false;
+    }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto ret = IsDataVaild(*(it.second), tokenId);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteData is invalid, tokenId is %{public}d, userId: %{public}d,"
+            "mimeType: %{public}s", tokenId, userId, mimeType.c_str());
         return false;
     }
     auto screenStatus = GetCurrentScreenStatus();
     if (it.second->GetScreenStatus() > screenStatus) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "current screen is %{public}d, set data screen is %{public}d.",
-            screenStatus, it.second->GetScreenStatus());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "current screen is %{public}d, set data screen is %{public}d."
+            "userId: %{public}d, mimeType: %{public}s",
+            screenStatus, it.second->GetScreenStatus(), userId, mimeType.c_str());
         return false;
     }
     std::vector<std::string> mimeTypes = it.second->GetMimeTypes();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "type is %{public}s", mimeType.c_str());
     auto isWebData = it.second->GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG;
     auto isExistType = std::find(mimeTypes.begin(), mimeTypes.end(), mimeType) != mimeTypes.end();
     if (isWebData) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "is Web Data");
         return mimeType == MIMETYPE_TEXT_HTML && isExistType;
     }
     return isExistType;
