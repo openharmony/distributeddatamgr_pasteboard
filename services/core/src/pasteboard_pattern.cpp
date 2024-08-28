@@ -84,18 +84,18 @@ std::string PatternDetection::ExtractHtmlContent(const std::string &html_str)
 {
     xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
     if (doc == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed! doc nullptr.");
         return "";
     }
     xmlNode *rootNode = xmlDocGetRootElement(doc);
     if (rootNode == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed! rootNode nullptr.");
         xmlFreeDoc(doc);
         return "";
     }
     xmlChar *xmlStr = xmlNodeGetContent(rootNode);
     if (xmlStr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed!");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed! xmlStr nullptr.");
         xmlFreeDoc(doc);
         return "";
     }
