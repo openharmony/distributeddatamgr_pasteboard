@@ -53,6 +53,7 @@
           "ipc",
           "image_framework",
           "libuv",
+          "libxml2",
           "memmgr",
           "napi",
           "os_account",

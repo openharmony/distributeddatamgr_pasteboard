@@ -49,6 +49,8 @@ PasteboardServiceStub::PasteboardServiceStub()
             &PasteboardServiceStub::OnGetDataSource;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::HAS_DATA_TYPE)] =
             &PasteboardServiceStub::OnHasDataType;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DETECT_PATTERNS)] =
+            &PasteboardServiceStub::OnDetectPatterns;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION)] =
             &PasteboardServiceStub::OnSetGlobalShareOption;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION)] =
@@ -283,6 +285,41 @@ int32_t PasteboardServiceStub::OnHasDataType(MessageParcel &data, MessageParcel 
     auto ret = HasDataType(mimeType);
     reply.WriteBool(ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t size = 0;
+    if (!data.ReadUint32(size)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read size failed.");
+        return ERR_INVALID_VALUE;
+    }
+    size_t readAbleSize = data.GetReadableBytes();
+    if (size > readAbleSize || size > static_cast<uint32_t>(Pattern::PatternCount)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read oversize failed.");
+        return ERR_INVALID_VALUE;
+    }
+    std::set<Pattern> patternsToCheck;
+    for (uint32_t i = 0; i < size; i++) {
+        uint32_t pattern;
+        if (!data.ReadUint32(pattern)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read pattern failed.");
+            return ERR_INVALID_VALUE;
+        }
+        patternsToCheck.insert(static_cast<Pattern>(pattern));
+    }
+    std::set<Pattern> existedPatterns = DetectPatterns(patternsToCheck);
+    if (!reply.WriteUint32(static_cast<uint32_t>(existedPatterns.size()))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write size failed.");
+        return ERR_INVALID_VALUE;
+    }
+    for (const auto &pattern : existedPatterns) {
+        if (!reply.WriteUint32(static_cast<uint32_t>(pattern))) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write pattern failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
     return ERR_OK;
 }
 

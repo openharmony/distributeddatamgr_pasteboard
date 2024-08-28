@@ -38,7 +38,8 @@ enum PasteboardServiceInterfaceCode {
     REMOVE_APP_SHARE_OPTIONS = 14,
     PASTE_START = 15,
     PASTE_COMPLETE = 16,
-    REGISTER_CLIENT_DEATH_OBSERVER = 17
+    REGISTER_CLIENT_DEATH_OBSERVER = 17,
+    DETECT_PATTERNS = 18,
 };
 
 enum PasteboardObserverInterfaceCode {

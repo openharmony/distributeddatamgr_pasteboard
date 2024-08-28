@@ -848,6 +848,35 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
     return result;
 }
 
+napi_value SystemPasteboardNapi::DetectPatterns(napi_env env, napi_callback_info info)
+{
+    auto context = std::make_shared<DetectPatternsContextInfo>();
+    auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
+        if (!CheckExpression(env, argc == ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The number of arguments must be one.")) {
+            return napi_invalid_arg;
+        }
+        bool getValueRes = GetValue(env, argv[0], context->patternsToCheck);
+        if (!CheckExpression(env, getValueRes, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. Array<Pattern> expected.")) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue.");
+            return napi_invalid_arg;
+        }
+        return napi_ok;
+    };
+    auto output = [context](napi_env env, napi_value *result) -> napi_status {
+        napi_status status = SetValue(env, context->patternsDetect, *result);
+        return status;
+    };
+    auto exec = [context](AsyncCall::Context *ctx) {
+        context->patternsDetect = PasteboardClient::GetInstance()->DetectPatterns(context->patternsToCheck);
+        context->status = napi_ok;
+    };
+    context->SetAction(std::move(input), std::move(output));
+    AsyncCall asyncCall(env, info, context, 1);
+    return asyncCall.Call(env, exec);
+}
+
 napi_value SystemPasteboardNapi::ClearDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi ClearDataSync() is called!");
@@ -969,6 +998,7 @@ napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value e
         DECLARE_NAPI_FUNCTION("isRemoteData", IsRemoteData),
         DECLARE_NAPI_FUNCTION("getDataSource", GetDataSource),
         DECLARE_NAPI_FUNCTION("hasDataType", HasDataType),
+        DECLARE_NAPI_FUNCTION("detectPatterns", DetectPatterns),
         DECLARE_NAPI_FUNCTION("clearDataSync", ClearDataSync),
         DECLARE_NAPI_FUNCTION("getDataSync", GetDataSync),
         DECLARE_NAPI_FUNCTION("hasDataSync", HasDataSync),

@@ -287,6 +287,47 @@ bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
     return reply.ReadBool();
 }
 
+std::set<Pattern> PasteboardServiceProxy::DetectPatterns(const std::set<Pattern> &patternsToCheck)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return {};
+    }
+    if (!data.WriteUint32(static_cast<uint32_t>(patternsToCheck.size()))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write size of patterns to check");
+        return {};
+    }
+    for (const auto &pattern : patternsToCheck) {
+        if (!data.WriteUint32(static_cast<uint32_t>(pattern))) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pattern to check");
+            return {};
+        }
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::DETECT_PATTERNS, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+        return {};
+    }
+    uint32_t size = 0;
+    if (!reply.ReadUint32(size)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read size of existed patterns");
+        return {};
+    }
+    std::set<Pattern> existedPatterns;
+    for (uint32_t i = 0; i < size; i++) {
+        uint32_t pattern;
+        if (!reply.ReadUint32(pattern)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read existed pattern");
+            return {};
+        }
+        existedPatterns.insert(static_cast<Pattern>(pattern));
+    }
+    return existedPatterns;
+}
+
 int32_t PasteboardServiceProxy::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
 {
     MessageParcel data;
