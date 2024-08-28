@@ -125,7 +125,7 @@ bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
         if (pattern >= static_cast<uint32_t>(Pattern::PatternCount)) {
             PASTEBOARD_HILOGE(
                 PASTEBOARD_MODULE_JS_NAPI, "Unsurportted pattern value: %{public}d", pattern);
-            return false; 
+            return false;
         }
         out.insert(static_cast<Pattern>(pattern));
     }

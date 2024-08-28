@@ -27,7 +27,8 @@ std::map<uint32_t, std::string> PatternDetection::patterns_{
     { static_cast<uint32_t>(Pattern::EmailAddress), std::string("(([a-zA-Z0-9_\\-\\.]+)@"
                                                 "((?:\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|"
                                                 "([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*))"
-                                                "([a-zA-Z]{2,}|[0-9]{1,3}))")},};
+                                                "([a-zA-Z]{2,}|[0-9]{1,3}))")},
+};
 
 const std::set<Pattern> PatternDetection::Detect(const std::set<Pattern> &patternsToCheck,
     const PasteData &pasteData, bool hasHTML, bool hasPlain)
