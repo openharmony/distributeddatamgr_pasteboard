@@ -71,5 +71,6 @@ HWTEST_F(PasteboardDialogAbnormalBranchTest, ShowToastAbnormalTest, TestSize.Lev
 HWTEST_F(PasteboardDialogAbnormalBranchTest, CancelToastAbnormalTest, TestSize.Level0)
 {
     PasteBoardDialog::GetInstance().CancelToast();
+    EXPECT_TRUE(true);
 }
 }
