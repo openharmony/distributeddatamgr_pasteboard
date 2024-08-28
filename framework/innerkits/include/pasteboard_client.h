@@ -26,7 +26,6 @@
 #include "pasteboard_observer.h"
 #include "unified_data.h"
 #include "want.h"
-#include "pasteboard_pattern.h"
 
 namespace OHOS {
 namespace MiscServices {

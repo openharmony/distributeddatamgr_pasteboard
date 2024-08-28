@@ -29,10 +29,10 @@ std::map<uint32_t, std::string> PatternDetection::patternToRegexMap_{
                                                 "([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*))"
                                                 "([a-zA-Z]{2,}|[0-9]{1,3}))")},};
 
-const std::set<Pattern> PatternDetection::Detect(const Patterns &patternsToCheck,
+const std::set<Pattern> PatternDetection::Detect(const std::set<Pattern> &patternsToCheck,
     const PasteData &pasteData, bool hasHTML, bool hasPlain)
 {
-    Patterns existedPatterns;
+    std::set<Pattern> existedPatterns;
     for (auto& record : pasteData.AllRecords()) {
         if (patternsToCheck == existedPatterns) {
             break;
@@ -49,7 +49,7 @@ const std::set<Pattern> PatternDetection::Detect(const Patterns &patternsToCheck
     return existedPatterns;
 }
 
-bool PatternDetection::IsAllValid(const Patterns &patterns)
+bool PatternDetection::IsAllValid(const std::set<Pattern> &patterns)
 {
     for (Pattern pattern:patterns) {
         if (pattern >= Pattern::PatternCount) {
@@ -59,7 +59,8 @@ bool PatternDetection::IsAllValid(const Patterns &patterns)
     return true;
 }
 
-void PatternDetection::DetectPlainText(Patterns &patternsOut, const Patterns &patternsIn, const std::string &plainText)
+void PatternDetection::DetectPlainText(std::set<Pattern> &patternsOut,
+    const std::set<Pattern> &patternsIn, const std::string &plainText)
 {
     for (Pattern pattern : patternsIn) {
         if (patternsOut.find(pattern) != patternsOut.end()) {

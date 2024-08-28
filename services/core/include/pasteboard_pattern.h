@@ -24,15 +24,14 @@
 
 namespace OHOS::MiscServices {
 enum class Pattern : uint32_t { URL = 0, Number, EmailAddress, PatternCount };
-class PatternDetection {
+class __attribute__((visibility("default"))) PatternDetection {
 public:
-    using Patterns = std::set<Pattern>;
-    static const Patterns Detect(const Patterns &patternsToCheck,
+    static const std::set<Pattern> Detect(const std::set<Pattern> &patternsToCheck,
         const PasteData &pasteData, bool hasHTML, bool hasPlain);
-    static bool IsAllValid(const Patterns &patterns);
+    static bool IsAllValid(const std::set<Pattern> &patterns);
 private:
     static std::string ExtractHtmlContent(const std::string &html_str);
-    static void DetectPlainText(Patterns &patternsOut, const Patterns &PatternsIn,
+    static void DetectPlainText(std::set<Pattern> &patternsOut, const std::set<Pattern> &PatternsIn,
         const std::string &plainText);
 
     static std::map<uint32_t, std::string> patternToRegexMap_;
