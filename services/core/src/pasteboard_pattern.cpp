@@ -20,7 +20,7 @@
 #include <libxml/tree.h>
 
 namespace OHOS::MiscServices {
-std::map<uint32_t, std::string> PatternDetection::patternToRegexMap_{
+std::map<uint32_t, std::string> PatternDetection::patterns_{
     { static_cast<uint32_t>(Pattern::URL), std::string("[a-zA-Z0-9+.-]+://[-a-zA-Z0-9+&@#/%?"
                                                 "=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_]")},
     { static_cast<uint32_t>(Pattern::Number), std::string("[-+]?[0-9]*\\.?[0-9]+")},
@@ -67,8 +67,8 @@ void PatternDetection::DetectPlainText(std::set<Pattern> &patternsOut,
             continue;
         }
         uint32_t patternUint32 = static_cast<uint32_t>(pattern);
-        auto it = patternToRegexMap_.find(patternUint32);
-        if (it == patternToRegexMap_.end()) {
+        auto it = patterns_.find(patternUint32);
+        if (it == patterns_.end()) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard pattern, unexpected Pattern value!");
             continue;
         }

@@ -34,7 +34,7 @@ private:
     static void DetectPlainText(std::set<Pattern> &patternsOut, const std::set<Pattern> &PatternsIn,
         const std::string &plainText);
 
-    static std::map<uint32_t, std::string> patternToRegexMap_;
+    static std::map<uint32_t, std::string> patterns_;
 };
 } // namespace OHOS::MiscServices
 #endif // PASTE_BOARD_PATTERN_H
