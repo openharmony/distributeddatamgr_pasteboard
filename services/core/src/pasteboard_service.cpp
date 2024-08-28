@@ -1924,12 +1924,13 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
 std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
 {
     auto isOn = moduleConfig_.IsOn();
-    std::lock_guard<decltype(mutex)> lockGuard(mutex);
-    auto securityLevel = securityLevel_.GetDeviceSecurityLevel();
-    if (isOn && (securityLevel < DATA_SEC_LEVEL3)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "device sec level is %{public}u less than 3.", securityLevel);
-        return nullptr;
+    if (isOn) {
+        auto securityLevel = securityLevel_.GetDeviceSecurityLevel();
+        if (securityLevel < DATA_SEC_LEVEL3) {
+            return nullptr;
+        }
     }
+    std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;
     }
