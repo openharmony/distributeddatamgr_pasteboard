@@ -1064,7 +1064,7 @@ std::set<Pattern> PasteboardService::DetectPatterns(const std::set<Pattern> &pat
     int32_t userId = GetCurrentAccountId();
     auto it = clips_.Find(userId);
     if (!it.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "error, no PasteData !");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "error, no PasteData!");
         return {};
     }
     std::shared_ptr<PasteData> pasteData = it.second;
