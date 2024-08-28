@@ -16,6 +16,7 @@
 #ifndef PASTE_BOARD_SERVICE_INTERFACE_H
 #define PASTE_BOARD_SERVICE_INTERFACE_H
 
+#include "i_pasteboard_entry_getter.h"
 #include "i_pasteboard_delay_getter.h"
 #include "i_pasteboard_observer.h"
 #include "iremote_broker.h"
@@ -27,9 +28,11 @@ namespace MiscServices {
 class IPasteboardService : public IRemoteBroker {
 public:
     virtual void Clear() = 0;
+    virtual int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value) = 0;
     virtual int32_t GetPasteData(PasteData &data, int32_t &syncTime) = 0;
     virtual bool HasPasteData() = 0;
-    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) = 0;
+    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
+        const sptr<IPasteboardEntryGetter> entryGetter) = 0;
     virtual bool IsRemoteData() = 0;
     virtual int32_t GetDataSource(std::string &bundleName) = 0;
     virtual bool HasDataType(const std::string &mimeType) = 0;

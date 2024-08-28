@@ -40,11 +40,16 @@ enum PasteboardServiceInterfaceCode {
     PASTE_COMPLETE = 16,
     REGISTER_CLIENT_DEATH_OBSERVER = 17,
     DETECT_PATTERNS = 18,
+    GET_RECORD_VALUE = 19,
 };
 
 enum PasteboardObserverInterfaceCode {
     ON_PASTE_BOARD_CHANGE = 0,
     ON_PASTE_BOARD_EVENT = 1,
+};
+
+enum PasteboardEntryGetterInterfaceCode {
+    GET_RECORD_VALUE_BY_TYPE = 0,
 };
 } // namespace PasteboardServ
 } // namespace Security

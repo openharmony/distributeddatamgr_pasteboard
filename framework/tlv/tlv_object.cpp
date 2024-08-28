@@ -15,7 +15,26 @@
 #include "tlv_object.h"
 
 #include "securec.h"
+#include "unified_meta.h"
+#include "want.h"
 namespace OHOS::MiscServices {
+
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::monostate value)
+{
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
+        return false;
+    }
+    cursor_ += sizeof(TLVHead);
+    return true;
+}
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, void* value)
+{
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
+        return false;
+    }
+    cursor_ += sizeof(TLVHead);
+    return true;
+}
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, bool value)
 {
     return WriteBasic(buffer, type, (int8_t)(value));
@@ -83,6 +102,41 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Ra
     tlvHead->len = HostToNet((uint32_t)value.bufferLen);
     return true;
 }
+
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const AAFwk::Want &value)
+{
+    return Write(buffer, type, ParcelUtil::Parcelable2Raw(&value));
+}
+
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Media::PixelMap &value)
+{
+    std::vector<std::uint8_t> u8Value;
+    if (!value.EncodeTlv(u8Value)) {
+        return false;
+    }
+    return Write(buffer, type, u8Value);
+}
+
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Object &value)
+{
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
+        return false;
+    }
+    auto tagCursor = cursor_;
+    cursor_ += sizeof(TLVHead);
+    auto valueCursor = cursor_;
+    for (const auto& [key, val] : value.value_) {
+        if (!Write(buffer, TAG_MAP_KEY, key)) {
+            return false;
+        }
+        if (!Write(buffer, TAG_MAP_VALUE_TYPE, val)) {
+            return false;
+        }
+    }
+    WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
+    return true;
+}
+
 bool TLVObject::Write(
     std::vector<std::uint8_t> &buffer, uint16_t type, std::map<std::string, std::vector<uint8_t>> &value)
 {
@@ -121,12 +175,20 @@ bool TLVObject::WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, u
 template<typename... _Types>
 bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const std::variant<_Types...> &input)
 {
-    uint32_t index = static_cast<uint32_t>(input.index());
-    if (!Write(buffer, TAG_MAP_VALUE_TYPE_INDEX, index)) {
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
     }
+    auto tagCursor = cursor_;
+    cursor_ += sizeof(TLVHead);
+    auto valueCursor = cursor_;
 
-    return WriteVariant<decltype(input), _Types...>(buffer, TAG_MAP_VALUE_TYPE_VALUE, 0, input);
+    uint32_t index = static_cast<uint32_t>(input.index());
+    if (!Write(buffer, TAG_VARIANT_INDEX, index)) {
+        return false;
+    }
+    WriteVariant<decltype(input), _Types...>(buffer, TAG_VARIANT_VALUE, 0, input);
+    WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
+    return true;
 }
 
 bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const Details& value)
@@ -137,7 +199,7 @@ bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const De
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
-    for (auto [key, val] : value) {
+    for (auto &[key, val] : value) {
         if (!Write(buffer, TAG_MAP_KEY, key)) {
             return false;
         }
@@ -194,6 +256,14 @@ bool TLVObject::ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head)
     cursor_ += sizeof(TLVHead);
     return true;
 }
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::monostate &value, const TLVHead &head)
+{
+    return true;
+}
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, void *value, const TLVHead &head)
+{
+    return true;
+}
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, bool &value, const TLVHead &head)
 {
     return ReadBasicValue(buffer, value, head);
@@ -242,6 +312,7 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMe
     cursor_ += head.len;
     return true;
 }
+
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &value, const TLVHead &head)
 {
     return value.Decode(buffer, cursor_, cursor_ + head.len);
@@ -326,12 +397,62 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& valu
         if (!ReadValue(buffer, itemKey, keyHead)) {
             return false;
         }
+        TLVHead variantHead{};
+        if (!ReadHead(buffer, variantHead)) {
+            return false;
+        }
         ValueType itemValue;
-        if (!ReadValue(buffer, itemValue, head)) {
+        if (!ReadValue(buffer, itemValue, variantHead)) {
             return false;
         }
         value.emplace(itemKey, itemValue);
     }
+    return true;
+}
+
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, Object &value, const TLVHead &head)
+{
+    auto mapEnd = cursor_ + head.len;
+    while (cursor_ < mapEnd) {
+        TLVHead keyHead{};
+        if (!ReadHead(buffer, keyHead)) {
+            return false;
+        }
+        std::string itemKey = "";
+        if (!ReadValue(buffer, itemKey, keyHead)) {
+            return false;
+        }
+        TLVHead valueHead{};
+        if (!ReadHead(buffer, valueHead)) {
+            return false;
+        }
+        EntryValue itemValue;
+        if (!ReadValue(buffer, itemValue, head)) {
+            return false;
+        }
+        value.value_.emplace(itemKey, itemValue);
+    }
+    return true;
+}
+
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, AAFwk::Want &value, const TLVHead &head)
+{
+    RawMem rawMem{};
+    if (!ReadValue(buffer, rawMem, head)) {
+        return false;
+    }
+    value = *(ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem));
+    return true;
+}
+
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::shared_ptr<Media::PixelMap> &value,
+    const TLVHead &head)
+{
+    std::vector<std::uint8_t> u8Value;
+    if (!ReadValue(buffer, u8Value, head)) {
+        return false;
+    }
+    value = Vector2PixelMap(u8Value);
     return true;
 }
 
@@ -350,5 +471,25 @@ bool TLVObject::Decode(const std::vector<std::uint8_t> &buffer, size_t &cursor, 
     bool ret = Decode(buffer);
     cursor = cursor_;
     return ret;
+}
+
+std::shared_ptr<Media::PixelMap> TLVObject::Vector2PixelMap(std::vector<std::uint8_t> &value)
+{
+    if (value.size() == 0) {
+        return nullptr;
+    }
+    return std::shared_ptr<Media::PixelMap> (Media::PixelMap::DecodeTlv(value));
+}
+
+std::vector<std::uint8_t> TLVObject::PixelMap2Vector(std::shared_ptr<Media::PixelMap> pixelMap)
+{
+    if (pixelMap == nullptr) {
+        return {};
+    }
+    std::vector<std::uint8_t> value;
+    if (!pixelMap->EncodeTlv(value)) {
+        return {};
+    }
+    return value;
 }
 } // namespace OHOS::MiscServices

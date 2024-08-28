@@ -127,6 +127,10 @@ public:
 
     void SetDelayData(bool isDelay);
     bool IsDelayData() const;
+    void SetDelayRecord(bool isDelay);
+    bool IsDelayRecord() const;
+    void SetDataId(uint32_t dataId);
+    uint32_t GetDataId() const;
     bool Marshalling(Parcel &parcel) const override;
     static PasteData* Unmarshalling(Parcel &parcel);
     void SetPasteId(const std::string &pasteId);
@@ -157,6 +161,9 @@ private:
     bool isLocalPaste_ = false; // local in app paste
     bool isDelayData_ = false;
     std::string pasteId_;
+    bool isDelayRecord_ = false;
+    uint32_t dataId_ = 0;
+    uint32_t recordId_ = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

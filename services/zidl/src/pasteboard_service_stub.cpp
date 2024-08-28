@@ -67,6 +67,8 @@ PasteboardServiceStub::PasteboardServiceStub()
             &PasteboardServiceStub::OnPasteComplete;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER)] =
             &PasteboardServiceStub::OnRegisterClientDeathObserver;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_RECORD_VALUE)] =
+        &PasteboardServiceStub::OnGetRecordValueByType;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -99,6 +101,49 @@ int32_t PasteboardServiceStub::OnClear(MessageParcel &data, MessageParcel &reply
 {
     Clear();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnGetRecordValueByType(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t dataId = data.ReadUint32();
+    uint32_t recordId = data.ReadUint32();
+    PasteDataEntry entryValue;
+    int32_t rawDataSize = data.ReadInt32();
+    if (rawDataSize <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail to get raw data size");
+        return ERR_INVALID_VALUE;
+    }
+    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(data.ReadRawData(rawDataSize));
+    if (rawData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail to get raw data");
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<uint8_t> receiveTlv(rawData, rawData + rawDataSize);
+    bool ret = entryValue.Unmarshalling(receiveTlv);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail to decode paste data entry");
+        return ERR_INVALID_VALUE;
+    }
+    auto result = GetRecordValueByType(dataId, recordId, entryValue);
+    if (!reply.WriteInt32(result)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write result:%{public}d", result);
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<uint8_t> entryValueTLV(0);
+    ret = entryValue.Marshalling(entryValueTLV);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail encode entry value");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(entryValueTLV.size())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail write data size");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteRawData(entryValueTLV.data(), entryValueTLV.size())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail write raw data");
+        return ERR_INVALID_VALUE;
+    }
     return ERR_OK;
 }
 
@@ -171,22 +216,33 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = 0;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
     if (pasteData->IsDelayData()) {
         sptr<IRemoteObject> obj = data.ReadRemoteObject();
         if (obj == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delayGetter is nullptr");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delay getter is nullptr");
             return ERR_INVALID_VALUE;
         }
-        auto delayGetter = iface_cast<IPasteboardDelayGetter>(obj);
+        delayGetter = iface_cast<IPasteboardDelayGetter>(obj);
         if (delayGetter == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delayGetter is nullptr");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "delay getter is nullptr");
             return ERR_INVALID_VALUE;
         }
-        result = SavePasteData(pasteData, delayGetter);
-    } else {
-        result = SavePasteData(pasteData);
     }
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+    if (pasteData->IsDelayRecord()) {
+        sptr<IRemoteObject> obj = data.ReadRemoteObject();
+        if (obj == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entry getter is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+        entryGetter = iface_cast<IPasteboardEntryGetter>(obj);
+        if (entryGetter == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entry getter is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    auto result = SavePasteData(pasteData, delayGetter, entryGetter);
     HiViewAdapter::ReportUseBehaviour(*pasteData, HiViewAdapter::COPY_STATE, result);
     if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write SetPasteData result");

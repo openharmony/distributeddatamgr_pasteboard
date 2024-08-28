@@ -96,9 +96,11 @@ public:
     API_EXPORT PasteboardService();
     API_EXPORT ~PasteboardService();
     virtual void Clear() override;
+    virtual int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value) override;
     virtual int32_t GetPasteData(PasteData &data, int32_t &syncTime) override;
     virtual bool HasPasteData() override;
-    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter) override;
+    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
+        const sptr<IPasteboardEntryGetter> entryGetter) override;
     virtual bool IsRemoteData() override;
     virtual bool HasDataType(const std::string &mimeType) override;
     virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
@@ -124,6 +126,7 @@ public:
     bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     void NotifyDelayGetterDied(int32_t userId);
+    void NotifyEntryGetterDied(int32_t userId);
     bool IsFocusedApp(uint32_t tokenId);
 
 private:
@@ -148,6 +151,16 @@ private:
     public:
         explicit DelayGetterDeathRecipient(int32_t userId, PasteboardService &service);
         virtual ~DelayGetterDeathRecipient() = default;
+        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+    private:
+        int32_t userId_ = ERROR_USERID;
+        PasteboardService &service_;
+    };
+
+    class EntryGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
+    public:
+        explicit EntryGetterDeathRecipient(int32_t userId, PasteboardService &service);
+        virtual ~EntryGetterDeathRecipient() = default;
         void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
     private:
         int32_t userId_ = ERROR_USERID;
@@ -191,7 +204,8 @@ private:
     bool IsCopyable(uint32_t tokenId) const;
 
     int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
-        sptr<IPasteboardDelayGetter> delayGetter = nullptr) override;
+        sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+        sptr<IPasteboardEntryGetter> entryGetter = nullptr) override;
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
     std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
@@ -203,7 +217,7 @@ private:
     int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
     int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
-    int64_t GetFileSize(PasteData &data);
+    bool GetDelayPasteRecord(const AppInfo &appInfo, PasteData &data);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
@@ -219,6 +233,7 @@ private:
     bool HasDistributedDataType(const std::string &mimeType);
 
     std::pair<std::shared_ptr<PasteData>, int32_t> GetDistributedData(const Event &event, int32_t user);
+    void GetFullDelayPasteData(int32_t userId, PasteData &data);
     bool SetDistributedData(int32_t user, PasteData &data);
     bool CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
@@ -248,6 +263,7 @@ private:
     ClipPlugin::GlobalEvent remoteEvent_;
     const std::string filePath_ = "";
     ConcurrentMap<int32_t, std::shared_ptr<PasteData>> clips_;
+    ConcurrentMap<int32_t, std::pair<sptr<IPasteboardEntryGetter>, sptr<EntryGetterDeathRecipient>>> entryGetters_;
     ConcurrentMap<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
     ConcurrentMap<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
@@ -256,6 +272,7 @@ private:
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint16_t> sequenceId_ = 0;
+    std::atomic<uint32_t> dataId_ = 0;
     static std::mutex historyMutex_;
     std::mutex bundleMutex_;
     static std::vector<std::string> dataHistory_;

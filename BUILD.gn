@@ -23,6 +23,7 @@ group("pasteboard_packages") {
       "framework/innerkits:pasteboard_client",
       "interfaces/cj:cj_pasteboard_ffi",
       "interfaces/kits:pasteboard_napi",
+      "interfaces/ndk:libpasteboard",
       "profile:distributeddatamgr_pasteboard_sa_profiles",
       "services:pasteboard_service",
     ]

@@ -36,6 +36,8 @@ enum TAG_PASTEBOARD : uint16_t {
     TAG_DELAY_DATA_FLAG,
     TAG_DEVICE_ID,
     TAG_PASTE_ID,
+    TAG_DELAY_RECORD_FLAG,
+    TAG_DATA_ID,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -75,7 +77,8 @@ PasteData::~PasteData()
 }
 
 PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthority_), valid_(data.valid_),
-    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), pasteId_(data.pasteId_)
+    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), pasteId_(data.pasteId_),
+    isDelayData_(data.isDelayData_), isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {
@@ -100,6 +103,9 @@ PasteData& PasteData::operator=(const PasteData &data)
     this->valid_ = data.valid_;
     this->isDraggedData_ = data.isDraggedData_;
     this->isLocalPaste_ = data.isLocalPaste_;
+    this->isDelayData_ = data.isDelayData_;
+    this->isDelayRecord_ = data.isDelayRecord_;
+    this->dataId_ = data.dataId_;
     this->props_ = data.props_;
     this->records_.clear();
     this->deviceId_ = data.deviceId_;
@@ -155,6 +161,7 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
     if (record == nullptr) {
         return;
     }
+    record->SetRecordId(++recordId_);
     records_.insert(records_.begin(), std::move(record));
     RefreshMimeProp();
 }
@@ -431,6 +438,8 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_DELAY_DATA_FLAG, isDelayData_) && ret;
     ret = Write(buffer, TAG_DEVICE_ID, deviceId_) && ret;
     ret = Write(buffer, TAG_PASTE_ID, pasteId_) && ret;
+    ret = Write(buffer, TAG_DELAY_RECORD_FLAG, isDelayRecord_) && ret;
+    ret = Write(buffer, TAG_DATA_ID, dataId_) && ret;
     return ret;
 }
 
@@ -468,6 +477,14 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && ReadValue(buffer, pasteId_, head);
                 break;
             }
+            case TAG_DELAY_RECORD_FLAG: {
+                ret = ret && ReadValue(buffer, isDelayRecord_, head);
+                break;
+            }
+            case TAG_DATA_ID: {
+                ret = ret && ReadValue(buffer, dataId_, head);
+                break;
+            }
             default:
                 ret = ret && Skip(head.len, buffer.size());
                 break;
@@ -490,6 +507,8 @@ size_t PasteData::Count()
     expectSize += TLVObject::Count(isDelayData_);
     expectSize += TLVObject::Count(deviceId_);
     expectSize += TLVObject::Count(pasteId_);
+    expectSize += TLVObject::Count(isDelayRecord_);
+    expectSize += TLVObject::Count(dataId_);
     return expectSize;
 }
 
@@ -511,6 +530,26 @@ void PasteData::SetDelayData(bool isDelay)
 bool PasteData::IsDelayData() const
 {
     return isDelayData_;
+}
+
+void PasteData::SetDelayRecord(bool isDelay)
+{
+    isDelayRecord_ = isDelay;
+}
+
+bool PasteData::IsDelayRecord() const
+{
+    return isDelayRecord_;
+}
+
+void PasteData::SetDataId(uint32_t dataId)
+{
+    dataId_ = dataId;
+}
+
+uint32_t PasteData::GetDataId() const
+{
+    return dataId_;
 }
 
 bool PasteData::Marshalling(Parcel &parcel) const

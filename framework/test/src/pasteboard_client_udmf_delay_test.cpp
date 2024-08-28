@@ -28,6 +28,7 @@
 #include "system_defined_appitem.h"
 #include "system_defined_form.h"
 #include "system_defined_record.h"
+#include "system_defined_pixelmap.h"
 #include "text.h"
 #include "unified_data.h"
 #include "unified_record.h"
@@ -328,7 +329,8 @@ void PasteboardClientUdmfDelayTest::SetPixelMapUnifiedData()
     InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<UnifiedRecord>(SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
+    std::shared_ptr<UnifiedRecord> record =
+        std::make_shared<SystemDefinedPixelMap>(SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
     UnifiedData data;
     data.AddRecord(record);
     unifiedData_ = data;

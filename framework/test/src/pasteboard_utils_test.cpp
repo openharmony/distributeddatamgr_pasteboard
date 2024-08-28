@@ -26,6 +26,7 @@
 #include "plain_text.h"
 #include "system_defined_appitem.h"
 #include "system_defined_form.h"
+#include "system_defined_pixelmap.h"
 #include "video.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -238,7 +239,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitSystemPixelMapData()
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     std::shared_ptr<UDMF::UnifiedRecord> pixelMapRecord =
-        std::make_shared<UDMF::UnifiedRecord>(UDMF::SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
+        std::make_shared<UDMF::SystemDefinedPixelMap>(UDMF::SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
     UDMF::UnifiedData data;
     data.AddRecord(pixelMapRecord);
     return data;
