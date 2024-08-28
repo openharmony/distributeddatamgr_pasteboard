@@ -29,7 +29,7 @@ std::map<uint32_t, std::string> PatternDetection::patternToRegexMap_{
                                                 "([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*))"
                                                 "([a-zA-Z]{2,}|[0-9]{1,3}))")},};
 
-std::set<Pattern> PatternDetection::Detect(const Patterns &patternsToCheck,
+const std::set<Pattern> PatternDetection::Detect(const Patterns &patternsToCheck,
     const PasteData &pasteData, bool hasHTML, bool hasPlain)
 {
     Patterns existedPatterns;
@@ -42,16 +42,16 @@ std::set<Pattern> PatternDetection::Detect(const Patterns &patternsToCheck,
             DetectPlainText(existedPatterns, patternsToCheck, recordText);
         }
         if (hasHTML && record->GetHtmlText() != nullptr) {
-            std::string recordText = extractHtmlContent(*(record->GetHtmlText()));
+            std::string recordText = ExtractHtmlContent(*(record->GetHtmlText()));
             DetectPlainText(existedPatterns, patternsToCheck, recordText);
         }
     }
     return existedPatterns;
 }
 
-static bool PatternDetection::IsAllValid(const Patterns &patterns)
+bool PatternDetection::IsAllValid(const Patterns &patterns)
 {
-    for (Pattern &pattern:patterns) {
+    for (Pattern pattern:patterns) {
         if (pattern >= Pattern::PatternCount) {
             return false;
         }
@@ -66,11 +66,11 @@ void PatternDetection::DetectPlainText(Patterns &patternsOut, const Patterns &pa
             continue;
         }
         uint32_t patternUint32 = static_cast<uint32_t>(pattern);
-        if (patternToRegexMap.find(patternUint32) == patternToRegexMap_.end()) {
+        if (patternToRegexMap_.find(patternUint32) == patternToRegexMap_.end()) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard pattern, unexpected Pattern value!");
             continue;
         }
-        std::regex curRegex(patternToRegexMap.at(patternUint32));
+        std::regex curRegex(patternToRegexMap_.at(patternUint32));
         if (std::regex_search(plainText, curRegex)) {
             patternsOut.insert(pattern);
         }
