@@ -24,7 +24,7 @@
 
 namespace OHOS::MiscServices {
 enum class Pattern : uint32_t { URL = 0, Number, EmailAddress, PatternCount };
-class __attribute__((visibility("default"))) PatternDetection {
+class PatternDetection {
 public:
     static const std::set<Pattern> Detect(const std::set<Pattern> &patternsToCheck,
         const PasteData &pasteData, bool hasHTML, bool hasPlain);

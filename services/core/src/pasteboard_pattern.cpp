@@ -102,6 +102,6 @@ std::string PatternDetection::ExtractHtmlContent(const std::string &html_str)
     std::string result(reinterpret_cast<const char*>(xmlStr));
     xmlFree(xmlStr);
     xmlFreeDoc(doc);
-    return reinterpret_cast<const char*>(xmlStr);
+    return result;
 }
 } // namespace OHOS::MiscServices
