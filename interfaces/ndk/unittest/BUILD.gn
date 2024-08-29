@@ -1,0 +1,63 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import("//build/test.gni")
+import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
+
+module_output_path = "distributeddatamgr/pasteboard"
+
+###############################################################################
+config("module_private_config") {
+  include_dirs = [
+    "${pasteboard_interfaces_path}/ndk/include",
+    "${pasteboard_framework_path}/innerkits/include",
+    "${pasteboard_interfaces_path}/kits/napi/include",
+    "${pasteboard_framework_path}/framework/include",
+  ]
+}
+
+common_deps = [
+  "${pasteboard_interfaces_path}/ndk:libpasteboard",
+  "${pasteboard_root_path}/framework/innerkits:pasteboard_client",
+]
+
+common_external_deps = [
+  "ability_base:want",
+  "access_token:libaccesstoken_sdk",
+  "access_token:libnativetoken",
+  "access_token:libtoken_setproc",
+  "c_utils:utils",
+  "hilog:libhilog",
+  "ipc:ipc_single",
+  "udmf:libudmf",
+  "os_account:os_account_innerkits",
+]
+
+ohos_unittest("PasteboardNdkTest") {
+  module_out_path = module_output_path
+
+  sources = [ "pasteboard_capi_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = common_deps
+
+  external_deps = common_external_deps
+}
+
+###############################################################################
+group("unittest") {
+  testonly = true
+
+  deps = [ ":PasteboardNdkTest" ]
+}
+###############################################################################
