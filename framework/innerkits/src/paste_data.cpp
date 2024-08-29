@@ -77,8 +77,8 @@ PasteData::~PasteData()
 }
 
 PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthority_), valid_(data.valid_),
-    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), pasteId_(data.pasteId_),
-    isDelayData_(data.isDelayData_), isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_)
+    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), isDelayData_(data.isDelayData_),
+    pasteId_(data.pasteId_), isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {

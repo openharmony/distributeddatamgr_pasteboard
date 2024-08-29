@@ -21,13 +21,6 @@
 #include "uri.h"
 namespace OHOS {
 namespace MiscServices {
-namespace {
-constexpr const char* MIMETYPE_PIXELMAP = "pixelMap";
-constexpr const char* MIMETYPE_TEXT_HTML = "text/html";
-constexpr const char* MIMETYPE_TEXT_PLAIN = "text/plain";
-constexpr const char* MIMETYPE_TEXT_URI = "text/uri";
-constexpr const char* MIMETYPE_TEXT_WANT = "text/want";
-} // namespace
 class API_EXPORT MineCustomData : public TLVObject {
 public:
     MineCustomData() = default;

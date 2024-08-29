@@ -23,6 +23,7 @@
 #include "hitrace_meter.h"
 #include "pasteboard_client.h"
 #include "pasteboard_delay_getter_client.h"
+#include "pasteboard_entry_getter_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_load_callback.h"
