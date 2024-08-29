@@ -23,6 +23,8 @@ pasteboard_utils_path = "${pasteboard_root_path}/utils"
 
 pasteboard_service_path = "${pasteboard_root_path}/services"
 
+pasteboard_interfaces_path = "${pasteboard_root_path}/interfaces"
+
 declare_args() {
   pasteboard_dlp_part_enabled = true
   pasteboard_device_info_manager_part_enabled = true
