@@ -43,7 +43,7 @@ protected:
     std::string appUtdId1_ = "appdefined-mytype1";
     std::string appUtdId2_ = "appdefined-mytype2";
     std::vector<uint8_t> rawData1_ = { 1, 2, 3, 4, 5, 6, 7, 8 };
-    std::vector<uint8_t> rawData2_ = { 1, 2, 3, 4, 5, 6, 7, 8 ,9};
+    std::vector<uint8_t> rawData2_ = { 1, 2, 3, 4, 5, 6, 7, 8 , 9};
 
     void CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>>& entries);
     void CheckPlainUds(const std::shared_ptr<PasteDataEntry> entry);
@@ -414,27 +414,27 @@ HWTEST_F(ConvertUtilsTest, HtmlEntryTest001, TestSize.Level0)
 */
 HWTEST_F(ConvertUtilsTest, PixelMapEntryTest001, TestSize.Level0)
 {
-    // UDMF::UnifiedData data;
-    // InitDataWithPixelMapEntry(data);
-    // auto entriesSize = data.GetRecordAt(0)->GetEntries()->size();
-    // auto pasteData = ConvertUtils::Convert(data);
-    // auto decodePasteData = TlvData(pasteData);
-    // ASSERT_EQ(1, decodePasteData.GetRecordCount());
-    // auto record = decodePasteData.GetRecordAt(0);
-    // auto type = record->GetMimeType();
-    // ASSERT_EQ(type, MIMETYPE_PIXELMAP);
-    // auto udType = record->GetUDType();
-    // ASSERT_EQ(udType, UDMF::UDType::SYSTEM_DEFINED_PIXEL_MAP);
-    // auto pixelMap = record->GetPixelMap();
-    // ASSERT_NE(pixelMap, nullptr);
-    // ImageInfo imageInfo = {};
-    // pixelMap->GetImageInfo(imageInfo);
-    // ASSERT_TRUE(imageInfo.size.height == 7);
-    // ASSERT_TRUE(imageInfo.size.width == 5);
-    // ASSERT_TRUE(imageInfo.pixelFormat == PixelFormat::ARGB_8888);
-    // auto entries = record->GetEntries();
-    // ASSERT_EQ(entries.size(), entriesSize);
-    // CheckEntries(entries);
+    UDMF::UnifiedData data;
+    InitDataWithPixelMapEntry(data);
+    auto entriesSize = data.GetRecordAt(0)->GetEntries()->size();
+    auto pasteData = ConvertUtils::Convert(data);
+    auto decodePasteData = TlvData(pasteData);
+    ASSERT_EQ(1, decodePasteData.GetRecordCount());
+    auto record = decodePasteData.GetRecordAt(0);
+    auto type = record->GetMimeType();
+    ASSERT_EQ(type, MIMETYPE_PIXELMAP);
+    auto udType = record->GetUDType();
+    ASSERT_EQ(udType, UDMF::UDType::SYSTEM_DEFINED_PIXEL_MAP);
+    auto pixelMap = record->GetPixelMap();
+    ASSERT_NE(pixelMap, nullptr);
+    ImageInfo imageInfo = {};
+    pixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == 7);
+    ASSERT_TRUE(imageInfo.size.width == 5);
+    ASSERT_TRUE(imageInfo.pixelFormat == PixelFormat::ARGB_8888);
+    auto entries = record->GetEntries();
+    ASSERT_EQ(entries.size(), entriesSize);
+    CheckEntries(entries);
 }
 
 /**

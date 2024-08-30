@@ -191,6 +191,27 @@ bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const st
     return true;
 }
 
+template<>
+bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const EntryValue& input)
+{
+    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
+        return false;
+    }
+    auto tagCursor = cursor_;
+    cursor_ += sizeof(TLVHead);
+    auto valueCursor = cursor_;
+
+    uint32_t index = static_cast<uint32_t>(input.index());
+    if (!Write(buffer, TAG_VARIANT_INDEX, index)) {
+        return false;
+    }
+    WriteVariant<decltype(input), std::monostate, int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
+        std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>, nullptr_t>
+        (buffer, TAG_VARIANT_VALUE, 0, input);
+    WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
+    return true;
+}
+
 bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const Details& value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
@@ -383,6 +404,20 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, std::variant<
         return false;
     }
     return ReadVariant<decltype(value), _Types...>(buffer, 0, index, value, valueHead);
+}
+
+template<>
+bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, EntryValue& value, const TLVHead& head)
+{
+    TLVHead valueHead{};
+    ReadHead(buffer, valueHead);
+    uint32_t index = 0;
+    if (!ReadValue(buffer, index, valueHead)) {
+        return false;
+    }
+    return ReadVariant<decltype(value), std::monostate, int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
+        std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>, nullptr_t>
+        (buffer, 0, index, value, valueHead);
 }
 
 bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& value, const TLVHead& head)

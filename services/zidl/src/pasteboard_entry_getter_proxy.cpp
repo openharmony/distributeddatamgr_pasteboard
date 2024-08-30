@@ -41,8 +41,7 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
         return ERR_INVALID_VALUE;
     }
     std::vector<uint8_t> sendEntryTLV(0);
-    bool ret = value.Marshalling(sendEntryTLV);
-    if (!ret) {
+    if (!value.Marshalling(sendEntryTLV)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "marshall entry value failed");
         return ERR_INVALID_VALUE;
     }
@@ -73,8 +72,7 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
     }
     std::vector<uint8_t> recvEntryTlv(rawData, rawData + rawDataSize);
     PasteDataEntry entryValue;
-    ret = entryValue.Unmarshalling(recvEntryTlv);
-    if (!ret) {
+    if (!entryValue.Unmarshalling(recvEntryTlv)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "unmarshall entry value failed");
         return ERR_INVALID_VALUE;
     }

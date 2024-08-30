@@ -201,25 +201,19 @@ void PasteDataRecord::InitDecodeMap()
         {TAG_WANT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             RawMem rawMem{};
             ret = ret && ReadValue(buffer, rawMem, head);
-            want_ = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);
-            }
-        },
+            want_ = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);}},
         {TAG_PLAINTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, plainText_, head); }},
         {TAG_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             RawMem rawMem{};
             ret = ret && ReadValue(buffer, rawMem, head);
-            uri_ = ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem);
-            }
-        },
+            uri_ = ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem);}},
         {TAG_CONVERT_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, convertUri_, head);}},
         {TAG_PIXELMAP, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             std::vector<std::uint8_t> value;
             ret = ret && ReadValue(buffer, value, head);
-            pixelMap_ = Vector2PixelMap(value);
-            }
-        },
+            pixelMap_ = Vector2PixelMap(value);}},
         {TAG_CUSTOM_DATA, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, customData_, head);}},
         {TAG_URI_PERMISSION, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {

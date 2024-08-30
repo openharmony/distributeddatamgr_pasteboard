@@ -558,4 +558,47 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData002, TestSize.Level1)
     OH_UdmfData_Destroy(setData);
     OH_UdmfData_Destroy(getData);
 }
+
+/**
+ * @tc.name: OH_Pasteboard_GetData003
+ * @tc.desc: OH_Pasteboard_GetData test valid
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData003, TestSize.Level1)
+{
+    char typeId[] = "ApplicationDefined-myType";
+    unsigned char entry[] = "CreateGeneralRecord1";
+    unsigned int count = sizeof(entry);
+    OH_UdmfRecord *record = OH_UdmfRecord_Create();
+    int addRes1 = OH_UdmfRecord_AddGeneralEntry(record, typeId, entry, count);
+    EXPECT_EQ(addRes1, ERR_OK);
+
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    OH_UdmfData_AddRecord(setData, record);
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    int res = OH_Pasteboard_SetData(pasteboard, setData);
+    EXPECT_EQ(res, ERR_OK);
+
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetData(pasteboard, &status);
+    EXPECT_EQ(status, ERR_OK);
+    EXPECT_NE(getData, nullptr);
+
+    unsigned int getrecordCount = 0;
+    OH_UdmfRecord **getRecords = OH_UdmfData_GetRecords(getData, &getrecordCount);
+    EXPECT_EQ(getrecordCount, 1);
+
+    unsigned int getCount = 0;
+    unsigned char *getEntry;
+    int getRes = OH_UdmfRecord_GetGeneralEntry(getRecords[0], typeId, &getEntry, &getCount);
+    EXPECT_EQ(getRes, ERR_OK);
+    EXPECT_EQ(getCount, count);
+    EXPECT_EQ(memcmp(entry, getEntry, getCount), 0);
+
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_UdmfRecord_Destroy(record);
+    OH_UdmfData_Destroy(setData);
+    OH_UdmfData_Destroy(getData);
+}
 }

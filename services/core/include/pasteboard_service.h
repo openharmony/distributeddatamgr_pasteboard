@@ -206,6 +206,7 @@ private:
     int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
         sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         sptr<IPasteboardEntryGetter> entryGetter = nullptr) override;
+    int32_t PreParePasteData(std::shared_ptr<PasteData> &pasteData, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
     std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);

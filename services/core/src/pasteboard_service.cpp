@@ -1301,11 +1301,9 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
-    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
+int32_t PasteboardService::PreParePasteData(std::shared_ptr<PasteData> &pasteData, const AppInfo &appInfo)
 {
-    PasteboardTrace tracer("PasteboardService, SetPasteData");
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenId = appInfo.tokenId;
     if (!IsCopyable(tokenId)) {
         RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_AUTHORITY, DFX_SUCCESS);
         return static_cast<int32_t>(PasteboardError::E_COPY_FORBIDDEN);
@@ -1315,7 +1313,6 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
         return static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED);
     }
     CalculateTimeConsuming::SetBeginTime();
-    auto appInfo = GetAppInfo(tokenId);
     if (appInfo.userId == ERROR_USERID) {
         setting_.store(false);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
@@ -1333,6 +1330,18 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     pasteData->SetDataId(dataId);
     for (auto &record : pasteData->AllRecords()) {
         record->SetDataId(dataId);
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
+    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
+{
+    PasteboardTrace tracer("PasteboardService, SetPasteData");
+    auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
+    auto status = PreParePasteData(pasteData, appInfo);
+    if (status != RESULT_OK) {
+        return status;
     }
     UpdateShareOption(*pasteData);
     CheckAppUriPermission(*pasteData);

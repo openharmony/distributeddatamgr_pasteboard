@@ -269,6 +269,9 @@ public:
     template<typename... _Types>
     bool Write(std::vector<std::uint8_t>& buffer, uint16_t type, const std::variant<_Types...>& input);
 
+    template<>
+    bool Write(std::vector<std::uint8_t>& buffer, uint16_t type, const EntryValue& input);
+
     bool Write(std::vector<std::uint8_t>& buffer, uint16_t type, const Details& value);
 
     bool ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head);
@@ -318,6 +321,9 @@ public:
 
     template<typename... _Types>
     bool ReadValue(const std::vector<std::uint8_t>& buffer, std::variant<_Types...>& value, const TLVHead& head);
+
+    template<>
+    bool ReadValue(const std::vector<std::uint8_t>& buffer, EntryValue& value, const TLVHead& head);
 
     bool ReadValue(const std::vector<std::uint8_t>& buffer, Details& value, const TLVHead& head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value,
