@@ -27,8 +27,6 @@ namespace OHOS {
 using namespace OHOS::Security::PasteboardServ;
 using namespace OHOS::MiscServices;
 
-const std::u16string PASTEBOARDSERVICE_INTERFACE_TOKEN = u"ohos.miscservices.pasteboard.IPasteboardService";
-
 template<class T>
 T TypeCast(const uint8_t *data, int *pos = nullptr)
 {
@@ -41,7 +39,7 @@ T TypeCast(const uint8_t *data, int *pos = nullptr)
 bool FuzzPasteboardObserverOnPasteboardChangedStub(const uint8_t *rawData, size_t size)
 {
     MessageParcel data;
-    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    data.WriteInterfaceToken(PasteboardObserverStub::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
     std::make_shared<PasteboardObserver>()->OnRemoteRequest(
@@ -56,7 +54,7 @@ bool FuzzPasteboardObserverOnPasteboardEventStub(const uint8_t *rawData, size_t 
     }
 
     MessageParcel data;
-    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    data.WriteInterfaceToken(PasteboardObserverStub::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
     int pos = 0;
