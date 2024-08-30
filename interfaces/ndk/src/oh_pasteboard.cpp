@@ -40,6 +40,15 @@ static bool IsSubscriberValid(OH_PasteboardObserver* observer)
     return observer != nullptr && observer->cid == SUBSCRIBER_STRUCT_ID;
 }
 
+static PASTEBOARD_ErrCode GetMappedCode(int32_t code)
+{
+    auto iter = errCodeMap.find(static_cast<PasteboardError>(code));
+    if (iter != errCodeMap.end()) {
+        return iter->second;
+    }
+    return ERR_INNER_ERROR;
+}
+
 OH_PasteboardObserver* OH_PasteboardObserver_Create()
 {
     OH_PasteboardObserver* observer = new(std::nothrow) OH_PasteboardObserver();
@@ -119,7 +128,7 @@ int OH_Pasteboard_Subscribe(OH_Pasteboard* pasteboard, int type, const OH_Pasteb
     }
     OHOS::sptr<PasteboardObserverCapiImpl> observerBox = new (std::nothrow) PasteboardObserverCapiImpl();
     if (observerBox == nullptr) {
-        return ERR_ALLOCATE_MEMORY_FAIL;
+        return ERR_INNER_ERROR;
     }
     observerBox->SetInnerObserver(observer);
     observerBox->SetType(static_cast<Pasteboard_NotifyType>(type));
@@ -137,8 +146,8 @@ int OH_Pasteboard_Unsubscribe(OH_Pasteboard* pasteboard, int type, const OH_Past
     std::lock_guard<std::mutex> lock(pasteboard->mutex);
     auto iter = pasteboard->observers_.find(observer);
     if (iter == pasteboard->observers_.end()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "couldn't find this observer");
-        return ERR_OBSERVER_NOT_EXIST;
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "couldn't find this observer");
+        return ERR_OK;
     }
     PasteboardClient::GetInstance()->Unsubscribe(static_cast<PasteboardObserverType>(type), iter->second);
     pasteboard->observers_.erase(iter);
@@ -163,11 +172,11 @@ int OH_Pasteboard_GetDataSource(OH_Pasteboard* pasteboard, char* source, unsigne
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_CAPI, "client getDataSource return invalid, result is %{public}d", ret);
-        return ERR_CLIENT_FAIL;
+        return GetMappedCode(ret);
     }
     if (strcpy_s(source, len, bundleName.c_str()) != EOK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "copy string fail");
-        return ERR_FAIL;
+        return ERR_INNER_ERROR;
     }
     return ERR_OK;
 }
@@ -198,7 +207,7 @@ OH_UdmfData* OH_Pasteboard_GetData(OH_Pasteboard* pasteboard, int* status)
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_GetData return invalid, result is %{public}d", ret);
-        *status = ERR_CLIENT_FAIL;
+        *status = GetMappedCode(ret);
         return nullptr;
     }
     OH_UdmfData* data = OH_UdmfData_Create();
@@ -216,7 +225,7 @@ int OH_Pasteboard_SetData(OH_Pasteboard* pasteboard, OH_UdmfData* data)
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_SetData return invalid, result is %{public}d", ret);
-        return ERR_CLIENT_FAIL;
+        return GetMappedCode(ret);
     }
     return ERR_OK;
 }

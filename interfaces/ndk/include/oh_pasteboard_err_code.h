@@ -66,10 +66,8 @@ typedef enum PASTEBOARD_ErrCode {
      * The capability is not supported.
      */
     ERR_DEVICE_NOT_SUPPORTED = 801,
-    ERR_ALLOCATE_MEMORY_FAIL,
-    ERR_OBSERVER_NOT_EXIST,
-    ERR_CLIENT_FAIL,
-    ERR_FAIL,
+    ERR_INNER_ERROR = 12900000,
+    ERR_BUSY = 12900003,
 } PASTEBOARD_ErrCode;
 
 #ifdef __cplusplus

@@ -27,6 +27,7 @@ ohos_shared_library("libpasteboard") {
     "${pasteboard_interfaces_path}/kits/napi/include",
     "${pasteboard_framework_path}/framework/include",
     "${pasteboard_service_path}/core/include",
+    "${pasteboard_utils_path}/native/include",
   ]
   sources = [
     "${pasteboard_interfaces_path}/ndk/src/oh_pasteboard.cpp",
