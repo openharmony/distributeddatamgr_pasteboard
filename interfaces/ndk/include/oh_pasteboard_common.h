@@ -18,9 +18,17 @@
 #include <map>
 #include "pasteboard_observer.h"
 #include "oh_pasteboard.h"
+#include "pasteboard_error.h"
+#include "oh_pasteboard_err_code.h"
 
 namespace OHOS {
 namespace MiscServices {
+const std::map<PasteboardError, PASTEBOARD_ErrCode> errCodeMap = {
+    {PasteboardError::E_NO_PERMISSION, ERR_PERMISSION_ERROR},
+    {PasteboardError::E_INVALID_PARAMETERS, ERR_INVALID_PARAMETER},
+    {PasteboardError::E_IS_BEGING_PROCESSED, ERR_BUSY},
+};
+
 class PasteboardObserverCapiImpl;
 }
 }
