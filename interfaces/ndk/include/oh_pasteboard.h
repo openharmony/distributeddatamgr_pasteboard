@@ -30,7 +30,7 @@
  * @brief Provides APIs and enums of the Pasteboard module.
  *
  * @kit BasicServicesKit
- * @library libpasteboard_ndk.so
+ * @library libpasteboard.so
  * @syscap SystemCapability.MiscServices.Pasteboard
  *
  * @since 13
@@ -96,7 +96,7 @@ typedef struct OH_PasteboardObserver OH_PasteboardObserver;
  * @brief Creates a {@link OH_PasteboardObserver} instance.
  *
  * @return Returns the pointer to the {@link OH_PasteboardObserver} instance created if the operation is successful.
- * Returns nullptr if the memory is not enough.
+ * Returns nullptr if the operation is failed.
  * @see OH_PasteboardObserver.
  * @since 13
  */
@@ -142,7 +142,7 @@ typedef struct OH_Pasteboard OH_Pasteboard;
  * @brief Creates a {@link OH_Pasteboard} instance.
  *
  * @return Returns the pointer to the {@link OH_Pasteboard} instance created if the operation is successful.
- * Returns nullptr if the operation is failed.
+ * Returns nullptr if the memory is not enough.
  * @see OH_Pasteboard.
  * @since 13
  */

@@ -21,7 +21,7 @@
  * You can use the APIs of this module to operate the Pasteboard content of the plain text, HTML,
  * URI, Want, pixel map, and other types.
  *
- * @since 12
+ * @since 13
  */
 
 /**
@@ -30,10 +30,10 @@
  * @brief Declaration error code information.
  *
  * @kit BasicServicesKit
- * @library libpasteboard_ndk.so
+ * @library libpasteboard.so
  * @syscap SystemCapability.MiscServices.Pasteboard
  *
- * @since 12
+ * @since 13
  */
 
 
@@ -47,29 +47,34 @@ extern "C" {
 /**
  * @brief Enumerates the error codes.
  *
- * @since 12
+ * @since 13
  */
 typedef enum PASTEBOARD_ErrCode {
     /**
-     * The operation is successful.
+     * @error The operation is successful.
      */
     ERR_OK = 0,
     /**
-     * Permission verification failed.
+     * @error Permission verification failed.
      */
     ERR_PERMISSION_ERROR = 201,
     /**
-     * Invalid parameter is detected.
+     * @error Invalid parameter is detected.
      */
     ERR_INVALID_PARAMETER = 401,
     /**
-     * The capability is not supported.
+     * @error The capability is not supported.
      */
     ERR_DEVICE_NOT_SUPPORTED = 801,
+    /**
+     * @error Inner error.
+     */
     ERR_INNER_ERROR = 12900000,
+    /**
+     * @error Another copy is in progress.
+     */
     ERR_BUSY = 12900003,
 } PASTEBOARD_ErrCode;
-
 #ifdef __cplusplus
 };
 #endif
