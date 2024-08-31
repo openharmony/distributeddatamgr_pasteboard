@@ -275,6 +275,7 @@ std::shared_ptr<Media::PixelMap> PasteDataEntry::ConvertToPixelMap() const
     }
     if (!std::holds_alternative<std::shared_ptr<Object>>(entry)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error, no pixelmap");
+        return nullptr;
     }
     auto object = std::get<std::shared_ptr<Object>>(entry);
     std::string objecType;
@@ -303,7 +304,7 @@ std::shared_ptr<MineCustomData> PasteDataEntry::ConvertToCustomData() const
         return std::make_shared<MineCustomData>(customdata);
     }
     // deal u8 only, object not surpport
-    if (!std::holds_alternative<std::shared_ptr<Object>>(entry)) {
+    if (std::holds_alternative<std::shared_ptr<Object>>(entry)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value not surpport, object");
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error,  utdId:%{public}s", GetUtdId().c_str());

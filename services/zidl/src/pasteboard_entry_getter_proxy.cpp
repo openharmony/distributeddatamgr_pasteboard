@@ -27,11 +27,8 @@ PasteboardEntryGetterProxy::PasteboardEntryGetterProxy(const sptr<IRemoteObject>
 {
 }
 
-int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, PasteDataEntry& value)
+int32_t PasteboardEntryGetterProxy::MakeRequest(uint32_t recordId, PasteDataEntry& value, MessageParcel& request)
 {
-    MessageParcel request;
-    MessageParcel reply;
-    MessageOption option;
     if (!request.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write descriptor failed");
         return ERR_INVALID_VALUE;
@@ -53,13 +50,25 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write entry tlv raw data failed");
         return ERR_INVALID_VALUE;
     }
+    return ERR_OK;
+}
+
+int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, PasteDataEntry& value)
+{
+    MessageParcel request;
+    auto res = MakeRequest(recordId, value, request);
+    if (res != ERR_OK) {
+        return res;
+    }
+    MessageParcel reply;
+    MessageOption option;
     int result = Remote()->SendRequest(
         static_cast<int>(PasteboardEntryGetterInterfaceCode::GET_RECORD_VALUE_BY_TYPE), request, reply, option);
     if (result != ERR_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "send request failed, error:%{public}d", result);
         return ERR_INVALID_OPERATION;
     }
-    int32_t res = reply.ReadInt32();
+    res = reply.ReadInt32();
     int32_t rawDataSize = reply.ReadInt32();
     if (rawDataSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "read entry tlv raw data size failed");

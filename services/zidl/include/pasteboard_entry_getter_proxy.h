@@ -28,6 +28,7 @@ public:
     ~PasteboardEntryGetterProxy() = default;
     int32_t GetRecordValueByType(uint32_t recordId, PasteDataEntry& value) override;
 private:
+    int32_t MakeRequest(uint32_t recordId, PasteDataEntry& value, MessageParcel& request);
     static inline BrokerDelegator<PasteboardEntryGetterProxy> delegator_;
 };
 } // namespace MiscServices

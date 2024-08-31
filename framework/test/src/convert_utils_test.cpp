@@ -231,7 +231,6 @@ void ConvertUtilsTest::InitDataWithEntries(UDMF::UnifiedData& data)
     data.AddRecord(record);
     auto size = data.GetRecords().size();
     ASSERT_EQ(1, size);
-
 }
 
 void ConvertUtilsTest::CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>>& entries)

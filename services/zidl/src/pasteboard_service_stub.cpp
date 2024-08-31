@@ -192,23 +192,32 @@ int32_t PasteboardServiceStub::OnHasPasteData(MessageParcel &data, MessageParcel
     return ERR_OK;
 }
 
-int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel &reply)
+std::shared_ptr<PasteData> PasteboardServiceStub::UnmarshalPasteData(MessageParcel &data, MessageParcel &reply)
 {
     int32_t rawDataSize = data.ReadInt32();
     if (rawDataSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read raw size");
-        return ERR_INVALID_VALUE;
+        return nullptr;
     }
     auto *rawData = (uint8_t *)data.ReadRawData(rawDataSize);
     if (rawData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to get raw data");
-        return ERR_INVALID_VALUE;
+        return nullptr;
     }
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
     auto pasteData = std::make_shared<PasteData>();
     bool ret = pasteData->Decode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
+        return nullptr;
+    }
+    return pasteData;
+}
+
+int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel &reply)
+{
+    auto pasteData = UnmarshalPasteData(data, reply);
+    if (pasteData == nullptr) {
         return ERR_INVALID_VALUE;
     }
     CopyUriHandler copyUriHandler;
@@ -251,6 +260,7 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end, ret is %{public}d.", result);
     return ERR_OK;
 }
+
 int32_t PasteboardServiceStub::OnSubscribeObserver(MessageParcel &data, MessageParcel &reply)
 {
     uint32_t type = 0;

@@ -63,8 +63,7 @@ int32_t PasteboardServiceProxy::GetRecordValueByType(uint32_t dataId, uint32_t r
         return ERR_INVALID_VALUE;
     }
     std::vector<uint8_t> sendTLV(0);
-    bool ret = value.Marshalling(sendTLV);
-    if (!ret) {
+    if (!value.Marshalling(sendTLV)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail encode entry value");
         return ERR_INVALID_VALUE;
     }
@@ -94,8 +93,7 @@ int32_t PasteboardServiceProxy::GetRecordValueByType(uint32_t dataId, uint32_t r
     }
     std::vector<uint8_t> receiveTlv(rawData, rawData + rawDataSize);
     PasteDataEntry entryValue;
-    ret = entryValue.Unmarshalling(receiveTlv);
-    if (!ret) {
+    if (!entryValue.Unmarshalling(receiveTlv)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to decode paste data entry");
         return ERR_INVALID_VALUE;
     }

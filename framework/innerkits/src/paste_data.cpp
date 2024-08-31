@@ -69,6 +69,7 @@ PasteData::PasteData()
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
+    InitDecodeMap();
 }
 
 PasteData::~PasteData()
@@ -84,6 +85,7 @@ PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthorit
     for (const auto &item : data.records_) {
         this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
     }
+    InitDecodeMap();
 }
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
@@ -91,6 +93,7 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : re
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
+    InitDecodeMap();
 }
 
 PasteData& PasteData::operator=(const PasteData &data)
@@ -443,60 +446,52 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     return ret;
 }
 
+void PasteData::InitDecodeMap()
+{
+    decodeMap_ = {
+        {TAG_PROPS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, props_, head);}},
+        {TAG_RECORDS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, records_, head);}},
+        {TAG_DRAGGED_DATA_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, isDraggedData_, head);}},
+        {TAG_LOCAL_PASTE_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, isLocalPaste_, head);}},
+        {TAG_DELAY_DATA_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, isDelayData_, head);}},
+        {TAG_DEVICE_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, deviceId_, head);}},
+        {TAG_PASTE_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, pasteId_, head);}},
+        {TAG_DELAY_RECORD_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, isDelayRecord_, head);}},
+        {TAG_DATA_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, dataId_, head);}},
+    };
+}
+
 bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
 {
     total_ = buffer.size();
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
-        switch (head.tag) {
-            case TAG_PROPS:
-                ret = ret && ReadValue(buffer, props_, head);
-                break;
-            case TAG_RECORDS: {
-                ret = ret && ReadValue(buffer, records_, head);
-                break;
-            }
-            case TAG_DRAGGED_DATA_FLAG: {
-                ret = ret && ReadValue(buffer, isDraggedData_, head);
-                break;
-            }
-            case TAG_LOCAL_PASTE_FLAG: {
-                ret = ret && ReadValue(buffer, isLocalPaste_, head);
-                break;
-            }
-            case TAG_DELAY_DATA_FLAG: {
-                ret = ret && ReadValue(buffer, isDelayData_, head);
-                break;
-            }
-            case TAG_DEVICE_ID: {
-                ret = ret && ReadValue(buffer, deviceId_, head);
-                break;
-            }
-            case TAG_PASTE_ID: {
-                ret = ret && ReadValue(buffer, pasteId_, head);
-                break;
-            }
-            case TAG_DELAY_RECORD_FLAG: {
-                ret = ret && ReadValue(buffer, isDelayRecord_, head);
-                break;
-            }
-            case TAG_DATA_ID: {
-                ret = ret && ReadValue(buffer, dataId_, head);
-                break;
-            }
-            default:
-                ret = ret && Skip(head.len, buffer.size());
-                break;
+        auto it = decodeMap_.find(head.tag);
+        if (it == decodeMap_.end()) {
+            ret = ret && Skip(head.len, buffer.size());
+        } else {
+            auto func = it->second;
+            func(ret, buffer, head);
         }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
-            head.tag, head.len, ret);
         if (!ret) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u",
+                head.tag, head.len);
             return false;
         }
     }
     return true;
 }
+
 size_t PasteData::Count()
 {
     size_t expectSize = 0;

@@ -310,7 +310,6 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
 HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTest003, TestSize.Level1)
 {
     UnifiedData inputData;
-
     std::shared_ptr<UnifiedRecord> inputRecord1 = std::make_shared<UnifiedRecord>();
     std::set<std::string> inputTypes1;
     inputTypes1.insert(plainTextUtdId_);
@@ -318,7 +317,6 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
     std::shared_ptr<EntryGetter> entryGetter1 = std::make_shared<EntryGetterImpl>();
     inputRecord1->SetEntryGetter(inputTypes1, entryGetter1);
     inputData.AddRecord(inputRecord1);
-
     std::shared_ptr<UnifiedRecord> inputRecord2 = std::make_shared<UnifiedRecord>();
     std::set<std::string> inputTypes2;
     inputTypes2.insert(fileUriUtdId_);
@@ -326,24 +324,20 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
     std::shared_ptr<EntryGetter> entryGetter2 = std::make_shared<EntryGetterImpl>();
     inputRecord2->SetEntryGetter(inputTypes2, entryGetter2);
     inputData.AddRecord(inputRecord2);
-
     std::shared_ptr<UnifiedRecord> inputRecord3 = std::make_shared<UnifiedRecord>();
     std::set<std::string> inputTypes3;
     inputTypes3.insert(linkUtdId_);
     std::shared_ptr<EntryGetter> entryGetter3 = std::make_shared<EntryGetterImpl>();
     inputRecord3->SetEntryGetter(inputTypes3, entryGetter3);
     inputData.AddRecord(inputRecord3);
-
     auto status = PasteboardClient::GetInstance()->SetUdsdData(inputData);
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::E_OK));
-
     UnifiedData outputData;
     status = PasteboardClient::GetInstance()->GetUdsdData(outputData);
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::E_OK));
     auto inputRecords = inputData.GetRecords();
     auto outputRecords = outputData.GetRecords();
     ASSERT_EQ(outputRecords.size(), inputRecords.size());
-
     auto outputRecord1 = outputData.GetRecordAt(0);
     ASSERT_NE(outputRecord1, nullptr);
     auto outputTypes1 = outputRecord1->GetUtdIds();
@@ -352,7 +346,6 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
     CheckPlainUds(outputRecord1->GetEntry(plainTextUtdId_));
     ASSERT_TRUE(outputTypes1.find(htmlUtdId_) != outputTypes1.end());
     CheckHtmlUds(outputRecord1->GetEntry(htmlUtdId_));
-
     auto outputRecord2 = outputData.GetRecordAt(1);
     ASSERT_NE(outputRecord2, nullptr);
     auto outputTypes2 = outputRecord2->GetUtdIds();
@@ -361,7 +354,6 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
     CheckFileUriUds(outputRecord2->GetEntry(fileUriUtdId_));
     ASSERT_TRUE(outputTypes2.find(pixelMapUtdId_) != outputTypes2.end());
     CheckPixelMapUds(outputRecord2->GetEntry(pixelMapUtdId_));
-
     auto outputRecord3 = outputData.GetRecordAt(2);
     ASSERT_NE(outputRecord3, nullptr);
     auto outputTypes3 = outputRecord3->GetUtdIds();

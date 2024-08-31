@@ -206,8 +206,8 @@ bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const En
         return false;
     }
     WriteVariant<decltype(input), std::monostate, int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
-        std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>, nullptr_t>
-        (buffer, TAG_VARIANT_VALUE, 0, input);
+        std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>,
+        nullptr_t>(buffer, TAG_VARIANT_VALUE, 0, input);
     WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
     return true;
 }
@@ -415,9 +415,9 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, EntryValue& v
     if (!ReadValue(buffer, index, valueHead)) {
         return false;
     }
-    return ReadVariant<decltype(value), std::monostate, int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
-        std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>, nullptr_t>
-        (buffer, 0, index, value, valueHead);
+    return ReadVariant<decltype(value), std::monostate, int32_t, int64_t, double, bool, std::string,
+        std::vector<uint8_t>, std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>,
+        std::shared_ptr<Object>, nullptr_t>(buffer, 0, index, value, valueHead);
 }
 
 bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& value, const TLVHead& head)
