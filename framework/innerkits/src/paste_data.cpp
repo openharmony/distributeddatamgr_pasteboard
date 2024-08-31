@@ -35,7 +35,6 @@ enum TAG_PASTEBOARD : uint16_t {
     TAG_LOCAL_PASTE_FLAG,
     TAG_DELAY_DATA_FLAG,
     TAG_DEVICE_ID,
-    TAG_PASTE_ID,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -430,7 +429,6 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_LOCAL_PASTE_FLAG, isLocalPaste_) && ret;
     ret = Write(buffer, TAG_DELAY_DATA_FLAG, isDelayData_) && ret;
     ret = Write(buffer, TAG_DEVICE_ID, deviceId_) && ret;
-    ret = Write(buffer, TAG_PASTE_ID, pasteId_) && ret;
     return ret;
 }
 
@@ -464,10 +462,6 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && ReadValue(buffer, deviceId_, head);
                 break;
             }
-            case TAG_PASTE_ID: {
-                ret = ret && ReadValue(buffer, pasteId_, head);
-                break;
-            }
             default:
                 ret = ret && Skip(head.len, buffer.size());
                 break;
@@ -489,7 +483,6 @@ size_t PasteData::Count()
     expectSize += TLVObject::Count(isLocalPaste_);
     expectSize += TLVObject::Count(isDelayData_);
     expectSize += TLVObject::Count(deviceId_);
-    expectSize += TLVObject::Count(pasteId_);
     return expectSize;
 }
 
