@@ -43,7 +43,7 @@ protected:
     std::string appUtdId1_ = "appdefined-mytype1";
     std::string appUtdId2_ = "appdefined-mytype2";
     std::vector<uint8_t> rawData1_ = { 1, 2, 3, 4, 5, 6, 7, 8 };
-    std::vector<uint8_t> rawData2_ = { 1, 2, 3, 4, 5, 6, 7, 8 , 9};
+    std::vector<uint8_t> rawData2_ = { 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     void CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>>& entries);
     void CheckPlainUds(const std::shared_ptr<PasteDataEntry> entry);
