@@ -194,6 +194,7 @@ __attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteDat
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return ERR_INVALID_OPERATION;
     }
+    pasteData.SetPasteId("");
     int32_t rawDataSize = reply.ReadInt32();
     if (rawDataSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw size");
