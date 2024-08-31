@@ -38,8 +38,8 @@ common_external_deps = [
   "c_utils:utils",
   "hilog:libhilog",
   "ipc:ipc_single",
-  "udmf:libudmf",
   "os_account:os_account_innerkits",
+  "udmf:libudmf",
 ]
 
 ohos_unittest("PasteboardNdkTest") {
