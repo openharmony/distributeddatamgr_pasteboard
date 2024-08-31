@@ -25,6 +25,10 @@ pasteboard_service_path = "${pasteboard_root_path}/services"
 
 pasteboard_interfaces_path = "${pasteboard_root_path}/interfaces"
 
+pasteboard_tlv_path = "${pasteboard_root_path}/framework/tlv"
+
+pasteboard_uri_path = "${pasteboard_root_path}/framework/uri"
+
 declare_args() {
   pasteboard_dlp_part_enabled = true
   pasteboard_device_info_manager_part_enabled = true
