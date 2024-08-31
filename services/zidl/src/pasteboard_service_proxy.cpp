@@ -47,6 +47,60 @@ void PasteboardServiceProxy::Clear()
     }
 }
 
+int32_t PasteboardServiceProxy::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
+            "fail to write descriptor, dataId:%{public}d or recordId:%{public}d", dataId, recordId);
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteUint32(dataId) || !data.WriteUint32(recordId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
+            "fail to write dataId:%{public}d or recordId:%{public}d", dataId, recordId);
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<uint8_t> sendTLV(0);
+    if (!value.Marshalling(sendTLV)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail encode entry value");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteInt32(sendTLV.size())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail write data size");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteRawData(sendTLV.data(), sendTLV.size())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail write raw data");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_RECORD_VALUE, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is:%{public}d", result);
+        return ERR_INVALID_OPERATION;
+    }
+    int32_t res = reply.ReadInt32();
+    int32_t rawDataSize = reply.ReadInt32();
+    if (rawDataSize <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to get raw data size");
+        return ERR_INVALID_VALUE ;
+    }
+    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(reply.ReadRawData(rawDataSize));
+    if (rawData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to get raw data");
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<uint8_t> receiveTlv(rawData, rawData + rawDataSize);
+    PasteDataEntry entryValue;
+    if (!entryValue.Unmarshalling(receiveTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to decode paste data entry");
+        return ERR_INVALID_VALUE;
+    }
+    value = std::move(entryValue);
+    return res;
+}
+
 bool PasteboardServiceProxy::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
@@ -69,15 +123,21 @@ bool PasteboardServiceProxy::HasPasteData()
     return has;
 }
 
-int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter)
+int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
+    const sptr<IPasteboardEntryGetter> entryGetter)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
         return ERR_INVALID_VALUE;
+    }
+    if (pasteData.IsDelayData() && delayGetter == nullptr) {
+        pasteData.SetDelayData(false);
+    }
+    if (pasteData.IsDelayRecord() && entryGetter == nullptr) {
+        pasteData.SetDelayRecord(false);
     }
     std::vector<uint8_t> pasteDataTlv(0);
     bool ret = pasteData.Encode(pasteDataTlv);
@@ -98,9 +158,12 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return ERR_INVALID_VALUE;
     }
-    if (pasteData.IsDelayData() &&
-        !data.WriteRemoteObject(delayGetter->AsObject())) {
+    if (pasteData.IsDelayData() && !data.WriteRemoteObject(delayGetter->AsObject())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed to write delay getter");
+        return ERR_INVALID_VALUE;
+    }
+    if (pasteData.IsDelayRecord() && !data.WriteRemoteObject(entryGetter->AsObject())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed to write entry getter");
         return ERR_INVALID_VALUE;
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::SET_PASTE_DATA, data, reply, option);
@@ -108,7 +171,6 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return ERR_INVALID_OPERATION;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return reply.ReadInt32();
 }
 

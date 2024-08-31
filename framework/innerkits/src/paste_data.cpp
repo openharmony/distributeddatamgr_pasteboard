@@ -36,6 +36,8 @@ enum TAG_PASTEBOARD : uint16_t {
     TAG_DELAY_DATA_FLAG,
     TAG_DEVICE_ID,
     TAG_PASTE_ID,
+    TAG_DELAY_RECORD_FLAG,
+    TAG_DATA_ID,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -67,6 +69,7 @@ PasteData::PasteData()
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
+    InitDecodeMap();
 }
 
 PasteData::~PasteData()
@@ -75,12 +78,14 @@ PasteData::~PasteData()
 }
 
 PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthority_), valid_(data.valid_),
-    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), pasteId_(data.pasteId_)
+    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), isDelayData_(data.isDelayData_),
+    pasteId_(data.pasteId_), isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {
         this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
     }
+    InitDecodeMap();
 }
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
@@ -88,6 +93,7 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : re
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
+    InitDecodeMap();
 }
 
 PasteData& PasteData::operator=(const PasteData &data)
@@ -100,6 +106,9 @@ PasteData& PasteData::operator=(const PasteData &data)
     this->valid_ = data.valid_;
     this->isDraggedData_ = data.isDraggedData_;
     this->isLocalPaste_ = data.isLocalPaste_;
+    this->isDelayData_ = data.isDelayData_;
+    this->isDelayRecord_ = data.isDelayRecord_;
+    this->dataId_ = data.dataId_;
     this->props_ = data.props_;
     this->records_.clear();
     this->deviceId_ = data.deviceId_;
@@ -155,6 +164,7 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
     if (record == nullptr) {
         return;
     }
+    record->SetRecordId(++recordId_);
     records_.insert(records_.begin(), std::move(record));
     RefreshMimeProp();
 }
@@ -431,7 +441,33 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_DELAY_DATA_FLAG, isDelayData_) && ret;
     ret = Write(buffer, TAG_DEVICE_ID, deviceId_) && ret;
     ret = Write(buffer, TAG_PASTE_ID, pasteId_) && ret;
+    ret = Write(buffer, TAG_DELAY_RECORD_FLAG, isDelayRecord_) && ret;
+    ret = Write(buffer, TAG_DATA_ID, dataId_) && ret;
     return ret;
+}
+
+void PasteData::InitDecodeMap()
+{
+    decodeMap_ = {
+        {TAG_PROPS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, props_, head);}},
+        {TAG_RECORDS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, records_, head);}},
+        {TAG_DRAGGED_DATA_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, isDraggedData_, head);}},
+        {TAG_LOCAL_PASTE_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, isLocalPaste_, head);}},
+        {TAG_DELAY_DATA_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, isDelayData_, head);}},
+        {TAG_DEVICE_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, deviceId_, head);}},
+        {TAG_PASTE_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, pasteId_, head);}},
+        {TAG_DELAY_RECORD_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, isDelayRecord_, head);}},
+        {TAG_DATA_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, dataId_, head);}},
+    };
 }
 
 bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
@@ -440,46 +476,22 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
-        switch (head.tag) {
-            case TAG_PROPS:
-                ret = ret && ReadValue(buffer, props_, head);
-                break;
-            case TAG_RECORDS: {
-                ret = ret && ReadValue(buffer, records_, head);
-                break;
-            }
-            case TAG_DRAGGED_DATA_FLAG: {
-                ret = ret && ReadValue(buffer, isDraggedData_, head);
-                break;
-            }
-            case TAG_LOCAL_PASTE_FLAG: {
-                ret = ret && ReadValue(buffer, isLocalPaste_, head);
-                break;
-            }
-            case TAG_DELAY_DATA_FLAG: {
-                ret = ret && ReadValue(buffer, isDelayData_, head);
-                break;
-            }
-            case TAG_DEVICE_ID: {
-                ret = ret && ReadValue(buffer, deviceId_, head);
-                break;
-            }
-            case TAG_PASTE_ID: {
-                ret = ret && ReadValue(buffer, pasteId_, head);
-                break;
-            }
-            default:
-                ret = ret && Skip(head.len, buffer.size());
-                break;
+        auto it = decodeMap_.find(head.tag);
+        if (it == decodeMap_.end()) {
+            ret = ret && Skip(head.len, buffer.size());
+        } else {
+            auto func = it->second;
+            func(ret, buffer, head);
         }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
-            head.tag, head.len, ret);
         if (!ret) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u",
+                head.tag, head.len);
             return false;
         }
     }
     return true;
 }
+
 size_t PasteData::Count()
 {
     size_t expectSize = 0;
@@ -490,6 +502,8 @@ size_t PasteData::Count()
     expectSize += TLVObject::Count(isDelayData_);
     expectSize += TLVObject::Count(deviceId_);
     expectSize += TLVObject::Count(pasteId_);
+    expectSize += TLVObject::Count(isDelayRecord_);
+    expectSize += TLVObject::Count(dataId_);
     return expectSize;
 }
 
@@ -511,6 +525,26 @@ void PasteData::SetDelayData(bool isDelay)
 bool PasteData::IsDelayData() const
 {
     return isDelayData_;
+}
+
+void PasteData::SetDelayRecord(bool isDelay)
+{
+    isDelayRecord_ = isDelay;
+}
+
+bool PasteData::IsDelayRecord() const
+{
+    return isDelayRecord_;
+}
+
+void PasteData::SetDataId(uint32_t dataId)
+{
+    dataId_ = dataId;
+}
+
+uint32_t PasteData::GetDataId() const
+{
+    return dataId_;
 }
 
 bool PasteData::Marshalling(Parcel &parcel) const

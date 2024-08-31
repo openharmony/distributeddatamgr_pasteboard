@@ -27,6 +27,8 @@
 #include "system_defined_form.h"
 #include "unified_record.h"
 #include "video.h"
+#include "system_defined_pixelmap.h"
+
 namespace OHOS {
 namespace MiscServices {
 using UnifiedRecord = UDMF::UnifiedRecord;
@@ -78,7 +80,7 @@ std::shared_ptr<PasteData> PasteboardUtils::Convert(const UnifiedData& unifiedDa
     auto pasteData = std::make_shared<PasteData>(Convert(unifiedRecords));
     auto unifiedDataProperties = unifiedData.GetProperties();
     auto properties = Convert(*unifiedDataProperties);
-    auto recordTypes = unifiedData.GetUDTypes();
+    auto recordTypes = unifiedData.GetTypesLabels();
     properties.mimeTypes = Convert(recordTypes);
     pasteData->SetProperty(properties);
     return pasteData;
@@ -149,11 +151,11 @@ std::shared_ptr<UnifiedDataProperties> PasteboardUtils::Convert(const PasteDataP
     return unifiedDataProperties;
 }
 
-std::vector<std::string> PasteboardUtils::Convert(const std::vector<UDType>& uDTypes)
+std::vector<std::string> PasteboardUtils::Convert(const std::vector<std::string>& utdIds)
 {
     std::vector<std::string> types;
-    for (const auto& udType : uDTypes) {
-        types.push_back(Convert(udType));
+    for (const auto& utdId : utdIds) {
+        types.push_back(CommonUtils::Convert2MimeType(utdId));
     }
     return types;
 }
@@ -512,7 +514,7 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Folder(const std::sh
 
 std::shared_ptr<PasteDataRecord> PasteboardUtils::PixelMap2PasteRecord(const std::shared_ptr<UnifiedRecord> record)
 {
-    auto pixelMap = static_cast<UDMF::UnifiedRecord*>(record.get());
+    auto pixelMap = static_cast<UDMF::SystemDefinedPixelMap*>(record.get());
     if (pixelMap == nullptr) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get pixelMap record field.");
         return nullptr;

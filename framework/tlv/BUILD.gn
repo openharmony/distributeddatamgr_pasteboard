@@ -46,6 +46,7 @@ ohos_static_library("pasteboard_tlv") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "udmf:udmf_client",
   ]
   subsystem_name = "distributeddatamgr"
   part_name = "pasteboard"

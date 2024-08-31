@@ -21,7 +21,6 @@
 
 #include "ipc_skeleton.h"
 #include "iremote_stub.h"
-#include "i_pasteboard_delay_getter.h"
 #include "i_pasteboard_service.h"
 
 namespace OHOS {
@@ -36,8 +35,10 @@ public:
 private:
     using PasteboardServiceFunc = int32_t (PasteboardServiceStub::*)(MessageParcel &data, MessageParcel &reply);
     virtual int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
-        sptr<IPasteboardDelayGetter> delayGetter = nullptr) = 0;
+        sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+        sptr<IPasteboardEntryGetter> entryGetter = nullptr) = 0;
     int32_t OnClear(MessageParcel &data, MessageParcel &reply);
+    int32_t OnGetRecordValueByType(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetPasteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnHasPasteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnSetPasteData(MessageParcel &data, MessageParcel &reply);
@@ -58,6 +59,8 @@ private:
     int32_t OnPasteComplete(MessageParcel &data, MessageParcel &reply);
     int32_t OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply);
 
+    std::shared_ptr<PasteData> UnmarshalPasteData(MessageParcel &data, MessageParcel &reply);
+    
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
     static constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;
     static constexpr int32_t MAX_SET_GLOBAL_SHARE_OPTION_SIZE = 100;

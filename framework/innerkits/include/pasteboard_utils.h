@@ -40,7 +40,7 @@ private:
     std::vector<std::shared_ptr<PasteDataRecord>> Convert(const std::vector<std::shared_ptr<UnifiedRecord>>& records);
     static PasteDataProperty Convert(const UnifiedDataProperties& properties);
     static std::shared_ptr<UnifiedDataProperties> Convert(const PasteDataProperty& properties);
-    static std::vector<std::string> Convert(const std::vector<UDType>& uDTypes);
+    static std::vector<std::string> Convert(const std::vector<std::string>& utdIds);
     static std::string Convert(UDType uDType);
     static UDType Convert(int32_t uDType, const std::string& mimeType);
 

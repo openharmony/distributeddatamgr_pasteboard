@@ -17,12 +17,13 @@
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
 #include <chrono>
-
+#include "convert_utils.h"
 #include "file_uri.h"
 #include "hiview_adapter.h"
 #include "hitrace_meter.h"
 #include "pasteboard_client.h"
 #include "pasteboard_delay_getter_client.h"
+#include "pasteboard_entry_getter_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_load_callback.h"
@@ -191,6 +192,14 @@ std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
     return pasteData;
 }
 
+int32_t PasteboardClient::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return static_cast<int32_t>(PasteboardError::E_SA_DIED);
+    }
+    return proxyService->GetRecordValueByType(dataId, recordId, value);
+}
 void PasteboardClient::Clear()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Clear start.");
@@ -258,6 +267,16 @@ int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData& unifiedData)
     int32_t ret = GetPasteData(pasteData);
     unifiedData = *(PasteboardUtils::GetInstance().Convert(pasteData));
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
+    return ret;
+}
+
+int32_t PasteboardClient::GetUdsdData(UDMF::UnifiedData &unifiedData)
+{
+    StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUdsdData", HITRACE_GETPASTEDATA);
+    PasteData pasteData;
+    int32_t ret = GetPasteData(pasteData);
+    unifiedData = *(ConvertUtils::Convert(pasteData));
+    FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUdsdData", HITRACE_GETPASTEDATA);
     return ret;
 }
 
@@ -332,7 +351,8 @@ bool PasteboardClient::HasPasteData()
     return proxyService->HasPasteData();
 }
 
-int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter)
+int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr <PasteboardDelayGetter> delayGetter,
+                                       std::map <uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
     RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
@@ -349,16 +369,21 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
         pasteData.SetDelayData(true);
         delayGetterAgent = new (std::nothrow) PasteboardDelayGetterClient(delayGetter);
     }
+    sptr <PasteboardEntryGetterClient> entryGetterAgent;
+    if (!(entryGetters.empty())) {
+        pasteData.SetDelayRecord(true);
+        entryGetterAgent = new(std::nothrow) PasteboardEntryGetterClient(entryGetters);
+    }
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
-        auto noHtmlRet = proxyService->SetPasteData(pasteData, delayGetterAgent);
+        auto noHtmlRet = proxyService->SetPasteData(pasteData, delayGetterAgent, entryGetterAgent);
         return noHtmlRet;
     }
     auto webData = SplitWebviewPasteData(pasteData);
     if (webData == nullptr) {
         return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
     }
-    auto ret = proxyService->SetPasteData(*webData, delayGetterAgent);
+    auto ret = proxyService->SetPasteData(*webData, delayGetterAgent, entryGetterAgent);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END);
@@ -379,6 +404,18 @@ int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData,
 {
     auto pasteData = PasteboardUtils::GetInstance().Convert(unifiedData);
     return SetPasteData(*pasteData, delayGetter);
+}
+
+int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
+{
+    auto pasteData = ConvertUtils::Convert(unifiedData);
+    std::map <uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters;
+    for (auto record : unifiedData.GetRecords()) {
+        if (record != nullptr && record->GetEntryGetter() != nullptr) {
+            entryGetters.emplace(record->GetRecordId(), record->GetEntryGetter());
+        }
+    }
+    return SetPasteData(*pasteData, nullptr, entryGetters);
 }
 
 std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pasteData)
