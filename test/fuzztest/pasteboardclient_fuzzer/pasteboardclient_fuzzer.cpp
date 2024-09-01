@@ -105,7 +105,7 @@ void FuzzPasteboardclient002(const uint8_t *rawData, size_t size)
     const std::vector<uint32_t> tokenIds = {1, 2, 3};
     PasteboardClient::GetInstance()->GetGlobalShareOption(tokenIds);
     PasteboardClient::GetInstance()->RemoveGlobalShareOption(tokenIds);
-    const shareoption shareOptions = share0ption::LocalDevice;
+    const ShareOption shareOptions = ShareOption::LocalDevice;
     PasteboardClient::GetInstance()->SetAppShareOptions(shareOptions);
     PasteboardClient::GetInstance()->Clear();
 }
@@ -288,7 +288,7 @@ void FuzzPastedataRecord002(const uint8_t *rawData, size_t size)
     std::shared_ptr<OHOS::AAFwk::Want> want = std::make_shared<OHOS::AAFwk::Want>();
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap = std::make_shared<PixelMap>();
     std::shared_ptr<OHOS::Uri> uri = std::make_shared<Uri>(str);
-    std::shared_ptr<MineCustomData> customData = std::make_shared<MinecustomData>();
+    std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
 
     Details details;
     pasteDataRecord.SetDetails(details);
@@ -299,7 +299,7 @@ void FuzzPastedataRecord002(const uint8_t *rawData, size_t size)
     pasteDataRecord.GetUDType();
 
     std::vector<std::uint8_t> value = {rawData, rawData + size};
-    std::shared_ptr<Pixelmap> pixelMap2 = std::make_shared<pixelMap>();
+    std::shared_ptr<PixelMap> pixelMap2 = std::make_shared<PixelMap>();
     pasteDataRecord.Vector2PixelMap(value);
     pasteDataRecord.PixelMap2Vector(pixelMap2);
     std::string mimeType(reinterpret_cast<const char *>(rawData), size);
@@ -347,7 +347,7 @@ void FuzzPasteboardclientcreateData(const uint8_t *rawData, size_t size)
     bool id = static_cast<bool>(*rawData);
     Want wantIn = want->SetParam(key, id);
 
-    if( code == RANDNUM_ZERO) {
+    if (code == RANDNUM_ZERO) {
         pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
         pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
     } else {
