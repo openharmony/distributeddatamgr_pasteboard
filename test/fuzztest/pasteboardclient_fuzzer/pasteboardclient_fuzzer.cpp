@@ -119,8 +119,8 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
     size = size - OFFSET;
     std::string str(reinterpret_cast<const char *>(rawData), size);
     uint32_t color[100] = { code };
-    InitializationOptions opts = { { 5, 7}, PixelFormat::ARGB_8888};
-    std::unique_ptr<PixelMap> pixelMap = PixelMap::create(color, sizeof(color)/sizeof(color[0]), opts);
+    InitializationOptions opts = { { 5, 7}, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color)/sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
 
     std::vector<uint8_t> kvData(LENGTH);
@@ -347,13 +347,16 @@ void FuzzPasteboardclientcreateData(const uint8_t *rawData, size_t size)
     bool id = static_cast<bool>(*rawData);
     Want wantIn = want->SetParam(key, id);
 
-    if(code == RANDNUM_ZERO) {
+    if( code == RANDNUM_ZERO) {
         pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
         pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
     } else {
         pasteData = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
         pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
     }
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    std::set<Pattern> patternsToCheck = {Pattern::URL, Pattern::Number, static_cast<Pattern>(code)};
+    PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
 }
 } // namespace OHOS
 /* Fuzzer entry point */
