@@ -117,14 +117,14 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
     uint32_t code = ConvertToUint32(rawData);
     rawData = rawData + OFFSET;
     size = size - OFFSET;
-    std::string str(reinterpret_cast<const char*>(rawData), size);
+    std::string str(reinterpret_cast<const char *>(rawData), size);
     uint32_t color[100] = { code };
-    Initializationoptions opts = { {5, 7}, PixelFormat::ARGB_8888};
-    std::unique_ptr<PixelMap> pixelMap = PixelMap::create(color, sizeof(color) / sizeof(color[0]), opts);
+    InitializationOptions opts = { { 5, 7}, PixelFormat::ARGB_8888};
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::create(color, sizeof(color)/sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
 
     std::vector<uint8_t> kvData(LENGTH);
-    kvData ={ *rawData };
+    kvData = { *rawData };
     std::string mimetype = "image/jpg";
 
     if (code == RANDNUM_ZERO) {
@@ -136,14 +136,14 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
     }
 
     pasteData->AddRecord(pasteDataRecord);
-    if(PasteboardClient::GetInstance()->HasPasteData()) {
+    if (PasteboardClient::GetInstance()->HasPasteData()) {
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
     }
 }
 
 void FuzzPastedata(const uint8_t *rawData, size_t size)
 {
-    std::string str(reinterpret_cast<const char *>(rawData),size);
+    std::string str(reinterpret_cast<const char *>(rawData), size);
     PasteData pasteData2;
     pasteData2.SetRemote(static_cast<bool>(*rawData));
     pasteData2.SetLocalPasteFlag(static_cast<bool>(*rawData));
@@ -345,14 +345,14 @@ void FuzzPasteboardclientcreateData(const uint8_t *rawData, size_t size)
     std::shared_ptr<Want> want = std::make_shared<Want>();
     std::string key = "id";
     bool id = static_cast<bool>(*rawData);
-
+    Want wantIn = want->SetParam(key, id);
 
     if(code == RANDNUM_ZERO) {
-        pasteData = PasteboardClient::GetInstance()->createHtmlData(str);
-        pasteDataRecord = PasteboardClient::GetInstance()->createHtmlTextRecord(str);
+        pasteData = PasteboardClient::GetInstance()->CreateHtmlData(str);
+        pasteDataRecord = PasteboardClient::GetInstance()->CreateHtmlTextRecord(str);
     } else {
-        pasteData = PasteboardClient::GetInstance()->createWantData(std::make_shared<want>(wantIn));
-        pasteDataRecord = PasteboardClient::GetInstance()->createwantRecord(std::make_shared<want>(wantIn));
+        pasteData = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
+        pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
     }
 }
 } // namespace OHOS
