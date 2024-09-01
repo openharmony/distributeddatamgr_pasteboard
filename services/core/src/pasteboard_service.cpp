@@ -503,15 +503,15 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
 
 void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant)
 {
+    if (AccessTokenKit::GetTokenTypeFlag(tokenId) != TOKEN_HAP) {
+        return;
+    }
     bool isGrant = isReadGrant || isSecureGrant;
     if (!isGrant) {
         return;
     }
-    auto permUsedType = PermissionUsedType::SECURITY_COMPONENT_TYPE;
-    if (!isSecureGrant) {
-        permUsedType = static_cast<PermissionUsedType>(AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId,
-            READ_PASTEBOARD_PERMISSION));
-    }
+    auto permUsedType = static_cast<PermissionUsedType>(AccessTokenKit::GetUserGrantedPermissionUsedType(tokenId,
+        isSecureGrant ? SECURE_PASTE_PERMISSION : READ_PASTEBOARD_PERMISSION));
     AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = READ_PASTEBOARD_PERMISSION;
