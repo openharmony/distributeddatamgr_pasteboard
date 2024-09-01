@@ -184,7 +184,7 @@ void FuzzPastedata(const uint8_t *rawData, size_t size)
 
 void FuzzPasteData002(const uint8_t *rawData, size_t size)
 {
-    std::string str(reinterpret_cast<const char *>(rawData),size);
+    std::string str(reinterpret_cast<const char *>(rawData), size);
     PasteData pasteData2;
     pasteData2.GetPrimaryText();
     pasteData2.GetPrimaryWant();
