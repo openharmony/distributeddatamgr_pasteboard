@@ -102,13 +102,9 @@ bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
     
     uint32_t len = 0;
     napi_status status = napi_get_array_length(env, in, &len);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length status = %{public}d", status);
-        return false;
-    }
-
-    if (len == 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length len = %{public}d", len);
+    if (status != napi_ok || len == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length status = %{public}d, len = %{public}d",
+            status, len);
         return false;
     }
 
