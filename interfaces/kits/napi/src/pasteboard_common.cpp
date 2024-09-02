@@ -107,6 +107,11 @@ bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
         return false;
     }
 
+    if (len == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length len = %{public}d", len);
+        return false;
+    }
+
     for (uint32_t i = 0; i < len; i++) {
         napi_value element;
         napi_status status = napi_get_element(env, in, i, &element);
