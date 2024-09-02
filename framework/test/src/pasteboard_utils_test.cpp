@@ -32,6 +32,7 @@ namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::Media;
+using UnifiedDataProperties = UDMF::UnifiedDataProperties;
 class PasteboardUtilsTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -95,6 +96,9 @@ UDMF::UnifiedData PasteboardUtilsTest::InitPlainData()
     std::shared_ptr<UDMF::PlainText> plainTextRecord = std::make_shared<UDMF::PlainText>(text_, extraText_);
     plainTextRecord->SetDetails(details_);
     data.AddRecord(plainTextRecord);
+    auto unifiedDataProperties = std::make_shared<UnifiedDataProperties>();
+    unifiedDataProperties->isRemote = true;
+    data.SetProperties(unifiedDataProperties);
     return data;
 }
 
@@ -310,6 +314,8 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(textContent, extraText_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
+    auto pastedProp = pasteData->GetProperty();
+    ASSERT_EQ(pastedProp.isRemote, true);
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
@@ -323,6 +329,8 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newPlainText, text_);
     ASSERT_EQ(newAbstract, extraText_);
     ASSERT_EQ(newDetails, details_);
+    auto unifiedProp = newData->GetProperties();
+    ASSERT_EQ(unifiedProp->isRemote, true);
 }
 
 /**

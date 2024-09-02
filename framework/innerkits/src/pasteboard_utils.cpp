@@ -137,6 +137,7 @@ PasteDataProperty PasteboardUtils::Convert(const UnifiedDataProperties& properti
     pasteDataProperty.additions = properties.extras;
     pasteDataProperty.timestamp = properties.timestamp;
     pasteDataProperty.tag = properties.tag;
+    pasteDataProperty.isRemote = properties.isRemote;
     return PasteDataProperty(pasteDataProperty);
 }
 
@@ -148,6 +149,7 @@ std::shared_ptr<UnifiedDataProperties> PasteboardUtils::Convert(const PasteDataP
     unifiedDataProperties->extras = properties.additions;
     unifiedDataProperties->timestamp = properties.timestamp;
     unifiedDataProperties->tag = properties.tag;
+    unifiedDataProperties->isRemote = properties.isRemote;
     return unifiedDataProperties;
 }
 
