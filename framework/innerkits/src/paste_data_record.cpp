@@ -574,6 +574,10 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not surpport");
     } else {
         auto itemData = customData_->GetItemData();
+        if (itemData.size() == 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no customData");
+            return udmfValue_;
+        }
         if (itemData.size() != 1) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
                 "not surrport u8 map, mimeType:%{public}s, customData.size:%{public}zu", mimeType_.c_str(),
