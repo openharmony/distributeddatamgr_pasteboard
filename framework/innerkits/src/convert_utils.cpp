@@ -71,7 +71,7 @@ std::shared_ptr<UnifiedRecord> ConvertUtils::Convert(std::shared_ptr<PasteDataRe
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "entries is nullptr");
         auto udmfValue = record->GetUDMFValue();
         if (udmfValue) {
-            udmfRecord->AddEntry(CommonUtils::Convert2UtdId(record->GetUDType(), record->GetMimeType()), 
+            udmfRecord->AddEntry(CommonUtils::Convert2UtdId(record->GetUDType(), record->GetMimeType()),
                 std::move(*udmfValue));
         }
         return udmfRecord;
