@@ -67,8 +67,13 @@ std::shared_ptr<UnifiedRecord> ConvertUtils::Convert(std::shared_ptr<PasteDataRe
     }
     std::shared_ptr<UnifiedRecord> udmfRecord = std::make_shared<UnifiedRecord>();
     auto entries = Convert(record->GetEntries());
-    if (entries == nullptr) {
+    if (entries->empty()) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "entries is nullptr");
+        auto udmfValue = record->GetUDMFValue();
+        if (udmfValue) {
+            udmfRecord->AddEntry(CommonUtils::Convert2UtdId(record->GetUDType(), record->GetMimeType()), 
+                std::move(*udmfValue));
+        }
         return udmfRecord;
     }
     for (auto &[utdId, value] : *entries) {
