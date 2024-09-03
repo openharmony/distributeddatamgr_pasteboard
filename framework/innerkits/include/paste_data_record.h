@@ -97,7 +97,7 @@ public:
 
     bool IsEmpty() const;
     void SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue);
-    std::shared_ptr<EntryValue> GetUDMFValue() const;
+    std::shared_ptr<EntryValue> GetUDMFValue();
     void AddEntry(const std::string& utdType, std::shared_ptr<PasteDataEntry> value);
     std::shared_ptr<PasteDataEntry> GetEntry(const std::string& utdType) const;
     std::vector<std::shared_ptr<PasteDataEntry>> GetEntries() const;
