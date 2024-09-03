@@ -540,9 +540,54 @@ void PasteDataRecord::SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue)
     this->udmfValue_ = udmfValue;
 }
 
-std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue() const
+std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
 {
-    return this->udmfValue_;
+    if (udmfValue_) {
+        return this->udmfValue_;
+    }
+    if (mimeType_.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "mimetype is null");
+        return nullptr;
+    }
+    auto object = std::make_shared<Object>();
+    if (mimeType_ == MIMETYPE_TEXT_PLAIN) {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+        if (plainText_ != nullptr) {
+            object->value_[UDMF::CONTENT] = *plainText_;
+        }
+    } else if (mimeType_ == MIMETYPE_TEXT_HTML) {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
+        if (htmlText_ != nullptr) {
+            object->value_[UDMF::HTML_CONTENT] = *htmlText_;
+        }
+    } else if (mimeType_ == MIMETYPE_PIXELMAP) {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+        if (pixelMap_ != nullptr) {
+            object->value_[UDMF::PIXEL_MAP] = pixelMap_;
+        }
+    } else if (mimeType_ == MIMETYPE_TEXT_URI) {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
+        if (uri_ != nullptr) {
+            object->value_[UDMF::FILE_URI_PARAM] = uri_->ToString();
+        }
+    } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not surpport");
+    } else {
+        auto itemData = customData_->GetItemData();
+        if (itemData.size() == 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no customData");
+            return udmfValue_;
+        }
+        if (itemData.size() != 1) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
+                "not surrport u8 map, mimeType:%{public}s, customData.size:%{public}zu", mimeType_.c_str(),
+                itemData.size());
+        }
+        udmfValue_ = std::make_shared<EntryValue>(itemData.begin()->second);
+        return udmfValue_;
+    }
+    udmfValue_ = std::make_shared<EntryValue>(object);
+    return udmfValue_;
 }
 
 std::set<std::string> PasteDataRecord::GetUdtTypes() const
@@ -571,7 +616,7 @@ void PasteDataRecord::AddEntry(const std::string& utdType, std::shared_ptr<Paste
         mimeType_ = value->GetMimeType();
         auto udType = UDMF::UtdUtils::GetUtdEnumFromUtdId(utdType);
         udType_ = udType == UDMF::UDType::UD_BUTT ? UDMF::UDType::APPLICATION_DEFINED_RECORD : udType;
-        udmfValue_ =std::make_shared<EntryValue>(value->GetValue());
+        udmfValue_ = std::make_shared<EntryValue>(value->GetValue());
         if (mimeType_ == MIMETYPE_PIXELMAP) {
             pixelMap_ = value->ConvertToPixelMap();
         } else if (mimeType_ == MIMETYPE_TEXT_HTML) {
