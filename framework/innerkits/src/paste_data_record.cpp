@@ -127,7 +127,16 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewHtmlRecord(const std::strin
     if (htmlText.length() >= MAX_TEXT_LEN) {
         return nullptr;
     }
-    return Builder(MIMETYPE_TEXT_HTML).SetHtmlText(std::make_shared<std::string>(htmlText)).Build();
+    auto record = Builder(MIMETYPE_TEXT_HTML).SetHtmlText(std::make_shared<std::string>(htmlText)).Build();
+
+    Object object;
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
+    object.value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    if (record->htmlText_ != nullptr) {
+        object.value_[UDMF::HTML_CONTENT] = *(record->htmlText_);
+    }
+    record->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, std::make_shared<Object>(object)));
+    return record;
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want)
@@ -140,17 +149,35 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPlaintTextRecord(const std:
     if (text.length() >= MAX_TEXT_LEN) {
         return nullptr;
     }
-    return Builder(MIMETYPE_TEXT_PLAIN).SetPlainText(std::make_shared<std::string>(text)).Build();
+    auto record = Builder(MIMETYPE_TEXT_PLAIN).SetPlainText(std::make_shared<std::string>(text)).Build();
+    Object object;
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    object.value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    if (record->plainText_ != nullptr) {
+        object.value_[UDMF::CONTENT] = *(record->plainText_);
+    }
+    record->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, std::make_shared<Object>(object)));
+    return record;
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPixelMapRecord(std::shared_ptr<PixelMap> pixelMap)
 {
-    return Builder(MIMETYPE_PIXELMAP).SetPixelMap(std::move(pixelMap)).Build();
+    auto record = Builder(MIMETYPE_PIXELMAP).SetPixelMap(std::move(pixelMap)).Build();
+    Object object;
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+    object.value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    if (record->pixelMap_ != nullptr) {
+        object.value_[UDMF::PIXEL_MAP] = record->pixelMap_;
+    }
+    record->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, std::make_shared<Object>(object)));
+    return record;
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &uri)
 {
-    return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
+    auto record = Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
+    record->AddUriEntry();
+    return record;
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
@@ -158,7 +185,10 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
 {
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType, arrayBuffer);
-    return Builder(mimeType).SetCustomData(std::move(customData)).Build();
+    auto record = Builder(mimeType).SetCustomData(std::move(customData)).Build();
+    auto utdId = UDMF::APPLICATION_DEFINED_TYPE + mimeType;
+    record->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, arrayBuffer));
+    return record;
 }
 
 PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
