@@ -152,6 +152,7 @@ PasteDataProperty ConvertUtils::ConvertProperty(const std::shared_ptr<UnifiedDat
     pasteDataProperty.tag = properties->tag;
     auto utdIds = unifiedData.GetTypesLabels();
     pasteDataProperty.mimeTypes = Convert(utdIds);
+    pasteDataProperty.isRemote = properties->isRemote;
     return PasteDataProperty(pasteDataProperty);
 }
 
@@ -163,6 +164,7 @@ std::shared_ptr<UnifiedDataProperties> ConvertUtils::ConvertProperty(const Paste
     unifiedDataProperties->extras = properties.additions;
     unifiedDataProperties->timestamp = properties.timestamp;
     unifiedDataProperties->tag = properties.tag;
+    unifiedDataProperties->isRemote = properties.isRemote;
     return unifiedDataProperties;
 }
 
