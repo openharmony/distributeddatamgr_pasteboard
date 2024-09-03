@@ -16,6 +16,7 @@
 #include "device/dm_adapter.h"
 #include "distributed_clip.h"
 #include <gtest/gtest.h>
+#include "pasteboard_error.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -105,7 +106,7 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo("", remoteDevice);
-    ASSERT_TRUE(ret == -1);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
 #else
     ASSERT_TRUE(true);
 #endif

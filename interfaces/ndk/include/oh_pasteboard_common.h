@@ -24,9 +24,9 @@
 namespace OHOS {
 namespace MiscServices {
 const std::map<PasteboardError, PASTEBOARD_ErrCode> errCodeMap = {
-    {PasteboardError::E_NO_PERMISSION, ERR_PERMISSION_ERROR},
-    {PasteboardError::E_INVALID_PARAMETERS, ERR_INVALID_PARAMETER},
-    {PasteboardError::E_IS_BEGING_PROCESSED, ERR_BUSY},
+    {PasteboardError::PERMISSION_VERIFICATION_ERROR, ERR_PERMISSION_ERROR},
+    {PasteboardError::INVALID_PARAM_ERROR, ERR_INVALID_PARAMETER},
+    {PasteboardError::TASK_PROCESSING, ERR_BUSY},
 };
 
 class PasteboardObserverCapiImpl;
