@@ -24,6 +24,7 @@ config("module_public_config") {
     "${pasteboard_service_path}/dfx/src",
     "include",
     "include/device",
+    "include/ffrt",
   ]
 }
 
@@ -46,6 +47,7 @@ ohos_shared_library("pasteboard_framework") {
     "eventcenter/event.cpp",
     "eventcenter/event_center.cpp",
     "eventcenter/pasteboard_event.cpp",
+    "ffrt/ffrt_utils.cpp",
     "serializable/serializable.cpp",
   ]
   cflags = [ "-Wno-multichar" ]
@@ -64,6 +66,7 @@ ohos_shared_library("pasteboard_framework") {
   external_deps = [
     "cJSON:cjson",
     "c_utils:utils",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbeget_proxy",

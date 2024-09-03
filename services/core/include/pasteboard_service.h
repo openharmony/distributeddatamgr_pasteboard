@@ -48,6 +48,8 @@
 #include "system_ability.h"
 #include "privacy_kit.h"
 #include "input_manager.h"
+#include "ffrt_utils.h"
+#include "security_level.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -112,6 +114,9 @@ public:
     virtual int32_t RemoveAppShareOptions() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
+    virtual void PasteStart(const std::string &pasteId) override;
+    virtual void PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
+    virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
@@ -135,7 +140,7 @@ private:
     static constexpr const pid_t EDM_UID = 3057;
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
-    static constexpr int MIN_TRANMISSION_TIME = 600;
+    static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; //ms
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 4000;
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
@@ -197,16 +202,17 @@ private:
     int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
     int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
+    int64_t GetFileSize(PasteData &data);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
-    void GrantUriPermission(PasteData &data, const std::string &targetBundleName);
+    int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
     bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
-    void EstablishP2PLink();
+    void EstablishP2PLink(const std::string& networkId, const std::string &pasteId);
     void CloseP2PLink(const std::string& networkId);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
@@ -263,9 +269,9 @@ private:
         { MIMETYPE_PIXELMAP, PIXELMAP_INDEX }
     };
 
-    ConcurrentMap<std::string, int> p2pMap_;
+    std::shared_ptr<FFRTTimer> ffrtTimer_;
+    ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
     ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
-
     PastedSwitch switch_;
 
     void AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
@@ -284,10 +290,44 @@ private:
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;
+    int32_t uid_ = -1;
     RemoteDataTaskManager  taskMgr_;
     pid_t setPasteDataUId_ = 0;
     static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;
+    SecurityLevel securityLevel_;
+    class PasteboardClientDeathObserverImpl {
+    public:
+        PasteboardClientDeathObserverImpl(PasteboardService &service, sptr<IRemoteObject> observer);
+        explicit PasteboardClientDeathObserverImpl(PasteboardService &service);
+        explicit PasteboardClientDeathObserverImpl(PasteboardClientDeathObserverImpl &&impl);
+        PasteboardClientDeathObserverImpl &operator=(PasteboardClientDeathObserverImpl &&impl);
+        virtual ~PasteboardClientDeathObserverImpl();
+
+        pid_t GetPid() const;
+    private:
+        class PasteboardDeathRecipient : public IRemoteObject::DeathRecipient {
+        public:
+            explicit PasteboardDeathRecipient(PasteboardClientDeathObserverImpl &pasteboardClientDeathObserverImpl);
+            virtual ~PasteboardDeathRecipient();
+            void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+
+        private:
+            PasteboardClientDeathObserverImpl &pasteboardClientDeathObserverImpl_;
+        };
+        void Reset();
+        pid_t uid_;
+        pid_t pid_;
+        uint32_t token_;
+        PasteboardService &dataService_;
+        sptr<IRemoteObject> observerProxy_;
+        sptr<PasteboardDeathRecipient> deathRecipient_;
+    };
+    int32_t AppExit(pid_t uid, pid_t pid, uint32_t token);
+    ConcurrentMap<pid_t, PasteboardClientDeathObserverImpl> clients_;
+    static constexpr pid_t INVALID_UID = -1;
+    static constexpr pid_t INVALID_PID = -1;
+    static constexpr uint32_t INVALID_TOKEN = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

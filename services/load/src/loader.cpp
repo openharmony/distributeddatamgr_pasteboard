@@ -61,6 +61,12 @@ std::vector<std::string> Loader::LoadBundles()
     return config.bundles;
 }
 
+int32_t Loader::LoadUid()
+{
+    Config config = LoadConfig();
+    return config.uid;
+}
+
 Config Loader::LoadConfig()
 {
     Config config;
