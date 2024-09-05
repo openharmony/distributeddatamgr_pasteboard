@@ -27,7 +27,7 @@ using namespace OHOS::MiscServices;
 namespace OHOS {
 using namespace OHOS::Media;
 using namespace OHOS::AAFwk;
-constexpr size_t THRESHOLD = 10;
+constexpr size_t THRESHOLD = 5;
 constexpr size_t OFFSET = 4;
 constexpr size_t RANDNUM_ZERO = 0;
 constexpr size_t LENGTH = 46;
@@ -220,8 +220,6 @@ void FuzzPasteData002(const uint8_t *rawData, size_t size)
     PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
     PasteboardClient::GetInstance()->LoadSystemAbilityFail();
     const wptr<IRemoteObject> object;
-    PasteboardSaDeathRecipient death;
-    death.OnRemoteDied(object);
     PasteboardClient::GetInstance()->OnRemoteSaDied(object);
     PasteboardClient::GetInstance()->Clear();
 }
