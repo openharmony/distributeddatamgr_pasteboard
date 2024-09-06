@@ -14,7 +14,7 @@
  */
 
 export default class CommonConstants {
-  //ContinueSwitch page :
+  //PASTEBOARD page :
   public static readonly IMAGE_COUNT:number = 167;
   public static readonly IMG_ANIMATOR_OVER_DURATION:number = 1000;
   public static readonly IMG_ANIMATOR_NORMAL_DURATION:number = 30;
@@ -27,9 +27,9 @@ export default class CommonConstants {
   public static readonly TEXT_LIST_ALIGN_DISTANCE:number = 12;
   public static readonly PC_BORDER_RADIUS:number = 16;
   public static readonly NON_PC_BORDER_RADIUS:number = 20;
-  public static readonly CONTINUE_DESC_TEXT_MARGIN_BOTTOM:number = 32;
-  public static readonly CONTINUE_SWITCH_WIDTH:number = 36;
-  public static readonly CONTINUE_SWITCH_HEIGHT:number = 20;
+  public static readonly PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM:number = 32;
+  public static readonly PASTEBOARD_SWITCH_WIDTH:number = 36;
+  public static readonly PASTEBOARD_SWITCH_HEIGHT:number = 20;
   public static readonly ITEM_LIST_PADDING_TOP_PC: number = 13;
   public static readonly ITEM_LIST_PADDING_BOTTOM_PC: number = 14;
   public static readonly ITEM_LIST_PADDING_TOP: number = 17;

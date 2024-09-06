@@ -191,7 +191,7 @@ void PasteboardService::OnStop()
     }
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
-    DMAdapter::GetInstance().UnInitialize();
+    DMAdapter::GetInstance().DeInitialize();
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }

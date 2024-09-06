@@ -134,7 +134,7 @@ bool DMAdapter::Initialize(const std::string &pkgName)
     return false;
 }
 
-void DMAdapter::UnInitialize()
+void DMAdapter::DeInitialize()
 {
     auto& deviceManager = DeviceManager::GetInstance();
     deviceManager.UnRegisterDevStateCallback(pkgName_);
