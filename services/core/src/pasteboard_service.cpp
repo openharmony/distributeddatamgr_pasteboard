@@ -2033,6 +2033,7 @@ void PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
             continue;
         }
         auto recordId = record->GetRecordId();
+        auto mimeType = record->GetMimeType();
         for (auto entry : record->GetEntries()) {
             if (!std::holds_alternative<std::monostate>(entry->GetValue())) {
                 continue;
@@ -2044,8 +2045,21 @@ void PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
                     data.GetDataId(), record->GetRecordId(), entry->GetMimeType().c_str());
                 continue;
             }
+            if (entry->GetMimeType() == mimeType) {
+                record->SetUDMFValue(std::make_shared<EntryValue>(entry->GetValue()));
+            }
         }
     }
+    clips_.ComputeIfPresent(userId, [&data](auto, auto &value) {
+        if (data.GetDataId() != value->GetDataId()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "set data fail, data is out time, pre dataId is %{public}d, cur dataId is %{public}d",
+                data.GetDataId(), value->GetDataId());
+            return true;
+        }
+        value = std::make_shared<PasteData>(data);
+        return true;
+    });
 }
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)
