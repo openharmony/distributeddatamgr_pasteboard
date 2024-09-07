@@ -93,7 +93,7 @@ std::shared_ptr<PasteDataRecord> ConvertUtils::Convert(std::shared_ptr<UnifiedRe
     }
     std::shared_ptr<PasteDataRecord> pbRecord = std::make_shared<PasteDataRecord>();
     auto utdId = record->GetUtdId();
-    pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, record->GetValue()));
+    pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, record->GetOriginValue()));
     for (auto const& entry : Convert(record->GetEntries())) {
         if (entry == nullptr) {
             PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "entry is empty");
