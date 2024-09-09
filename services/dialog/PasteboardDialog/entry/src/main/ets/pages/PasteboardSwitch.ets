@@ -236,7 +236,7 @@ getStringSync() {
           Text($r('app.string.pasteboard_desc'))
             .fontSize($r('sys.float.ohos_id_text_size_body2'))
             .fontWeight(FontWeight.Regular)
-            .margin({ bottom: CommonConstants.CONTINUE_DESC_TEXT_MARGIN_BOTTOM })
+            .margin({ bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM })
             .fontColor($r('sys.color.ohos_id_color_text_secondary'))
             .textAlign(TextAlign.Center)
             .width('100%')
@@ -266,8 +266,8 @@ getStringSync() {
                 })
 
               Toggle({ type: ToggleType.Switch, isOn: this.isSwitchOn })
-                .width(CommonConstants.CONTINUE_SWITCH_WIDTH)
-                .height(CommonConstants.CONTINUE_SWITCH_HEIGHT)
+                .width(CommonConstants.PASTEBOARD_SWITCH_WIDTH)
+                .height(CommonConstants.PASTEBOARD_SWITCH_HEIGHT)
                 .hoverEffect(HoverEffect.None)
                 .onChange((isOn: boolean) => {
                   console.log(TAG + 'isOn:' + isOn);
