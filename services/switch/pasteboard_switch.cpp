@@ -23,7 +23,7 @@
 
 namespace OHOS::MiscServices {
 const constexpr char* DISTRIBUTED_PASTEDBOARD_SWITCH = "distributed_pasteboard_switch";
-constexpr char *SUPPORT_STATUS = "1";
+constexpr const char *SUPPORT_STATUS = "1";
 PastedSwitch::PastedSwitch()
 {
     switchObserver_ = new (std::nothrow) PastedSwitchObserver(
