@@ -142,7 +142,7 @@ private:
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; //ms
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
-    static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 4000;
+    static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
         explicit DelayGetterDeathRecipient(int32_t userId, PasteboardService &service);
