@@ -78,9 +78,8 @@ PasteboardClient::PasteboardClient()
 };
 PasteboardClient::~PasteboardClient()
 {
-    auto proxyService = GetPasteboardService();
-    if (proxyService != nullptr && !staticDestoryMonitor_.IsDestoryed()) {
-        auto remoteObject = proxyService->AsObject();
+    if (pasteboardServiceProxy_ != nullptr && !staticDestoryMonitor_.IsDestoryed()) {
+        auto remoteObject = pasteboardServiceProxy_->AsObject();
         if (remoteObject != nullptr) {
             remoteObject->RemoveDeathRecipient(deathRecipient_);
         }
