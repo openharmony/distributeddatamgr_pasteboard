@@ -755,12 +755,16 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysAppItemDataTest001, TestSize.Level
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::E_OK));
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
-    auto customData = pasteRecord->GetCustomData();
-    ASSERT_NE(customData, nullptr);
-    auto itemData = customData->GetItemData();
-    ASSERT_EQ(itemData.size(), 1);
-    auto item = itemData.find("openharmony.app-item");
-    ASSERT_NE(item, itemData.end());
+    auto details1 = pasteRecord->GetDetails();
+    auto udmfValue = pasteRecord->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto newAppItem1 = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, *udmfValue);
+    ASSERT_EQ(newAppItem1->GetAppId(), "appId");
+    ASSERT_EQ(newAppItem1->GetAppIconId(), "appIconId");
+    ASSERT_EQ(newAppItem1->GetAppName(), "appName");
+    ASSERT_EQ(newAppItem1->GetAppLabelId(), "appLabelId");
+    ASSERT_EQ(newAppItem1->GetBundleName(), "bundleName");
+    ASSERT_EQ(newAppItem1->GetAbilityName(), "abilityName");
 }
 
 /**
