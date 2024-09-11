@@ -38,6 +38,7 @@ class API_EXPORT PasteDataEntry : public TLVObject {
 public:
     using UDType = UDMF::UDType;
     PasteDataEntry() = default;
+    PasteDataEntry(const PasteDataEntry& entry);
     PasteDataEntry& operator=(const PasteDataEntry& entry);
     PasteDataEntry(const std::string& utdId, const EntryValue& value);
     PasteDataEntry(const std::string& utdId, const std::string& mimeType, const EntryValue& value);
