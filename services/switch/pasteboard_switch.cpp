@@ -23,6 +23,7 @@
 
 namespace OHOS::MiscServices {
 const constexpr char* DISTRIBUTED_PASTEDBOARD_SWITCH = "distributed_pasteboard_switch";
+constexpr const char *SUPPORT_STATUS = "1";
 PastedSwitch::PastedSwitch()
 {
     switchObserver_ = new (std::nothrow) PastedSwitchObserver(
@@ -42,10 +43,12 @@ void PastedSwitch::SetSwitch()
 {
     std::string value;
     DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEDBOARD_SWITCH, value);
-    if (!value.empty()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "set switch status to %{public}s.", value.c_str());
-        DevProfile::GetInstance().PutEnabledStatus(value);
+    if (value.empty()) {
+        DevProfile::GetInstance().PutEnabledStatus(SUPPORT_STATUS);
+        return;
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "set switch status to %{public}s.", value.c_str());
+    DevProfile::GetInstance().PutEnabledStatus(value);
 }
 
 void PastedSwitch::DeInit()

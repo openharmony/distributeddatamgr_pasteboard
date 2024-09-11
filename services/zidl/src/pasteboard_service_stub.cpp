@@ -193,7 +193,7 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write SetPasteData result");
         return ERR_INVALID_VALUE;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " end, ret is %{public}d.", result);
     return ERR_OK;
 }
 int32_t PasteboardServiceStub::OnSubscribeObserver(MessageParcel &data, MessageParcel &reply)

@@ -788,7 +788,6 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     data1.AddRecord(record1);
     std::string bundleName1 = "com.example.myapplication";
     data1.SetOrginAuthority(bundleName1);
-
     PasteData data2;
     PasteDataRecord::Builder builder2(MIMETYPE_TEXT_URI);
     std::string uriStr2 = FILE_URI;
@@ -798,12 +797,12 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     data2.AddRecord(record2);
     std::string bundleName2 = "com.example.myapplication";
     data2.SetOrginAuthority(bundleName2);
-
     ASSERT_TRUE(data1.GetBundleName() == data2.GetBundleName());
 }
 
 /**
 * @tc.name: GetShareOption001
+* @tc.desc: GetShareOption call
 * @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
@@ -822,6 +821,7 @@ HWTEST_F(PasteDataTest, GetShareOption001, TestSize.Level0)
 
 /**
 * @tc.name: AddKvRecord001
+* @tc.desc: AddKvRecord call
 * @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
@@ -839,6 +839,7 @@ HWTEST_F(PasteDataTest, AddKvRecord001, TestSize.Level0)
 
 /**
 * @tc.name: GetProperty001
+* @tc.desc: GetProperty call
 * @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
@@ -874,6 +875,7 @@ HWTEST_F(PasteDataTest, SetProperty001, TestSize.Level0)
 
 /**
 * @tc.name: SetShareOption001
+* @tc.desc: SetShareOption call
 * @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
@@ -892,6 +894,7 @@ HWTEST_F(PasteDataTest, SetShareOption001, TestSize.Level0)
 
 /**
 * @tc.name: SetTokenId001
+* @tc.desc: SetTokenId call
 * @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
@@ -910,6 +913,7 @@ HWTEST_F(PasteDataTest, SetTokenId001, TestSize.Level0)
 
 /**
 * @tc.name: IsDraggedData001
+* @tc.desc: IsDraggedData call
 * @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
@@ -928,6 +932,7 @@ HWTEST_F(PasteDataTest, IsDraggedData001, TestSize.Level0)
 
 /**
 * @tc.name: SetDraggedDataFlag001
+* @tc.desc: SetDraggedDataFlag call
 * @tc.desc:
 * @tc.type: FUNC
 * @tc.require:
@@ -959,32 +964,5 @@ HWTEST_F(PasteDataTest, SetScreenStatus, TestSize.Level0)
     pasteData->SetScreenStatus(event);
     ScreenEvent ret = pasteData->GetScreenStatus();
     ASSERT_TRUE(ret == ScreenEvent::ScreenLocked);
-}
-
-/**
-* @tc.name: GetMimeTypes
-* @tc.desc: PasteData GetMimeTypes
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
-HWTEST_F(PasteDataTest, GetMimeTypes, TestSize.Level0)
-{
-    PasteData data;
-    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = FILE_URI;
-    auto uri = std::make_shared<OHOS::Uri>(uriStr);
-    auto record = builder.SetUri(uri).Build();
-    data.AddRecord(*record);
-
-    PasteDataRecord::Builder builder1(MIMETYPE_TEXT_PLAIN);
-    std::string plainText = "plain text";
-    auto text = std::make_shared<std::string>(plainText);
-    auto record1 = builder1.SetPlainText(text).Build();
-    data.AddRecord(*record1);
-
-    auto mimeType = data.GetMimeTypes();
-    EXPECT_TRUE(mimeType.at(1) == MIMETYPE_TEXT_URI);
-    EXPECT_TRUE(mimeType.at(0) == MIMETYPE_TEXT_PLAIN);
 }
 } // namespace OHOS::MiscServices

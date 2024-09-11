@@ -194,6 +194,7 @@ private:
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
     std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
+
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
     int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime);
@@ -260,6 +261,7 @@ private:
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
+    std::mutex remoteMutex_;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
     std::map<std::string, int> typeMap_ = {
         { MIMETYPE_TEXT_PLAIN, PLAIN_INDEX },

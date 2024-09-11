@@ -35,7 +35,6 @@ ohos_fuzztest("UriHandlerFuzzTest") {
 
   sources = [
     "${pasteboard_root_path}/framework/uri/copy_uri_handler.cpp",
-    "${pasteboard_root_path}/framework/uri/uri_handler.cpp",
     "urihandler_fuzzer.cpp",
   ]
 
