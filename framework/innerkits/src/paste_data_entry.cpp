@@ -73,6 +73,11 @@ size_t MineCustomData::Count()
     return TLVObject::Count(itemData_);
 }
 
+PasteDataEntry::PasteDataEntry(const PasteDataEntry& entry)
+    : utdId_(entry.utdId_), mimeType_(entry.mimeType_), value_(entry.value_)
+{
+}
+
 PasteDataEntry& PasteDataEntry::operator=(const PasteDataEntry& entry)
 {
     if (this == &entry) {
