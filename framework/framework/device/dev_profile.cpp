@@ -144,7 +144,8 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    if (GetEnabledStatus(networkId) == (enabledStatus == SUPPORT_STATUS)) {
+    if (GetEnabledStatus(networkId) != static_cast<int32_t>(PasteboardError::E_OK) &&
+        (enabledStatus == SUPPORT_STATUS)) {
         return;
     }
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
@@ -175,7 +176,7 @@ int32_t DevProfile::GetEnabledStatus(const std::string &networkId)
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
-        return static_cast<int32_t>(PasteboardError::E_ERROR);
+        return static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR);
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SWITCH_ID,
@@ -185,12 +186,12 @@ int32_t DevProfile::GetEnabledStatus(const std::string &networkId)
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get status failed, %{public}.5s. ret:%{public}d", udid.c_str(), ret);
     if (ret == DP_LOAD_SERVICE_ERR) {
-        return static_cast<int32_t>(PasteboardError::E_DP_LOAD_SERVICE_ERR);
+        return static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR);
     }
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
 #endif
-    return static_cast<int32_t>(PasteboardError::E_ERROR);
+    return static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR);
 }
 
 void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)

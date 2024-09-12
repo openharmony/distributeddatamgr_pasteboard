@@ -36,7 +36,7 @@ void DistributedModuleConfig::Watch(Observer observer)
 void DistributedModuleConfig::Notify()
 {
     auto status = GetEnabledStatus();
-    if (status == static_cast<int32_t>(PasteboardError::E_DP_LOAD_SERVICE_ERR)) {
+    if (status == static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR)) {
         if (!retrying_.exchange(true)) {
             GetRetryTask();
         }
@@ -56,11 +56,11 @@ void DistributedModuleConfig::GetRetryTask()
     std::thread remover([this]() {
         retrying_.store(true);
         uint32_t retry = 0;
-        auto status = static_cast<int32_t>(PasteboardError::E_ERROR);
+        auto status = static_cast<int32_t>(PasteboardError::REMOTE_TASK_ERROR);
         while (retry < RETRY_TIMES) {
             ++retry;
             status = GetEnabledStatus();
-            if (status == static_cast<int32_t>(PasteboardError::E_DP_LOAD_SERVICE_ERR)) {
+            if (status == static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR)) {
                 PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "dp load err, retry:%{public}d, status_:%{public}d"
                     "newStatus:%{public}d", retry, status_, status);
                 std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_INTERVAL));
@@ -104,7 +104,7 @@ int32_t DistributedModuleConfig::GetEnabledStatus()
         }
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remoteEnabledStatus is false.");
-    return static_cast<int32_t>(PasteboardError::E_ERROR);
+    return static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR);
 }
 
 void DistributedModuleConfig::Online(const std::string &device)

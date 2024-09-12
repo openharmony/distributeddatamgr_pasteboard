@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include "iservice_registry.h"
 #include "pasteboard_dialog.h"
+#include "pasteboard_error.h"
 
 using namespace OHOS;
 
@@ -60,7 +61,7 @@ HWTEST_F(PasteboardDialogAbnormalBranchTest, ShowToastAbnormalTest, TestSize.Lev
     PasteBoardDialog::ToastMessageInfo message;
     message.appName = "myAppName";
     int32_t ret = PasteBoardDialog::GetInstance().ShowToast(message);
-    EXPECT_TRUE(ret == -1);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
 }
 
 /**

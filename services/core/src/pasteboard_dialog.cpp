@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "pasteboard_dialog.h"
+#include "pasteboard_error.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_proxy.h"
 #include "in_process_call_wrapper.h"
@@ -68,7 +69,7 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
     auto abilityManager = GetAbilityManagerService();
     if (abilityManager == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
-        return -1;
+        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     Want want;
     want.SetAction("");
@@ -81,7 +82,7 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
         connection_), nullptr));
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast failed, result:%{public}d", result);
-        return -1;
+        return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast success.");
     std::thread thread([this]() mutable {
@@ -89,7 +90,7 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
         CancelToast();
     });
     thread.detach();
-    return 0;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 void PasteBoardDialog::CancelToast()

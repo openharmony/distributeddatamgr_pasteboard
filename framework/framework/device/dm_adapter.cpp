@@ -15,6 +15,7 @@
 #include "device/dm_adapter.h"
 
 #include "pasteboard_hilog.h"
+#include "pasteboard_error.h"
 #ifdef PB_DEVICE_MANAGER_ENABLE
 #include "device_manager.h"
 #include "device_manager_callback.h"
@@ -196,11 +197,11 @@ int32_t DMAdapter::GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInf
     for (auto &device : devices) {
         if (device.networkId == networkId) {
             remoteDevice = device;
-            return RESULT_OK;
+            return static_cast<int32_t>(PasteboardError::E_OK);
         }
     }
 #endif
-    return -1;
+    return static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR);
 }
 
 std::string DMAdapter::GetUdidByNetworkId(const std::string &networkId)
@@ -256,7 +257,7 @@ int32_t DMAdapter::GetLocalDeviceType()
     }
     return deviceType;
 #else
-    return -1;
+    return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
 #endif
 }
 
