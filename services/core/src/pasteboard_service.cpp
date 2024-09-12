@@ -152,6 +152,7 @@ void PasteboardService::OnStart()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", ret);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
+
     if (Init() != ERR_OK) {
         auto callback = [this]() { Init(); };
         serviceHandler_->PostTask(callback, INIT_INTERVAL);
@@ -520,8 +521,8 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, 
     AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = READ_PASTEBOARD_PERMISSION;
-    info.successCount = 1;
-    info.failCount = 0;
+    info.successCount = isGrant ? 1 : 0;
+    info.failCount = isGrant ? 0 : 1;
     info.type = permUsedType;
     int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
     if (result != RET_SUCCESS) {
@@ -1025,9 +1026,7 @@ bool PasteboardService::HasPasteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        ScreenEvent screenStatus = GetCurrentScreenStatus();
-        if (screenStatus != ScreenEvent::ScreenUnlocked) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screenStatus:%{public}d.", screenStatus);
+        if (GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
             return false;
         }
         auto evt = GetValidDistributeEvent(userId);
@@ -1069,9 +1068,9 @@ std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEv
     Event evt;
     auto plugin = GetClipPlugin();
     if (plugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is nullptr ");
         return std::make_pair(false, evt);
     }
-
     auto events = plugin->GetTopEvents(1, user);
     if (events.empty()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "events empty.");
@@ -1137,11 +1136,12 @@ bool PasteboardService::IsRemoteData()
 {
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId is error ");
         return false;
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        auto evt =  GetValidDistributeEvent(userId);
+        auto evt = GetValidDistributeEvent(userId);
         return evt.first;
     }
     return it.second->IsRemote();

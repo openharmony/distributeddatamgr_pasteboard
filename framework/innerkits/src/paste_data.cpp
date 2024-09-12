@@ -545,7 +545,7 @@ bool PasteData::ReadFromParcel(Parcel &parcel)
         return false;
     }
     if (pasteDataTlv.size() == 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadFromParcel size = 0");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadFromParcel  size = 0 ");
         return false;
     }
     if (!Decode(pasteDataTlv)) {

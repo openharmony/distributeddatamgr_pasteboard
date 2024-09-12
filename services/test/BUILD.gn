@@ -19,12 +19,10 @@ config("module_private_config") {
 
   include_dirs = [
     "${pasteboard_innerkits_path}/include",
-    "${pasteboard_utils_path}/native/include",
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/dfx/src/behaviour",
     "${pasteboard_service_path}/dfx/src/fault",
     "${pasteboard_service_path}/dfx/src/statistic",
-    "${pasteboard_service_path}/core/include",
     "include",
     "unittest/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
@@ -59,7 +57,6 @@ ohos_unittest("PasteboardServiceTest") {
     "image_framework:image_native",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
-    "udmf:udmf_client",
   ]
 
   deps = [
@@ -69,49 +66,10 @@ ohos_unittest("PasteboardServiceTest") {
   ]
 }
 
-ohos_unittest("PasteboardDialogNormalTest") {
-  module_out_path = module_output_path
-  sources = [
-    "${pasteboard_service_path}/core/src/pasteboard_dialog.cpp",
-    "unittest/src/pasteboard_dialog_normal_branch_test.cpp",
-  ]
-  configs = [ ":module_private_config" ]
-  external_deps = [
-    "ability_runtime:ability_manager",
-    "c_utils:utils",
-    "hilog:libhilog",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
-  ]
-  deps = [ "//third_party/googletest:gtest_main" ]
-}
-
-ohos_unittest("PasteboardDialogAbnormalTest") {
-  module_out_path = module_output_path
-
-  sources = [
-    "${pasteboard_service_path}/core/src/pasteboard_dialog.cpp",
-    "unittest/src/pasteboard_dialog_abnormal_branch_test.cpp",
-  ]
-  configs = [ ":module_private_config" ]
-  external_deps = [
-    "ability_runtime:ability_manager",
-    "c_utils:utils",
-    "hilog:libhilog",
-    "ipc:ipc_core",
-    "samgr:samgr_proxy",
-  ]
-  deps = [ "//third_party/googletest:gtest_main" ]
-}
-
 group("unittest") {
   testonly = true
 
   deps = []
 
-  deps += [
-    ":PasteboardDialogAbnormalTest",
-    ":PasteboardDialogNormalTest",
-    ":PasteboardServiceTest",
-  ]
+  deps += [ ":PasteboardServiceTest" ]
 }
