@@ -312,6 +312,7 @@ private:
     void UpdateShareOption(PasteData &pasteData);
     void PasteboardEventSubscriber();
     void CommonEventSubscriber();
+    bool IsBasicType(const std::string &mimeType);
     std::function<void(const OHOS::MiscServices::Event &)> RemotePasteboardChange();
     std::shared_ptr<InputEventCallback> inputEventCallback_;
     DistributedModuleConfig moduleConfig_;
@@ -322,35 +323,19 @@ private:
     static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;
     SecurityLevel securityLevel_;
-    class PasteboardClientDeathObserverImpl {
+    class PasteboardDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
-        PasteboardClientDeathObserverImpl(PasteboardService &service, sptr<IRemoteObject> observer);
-        explicit PasteboardClientDeathObserverImpl(PasteboardService &service);
-        explicit PasteboardClientDeathObserverImpl(PasteboardClientDeathObserverImpl &&impl);
-        PasteboardClientDeathObserverImpl &operator=(PasteboardClientDeathObserverImpl &&impl);
-        virtual ~PasteboardClientDeathObserverImpl();
+        PasteboardDeathRecipient(PasteboardService &service, sptr<IRemoteObject> observer, pid_t pid);
+        virtual ~PasteboardDeathRecipient() = default;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
-        pid_t GetPid() const;
     private:
-        class PasteboardDeathRecipient : public IRemoteObject::DeathRecipient {
-        public:
-            explicit PasteboardDeathRecipient(PasteboardClientDeathObserverImpl &pasteboardClientDeathObserverImpl);
-            virtual ~PasteboardDeathRecipient();
-            void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
-
-        private:
-            PasteboardClientDeathObserverImpl &pasteboardClientDeathObserverImpl_;
-        };
-        void Reset();
-        pid_t uid_;
+        PasteboardService &service_;
+        sptr<IRemoteObject> observer_;
         pid_t pid_;
-        uint32_t token_;
-        PasteboardService &dataService_;
-        sptr<IRemoteObject> observerProxy_;
-        sptr<PasteboardDeathRecipient> deathRecipient_;
     };
-    int32_t AppExit(pid_t uid, pid_t pid, uint32_t token);
-    ConcurrentMap<pid_t, PasteboardClientDeathObserverImpl> clients_;
+    int32_t AppExit(pid_t pid);
+    ConcurrentMap<pid_t, sptr<PasteboardDeathRecipient>> clients_;
     static constexpr pid_t INVALID_UID = -1;
     static constexpr pid_t INVALID_PID = -1;
     static constexpr uint32_t INVALID_TOKEN = 0;
