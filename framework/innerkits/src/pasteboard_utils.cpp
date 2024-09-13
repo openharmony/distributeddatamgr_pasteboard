@@ -352,7 +352,7 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Link(const std::shar
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "udmfvalue is null");
         return nullptr;
     }
-    auto link = std::make_shared<UDMF::Link>(UDType::HYPERLINK, *udmfValue);
+    auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, *udmfValue);
     if (record->GetDetails()) {
         link->SetDetails(*record->GetDetails());
     }
