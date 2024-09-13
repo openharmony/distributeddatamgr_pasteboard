@@ -78,8 +78,9 @@ PasteboardClient::PasteboardClient()
 };
 PasteboardClient::~PasteboardClient()
 {
-    if (pasteboardServiceProxy_ != nullptr && !staticDestoryMonitor_.IsDestoryed()) {
-        auto remoteObject = pasteboardServiceProxy_->AsObject();
+    auto pasteboardServiceProxy = GetPasteboardServiceProxy();
+    if (pasteboardServiceProxy != nullptr && !staticDestoryMonitor_.IsDestoryed()) {
+        auto remoteObject = pasteboardServiceProxy->AsObject();
         if (remoteObject != nullptr) {
             remoteObject->RemoveDeathRecipient(deathRecipient_);
         }
@@ -631,6 +632,11 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
         return nullptr;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
+    return pasteboardServiceProxy_;
+}
+
+sptr<IPasteboardService> PasteboardClient::GetPasteboardServiceProxy()
+{
     return pasteboardServiceProxy_;
 }
 
