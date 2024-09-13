@@ -393,7 +393,6 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
     auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, *udmfValue);
     ASSERT_EQ(link->GetUrl(), text_);
     ASSERT_EQ(link->GetDescription(), extraText_);
-    ASSERT_EQ(link->GetDetails(), details_);
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
@@ -402,8 +401,10 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newType, UDMF::HYPERLINK);
     auto newPlainRecord = static_cast<UDMF::Link*>(newRecord.get());
     auto newUrl = newPlainRecord->GetUrl();
+    auto newDescription = newPlainRecord->GetDescription();
     auto newDetails = newPlainRecord->GetDetails();
     ASSERT_EQ(newUrl, text_);
+    ASSERT_EQ(newDescription, extraText_);
     ASSERT_EQ(newDetails, details_);
 }
 

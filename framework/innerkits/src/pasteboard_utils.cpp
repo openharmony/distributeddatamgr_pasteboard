@@ -20,7 +20,6 @@
 #include "html.h"
 #include "image.h"
 #include "link.h"
-#include "paste_data_entry.h"
 #include "paste_data_record.h"
 #include "pixel_map.h"
 #include "plain_text.h"
@@ -328,7 +327,17 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Link2PasteRecord(const std::sh
     }
     auto pbRecord = std::make_shared<PasteDataRecord>();
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HYPERLINK);
-    pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, record->GetValue()));
+    auto value = record->GetOriginValue();
+    if (std::holds_alternative<std::shared_ptr<Object>>(value)) {
+        pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, value));
+        return pbRecord;
+    }
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    object->value_[UDMF::URL] = link->GetUrl();
+    object->value_[UDMF::DESCRIPTION] = link->GetDescription();
+    pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
+    pbRecord->SetDetails(link->GetDetails());
     return pbRecord;
 }
 
@@ -343,7 +352,11 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Link(const std::shar
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "udmfvalue is null");
         return nullptr;
     }
-    return std::make_shared<UDMF::Link>(UDType::HYPERLINK, *udmfValue);
+    auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, *udmfValue);
+    if (record->GetDetails()) {
+        link->SetDetails(*record->GetDetails());
+    }
+    return link;
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardUtils::File2PasteRecord(const std::shared_ptr<UnifiedRecord> record)

@@ -368,7 +368,6 @@ HWTEST_F(PasteboardUnifiedDataTest, SetLink001, TestSize.Level0)
     auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, *udmfValue);
     ASSERT_EQ(link->GetUrl(), text_);
     ASSERT_EQ(link->GetDescription(), extraText_);
-    ASSERT_EQ(link->GetDetails(), details_);
 }
 
 /**
