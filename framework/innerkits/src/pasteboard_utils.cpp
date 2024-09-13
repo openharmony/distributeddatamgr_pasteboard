@@ -20,7 +20,6 @@
 #include "html.h"
 #include "image.h"
 #include "link.h"
-#include "paste_data_entry.h"
 #include "paste_data_record.h"
 #include "pixel_map.h"
 #include "plain_text.h"
