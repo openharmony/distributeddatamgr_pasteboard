@@ -1248,6 +1248,12 @@ std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEv
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "account error.");
         return std::make_pair(false, evt);
     }
+    DmDeviceInfo remoteDevice;
+    auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(evt.deviceId, remoteDevice);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "deviceId: %{public}.6s is offline", evt.deviceId.c_str());
+        return std::make_pair(false, evt);
+    }
 
     if (evt.deviceId == currentEvent_.deviceId && evt.seqId == currentEvent_.seqId &&
         evt.expiration == currentEvent_.expiration) {

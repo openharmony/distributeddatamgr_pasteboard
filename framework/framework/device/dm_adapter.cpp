@@ -58,6 +58,7 @@ public:
         if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
             online_(deviceInfo);
         }
+        DMAdapter::GetInstance().SetDevices();
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device config changed:%{public}.6s", deviceInfo.networkId);
     }
 
