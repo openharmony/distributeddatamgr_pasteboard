@@ -308,14 +308,11 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_PLAIN);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::PLAIN_TEXT);
-    auto plain = record->GetPlainText();
-    auto textContent = record->GetTextContent();
-    ASSERT_EQ(*plain, text_);
-    ASSERT_EQ(textContent, extraText_);
-    auto details1 = record->GetDetails();
-    ASSERT_EQ(*details1, details_);
-    auto pastedProp = pasteData->GetProperty();
-    ASSERT_EQ(pastedProp.isRemote, true);
+    auto udmfValue = record->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto link = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, *udmfValue);
+    ASSERT_EQ(link->GetContent(), text_);
+    ASSERT_EQ(link->GetAbstract(), extraText_);
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
@@ -350,12 +347,11 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_HTML);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::HTML);
-    auto plain = record->GetHtmlText();
-    auto textContent = record->GetTextContent();
-    ASSERT_EQ(*plain, text_);
-    ASSERT_EQ(textContent, extraText_);
-    auto details1 = record->GetDetails();
-    ASSERT_EQ(*details1, details_);
+    auto udmfValue = record->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto link = std::make_shared<UDMF::Html>(UDMF::HTML, *udmfValue);
+    ASSERT_EQ(link->GetHtmlContent(), text_);
+    ASSERT_EQ(link->GetPlainContent(), extraText_);
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());

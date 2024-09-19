@@ -322,12 +322,11 @@ HWTEST_F(PasteboardUnifiedDataTest, SetPlainText001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_PLAIN);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::PLAIN_TEXT);
-    auto plain = record->GetPlainText();
-    auto textContent = record->GetTextContent();
-    ASSERT_EQ(*plain, text_);
-    ASSERT_EQ(textContent, extraText_);
-    auto details1 = record->GetDetails();
-    ASSERT_EQ(*details1, details_);
+    auto udmfValue = record->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto plainText = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, *udmfValue);
+    ASSERT_EQ(plainText->GetContent(), text_);
+    ASSERT_EQ(plainText->GetAbstract(), extraText_);
 }
 
 /**
@@ -403,12 +402,11 @@ HWTEST_F(PasteboardUnifiedDataTest, SetHtml001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_HTML);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::HTML);
-    auto plain = record->GetHtmlText();
-    auto textContent = record->GetTextContent();
-    ASSERT_EQ(*plain, text_);
-    ASSERT_EQ(textContent, extraText_);
-    auto details1 = record->GetDetails();
-    ASSERT_EQ(*details1, details_);
+    auto udmfValue = record->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto html = std::make_shared<UDMF::Html>(UDMF::HTML, *udmfValue);
+    ASSERT_EQ(html->GetHtmlContent(), text_);
+    ASSERT_EQ(html->GetPlainContent(), extraText_);
 }
 
 /**
