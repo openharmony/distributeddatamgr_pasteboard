@@ -45,6 +45,9 @@ public:
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
     {
+        if (offline_ == nullptr)  {
+            return;
+        }
         offline_(deviceInfo);
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device off:%{public}.6s", deviceInfo.networkId);
     }
