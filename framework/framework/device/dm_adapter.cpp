@@ -45,9 +45,6 @@ public:
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
     {
-        if (offline_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT)  {
-            return;
-        }
         offline_(deviceInfo);
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device off:%{public}.6s", deviceInfo.networkId);
     }
@@ -58,7 +55,6 @@ public:
         if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
             online_(deviceInfo);
         }
-        DMAdapter::GetInstance().SetDevices();
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device config changed:%{public}.6s", deviceInfo.networkId);
     }
 
