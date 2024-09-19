@@ -639,6 +639,7 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
 
 sptr<IPasteboardService> PasteboardClient::GetPasteboardServiceProxy()
 {
+    std::lock_guard<std::mutex> lock(instanceLock_);
     return pasteboardServiceProxy_;
 }
 
