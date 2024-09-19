@@ -45,7 +45,7 @@ public:
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
     {
-        if (offline_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT)  {
+        if (offline_ == nullptr)  {
             return;
         }
         offline_(deviceInfo);
