@@ -281,7 +281,7 @@ void PasteboardService::NotifySaStatus()
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, PASTEBOARD_SERVICE_ID);
 }
 
-void PasteboardService::ReportUeCopyEvent(PasteData& pasteData, int32_t result)
+void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int32_t result)
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     result = (result == static_cast<int32_t>(PasteboardError::E_OK)) ? UeReporter::E_OK_OPERATION : result;
@@ -1190,7 +1190,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
     return ret;
 }
 
-int32_t PasteboardService::SaveData(std::shared_ptr<PasteData>& pasteData,
+int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData,
     sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
@@ -1220,7 +1220,7 @@ int32_t PasteboardService::SaveData(std::shared_ptr<PasteData>& pasteData,
     pasteData->SetTokenId(tokenId);
     auto dataId = ++dataId_;
     pasteData->SetDataId(dataId);
-    for (auto& record : pasteData->AllRecords()) {
+    for (auto &record : pasteData->AllRecords()) {
         record->SetDataId(dataId);
     }
     UpdateShareOption(*pasteData);

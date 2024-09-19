@@ -262,7 +262,7 @@ private:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DMAdapterInit();
     void NotifySaStatus();
-    void ReportUeCopyEvent(PasteData& pasteData, int32_t result);
+    void ReportUeCopyEvent(PasteData &pasteData, int32_t result);
 
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
