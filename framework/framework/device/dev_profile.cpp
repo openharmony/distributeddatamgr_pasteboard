@@ -21,12 +21,14 @@
 #include "distributed_module_config.h"
 #include "dm_adapter.h"
 #include "pasteboard_error.h"
+#include "pasteboard_event_ue.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 using namespace OHOS::DistributedDeviceProfile;
+using namespace UeReporter;
 constexpr const int32_t HANDLE_OK = 0;
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
@@ -144,8 +146,8 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    if (GetEnabledStatus(networkId) != static_cast<int32_t>(PasteboardError::E_OK) &&
-        (enabledStatus == SUPPORT_STATUS)) {
+    auto res = GetEnabledStatus(networkId);
+    if (res == static_cast<int32_t>(PasteboardError::E_OK) && (enabledStatus == SUPPORT_STATUS)) {
         return;
     }
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
@@ -154,6 +156,9 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
             networkId.c_str());
         return;
     }
+    UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE,
+        (res == static_cast<int32_t>(PasteboardError::E_OK)) ?
+        UeReporter::SwitchStatus::SWITCH_CLOSE : UeReporter::SwitchStatus::SWITCH_OPEN);
     DistributedDeviceProfile::CharacteristicProfile profile;
     profile.SetDeviceId(udid);
     profile.SetServiceName(SWITCH_ID);

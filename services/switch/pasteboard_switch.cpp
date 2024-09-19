@@ -17,11 +17,13 @@
 #include "datashare_delegate.h"
 #include "pasteboard_hilog.h"
 #include "dev_profile.h"
+#include "pasteboard_event_ue.h"
 
 #include <memory>
 #include <string>
 
 namespace OHOS::MiscServices {
+using namespace UeReporter;
 const constexpr char* DISTRIBUTED_PASTEDBOARD_SWITCH = "distributed_pasteboard_switch";
 constexpr const char *SUPPORT_STATUS = "1";
 PastedSwitch::PastedSwitch()
@@ -37,6 +39,7 @@ void PastedSwitch::Init()
 {
     DataShareDelegate::GetInstance().RegisterObserver(DISTRIBUTED_PASTEDBOARD_SWITCH, switchObserver_);
     SetSwitch();
+    ReportUeSwitchEvent();
 }
 
 void PastedSwitch::SetSwitch()
@@ -54,6 +57,15 @@ void PastedSwitch::SetSwitch()
 void PastedSwitch::DeInit()
 {
     DataShareDelegate::GetInstance().UnregisterObserver(DISTRIBUTED_PASTEDBOARD_SWITCH, switchObserver_);
+}
+
+void PastedSwitch::ReportUeSwitchEvent()
+{
+    std::string value;
+    DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEDBOARD_SWITCH, value);
+    UE_SWITCH(UeReporter::UE_SWITCH_STATUS, UeReporter::UE_STATUS_TYPE,
+        (value == SUPPORT_STATUS) ? UeReporter::SwitchStatus::SWITCH_OPEN
+                                  : UeReporter::SwitchStatus::SWITCH_CLOSE);
 }
 
 void PastedSwitchObserver::OnChange()

@@ -211,6 +211,9 @@ private:
     int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
         sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         sptr<IPasteboardEntryGetter> entryGetter = nullptr) override;
+    int32_t SaveData(std::shared_ptr<PasteData>& pasteData,
+        sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+        sptr<IPasteboardEntryGetter> entryGetter = nullptr);
     int32_t PreParePasteData(std::shared_ptr<PasteData> &pasteData, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
@@ -259,6 +262,7 @@ private:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DMAdapterInit();
     void NotifySaStatus();
+    void ReportUeCopyEvent(PasteData& pasteData, int32_t result);
 
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
