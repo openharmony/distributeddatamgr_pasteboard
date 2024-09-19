@@ -78,11 +78,13 @@ PasteboardClient::PasteboardClient()
 };
 PasteboardClient::~PasteboardClient()
 {
-    auto pasteboardServiceProxy = GetPasteboardServiceProxy();
-    if (pasteboardServiceProxy != nullptr && !staticDestoryMonitor_.IsDestoryed()) {
-        auto remoteObject = pasteboardServiceProxy->AsObject();
-        if (remoteObject != nullptr) {
-            remoteObject->RemoveDeathRecipient(deathRecipient_);
+    if (!staticDestoryMonitor_.IsDestoryed()) {
+        auto pasteboardServiceProxy = GetPasteboardServiceProxy();
+        if (pasteboardServiceProxy != nullptr) {
+            auto remoteObject = pasteboardServiceProxy->AsObject();
+            if (remoteObject != nullptr) {
+                remoteObject->RemoveDeathRecipient(deathRecipient_);
+            }
         }
     }
 }
