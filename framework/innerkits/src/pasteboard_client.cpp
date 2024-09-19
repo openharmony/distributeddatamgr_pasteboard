@@ -50,11 +50,13 @@ PasteboardClient::PasteboardClient()
 };
 PasteboardClient::~PasteboardClient()
 {
-    auto proxyService = GetPasteboardService();
-    if (proxyService != nullptr && !staticDestoryMonitor_.IsDestoryed()) {
-        auto remoteObject = proxyService->AsObject();
-        if (remoteObject != nullptr) {
-            remoteObject->RemoveDeathRecipient(deathRecipient_);
+    if (!staticDestoryMonitor_.IsDestoryed()) {
+        auto pasteboardServiceProxy = GetPasteboardServiceProxy();
+        if (pasteboardServiceProxy != nullptr) {
+            auto remoteObject = pasteboardServiceProxy->AsObject();
+            if (remoteObject != nullptr) {
+                remoteObject->RemoveDeathRecipient(deathRecipient_);
+            }
         }
     }
 }
@@ -595,6 +597,12 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
         return nullptr;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
+    return pasteboardServiceProxy_;
+}
+
+sptr<IPasteboardService> PasteboardClient::GetPasteboardServiceProxy()
+{
+    std::lock_guard<std::mutex> lock(instanceLock_);
     return pasteboardServiceProxy_;
 }
 
