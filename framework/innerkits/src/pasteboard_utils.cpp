@@ -219,15 +219,20 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::PlainText2PasteRecord(const st
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get PLAIN_TEXT record failed.");
         return nullptr;
     }
-    auto plainTextRecord = PasteDataRecord::NewPlaintTextRecord(plainText->GetContent());
-    if (plainTextRecord == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "create plaint text record failed.");
-        return nullptr;
+    auto pbRecord = std::make_shared<PasteDataRecord>();
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::PLAIN_TEXT);
+    auto value = record->GetOriginValue();
+    if (std::holds_alternative<std::shared_ptr<Object>>(value)) {
+        pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, value));
+        return pbRecord;
     }
-    plainTextRecord->SetDetails(plainText->GetDetails());
-    plainTextRecord->SetTextContent(plainText->GetAbstract());
-    plainTextRecord->SetUDType(UDMF::PLAIN_TEXT);
-    return plainTextRecord;
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    object->value_[UDMF::CONTENT] = plainText->GetContent();
+    object->value_[UDMF::ABSTRACT] = plainText->GetAbstract();
+    pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
+    pbRecord->SetDetails(plainText->GetDetails());
+    return pbRecord;
 }
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2PlaintText(const std::shared_ptr<PasteDataRecord> record)
@@ -236,17 +241,16 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2PlaintText(const std
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to plain, record is null.");
         return nullptr;
     }
-    auto plaint = record->GetPlainText();
-    if (plaint == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get plain from paste record to plain failed.");
+    auto udmfValue = record->GetUDMFValue();
+    if (!udmfValue) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "udmfvalue is null");
         return nullptr;
     }
-    auto unifiedRecord = std::make_shared<UDMF::PlainText>(*plaint, record->GetTextContent());
-    auto details = record->GetDetails();
-    if (details != nullptr) {
-        unifiedRecord->SetDetails(*details);
+    auto plainText = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, *udmfValue);
+    if (record->GetDetails()) {
+        plainText->SetDetails(*record->GetDetails());
     }
-    return unifiedRecord;
+    return plainText;
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardUtils::Want2PasteRecord(const std::shared_ptr<UnifiedRecord> record)
@@ -288,15 +292,20 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Html2PasteRecord(const std::sh
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get HTML record failed.");
         return nullptr;
     }
-    auto htmlRecord = PasteDataRecord::NewHtmlRecord(html->GetHtmlContent());
-    if (htmlRecord == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "create html record failed.");
-        return nullptr;
+    auto pbRecord = std::make_shared<PasteDataRecord>();
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HTML);
+    auto value = record->GetOriginValue();
+    if (std::holds_alternative<std::shared_ptr<Object>>(value)) {
+        pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, value));
+        return pbRecord;
     }
-    htmlRecord->SetTextContent(html->GetPlainContent());
-    htmlRecord->SetUDType(UDMF::HTML);
-    htmlRecord->SetDetails(html->GetDetails());
-    return htmlRecord;
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    object->value_[UDMF::HTML_CONTENT] = html->GetHtmlContent();
+    object->value_[UDMF::PLAIN_CONTENT] = html->GetPlainContent();
+    pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
+    pbRecord->SetDetails(html->GetDetails());
+    return pbRecord;
 }
 
 std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Html(const std::shared_ptr<PasteDataRecord> record)
@@ -305,17 +314,16 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Html(const std::shar
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "to html, record is null.");
         return nullptr;
     }
-    auto html = record->GetHtmlText();
-    if (html == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get HTML from paste record failed.");
+    auto udmfValue = record->GetUDMFValue();
+    if (!udmfValue) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "udmfvalue is null");
         return nullptr;
     }
-    auto unifiedRecord = std::make_shared<UDMF::Html>(*(record->GetHtmlText()), record->GetTextContent());
-    auto details = record->GetDetails();
-    if (details != nullptr) {
-        unifiedRecord->SetDetails(*details);
+    auto html = std::make_shared<UDMF::Html>(UDMF::HTML, *udmfValue);
+    if (record->GetDetails()) {
+        html->SetDetails(*record->GetDetails());
     }
-    return unifiedRecord;
+    return html;
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardUtils::Link2PasteRecord(const std::shared_ptr<UnifiedRecord> record)
