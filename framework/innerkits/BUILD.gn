@@ -39,6 +39,7 @@ ohos_shared_library("pasteboard_client") {
     debug = false
   }
   sources = [
+    "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
     "${pasteboard_service_path}/zidl/src/ipasteboard_client_death_observer.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_client.cpp",
