@@ -1245,8 +1245,6 @@ int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData,
 void PasteboardService::HandleDelayDataAndRecord(std::shared_ptr<PasteData> &pasteData,
     sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter, const AppInfo& appInfo)
 {
-    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
-        appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
     if (pasteData->IsDelayData()) {
         sptr<DelayGetterDeathRecipient> deathRecipient =
             new (std::nothrow) DelayGetterDeathRecipient(appInfo.userId, *this);

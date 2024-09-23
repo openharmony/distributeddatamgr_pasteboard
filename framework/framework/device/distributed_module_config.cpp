@@ -93,8 +93,9 @@ int32_t DistributedModuleConfig::GetEnabledStatus()
     auto localNetworkId = DMAdapter::GetInstance().GetLocalNetworkId();
     auto status = DevProfile::GetInstance().GetEnabledStatus(localNetworkId);
     if (status.first != static_cast<int32_t>(PasteboardError::E_OK) || status.second != SUPPORT_STATUS) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false, status:%{public}d", status.first);
-        return status.first;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false, status:%{public}d, switch:%{public}s",
+            status.first, status.second.c_str());
+        return static_cast<int32_t>(PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON);
     }
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", networkIds.size());
