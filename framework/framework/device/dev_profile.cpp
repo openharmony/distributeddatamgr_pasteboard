@@ -158,7 +158,7 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     }
     UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE,
         (enabledStatus == SUPPORT_STATUS) ?
-        UeReporter::SwitchStatus::SWITCH_CLOSE : UeReporter::SwitchStatus::SWITCH_OPEN);
+        UeReporter::SwitchStatus::SWITCH_OPEN : UeReporter::SwitchStatus::SWITCH_CLOSE);
     DistributedDeviceProfile::CharacteristicProfile profile;
     profile.SetDeviceId(udid);
     profile.SetServiceName(SWITCH_ID);
