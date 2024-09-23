@@ -146,8 +146,9 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    auto res = GetEnabledStatus(networkId);
-    if (res == static_cast<int32_t>(PasteboardError::E_OK) && (enabledStatus == SUPPORT_STATUS)) {
+    auto ret = GetEnabledStatus(networkId);
+    if (ret.first == static_cast<int32_t>(PasteboardError::E_OK) &&
+        (enabledStatus == ret.second)) {
         return;
     }
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
@@ -175,28 +176,28 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #endif
 }
 
-int32_t DevProfile::GetEnabledStatus(const std::string &networkId)
+std::pair<int32_t, std::string> DevProfile::GetEnabledStatus(const std::string &networkId)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
-        return static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR);
+        return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR), "");
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
     int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SWITCH_ID,
         CHARACTER_ID, profile);
     if (ret == HANDLE_OK && profile.GetCharacteristicValue() == SUPPORT_STATUS) {
-        return static_cast<int32_t>(PasteboardError::E_OK);
+        return std::make_pair(static_cast<int32_t>(PasteboardError::E_OK), SUPPORT_STATUS);
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get status failed, %{public}.5s. ret:%{public}d", udid.c_str(), ret);
     if (ret == DP_LOAD_SERVICE_ERR) {
-        return static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR);
+        return std::make_pair(static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR), "");
     }
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
 #endif
-    return static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR);
+    return std::make_pair(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), "");
 }
 
 void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)

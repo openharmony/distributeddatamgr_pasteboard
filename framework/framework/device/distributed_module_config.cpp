@@ -91,7 +91,7 @@ size_t DistributedModuleConfig::GetDeviceNum()
 int32_t DistributedModuleConfig::GetEnabledStatus()
 {
     auto localNetworkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    auto status = DevProfile::GetInstance().GetEnabledStatus(localNetworkId);
+    auto status = DevProfile::GetInstance().GetEnabledStatus(localNetworkId).first;
     if (status != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false, status:%{public}d", status);
         return status;
@@ -99,7 +99,7 @@ int32_t DistributedModuleConfig::GetEnabledStatus()
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", networkIds.size());
     for (auto &id : networkIds) {
-        if (DevProfile::GetInstance().GetEnabledStatus(id) == static_cast<int32_t>(PasteboardError::E_OK)) {
+        if (DevProfile::GetInstance().GetEnabledStatus(id).first == static_cast<int32_t>(PasteboardError::E_OK)) {
             return static_cast<int32_t>(PasteboardError::E_OK);
         }
     }
