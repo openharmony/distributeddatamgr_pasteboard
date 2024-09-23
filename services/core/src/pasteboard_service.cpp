@@ -1186,8 +1186,7 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
     const sptr<IPasteboardEntryGetter> entryGetter)
 {
     auto data = std::make_shared<PasteData>(pasteData);
-    auto ret = SavePasteData(data, delayGetter, entryGetter);
-    return ret;
+    return SavePasteData(data, delayGetter, entryGetter);
 }
 
 int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData,
