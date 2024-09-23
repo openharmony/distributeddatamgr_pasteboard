@@ -103,6 +103,7 @@ PasteboardService::PasteboardService()
 
 PasteboardService::~PasteboardService()
 {
+    clients_.Clear();
 }
 
 int32_t PasteboardService::Init()
@@ -1043,6 +1044,14 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
     return SavePasteData(data);
 }
 
+bool PasteboardService::IsBasicType(const std::string &mimeType)
+{
+    if (mimeType == MIMETYPE_TEXT_HTML || mimeType == MIMETYPE_TEXT_PLAIN || mimeType == MIMETYPE_TEXT_URI) {
+        return true;
+    }
+    return false;
+}
+
 bool PasteboardService::HasDataType(const std::string &mimeType)
 {
     if (GetCurrentScreenStatus() == ScreenEvent::ScreenUnlocked) {
@@ -1052,6 +1061,9 @@ bool PasteboardService::HasDataType(const std::string &mimeType)
             auto it = std::find(event.second.dataType.begin(), event.second.dataType.end(), mimeType);
             if (it != event.second.dataType.end()) {
                 return true;
+            }
+            if (IsBasicType(mimeType)) {
+                return false;
             }
             PasteData data;
             int32_t syncTime = 0;
@@ -2061,8 +2073,9 @@ void PasteboardService::CommonEventSubscriber()
     EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
 }
 
-int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
+int32_t PasteboardService::AppExit(pid_t pid)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid %{public}d exit.", pid);
     std::vector<std::string> networkIds;
     p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
         pidMap.EraseIf([pid, this](auto &key, auto &value) {
@@ -2081,91 +2094,30 @@ int32_t PasteboardService::AppExit(pid_t uid, pid_t pid, uint32_t token)
     for (const auto& id: networkIds) {
         CloseP2PLink(id);
     }
+    clients_.Erase(pid);
     return ERR_OK;
 }
 
-PasteboardService::PasteboardClientDeathObserverImpl::PasteboardClientDeathObserverImpl(PasteboardService &service,
-    sptr<IRemoteObject> observer) : dataService_(service), observerProxy_(std::move(observer)),
-    deathRecipient_(new PasteboardDeathRecipient(*this))
-{
-    uid_ = IPCSkeleton::GetCallingUid();
-    pid_ = IPCSkeleton::GetCallingPid();
-    token_ = IPCSkeleton::GetCallingTokenID();
-    if (observerProxy_ != nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add death recipient");
-        observerProxy_->AddDeathRecipient(deathRecipient_);
-    } else {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observerProxy_ is nullptr");
-    }
-}
-
-PasteboardService::PasteboardClientDeathObserverImpl::PasteboardClientDeathObserverImpl(PasteboardService &service)
-    : dataService_(service)
-{
-    Reset();
-}
-
-PasteboardService::PasteboardClientDeathObserverImpl::PasteboardClientDeathObserverImpl(
-    PasteboardClientDeathObserverImpl &&impl)
-    : uid_(impl.uid_), pid_(impl.pid_), token_(impl.token_), dataService_(impl.dataService_)
-{
-    impl.Reset();
-}
-
-PasteboardService::PasteboardClientDeathObserverImpl &PasteboardService::PasteboardClientDeathObserverImpl::operator=(
-    PasteboardService::PasteboardClientDeathObserverImpl &&impl)
-{
-    uid_ = impl.uid_;
-    pid_ = impl.pid_;
-    token_ = impl.token_;
-    impl.Reset();
-    return *this;
-}
-
-pid_t PasteboardService::PasteboardClientDeathObserverImpl::GetPid() const
-{
-    return pid_;
-}
-
-void PasteboardService::PasteboardClientDeathObserverImpl::Reset()
-{
-    uid_ = INVALID_UID;
-    pid_ = INVALID_PID;
-    token_ = INVALID_TOKEN;
-}
-
-PasteboardService::PasteboardClientDeathObserverImpl::~PasteboardClientDeathObserverImpl()
-{
-    if (deathRecipient_ != nullptr && observerProxy_ != nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "remove death recipient");
-        observerProxy_->RemoveDeathRecipient(deathRecipient_);
-    }
-}
-
-PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::PasteboardDeathRecipient(
-    PasteboardClientDeathObserverImpl &pasteboardClientDeathObserverImpl)
-    : pasteboardClientDeathObserverImpl_(pasteboardClientDeathObserverImpl)
-{
-}
-
-void PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::OnRemoteDied(
-    const wptr<IRemoteObject> &remote)
+void PasteboardService::PasteboardDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     (void) remote;
-    auto uid = pasteboardClientDeathObserverImpl_.uid_;
-    auto pid = pasteboardClientDeathObserverImpl_.pid_;
-    auto token = pasteboardClientDeathObserverImpl_.token_;
-    pasteboardClientDeathObserverImpl_.dataService_.AppExit(uid, pid, token);
+    service_.AppExit(pid_);
 }
 
-PasteboardService::PasteboardClientDeathObserverImpl::PasteboardDeathRecipient::~PasteboardDeathRecipient()
+PasteboardService::PasteboardDeathRecipient::PasteboardDeathRecipient(PasteboardService &service,
+    sptr<IRemoteObject> observer, pid_t pid)
+    : service_(service), observer_(observer), pid_(pid)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Construct Pasteboard Client Death Recipient, pid: %{public}d", pid);
 }
 
 int32_t PasteboardService::RegisterClientDeathObserver(sptr<IRemoteObject> observer)
 {
-    clients_.Emplace(std::piecewise_construct, std::forward_as_tuple(IPCSkeleton::GetCallingPid()),
-        std::forward_as_tuple(*this, observer));
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    sptr<PasteboardDeathRecipient> deathRecipient =
+        new (std::nothrow) PasteboardDeathRecipient(*this, observer, pid);
+    observer->AddDeathRecipient(deathRecipient);
+    clients_.InsertOrAssign(pid, std::move(deathRecipient));
     return ERR_OK;
 }
 
