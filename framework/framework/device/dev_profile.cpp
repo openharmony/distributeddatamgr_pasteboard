@@ -157,7 +157,7 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
         return;
     }
     UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE,
-        (res == static_cast<int32_t>(PasteboardError::E_OK)) ?
+        (enabledStatus == SUPPORT_STATUS) ?
         UeReporter::SwitchStatus::SWITCH_CLOSE : UeReporter::SwitchStatus::SWITCH_OPEN);
     DistributedDeviceProfile::CharacteristicProfile profile;
     profile.SetDeviceId(udid);

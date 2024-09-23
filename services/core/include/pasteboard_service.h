@@ -214,9 +214,8 @@ private:
     int32_t SaveData(std::shared_ptr<PasteData>& pasteData,
         sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         sptr<IPasteboardEntryGetter> entryGetter = nullptr);
-    int32_t CheckAndInitialize(std::shared_ptr<PasteData>& pasteData);
     void HandleDelayDataAndRecord(std::shared_ptr<PasteData> &pasteData,
-        sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter);
+        sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter, const AppInfo& appInfo);
     int32_t PreParePasteData(std::shared_ptr<PasteData> &pasteData, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);

@@ -284,8 +284,8 @@ void PasteboardService::NotifySaStatus()
 void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int32_t result)
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
-    result = (result == static_cast<int32_t>(PasteboardError::E_OK)) ? UeReporter::E_OK_OPERATION : result;
-    UE_REPORT(UeReporter::UE_COPY, GenerateDataType(pasteData), appInfo.bundleName, result,
+    auto res = (result == static_cast<int32_t>(PasteboardError::E_OK)) ? UeReporter::E_OK_OPERATION : result;
+    UE_REPORT(UeReporter::UE_COPY, GenerateDataType(pasteData), appInfo.bundleName, res,
         DMAdapter::GetInstance().GetLocalDeviceType());
 }
 
@@ -1194,29 +1194,6 @@ int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData,
     sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
-    auto checkResult = CheckAndInitialize(pasteData);
-    if (checkResult != static_cast<int32_t>(PasteboardError::E_OK)) {
-        return checkResult;
-    }
-    auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
-    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
-        appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
-    HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter);
-    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
-    copyTime_.InsertOrAssign(appInfo.userId, curTime);
-    if (!(pasteData->IsDelayData())) {
-        SetDistributedData(appInfo.userId, *pasteData);
-        NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
-    }
-    SetPasteDataDot(*pasteData);
-    setting_.store(false);
-    SubscribeKeyboardEvent();
-    return static_cast<int32_t>(PasteboardError::E_OK);
-}
-
-int32_t PasteboardService::CheckAndInitialize(std::shared_ptr<PasteData> &pasteData)
-{
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsCopyable(tokenId)) {
         RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_AUTHORITY, DFX_SUCCESS);
@@ -1250,13 +1227,25 @@ int32_t PasteboardService::CheckAndInitialize(std::shared_ptr<PasteData> &pasteD
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     clips_.InsertOrAssign(appInfo.userId, pasteData);
+    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
+        appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
+    HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
+    copyTime_.InsertOrAssign(appInfo.userId, curTime);
+    if (!(pasteData->IsDelayData())) {
+        SetDistributedData(appInfo.userId, *pasteData);
+        NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
+    }
+    SetPasteDataDot(*pasteData);
+    setting_.store(false);
+    SubscribeKeyboardEvent();
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 void PasteboardService::HandleDelayDataAndRecord(std::shared_ptr<PasteData> &pasteData,
-    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
+    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter, const AppInfo& appInfo)
 {
-    auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
         appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
     if (pasteData->IsDelayData()) {
