@@ -131,6 +131,7 @@ bool DMAdapter::Initialize(const std::string &pkgName)
     pkgName_ = pkgName + NAME_EX;
     auto deathObserver = std::make_shared<DmDeath>(stateObserver, pkgName_);
     deathObserver->OnRemoteDied();
+    SetDevices();
 #endif
     return false;
 }
