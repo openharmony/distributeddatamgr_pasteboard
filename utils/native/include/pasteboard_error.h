@@ -64,6 +64,7 @@ enum class PasteboardError : int32_t {
     CREATE_DATASHARE_SERVICE_ERROR,
     QUERY_SETTING_NO_DATA_ERROR,
     GET_LOCAL_DEVICE_ID_ERROR,
+    LOCAL_SWITCH_NOT_TURNED_ON,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -104,6 +105,7 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::CREATE_DATASHARE_SERVICE_ERROR, "CREATE_DATASHARE_SERVICE_ERROR"},
     {PasteboardError::QUERY_SETTING_NO_DATA_ERROR, "QUERY_SETTING_NO_DATA_ERROR"},
     {PasteboardError::GET_LOCAL_DEVICE_ID_ERROR, "GET_LOCAL_DEVICE_ID_ERROR"},
+    {PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON, "LOCAL_SWITCH_NOT_TURNED_ON"},
 };
 
 } // namespace MiscServices

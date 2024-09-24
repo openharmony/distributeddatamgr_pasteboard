@@ -41,6 +41,7 @@ public:
     void DeInit();
 private:
     void SetSwitch();
+    void ReportUeSwitchEvent();
     sptr<PastedSwitchObserver> switchObserver_;
 };
 } // namespace OHOS::MiscServices
