@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
-#include "napi_common_want.h"
+#include <memory>
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "pasteboard_napi.h"
-#include "pixel_map_napi.h"
 #include "systempasteboard_napi.h"
 #include "uri.h"
 using namespace OHOS::MiscServices;
@@ -27,6 +26,8 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServicesNapi {
 constexpr size_t MAX_ARGS = 6;
+const size_t ARGC_TYPE_SET1 = 1;
+const size_t ARGC_TYPE_SET2 = 2;
 napi_value PasteboardNapi::CreateHtmlRecord(napi_env env, napi_value in)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlRecord is called!");
@@ -202,6 +203,38 @@ napi_value PasteboardNapi::CreateWantData(napi_env env, napi_value in)
     return instance;
 }
 
+napi_value PasteboardNapi::CreateMultiTypeData(napi_env env,
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateMultiTypeData is called!");
+    napi_value instance = nullptr;
+    NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
+    PasteDataNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        return nullptr;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreateMultiTypeData(std::move(typeValueMap));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
+    return instance;
+}
+
+napi_value PasteboardNapi::CreateMultiTypeDelayData(napi_env env, std::vector<std::string> mimeTypes,
+    std::shared_ptr<UDMF::EntryGetter> entryGetter)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateMultiTypeDelayData is called!");
+    napi_value instance = nullptr;
+    NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
+    PasteDataNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        return nullptr;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreateMultiTypeDelayData(mimeTypes, entryGetter);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
+    return instance;
+}
+
 napi_value PasteboardNapi::JScreateHtmlTextRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreateHtmlTextRecord is called!");
@@ -320,22 +353,45 @@ napi_value PasteboardNapi::JSCreateRecord(napi_env env, napi_callback_info info)
     napi_value argv[MAX_ARGS] = { 0 };
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    std::string mimeType;
-    if (!CheckArgs(env, argv, argc, mimeType)) {
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &type));
+    if (!CheckExpression(env, argc >= ARGC_TYPE_SET2, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. The number of arguments cannot be less than two.") ||
+        !CheckExpression(env, type == napi_object || type == napi_string, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. the first param should be object or string.")) {
         return nullptr;
     }
-    auto it = createRecordMap_.find(mimeType);
-    if (it != createRecordMap_.end()) {
-        return (it->second)(env, argv[1]);
-    }
+    if (type == napi_string) {
+        std::string mimeType;
+        if (!CheckArgs(env, argv, argc, mimeType)) {
+            return nullptr;
+        }
+        auto it = createRecordMap_.find(mimeType);
+        if (it != createRecordMap_.end()) {
+            return (it->second)(env, argv[1]);
+        }
 
-    void *data = nullptr;
-    size_t dataLen = 0;
-    NAPI_CALL(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
-    std::vector<uint8_t> arrayBuf(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
-    napi_value instance = nullptr;
-    PasteDataRecordNapi::NewKvRecordInstance(env, mimeType, arrayBuf, instance);
-    return instance;
+        void *data = nullptr;
+        size_t dataLen = 0;
+        NAPI_CALL(env, napi_get_arraybuffer_info(env, argv[1], &data, &dataLen));
+        std::vector<uint8_t> arrayBuf(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
+        napi_value instance = nullptr;
+        PasteDataRecordNapi::NewKvRecordInstance(env, mimeType, arrayBuf, instance);
+        return instance;
+    } else {
+        napi_ref provider = nullptr;
+        std::vector<std::string> mimeTypes;
+        if (!CheckArgsArray(env, argv[0], mimeTypes) ||
+            !CheckArgsFunc(env, argv[1], provider)) {
+            return nullptr;
+        }
+        napi_value instance = nullptr;
+        std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter =
+            std::make_shared<PastedataRecordEntryGetterInstance>(env, provider);
+        entryGetter->GetStub()->SetEntryGetterWrapper(entryGetter);
+        PasteDataRecordNapi::NewEntryGetterRecordInstance(mimeTypes, entryGetter, instance);
+        return instance;
+    }
 }
 
 napi_value PasteboardNapi::JScreateHtmlData(napi_env env, napi_callback_info info)
@@ -425,6 +481,31 @@ napi_value PasteboardNapi::JSCreateData(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     std::string mimeType;
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap =
+        std::make_shared<std::map<std::string, std::shared_ptr<MiscServices::EntryValue>>>();
+    if (!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. The number of arguments cannot be less than one.")) {
+        return nullptr;
+    }
+    if (argc == ARGC_TYPE_SET1) {
+        if (!CheckArgsMap(env, argv[0], typeValueMap)) {
+            return nullptr;
+        }
+        return CreateMultiTypeData(env, typeValueMap);
+    }
+    bool isArray = false;
+    NAPI_CALL(env, napi_is_array(env, argv[0], &isArray));
+    if (isArray) {
+        napi_ref provider = nullptr;
+        std::vector<std::string> mimeTypes;
+        if (!CheckArgsArray(env, argv[0], mimeTypes) || !CheckArgsFunc(env, argv[1], provider)) {
+            return nullptr;
+        }
+        std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter =
+            std::make_shared<PastedataRecordEntryGetterInstance>(env, provider);
+        entryGetter->GetStub()->SetEntryGetterWrapper(entryGetter);
+        return CreateMultiTypeDelayData(env, mimeTypes, entryGetter->GetStub());
+    }
     if (!CheckArgs(env, argv, argc, mimeType)) {
         return nullptr;
     }
@@ -466,12 +547,14 @@ napi_value PasteboardNapi::PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createPixelMapData", JScreatePixelMapData),
         DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData),
         DECLARE_NAPI_FUNCTION("createData", JSCreateData),
+        DECLARE_NAPI_FUNCTION("createDelayData", JSCreateData),
         DECLARE_NAPI_FUNCTION("createHtmlTextRecord", JScreateHtmlTextRecord),
         DECLARE_NAPI_FUNCTION("createWantRecord", JScreateWantRecord),
         DECLARE_NAPI_FUNCTION("createPlainTextRecord", JScreatePlainTextRecord),
         DECLARE_NAPI_FUNCTION("createPixelMapRecord", JScreatePixelMapRecord),
         DECLARE_NAPI_FUNCTION("createUriRecord", JScreateUriRecord),
         DECLARE_NAPI_FUNCTION("createRecord", JSCreateRecord),
+        DECLARE_NAPI_FUNCTION("createDelayRecord", JSCreateRecord),
         DECLARE_NAPI_FUNCTION("getSystemPasteboard", JSgetSystemPasteboard),
         DECLARE_NAPI_GETTER("ShareOption", JScreateShareOption),
         DECLARE_NAPI_GETTER("Pattern", JScreatePattern),

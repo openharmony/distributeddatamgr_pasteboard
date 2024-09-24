@@ -87,12 +87,22 @@ public:
     /**
      * CreateKvRecord
      * @descrition Create Kv Record.
-    * @param std::string mimeType
-    * @param std::vector<uint8_t> arrayBuffer
+     * @param std::string mimeType
+     * @param std::vector<uint8_t> arrayBuffer
      * @return PasteDataRecord.
      */
     std::shared_ptr<PasteDataRecord> CreateKvRecord(
         const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
+
+    /**
+     * CreateMultiDelayRecord
+     * @descrition Create Multi DelayRecord.
+     * @param std::vector<std::string> mimeTypes
+     * @param std::shared_ptr<UDMF::EntryGetter> entryGetter
+     * @return PasteDataRecord.
+     */
+    std::shared_ptr<PasteDataRecord> CreateMultiDelayRecord(
+        std::vector<std::string> mimeTypes, const std::shared_ptr<UDMF::EntryGetter> entryGetter);
 
     /**
      * CreateHtmlData
@@ -142,6 +152,25 @@ public:
     * @return PasteData.
     */
     std::shared_ptr<PasteData> CreateKvData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
+
+    /**
+    * CreateMultiTypeData
+    * @descrition Create multi-type Data.
+    * @param std::map<std::string, EntryValue> typeValueMap
+    * @return PasteData.
+    */
+    std::shared_ptr<PasteData> CreateMultiTypeData(
+        std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap);
+
+    /**
+    * CreateMultiTypeDelayData
+    * @descrition Create delayed multi-type Data.
+    * @param std::vector<std::string> utdTypes
+    * @param std::shared_ptr<UDMF::EntryGetter> entryGetter
+    * @return PasteData.
+    */
+    std::shared_ptr<PasteData> CreateMultiTypeDelayData(std::vector<std::string> mimeTypes,
+        std::shared_ptr<UDMF::EntryGetter> entryGetter);
 
     /**
     * GetRecordValueByType

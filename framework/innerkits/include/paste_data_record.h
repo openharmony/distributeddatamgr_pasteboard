@@ -20,6 +20,7 @@
 #include <string>
 
 #include "common/constant.h"
+#include "entry_getter.h"
 #include "message_parcel.h"
 #include "paste_data_entry.h"
 #include "pixel_map.h"
@@ -59,6 +60,10 @@ public:
     static std::shared_ptr<PasteDataRecord> NewUriRecord(const OHOS::Uri &uri);
     static std::shared_ptr<PasteDataRecord> NewKvRecord(
         const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
+    static std::shared_ptr<PasteDataRecord> NewMultiTypeRecord(
+        std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> values);
+    static std::shared_ptr<PasteDataRecord> NewMultiTypeDelayRecord(
+        std::vector<std::string> mimeTypes, const std::shared_ptr<UDMF::EntryGetter> entryGetter);
 
     bool isConvertUriFromRemote = false;
     std::string GetMimeType() const;
@@ -99,9 +104,12 @@ public:
     void SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue);
     std::shared_ptr<EntryValue> GetUDMFValue();
     void AddEntry(const std::string& utdType, std::shared_ptr<PasteDataEntry> value);
-    std::shared_ptr<PasteDataEntry> GetEntry(const std::string& utdType) const;
+    void AddEntryByMimeType(const std::string& mimeType, std::shared_ptr<PasteDataEntry> value);
+    std::shared_ptr<PasteDataEntry> GetEntry(const std::string& utdType);
+    std::shared_ptr<PasteDataEntry> GetEntryByMimeType(const std::string& mimeType);
     std::vector<std::shared_ptr<PasteDataEntry>> GetEntries() const;
     std::vector<std::string> GetValidTypes(const std::vector<std::string>& types) const;
+    std::vector<std::string> GetValidMimeTypes(const std::vector<std::string>& mimeTypes) const;
 
     void SetDelayRecordFlag(bool isDelay);
     bool IsDelayRecord() const;
@@ -109,6 +117,9 @@ public:
     uint32_t GetDataId() const;
     void SetRecordId(uint32_t recordId);
     uint32_t GetRecordId() const;
+
+    void SetEntryGetter(const std::shared_ptr<UDMF::EntryGetter> entryGetter);
+    std::shared_ptr<UDMF::EntryGetter> GetEntryGetter();
 
     class Builder {
     public:
@@ -134,6 +145,7 @@ private:
     std::string GetPassUri();
     void AddUriEntry();
     std::set<std::string> GetUdtTypes() const;
+    std::set<std::string> GetMimeTypes() const;
 
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
@@ -158,7 +170,8 @@ private:
     uint32_t dataId_ = 0;
     uint32_t recordId_ = 0;
     bool isDelay_ = false;
+    std::shared_ptr<UDMF::EntryGetter> entryGetter_;
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_RECORD_H
+#endif // PASTE_BOARD_RECORD_H

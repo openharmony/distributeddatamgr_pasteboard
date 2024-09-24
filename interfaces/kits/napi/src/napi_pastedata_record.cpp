@@ -12,7 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <memory>
+#include <vector>
 #include "async_call.h"
+#include "js_native_api.h"
+#include "js_native_api_types.h"
 #include "napi_common_want.h"
 #include "paste_data_record.h"
 #include "pasteboard_common.h"
@@ -20,6 +24,8 @@
 #include "pasteboard_js_err.h"
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
+#include "tlv_object.h"
+#include "unified_meta.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
@@ -29,7 +35,9 @@ namespace MiscServicesNapi {
 static thread_local napi_ref g_pasteDataRecord = nullptr;
 const int ARGC_TYPE_SET0 = 0;
 const int ARGC_TYPE_SET1 = 1;
+const int ARGC_TYPE_SET2 = 2;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
+constexpr size_t ENTRY_GETTER_TIMEOUT = 2;
 
 PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr)
 {
@@ -142,6 +150,26 @@ bool PasteDataRecordNapi::NewKvRecordInstance(
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
     obj->JSFillInstance(env, instance);
+    return true;
+}
+
+bool PasteDataRecordNapi::NewEntryGetterRecordInstance(
+        const std::vector<std::string> mimeTypes, std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter,
+        napi_value &instance)
+{
+    if (entryGetter == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "no entry getter");
+        return false;
+    }
+    NAPI_CALL_BASE(entryGetter->GetEnv(), PasteDataRecordNapi::NewInstance(entryGetter->GetEnv(), instance), false);
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(entryGetter->GetEnv(), instance, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
+        return false;
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreateMultiDelayRecord(mimeTypes, entryGetter->GetStub());
+    obj->JSFillInstance(entryGetter->GetEnv(), instance);
     return true;
 }
 
@@ -334,12 +362,122 @@ napi_value PasteDataRecordNapi::ToPlainText(napi_env env, napi_callback_info inf
     return result;
 }
 
+napi_value PasteDataRecordNapi::AddEntry(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "AddEntry is called!");
+    size_t argc = ARGC_TYPE_SET2;
+    napi_value argv[ARGC_TYPE_SET2] = { 0 };
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    std::string mimeType;
+    if (!CheckArgs(env, argv, argc, mimeType)) {
+        return nullptr;
+    }
+
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get AddEntry object failed");
+        return nullptr;
+    }
+    
+    EntryValue entryValue;
+    if (!GetNativeValue(env, mimeType, argv[1], entryValue)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetNativeValue failed");
+        return nullptr;
+    }
+
+    auto utdType = CommonUtils::Convert2UtdId(UDMF::UD_BUTT, mimeType);
+    std::shared_ptr<PasteDataEntry> pasteDataEntry = std::make_shared<PasteDataEntry>(utdType, entryValue);
+    obj->value_->AddEntry(utdType, pasteDataEntry);
+    return nullptr;
+}
+
+napi_value PasteDataRecordNapi::GetValidTypes(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetValidType is called!");
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[ARGC_TYPE_SET1] = { 0 };
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
+    std::vector<std::string> mimeTypes;
+    
+    if (!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. The number of arguments cannot be less than one.") ||
+        !CheckArgsArray(env, argv[0], mimeTypes)) {
+        return nullptr;
+    }
+
+    PasteDataRecordNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
+    if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get GetValidType object failed");
+        return nullptr;
+    }
+    std::vector<std::string> validTypes = obj->value_->GetValidMimeTypes(mimeTypes);
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &result));
+    for (uint32_t i = 0; i < validTypes.size(); i++) {
+        napi_value element;
+        NAPI_CALL(env, napi_create_string_utf8(env, validTypes[i].c_str(), NAPI_AUTO_LENGTH, &element));
+        NAPI_CALL(env, napi_set_element(env, result, i, element));
+    }
+    return result;
+}
+
+napi_value PasteDataRecordNapi::GetRecordData(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetValidType is called!");
+
+    struct ExeContext {
+        std::string mimeType;
+        std::shared_ptr<PasteDataEntry> entryValue;
+        PasteDataRecordNapi *obj = nullptr;
+    };
+    auto exeContext = std::make_shared<ExeContext>();
+    auto input = [exeContext](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
+        if (!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The number of arguments cannot be less than one.") ||
+            !CheckArgsMimeType(env, argv[0], exeContext->mimeType)) {
+            return napi_invalid_arg;
+        }
+        if (argc > ARGC_TYPE_SET1 &&
+            !CheckArgsType(env, argv[ARGC_TYPE_SET1], napi_function,
+            "Parameter error. The type of callback must be function.")) {
+            return napi_invalid_arg;
+        }
+        napi_status status = napi_unwrap(env, self, reinterpret_cast<void **>(&(exeContext->obj)));
+        if ((status != napi_ok) || (exeContext->obj == nullptr)) {
+            return napi_object_expected;
+        }
+        return napi_ok;
+    };
+
+    auto exec = [exeContext](AsyncCall::Context *ctx) {
+        if ((exeContext->obj != nullptr) && (exeContext->obj->value_ != nullptr)) {
+            exeContext->entryValue = exeContext->obj->value_->GetEntryByMimeType(exeContext->mimeType);
+        }
+    };
+    auto output = [exeContext](napi_env env, napi_value *result) -> napi_status {
+        napi_status status = ConvertEntryValue(env, result, exeContext->mimeType, exeContext->entryValue);
+        return status;
+    };
+
+    // 1: the AsyncCall at the first position;
+    AsyncCall asyncCall(env, info, std::make_shared<AsyncCall::Context>(std::move(input),
+        std::move(output)), ARGC_TYPE_SET1);
+    return asyncCall.Call(env, exec);
+}
+
 napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exports)
 {
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
         DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9),
-        DECLARE_NAPI_FUNCTION("toPlainText", ToPlainText)
+        DECLARE_NAPI_FUNCTION("toPlainText", ToPlainText),
+        DECLARE_NAPI_FUNCTION("addEntry", AddEntry),
+        DECLARE_NAPI_FUNCTION("getValidTypes", GetValidTypes),
+        DECLARE_NAPI_FUNCTION("getData", GetRecordData)
     };
 
     napi_status status = napi_ok;
@@ -400,6 +538,138 @@ napi_status PasteDataRecordNapi::NewInstance(napi_env env, napi_value &instance)
     }
 
     return napi_ok;
+}
+
+PastedataRecordEntryGetterInstance::PastedataRecordEntryGetterInstance(const napi_env &env, const napi_ref &ref)
+    : env_(env), ref_(ref)
+{
+    stub_ = std::make_shared<PastedataRecordEntryGetterInstance::PastedataRecordEntryGetterImpl>();
+}
+
+PastedataRecordEntryGetterInstance::~PastedataRecordEntryGetterInstance()
+{
+    napi_delete_reference(env_, ref_);
+}
+
+void UvWorkGetRecordByEntryGetter(uv_work_t *work, int status)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "UvQueueWorkGetDelayPasteData start");
+    if (UV_ECANCELED == status || work == nullptr || work->data == nullptr) {
+        return;
+    }
+    PasteboardEntryGetterWorker *entryGetterWork = reinterpret_cast<PasteboardEntryGetterWorker *>(work->data);
+    if (entryGetterWork == nullptr || entryGetterWork->entryGetter == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "pasteboardDataWorker or delayGetter is null");
+        delete work;
+        work = nullptr;
+        return;
+    }
+    auto env = entryGetterWork->entryGetter->GetEnv();
+    auto ref = entryGetterWork->entryGetter->GetRef();
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "scope is null");
+        return;
+    }
+    napi_value undefined = nullptr;
+    napi_get_undefined(env, &undefined);
+    auto mimeType = CommonUtils::Convert2MimeType(entryGetterWork->utdId);
+    napi_value argv[1] = { CreateNapiString(env, mimeType) };
+    napi_value callback = nullptr;
+    napi_value resultOut = nullptr;
+    napi_get_reference_value(env, ref, &callback);
+    {
+        std::unique_lock<std::mutex> lock(entryGetterWork->mutex);
+        auto ret = napi_call_function(env, undefined, callback, 1, argv, &resultOut);
+        if (ret == napi_ok) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "get delay data success");
+            UDMF::ValueType *entryValue = nullptr;
+            napi_unwrap(env, resultOut, reinterpret_cast<void **>(&entryValue));
+            if (entryValue != nullptr) {
+                entryGetterWork->entryValue = std::shared_ptr<UDMF::ValueType>(entryValue);
+            }
+        }
+        napi_close_handle_scope(env, scope);
+        entryGetterWork->complete = true;
+        if (!entryGetterWork->clean) {
+            entryGetterWork->cv.notify_all();
+            return;
+        }
+    }
+    delete entryGetterWork;
+    entryGetterWork = nullptr;
+    delete work;
+    work = nullptr;
+}
+
+UDMF::ValueType PastedataRecordEntryGetterInstance::GetValueByType(const std::string &utdId)
+{
+    uv_loop_s *loop = nullptr;
+    napi_get_uv_event_loop(env_, &loop);
+    if (loop == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "loop instance is nullptr");
+        return std::monostate{};
+    }
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "work is null");
+        return std::monostate{};
+    }
+    PasteboardEntryGetterWorker *entryGetterWork = new (std::nothrow) PasteboardEntryGetterWorker();
+    if (entryGetterWork == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "PasteboardEntryGetterWorker is null");
+        delete work;
+        work = nullptr;
+        return std::monostate{};
+    }
+    entryGetterWork->entryGetter = shared_from_this();
+    entryGetterWork->utdId = utdId;
+    work->data = reinterpret_cast<void *>(entryGetterWork);
+    bool noNeedClean = false;
+    {
+        std::unique_lock<std::mutex> lock(entryGetterWork->mutex);
+        int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, UvWorkGetRecordByEntryGetter);
+        if (ret != 0) {
+            delete entryGetterWork;
+            entryGetterWork = nullptr;
+            delete work;
+            work = nullptr;
+            return std::monostate{};
+        }
+        if (entryGetterWork->cv.wait_for(lock, std::chrono::seconds(ENTRY_GETTER_TIMEOUT),
+            [entryGetterWork] { return entryGetterWork->complete; }) &&
+            entryGetterWork->entryValue != nullptr) {
+            return *(entryGetterWork->entryValue);
+        }
+        if (!entryGetterWork->complete && uv_cancel((uv_req_t*)work) != 0) {
+            entryGetterWork->clean = true;
+            noNeedClean = true;
+        }
+    }
+    if (!noNeedClean) {
+        delete entryGetterWork;
+        entryGetterWork = nullptr;
+        delete work;
+        work = nullptr;
+    }
+    return std::monostate{};
+}
+
+UDMF::ValueType PastedataRecordEntryGetterInstance::PastedataRecordEntryGetterImpl::GetValueByType(const std::string &utdId)
+{
+    std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetterInstance(wrapper_.lock());
+    if (entryGetterInstance == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "no entry getter");
+        return std::monostate{};
+    }
+    return entryGetterInstance->GetValueByType(utdId);
+}
+
+void PastedataRecordEntryGetterInstance::PastedataRecordEntryGetterImpl::SetEntryGetterWrapper(
+    const std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetterInstance)
+{
+    wrapper_ = entryGetterInstance;
 }
 } // namespace MiscServicesNapi
 } // namespace OHOS
