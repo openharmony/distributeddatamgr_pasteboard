@@ -59,6 +59,7 @@ public:
     bool Encode(std::vector<std::uint8_t>& buffer) override;
     bool Decode(const std::vector<std::uint8_t>& buffer) override;
     size_t Count() override;
+    bool HasContent(const std::string &utdId) const;
 
     bool Marshalling(std::vector<std::uint8_t>& buffer);
     bool Unmarshalling(const std::vector<std::uint8_t>& buffer);

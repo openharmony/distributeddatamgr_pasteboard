@@ -15,16 +15,64 @@
 #ifndef N_NAPI_PASTEDATA_RECORD_H
 #define N_NAPI_PASTEDATA_RECORD_H
 
+#include "entry_getter.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_client.h"
+#include "pasteboard_common.h"
 #include "pixel_map_napi.h"
 #include "uri.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
+class PastedataRecordEntryGetterInstance : public std::enable_shared_from_this<PastedataRecordEntryGetterInstance> {
+public:
+    class PastedataRecordEntryGetterImpl : public UDMF::EntryGetter {
+    public:
+        explicit PastedataRecordEntryGetterImpl() = default;
+        UDMF::ValueType GetValueByType(const std::string &utdId) override;
+        void SetEntryGetterWrapper(const std::shared_ptr<PastedataRecordEntryGetterInstance> instance);
+    private:
+        std::shared_ptr<PastedataRecordEntryGetterInstance> wrapper_;
+    };
+    explicit PastedataRecordEntryGetterInstance(const napi_env &env, const napi_ref &ref);
+    ~PastedataRecordEntryGetterInstance();
+
+    UDMF::ValueType GetValueByType(const std::string &utdId);
+
+    napi_env GetEnv()
+    {
+        return env_;
+    }
+
+    napi_ref GetRef()
+    {
+        return ref_;
+    }
+
+    std::shared_ptr<PastedataRecordEntryGetterImpl> GetStub()
+    {
+        return stub_;
+    }
+
+private:
+    napi_env env_ = nullptr;
+    napi_ref ref_ = nullptr;
+    std::shared_ptr<PastedataRecordEntryGetterImpl> stub_ = nullptr;
+};
+
+struct PasteboardEntryGetterWorker {
+    std::string utdId;
+    std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter = nullptr;
+    std::shared_ptr<UDMF::ValueType> entryValue = nullptr;
+    bool complete = false;
+    bool clean = false;
+    std::condition_variable cv;
+    std::mutex mutex;
+};
+
 class PasteDataRecordNapi {
 public:
     static napi_value PasteDataRecordInit(napi_env env, napi_value exports);
@@ -42,6 +90,10 @@ public:
         napi_env env, const std::shared_ptr<OHOS::AAFwk::Want> want, napi_value &instance);
     static bool NewKvRecordInstance(
         napi_env env, const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer, napi_value &instance);
+    static bool NewEntryGetterRecordInstance(
+        const std::vector<std::string> mimeTypes,
+        std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter,
+        napi_value &instance);
     static napi_value CreatKvData(napi_env env, std::shared_ptr<MiscServices::MineCustomData> customData);
     static std::shared_ptr<MiscServices::MineCustomData> GetNativeKvData(napi_env env, napi_value napiValue);
     napi_value SetNapiKvData(napi_env env, std::shared_ptr<MiscServices::MineCustomData> customData);
@@ -51,12 +103,16 @@ public:
     static napi_value ConvertToText(napi_env env, napi_callback_info info);
     static napi_value ConvertToTextV9(napi_env env, napi_callback_info info);
     static napi_value ToPlainText(napi_env env, napi_callback_info info);
+    static napi_value AddEntry(napi_env env, napi_callback_info info);
+    static napi_value GetValidTypes(napi_env env, napi_callback_info info);
+    static napi_value GetRecordData(napi_env env, napi_callback_info info);
 
     std::shared_ptr<MiscServices::PasteDataRecord> value_;
 
 private:
     void JSFillInstance(napi_env env, napi_value &instance);
     void SetNamedPropertyByStr(napi_env env, napi_value &instance, const char *propName, const char *propValue);
+    std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter_;
     napi_env env_;
 };
 } // namespace MiscServicesNapi

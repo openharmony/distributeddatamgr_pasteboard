@@ -53,6 +53,10 @@ private:
     static napi_value CreateUriData(napi_env env, napi_value in);
     static napi_value CreatePixelMapData(napi_env env, napi_value in);
     static napi_value CreateWantData(napi_env env, napi_value in);
+    static napi_value CreateMultiTypeData(napi_env env,
+        std::shared_ptr<std::vector<std::pair<std::string, std::shared_ptr<MiscServices::EntryValue>>>> typeValueMap);
+    static napi_value CreateMultiTypeDelayData(napi_env env, std::vector<std::string> mimeTypes,
+        std::shared_ptr<UDMF::EntryGetter> entryGetter);
 
     static napi_value JScreateHtmlTextRecord(napi_env env, napi_callback_info info);
     static napi_value JScreateWantRecord(napi_env env, napi_callback_info info);
