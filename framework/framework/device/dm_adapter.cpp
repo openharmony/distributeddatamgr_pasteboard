@@ -114,6 +114,7 @@ bool DMAdapter::Initialize(const std::string &pkgName)
 #ifdef PB_DEVICE_MANAGER_ENABLE
     auto stateObserver = std::make_shared<DmStateObserver>([this](const DmDeviceInfo &deviceInfo) {
         observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
+            DMAdapter::GetInstance().SetDevices();
             value->Online(deviceInfo.networkId);
             return false;
         });
@@ -124,6 +125,7 @@ bool DMAdapter::Initialize(const std::string &pkgName)
         });
     }, [this](const DmDeviceInfo &deviceInfo) {
         observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
+            DMAdapter::GetInstance().SetDevices();
             value->Offline(deviceInfo.networkId);
             return false;
         });
@@ -131,6 +133,7 @@ bool DMAdapter::Initialize(const std::string &pkgName)
     pkgName_ = pkgName + NAME_EX;
     auto deathObserver = std::make_shared<DmDeath>(stateObserver, pkgName_);
     deathObserver->OnRemoteDied();
+    SetDevices();
 #endif
     return false;
 }
@@ -159,8 +162,7 @@ const std::string &DMAdapter::GetLocalDeviceUdid()
 std::string DMAdapter::GetDeviceName(const std::string &networkId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    std::vector<DmDeviceInfo> devices;
-    (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
+    auto devices = GetDevices();
     for (auto &device : devices) {
         if (device.networkId == networkId) {
             return device.deviceName;
@@ -187,8 +189,7 @@ const std::string DMAdapter::GetLocalNetworkId()
 int32_t DMAdapter::GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    std::vector<DmDeviceInfo> devices;
-    (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
+    auto devices = GetDevices();
     for (auto &device : devices) {
         if (device.networkId == networkId) {
             remoteDevice = device;
@@ -224,12 +225,7 @@ void DMAdapter::Unregister(DMObserver *observer)
 std::vector<std::string> DMAdapter::GetNetworkIds()
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    std::vector<DmDeviceInfo> devices;
-    int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devices);
-    if (ret != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetTrustedDeviceList failed!");
-        return {};
-    }
+    auto devices = GetDevices();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "devicesNums = %{public}zu.", devices.size());
     if (devices.empty()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
@@ -264,8 +260,7 @@ int32_t DMAdapter::GetLocalDeviceType()
 bool DMAdapter::IsSameAccount(const std::string &networkId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    std::vector<DmDeviceInfo> devices;
-    (void)DeviceManager::GetInstance().GetTrustedDeviceList(pkgName_, "", devices);
+    auto devices = GetDevices();
     for (auto &device : devices) {
         if (device.networkId == networkId) {
             return device.authForm == IDENTICAL_ACCOUNT;
@@ -273,5 +268,23 @@ bool DMAdapter::IsSameAccount(const std::string &networkId)
     }
 #endif
     return false;
+}
+
+void DMAdapter::SetDevices()
+{
+    std::vector<DmDeviceInfo> devices;
+    int32_t ret = DeviceManager::GetInstance().GetTrustedDeviceList(PKG_NAME, "", devices);
+    if (ret != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get device list failed, errCode: %{public}d", ret);
+        return;
+    }
+    std::unique_lock<std::shared_mutex> lock(dmMutex_);
+    devices_ = std::move(devices);
+}
+
+std::vector<DmDeviceInfo> DMAdapter::GetDevices()
+{
+    std::shared_lock<std::shared_mutex> lock(dmMutex_);
+    return devices_;
 }
 } // namespace OHOS::MiscServices

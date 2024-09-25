@@ -95,7 +95,6 @@ int32_t PasteboardServiceStub::OnRemoteRequest(
 }
 int32_t PasteboardServiceStub::OnClear(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     Clear();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
@@ -103,7 +102,6 @@ int32_t PasteboardServiceStub::OnClear(MessageParcel &data, MessageParcel &reply
 
 int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
     std::string pasteId = data.ReadString();
     PasteData pasteData{};
     pasteData.SetPasteId(pasteId);
@@ -149,7 +147,6 @@ int32_t PasteboardServiceStub::OnHasPasteData(MessageParcel &data, MessageParcel
 
 int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, " start.");
     int32_t rawDataSize = data.ReadInt32();
     if (rawDataSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read raw size");
@@ -198,7 +195,6 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
 }
 int32_t PasteboardServiceStub::OnSubscribeObserver(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     uint32_t type = 0;
     sptr<IPasteboardChangedObserver> callback;
     if (!IsObserverValid(data, type, callback)) {
@@ -211,7 +207,6 @@ int32_t PasteboardServiceStub::OnSubscribeObserver(MessageParcel &data, MessageP
 }
 int32_t PasteboardServiceStub::OnUnsubscribeObserver(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     uint32_t type = 0;
     sptr<IPasteboardChangedObserver> callback;
     if (!IsObserverValid(data, type, callback)) {
@@ -224,7 +219,6 @@ int32_t PasteboardServiceStub::OnUnsubscribeObserver(MessageParcel &data, Messag
 
 int32_t PasteboardServiceStub::OnUnsubscribeAllObserver(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     uint32_t type = 0;
     if (!data.ReadUint32(type)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read type failed.");
@@ -257,7 +251,6 @@ bool PasteboardServiceStub::IsObserverValid(MessageParcel &data, uint32_t &type,
 
 int32_t PasteboardServiceStub::OnIsRemoteData(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     auto result = IsRemoteData();
     reply.WriteBool(result);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
@@ -266,7 +259,6 @@ int32_t PasteboardServiceStub::OnIsRemoteData(MessageParcel &data, MessageParcel
 
 int32_t PasteboardServiceStub::OnGetDataSource(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     std::string bundleName;
     auto ret = GetDataSource(bundleName);
     if (bundleName.empty() || bundleName.length() > MAX_BUNDLE_NAME_LENGTH) {
@@ -281,13 +273,12 @@ int32_t PasteboardServiceStub::OnGetDataSource(MessageParcel &data, MessageParce
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to OnGetResourceApp result");
         return ERR_INVALID_VALUE;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end, ret is %{public}d.", ret);
     return ERR_OK;
 }
 
 int32_t PasteboardServiceStub::OnHasDataType(MessageParcel &data, MessageParcel &reply)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start.");
     std::string mimeType = data.ReadString();
     auto ret = HasDataType(mimeType);
     reply.WriteBool(ret);
