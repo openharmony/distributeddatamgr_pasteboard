@@ -501,8 +501,8 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
     }
     auto ret = GetData(tokenId, data, syncTime);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is invalid, callPid is %{public}d, tokenId is %{public}d",
-            callPid, tokenId);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "data is invalid, ret is %{public}d, callPid is %{public}d, tokenId is %{public}d", ret, callPid, tokenId);
     }
     return ret;
 }
@@ -1215,7 +1215,6 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     }
     SetPasteDataDot(*pasteData);
     setting_.store(false);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Clips length %{public}d.", static_cast<uint32_t>(clips_.Size()));
     SubscribeKeyboardEvent();
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
