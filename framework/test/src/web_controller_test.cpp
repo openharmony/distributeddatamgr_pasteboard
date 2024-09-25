@@ -245,3 +245,46 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_008, TestSize.Level1)
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(pasteData);
     EXPECT_EQ(*newHtml, *html);
 }
+
+/**
+ * @tc.name: RebuildHtmlTest_009.
+ * @tc.desc: Test contains a local image address HTML with RebuildHtml.
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, RebuildHtmlTest_009, TestSize.Level1)
+{
+    const int32_t splitRecordCount = 3;
+    const std::string uri = "file:///data/storage/el2/distributedfiles/temp.png";
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    std::shared_ptr<std::string> html(
+        new std::string("<img src='file:///file1.jpg'><img src=\"file2.jpg\"><img "
+                        "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
+    const char* execptHtml =
+        "<img src='file:///data/storage/el2/distributedfiles/temp.png'><img "
+        ""
+        "src=\"file:///data/storage/el2/distributedfiles/temp.png\"><img "
+        "src='https://data/storage/el2/distributedfiles/202305301.png'>";
+    auto pasteData = webClipboardController.SplitHtml(html);
+    EXPECT_NE(pasteData, nullptr);
+    EXPECT_EQ(pasteData->GetRecordCount(), splitRecordCount);
+    std::shared_ptr<PasteData> newPasteData = std::make_shared<PasteData>();
+    std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
+    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlText()), *html);
+
+    newPasteData->AddHtmlRecord(*html);
+    for (auto i = 0; i < pasteData->GetRecordCount() - 1; i++) {
+        PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+        auto newUri = std::make_shared<OHOS::Uri>(uri);
+        builder.SetUri(newUri);
+        builder.SetCustomData(pasteDataRecords[i]->GetCustomData());
+        auto record = builder.Build();
+        newPasteData->AddRecord(record);
+    }
+    EXPECT_EQ(newPasteData->GetRecordCount(), splitRecordCount);
+    std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(newPasteData);
+    EXPECT_EQ(newPasteData->GetRecordCount(), 1);
+    const char* newHtmlStr = newHtml.get()->c_str();
+    EXPECT_STREQ(newHtmlStr, execptHtml);
+}
