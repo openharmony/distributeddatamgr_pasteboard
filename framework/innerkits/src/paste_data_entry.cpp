@@ -308,12 +308,28 @@ std::shared_ptr<MineCustomData> PasteDataEntry::ConvertToCustomData() const
         customdata.AddItemData(GetMimeType(), std::get<std::vector<uint8_t>>(entry));
         return std::make_shared<MineCustomData>(customdata);
     }
-    // deal u8 only, object not surpport
-    if (std::holds_alternative<std::shared_ptr<Object>>(entry)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value not surpport, object");
+    if (!std::holds_alternative<std::shared_ptr<Object>>(entry)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error,  utdId:%{public}s", utdId_.c_str());
+        return nullptr;
     }
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error,  utdId:%{public}s", GetUtdId().c_str());
-    return nullptr;
+    auto object = std::get<std::shared_ptr<Object>>(entry);
+    std::string objecType;
+    if (!object->GetValue(UDMF::UNIFORM_DATA_TYPE, objecType)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type error, utdId:%{public}s", utdId_.c_str());
+        return nullptr;
+    }
+    if (objecType != GetUtdId()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type diff error, utdId:%{public}s, objecType:%{public}s",
+            utdId_.c_str(), objecType.c_str());
+        return nullptr;
+    }
+    std::vector<uint8_t> recordValue;
+    if (!object->GetValue(UDMF::ARRAY_BUFFER, recordValue)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get value error, utdId:%{public}s", utdId_.c_str());
+        return nullptr;
+    }
+    customdata.AddItemData(objecType, recordValue);
+    return std::make_shared<MineCustomData>(customdata);
 }
 
 std::string CommonUtils::Convert(UDType uDType)
