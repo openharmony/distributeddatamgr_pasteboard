@@ -694,6 +694,10 @@ std::vector<std::shared_ptr<UnifiedRecord>> PasteboardUtils::Custom2AppDefined(
         return unifiedRecords;
     }
     auto customData = record->GetCustomData();
+    if (customData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "customData is null");
+        return unifiedRecords;
+    }
     for (auto& [type, rawData] : customData->GetItemData()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "app defied type:%{public}s.", type.c_str());
         unifiedRecords.push_back(std::make_shared<UDMF::ApplicationDefinedRecord>(type, rawData));
@@ -708,11 +712,19 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::AppDefined2PasteRecord(const s
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "get ApplicationDefinedRecord record failed.");
         return nullptr;
     }
-    auto type = appRecord->GetApplicationDefinedType();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "custom type:%{public}s.", type.c_str());
-    auto kvRecord = PasteDataRecord::NewKvRecord(type, appRecord->GetRawData());
-    kvRecord->SetUDType(appRecord->GetType());
-    return kvRecord;
+    auto utdId = appRecord->GetApplicationDefinedType();
+    auto pbRecord = std::make_shared<PasteDataRecord>();
+    auto value = record->GetOriginValue();
+    if (std::holds_alternative<std::shared_ptr<Object>>(value)) {
+        pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, value));
+        return pbRecord;
+    }
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    object->value_[UDMF::ARRAY_BUFFER] = appRecord->GetRawData();
+    object->value_[UDMF::ARRAY_BUFFER_LENGTH] = static_cast<int64_t>(appRecord->GetRawData().size());
+    pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
+    return pbRecord;
 }
 
 PasteboardUtils::PasteboardUtils()
