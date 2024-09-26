@@ -238,7 +238,7 @@ getStringSync() {
             .fontWeight(FontWeight.Regular)
             .margin({
               bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
-              top:CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
+              top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
             })
             .fontColor($r('sys.color.ohos_id_color_text_secondary'))
             .textAlign(TextAlign.Center)
