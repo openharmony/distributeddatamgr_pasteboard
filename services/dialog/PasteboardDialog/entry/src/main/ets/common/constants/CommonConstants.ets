@@ -28,6 +28,7 @@ export default class CommonConstants {
   public static readonly PC_BORDER_RADIUS:number = 16;
   public static readonly NON_PC_BORDER_RADIUS:number = 20;
   public static readonly PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM:number = 32;
+  public static readonly PASTEBOARD_DESC_TEXT_MARGIN_TOP:number = 24;
   public static readonly PASTEBOARD_SWITCH_WIDTH:number = 36;
   public static readonly PASTEBOARD_SWITCH_HEIGHT:number = 20;
   public static readonly ITEM_LIST_PADDING_TOP_PC: number = 13;

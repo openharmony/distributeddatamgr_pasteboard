@@ -236,7 +236,10 @@ getStringSync() {
           Text($r('app.string.pasteboard_desc'))
             .fontSize($r('sys.float.ohos_id_text_size_body2'))
             .fontWeight(FontWeight.Regular)
-            .margin({ bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM })
+            .margin({
+              bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
+              top:CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
+            })
             .fontColor($r('sys.color.ohos_id_color_text_secondary'))
             .textAlign(TextAlign.Center)
             .width('100%')
