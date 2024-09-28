@@ -12,14 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "paste_data_record.h"
-
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include "convert_utils.h"
 #include "copy_uri_handler.h"
 #include "parcel_util.h"
+#include "paste_data_record.h"
 #include "pasteboard_hilog.h"
 #include "pixel_map_parcel.h"
 
@@ -62,7 +61,7 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<
     return *this;
 }
 
-PasteDataRecord::Builder& PasteDataRecord::Builder::SetWant(std::shared_ptr<OHOS::AAFwk::Want> want)
+PasteDataRecord::Builder &PasteDataRecord::Builder::SetWant(std::shared_ptr<OHOS::AAFwk::Want> want)
 {
     record_->want_ = std::move(want);
     return *this;
@@ -179,7 +178,7 @@ PasteDataRecord::~PasteDataRecord()
     decodeMap.clear();
 }
 
-PasteDataRecord::PasteDataRecord(const PasteDataRecord& record)
+PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
     : mimeType_(record.mimeType_), htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_),
       uri_(record.uri_), convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
       hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_), udType_(record.udType_),
@@ -194,48 +193,84 @@ PasteDataRecord::PasteDataRecord(const PasteDataRecord& record)
 void PasteDataRecord::InitDecodeMap()
 {
     decodeMap = {
-        {TAG_MIMETYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, mimeType_, head);}},
-        {TAG_HTMLTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, htmlText_, head);}},
-        {TAG_WANT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            RawMem rawMem{};
-            ret = ret && ReadValue(buffer, rawMem, head);
-            want_ = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);}},
-        {TAG_PLAINTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, plainText_, head); }},
-        {TAG_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            RawMem rawMem{};
-            ret = ret && ReadValue(buffer, rawMem, head);
-            uri_ = ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem);}},
-        {TAG_CONVERT_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, convertUri_, head);}},
-        {TAG_PIXELMAP, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            std::vector<std::uint8_t> value;
-            ret = ret && ReadValue(buffer, value, head);
-            pixelMap_ = Vector2PixelMap(value);}},
-        {TAG_CUSTOM_DATA, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, customData_, head);}},
-        {TAG_URI_PERMISSION, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, hasGrantUriPermission_, head);}},
-        {TAG_UDC_UDTYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, udType_, head);}},
-        {TAG_UDC_DETAILS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, details_, head);}},
-        {TAG_UDC_TEXTCONTENT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, textContent_, head);}},
-        {TAG_UDC_SYSTEMCONTENTS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, systemDefinedContents_, head);}},
-        {TAG_UDC_UDMFVALUE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, udmfValue_, head);}},
-        {TAG_UDC_ENTYIES, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, entries_, head);}},
-        {TAG_DATA_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, dataId_, head);}},
-        {TAG_RECORD_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, recordId_, head);}},
-        {TAG_DELAY_RECORD_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, isDelay_, head);}},
+        { TAG_MIMETYPE,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, mimeType_, head);
+            } },
+        { TAG_HTMLTEXT,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, htmlText_, head);
+            } },
+        { TAG_WANT,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                want_ = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);
+            } },
+        { TAG_PLAINTEXT,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, plainText_, head);
+            } },
+        { TAG_URI,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                RawMem rawMem{};
+                ret = ret && ReadValue(buffer, rawMem, head);
+                uri_ = ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem);
+            } },
+        { TAG_CONVERT_URI,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, convertUri_, head);
+            } },
+        { TAG_PIXELMAP,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                std::vector<std::uint8_t> value;
+                ret = ret && ReadValue(buffer, value, head);
+                pixelMap_ = Vector2PixelMap(value);
+            } },
+        { TAG_CUSTOM_DATA,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, customData_, head);
+            } },
+        { TAG_URI_PERMISSION,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, hasGrantUriPermission_, head);
+            } },
+        { TAG_UDC_UDTYPE,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, udType_, head);
+            } },
+        { TAG_UDC_DETAILS,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, details_, head);
+            } },
+        { TAG_UDC_TEXTCONTENT,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, textContent_, head);
+            } },
+        { TAG_UDC_SYSTEMCONTENTS,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, systemDefinedContents_, head);
+            } },
+        { TAG_UDC_UDMFVALUE,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, udmfValue_, head);
+            } },
+        { TAG_UDC_ENTYIES,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, entries_, head);
+            } },
+        { TAG_DATA_ID,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, dataId_, head);
+            } },
+        { TAG_RECORD_ID,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, recordId_, head);
+            } },
+        { TAG_DELAY_RECORD_FLAG,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, isDelay_, head);
+            } },
     };
 }
 
@@ -283,7 +318,7 @@ std::shared_ptr<OHOS::Uri> PasteDataRecord::GetOrginUri() const
     if (uri_) {
         return uri_;
     }
-    for (auto const& entry: entries_) {
+    for (auto const &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_TEXT_URI) {
             return entry->ConvertToUri();
         }
@@ -351,8 +386,8 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
             func(ret, buffer, head);
         }
         if (!ret) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u",
-                head.tag, head.len);
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u", head.tag, head.len);
             return false;
         }
     }
@@ -471,7 +506,7 @@ bool PasteDataRecord::HasGrantUriPermission()
     return hasGrantUriPermission_;
 }
 
-void PasteDataRecord::SetTextContent(const std::string& content)
+void PasteDataRecord::SetTextContent(const std::string &content)
 {
     this->textContent_ = content;
 }
@@ -481,7 +516,7 @@ std::string PasteDataRecord::GetTextContent() const
     return this->textContent_;
 }
 
-void PasteDataRecord::SetDetails(const Details& details)
+void PasteDataRecord::SetDetails(const Details &details)
 {
     this->details_ = std::make_shared<Details>(details);
 }
@@ -491,7 +526,7 @@ std::shared_ptr<Details> PasteDataRecord::GetDetails() const
     return this->details_;
 }
 
-void PasteDataRecord::SetSystemDefinedContent(const Details& contents)
+void PasteDataRecord::SetSystemDefinedContent(const Details &contents)
 {
     this->systemDefinedContents_ = std::make_shared<Details>(contents);
 }
@@ -510,11 +545,11 @@ void PasteDataRecord::SetUDType(int32_t type)
     this->udType_ = type;
 }
 
-std::vector<std::string> PasteDataRecord::GetValidTypes(const std::vector<std::string>& types) const
+std::vector<std::string> PasteDataRecord::GetValidTypes(const std::vector<std::string> &types) const
 {
     std::vector<std::string> res;
     auto allTypes = GetUdtTypes();
-    for (auto const& type : types) {
+    for (auto const &type : types) {
         if (allTypes.find(type) != allTypes.end()) {
             res.emplace_back(type);
         }
@@ -527,7 +562,7 @@ bool PasteDataRecord::IsEmpty() const
     if (udmfValue_ && !std::holds_alternative<std::monostate>(*udmfValue_)) {
         return false;
     }
-    for (auto const& entry : entries_) {
+    for (auto const &entry : entries_) {
         if (!std::holds_alternative<std::monostate>(entry->GetValue())) {
             return false;
         }
@@ -535,7 +570,7 @@ bool PasteDataRecord::IsEmpty() const
     return true;
 }
 
-void PasteDataRecord::SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue)
+void PasteDataRecord::SetUDMFValue(const std::shared_ptr<EntryValue> &udmfValue)
 {
     this->udmfValue_ = udmfValue;
 }
@@ -594,13 +629,13 @@ std::set<std::string> PasteDataRecord::GetUdtTypes() const
 {
     std::set<std::string> types;
     types.emplace(CommonUtils::Convert2UtdId(udType_, mimeType_));
-    for (auto const& entry: entries_) {
+    for (auto const &entry : entries_) {
         types.emplace(entry->GetUtdId());
     }
     return types;
 }
 
-void PasteDataRecord::AddEntry(const std::string& utdType, std::shared_ptr<PasteDataEntry> value)
+void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<PasteDataEntry> value)
 {
     if (!value) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "entry is null");
@@ -634,7 +669,7 @@ void PasteDataRecord::AddEntry(const std::string& utdType, std::shared_ptr<Paste
     }
     // not firest entry
     bool has = false;
-    for (auto& entry : entries_) {
+    for (auto &entry : entries_) {
         if (entry->GetUtdId() == utdType) {
             entry = value;
             has = true;
@@ -646,12 +681,12 @@ void PasteDataRecord::AddEntry(const std::string& utdType, std::shared_ptr<Paste
     }
 }
 
-std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utdType) const
+std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utdType) const
 {
     if (udmfValue_ && CommonUtils::Convert2UtdId(udType_, mimeType_) == utdType) {
         return std::make_shared<PasteDataEntry>(utdType, *udmfValue_);
     }
-    for (auto const& entry : entries_) {
+    for (auto const &entry : entries_) {
         if (entry->GetUtdId() == utdType) {
             return entry;
         }

@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "device/dm_adapter.h"
-#include "security_level.h"
-#include "pasteboard_hilog.h"
-
 #include <vector>
+
+#include "device/dm_adapter.h"
+#include "pasteboard_hilog.h"
+#include "security_level.h"
 
 namespace OHOS::MiscServices {
 uint32_t SecurityLevel::GetDeviceSecurityLevel()
@@ -53,13 +53,12 @@ uint32_t SecurityLevel::GetSensitiveLevel()
     int32_t result = DATASL_GetHighestSecLevel(&query, &level);
     if (result != DEVSL_SUCCESS) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "get highest level failed(%{public}.6s)! level:%{public}u, error:%{public}d",
-            udid.c_str(), level, result);
+            "get highest level failed(%{public}.6s)! level:%{public}u, error:%{public}d", udid.c_str(), level, result);
         return DATA_SEC_LEVEL0;
     }
     securityLevel_ = level;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get highest level success(%{public}.6s)! level: %{public}u",
-        udid.c_str(), level);
+    PASTEBOARD_HILOGI(
+        PASTEBOARD_MODULE_SERVICE, "get highest level success(%{public}.6s)! level: %{public}u", udid.c_str(), level);
     return level;
 }
 } // namespace OHOS::MiscServices

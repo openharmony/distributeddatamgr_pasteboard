@@ -23,6 +23,7 @@ namespace OHOS::MiscServices {
 class SecurityLevel {
 public:
     uint32_t GetDeviceSecurityLevel();
+
 private:
     bool InitDEVSLQueryParams(DEVSLQueryParams *params, const std::string &udid);
     uint32_t GetSensitiveLevel();

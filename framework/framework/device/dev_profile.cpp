@@ -12,12 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "dev_profile.h"
-
 #include <cstring>
 #include <thread>
 
 #include "cJSON.h"
+#include "dev_profile.h"
 #include "distributed_module_config.h"
 #include "dm_adapter.h"
 #include "pasteboard_error.h"
@@ -40,13 +39,9 @@ constexpr const char *SUPPORT_STATUS = "1";
 constexpr const char *SWITCH_ID = "SwitchStatus_Key_Distributed_Pasteboard";
 constexpr const char *CHARACTER_ID = "SwitchStatus";
 
-DevProfile::SubscribeDPChangeListener::SubscribeDPChangeListener()
-{
-}
+DevProfile::SubscribeDPChangeListener::SubscribeDPChangeListener() {}
 
-DevProfile::SubscribeDPChangeListener::~SubscribeDPChangeListener()
-{
-}
+DevProfile::SubscribeDPChangeListener::~SubscribeDPChangeListener() {}
 
 int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileAdd(const TrustDeviceProfile &profile)
 {
@@ -126,9 +121,7 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
 }
 #endif
 
-DevProfile::DevProfile()
-{
-}
+DevProfile::DevProfile() {}
 
 DevProfile &DevProfile::GetInstance()
 {
@@ -136,9 +129,7 @@ DevProfile &DevProfile::GetInstance()
     return instance;
 }
 
-void DevProfile::OnReady()
-{
-}
+void DevProfile::OnReady() {}
 
 void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 {
@@ -147,19 +138,18 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     auto ret = GetEnabledStatus(networkId);
-    if (ret.first == static_cast<int32_t>(PasteboardError::E_OK) &&
-        (enabledStatus == ret.second)) {
+    if (ret.first == static_cast<int32_t>(PasteboardError::E_OK) && (enabledStatus == ret.second)) {
         return;
     }
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, networkId is %{public}.5s",
-            networkId.c_str());
+        PASTEBOARD_HILOGE(
+            PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, networkId is %{public}.5s", networkId.c_str());
         return;
     }
     UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE,
-        (enabledStatus == SUPPORT_STATUS) ?
-        UeReporter::SwitchStatus::SWITCH_OPEN : UeReporter::SwitchStatus::SWITCH_CLOSE);
+        (enabledStatus == SUPPORT_STATUS) ? UeReporter::SwitchStatus::SWITCH_OPEN
+                                          : UeReporter::SwitchStatus::SWITCH_CLOSE);
     DistributedDeviceProfile::CharacteristicProfile profile;
     profile.SetDeviceId(udid);
     profile.SetServiceName(SWITCH_ID);
@@ -185,8 +175,8 @@ std::pair<int32_t, std::string> DevProfile::GetEnabledStatus(const std::string &
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR), "");
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SWITCH_ID,
-        CHARACTER_ID, profile);
+    int32_t ret =
+        DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SWITCH_ID, CHARACTER_ID, profile);
     if (ret == HANDLE_OK && profile.GetCharacteristicValue() == SUPPORT_STATUS) {
         return std::make_pair(static_cast<int32_t>(PasteboardError::E_OK), SUPPORT_STATUS);
     }
@@ -210,9 +200,8 @@ void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
         return;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret =
-        DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(
-            udid, SERVICE_ID, STATIC_CHARACTER_ID, profile);
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(
+        udid, SERVICE_ID, STATIC_CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetCharacteristicProfile failed, %{public}.5s.", udid.c_str());
         return;
@@ -255,7 +244,7 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_ADD);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_UPDATE);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_DELETE);
-    sptr<IProfileChangeListener> subscribeDPChangeListener = new(std::nothrow) SubscribeDPChangeListener;
+    sptr<IProfileChangeListener> subscribeDPChangeListener = new (std::nothrow) SubscribeDPChangeListener;
     subscribeInfo.SetListener(subscribeDPChangeListener);
     subscribeInfoCache_[udid] = subscribeInfo;
     int32_t errCode = DistributedDeviceProfileClient::GetInstance().SubscribeDeviceProfile(subscribeInfo);
@@ -280,7 +269,7 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
     if (it == subscribeInfoCache_.end()) {
         return;
     }
-        int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(it->second);
+    int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(it->second);
     subscribeInfoCache_.erase(it);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "UnsubscribeProfileEvent result, errCode = %{public}d.", errCode);
 #else

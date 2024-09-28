@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 #include "convert_utils.h"
-
 #include "pasteboard_hilog.h"
 #include "unified_meta.h"
 namespace OHOS {
@@ -23,14 +22,14 @@ using UnifiedData = UDMF::UnifiedData;
 using UnifiedDataProperties = UDMF::UnifiedDataProperties;
 using UDType = UDMF::UDType;
 
-std::shared_ptr<PasteData> ConvertUtils::Convert(const UnifiedData& unifiedData)
+std::shared_ptr<PasteData> ConvertUtils::Convert(const UnifiedData &unifiedData)
 {
     auto pasteData = std::make_shared<PasteData>(Convert(unifiedData.GetRecords()));
     pasteData->SetProperty(ConvertProperty(unifiedData.GetProperties(), unifiedData));
     return pasteData;
 }
 
-std::shared_ptr<UnifiedData> ConvertUtils::Convert(const PasteData& pasteData)
+std::shared_ptr<UnifiedData> ConvertUtils::Convert(const PasteData &pasteData)
 {
     auto unifiedData = std::make_shared<UnifiedData>();
     unifiedData->SetRecords(Convert(pasteData.AllRecords()));
@@ -40,20 +39,20 @@ std::shared_ptr<UnifiedData> ConvertUtils::Convert(const PasteData& pasteData)
 }
 
 std::vector<std::shared_ptr<UnifiedRecord>> ConvertUtils::Convert(
-    const std::vector<std::shared_ptr<PasteDataRecord>>& records)
+    const std::vector<std::shared_ptr<PasteDataRecord>> &records)
 {
     std::vector<std::shared_ptr<UnifiedRecord>> unifiedRecords;
-    for (auto const& record : records) {
+    for (auto const &record : records) {
         unifiedRecords.emplace_back(Convert(record));
     }
     return unifiedRecords;
 }
 
 std::vector<std::shared_ptr<PasteDataRecord>> ConvertUtils::Convert(
-    const std::vector<std::shared_ptr<UnifiedRecord>>& records)
+    const std::vector<std::shared_ptr<UnifiedRecord>> &records)
 {
     std::vector<std::shared_ptr<PasteDataRecord>> pasteboardRecords;
-    for (auto const& record : records) {
+    for (auto const &record : records) {
         pasteboardRecords.emplace_back(Convert(record));
     }
     return pasteboardRecords;
@@ -71,8 +70,8 @@ std::shared_ptr<UnifiedRecord> ConvertUtils::Convert(std::shared_ptr<PasteDataRe
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "entries is nullptr");
         auto udmfValue = record->GetUDMFValue();
         if (udmfValue) {
-            udmfRecord->AddEntry(CommonUtils::Convert2UtdId(record->GetUDType(), record->GetMimeType()),
-                std::move(*udmfValue));
+            udmfRecord->AddEntry(
+                CommonUtils::Convert2UtdId(record->GetUDType(), record->GetMimeType()), std::move(*udmfValue));
         }
         return udmfRecord;
     }
@@ -94,7 +93,7 @@ std::shared_ptr<PasteDataRecord> ConvertUtils::Convert(std::shared_ptr<UnifiedRe
     std::shared_ptr<PasteDataRecord> pbRecord = std::make_shared<PasteDataRecord>();
     auto utdId = record->GetUtdId();
     pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, record->GetOriginValue()));
-    for (auto const& entry : Convert(record->GetEntries())) {
+    for (auto const &entry : Convert(record->GetEntries())) {
         if (entry == nullptr) {
             PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "entry is empty");
             continue;
@@ -113,24 +112,24 @@ std::shared_ptr<PasteDataRecord> ConvertUtils::Convert(std::shared_ptr<UnifiedRe
 }
 
 std::vector<std::shared_ptr<PasteDataEntry>> ConvertUtils::Convert(
-    const std::shared_ptr<std::map<std::string, UDMF::ValueType>>& entries)
+    const std::shared_ptr<std::map<std::string, UDMF::ValueType>> &entries)
 {
     std::vector<std::shared_ptr<PasteDataEntry>> pbEntries;
     if (entries == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "pbEntries is empty");
         return pbEntries;
     }
-    for (auto const& [utdId, value] : *entries) {
+    for (auto const &[utdId, value] : *entries) {
         pbEntries.emplace_back(std::make_shared<PasteDataEntry>(utdId, value));
     }
     return pbEntries;
 }
 
 std::shared_ptr<std::map<std::string, UDMF::ValueType>> ConvertUtils::Convert(
-    const std::vector<std::shared_ptr<PasteDataEntry>>& entries)
+    const std::vector<std::shared_ptr<PasteDataEntry>> &entries)
 {
     std::map<std::string, UDMF::ValueType> udmfEntries;
-    for (auto const& entry : entries) {
+    for (auto const &entry : entries) {
         if (entry == nullptr) {
             continue;
         }
@@ -139,8 +138,8 @@ std::shared_ptr<std::map<std::string, UDMF::ValueType>> ConvertUtils::Convert(
     return std::make_shared<std::map<std::string, UDMF::ValueType>>(udmfEntries);
 }
 
-PasteDataProperty ConvertUtils::ConvertProperty(const std::shared_ptr<UnifiedDataProperties>& properties,
-    const UnifiedData& unifiedData)
+PasteDataProperty ConvertUtils::ConvertProperty(
+    const std::shared_ptr<UnifiedDataProperties> &properties, const UnifiedData &unifiedData)
 {
     if (!properties) {
         return {};
@@ -156,7 +155,7 @@ PasteDataProperty ConvertUtils::ConvertProperty(const std::shared_ptr<UnifiedDat
     return PasteDataProperty(pasteDataProperty);
 }
 
-std::shared_ptr<UnifiedDataProperties> ConvertUtils::ConvertProperty(const PasteDataProperty& properties)
+std::shared_ptr<UnifiedDataProperties> ConvertUtils::ConvertProperty(const PasteDataProperty &properties)
 {
     auto unifiedDataProperties = std::make_shared<UnifiedDataProperties>();
     unifiedDataProperties->shareOptions = properties.shareOption == InApp ? UDMF::ShareOptions::IN_APP
@@ -168,10 +167,10 @@ std::shared_ptr<UnifiedDataProperties> ConvertUtils::ConvertProperty(const Paste
     return unifiedDataProperties;
 }
 
-std::vector<std::string> ConvertUtils::Convert(const std::vector<std::string>& utdIds)
+std::vector<std::string> ConvertUtils::Convert(const std::vector<std::string> &utdIds)
 {
     std::vector<std::string> types;
-    for (const auto& utdId : utdIds) {
+    for (const auto &utdId : utdIds) {
         types.push_back(CommonUtils::Convert2MimeType(utdId));
     }
     return types;
