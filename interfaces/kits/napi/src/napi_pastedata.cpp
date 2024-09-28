@@ -347,7 +347,7 @@ napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
-                              "index out of range.")) {
+        "index out of range.")) {
         return nullptr;
     }
     obj->value_->RemoveRecordAt(index);
@@ -823,7 +823,7 @@ napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
-                              "index out of range.")) {
+        "index out of range.")) {
         return nullptr;
     }
 

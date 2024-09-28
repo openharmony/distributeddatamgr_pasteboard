@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <gtest/gtest.h>
+
 #include "clip/clip_plugin.h"
 #include "config.h"
 #include "pasteboard_hilog.h"
 #include "serializable.h"
-#include <gtest/gtest.h>
 
 namespace OHOS::DistributedData {
 using namespace testing::ext;
@@ -29,7 +30,7 @@ public:
     void TearDown();
     void CreateConfig(Config &config, const std::string &prefix = "");
     void CreateComponent(Config::Component &component, int32_t index, const std::string &prefix);
-    Serializable::json ToJson(const std::string& str);
+    Serializable::json ToJson(const std::string &str);
     bool IsSame(Config &oldConfig, Config &newConfig);
     static bool IsSame(Config::Component &oldComp, Config::Component &newComp);
 
@@ -49,23 +50,15 @@ public:
     }
 };
 
-void SerializableTest::SetUpTestCase(void)
-{
-}
+void SerializableTest::SetUpTestCase(void) {}
 
-void SerializableTest::TearDownTestCase(void)
-{
-}
+void SerializableTest::TearDownTestCase(void) {}
 
-void SerializableTest::SetUp(void)
-{
-}
+void SerializableTest::SetUp(void) {}
 
-void SerializableTest::TearDown(void)
-{
-}
+void SerializableTest::TearDown(void) {}
 
-Serializable::json SerializableTest::ToJson(const std::string& str)
+Serializable::json SerializableTest::ToJson(const std::string &str)
 {
     return cJSON_Parse(str.c_str());
 }

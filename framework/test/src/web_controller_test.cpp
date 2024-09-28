@@ -13,30 +13,37 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
-
 #include "pasteboard_web_controller.h"
+#include <gtest/gtest.h>
 
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::MiscServices;
 class WebControllerTest : public testing::Test {
 public:
-    WebControllerTest(){};
-    ~WebControllerTest(){};
+    WebControllerTest() {};
+    ~WebControllerTest() {};
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
 };
 
-void WebControllerTest::SetUpTestCase(void) {}
+void WebControllerTest::SetUpTestCase(void)
+{
+}
 
-void WebControllerTest::TearDownTestCase(void) {}
+void WebControllerTest::TearDownTestCase(void)
+{
+}
 
-void WebControllerTest::SetUp(void) {}
+void WebControllerTest::SetUp(void)
+{
+}
 
-void WebControllerTest::TearDown(void) {}
+void WebControllerTest::TearDown(void)
+{
+}
 
 /**
  * @tc.name: SplitHtmlTest_001.
@@ -48,10 +55,9 @@ void WebControllerTest::TearDown(void) {}
 HWTEST_F(WebControllerTest, SplitHtmlTest_001, TestSize.Level1)
 {
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img data-ohos='clipboard' src='http://file1.jpg'><img "
-                                                      "data-ohos='clipboard' "
-                                                      "src='https://data/storage/el2/distributedfiles/"
-                                                      "202305301.png'>"));
+    std::shared_ptr<std::string> html(
+        new std::string("<img data-ohos='clipboard' src='http://file1.jpg'><img data-ohos='clipboard' "
+                        "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_EQ(pasteData->GetRecordCount(), 1);
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
@@ -68,10 +74,9 @@ HWTEST_F(WebControllerTest, SplitHtmlTest_001, TestSize.Level1)
 HWTEST_F(WebControllerTest, SplitHtmlTest_002, TestSize.Level1)
 {
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img data-ohos='clipboard' src='file:///file1.jpg'><img "
-                                                      "data-ohos='clipboard' "
-                                                      "src='https://data/storage/el2/distributedfiles/"
-                                                      "202305301.png'>"));
+    std::shared_ptr<std::string> html(
+        new std::string("<img data-ohos='clipboard' src='file:///file1.jpg'><img data-ohos='clipboard' "
+                        "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_NE(pasteData, nullptr);
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
@@ -88,11 +93,10 @@ HWTEST_F(WebControllerTest, SplitHtmlTest_002, TestSize.Level1)
 HWTEST_F(WebControllerTest, SplitHtmlTest_003, TestSize.Level1)
 {
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img data-ohos='clipboard' src='file:///file1.jpg'><img "
-                                                      "data-ohos='clipboard' "
-                                                      "src='file2.jpg'><img data-ohos='clipboard' "
-                                                      "src='https://data/storage/el2/distributedfiles/"
-                                                      "202305301.png'>"));
+    std::shared_ptr<std::string> html(
+        new std::string("<img data-ohos='clipboard' src='file:///file1.jpg'><img data-ohos='clipboard' "
+                        "src='file2.jpg'><img data-ohos='clipboard' "
+                        "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_NE(pasteData, nullptr);
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
@@ -109,10 +113,9 @@ HWTEST_F(WebControllerTest, SplitHtmlTest_003, TestSize.Level1)
 HWTEST_F(WebControllerTest, RebuildHtmlTest_004, TestSize.Level1)
 {
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img data-ohos='clipboard' src='http://file1.jpg'><img "
-                                                      "data-ohos='clipboard' "
-                                                      "src='https://data/storage/el2/distributedfiles/"
-                                                      "202305301.png'>"));
+    std::shared_ptr<std::string> html(
+        new std::string("<img data-ohos='clipboard' src='http://file1.jpg'><img data-ohos='clipboard' "
+                        "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_EQ(pasteData->GetRecordCount(), 1);
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(pasteData);
@@ -131,14 +134,13 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_005, TestSize.Level1)
     const int32_t splitRecordCount = 2;
     const std::string uri = "file:///data/storage/el2/distributedfiles/temp.png";
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img data-ohos='clipboard' src='file:///file1.jpg'><img "
-                                                      "data-ohos='clipboard' "
-                                                      "src='https://data/storage/el2/distributedfiles/"
-                                                      "202305301.png'>"));
-    const char *execptHtml = "<img data-ohos='clipboard' "
-                             "src='file:///data/storage/el2/distributedfiles/temp.png'><img "
-                             "data-ohos='clipboard' "
-                             "src='https://data/storage/el2/distributedfiles/202305301.png'>";
+    std::shared_ptr<std::string> html(
+        new std::string("<img data-ohos='clipboard' src='file:///file1.jpg'><img data-ohos='clipboard' "
+                        "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
+    const char* execptHtml =
+        "<img data-ohos='clipboard' src='file:///data/storage/el2/distributedfiles/temp.png'><img "
+        "data-ohos='clipboard' "
+        "src='https://data/storage/el2/distributedfiles/202305301.png'>";
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_NE(pasteData, nullptr);
     EXPECT_EQ(pasteData->GetRecordCount(), splitRecordCount);
@@ -158,7 +160,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_005, TestSize.Level1)
     EXPECT_EQ(newPasteData->GetRecordCount(), splitRecordCount);
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(newPasteData);
     EXPECT_EQ(newPasteData->GetRecordCount(), 1);
-    const char *newHtmlStr = newHtml.get()->c_str();
+    const char* newHtmlStr = newHtml.get()->c_str();
     EXPECT_STREQ(newHtmlStr, execptHtml);
 }
 
@@ -174,16 +176,15 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
     const int32_t splitRecordCount = 3;
     const std::string uri = "file:///data/storage/el2/distributedfiles/temp.png";
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img data-ohos='clipboard' src='file:///file1.jpg'><img "
-                                                      "data-ohos='clipboard' "
-                                                      "src=\"file2.jpg\"><img data-ohos='clipboard' "
-                                                      "src='https://data/storage/el2/distributedfiles/"
-                                                      "202305301.png'>"));
-    const char *execptHtml = "<img data-ohos='clipboard' "
-                             "src='file:///data/storage/el2/distributedfiles/temp.png'><img "
-                             "data-ohos='clipboard' "
-                             "src=\"file:///data/storage/el2/distributedfiles/temp.png\"><img data-ohos='clipboard' "
-                             "src='https://data/storage/el2/distributedfiles/202305301.png'>";
+    std::shared_ptr<std::string> html(
+        new std::string("<img data-ohos='clipboard' src='file:///file1.jpg'><img data-ohos='clipboard' "
+                        "src=\"file2.jpg\"><img data-ohos='clipboard' "
+                        "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
+    const char* execptHtml =
+        "<img data-ohos='clipboard' src='file:///data/storage/el2/distributedfiles/temp.png'><img "
+        "data-ohos='clipboard' "
+        "src=\"file:///data/storage/el2/distributedfiles/temp.png\"><img data-ohos='clipboard' "
+        "src='https://data/storage/el2/distributedfiles/202305301.png'>";
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_NE(pasteData, nullptr);
     EXPECT_EQ(pasteData->GetRecordCount(), splitRecordCount);
@@ -203,7 +204,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
     EXPECT_EQ(newPasteData->GetRecordCount(), splitRecordCount);
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(newPasteData);
     EXPECT_EQ(newPasteData->GetRecordCount(), 1);
-    const char *newHtmlStr = newHtml.get()->c_str();
+    const char* newHtmlStr = newHtml.get()->c_str();
     EXPECT_STREQ(newHtmlStr, execptHtml);
 }
 
@@ -217,9 +218,9 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
 HWTEST_F(WebControllerTest, SplitHtmlTest_007, TestSize.Level1)
 {
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img data-ohos='clipboard' src='xxx://file1.jpg'><img "
-                                                      "data-ohos='clipboard' "
-                                                      "src='yyy://data/storage/el2/distributedfiles/202305301.png'>"));
+    std::shared_ptr<std::string> html(
+        new std::string("<img data-ohos='clipboard' src='xxx://file1.jpg'><img data-ohos='clipboard' "
+                        "src='yyy://data/storage/el2/distributedfiles/202305301.png'>"));
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_EQ(pasteData->GetRecordCount(), 1);
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
@@ -236,9 +237,9 @@ HWTEST_F(WebControllerTest, SplitHtmlTest_007, TestSize.Level1)
 HWTEST_F(WebControllerTest, RebuildHtmlTest_008, TestSize.Level1)
 {
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img data-ohos='clipboard' src='xxx://file1.jpg'><img "
-                                                      "data-ohos='clipboard' "
-                                                      "src='ttt://data/storage/el2/distributedfiles/202305301.png'>"));
+    std::shared_ptr<std::string> html(
+        new std::string("<img data-ohos='clipboard' src='xxx://file1.jpg'><img data-ohos='clipboard' "
+                        "src='ttt://data/storage/el2/distributedfiles/202305301.png'>"));
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_EQ(pasteData->GetRecordCount(), 1);
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(pasteData);
@@ -257,13 +258,14 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_009, TestSize.Level1)
     const int32_t splitRecordCount = 3;
     const std::string uri = "file:///data/storage/el2/distributedfiles/temp.png";
     auto webClipboardController = PasteboardWebController::GetInstance();
-    std::shared_ptr<std::string> html(new std::string("<img src='file:///file1.jpg'><img src=\"file2.jpg\"><img "
-                                                      "src='https://data/storage/el2/distributedfiles/"
-                                                      "202305301.png'>"));
-    const char *execptHtml = "<img src='file:///data/storage/el2/distributedfiles/temp.png'><img "
-                             ""
-                             "src=\"file:///data/storage/el2/distributedfiles/temp.png\"><img "
-                             "src='https://data/storage/el2/distributedfiles/202305301.png'>";
+    std::shared_ptr<std::string> html(
+        new std::string("<img src='file:///file1.jpg'><img src=\"file2.jpg\"><img "
+                        "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
+    const char* execptHtml =
+        "<img src='file:///data/storage/el2/distributedfiles/temp.png'><img "
+        ""
+        "src=\"file:///data/storage/el2/distributedfiles/temp.png\"><img "
+        "src='https://data/storage/el2/distributedfiles/202305301.png'>";
     auto pasteData = webClipboardController.SplitHtml(html);
     EXPECT_NE(pasteData, nullptr);
     EXPECT_EQ(pasteData->GetRecordCount(), splitRecordCount);
@@ -283,6 +285,6 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_009, TestSize.Level1)
     EXPECT_EQ(newPasteData->GetRecordCount(), splitRecordCount);
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(newPasteData);
     EXPECT_EQ(newPasteData->GetRecordCount(), 1);
-    const char *newHtmlStr = newHtml.get()->c_str();
+    const char* newHtmlStr = newHtml.get()->c_str();
     EXPECT_STREQ(newHtmlStr, execptHtml);
 }

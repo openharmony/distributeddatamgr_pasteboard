@@ -435,7 +435,8 @@ void HiViewAdapter::ReportBehaviour(std::map<std::string, int> &behaviour, const
         }
     }
     HiSysEventParam params[] = {
-        { .name = { "PASTEBOARD_STATE" }, .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState }, .arraySize = 0 },
+        { .name = { "PASTEBOARD_STATE" }, 
+            .t = HISYSEVENT_STRING, .v = { .s = (char *)pasteboardState }, .arraySize = 0 },
         { .name = { "TOP_ONE_APP" },
             .t = HISYSEVENT_STRING,
             .v = { .s = (char *)appPackName[0].c_str() },

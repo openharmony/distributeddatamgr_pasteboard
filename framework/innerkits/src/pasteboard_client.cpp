@@ -286,10 +286,8 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
     auto webData = std::make_shared<PasteData>(pasteData);
     PasteboardWebController.RebuildHtml(webData);
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
-    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(MIMETYPE_TEXT_HTML)
-                                                           .SetPlainText(pasteData.GetPrimaryText())
-                                                           .SetHtmlText(webData->GetPrimaryHtml())
-                                                           .Build();
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(MIMETYPE_TEXT_HTML).
+        SetPlainText(pasteData.GetPrimaryText()).SetHtmlText(webData->GetPrimaryHtml()).Build();
     if (details) {
         pasteDataRecord->SetDetails(*details);
     }

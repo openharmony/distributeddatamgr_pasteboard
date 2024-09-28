@@ -185,7 +185,7 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
     // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
     if (!CheckExpression(env, argc >= ARGC_TYPE_SET2, JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The number of arguments cannot be less than two.") ||
-        !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+            !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
 
