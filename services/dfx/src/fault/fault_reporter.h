@@ -23,9 +23,7 @@ namespace MiscServices {
 class FaultReporter {
 public:
     virtual ReportStatus Report(const PasteboardFaultMsg &msg) = 0;
-    virtual ~FaultReporter()
-    {
-    }
+    virtual ~FaultReporter() {}
 };
 } // namespace MiscServices
 } // namespace OHOS

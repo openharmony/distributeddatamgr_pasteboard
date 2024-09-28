@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-#include "pasteboard_service_proxy.h"
-
 #include "copy_uri_handler.h"
 #include "iremote_broker.h"
 #include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
+#include "pasteboard_service_proxy.h"
 
 using namespace OHOS::Security::PasteboardServ;
 namespace OHOS {
@@ -58,8 +57,8 @@ int32_t PasteboardServiceProxy::GetRecordValueByType(uint32_t dataId, uint32_t r
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteUint32(dataId) || !data.WriteUint32(recordId)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-            "fail to write dataId:%{public}d or recordId:%{public}d", dataId, recordId);
+        PASTEBOARD_HILOGE(
+            PASTEBOARD_MODULE_CLIENT, "fail to write dataId:%{public}d or recordId:%{public}d", dataId, recordId);
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     std::vector<uint8_t> sendTLV(0);
@@ -84,7 +83,7 @@ int32_t PasteboardServiceProxy::GetRecordValueByType(uint32_t dataId, uint32_t r
     int32_t rawDataSize = reply.ReadInt32();
     if (rawDataSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to get raw data size");
-        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR) ;
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     const uint8_t *rawData = reinterpret_cast<const uint8_t *>(reply.ReadRawData(rawDataSize));
     if (rawData == nullptr) {
@@ -174,8 +173,8 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
     return reply.ReadInt32();
 }
 
-__attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteData(PasteData &pasteData,
-    int32_t &syncTime)
+__attribute__((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteData(
+    PasteData &pasteData, int32_t &syncTime)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data;
@@ -221,16 +220,16 @@ __attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteDat
     return reply.ReadInt32();
 }
 
-void PasteboardServiceProxy::SubscribeObserver(PasteboardObserverType type,
-    const sptr<IPasteboardChangedObserver> &observer)
+void PasteboardServiceProxy::SubscribeObserver(
+    PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     ProcessObserver(PasteboardServiceInterfaceCode::SUBSCRIBE_OBSERVER, type, observer);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
-void PasteboardServiceProxy::UnsubscribeObserver(PasteboardObserverType type,
-    const sptr<IPasteboardChangedObserver> &observer)
+void PasteboardServiceProxy::UnsubscribeObserver(
+    PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     ProcessObserver(PasteboardServiceInterfaceCode::UNSUBSCRIBE_OBSERVER, type, observer);
@@ -258,8 +257,8 @@ void PasteboardServiceProxy::UnsubscribeAllObserver(PasteboardObserverType type)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
 }
 
-void PasteboardServiceProxy::ProcessObserver(uint32_t code, PasteboardObserverType type,
-    const sptr<IPasteboardChangedObserver> &observer)
+void PasteboardServiceProxy::ProcessObserver(
+    uint32_t code, PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer)
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer nullptr");
@@ -414,8 +413,8 @@ int32_t PasteboardServiceProxy::SetGlobalShareOption(const std::map<uint32_t, Sh
             return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
         }
     }
-    int32_t result = Remote()->SendRequest(
-        PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION, data, reply, option);
+    int32_t result =
+        Remote()->SendRequest(PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
         return result;
@@ -436,8 +435,8 @@ int32_t PasteboardServiceProxy::RemoveGlobalShareOption(const std::vector<uint32
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenIds failed.");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    int32_t result = Remote()->SendRequest(
-        PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION, data, reply, option);
+    int32_t result =
+        Remote()->SendRequest(PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
         return result;
@@ -458,8 +457,8 @@ std::map<uint32_t, ShareOption> PasteboardServiceProxy::GetGlobalShareOption(con
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenIds failed.");
         return {};
     }
-    int32_t result = Remote()->SendRequest(
-        PasteboardServiceInterfaceCode::GET_GLOBAL_SHARE_OPTION, data, reply, option);
+    int32_t result =
+        Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_GLOBAL_SHARE_OPTION, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
         return {};
@@ -588,8 +587,8 @@ int32_t PasteboardServiceProxy::RegisterClientDeathObserver(sptr<IRemoteObject> 
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remote observer failed.");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    auto result = Remote()->SendRequest(
-        PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER, data, reply, option);
+    auto result =
+        Remote()->SendRequest(PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Send request failed, error code: %{public}d.", result);
         return result;

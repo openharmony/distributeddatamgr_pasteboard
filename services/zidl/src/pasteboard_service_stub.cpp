@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#include "pasteboard_service_stub.h"
-
 #include "copy_uri_handler.h"
 #include "errors.h"
 #include "hiview_adapter.h"
@@ -24,6 +22,7 @@
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_proxy.h"
 #include "pasteboard_serv_ipc_interface_code.h"
+#include "pasteboard_service_stub.h"
 
 using namespace OHOS::Security::PasteboardServ;
 namespace OHOS {
@@ -44,29 +43,29 @@ PasteboardServiceStub::PasteboardServiceStub()
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::UNSUBSCRIBE_ALL_OBSERVER)] =
         &PasteboardServiceStub::OnUnsubscribeAllObserver;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::IS_REMOTE_DATA)] =
-            &PasteboardServiceStub::OnIsRemoteData;
+        &PasteboardServiceStub::OnIsRemoteData;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_DATA_SOURCE)] =
-            &PasteboardServiceStub::OnGetDataSource;
+        &PasteboardServiceStub::OnGetDataSource;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::HAS_DATA_TYPE)] =
-            &PasteboardServiceStub::OnHasDataType;
+        &PasteboardServiceStub::OnHasDataType;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::DETECT_PATTERNS)] =
-            &PasteboardServiceStub::OnDetectPatterns;
+        &PasteboardServiceStub::OnDetectPatterns;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION)] =
-            &PasteboardServiceStub::OnSetGlobalShareOption;
+        &PasteboardServiceStub::OnSetGlobalShareOption;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION)] =
-            &PasteboardServiceStub::OnRemoveGlobalShareOption;
+        &PasteboardServiceStub::OnRemoveGlobalShareOption;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_GLOBAL_SHARE_OPTION)] =
-            &PasteboardServiceStub::OnGetGlobalShareOption;
+        &PasteboardServiceStub::OnGetGlobalShareOption;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SET_APP_SHARE_OPTIONS)] =
-            &PasteboardServiceStub::OnSetAppShareOptions;
+        &PasteboardServiceStub::OnSetAppShareOptions;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REMOVE_APP_SHARE_OPTIONS)] =
-            &PasteboardServiceStub::OnRemoveAppShareOptions;
+        &PasteboardServiceStub::OnRemoveAppShareOptions;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PASTE_START)] =
-            &PasteboardServiceStub::OnPasteStart;
+        &PasteboardServiceStub::OnPasteStart;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PASTE_COMPLETE)] =
-            &PasteboardServiceStub::OnPasteComplete;
+        &PasteboardServiceStub::OnPasteComplete;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER)] =
-            &PasteboardServiceStub::OnRegisterClientDeathObserver;
+        &PasteboardServiceStub::OnRegisterClientDeathObserver;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_RECORD_VALUE)] =
         &PasteboardServiceStub::OnGetRecordValueByType;
 }
@@ -83,8 +82,7 @@ int32_t PasteboardServiceStub::OnRemoteRequest(
     pid_t p = IPCSkeleton::GetCallingPid();
     pid_t p1 = IPCSkeleton::GetCallingUid();
     if (code != static_cast<uint32_t>(PasteboardServiceInterfaceCode::HAS_PASTE_DATA)) {
-        PASTEBOARD_HILOGI(
-            PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u", p, p1, code);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u", p, p1, code);
     }
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {
@@ -297,8 +295,8 @@ int32_t PasteboardServiceStub::OnUnsubscribeAllObserver(MessageParcel &data, Mes
     return ERR_OK;
 }
 
-bool PasteboardServiceStub::IsObserverValid(MessageParcel &data, uint32_t &type,
-    sptr<IPasteboardChangedObserver> &callback)
+bool PasteboardServiceStub::IsObserverValid(
+    MessageParcel &data, uint32_t &type, sptr<IPasteboardChangedObserver> &callback)
 {
     if (!data.ReadUint32(type)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read type failed.");
