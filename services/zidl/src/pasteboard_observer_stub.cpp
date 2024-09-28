@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
+#include "pasteboard_observer_stub.h"
+
 #include "i_pasteboard_observer.h"
 #include "pasteboard_error.h"
-#include "pasteboard_observer_stub.h"
 #include "pasteboard_serv_ipc_interface_code.h"
 
 using namespace OHOS::Security::PasteboardServ;
