@@ -25,9 +25,9 @@
 #include "api/visibility.h"
 #include "endian_converter.h"
 #include "parcel.h"
+#include "parcel_util.h"
 #include "securec.h"
 #include "unified_meta.h"
-#include "parcel_util.h"
 namespace OHOS::MiscServices {
 #pragma pack(1)
 struct TLVHead {
@@ -59,9 +59,7 @@ using Object = UDMF::Object;
 
 struct API_EXPORT TLVObject {
 public:
-    TLVObject() : total_(0), cursor_(0)
-    {
-    }
+    TLVObject() : total_(0), cursor_(0) {}
     virtual bool Encode(std::vector<std::uint8_t> &buffer) = 0;
     virtual bool Decode(const std::vector<std::uint8_t> &buffer) = 0;
     virtual size_t Count() = 0;
@@ -145,17 +143,17 @@ public:
         return expectSize;
     }
 
-    static inline size_t Count(const Details& value)
+    static inline size_t Count(const Details &value)
     {
         size_t expectSize = sizeof(TLVHead);
-        for (auto& item : value) {
+        for (auto &item : value) {
             expectSize += Count(item.first);
             expectSize += Count(item.second);
         }
         return expectSize;
     }
 
-    static inline size_t Count(const std::shared_ptr<AAFwk::Want>& value)
+    static inline size_t Count(const std::shared_ptr<AAFwk::Want> &value)
     {
         size_t expectSize = sizeof(TLVHead);
         if (value == nullptr) {
@@ -173,13 +171,13 @@ public:
         return expectSize + Count(PixelMap2Vector(value));
     }
 
-    static inline size_t Count(const std::shared_ptr<Object>& value)
+    static inline size_t Count(const std::shared_ptr<Object> &value)
     {
         size_t expectSize = sizeof(TLVHead);
         if (value == nullptr) {
             return 0;
         }
-        for (auto& item : value->value_) {
+        for (auto &item : value->value_) {
             expectSize += Count(item.first);
             expectSize += Count(item.second);
         }
@@ -200,13 +198,13 @@ public:
     static std::vector<std::uint8_t> PixelMap2Vector(std::shared_ptr<Media::PixelMap> pixelMap);
 
     template<typename _InTp>
-    static inline size_t CountVariant(uint32_t step, const _InTp& input)
+    static inline size_t CountVariant(uint32_t step, const _InTp &input)
     {
         return 0;
     }
 
     template<typename _InTp, typename _First, typename... _Rest>
-    static inline size_t CountVariant(uint32_t step, const _InTp& input)
+    static inline size_t CountVariant(uint32_t step, const _InTp &input)
     {
         if (step == input.index()) {
             return Count(step) + Count(std::get<_First>(input));
@@ -215,14 +213,14 @@ public:
     }
 
     template<typename... _Types>
-    static inline size_t Count(const std::variant<_Types...>& input)
+    static inline size_t Count(const std::variant<_Types...> &input)
     {
         size_t expectSize = sizeof(TLVHead);
         return expectSize + CountVariant<decltype(input), _Types...>(0, input);
     }
 
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::monostate value);
-    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, void* value);
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, void *value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, bool value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, double value);
     bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, int8_t value);
@@ -261,18 +259,18 @@ public:
     }
 
     template<typename _InTp>
-    bool WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, uint32_t step, const _InTp& input);
+    bool WriteVariant(std::vector<std::uint8_t> &buffer, uint16_t type, uint32_t step, const _InTp &input);
 
     template<typename _InTp, typename _First, typename... _Rest>
-    bool WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, uint32_t step, const _InTp& input);
+    bool WriteVariant(std::vector<std::uint8_t> &buffer, uint16_t type, uint32_t step, const _InTp &input);
 
     template<typename... _Types>
-    bool Write(std::vector<std::uint8_t>& buffer, uint16_t type, const std::variant<_Types...>& input);
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::variant<_Types...> &input);
 
     template<>
-    bool Write(std::vector<std::uint8_t>& buffer, uint16_t type, const EntryValue& input);
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const EntryValue &input);
 
-    bool Write(std::vector<std::uint8_t>& buffer, uint16_t type, const Details& value);
+    bool Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Details &value);
 
     bool ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, bool &value, const TLVHead &head);
@@ -288,8 +286,8 @@ public:
     bool ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMem, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, Object &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, AAFwk::Want &value, const TLVHead &head);
-    bool ReadValue(const std::vector<std::uint8_t> &buffer, std::shared_ptr<Media::PixelMap> &value,
-        const TLVHead &head);
+    bool ReadValue(
+        const std::vector<std::uint8_t> &buffer, std::shared_ptr<Media::PixelMap> &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &value, const TLVHead &head);
     template<typename T>
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<T> &value, const TLVHead &head)
@@ -309,23 +307,23 @@ public:
         return true;
     }
 
-    bool ReadValue(const std::vector<std::uint8_t>& buffer, std::vector<uint8_t>& value, const TLVHead& head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<uint8_t> &value, const TLVHead &head);
 
     template<typename _InTp>
-    bool ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t step, uint32_t index, _InTp& input,
-        const TLVHead& head);
+    bool ReadVariant(
+        const std::vector<std::uint8_t> &buffer, uint32_t step, uint32_t index, _InTp &input, const TLVHead &head);
 
     template<typename _InTp, typename _First, typename... _Rest>
-    bool ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t step, uint32_t index, _InTp& input,
-        const TLVHead& head);
+    bool ReadVariant(
+        const std::vector<std::uint8_t> &buffer, uint32_t step, uint32_t index, _InTp &input, const TLVHead &head);
 
     template<typename... _Types>
-    bool ReadValue(const std::vector<std::uint8_t>& buffer, std::variant<_Types...>& value, const TLVHead& head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, std::variant<_Types...> &value, const TLVHead &head);
 
     template<>
-    bool ReadValue(const std::vector<std::uint8_t>& buffer, EntryValue& value, const TLVHead& head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, EntryValue &value, const TLVHead &head);
 
-    bool ReadValue(const std::vector<std::uint8_t>& buffer, Details& value, const TLVHead& head);
+    bool ReadValue(const std::vector<std::uint8_t> &buffer, Details &value, const TLVHead &head);
     bool ReadValue(const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value,
         const TLVHead &head);
 

@@ -12,25 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-#include "system_pasteboard_impl.h"
+
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
- 
+#include "system_pasteboard_impl.h"
+
 using namespace OHOS::MiscServices;
- 
+
 namespace OHOS {
 namespace MiscServicesCj {
- 
+
 static sptr<SystemPasteboardImpl> g_systemPasteboard_instance = nullptr;
 
 OHOS::FFI::RuntimeType *SystemPasteboardImpl::GetClassType()
 {
-    static OHOS::FFI::RuntimeType runtimeType =
-        OHOS::FFI::RuntimeType::Create<OHOS::FFI::FFIData>("SystemPasteboardImpl");
+    static OHOS::FFI::RuntimeType runtimeType = OHOS::FFI::RuntimeType::Create<OHOS::FFI::FFIData>("SystemPasteboardIm"
+                                                                                                   "pl");
     return &runtimeType;
 }
- 
+
 SystemPasteboardImpl::SystemPasteboardImpl()
 {
     value_ = nullptr;
@@ -130,5 +130,5 @@ std::string SystemPasteboardImpl::GetDataSource()
     return res;
 }
 
-}
+} // namespace MiscServicesCj
 }

@@ -15,12 +15,12 @@
 
 #include <thread>
 
-#include "pasteboard_dialog.h"
-#include "pasteboard_error.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_proxy.h"
 #include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
+#include "pasteboard_dialog.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "system_ability_definition.h"
 
@@ -28,9 +28,7 @@ namespace OHOS::MiscServices {
 using namespace OHOS::AAFwk;
 class DialogConnection : public AAFwk::AbilityConnectionStub {
 public:
-    explicit DialogConnection(PasteBoardDialog::Cancel cancel) : cancel_(std::move(cancel))
-    {
-    }
+    explicit DialogConnection(PasteBoardDialog::Cancel cancel) : cancel_(std::move(cancel)) {}
     DialogConnection(const DialogConnection &) = delete;
     DialogConnection &operator=(const DialogConnection &) = delete;
     DialogConnection(DialogConnection &&) = delete;
@@ -78,8 +76,8 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
 
     std::lock_guard<std::mutex> lock(connectionLock_);
     connection_ = new DialogConnection(nullptr);
-    int32_t result = IN_PROCESS_CALL(abilityManager->ConnectAbility(want, iface_cast<AAFwk::IAbilityConnection>(
-        connection_), nullptr));
+    int32_t result = IN_PROCESS_CALL(
+        abilityManager->ConnectAbility(want, iface_cast<AAFwk::IAbilityConnection>(connection_), nullptr));
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast failed, result:%{public}d", result);
         return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);

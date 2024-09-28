@@ -24,6 +24,7 @@ public:
     void LoadComponents();
     std::vector<std::string> LoadBundles();
     int32_t LoadUid();
+
 private:
     using Constructor = void (*)(const char *);
     Config LoadConfig();

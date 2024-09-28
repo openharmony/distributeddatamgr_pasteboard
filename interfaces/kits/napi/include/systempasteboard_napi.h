@@ -26,9 +26,9 @@
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 #include "pixel_map_napi.h"
-#include "uri.h"
 #include "unified_data.h"
 #include "unified_data_napi.h"
+#include "uri.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -72,6 +72,7 @@ public:
         void GetPasteData(const std::string &type, MiscServices::PasteData &data) override;
         void GetUnifiedData(const std::string &type, UDMF::UnifiedData &data) override;
         void SetDelayGetterWrapper(const std::shared_ptr<PasteboardDelayGetterInstance> observerInstance);
+
     private:
         std::weak_ptr<PasteboardDelayGetterInstance> wrapper_;
     };

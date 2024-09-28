@@ -103,8 +103,8 @@ inline double HostToNet(double value)
 {
     double to;
     size_t typeLen = sizeof(double);
-    const uint8_t* fromByte = reinterpret_cast<const uint8_t*>(&value);
-    uint8_t* toByte = reinterpret_cast<uint8_t*>(&to);
+    const uint8_t *fromByte = reinterpret_cast<const uint8_t *>(&value);
+    uint8_t *toByte = reinterpret_cast<uint8_t *>(&to);
     for (size_t i = 0; i < typeLen; i++) {
         toByte[i] = fromByte[typeLen - i - 1]; // 1 is for index boundary
     }

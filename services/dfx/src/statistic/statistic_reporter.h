@@ -24,9 +24,7 @@ template<typename T>
 class StatisticReporter {
 public:
     virtual ReportStatus Report(const T &stat) = 0;
-    virtual ~StatisticReporter()
-    {
-    }
+    virtual ~StatisticReporter() {}
 };
 } // namespace MiscServices
 } // namespace OHOS

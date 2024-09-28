@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <gtest/gtest.h>
-#include <unistd.h>
-
 #include <chrono>
 #include <cstdint>
+#include <gtest/gtest.h>
+#include <thread>
+#include <unistd.h>
 #include <vector>
 
 #include "access_token.h"
@@ -30,7 +30,6 @@
 #include "permission_state_full.h"
 #include "pixel_map.h"
 #include "token_setproc.h"
-#include <thread>
 #include "uri.h"
 #include "want.h"
 
@@ -80,9 +79,7 @@ void PasteboardServiceTest::TearDownTestCase(void)
     DeleteTestTokenId();
 }
 
-void PasteboardServiceTest::SetUp(void)
-{
-}
+void PasteboardServiceTest::SetUp(void) {}
 
 void PasteboardServiceTest::TearDown(void)
 {
@@ -139,25 +136,19 @@ void PasteboardServiceTest::AllocTestTokenId()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode = %{public}d", ret);
         return;
     }
-    HapInfoParams infoParams = {
-        .userID = ids[0],
+    HapInfoParams infoParams = { .userID = ids[0],
         .bundleName = "ohos.privacy_test.pasteboard",
         .instIndex = 0,
-        .appIDDesc = "privacy_test.pasteboard"
-    };
-    PermissionStateFull testState = {
-        .permissionName = "ohos.permission.DUMP",
+        .appIDDesc = "privacy_test.pasteboard" };
+    PermissionStateFull testState = { .permissionName = "ohos.permission.DUMP",
         .isGeneral = true,
         .resDeviceID = { "local" },
         .grantStatus = { PermissionState::PERMISSION_GRANTED },
-        .grantFlags = { 1 }
-    };
-    HapPolicyParams policyParams = {
-        .apl = APL_NORMAL,
+        .grantFlags = { 1 } };
+    HapPolicyParams policyParams = { .apl = APL_NORMAL,
         .domain = "test.domain.pasteboard",
         .permList = {},
-        .permStateList = { testState }
-    };
+        .permStateList = { testState } };
 
     AccessTokenKit::AllocHapToken(infoParams, policyParams);
     testTokenId_ = Security::AccessToken::AccessTokenKit::GetHapTokenID(
@@ -197,9 +188,9 @@ string GetTime()
     time_t curtime;
     time(&curtime);
     tm *nowtime = localtime(&curtime);
-    std::string targetTime = std::to_string(1900 + nowtime->tm_year) + "-" + std::to_string(1 + nowtime->tm_mon) + "-" +
-        std::to_string(nowtime->tm_mday) + " " + std::to_string(nowtime->tm_hour) + ":" +
-        std::to_string(nowtime->tm_min) + ":" + std::to_string(nowtime->tm_sec);
+    std::string targetTime = std::to_string(1900 + nowtime->tm_year) + "-" + std::to_string(1 + nowtime->tm_mon) +
+                             "-" + std::to_string(nowtime->tm_mday) + " " + std::to_string(nowtime->tm_hour) + ":" +
+                             std::to_string(nowtime->tm_min) + ":" + std::to_string(nowtime->tm_sec);
     return targetTime;
 }
 
@@ -399,9 +390,8 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest008, TestSize.Level0)
 */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest009, TestSize.Level0)
 {
-    std::string htmlText =
-        "<div class='item'><img data-ohos='clipboard' "
-        "src='file:///com.example.webview/data/storage/el1/base/test.png'></div>";
+    std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
+                           "src='file:///com.example.webview/data/storage/el1/base/test.png'></div>";
     auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     ASSERT_TRUE(data != nullptr);
     data->SetTag(g_webviewPastedataTag);
@@ -423,10 +413,9 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest009, TestSize.Level0)
 */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest0010, TestSize.Level0)
 {
-    std::string htmlText =
-        "<div class='item'><img data-ohos='clipboard' "
-        "src='file://com.byy.testdpb/data/storage/el2/distributedfiles/"
-        ".remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>";
+    std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
+                           "src='file://com.byy.testdpb/data/storage/el2/distributedfiles/"
+                           ".remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>";
     auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     ASSERT_TRUE(data != nullptr);
     data->SetTag(g_webviewPastedataTag);
@@ -449,10 +438,9 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0010, TestSize.Level0)
 */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest0011, TestSize.Level0)
 {
-    std::string htmlText =
-        "<div class='item'><img "
-        "src='file://com.byy.testdpb/data/storage/el2/distributedfiles/"
-        ".remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>";
+    std::string htmlText = "<div class='item'><img "
+                           "src='file://com.byy.testdpb/data/storage/el2/distributedfiles/"
+                           ".remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>";
     auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     ASSERT_TRUE(data != nullptr);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
@@ -474,9 +462,8 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0011, TestSize.Level0)
 */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest0012, TestSize.Level0)
 {
-    std::string htmlText =
-        "<div class='item'><img data-ohos='clipboard' "
-        "src='file:///com.example.webview/data/storage/el1/base/test.png'></div>";
+    std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
+                           "src='file:///com.example.webview/data/storage/el1/base/test.png'></div>";
     auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     ASSERT_TRUE(data != nullptr);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
@@ -615,10 +602,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType1, arrayBuffer);
     std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(mimeType)
-                                                            .SetPlainText(std::make_shared<std::string>(plainText))
-                                                            .SetHtmlText(std::make_shared<std::string>(htmlText))
-                                                            .SetCustomData(customData)
-                                                            .Build();
+                                                           .SetPlainText(std::make_shared<std::string>(plainText))
+                                                           .SetHtmlText(std::make_shared<std::string>(htmlText))
+                                                           .SetCustomData(customData)
+                                                           .Build();
     pasteData->AddRecord(pasteDataRecord);
     PasteData newPasteData;
     PasteboardServiceTest::CommonTest(*pasteData, newPasteData);
@@ -1070,7 +1057,6 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     hasPasteData = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(hasPasteData);
 }
-
 
 /**
  * @tc.name: PasteDataTest0019

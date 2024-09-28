@@ -23,9 +23,7 @@ namespace OHOS {
 namespace MiscServices {
 class TimeConsumingStatisticImpl : public StatisticReporter<TimeConsumingStat> {
 public:
-    virtual ~TimeConsumingStatisticImpl()
-    {
-    }
+    virtual ~TimeConsumingStatisticImpl() {}
     ReportStatus Report(const TimeConsumingStat &stat) override;
 };
 } // namespace MiscServices

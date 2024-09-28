@@ -25,8 +25,8 @@ std::recursive_mutex g_PasteDataMutex;
 
 OHOS::FFI::RuntimeType *PasteDataRecordImpl::GetClassType()
 {
-    static OHOS::FFI::RuntimeType runtimeType =
-        OHOS::FFI::RuntimeType::Create<OHOS::FFI::FFIData>("PasteDataRecordImpl");
+    static OHOS::FFI::RuntimeType runtimeType = OHOS::FFI::RuntimeType::Create<OHOS::FFI::FFIData>("PasteDataRecordImp"
+                                                                                                   "l");
     return &runtimeType;
 }
 
@@ -61,8 +61,8 @@ void removeCjPasteDataRecordImpl(std::shared_ptr<MiscServices::PasteDataRecord> 
     g_cjPasteDataRecordMap.erase(record);
 }
 
-void addCjPasteDataRecordImpl(std::shared_ptr<MiscServices::PasteDataRecord> record,
-                              sptr<PasteDataRecordImpl> pasteDataRecordImpl)
+void addCjPasteDataRecordImpl(
+    std::shared_ptr<MiscServices::PasteDataRecord> record, sptr<PasteDataRecordImpl> pasteDataRecordImpl)
 {
     std::lock_guard<std::recursive_mutex> lock(g_PasteDataMutex);
     g_cjPasteDataRecordMap.try_emplace(record, pasteDataRecordImpl);
@@ -126,9 +126,7 @@ void PasteDataRecordImpl::CreatePixelMapDataRecord(std::string mimeType, CJValue
     value_ = PasteboardClient::GetInstance()->CreatePixelMapRecord(value.pixelMap);
 }
 
-void PasteDataRecordImpl::CreateWantDataRecord(std::string mimeType, CJValueType value)
-{
-}
+void PasteDataRecordImpl::CreateWantDataRecord(std::string mimeType, CJValueType value) {}
 
-}
-}
+} // namespace MiscServicesCj
+} // namespace OHOS

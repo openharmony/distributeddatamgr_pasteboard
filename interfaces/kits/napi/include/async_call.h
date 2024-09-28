@@ -116,3 +116,4 @@ private:
 } // namespace OHOS::MiscServicesNapi
 
 #endif // PASTEBOARD_ASYNC_CALL_H
+       // namespace OHOS

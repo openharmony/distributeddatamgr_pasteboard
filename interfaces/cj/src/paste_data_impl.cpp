@@ -21,8 +21,7 @@ namespace MiscServicesCj {
 
 OHOS::FFI::RuntimeType *PasteDataImpl::GetClassType()
 {
-    static OHOS::FFI::RuntimeType runtimeType =
-        OHOS::FFI::RuntimeType::Create<OHOS::FFI::FFIData>("PasteDataImpl");
+    static OHOS::FFI::RuntimeType runtimeType = OHOS::FFI::RuntimeType::Create<OHOS::FFI::FFIData>("PasteDataImpl");
     return &runtimeType;
 }
 
@@ -86,9 +85,7 @@ void PasteDataImpl::CreatePixelMapData(std::string mimeType, CJValueType value)
     value_ = PasteboardClient::GetInstance()->CreatePixelMapData(value.pixelMap);
 }
 
-void PasteDataImpl::CreateWantData(std::string mimeType, CJValueType value)
-{
-}
+void PasteDataImpl::CreateWantData(std::string mimeType, CJValueType value) {}
 
-}
+} // namespace MiscServicesCj
 }

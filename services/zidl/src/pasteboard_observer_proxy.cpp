@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
-#include "pasteboard_observer_proxy.h"
-
 #include "errors.h"
 #include "message_option.h"
 #include "message_parcel.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_observer_proxy.h"
 #include "pasteboard_serv_ipc_interface_code.h"
 
 using namespace OHOS::Security::PasteboardServ;

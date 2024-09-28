@@ -16,9 +16,10 @@
 #ifndef PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
 #define PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
 
-#include "api/visibility.h"
 #include <atomic>
 #include <functional>
+
+#include "api/visibility.h"
 #include "device/dm_adapter.h"
 
 namespace OHOS {
@@ -30,10 +31,12 @@ public:
     void Watch(Observer observer);
     void Init();
     void DeInit();
+
 protected:
     void Online(const std::string &device) override;
     void Offline(const std::string &device) override;
     void OnReady(const std::string &device) override;
+
 private:
     int32_t GetEnabledStatus();
     void Notify();
@@ -44,9 +47,9 @@ private:
     std::atomic<bool> retrying_ = false;
     static constexpr uint32_t RETRY_TIMES = 30;
     static constexpr uint32_t RETRY_INTERVAL = 1000; //milliseconds
-    static constexpr uint32_t RANDOM_MAX = 500; //milliseconds
-    static constexpr uint32_t RANDOM_MIN = 5; //milliseconds
-    static constexpr const char* SUPPORT_STATUS = "1";
+    static constexpr uint32_t RANDOM_MAX = 500;      //milliseconds
+    static constexpr uint32_t RANDOM_MIN = 5;        //milliseconds
+    static constexpr const char *SUPPORT_STATUS = "1";
 };
 } // namespace MiscServices
 } // namespace OHOS

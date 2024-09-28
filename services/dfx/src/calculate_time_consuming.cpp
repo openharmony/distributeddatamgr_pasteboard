@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-#include "calculate_time_consuming.h"
-
 #include <sys/time.h>
 
+#include "calculate_time_consuming.h"
 #include "dfx_types.h"
 #include "pasteboard_hilog.h"
 #include "reporter.h"

@@ -16,10 +16,10 @@
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_FRAMEWORK_COMMON_CONSTANT_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_FRAMEWORK_COMMON_CONSTANT_H
 namespace OHOS::MiscServices {
-    static constexpr const char *MIMETYPE_PIXELMAP = "pixelMap";
-    static constexpr const char *MIMETYPE_TEXT_HTML = "text/html";
-    static constexpr const char *MIMETYPE_TEXT_PLAIN = "text/plain";
-    static constexpr const char *MIMETYPE_TEXT_URI = "text/uri";
-    static constexpr const char *MIMETYPE_TEXT_WANT = "text/want";
+static constexpr const char *MIMETYPE_PIXELMAP = "pixelMap";
+static constexpr const char *MIMETYPE_TEXT_HTML = "text/html";
+static constexpr const char *MIMETYPE_TEXT_PLAIN = "text/plain";
+static constexpr const char *MIMETYPE_TEXT_URI = "text/uri";
+static constexpr const char *MIMETYPE_TEXT_WANT = "text/want";
 } // namespace OHOS::MiscServices
 #endif // OHOS_DISTRIBUTED_DATA_PASTEBOARD_FRAMEWORK_COMMON_CONSTANT_H

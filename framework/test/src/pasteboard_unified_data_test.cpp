@@ -273,7 +273,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetText001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::TEXT);
-    auto newPlainRecord = static_cast<UDMF::Text*>(newRecord.get());
+    auto newPlainRecord = static_cast<UDMF::Text *>(newRecord.get());
     auto newDetails = newPlainRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
 
@@ -306,7 +306,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetPlainText001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::PLAIN_TEXT);
-    auto newPlainRecord = static_cast<UDMF::PlainText*>(newRecord.get());
+    auto newPlainRecord = static_cast<UDMF::PlainText *>(newRecord.get());
     auto newPlainText = newPlainRecord->GetContent();
     auto newAbstract = newPlainRecord->GetAbstract();
     auto newDetails = newPlainRecord->GetDetails();
@@ -346,7 +346,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetLink001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::HYPERLINK);
-    auto newPlainRecord = static_cast<UDMF::Link*>(newRecord.get());
+    auto newPlainRecord = static_cast<UDMF::Link *>(newRecord.get());
     auto newUrl = newPlainRecord->GetUrl();
     auto newDescription = newPlainRecord->GetDescription();
     auto newDetails = newPlainRecord->GetDetails();
@@ -386,7 +386,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetHtml001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::HTML);
-    auto newPlainRecord = static_cast<UDMF::Html*>(newRecord.get());
+    auto newPlainRecord = static_cast<UDMF::Html *>(newRecord.get());
     auto newPlainText = newPlainRecord->GetHtmlContent();
     auto newAbstract = newPlainRecord->GetPlainContent();
     auto newDetails = newPlainRecord->GetDetails();
@@ -463,7 +463,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFile001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::FILE);
-    auto newFileRecord = static_cast<UDMF::File*>(newRecord.get());
+    auto newFileRecord = static_cast<UDMF::File *>(newRecord.get());
     auto newDetails = newFileRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newFileRecord->GetUri();
@@ -500,7 +500,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetImage001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::IMAGE);
-    auto newImageRecord = static_cast<UDMF::Image*>(newRecord.get());
+    auto newImageRecord = static_cast<UDMF::Image *>(newRecord.get());
     auto newDetails = newImageRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newImageRecord->GetUri();
@@ -537,7 +537,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAudio001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::AUDIO);
-    auto newAudioRecord = static_cast<UDMF::Audio*>(newRecord.get());
+    auto newAudioRecord = static_cast<UDMF::Audio *>(newRecord.get());
     auto newDetails = newAudioRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newAudioRecord->GetUri();
@@ -574,7 +574,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetVideo001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::VIDEO);
-    auto newVideoRecord = static_cast<UDMF::Video*>(newRecord.get());
+    auto newVideoRecord = static_cast<UDMF::Video *>(newRecord.get());
     auto newDetails = newVideoRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newVideoRecord->GetUri();
@@ -611,7 +611,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFolder001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::FOLDER);
-    auto newFolderRecord = static_cast<UDMF::Folder*>(newRecord.get());
+    auto newFolderRecord = static_cast<UDMF::Folder *>(newRecord.get());
     auto newDetails = newFolderRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newFolderRecord->GetUri();
@@ -648,7 +648,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetSystemDefined001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_RECORD);
-    auto newSystemRecord = static_cast<UDMF::SystemDefinedRecord*>(newRecord.get());
+    auto newSystemRecord = static_cast<UDMF::SystemDefinedRecord *>(newRecord.get());
     ASSERT_EQ(newSystemRecord->GetDetails(), details_);
 
     PasteData pasteData;
@@ -681,7 +681,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppItem001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_APP_ITEM);
-    auto newAppItem = static_cast<UDMF::SystemDefinedAppItem*>(newRecord.get());
+    auto newAppItem = static_cast<UDMF::SystemDefinedAppItem *>(newRecord.get());
     ASSERT_EQ(newAppItem->GetAppId(), "appId");
     ASSERT_EQ(newAppItem->GetAppIconId(), "appIconId");
     ASSERT_EQ(newAppItem->GetAppName(), "appName");
@@ -729,7 +729,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetForm001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_FORM);
-    auto newForm = static_cast<UDMF::SystemDefinedForm*>(newRecord.get());
+    auto newForm = static_cast<UDMF::SystemDefinedForm *>(newRecord.get());
     ASSERT_EQ(newForm->GetFormId(), 1);
     ASSERT_EQ(newForm->GetFormName(), "formName");
     ASSERT_EQ(newForm->GetModule(), "module");
@@ -778,7 +778,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppDefined001, TestSize.Level0)
     auto newRecord = newData.GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::APPLICATION_DEFINED_RECORD);
-    auto newSystemRecord = static_cast<UDMF::ApplicationDefinedRecord*>(newRecord.get());
+    auto newSystemRecord = static_cast<UDMF::ApplicationDefinedRecord *>(newRecord.get());
     ASSERT_EQ(newSystemRecord->GetRawData(), rawData_);
 
     PasteData pasteData;

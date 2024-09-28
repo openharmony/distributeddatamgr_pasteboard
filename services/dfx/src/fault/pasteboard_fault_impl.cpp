@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-#include "pasteboard_fault_impl.h"
-
 #include "dfx_code_constant.h"
 #include "hiview_adapter.h"
+#include "pasteboard_fault_impl.h"
 
 namespace OHOS {
 namespace MiscServices {

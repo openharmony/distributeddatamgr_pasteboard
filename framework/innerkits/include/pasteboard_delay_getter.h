@@ -32,7 +32,7 @@ public:
 
     PasteboardDelayGetter() = default;
 
-    virtual ~PasteboardDelayGetter() {};
+    virtual ~PasteboardDelayGetter(){};
 
     virtual void GetPasteData(const std::string &type, PasteData &data) = 0;
 

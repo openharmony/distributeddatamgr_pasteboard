@@ -34,10 +34,10 @@ PasteboardEntryGetterStub::~PasteboardEntryGetterStub()
 }
 
 int PasteboardEntryGetterStub::OnRemoteRequest(
-    uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
+    uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "code:%{public}u, callingPid:%{public}d", code,
-        IPCSkeleton::GetCallingPid());
+    PASTEBOARD_HILOGI(
+        PASTEBOARD_MODULE_CLIENT, "code:%{public}u, callingPid:%{public}d", code, IPCSkeleton::GetCallingPid());
     std::u16string localDescriptor = PasteboardEntryGetterStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (remoteDescriptor != localDescriptor) {
@@ -54,7 +54,7 @@ int PasteboardEntryGetterStub::OnRemoteRequest(
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-int32_t PasteboardEntryGetterStub::OnGetRecordValueByType(MessageParcel& data, MessageParcel& reply)
+int32_t PasteboardEntryGetterStub::OnGetRecordValueByType(MessageParcel &data, MessageParcel &reply)
 {
     uint32_t recordId = data.ReadUint32();
     int32_t rawDataSize = data.ReadInt32();

@@ -14,7 +14,6 @@
  */
 #define LOG_TAG "PasteBoardAsyncCall"
 #include "async_call.h"
-
 #include "pasteboard_hilog.h"
 
 using namespace OHOS::MiscServices;

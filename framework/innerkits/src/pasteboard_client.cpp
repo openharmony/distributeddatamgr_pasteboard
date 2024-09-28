@@ -13,14 +13,16 @@
  * limitations under the License.
  */
 
+#include <chrono>
 #include <if_system_ability_manager.h>
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
-#include <chrono>
+
 #include "convert_utils.h"
 #include "file_uri.h"
-#include "hiview_adapter.h"
 #include "hitrace_meter.h"
+#include "hiview_adapter.h"
+#include "ipasteboard_client_death_observer.h"
 #include "pasteboard_client.h"
 #include "pasteboard_delay_getter_client.h"
 #include "pasteboard_entry_getter_client.h"
@@ -28,11 +30,10 @@
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_load_callback.h"
 #include "pasteboard_observer.h"
+#include "pasteboard_utils.h"
+#include "pasteboard_web_controller.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#include "pasteboard_web_controller.h"
-#include "pasteboard_utils.h"
-#include "ipasteboard_client_death_observer.h"
 using namespace OHOS::Media;
 
 namespace OHOS {
@@ -230,7 +231,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     return ret;
 }
 
-int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData& unifiedData)
+int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData &unifiedData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
     PasteData pasteData;
@@ -258,7 +259,7 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData start.");
     auto details = std::make_shared<Details>();
     std::string textContent;
-    for (auto& item : pasteData.AllRecords()) {
+    for (auto &item : pasteData.AllRecords()) {
         if (!item->GetTextContent().empty() && textContent.empty()) {
             details = item->GetDetails();
             textContent = item->GetTextContent();
@@ -327,8 +328,8 @@ bool PasteboardClient::HasPasteData()
     return proxyService->HasPasteData();
 }
 
-int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr <PasteboardDelayGetter> delayGetter,
-                                       std::map <uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters)
+int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter,
+    std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
     RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
@@ -345,10 +346,10 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr <Pa
         pasteData.SetDelayData(true);
         delayGetterAgent = new (std::nothrow) PasteboardDelayGetterClient(delayGetter);
     }
-    sptr <PasteboardEntryGetterClient> entryGetterAgent;
+    sptr<PasteboardEntryGetterClient> entryGetterAgent;
     if (!(entryGetters.empty())) {
         pasteData.SetDelayRecord(true);
-        entryGetterAgent = new(std::nothrow) PasteboardEntryGetterClient(entryGetters);
+        entryGetterAgent = new (std::nothrow) PasteboardEntryGetterClient(entryGetters);
     }
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
     if (html == nullptr) {
@@ -370,8 +371,8 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr <Pa
     return ret;
 }
 
-int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData,
-    std::shared_ptr<PasteboardDelayGetter> delayGetter)
+int32_t PasteboardClient::SetUnifiedData(
+    const UDMF::UnifiedData &unifiedData, std::shared_ptr<PasteboardDelayGetter> delayGetter)
 {
     auto pasteData = PasteboardUtils::GetInstance().Convert(unifiedData);
     return SetPasteData(*pasteData, delayGetter);
@@ -380,7 +381,7 @@ int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData,
 int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
 {
     auto pasteData = ConvertUtils::Convert(unifiedData);
-    std::map <uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters;
+    std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters;
     for (auto record : unifiedData.GetRecords()) {
         if (record != nullptr && record->GetEntryGetter() != nullptr) {
             entryGetters.emplace(record->GetRecordId(), record->GetEntryGetter());
@@ -609,8 +610,9 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Failed to load systemAbility.");
         return nullptr;
     }
-    auto waitStatus = proxyConVar_.wait_for(lock, std::chrono::milliseconds(LOADSA_TIMEOUT_MS),
-        [this]() { return pasteboardServiceProxy_ != nullptr; });
+    auto waitStatus = proxyConVar_.wait_for(lock, std::chrono::milliseconds(LOADSA_TIMEOUT_MS), [this]() {
+        return pasteboardServiceProxy_ != nullptr;
+    });
     if (!waitStatus) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Load systemAbility timeout.");
         return nullptr;
@@ -672,9 +674,7 @@ void PasteboardClient::PasteComplete(const std::string &deviceId, const std::str
     proxyService->PasteComplete(deviceId, pasteId);
 }
 
-PasteboardSaDeathRecipient::PasteboardSaDeathRecipient()
-{
-}
+PasteboardSaDeathRecipient::PasteboardSaDeathRecipient() {}
 
 void PasteboardSaDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {

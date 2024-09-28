@@ -14,12 +14,11 @@
  */
 
 #include <gtest/gtest.h>
-
 #include <variant>
 
-#include "pasteboard_hilog.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing;
@@ -62,17 +61,11 @@ void PasteboardMultiTypeUnifiedDataDelayTest::SetUpTestCase(void)
     PasteboardClient::GetInstance()->Clear();
 }
 
-void PasteboardMultiTypeUnifiedDataDelayTest::TearDownTestCase(void)
-{
-}
+void PasteboardMultiTypeUnifiedDataDelayTest::TearDownTestCase(void) {}
 
-void PasteboardMultiTypeUnifiedDataDelayTest::SetUp()
-{
-}
+void PasteboardMultiTypeUnifiedDataDelayTest::SetUp() {}
 
-void PasteboardMultiTypeUnifiedDataDelayTest::TearDown()
-{
-}
+void PasteboardMultiTypeUnifiedDataDelayTest::TearDown() {}
 
 UDMF::ValueType PasteboardMultiTypeUnifiedDataDelayTest::InitPlainUds()
 {
@@ -121,10 +114,10 @@ UDMF::ValueType PasteboardMultiTypeUnifiedDataDelayTest::InitLinkUds()
 
 class EntryGetterImpl : public UDMF::EntryGetter {
 public:
-    UDMF::ValueType GetValueByType(const std::string& utdId) override;
+    UDMF::ValueType GetValueByType(const std::string &utdId) override;
 };
 
-UDMF::ValueType EntryGetterImpl::GetValueByType(const std::string& utdId)
+UDMF::ValueType EntryGetterImpl::GetValueByType(const std::string &utdId)
 {
     if (utdId == plainTextUtdId_) {
         return PasteboardMultiTypeUnifiedDataDelayTest::InitPlainUds();
@@ -361,4 +354,4 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
     ASSERT_TRUE(outputTypes3.find(linkUtdId_) != outputTypes3.end());
     CheckLinkUds(outputRecord3->GetEntry(linkUtdId_));
 }
-} // OHOS::MiscServices
+} // namespace OHOS::MiscServices

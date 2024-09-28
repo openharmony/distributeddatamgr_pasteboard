@@ -27,27 +27,27 @@ public:
     using UnifiedDataProperties = UDMF::UnifiedDataProperties;
     using UDType = UDMF::UDType;
 
-    static std::shared_ptr<PasteData> Convert(const UnifiedData& unifiedData);
-    static std::shared_ptr<UnifiedData> Convert(const PasteData& pasteData);
+    static std::shared_ptr<PasteData> Convert(const UnifiedData &unifiedData);
+    static std::shared_ptr<UnifiedData> Convert(const PasteData &pasteData);
 
     static std::vector<std::shared_ptr<PasteDataRecord>> Convert(
-        const std::vector<std::shared_ptr<UnifiedRecord>>& records);
+        const std::vector<std::shared_ptr<UnifiedRecord>> &records);
     static std::vector<std::shared_ptr<UnifiedRecord>> Convert(
-        const std::vector<std::shared_ptr<PasteDataRecord>>& records);
+        const std::vector<std::shared_ptr<PasteDataRecord>> &records);
 
     static std::shared_ptr<PasteDataRecord> Convert(std::shared_ptr<UnifiedRecord> record);
     static std::shared_ptr<UnifiedRecord> Convert(std::shared_ptr<PasteDataRecord> record);
 
-    static PasteDataProperty ConvertProperty(const std::shared_ptr<UnifiedDataProperties>& properties,
-        const UnifiedData& unifiedData);
-    static std::shared_ptr<UnifiedDataProperties> ConvertProperty(const PasteDataProperty& properties);
+    static PasteDataProperty ConvertProperty(
+        const std::shared_ptr<UnifiedDataProperties> &properties, const UnifiedData &unifiedData);
+    static std::shared_ptr<UnifiedDataProperties> ConvertProperty(const PasteDataProperty &properties);
 
     static std::vector<std::shared_ptr<PasteDataEntry>> Convert(
-        const std::shared_ptr<std::map<std::string, UDMF::ValueType>>& entries);
+        const std::shared_ptr<std::map<std::string, UDMF::ValueType>> &entries);
     static std::shared_ptr<std::map<std::string, UDMF::ValueType>> Convert(
-        const std::vector<std::shared_ptr<PasteDataEntry>>& entries);
+        const std::vector<std::shared_ptr<PasteDataEntry>> &entries);
 
-    static std::vector<std::string> Convert(const std::vector<std::string>& utdIds);
+    static std::vector<std::string> Convert(const std::vector<std::string> &utdIds);
 
 private:
     static constexpr const char *CHANNEL_NAME = "pasteboard";

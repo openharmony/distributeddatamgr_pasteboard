@@ -266,7 +266,7 @@ napi_value PasteboardNapi::JScreatePattern(napi_env env, napi_callback_info info
 
     napi_value jsEmailAddress = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::EmailAddress));
     NAPI_CALL(env, napi_set_named_property(env, jsPattern, "EMAIL_ADDRESS", jsEmailAddress));
-    
+
     return jsPattern;
 }
 
@@ -464,8 +464,7 @@ napi_value PasteboardNapi::PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createWantData", JScreateWantData),
         DECLARE_NAPI_FUNCTION("createPlainTextData", JScreatePlainTextData),
         DECLARE_NAPI_FUNCTION("createPixelMapData", JScreatePixelMapData),
-        DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData),
-        DECLARE_NAPI_FUNCTION("createData", JSCreateData),
+        DECLARE_NAPI_FUNCTION("createUriData", JScreateUriData), DECLARE_NAPI_FUNCTION("createData", JSCreateData),
         DECLARE_NAPI_FUNCTION("createHtmlTextRecord", JScreateHtmlTextRecord),
         DECLARE_NAPI_FUNCTION("createWantRecord", JScreateWantRecord),
         DECLARE_NAPI_FUNCTION("createPlainTextRecord", JScreatePlainTextRecord),
@@ -473,8 +472,7 @@ napi_value PasteboardNapi::PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("createUriRecord", JScreateUriRecord),
         DECLARE_NAPI_FUNCTION("createRecord", JSCreateRecord),
         DECLARE_NAPI_FUNCTION("getSystemPasteboard", JSgetSystemPasteboard),
-        DECLARE_NAPI_GETTER("ShareOption", JScreateShareOption),
-        DECLARE_NAPI_GETTER("Pattern", JScreatePattern),
+        DECLARE_NAPI_GETTER("ShareOption", JScreateShareOption), DECLARE_NAPI_GETTER("Pattern", JScreatePattern),
         DECLARE_NAPI_PROPERTY("MAX_RECORD_NUM", CreateNapiNumber(env, PasteData::MAX_RECORD_NUM)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_PIXELMAP", CreateNapiString(env, MIMETYPE_PIXELMAP)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_HTML", CreateNapiString(env, MIMETYPE_TEXT_HTML)),

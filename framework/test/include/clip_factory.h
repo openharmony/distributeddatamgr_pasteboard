@@ -43,5 +43,5 @@ bool ClipFactory::Destroy(ClipPlugin *plugin)
     }
     return false;
 }
-}
+} // namespace OHOS::MiscServices
 #endif // PASTE_DATA_TEST_CLIP_FACTORY_H

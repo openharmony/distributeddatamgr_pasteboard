@@ -19,16 +19,17 @@
 #include <cstdint>
 #include <memory>
 #include <shared_mutex>
+
 #include "datashare_helper.h"
 
 namespace OHOS::MiscServices {
 using ChangeInfo = DataShare::DataShareObserver::ChangeInfo;
 class DataShareDelegate {
 public:
-    static DataShareDelegate& GetInstance();
-    int32_t RegisterObserver(const std::string& key, sptr<AAFwk::IDataAbilityObserver> observer);
-    int32_t UnregisterObserver(const std::string& key, sptr<AAFwk::IDataAbilityObserver> observer);
-    int32_t GetValue(const std::string& key, std::string& value);
+    static DataShareDelegate &GetInstance();
+    int32_t RegisterObserver(const std::string &key, sptr<AAFwk::IDataAbilityObserver> observer);
+    int32_t UnregisterObserver(const std::string &key, sptr<AAFwk::IDataAbilityObserver> observer);
+    int32_t GetValue(const std::string &key, std::string &value);
 
 private:
     DataShareDelegate() = default;
@@ -38,10 +39,10 @@ private:
     static void Initialize();
     bool ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper> helper);
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
-    Uri MakeUri(const std::string& key);
+    Uri MakeUri(const std::string &key);
 
     static std::mutex mutex_;
-    static DataShareDelegate* instance_;
+    static DataShareDelegate *instance_;
     static sptr<IRemoteObject> remoteObj_;
 };
 } // namespace OHOS::MiscServices

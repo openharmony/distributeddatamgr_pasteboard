@@ -15,10 +15,10 @@
 
 #include "message_option.h"
 #include "message_parcel.h"
+#include "paste_uri_handler.h"
 #include "pasteboard_delay_getter_proxy.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "paste_uri_handler.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -68,8 +68,6 @@ void PasteboardDelayGetterProxy::GetPasteData(const std::string &type, PasteData
     }
 }
 
-void PasteboardDelayGetterProxy::GetUnifiedData(const std::string &type, UDMF::UnifiedData &data)
-{
-}
+void PasteboardDelayGetterProxy::GetUnifiedData(const std::string &type, UDMF::UnifiedData &data) {}
 } // namespace MiscServices
 } // namespace OHOS

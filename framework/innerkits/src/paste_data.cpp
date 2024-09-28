@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include "paste_data.h"
-
 #include <new>
 
 #include "parcel_util.h"
+#include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_hilog.h"
 #include "type_traits"
@@ -77,9 +76,10 @@ PasteData::~PasteData()
     records_.clear();
 }
 
-PasteData::PasteData(const PasteData &data) : orginAuthority_(data.orginAuthority_), valid_(data.valid_),
-    isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_), isDelayData_(data.isDelayData_),
-    pasteId_(data.pasteId_), isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_)
+PasteData::PasteData(const PasteData &data)
+    : orginAuthority_(data.orginAuthority_), valid_(data.valid_), isDraggedData_(data.isDraggedData_),
+      isLocalPaste_(data.isLocalPaste_), isDelayData_(data.isDelayData_), pasteId_(data.pasteId_),
+      isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {
@@ -96,7 +96,7 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : re
     InitDecodeMap();
 }
 
-PasteData& PasteData::operator=(const PasteData &data)
+PasteData &PasteData::operator=(const PasteData &data)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "PasteData copy");
     if (this == &data) {
@@ -449,24 +449,42 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
 void PasteData::InitDecodeMap()
 {
     decodeMap_ = {
-        {TAG_PROPS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, props_, head);}},
-        {TAG_RECORDS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, records_, head);}},
-        {TAG_DRAGGED_DATA_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, isDraggedData_, head);}},
-        {TAG_LOCAL_PASTE_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, isLocalPaste_, head);}},
-        {TAG_DELAY_DATA_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, isDelayData_, head);}},
-        {TAG_DEVICE_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, deviceId_, head);}},
-        {TAG_PASTE_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, pasteId_, head);}},
-        {TAG_DELAY_RECORD_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, isDelayRecord_, head);}},
-        {TAG_DATA_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, dataId_, head);}},
+        { TAG_PROPS,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, props_, head);
+            } },
+        { TAG_RECORDS,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, records_, head);
+            } },
+        { TAG_DRAGGED_DATA_FLAG,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, isDraggedData_, head);
+            } },
+        { TAG_LOCAL_PASTE_FLAG,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, isLocalPaste_, head);
+            } },
+        { TAG_DELAY_DATA_FLAG,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, isDelayData_, head);
+            } },
+        { TAG_DEVICE_ID,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, deviceId_, head);
+            } },
+        { TAG_PASTE_ID,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, pasteId_, head);
+            } },
+        { TAG_DELAY_RECORD_FLAG,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, isDelayRecord_, head);
+            } },
+        { TAG_DATA_ID,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, dataId_, head);
+            } },
     };
 }
 
@@ -484,8 +502,8 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
             func(ret, buffer, head);
         }
         if (!ret) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u",
-                head.tag, head.len);
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u", head.tag, head.len);
             return false;
         }
     }
@@ -550,7 +568,7 @@ uint32_t PasteData::GetDataId() const
 bool PasteData::Marshalling(Parcel &parcel) const
 {
     std::vector<uint8_t> pasteDataTlv(0);
-    if (!const_cast<PasteData*>(this)->Encode(pasteDataTlv)) {
+    if (!const_cast<PasteData *>(this)->Encode(pasteDataTlv)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Encode failed");
         return false;
     }
@@ -561,9 +579,9 @@ bool PasteData::Marshalling(Parcel &parcel) const
     return true;
 }
 
-PasteData* PasteData::Unmarshalling(Parcel &parcel)
+PasteData *PasteData::Unmarshalling(Parcel &parcel)
 {
-    PasteData* pasteData = new (std::nothrow) PasteData();
+    PasteData *pasteData = new (std::nothrow) PasteData();
     if (pasteData != nullptr && !pasteData->ReadFromParcel(parcel)) {
         delete pasteData;
         pasteData = nullptr;
@@ -591,8 +609,8 @@ bool PasteData::ReadFromParcel(Parcel &parcel)
 
 PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)
     : tag(property.tag), timestamp(property.timestamp), localOnly(property.localOnly),
-    shareOption(property.shareOption), tokenId(property.tokenId), isRemote(property.isRemote),
-    bundleName(property.bundleName), setTime(property.setTime), screenStatus(property.screenStatus)
+      shareOption(property.shareOption), tokenId(property.tokenId), isRemote(property.isRemote),
+      bundleName(property.bundleName), setTime(property.setTime), screenStatus(property.screenStatus)
 {
     this->additions = property.additions;
     std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
@@ -603,7 +621,7 @@ PasteDataProperty::~PasteDataProperty()
     mimeTypes.clear();
 }
 
-PasteDataProperty& PasteDataProperty::operator=(const PasteDataProperty &property)
+PasteDataProperty &PasteDataProperty::operator=(const PasteDataProperty &property)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "PasteDataProperty copy");
     if (this == &property) {
@@ -623,7 +641,6 @@ PasteDataProperty& PasteDataProperty::operator=(const PasteDataProperty &propert
     std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
     return *this;
 }
-
 
 bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
 {

@@ -41,9 +41,7 @@ PasteDataNapi::PasteDataNapi() : env_(nullptr)
     value_ = std::make_shared<PasteData>();
 }
 
-PasteDataNapi::~PasteDataNapi()
-{
-}
+PasteDataNapi::~PasteDataNapi() {}
 
 napi_value PasteDataNapi::AddHtmlRecord(napi_env env, napi_callback_info info)
 {
@@ -348,8 +346,8 @@ napi_value PasteDataNapi::RemoveRecord(napi_env env, napi_callback_info info)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "RemoveRecord is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
-    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(),
-        JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
+    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
+        "index out of range.")) {
         return nullptr;
     }
     obj->value_->RemoveRecordAt(index);
@@ -674,8 +672,8 @@ napi_value PasteDataNapi::ReplaceRecord(napi_env env, napi_callback_info info)
     }
     uint32_t index = 0;
     NAPI_CALL(env, napi_get_value_uint32(env, argv[0], &index));
-    if (!CheckExpression(env, index < obj->value_->GetRecordCount(),
-        JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
+    if (!CheckExpression(env, index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
+        "index out of range.")) {
         return nullptr;
     }
 
@@ -825,8 +823,8 @@ napi_value PasteDataNapi::GetRecord(napi_env env, napi_callback_info info)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetRecord is called!");
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
-    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(),
-        JSErrorCode::OUT_OF_RANGE, "index out of range.")) {
+    if (obj == nullptr || !CheckExpression(env, index < obj->value_->GetRecordCount(), JSErrorCode::OUT_OF_RANGE,
+        "index out of range.")) {
         return nullptr;
     }
 
@@ -864,8 +862,8 @@ void PasteDataNapi::SetProperty(napi_env env, napi_value in, PasteDataNapi *obj)
         if (propertyName == "tag") {
             char tagValue[STR_MAX_SIZE] = { 0 };
             size_t tagValueLen = 0;
-            NAPI_CALL_RETURN_VOID(env,
-                napi_get_value_string_utf8(env, propertyNameValueNapi, tagValue, STR_MAX_SIZE, &tagValueLen));
+            NAPI_CALL_RETURN_VOID(
+                env, napi_get_value_string_utf8(env, propertyNameValueNapi, tagValue, STR_MAX_SIZE, &tagValueLen));
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "tagValue = %{public}s", tagValue);
             std::string tagValueStr = tagValue;
             obj->value_->SetTag(tagValueStr);
@@ -931,7 +929,7 @@ napi_value PasteDataNapi::SetProperty(napi_env env, napi_callback_info info)
     if (!CheckExpression(env, argc > ARGC_TYPE_SET0, JSErrorCode::INVALID_PARAMETERS,
         "Parameter error. The number of arguments must be greater than zero.") ||
         !CheckExpression(env, IsProperty(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The type of property must be PasteDataProperty.")) {
+            "Parameter error. The type of property must be PasteDataProperty.")) {
         return nullptr;
     }
 
@@ -963,7 +961,7 @@ napi_value PasteDataNapi::PasteDataInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("hasType", HasType), DECLARE_NAPI_FUNCTION("removeRecordAt", RemoveRecordAt),
         DECLARE_NAPI_FUNCTION("removeRecord", RemoveRecord), DECLARE_NAPI_FUNCTION("replaceRecordAt", ReplaceRecordAt),
         DECLARE_NAPI_FUNCTION("replaceRecord", ReplaceRecord), DECLARE_NAPI_FUNCTION("setProperty", SetProperty),
-        DECLARE_NAPI_FUNCTION("pasteStart", PasteStart), DECLARE_NAPI_FUNCTION("pasteComplete", PasteComplete)};
+        DECLARE_NAPI_FUNCTION("pasteStart", PasteStart), DECLARE_NAPI_FUNCTION("pasteComplete", PasteComplete) };
 
     napi_value constructor;
     napi_define_class(env, "PasteData", NAPI_AUTO_LENGTH, New, nullptr,

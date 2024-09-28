@@ -24,8 +24,8 @@
 
 #include "dfx_code_constant.h"
 #include "dfx_types.h"
-#include "paste_data.h"
 #include "hisysevent_c.h"
+#include "paste_data.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -68,7 +68,7 @@ public:
     static std::map<int, int> InitDataMap();
     static std::map<int, int> InitTimeMap();
 
-    static void ReportUseBehaviour(PasteData& pastData, const char* state, int32_t result);
+    static void ReportUseBehaviour(PasteData &pastData, const char *state, int32_t result);
 
 private:
     static void InvokePasteBoardBehaviour();

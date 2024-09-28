@@ -23,9 +23,7 @@ namespace MiscServices {
 class BehaviourReporter {
 public:
     virtual ReportStatus Report(const PasteboardBehaviourMsg &msg) = 0;
-    virtual ~BehaviourReporter()
-    {
-    }
+    virtual ~BehaviourReporter() {}
 };
 } // namespace MiscServices
 } // namespace OHOS

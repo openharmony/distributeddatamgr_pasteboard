@@ -39,7 +39,7 @@ public:
         std::string account;
         std::vector<std::string> dataType;
         int32_t syncTime = 0;
-        bool operator == (const GlobalEvent globalEvent)
+        bool operator==(const GlobalEvent globalEvent)
         {
             return globalEvent.seqId == this->seqId && globalEvent.deviceId == this->deviceId;
         }

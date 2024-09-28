@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "distributed_module_config.h"
+#include <thread>
+
 #include "dev_profile.h"
+#include "distributed_module_config.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include <thread>
 
 namespace OHOS {
 namespace MiscServices {
@@ -61,15 +62,19 @@ void DistributedModuleConfig::GetRetryTask()
             ++retry;
             status = GetEnabledStatus();
             if (status == static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR)) {
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "dp load err, retry:%{public}d, status_:%{public}d"
-                    "newStatus:%{public}d", retry, status_, status);
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                    "dp load err, retry:%{public}d, status_:%{public}d"
+                    "newStatus:%{public}d",
+                    retry, status_, status);
                 std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_INTERVAL));
                 continue;
             }
             break;
         }
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Retry end. count:%{public}d, status_:%{public}d"
-            "newStatus:%{public}d", retry, status_, status);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
+            "Retry end. count:%{public}d, status_:%{public}d"
+            "newStatus:%{public}d",
+            retry, status_, status);
         bool newStatus = (status == static_cast<int32_t>(PasteboardError::E_OK));
         if (newStatus != status_) {
             status_ = newStatus;
@@ -131,7 +136,7 @@ void DistributedModuleConfig::OnReady(const std::string &device)
 void DistributedModuleConfig::Init()
 {
     DMAdapter::GetInstance().Register(this);
-    DevProfile::GetInstance().Watch([this](bool isEnable)-> void {
+    DevProfile::GetInstance().Watch([this](bool isEnable) -> void {
         Notify();
     });
 }

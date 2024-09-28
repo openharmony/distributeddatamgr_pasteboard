@@ -31,7 +31,7 @@ std::string Serializable::Marshall() const
 {
     json node;
     Marshal(node);
-    char* value = cJSON_PrintUnformatted(node);
+    char *value = cJSON_PrintUnformatted(node);
     std::string result;
     if (value != nullptr) {
         result = std::string(value);

@@ -12,9 +12,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include <gtest/gtest.h>
 #include <thread>
 
-#include <gtest/gtest.h>
 #include "iservice_registry.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_error.h"
@@ -29,21 +29,13 @@ public:
     void TearDown();
 };
 
-void PasteboardDialogNormalBranchTest::SetUpTestCase(void)
-{
-}
+void PasteboardDialogNormalBranchTest::SetUpTestCase(void) {}
 
-void PasteboardDialogNormalBranchTest::TearDownTestCase(void)
-{
-}
+void PasteboardDialogNormalBranchTest::TearDownTestCase(void) {}
 
-void PasteboardDialogNormalBranchTest::SetUp(void)
-{
-}
+void PasteboardDialogNormalBranchTest::SetUp(void) {}
 
-void PasteboardDialogNormalBranchTest::TearDown(void)
-{
-}
+void PasteboardDialogNormalBranchTest::TearDown(void) {}
 
 /**
 * @tc.name: ShowToastNormalTest
@@ -68,4 +60,4 @@ HWTEST_F(PasteboardDialogNormalBranchTest, CancelToastNormalTest, TestSize.Level
     PasteBoardDialog::GetInstance().CancelToast();
     EXPECT_TRUE(true);
 }
-}
+} // namespace OHOS::MiscServices
