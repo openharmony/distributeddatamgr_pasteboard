@@ -20,6 +20,7 @@ class CopyUriHandler : public UriHandler {
 public:
     CopyUriHandler();
     std::string ToUri(int32_t fd) override;
+
 private:
     static constexpr int32_t FILE_EXIST = 17;
 };

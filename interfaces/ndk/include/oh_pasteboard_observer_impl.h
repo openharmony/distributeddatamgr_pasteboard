@@ -16,14 +16,15 @@
 #define OH_PASTEBOARD_OBSERVER_IMPL_H
 
 #include <memory>
-#include "pasteboard_observer.h"
+
 #include "oh_pasteboard_common.h"
+#include "pasteboard_observer.h"
 
 struct OH_PasteboardObserver {
     const int64_t cid = SUBSCRIBER_STRUCT_ID;
-    Pasteboard_Notify callback { nullptr };
-    void* context { nullptr };
-    Pasteboard_Finalize finalize { nullptr };
+    Pasteboard_Notify callback{ nullptr };
+    void *context{ nullptr };
+    Pasteboard_Finalize finalize{ nullptr };
 };
 
 namespace OHOS {
@@ -33,13 +34,14 @@ public:
     void OnPasteboardChanged() override;
     void SetType(Pasteboard_NotifyType type);
     Pasteboard_NotifyType GetType();
-    void SetInnerObserver(const OH_PasteboardObserver* observer);
+    void SetInnerObserver(const OH_PasteboardObserver *observer);
+
 private:
-    const OH_PasteboardObserver* innerObserver_;
+    const OH_PasteboardObserver *innerObserver_;
     Pasteboard_NotifyType type_;
 };
-}
-}
+} // namespace MiscServices
+} // namespace OHOS
 
 /** @} */
 #endif

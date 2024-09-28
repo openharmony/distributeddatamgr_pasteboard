@@ -237,4 +237,4 @@ int OH_Pasteboard_ClearData(OH_Pasteboard *pasteboard)
     }
     PasteboardClient::GetInstance()->Clear();
     return ERR_OK;
-}
+} // namespace OHOS

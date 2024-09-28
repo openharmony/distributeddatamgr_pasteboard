@@ -20,17 +20,8 @@
 
 namespace OHOS {
 namespace MiscServices {
-enum class PasteboardEventStatus {
-    PASTEBOARD_CLEAR = 1,
-    PASTEBOARD_READ = 2,
-    PASTEBOARD_WRITE = 3
-};
-enum class PasteboardObserverType {
-    OBSERVER_LOCAL = 1,
-    OBSERVER_REMOTE = 2,
-    OBSERVER_ALL = 3,
-    OBSERVER_EVENT = 4
-};
+enum class PasteboardEventStatus { PASTEBOARD_CLEAR = 1, PASTEBOARD_READ = 2, PASTEBOARD_WRITE = 3 };
+enum class PasteboardObserverType { OBSERVER_LOCAL = 1, OBSERVER_REMOTE = 2, OBSERVER_ALL = 3, OBSERVER_EVENT = 4 };
 class IPasteboardChangedObserver : public IRemoteBroker {
 public:
     virtual void OnPasteboardChanged() = 0;

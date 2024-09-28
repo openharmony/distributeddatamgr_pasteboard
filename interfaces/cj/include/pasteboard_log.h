@@ -12,28 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef PASTEBOARD_LOG_H
 
 #define PASTEBOARD_LOG_H
- 
+
 #include "hilog/log.h"
- 
+
 #undef LOG_DOMAIN
 #undef LOG_TAG
 #define LOG_DOMAIN 0xD001650
 #define LOG_TAG "PasteboardFFI"
- 
+
 #undef LOGI
 #undef LOGE
-#define LOGI(...)                                           \
-if (HiLogIsLoggable(LOG_DOMAIN, LOG_TAG, LOG_INFO)) {       \
-    HILOG_INFO(LOG_CORE, ##__VA_ARGS__);                    \
-}
- 
-#define LOGE(...)                                           \
-if (HiLogIsLoggable(LOG_DOMAIN, LOG_TAG, LOG_ERROR)) {      \
-    HILOG_ERROR(LOG_CORE, ##__VA_ARGS__);                     \
-}
- 
+#define LOGI(...)                                         \
+    if (HiLogIsLoggable(LOG_DOMAIN, LOG_TAG, LOG_INFO)) { \
+        HILOG_INFO(LOG_CORE, ##__VA_ARGS__);              \
+    }
+
+#define LOGE(...)                                          \
+    if (HiLogIsLoggable(LOG_DOMAIN, LOG_TAG, LOG_ERROR)) { \
+        HILOG_ERROR(LOG_CORE, ##__VA_ARGS__);              \
+    }
+
 #endif

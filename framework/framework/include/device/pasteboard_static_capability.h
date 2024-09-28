@@ -29,7 +29,8 @@ namespace OHOS {
 namespace MiscServices {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 class PasteboardStaticCapability : public DistributedDeviceProfile::IStaticCapabilityCollector {
-DECLARE_SINGLE_INSTANCE_BASE(PasteboardStaticCapability);
+    DECLARE_SINGLE_INSTANCE_BASE(PasteboardStaticCapability);
+
 public:
     PasteboardStaticCapability() = default;
     ~PasteboardStaticCapability() = default;
@@ -39,7 +40,7 @@ public:
 #ifdef __cplusplus
 extern "C" {
 #endif
-API_EXPORT DistributedDeviceProfile::IStaticCapabilityCollector* GetStaticCapabilityCollector();
+API_EXPORT DistributedDeviceProfile::IStaticCapabilityCollector *GetStaticCapabilityCollector();
 #ifdef __cplusplus
 }
 #endif

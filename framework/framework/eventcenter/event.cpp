@@ -15,12 +15,8 @@
 
 #include "eventcenter/event.h"
 namespace OHOS::MiscServices {
-Event::Event(int32_t evtId) : evtId_(evtId)
-{
-}
-Event::~Event()
-{
-}
+Event::Event(int32_t evtId) : evtId_(evtId) {}
+Event::~Event() {}
 int32_t Event::GetEventId() const
 {
     return evtId_;

@@ -36,7 +36,6 @@
  * @since 13
  */
 
-
 #ifndef OH_PASTEBOARD_ERR_CODE_H
 #define OH_PASTEBOARD_ERR_CODE_H
 

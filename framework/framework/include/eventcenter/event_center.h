@@ -16,11 +16,12 @@
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_EVENTCENTER_EVENT_CENTER_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_EVENTCENTER_EVENT_CENTER_H
 #include <list>
-#include <queue>
 #include <memory>
+#include <queue>
+
+#include "api/visibility.h"
 #include "common/concurrent_map.h"
 #include "eventcenter/event.h"
-#include "api/visibility.h"
 namespace OHOS::MiscServices {
 class EventCenter {
 public:
@@ -34,15 +35,16 @@ public:
     public:
         API_EXPORT Defer(std::function<void(const Event &)> handler = nullptr, int32_t evtId = Event::EVT_INVALID);
         API_EXPORT ~Defer();
-        void *operator new (size_t size) = delete;
-        void *operator new[] (size_t size) = delete;
-        void operator delete (void *) = delete;
-        void operator delete[] (void *) = delete;
+        void *operator new(size_t size) = delete;
+        void *operator new[](size_t size) = delete;
+        void operator delete(void *) = delete;
+        void operator delete[](void *) = delete;
     };
     API_EXPORT static EventCenter &GetInstance();
     API_EXPORT bool Subscribe(int32_t evtId, const std::function<void(const Event &)> &observer);
     API_EXPORT bool Unsubscribe(int32_t evtId);
     API_EXPORT int32_t PostEvent(std::unique_ptr<Event> evt) const;
+
 private:
     void Dispatch(const Event &evt) const;
     class AsyncQueue final {
@@ -53,6 +55,7 @@ private:
         bool operator<=(int32_t depth) const;
         void Post(std::unique_ptr<Event> event);
         void AddHandler(int32_t evtId, std::function<void(const Event &)> handler);
+
     private:
         std::map<int32_t, std::function<void(const Event &)>> handlers_;
         std::deque<std::unique_ptr<Event>> events_;

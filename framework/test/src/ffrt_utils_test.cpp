@@ -13,8 +13,9 @@
 * limitations under the License.
 */
 
-#include "ffrt_utils.h"
 #include <gtest/gtest.h>
+
+#include "ffrt_utils.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -28,21 +29,13 @@ public:
     void TearDown();
 };
 
-void FFRTTimerTest::SetUpTestCase(void)
-{
-}
+void FFRTTimerTest::SetUpTestCase(void) {}
 
-void FFRTTimerTest::TearDownTestCase(void)
-{
-}
+void FFRTTimerTest::TearDownTestCase(void) {}
 
-void FFRTTimerTest::SetUp(void)
-{
-}
+void FFRTTimerTest::SetUp(void) {}
 
-void FFRTTimerTest::TearDown(void)
-{
-}
+void FFRTTimerTest::TearDown(void) {}
 
 /**
 * @tc.name: SetTimerTest001

@@ -14,6 +14,7 @@
  */
 
 #include <regex>
+
 #include "file_uri.h"
 #include "pasteboard_web_controller.h"
 
@@ -27,7 +28,7 @@ constexpr uint32_t FOUR_BYTES = 4;
 constexpr uint32_t EIGHT_BIT = 8;
 
 struct Cmp {
-    bool operator()(const uint32_t& lhs, const uint32_t& rhs) const
+    bool operator()(const uint32_t &lhs, const uint32_t &rhs) const
     {
         return lhs > rhs;
     }
@@ -38,7 +39,7 @@ namespace OHOS {
 namespace MiscServices {
 
 // static
-PasteboardWebController& PasteboardWebController::GetInstance()
+PasteboardWebController &PasteboardWebController::GetInstance()
 {
     static PasteboardWebController instance;
     return instance;
@@ -55,14 +56,13 @@ std::shared_ptr<PasteData> PasteboardWebController::SplitHtml(std::shared_ptr<st
     return pasteData;
 }
 
-std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(
-    std::shared_ptr<PasteData> pasteData) noexcept
+std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(std::shared_ptr<PasteData> pasteData) noexcept
 {
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
     std::shared_ptr<std::string> htmlData;
     std::map<uint32_t, std::pair<std::string, std::string>, Cmp> replaceUris;
 
-    for (auto& item : pasteDataRecords) {
+    for (auto &item : pasteDataRecords) {
         std::shared_ptr<std::string> html = item->GetHtmlText();
         if (html) {
             htmlData = html;
@@ -73,7 +73,7 @@ std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(
             continue;
         }
         std::map<std::string, std::vector<uint8_t>> customItemData = customData->GetItemData();
-        for (auto& itemData : customItemData) {
+        for (auto &itemData : customItemData) {
             for (uint32_t i = 0; i < itemData.second.size(); i += FOUR_BYTES) {
                 uint32_t offset = static_cast<uint32_t>(itemData.second[i]) |
                                   static_cast<uint32_t>(itemData.second[i + 1] << 8) |
@@ -85,7 +85,7 @@ std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(
     }
 
     RemoveAllRecord(pasteData);
-    for (auto& replaceUri : replaceUris) {
+    for (auto &replaceUri : replaceUris) {
         htmlData->replace(replaceUri.first, replaceUri.second.second.size(), replaceUri.second.first);
     }
     pasteData->AddHtmlRecord(*htmlData);
@@ -114,12 +114,12 @@ std::vector<std::pair<std::string, uint32_t>> PasteboardWebController::SplitHtml
 }
 
 std::map<std::string, std::vector<uint8_t>> PasteboardWebController::SplitHtmlWithImgSrcLabel(
-    const std::vector<std::pair<std::string, uint32_t>>& matchVec) noexcept
+    const std::vector<std::pair<std::string, uint32_t>> &matchVec) noexcept
 {
     std::map<std::string, std::vector<uint8_t>> res;
     std::smatch match;
     std::regex re(IMG_TAG_SRC_PATTERN);
-    for (auto& node : matchVec) {
+    for (auto &node : matchVec) {
         std::string::const_iterator iterStart = node.first.begin();
         std::string::const_iterator iterEnd = node.first.end();
 
@@ -142,11 +142,11 @@ std::map<std::string, std::vector<uint8_t>> PasteboardWebController::SplitHtmlWi
 }
 
 std::shared_ptr<PasteData> PasteboardWebController::BuildPasteData(
-    std::shared_ptr<std::string> html, const std::map<std::string, std::vector<uint8_t>>& imgSrcMap) noexcept
+    std::shared_ptr<std::string> html, const std::map<std::string, std::vector<uint8_t>> &imgSrcMap) noexcept
 {
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     pasteData->AddHtmlRecord(*html);
-    for (auto& item : imgSrcMap) {
+    for (auto &item : imgSrcMap) {
         PasteDataRecord::Builder builder(MiscServices::MIMETYPE_TEXT_URI);
         auto uri = std::make_shared<OHOS::Uri>(item.first);
         builder.SetUri(uri);
@@ -170,7 +170,7 @@ void PasteboardWebController::RemoveAllRecord(std::shared_ptr<PasteData> pasteDa
     }
 }
 
-bool PasteboardWebController::IsLocalURI(std::string& uri) noexcept
+bool PasteboardWebController::IsLocalURI(std::string &uri) noexcept
 {
     return uri.substr(0, IMG_LOCAL_URI.size()) == IMG_LOCAL_URI || uri.find(IMG_LOCAL_PATH) == std::string::npos;
 }

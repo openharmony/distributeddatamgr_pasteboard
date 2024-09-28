@@ -25,11 +25,13 @@ public:
     PasteboardEntryGetter() = default;
     ~PasteboardEntryGetter() = default;
     UDMF::ValueType GetValueByType(uint32_t dataId, uint32_t recordId, const std::string &utdId) override;
+
 private:
     class Factory {
     public:
         Factory();
         ~Factory();
+
     private:
         std::shared_ptr<PasteboardEntryGetter> getter_;
     };

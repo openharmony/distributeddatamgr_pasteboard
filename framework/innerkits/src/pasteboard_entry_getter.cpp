@@ -14,8 +14,8 @@
  */
 
 #include "pasteboard_client.h"
-#include "pasteboard_error.h"
 #include "pasteboard_entry_getter.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
@@ -39,8 +39,8 @@ PasteboardEntryGetter::Factory::~Factory()
 
 UDMF::ValueType PasteboardEntryGetter::GetValueByType(uint32_t dataId, uint32_t recordId, const std::string &utdId)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "dataId:%{public}d. recordId:%{public}d, utdId:%{public}s",
-        dataId, recordId, utdId.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "dataId:%{public}d. recordId:%{public}d, utdId:%{public}s", dataId,
+        recordId, utdId.c_str());
     auto pasteType = CommonUtils::Convert2MimeType(utdId);
     PasteDataEntry entryValue;
     entryValue.SetUtdId(utdId);

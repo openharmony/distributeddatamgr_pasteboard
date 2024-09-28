@@ -76,14 +76,14 @@ typedef enum Pasteboard_NotifyType {
  * @param type The types of data changes. For details, see {@link Pasteboard_NotifyType}.
  * @since 13
  */
-typedef void (*Pasteboard_Notify)(void* context, Pasteboard_NotifyType type);
+typedef void (*Pasteboard_Notify)(void *context, Pasteboard_NotifyType type);
 
 /**
  * @brief Defines the callback function used free the context.
  * @param context Pointer to the context which is to be free.
  * @since 13
  */
-typedef void (*Pasteboard_Finalize)(void* context);
+typedef void (*Pasteboard_Finalize)(void *context);
 
 /**
  * @brief Defines the Pasteboard subscriber information
@@ -100,7 +100,7 @@ typedef struct OH_PasteboardObserver OH_PasteboardObserver;
  * @see OH_PasteboardObserver.
  * @since 13
  */
-OH_PasteboardObserver* OH_PasteboardObserver_Create();
+OH_PasteboardObserver *OH_PasteboardObserver_Create();
 
 /**
  * @brief Destroy a {@link OH_PasteboardObserver} instance.
@@ -112,7 +112,7 @@ OH_PasteboardObserver* OH_PasteboardObserver_Create();
  * @see OH_PasteboardObserver PASTEBOARD_ErrCode.
  * @since 13
  */
-int OH_PasteboardObserver_Destroy(OH_PasteboardObserver* observer);
+int OH_PasteboardObserver_Destroy(OH_PasteboardObserver *observer);
 
 /**
  * @brief Sets a callback function to return the Pasteboard data changed.
@@ -128,8 +128,8 @@ int OH_PasteboardObserver_Destroy(OH_PasteboardObserver* observer);
  * @see OH_PasteboardObserver Pasteboard_Notify PASTEBOARD_ErrCode.
  * @since 13
  */
-int OH_PasteboardObserver_SetData(OH_PasteboardObserver* observer, void* context,
-    const Pasteboard_Notify callback, const Pasteboard_Finalize finalize);
+int OH_PasteboardObserver_SetData(OH_PasteboardObserver *observer, void *context, const Pasteboard_Notify callback,
+    const Pasteboard_Finalize finalize);
 
 /**
  * @brief Represents the Pasteboard information.
@@ -146,7 +146,7 @@ typedef struct OH_Pasteboard OH_Pasteboard;
  * @see OH_Pasteboard.
  * @since 13
  */
-OH_Pasteboard* OH_Pasteboard_Create();
+OH_Pasteboard *OH_Pasteboard_Create();
 
 /**
  * @brief Destroy a {@link OH_Pasteboard} instance.
@@ -155,7 +155,7 @@ OH_Pasteboard* OH_Pasteboard_Create();
  * @see OH_Pasteboard.
  * @since 13
  */
-void OH_Pasteboard_Destroy(OH_Pasteboard* pasteboard);
+void OH_Pasteboard_Destroy(OH_Pasteboard *pasteboard);
 
 /**
  * @brief Subscribes to the Pasteboard data change.
@@ -170,7 +170,7 @@ void OH_Pasteboard_Destroy(OH_Pasteboard* pasteboard);
  * @see OH_Pasteboard OH_PasteboardObserver PASTEBOARD_ErrCode.
  * @since 13
  */
-int OH_Pasteboard_Subscribe(OH_Pasteboard* pasteboard, int type, const OH_PasteboardObserver* observer);
+int OH_Pasteboard_Subscribe(OH_Pasteboard *pasteboard, int type, const OH_PasteboardObserver *observer);
 
 /**
  * @brief Unsubscribes from the Pasteboard data change.
@@ -185,7 +185,7 @@ int OH_Pasteboard_Subscribe(OH_Pasteboard* pasteboard, int type, const OH_Pasteb
  * @see OH_Pasteboard OH_PasteboardObserver PASTEBOARD_ErrCode.
  * @since 13
  */
-int OH_Pasteboard_Unsubscribe(OH_Pasteboard* pasteboard, int type, const OH_PasteboardObserver* observer);
+int OH_Pasteboard_Unsubscribe(OH_Pasteboard *pasteboard, int type, const OH_PasteboardObserver *observer);
 
 /**
  * @brief Checks whether the Pasteboard data is from a remote device.
@@ -197,7 +197,7 @@ int OH_Pasteboard_Unsubscribe(OH_Pasteboard* pasteboard, int type, const OH_Past
  * @see OH_Pasteboard.
  * @since 13
  */
-bool OH_Pasteboard_IsRemoteData(OH_Pasteboard* pasteboard);
+bool OH_Pasteboard_IsRemoteData(OH_Pasteboard *pasteboard);
 
 /**
  * @brief Obtains the source of Pasteboard data.
@@ -211,7 +211,7 @@ bool OH_Pasteboard_IsRemoteData(OH_Pasteboard* pasteboard);
  * @see OH_Pasteboard PASTEBOARD_ErrCode.
  * @since 13
  */
-int OH_Pasteboard_GetDataSource(OH_Pasteboard* pasteboard, char* source, unsigned int len);
+int OH_Pasteboard_GetDataSource(OH_Pasteboard *pasteboard, char *source, unsigned int len);
 
 /**
  * @brief Checks whether the Pasteboard has the specified type of data.
@@ -224,7 +224,7 @@ int OH_Pasteboard_GetDataSource(OH_Pasteboard* pasteboard, char* source, unsigne
  * @see OH_Pasteboard.
  * @since 13
  */
-bool OH_Pasteboard_HasType(OH_Pasteboard* pasteboard, const char* type);
+bool OH_Pasteboard_HasType(OH_Pasteboard *pasteboard, const char *type);
 
 /**
  * @brief Checks whether there is data in the Pasteboard.
@@ -236,7 +236,7 @@ bool OH_Pasteboard_HasType(OH_Pasteboard* pasteboard, const char* type);
  * @see OH_Pasteboard.
  * @since 13
  */
-bool OH_Pasteboard_HasData(OH_Pasteboard* pasteboard);
+bool OH_Pasteboard_HasData(OH_Pasteboard *pasteboard);
 
 /**
  * @brief Obtains data from the Pasteboard.
@@ -247,7 +247,7 @@ bool OH_Pasteboard_HasData(OH_Pasteboard* pasteboard);
  * @see OH_Pasteboard OH_UdmfData PASTEBOARD_ErrCode.
  * @since 13
  */
-OH_UdmfData* OH_Pasteboard_GetData(OH_Pasteboard* pasteboard, int* status);
+OH_UdmfData *OH_Pasteboard_GetData(OH_Pasteboard *pasteboard, int *status);
 
 /**
  * @brief Writes data to the Pasteboard.
@@ -260,7 +260,7 @@ OH_UdmfData* OH_Pasteboard_GetData(OH_Pasteboard* pasteboard, int* status);
  * @see OH_Pasteboard OH_UdmfData PASTEBOARD_ErrCode.
  * @since 13
  */
-int OH_Pasteboard_SetData(OH_Pasteboard* pasteboard, OH_UdmfData* data);
+int OH_Pasteboard_SetData(OH_Pasteboard *pasteboard, OH_UdmfData *data);
 
 /**
  * @brief Clears the data in the Pastedboard.
@@ -272,7 +272,7 @@ int OH_Pasteboard_SetData(OH_Pasteboard* pasteboard, OH_UdmfData* data);
  * @see OH_Pasteboard PASTEBOARD_ErrCode.
  * @since 13
  */
-int OH_Pasteboard_ClearData(OH_Pasteboard* pasteboard);
+int OH_Pasteboard_ClearData(OH_Pasteboard *pasteboard);
 #ifdef __cplusplus
 };
 #endif

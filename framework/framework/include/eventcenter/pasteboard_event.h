@@ -17,6 +17,7 @@
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_EVENTCENTER_DISTRIBUTED_PASTEBOARD_EVENT_H
 
 #include <string>
+
 #include "eventcenter/event.h"
 namespace OHOS::MiscServices {
 class API_EXPORT PasteboardEvent : public Event {

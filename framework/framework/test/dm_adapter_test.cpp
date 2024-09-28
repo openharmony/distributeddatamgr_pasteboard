@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "device/dm_adapter.h"
-
 #include <gtest/gtest.h>
+
+#include "device/dm_adapter.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 
@@ -26,21 +26,13 @@ public:
     void TearDown();
 };
 
-void DMAdapterTest::SetUpTestCase(void)
-{
-}
+void DMAdapterTest::SetUpTestCase(void) {}
 
-void DMAdapterTest::TearDownTestCase(void)
-{
-}
+void DMAdapterTest::TearDownTestCase(void) {}
 
-void DMAdapterTest::SetUp(void)
-{
-}
+void DMAdapterTest::SetUp(void) {}
 
-void DMAdapterTest::TearDown(void)
-{
-}
+void DMAdapterTest::TearDown(void) {}
 
 /**
 * @tc.name: GetLocalDeviceUdid
@@ -52,4 +44,4 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid, TestSize.Level0)
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     ASSERT_FALSE(udid.empty());
 }
-}
+} // namespace OHOS::MiscServices

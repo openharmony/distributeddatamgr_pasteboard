@@ -17,6 +17,7 @@
 #define DISTRIBUTED_PASTEBOARD_FRAMEWORK_DISTRIBUTED_CLIP_H
 #include <mutex>
 #include <shared_mutex>
+
 #include "device/dm_adapter.h"
 
 namespace OHOS::MiscServices {
@@ -27,16 +28,10 @@ public:
     void OnReady(const std::string &device) override;
 };
 
-void DistributedClip::Online(const std::string &device)
-{
-}
+void DistributedClip::Online(const std::string &device) {}
 
-void DistributedClip::Offline(const std::string &device)
-{
-}
+void DistributedClip::Offline(const std::string &device) {}
 
-void DistributedClip::OnReady(const std::string &device)
-{
-}
+void DistributedClip::OnReady(const std::string &device) {}
 } // namespace OHOS::MiscServices
 #endif // DISTRIBUTED_PASTEBOARD_FRAMEWORK_DISTRIBUTED_CLIP_H

@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#include "pasteboard_utils.h"
-
 #include <gtest/gtest.h>
 
 #include "application_defined_record.h"
@@ -23,6 +21,7 @@
 #include "html.h"
 #include "image.h"
 #include "link.h"
+#include "pasteboard_utils.h"
 #include "plain_text.h"
 #include "system_defined_appitem.h"
 #include "system_defined_form.h"
@@ -286,7 +285,7 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::TEXT);
-    auto newPlainRecord = static_cast<UDMF::Text*>(newRecord.get());
+    auto newPlainRecord = static_cast<UDMF::Text *>(newRecord.get());
     auto newDetails = newPlainRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
 }
@@ -319,7 +318,7 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::PLAIN_TEXT);
-    auto newPlainRecord = static_cast<UDMF::PlainText*>(newRecord.get());
+    auto newPlainRecord = static_cast<UDMF::PlainText *>(newRecord.get());
     auto newPlainText = newPlainRecord->GetContent();
     auto newAbstract = newPlainRecord->GetAbstract();
     auto newDetails = newPlainRecord->GetDetails();
@@ -358,7 +357,7 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::HTML);
-    auto newPlainRecord = static_cast<UDMF::Html*>(newRecord.get());
+    auto newPlainRecord = static_cast<UDMF::Html *>(newRecord.get());
     auto newPlainText = newPlainRecord->GetHtmlContent();
     auto newAbstract = newPlainRecord->GetPlainContent();
     auto newDetails = newPlainRecord->GetDetails();
@@ -395,7 +394,7 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::HYPERLINK);
-    auto newPlainRecord = static_cast<UDMF::Link*>(newRecord.get());
+    auto newPlainRecord = static_cast<UDMF::Link *>(newRecord.get());
     auto newUrl = newPlainRecord->GetUrl();
     auto newDescription = newPlainRecord->GetDescription();
     auto newDetails = newPlainRecord->GetDetails();
@@ -464,7 +463,7 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::FILE);
-    auto newFileRecord = static_cast<UDMF::File*>(newRecord.get());
+    auto newFileRecord = static_cast<UDMF::File *>(newRecord.get());
     auto newDetails = newFileRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newFileRecord->GetUri();
@@ -498,7 +497,7 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::IMAGE);
-    auto newImageRecord = static_cast<UDMF::Image*>(newRecord.get());
+    auto newImageRecord = static_cast<UDMF::Image *>(newRecord.get());
     auto newDetails = newImageRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newImageRecord->GetUri();
@@ -532,7 +531,7 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::AUDIO);
-    auto newAudioRecord = static_cast<UDMF::Audio*>(newRecord.get());
+    auto newAudioRecord = static_cast<UDMF::Audio *>(newRecord.get());
     auto newDetails = newAudioRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newAudioRecord->GetUri();
@@ -566,7 +565,7 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::VIDEO);
-    auto newVideoRecord = static_cast<UDMF::Video*>(newRecord.get());
+    auto newVideoRecord = static_cast<UDMF::Video *>(newRecord.get());
     auto newDetails = newVideoRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newVideoRecord->GetUri();
@@ -600,7 +599,7 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::FOLDER);
-    auto newFolderRecord = static_cast<UDMF::Folder*>(newRecord.get());
+    auto newFolderRecord = static_cast<UDMF::Folder *>(newRecord.get());
     auto newDetails = newFolderRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newFolderRecord->GetUri();
@@ -632,7 +631,7 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_RECORD);
-    auto newSystemRecord = static_cast<UDMF::SystemDefinedRecord*>(newRecord.get());
+    auto newSystemRecord = static_cast<UDMF::SystemDefinedRecord *>(newRecord.get());
     ASSERT_EQ(newSystemRecord->GetDetails(), details_);
 }
 
@@ -671,7 +670,7 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_APP_ITEM);
-    auto newAppItem = static_cast<UDMF::SystemDefinedAppItem*>(newRecord.get());
+    auto newAppItem = static_cast<UDMF::SystemDefinedAppItem *>(newRecord.get());
     ASSERT_EQ(newAppItem->GetAppId(), "appId");
     ASSERT_EQ(newAppItem->GetAppIconId(), "appIconId");
     ASSERT_EQ(newAppItem->GetAppName(), "appName");
@@ -717,7 +716,7 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_FORM);
-    auto newForm = static_cast<UDMF::SystemDefinedForm*>(newRecord.get());
+    auto newForm = static_cast<UDMF::SystemDefinedForm *>(newRecord.get());
     ASSERT_EQ(newForm->GetFormId(), formId1);
     ASSERT_EQ(newForm->GetFormName(), formName1);
     ASSERT_EQ(newForm->GetModule(), module1);
@@ -792,7 +791,7 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     auto newRecord = newData->GetRecordAt(0);
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::APPLICATION_DEFINED_RECORD);
-    auto newSystemRecord = static_cast<UDMF::ApplicationDefinedRecord*>(newRecord.get());
+    auto newSystemRecord = static_cast<UDMF::ApplicationDefinedRecord *>(newRecord.get());
     ASSERT_EQ(newSystemRecord->GetRawData(), rawData_);
 }
 } // namespace OHOS::MiscServices

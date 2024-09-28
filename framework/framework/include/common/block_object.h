@@ -20,9 +20,7 @@ namespace OHOS {
 template<typename T>
 class BlockObject {
 public:
-    explicit BlockObject(uint32_t interval, const T &invalid = T()) : interval_(interval), data_(invalid)
-    {
-    }
+    explicit BlockObject(uint32_t interval, const T &invalid = T()) : interval_(interval), data_(invalid) {}
     ~BlockObject() = default;
 
     void SetValue(T data)
@@ -36,7 +34,9 @@ public:
     T GetValue()
     {
         std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait_for(lock, std::chrono::milliseconds(interval_), [this]() { return isSet_; });
+        cv_.wait_for(lock, std::chrono::milliseconds(interval_), [this]() {
+            return isSet_;
+        });
         isSet_ = false;
         T data = std::move(data_);
         cv_.notify_one();

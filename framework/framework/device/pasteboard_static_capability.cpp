@@ -25,7 +25,7 @@ bool PasteboardStaticCapability::IsSupportCapability()
     return true;
 }
 
-DistributedDeviceProfile::IStaticCapabilityCollector* GetStaticCapabilityCollector()
+DistributedDeviceProfile::IStaticCapabilityCollector *GetStaticCapabilityCollector()
 {
     return &PasteboardStaticCapability::GetInstance();
 }

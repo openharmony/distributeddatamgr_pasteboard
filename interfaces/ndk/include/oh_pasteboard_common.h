@@ -16,22 +16,23 @@
 #define OH_PASTEBOARD_COMMON_H
 #include <cstdint>
 #include <map>
-#include "pasteboard_observer.h"
+
 #include "oh_pasteboard.h"
-#include "pasteboard_error.h"
 #include "oh_pasteboard_err_code.h"
+#include "pasteboard_error.h"
+#include "pasteboard_observer.h"
 
 namespace OHOS {
 namespace MiscServices {
 const std::map<PasteboardError, PASTEBOARD_ErrCode> errCodeMap = {
-    {PasteboardError::PERMISSION_VERIFICATION_ERROR, ERR_PERMISSION_ERROR},
-    {PasteboardError::INVALID_PARAM_ERROR, ERR_INVALID_PARAMETER},
-    {PasteboardError::TASK_PROCESSING, ERR_BUSY},
+    { PasteboardError::PERMISSION_VERIFICATION_ERROR, ERR_PERMISSION_ERROR },
+    { PasteboardError::INVALID_PARAM_ERROR, ERR_INVALID_PARAMETER },
+    { PasteboardError::TASK_PROCESSING, ERR_BUSY },
 };
 
 class PasteboardObserverCapiImpl;
-}
-}
+} // namespace MiscServices
+} // namespace OHOS
 
 enum PasteboardNdkStructId : std::int64_t {
     SUBSCRIBER_STRUCT_ID = 1002950,
@@ -41,7 +42,7 @@ enum PasteboardNdkStructId : std::int64_t {
 struct OH_Pasteboard {
     const int64_t cid = PASTEBOARD_STRUCT_ID;
     std::mutex mutex;
-    std::map<const OH_PasteboardObserver*, OHOS::sptr<OHOS::MiscServices::PasteboardObserverCapiImpl>> observers_;
+    std::map<const OH_PasteboardObserver *, OHOS::sptr<OHOS::MiscServices::PasteboardObserverCapiImpl>> observers_;
 };
 
 /** @} */

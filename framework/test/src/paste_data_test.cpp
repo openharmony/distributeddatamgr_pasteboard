@@ -13,17 +13,17 @@
 * limitations under the License.
 */
 #include <cstdio>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "copy_uri_handler.h"
-#include "common/block_object.h"
 #include "clip/clip_plugin.h"
 #include "clip_factory.h"
+#include "common/block_object.h"
+#include "copy_uri_handler.h"
 #include "int_wrapper.h"
 #include "paste_uri_handler.h"
 #include "pasteboard_client.h"
 #include "remote_file_share.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -40,21 +40,13 @@ public:
     void TearDown();
 };
 
-void PasteDataTest::SetUpTestCase(void)
-{
-}
+void PasteDataTest::SetUpTestCase(void) {}
 
-void PasteDataTest::TearDownTestCase(void)
-{
-}
+void PasteDataTest::TearDownTestCase(void) {}
 
-void PasteDataTest::SetUp(void)
-{
-}
+void PasteDataTest::SetUp(void) {}
 
-void PasteDataTest::TearDown(void)
-{
-}
+void PasteDataTest::TearDown(void) {}
 
 ClipFactory::ClipFactory()
 {
@@ -345,8 +337,7 @@ HWTEST_F(PasteDataTest, MaxLength001, TestSize.Level0)
     int maxLength = 20 * 1024 * 1024;
     std::string res = "hello";
     std::string temp = "world";
-    for (int i = 0; i < maxLength; i++)
-    {
+    for (int i = 0; i < maxLength; i++) {
         res += temp;
     }
     std::string htmlText = "<div class='disabled'>" + res + "</div>";
@@ -366,8 +357,7 @@ HWTEST_F(PasteDataTest, MaxLength002, TestSize.Level0)
     int maxLength = 20 * 1024 * 1024;
     std::string plainText = "hello";
     std::string temp = "world";
-    for (int i = 0; i < maxLength; i++)
-    {
+    for (int i = 0; i < maxLength; i++) {
         plainText += temp;
     }
     auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord(plainText);
@@ -491,7 +481,7 @@ HWTEST_F(PasteDataTest, GetPasteDataMsg002, TestSize.Level0)
     ASSERT_TRUE(primaryUri == nullptr);
     auto record = newPasteData->GetRecordAt(1);
     ASSERT_TRUE(record == nullptr);
-    auto res1 =  newPasteData->RemoveRecordAt(1);
+    auto res1 = newPasteData->RemoveRecordAt(1);
     ASSERT_FALSE(res1);
     std::string mimeType = "text/plain";
     ASSERT_FALSE(newPasteData->HasMimeType(mimeType));
