@@ -184,8 +184,8 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
 {
     // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
     if (!CheckExpression(env, argc >= ARGC_TYPE_SET2, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The number of arguments cannot be less than two.") ||
-            !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+        "Parameter error. The number of arguments cannot be less than two.") ||
+        !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
 
@@ -195,7 +195,7 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         return false;
     }
     if (!CheckExpression(
-            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
+        env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
         !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
             "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
         return false;
@@ -214,14 +214,14 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         AAFwk::Want want;
         ret = OHOS::AppExecFwk::UnwrapWant(env, argv[1], want);
         if (!CheckExpression(env, ret, JSErrorCode::INVALID_PARAMETERS,
-                "Parameter error. Actual mimeType is not mimetype_text_want.")) {
+            "Parameter error. Actual mimeType is not mimetype_text_want.")) {
             return false;
         }
     } else {
         bool isArrayBuffer = false;
         NAPI_CALL_BASE(env, napi_is_arraybuffer(env, argv[1], &isArrayBuffer), false);
         if (!CheckExpression(env, isArrayBuffer, JSErrorCode::INVALID_PARAMETERS,
-                "Parameter error. The mimeType is not an arraybuffer.")) {
+            "Parameter error. The mimeType is not an arraybuffer.")) {
             return false;
         }
     }

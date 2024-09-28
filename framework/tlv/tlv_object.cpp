@@ -414,8 +414,8 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, EntryValue &v
     if (!ReadValue(buffer, index, valueHead)) {
         return false;
     }
-    return ReadVariant<decltype(value), std::monostate, int32_t, int64_t, double, bool, 
-        std::string, std::vector<uint8_t>, std::shared_ptr<OHOS::AAFwk::Want>, 
+    return ReadVariant<decltype(value), std::monostate, int32_t, int64_t, double, bool,
+        std::string, std::vector<uint8_t>, std::shared_ptr<OHOS::AAFwk::Want>,
         std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>, nullptr_t>(
         buffer, 0, index, value, valueHead);
 }
