@@ -15,27 +15,28 @@
 
 #define LOG_TAG "Pasteboard_Capi"
 
-#include "oh_pasteboard.h"
-#include <string>
-#include <memory>
-#include <thread>
 #include <map>
-#include "udmf.h"
+#include <memory>
+#include <string>
+#include <thread>
+
+#include "i_pasteboard_observer.h"
+#include "oh_pasteboard.h"
 #include "oh_pasteboard_err_code.h"
 #include "oh_pasteboard_observer_impl.h"
 #include "pasteboard_client.h"
-#include "pasteboard_hilog.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
+#include "udmf.h"
 #include "udmf_capi_common.h"
-#include "i_pasteboard_observer.h"
 
 using namespace OHOS::MiscServices;
-static bool IsPasteboardValid(OH_Pasteboard* pasteboard)
+static bool IsPasteboardValid(OH_Pasteboard *pasteboard)
 {
     return pasteboard != nullptr && pasteboard->cid == PASTEBOARD_STRUCT_ID;
 }
 
-static bool IsSubscriberValid(OH_PasteboardObserver* observer)
+static bool IsSubscriberValid(OH_PasteboardObserver *observer)
 {
     return observer != nullptr && observer->cid == SUBSCRIBER_STRUCT_ID;
 }
@@ -49,9 +50,9 @@ static PASTEBOARD_ErrCode GetMappedCode(int32_t code)
     return ERR_INNER_ERROR;
 }
 
-OH_PasteboardObserver* OH_PasteboardObserver_Create()
+OH_PasteboardObserver *OH_PasteboardObserver_Create()
 {
-    OH_PasteboardObserver* observer = new(std::nothrow) OH_PasteboardObserver();
+    OH_PasteboardObserver *observer = new (std::nothrow) OH_PasteboardObserver();
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "allocate memory fail.");
         return nullptr;
@@ -59,7 +60,7 @@ OH_PasteboardObserver* OH_PasteboardObserver_Create()
     return observer;
 }
 
-int OH_PasteboardObserver_Destroy(OH_PasteboardObserver* observer)
+int OH_PasteboardObserver_Destroy(OH_PasteboardObserver *observer)
 {
     if (!IsSubscriberValid(observer)) {
         return ERR_INVALID_PARAMETER;
@@ -72,8 +73,8 @@ int OH_PasteboardObserver_Destroy(OH_PasteboardObserver* observer)
     return ERR_OK;
 }
 
-int OH_PasteboardObserver_SetData(OH_PasteboardObserver* observer, void* context,
-    const Pasteboard_Notify callback, const Pasteboard_Finalize finalize)
+int OH_PasteboardObserver_SetData(OH_PasteboardObserver *observer, void *context, const Pasteboard_Notify callback,
+    const Pasteboard_Finalize finalize)
 {
     if (observer == nullptr || callback == nullptr) {
         return ERR_INVALID_PARAMETER;
@@ -88,9 +89,9 @@ int OH_PasteboardObserver_SetData(OH_PasteboardObserver* observer, void* context
     return ERR_OK;
 }
 
-OH_Pasteboard* OH_Pasteboard_Create()
+OH_Pasteboard *OH_Pasteboard_Create()
 {
-    OH_Pasteboard* pasteboard = new (std::nothrow) OH_Pasteboard();
+    OH_Pasteboard *pasteboard = new (std::nothrow) OH_Pasteboard();
     if (pasteboard == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "allocate memory fail.");
         return nullptr;
@@ -98,7 +99,7 @@ OH_Pasteboard* OH_Pasteboard_Create()
     return pasteboard;
 }
 
-void OH_Pasteboard_Destroy(OH_Pasteboard* pasteboard)
+void OH_Pasteboard_Destroy(OH_Pasteboard *pasteboard)
 {
     if (!IsPasteboardValid(pasteboard)) {
         return;
@@ -114,10 +115,10 @@ void OH_Pasteboard_Destroy(OH_Pasteboard* pasteboard)
     delete pasteboard;
 }
 
-int OH_Pasteboard_Subscribe(OH_Pasteboard* pasteboard, int type, const OH_PasteboardObserver* observer)
+int OH_Pasteboard_Subscribe(OH_Pasteboard *pasteboard, int type, const OH_PasteboardObserver *observer)
 {
-    if (!IsPasteboardValid(pasteboard) || observer == nullptr || type < NOTIFY_LOCAL_DATA_CHANGE
-        || type > NOTIFY_REMOTE_DATA_CHANGE) {
+    if (!IsPasteboardValid(pasteboard) || observer == nullptr || type < NOTIFY_LOCAL_DATA_CHANGE ||
+        type > NOTIFY_REMOTE_DATA_CHANGE) {
         return ERR_INVALID_PARAMETER;
     }
     std::lock_guard<std::mutex> lock(pasteboard->mutex);
@@ -137,10 +138,10 @@ int OH_Pasteboard_Subscribe(OH_Pasteboard* pasteboard, int type, const OH_Pasteb
     return ERR_OK;
 }
 
-int OH_Pasteboard_Unsubscribe(OH_Pasteboard* pasteboard, int type, const OH_PasteboardObserver* observer)
+int OH_Pasteboard_Unsubscribe(OH_Pasteboard *pasteboard, int type, const OH_PasteboardObserver *observer)
 {
-    if (!IsPasteboardValid(pasteboard) || observer == nullptr  || type < NOTIFY_LOCAL_DATA_CHANGE
-        || type > NOTIFY_REMOTE_DATA_CHANGE) {
+    if (!IsPasteboardValid(pasteboard) || observer == nullptr || type < NOTIFY_LOCAL_DATA_CHANGE ||
+        type > NOTIFY_REMOTE_DATA_CHANGE) {
         return ERR_INVALID_PARAMETER;
     }
     std::lock_guard<std::mutex> lock(pasteboard->mutex);
@@ -154,7 +155,7 @@ int OH_Pasteboard_Unsubscribe(OH_Pasteboard* pasteboard, int type, const OH_Past
     return ERR_OK;
 }
 
-bool OH_Pasteboard_IsRemoteData(OH_Pasteboard* pasteboard)
+bool OH_Pasteboard_IsRemoteData(OH_Pasteboard *pasteboard)
 {
     if (!IsPasteboardValid(pasteboard)) {
         return ERR_INVALID_PARAMETER;
@@ -162,7 +163,7 @@ bool OH_Pasteboard_IsRemoteData(OH_Pasteboard* pasteboard)
     return PasteboardClient::GetInstance()->IsRemoteData();
 }
 
-int OH_Pasteboard_GetDataSource(OH_Pasteboard* pasteboard, char* source, unsigned int len)
+int OH_Pasteboard_GetDataSource(OH_Pasteboard *pasteboard, char *source, unsigned int len)
 {
     if (!IsPasteboardValid(pasteboard) || source == nullptr || len == 0) {
         return ERR_INVALID_PARAMETER;
@@ -170,8 +171,7 @@ int OH_Pasteboard_GetDataSource(OH_Pasteboard* pasteboard, char* source, unsigne
     std::string bundleName;
     auto ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(
-            PASTEBOARD_MODULE_CAPI, "client getDataSource return invalid, result is %{public}d", ret);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "client getDataSource return invalid, result is %{public}d", ret);
         return GetMappedCode(ret);
     }
     if (strcpy_s(source, len, bundleName.c_str()) != EOK) {
@@ -181,7 +181,7 @@ int OH_Pasteboard_GetDataSource(OH_Pasteboard* pasteboard, char* source, unsigne
     return ERR_OK;
 }
 
-bool OH_Pasteboard_HasType(OH_Pasteboard* pasteboard, const char* type)
+bool OH_Pasteboard_HasType(OH_Pasteboard *pasteboard, const char *type)
 {
     if (!IsPasteboardValid(pasteboard) || type == nullptr) {
         return ERR_INVALID_PARAMETER;
@@ -189,7 +189,7 @@ bool OH_Pasteboard_HasType(OH_Pasteboard* pasteboard, const char* type)
     return PasteboardClient::GetInstance()->HasDataType(std::string(type));
 }
 
-bool OH_Pasteboard_HasData(OH_Pasteboard* pasteboard)
+bool OH_Pasteboard_HasData(OH_Pasteboard *pasteboard)
 {
     if (!IsPasteboardValid(pasteboard)) {
         return ERR_INVALID_PARAMETER;
@@ -197,7 +197,7 @@ bool OH_Pasteboard_HasData(OH_Pasteboard* pasteboard)
     return PasteboardClient::GetInstance()->HasPasteData();
 }
 
-OH_UdmfData* OH_Pasteboard_GetData(OH_Pasteboard* pasteboard, int* status)
+OH_UdmfData *OH_Pasteboard_GetData(OH_Pasteboard *pasteboard, int *status)
 {
     if (!IsPasteboardValid(pasteboard) || status == nullptr) {
         return nullptr;
@@ -210,13 +210,13 @@ OH_UdmfData* OH_Pasteboard_GetData(OH_Pasteboard* pasteboard, int* status)
         *status = GetMappedCode(ret);
         return nullptr;
     }
-    OH_UdmfData* data = OH_UdmfData_Create();
+    OH_UdmfData *data = OH_UdmfData_Create();
     data->unifiedData_ = std::move(unifiedData);
     *status = ERR_OK;
     return data;
 }
 
-int OH_Pasteboard_SetData(OH_Pasteboard* pasteboard, OH_UdmfData* data)
+int OH_Pasteboard_SetData(OH_Pasteboard *pasteboard, OH_UdmfData *data)
 {
     if (!IsPasteboardValid(pasteboard) || data == nullptr) {
         return ERR_INVALID_PARAMETER;
@@ -230,7 +230,7 @@ int OH_Pasteboard_SetData(OH_Pasteboard* pasteboard, OH_UdmfData* data)
     return ERR_OK;
 }
 
-int OH_Pasteboard_ClearData(OH_Pasteboard* pasteboard)
+int OH_Pasteboard_ClearData(OH_Pasteboard *pasteboard)
 {
     if (!IsPasteboardValid(pasteboard)) {
         return ERR_INVALID_PARAMETER;

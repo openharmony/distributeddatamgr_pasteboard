@@ -1,6 +1,5 @@
-/*
-* Copyright (c) 2023 Huawei Device Co., Ltd.
-* Licensed under the Apache License, Version 2.0 (the "License");
+// namespace OHOS::MiscServices/*
+*Copyright(c) 2023 Huawei Device Co., Ltd.*Licensed under the Apache License, Version 2.0(the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
@@ -12,60 +11,53 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include <gtest/gtest.h>
 #include <thread>
 
-#include <gtest/gtest.h>
 #include "iservice_registry.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_error.h"
 
-namespace OHOS::MiscServices {
-using namespace testing::ext;
-class PasteboardDialogNormalBranchTest : public testing::Test {
-public:
-    static void SetUpTestCase(void);
-    static void TearDownTestCase(void);
-    void SetUp();
-    void TearDown();
-};
-
-void PasteboardDialogNormalBranchTest::SetUpTestCase(void)
+namespace OHOS::MiscServices
 {
-}
+    using namespace testing::ext;
+    class PasteboardDialogNormalBranchTest : public testing::Test {
+    public:
+        static void SetUpTestCase(void);
+        static void TearDownTestCase(void);
+        void SetUp();
+        void TearDown();
+    };
 
-void PasteboardDialogNormalBranchTest::TearDownTestCase(void)
-{
-}
+    void PasteboardDialogNormalBranchTest::SetUpTestCase(void) {}
 
-void PasteboardDialogNormalBranchTest::SetUp(void)
-{
-}
+    void PasteboardDialogNormalBranchTest::TearDownTestCase(void) {}
 
-void PasteboardDialogNormalBranchTest::TearDown(void)
-{
-}
+    void PasteboardDialogNormalBranchTest::SetUp(void) {}
 
-/**
+    void PasteboardDialogNormalBranchTest::TearDown(void) {}
+
+    /**
 * @tc.name: ShowToastNormalTest
 * @tc.desc: Show Toast test normal branch.
 * @tc.type: FUNC
 */
-HWTEST_F(PasteboardDialogNormalBranchTest, ShowToastNormalTest, TestSize.Level0)
-{
-    PasteBoardDialog::ToastMessageInfo message;
-    message.appName = "myAppName";
-    int32_t ret = PasteBoardDialog::GetInstance().ShowToast(message);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING));
-}
+    HWTEST_F(PasteboardDialogNormalBranchTest, ShowToastNormalTest, TestSize.Level0)
+    {
+        PasteBoardDialog::ToastMessageInfo message;
+        message.appName = "myAppName";
+        int32_t ret = PasteBoardDialog::GetInstance().ShowToast(message);
+        EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING));
+    }
 
-/**
+    /**
 * @tc.name: CancelToastNormalTest
 * @tc.desc: Cancel Toast test.
 * @tc.type: FUNC
 */
-HWTEST_F(PasteboardDialogNormalBranchTest, CancelToastNormalTest, TestSize.Level0)
-{
-    PasteBoardDialog::GetInstance().CancelToast();
-    EXPECT_TRUE(true);
-}
+    HWTEST_F(PasteboardDialogNormalBranchTest, CancelToastNormalTest, TestSize.Level0)
+    {
+        PasteBoardDialog::GetInstance().CancelToast();
+        EXPECT_TRUE(true);
+    }
 }

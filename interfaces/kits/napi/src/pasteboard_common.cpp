@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "pasteboard_common.h"
-
 #include "napi_common_want.h"
 #include "paste_data_record.h"
+#include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "pixel_map_napi.h"
@@ -99,12 +98,12 @@ bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type. pattern/uint32 array expected.");
         return false;
     }
-    
+
     uint32_t len = 0;
     napi_status status = napi_get_array_length(env, in, &len);
     if (status != napi_ok || len == 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length status = %{public}d, len = %{public}d",
-            status, len);
+        PASTEBOARD_HILOGE(
+            PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length status = %{public}d, len = %{public}d", status, len);
         return false;
     }
 
@@ -119,13 +118,11 @@ bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
         uint32_t pattern;
         status = napi_get_value_uint32(env, element, &pattern);
         if (status != napi_ok) {
-            PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_JS_NAPI, "napi_get_value_uint32 err status = %{public}d", status);
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_value_uint32 err status = %{public}d", status);
             return false;
         }
         if (pattern >= static_cast<uint32_t>(Pattern::PatternCount)) {
-            PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_JS_NAPI, "Unsurportted pattern value: %{public}d", pattern);
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Unsurportted pattern value: %{public}d", pattern);
             return false;
         }
         out.insert(static_cast<Pattern>(pattern));
@@ -187,7 +184,7 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
 {
     // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
     if (!CheckExpression(env, argc >= ARGC_TYPE_SET2, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The number of arguments cannot be less than two.") ||
+            "Parameter error. The number of arguments cannot be less than two.") ||
         !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
@@ -198,9 +195,9 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         return false;
     }
     if (!CheckExpression(
-        env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
+            env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
         !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
+            "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
         return false;
     }
 
@@ -210,21 +207,21 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
         }
     } else if (mimeType == MIMETYPE_PIXELMAP) {
         if (!CheckExpression(env, Media::PixelMapNapi::GetPixelMap(env, argv[1]) != nullptr,
-            JSErrorCode::INVALID_PARAMETERS, "Parameter error. Actual mimeType is not mimetype_pixelmap.")) {
+                JSErrorCode::INVALID_PARAMETERS, "Parameter error. Actual mimeType is not mimetype_pixelmap.")) {
             return false;
         }
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
         AAFwk::Want want;
         ret = OHOS::AppExecFwk::UnwrapWant(env, argv[1], want);
         if (!CheckExpression(env, ret, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. Actual mimeType is not mimetype_text_want.")) {
+                "Parameter error. Actual mimeType is not mimetype_text_want.")) {
             return false;
         }
     } else {
         bool isArrayBuffer = false;
         NAPI_CALL_BASE(env, napi_is_arraybuffer(env, argv[1], &isArrayBuffer), false);
         if (!CheckExpression(env, isArrayBuffer, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The mimeType is not an arraybuffer.")) {
+                "Parameter error. The mimeType is not an arraybuffer.")) {
             return false;
         }
     }

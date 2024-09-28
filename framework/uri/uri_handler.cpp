@@ -12,10 +12,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "uri_handler.h"
-
-#include "pasteboard_hilog.h"
 #include "paste_data.h"
+#include "pasteboard_hilog.h"
+#include "uri_handler.h"
 
 namespace OHOS::MiscServices {
 bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealPath)
@@ -58,7 +57,7 @@ int32_t UriHandler::ToFd(const std::string &uri, bool isClient)
             PasteData::sharePath.c_str(), fileRealPath.c_str());
         return INVALID_FD;
     }
-    
+
     int32_t fd = open(fileRealPath.c_str(), O_RDONLY);
     if (fd < 0) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "open file failed, maybe its not a legal file path %{public}s",

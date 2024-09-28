@@ -24,7 +24,7 @@ namespace MiscServices {
 class IPasteboardEntryGetter : public IRemoteBroker {
 public:
     virtual ~IPasteboardEntryGetter() = default;
-    virtual int32_t GetRecordValueByType(uint32_t recordId, PasteDataEntry& value) = 0;
+    virtual int32_t GetRecordValueByType(uint32_t recordId, PasteDataEntry &value) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.misc.services.pasteboard.IPasteboardEntryGetter");
 };
 } // namespace MiscServices

@@ -214,7 +214,8 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
     bool noNeedClean = false;
     {
         std::unique_lock<std::mutex> lock(pasteboardDelayWorker->mutex);
-        int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, UvQueueWorkGetDelayPasteData);
+        int ret = uv_queue_work(
+            loop, work, [](uv_work_t *work) {}, UvQueueWorkGetDelayPasteData);
         if (ret != 0) {
             delete pasteboardDelayWorker;
             pasteboardDelayWorker = nullptr;
@@ -223,11 +224,13 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
             return;
         }
         if (pasteboardDelayWorker->cv.wait_for(lock, std::chrono::seconds(DELAY_TIMEOUT),
-            [pasteboardDelayWorker] { return pasteboardDelayWorker->complete; }) &&
+                [pasteboardDelayWorker] {
+                    return pasteboardDelayWorker->complete;
+                }) &&
             pasteboardDelayWorker->unifiedData != nullptr) {
             data = *(pasteboardDelayWorker->unifiedData);
         }
-        if (!pasteboardDelayWorker->complete && uv_cancel((uv_req_t*)work) != 0) {
+        if (!pasteboardDelayWorker->complete && uv_cancel((uv_req_t *)work) != 0) {
             pasteboardDelayWorker->clean = true;
             noNeedClean = true;
         }
@@ -242,8 +245,8 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
 
 bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc)
 {
-    if (!CheckExpression(
-        env, checkArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. The number of arguments is wrong.") ||
+    if (!CheckExpression(env, checkArgsCount, JSErrorCode::INVALID_PARAMETERS,
+            "Parameter error. The number of arguments is wrong.") ||
         !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
         return false;
     }
@@ -254,7 +257,7 @@ bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount
         return false;
     }
     if (!CheckExpression(env, mimeType == STRING_UPDATE, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The value of type must be update")) {
+            "Parameter error. The value of type must be update")) {
         return false;
     }
     return true;
@@ -457,11 +460,10 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetContextInfo> &contex
 {
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // setData has 1 or 2 args
-        if (!CheckExpression(
-            env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The number of arguments must be greater than zero.") ||
+        if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
+                "Parameter error. The number of arguments must be greater than zero.") ||
             !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The Type of data must be pasteData.")) {
+                "Parameter error. The Type of data must be pasteData.")) {
             return napi_invalid_arg;
         }
         if (argc > 1 &&
@@ -530,7 +532,7 @@ napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info
     auto context = std::make_shared<SetUnifiedContextInfo>();
     SetDataCommon(context);
 
-    auto exec = [context](AsyncCall::Context* ctx) {
+    auto exec = [context](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
         int32_t ret = static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
         if (context->obj != nullptr) {
@@ -563,7 +565,7 @@ napi_value SystemPasteboardNapi::GetUnifiedData(napi_env env, napi_callback_info
     context->unifiedData = std::make_shared<UDMF::UnifiedData>();
     GetDataCommon(context);
 
-    auto exec = [context](AsyncCall::Context* ctx) {
+    auto exec = [context](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetUnifiedData(*context->unifiedData);
         if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
@@ -585,8 +587,8 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
 
     NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance));
-    UDMF::UnifiedDataNapi* obj = nullptr;
-    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void**>(&obj));
+    UDMF::UnifiedDataNapi *obj = nullptr;
+    napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr) || obj->value_ == nullptr) {
         return nullptr;
     }
@@ -613,13 +615,13 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if (!CheckExpression(
-        env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
+            env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
         return nullptr;
     }
-    UDMF::UnifiedDataNapi* unifiedDataNapi = nullptr;
-    napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
+    UDMF::UnifiedDataNapi *unifiedDataNapi = nullptr;
+    napi_unwrap(env, argv[0], reinterpret_cast<void **>(&unifiedDataNapi));
     if (!CheckExpression(env, (unifiedDataNapi != nullptr && unifiedDataNapi->value_ != nullptr),
-        JSErrorCode::INVALID_PARAMETERS, "Parameter error. The Type of data must be unifiedData.")) {
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. The Type of data must be unifiedData.")) {
         return nullptr;
     }
     auto properties = unifiedDataNapi->GetPropertiesNapi(env);
@@ -633,9 +635,8 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
     std::shared_ptr<UDMF::UnifiedData> unifiedData = unifiedDataNapi->value_;
     std::thread thread([block, unifiedData, isDelay, delayGetter]() mutable {
-        int32_t ret = isDelay ?
-            PasteboardClient::GetInstance()->SetUnifiedData(*unifiedData, delayGetter->GetStub()) :
-            PasteboardClient::GetInstance()->SetUnifiedData(*unifiedData);
+        int32_t ret = isDelay ? PasteboardClient::GetInstance()->SetUnifiedData(*unifiedData, delayGetter->GetStub())
+                              : PasteboardClient::GetInstance()->SetUnifiedData(*unifiedData);
         std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
         block->SetValue(value);
     });
@@ -659,32 +660,32 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
 napi_value SystemPasteboardNapi::SetAppShareOptions(napi_env env, napi_callback_info info)
 {
     size_t argc = 1;
-    napi_value argv[1] = {0};
+    napi_value argv[1] = { 0 };
     napi_value thisArg = nullptr;
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisArg, &data));
     if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Mandatory parameters are left unspecified.")) {
+            "Parameter error. Mandatory parameters are left unspecified.")) {
         return nullptr;
     }
     int32_t shareOptions;
     auto status = napi_get_value_int32(env, argv[0], &shareOptions);
-    if (!CheckExpression(env, status == napi_ok, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. Incorrect parameter types.")) {
+    if (!CheckExpression(
+            env, status == napi_ok, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Incorrect parameter types.")) {
         return nullptr;
     }
     if (!CheckExpression(env, shareOptions >= ShareOption::InApp && shareOptions <= ShareOption::CrossDevice,
-        JSErrorCode::INVALID_PARAMETERS, "Parameter error. Parameter verification failed.")) {
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. Parameter verification failed.")) {
         return nullptr;
     }
     auto result = PasteboardClient::GetInstance()->SetAppShareOptions(static_cast<ShareOption>(shareOptions));
     if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
-        JSErrorCode::NO_SYSTEM_PERMISSION,
-        "Permission verification failed. A non-system application calls a system API.")) {
+            JSErrorCode::NO_SYSTEM_PERMISSION,
+            "Permission verification failed. A non-system application calls a system API.")) {
         return nullptr;
     }
     if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR),
-        JSErrorCode::SETTINGS_ALREADY_EXIST, "Settings already exist.")) {
+            JSErrorCode::SETTINGS_ALREADY_EXIST, "Settings already exist.")) {
         return nullptr;
     }
     return nullptr;
@@ -694,25 +695,25 @@ napi_value SystemPasteboardNapi::RemoveAppShareOptions(napi_env env, napi_callba
 {
     auto result = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     if (CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
-        JSErrorCode::NO_SYSTEM_PERMISSION,
-        "Permission verification failed. A non-system application calls a system API.")) {
+            JSErrorCode::NO_SYSTEM_PERMISSION,
+            "Permission verification failed. A non-system application calls a system API.")) {
         return nullptr;
     }
     return nullptr;
 }
 
-void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>& context)
+void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo> &context)
 {
-    auto input = [context](napi_env env, size_t argc, napi_value* argv, napi_value self) -> napi_status {
+    auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // setData has 1 arg
         if (!CheckExpression(
-            env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
+                env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
             return napi_invalid_arg;
         }
-        UDMF::UnifiedDataNapi* unifiedDataNapi = nullptr;
-        context->status = napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
-        if (!CheckExpression(env, unifiedDataNapi != nullptr,
-            JSErrorCode::INVALID_PARAMETERS, "Parameter error. The Type of data must be unifiedData.")) {
+        UDMF::UnifiedDataNapi *unifiedDataNapi = nullptr;
+        context->status = napi_unwrap(env, argv[0], reinterpret_cast<void **>(&unifiedDataNapi));
+        if (!CheckExpression(env, unifiedDataNapi != nullptr, JSErrorCode::INVALID_PARAMETERS,
+                "Parameter error. The Type of data must be unifiedData.")) {
             return napi_invalid_arg;
         }
         context->obj = unifiedDataNapi->value_;
@@ -734,9 +735,9 @@ void SystemPasteboardNapi::SetDataCommon(std::shared_ptr<SetUnifiedContextInfo>&
     context->SetAction(std::move(input), std::move(output));
 }
 
-void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo>& context)
+void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo> &context)
 {
-    auto input = [](napi_env env, size_t argc, napi_value* argv, napi_value self) -> napi_status {
+    auto input = [](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         // 1: GetPasteData has 0 or 1 args
         if (argc > 0 &&
             !CheckArgsType(env, argv[0], napi_function, "Parameter error. The type of callback must be function.")) {
@@ -745,13 +746,13 @@ void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo>&
         return napi_ok;
     };
 
-    auto output = [context](napi_env env, napi_value* result) -> napi_status {
+    auto output = [context](napi_env env, napi_value *result) -> napi_status {
         napi_value instance = nullptr;
         std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
         UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance);
 
-        UDMF::UnifiedDataNapi* obj = nullptr;
-        napi_status ret = napi_unwrap(env, instance, reinterpret_cast<void**>(&obj));
+        UDMF::UnifiedDataNapi *obj = nullptr;
+        napi_status ret = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
         if ((ret == napi_ok) || (obj != nullptr)) {
             obj->value_ = context->unifiedData;
         } else {
@@ -819,7 +820,7 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if ((!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The number of arguments must be grater than zero.")) ||
+            "Parameter error. The number of arguments must be grater than zero.")) ||
         (!CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string."))) {
         return nullptr;
     }
@@ -853,12 +854,12 @@ napi_value SystemPasteboardNapi::DetectPatterns(napi_env env, napi_callback_info
     auto context = std::make_shared<DetectPatternsContextInfo>();
     auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
         if (!CheckExpression(env, argc == ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. The number of arguments must be one.")) {
+                "Parameter error. The number of arguments must be one.")) {
             return napi_invalid_arg;
         }
         bool getValueRes = GetValue(env, argv[0], context->patternsToCheck);
-        if (!CheckExpression(env, getValueRes, JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. Array<Pattern> expected.")) {
+        if (!CheckExpression(
+                env, getValueRes, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Array<Pattern> expected.")) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue.");
             return napi_invalid_arg;
         }
@@ -926,10 +927,10 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
-    if (!CheckExpression(env, argc > 0, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The number of arguments must be one.") ||
+    if (!CheckExpression(
+            env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. The number of arguments must be one.") ||
         !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The Type of data must be pasteData.")) {
+            "Parameter error. The Type of data must be pasteData.")) {
         return nullptr;
     }
 
@@ -1032,9 +1033,7 @@ SystemPasteboardNapi::SystemPasteboardNapi() : env_(nullptr)
     value_ = std::make_shared<PasteDataNapi>();
 }
 
-SystemPasteboardNapi::~SystemPasteboardNapi()
-{
-}
+SystemPasteboardNapi::~SystemPasteboardNapi() {}
 
 void SystemPasteboardNapi::Destructor(napi_env env, void *nativeObject, void *finalize_hint)
 {
@@ -1131,8 +1130,7 @@ void SystemPasteboardNapi::DeleteObserver(const std::shared_ptr<PasteboardObserv
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "delete observer size: %{public}zu", observers.size());
     for (auto &delObserver : observers) {
-        PasteboardClient::GetInstance()->Unsubscribe(PasteboardObserverType::OBSERVER_LOCAL,
-            delObserver->GetStub());
+        PasteboardClient::GetInstance()->Unsubscribe(PasteboardObserverType::OBSERVER_LOCAL, delObserver->GetStub());
     }
 }
 

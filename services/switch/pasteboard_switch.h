@@ -20,16 +20,18 @@
 #include <functional>
 #include <memory>
 #include <shared_mutex>
+
 #include "data_ability_observer_stub.h"
 
 namespace OHOS::MiscServices {
 class PastedSwitchObserver : public AAFwk::DataAbilityObserverStub {
 public:
     using ObserverCallback = std::function<void()>;
-    explicit PastedSwitchObserver(ObserverCallback func): func_(func) {}
+    explicit PastedSwitchObserver(ObserverCallback func) : func_(func) {}
     ~PastedSwitchObserver() {}
 
     void OnChange() override;
+
 private:
     ObserverCallback func_;
 };
@@ -39,6 +41,7 @@ public:
     PastedSwitch();
     void Init();
     void DeInit();
+
 private:
     void SetSwitch();
     void ReportUeSwitchEvent();

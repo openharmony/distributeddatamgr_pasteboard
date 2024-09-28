@@ -16,9 +16,9 @@
 #ifndef PASTE_BOARD_PATTERN_H
 #define PASTE_BOARD_PATTERN_H
 
+#include <map>
 #include <regex>
 #include <set>
-#include <map>
 
 #include "paste_data.h"
 
@@ -26,13 +26,14 @@ namespace OHOS::MiscServices {
 enum class Pattern : uint32_t { URL = 0, Number, EmailAddress, PatternCount };
 class PatternDetection {
 public:
-    static const std::set<Pattern> Detect(const std::set<Pattern> &patternsToCheck,
-        const PasteData &pasteData, bool hasHTML, bool hasPlain);
+    static const std::set<Pattern> Detect(
+        const std::set<Pattern> &patternsToCheck, const PasteData &pasteData, bool hasHTML, bool hasPlain);
     static bool IsValid(const std::set<Pattern> &patterns);
+
 private:
     static std::string ExtractHtmlContent(const std::string &html_str);
-    static void DetectPlainText(std::set<Pattern> &patternsOut, const std::set<Pattern> &PatternsIn,
-        const std::string &plainText);
+    static void DetectPlainText(
+        std::set<Pattern> &patternsOut, const std::set<Pattern> &PatternsIn, const std::string &plainText);
 
     static std::map<uint32_t, std::string> patterns_;
 };

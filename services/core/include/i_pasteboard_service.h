@@ -16,8 +16,8 @@
 #ifndef PASTE_BOARD_SERVICE_INTERFACE_H
 #define PASTE_BOARD_SERVICE_INTERFACE_H
 
-#include "i_pasteboard_entry_getter.h"
 #include "i_pasteboard_delay_getter.h"
+#include "i_pasteboard_entry_getter.h"
 #include "i_pasteboard_observer.h"
 #include "iremote_broker.h"
 #include "paste_data.h"
@@ -38,8 +38,7 @@ public:
     virtual bool HasDataType(const std::string &mimeType) = 0;
     virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) = 0;
     virtual void SubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) = 0;
-    virtual void UnsubscribeObserver(PasteboardObserverType type,
-        const sptr<IPasteboardChangedObserver> &observer) = 0;
+    virtual void UnsubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) = 0;
     virtual void UnsubscribeAllObserver(PasteboardObserverType type) = 0;
     virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) = 0;
     virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) = 0;

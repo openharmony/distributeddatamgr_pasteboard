@@ -31,13 +31,9 @@ const int ARGC_TYPE_SET0 = 0;
 const int ARGC_TYPE_SET1 = 1;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
-PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr)
-{
-}
+PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr) {}
 
-PasteDataRecordNapi::~PasteDataRecordNapi()
-{
-}
+PasteDataRecordNapi::~PasteDataRecordNapi() {}
 
 bool PasteDataRecordNapi::NewInstanceByRecord(
     napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record)
@@ -336,11 +332,8 @@ napi_value PasteDataRecordNapi::ToPlainText(napi_env env, napi_callback_info inf
 
 napi_value PasteDataRecordNapi::PasteDataRecordInit(napi_env env, napi_value exports)
 {
-    napi_property_descriptor properties[] = {
-        DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
-        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9),
-        DECLARE_NAPI_FUNCTION("toPlainText", ToPlainText)
-    };
+    napi_property_descriptor properties[] = { DECLARE_NAPI_FUNCTION("convertToText", ConvertToText),
+        DECLARE_NAPI_FUNCTION("convertToTextV9", ConvertToTextV9), DECLARE_NAPI_FUNCTION("toPlainText", ToPlainText) };
 
     napi_status status = napi_ok;
 
