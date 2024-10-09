@@ -153,9 +153,8 @@ bool PasteDataRecordNapi::NewKvRecordInstance(
     return true;
 }
 
-bool PasteDataRecordNapi::NewEntryGetterRecordInstance(
-        const std::vector<std::string> mimeTypes, std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter,
-        napi_value &instance)
+bool PasteDataRecordNapi::NewEntryGetterRecordInstance(const std::vector<std::string> mimeTypes,
+    std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter, napi_value &instance)
 {
     if (entryGetter == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "no entry getter");
@@ -638,8 +637,7 @@ UDMF::ValueType PastedataRecordEntryGetterInstance::GetValueByType(const std::st
             return std::monostate{};
         }
         if (entryGetterWork->cv.wait_for(lock, std::chrono::seconds(ENTRY_GETTER_TIMEOUT),
-            [entryGetterWork] { return entryGetterWork->complete; }) &&
-            entryGetterWork->entryValue != nullptr) {
+            [entryGetterWork] { return entryGetterWork->complete; }) && entryGetterWork->entryValue != nullptr) {
             return *(entryGetterWork->entryValue);
         }
         if (!entryGetterWork->complete && uv_cancel((uv_req_t*)work) != 0) {
@@ -656,7 +654,8 @@ UDMF::ValueType PastedataRecordEntryGetterInstance::GetValueByType(const std::st
     return std::monostate{};
 }
 
-UDMF::ValueType PastedataRecordEntryGetterInstance::PastedataRecordEntryGetterImpl::GetValueByType(const std::string &utdId)
+UDMF::ValueType PastedataRecordEntryGetterInstance::PastedataRecordEntryGetterImpl::GetValueByType(
+    const std::string &utdId)
 {
     std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetterInstance(wrapper_.lock());
     if (entryGetterInstance == nullptr) {

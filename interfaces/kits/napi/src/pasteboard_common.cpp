@@ -320,7 +320,8 @@ bool CheckArgsMap(napi_env env, napi_value in,
     return true;
 }
 
-napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &mimeType, std::shared_ptr<PasteDataEntry> value)
+napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &mimeType,
+    std::shared_ptr<PasteDataEntry> value)
 {
     if (value == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "failed to find dataEntry");

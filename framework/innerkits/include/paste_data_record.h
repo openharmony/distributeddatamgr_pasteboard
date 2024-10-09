@@ -174,4 +174,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_RECORD_H
+#endif // PASTE_BOARD_RECORD_H
