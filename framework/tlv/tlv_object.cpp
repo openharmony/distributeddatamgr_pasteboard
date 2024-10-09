@@ -476,10 +476,11 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, AAFwk::Want &
     if (!ReadValue(buffer, rawMem, head)) {
         return false;
     }
-    if (!ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem)) {
+    auto ret = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);
+    if (!ret) {
         return false;
     }
-    value = *(ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem));
+    value = *(ret);
     return true;
 }
 
