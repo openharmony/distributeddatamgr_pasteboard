@@ -136,9 +136,6 @@ struct PasteboardSwitch {
       this.contentHeight = this.screenHeight;
       console.log(TAG + 'screenWidth = ' + this.screenWidth + '; screenHeight = ' + this.screenHeight);
     })
-    if (this.videoController) {
-      this.videoController.start();
-    }
     this.is2in1 = deviceInfo.deviceType === '2in1' ? true : false;
   }
 
@@ -165,13 +162,16 @@ struct PasteboardSwitch {
     })
     this.extContext = localStorage.get<common.UIExtensionContext>('context');
     this.startReason = AppStorage.get<string>('startReason');
-    logger.info(`${TAG} aboutToAppear: startReason is ${this.startReason}`);
-    this.registerFoldStatusListener();
+    this.isShowBack = AppStorage.get<boolean>('isShowBack') ?? true;
+    console.info(`${TAG} aboutToAppear: startReason is ${this.startReason}, isShowBack: ${this.isShowBack}`);
+    if (this.isPhone()) {
+      this.checkFoldBackButton();
+    }
+    this.checkPcPadBackButton();
   }
 
   aboutToDisappear() {
-    logger.info(`${TAG} aboutToDisappear in`);
-    this.unRegisterFoldStatusListener();
+    console.info(`${TAG} aboutToDisappear in`);
   }
 
   getGapLength() {
@@ -380,45 +380,49 @@ struct PasteboardSwitch {
     })
   }
 
+  private checkPcPadBackButton(): void {
+    console.info(`${TAG} checkPcPadBackButton in`);
+    if (this.startReason === 'from_search') {
+      if (deviceInfo.deviceType === '2in1' || deviceInfo.deviceType === 'tablet') {
+        this.isShowBack = false;
+      }
+    }
+  }
+
+  private isPhone(): boolean {
+    console.info(`${TAG} isPhone in`);
+    return (deviceInfo.deviceType === 'phone' || deviceInfo.deviceType === 'default');
+  }
+
   private refreshFoldStatus(foldStatus: display.FoldStatus): void {
-    logger.info(`${TAG} refreshFoldStatus in. foldStatus: ${foldStatus}. startReason: ${this.startReason}`);
+    console.info(`${TAG} refreshFoldStatus in. foldStatus: ${foldStatus}. startReason: ${this.startReason}`);
     if (this.startReason === 'from_search') {
       if (foldStatus === display.FoldStatus.FOLD_STATUS_FOLDED) {
         this.isShowBack = true;
-        logger.info(`${TAG} foldStatus: ${foldStatus}. this.isShowBack: ${this.isShowBack}`);
+        console.info(`${TAG} foldStatus: ${foldStatus}. this.isShowBack: ${this.isShowBack}`);
       } else {
         this.isShowBack = false;
-        logger.info(`${TAG} foldStatus: ${foldStatus}. this.isShowBack: ${this.isShowBack}`);
+        console.info(`${TAG} foldStatus: ${foldStatus}. this.isShowBack: ${this.isShowBack}`);
       }
     } else {
       this.isShowBack = true;
-      logger.info(`${TAG} startReason: ${this.startReason}. this.isShowBack: ${this.isShowBack}`);
+      console.info(`${TAG} startReason: ${this.startReason}. this.isShowBack: ${this.isShowBack}`);
     }
   }
 
-  private registerFoldStatusListener(): void {
-    logger.info(`${TAG} registerFoldStatusListener in`);
+  private checkFoldBackButton(): void {
+    console.info(`${TAG} checkFoldBackButton in`);
     if (display.isFoldable()) {
       try {
-        this.unRegisterFoldStatusListener();
         display.on('foldStatusChange', (foldStatus: display.FoldStatus) => {
           let foldStatusValue = foldStatus.valueOf();
-          logger.info(`${TAG} registerFoldStatusListener: foldStatusValue is ${foldStatusValue}`);
+          console.info(`${TAG} checkFoldBackButton: foldStatusValue is ${foldStatusValue}`);
           this.refreshFoldStatus(foldStatusValue);
         })
+        let data: display.FoldStatus = display.getFoldStatus();
+        this.refreshFoldStatus(data);
       } catch (err) {
-        logger.error(`${TAG} Register failed. exception: ${err.message}`);
-      }
-    }
-  }
-
-  private unRegisterFoldStatusListener(): void {
-    logger.info(`${TAG} unRegisterFoldStatusListener in`);
-    if (display.isFoldable()) {
-      try {
-        display.off('foldStatusChange');
-      } catch (err) {
-        logger.error(`${TAG} unRegisterFoldStatusListener exception: ${err.message}`);
+        console.error(`${TAG} Register failed. exception: ${err.message}`);
       }
     }
   }
