@@ -15,14 +15,14 @@
 
 #ifndef PASTE_DATA_IMPL_H
 #define PASTE_DATA_IMPL_H
- 
+
 #include "ffi_remote_data.h"
-#include "pixel_map_impl.h"
 #include "paste_data.h"
-#include "pasteboard_client.h"
-#include "pasteboard_log.h"
 #include "paste_data_record_impl.h"
+#include "pasteboard_client.h"
 #include "pasteboard_error.h"
+#include "pasteboard_log.h"
+#include "pixel_map_impl.h"
 
 namespace OHOS {
 namespace MiscServicesCj {
@@ -32,7 +32,10 @@ public:
     explicit PasteDataImpl(std::shared_ptr<MiscServices::PasteData> pasteData);
     PasteDataImpl(std::string mimeType, CJValueType value);
     std::shared_ptr<MiscServices::PasteData> GetRealPasteData();
-    OHOS::FFI::RuntimeType *GetRuntimeType() override { return GetClassType(); }
+    OHOS::FFI::RuntimeType *GetRuntimeType() override
+    {
+        return GetClassType();
+    }
 
 private:
     friend class OHOS::FFI::RuntimeType;
@@ -49,7 +52,7 @@ private:
 
 int64_t CreateCjPasteDataObject(std::string mimeType, CJValueType value);
 
-}
-}
- 
+} // namespace MiscServicesCj
+} // namespace OHOS
+
 #endif

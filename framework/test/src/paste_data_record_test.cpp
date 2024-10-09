@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-#include "paste_data_record.h"
-
 #include <gtest/gtest.h>
 
+#include "paste_data_record.h"
 #include "tlv_object.h"
 #include "unified_meta.h"
 
@@ -42,18 +41,18 @@ protected:
     int32_t width_ = 5;
     int32_t height_ = 7;
 
-    void CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>>& entries);
+    void CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>> &entries);
     void CheckPlainUds(const std::shared_ptr<PasteDataEntry> entry);
     void CheckFileUriUds(const std::shared_ptr<PasteDataEntry> entry);
     void CheckPixelMapUds(const std::shared_ptr<PasteDataEntry> entry);
     void CheckHtmlUds(const std::shared_ptr<PasteDataEntry> entry);
     void CheckLinkUds(const std::shared_ptr<PasteDataEntry> entry);
 
-    void AddPlainUdsEntry(PasteDataRecord& record);
-    void AddFileUriUdsEntry(PasteDataRecord& record);
-    void AddHtmlUdsEntry(PasteDataRecord& record);
-    void AddPixelMapUdsEntry(PasteDataRecord& record);
-    void AddLinkUdsEntry(PasteDataRecord& record);
+    void AddPlainUdsEntry(PasteDataRecord &record);
+    void AddFileUriUdsEntry(PasteDataRecord &record);
+    void AddHtmlUdsEntry(PasteDataRecord &record);
+    void AddPixelMapUdsEntry(PasteDataRecord &record);
+    void AddLinkUdsEntry(PasteDataRecord &record);
 };
 
 void PasteDataRecordTest::SetUpTestCase(void) {}
@@ -72,7 +71,7 @@ void PasteDataRecordTest::SetUp(void)
 
 void PasteDataRecordTest::TearDown(void) {}
 
-void PasteDataRecordTest::AddPlainUdsEntry(PasteDataRecord& record)
+void PasteDataRecordTest::AddPlainUdsEntry(PasteDataRecord &record)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     auto object = std::make_shared<Object>();
@@ -81,7 +80,7 @@ void PasteDataRecordTest::AddPlainUdsEntry(PasteDataRecord& record)
     record.AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
 }
 
-void PasteDataRecordTest::AddFileUriUdsEntry(PasteDataRecord& record)
+void PasteDataRecordTest::AddFileUriUdsEntry(PasteDataRecord &record)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
     auto object = std::make_shared<Object>();
@@ -91,7 +90,7 @@ void PasteDataRecordTest::AddFileUriUdsEntry(PasteDataRecord& record)
     record.AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
 }
 
-void PasteDataRecordTest::AddHtmlUdsEntry(PasteDataRecord& record)
+void PasteDataRecordTest::AddHtmlUdsEntry(PasteDataRecord &record)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
     auto object = std::make_shared<Object>();
@@ -100,7 +99,7 @@ void PasteDataRecordTest::AddHtmlUdsEntry(PasteDataRecord& record)
     record.AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
 }
 
-void PasteDataRecordTest::AddLinkUdsEntry(PasteDataRecord& record)
+void PasteDataRecordTest::AddLinkUdsEntry(PasteDataRecord &record)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HYPERLINK);
     auto object = std::make_shared<Object>();
@@ -109,7 +108,7 @@ void PasteDataRecordTest::AddLinkUdsEntry(PasteDataRecord& record)
     record.AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
 }
 
-void PasteDataRecordTest::AddPixelMapUdsEntry(PasteDataRecord& record)
+void PasteDataRecordTest::AddPixelMapUdsEntry(PasteDataRecord &record)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
     auto object = std::make_shared<Object>();
@@ -122,9 +121,9 @@ void PasteDataRecordTest::AddPixelMapUdsEntry(PasteDataRecord& record)
     record.AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
 }
 
-void PasteDataRecordTest::CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>>& entries)
+void PasteDataRecordTest::CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>> &entries)
 {
-    for (auto const& entry : entries) {
+    for (auto const &entry : entries) {
         if (entry->GetUtdId() == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT)) {
             CheckPlainUds(entry);
         }

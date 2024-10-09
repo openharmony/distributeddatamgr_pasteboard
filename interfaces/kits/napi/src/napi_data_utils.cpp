@@ -97,7 +97,11 @@ napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, std::string &ou
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value <- string");
     napi_valuetype type = napi_undefined;
     napi_status status = napi_typeof(env, in, &type);
-    LOG_ERROR_RETURN((status == napi_ok) && (type == napi_string), "invalid type", napi_invalid_arg);
+    if (!((status == napi_ok) && (type == napi_string))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_typeof failed, type=%{public}d status=%{public}d",
+            static_cast<int32_t>(type), status);
+        return napi_invalid_arg;
+    }
 
     size_t maxLen = STR_MAX_LENGTH;
     status = napi_get_value_string_utf8(env, in, NULL, 0, &maxLen);
@@ -131,18 +135,31 @@ napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, std::vector<std
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value -> std::vector<std::string>");
     bool isArray = false;
     napi_is_array(env, in, &isArray);
-    LOG_ERROR_RETURN(isArray, "not an array", napi_invalid_arg);
+    if (!isArray) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_value is not an array");
+        return napi_invalid_arg;
+    }
 
     uint32_t length = 0;
     napi_status status = napi_get_array_length(env, in, &length);
-    LOG_ERROR_RETURN((status == napi_ok) && (length > 0), "get_array failed!", napi_invalid_arg);
+    if (!((status == napi_ok) && (length > 0))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get_array failed, status=%{public}d length=%{public}u",
+            status, length);
+        return napi_invalid_arg;
+    }
     for (uint32_t i = 0; i < length; ++i) {
         napi_value item = nullptr;
         status = napi_get_element(env, in, i, &item);
-        LOG_ERROR_RETURN((item != nullptr) && (status == napi_ok), "no element", napi_invalid_arg);
+        if (!((item != nullptr) && (status == napi_ok))) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_element failed, status=%{public}d", status);
+            return napi_invalid_arg;
+        }
         std::string value;
         status = GetValue(env, item, value);
-        LOG_ERROR_RETURN(status == napi_ok, "not a string", napi_invalid_arg);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_value is nota string, status=%{public}d", status);
+            return napi_invalid_arg;
+        }
         out.push_back(value);
     }
     return status;
@@ -152,13 +169,19 @@ napi_status NapiDataUtils::SetValue(napi_env env, const std::vector<std::string>
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value <- std::vector<std::string>");
     napi_status status = napi_create_array_with_length(env, in.size(), &out);
-    LOG_ERROR_RETURN(status == napi_ok, "create array failed!", status);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "create array failed, status=%{public}d", status);
+        return status;
+    }
     int index = 0;
     for (auto &item : in) {
         napi_value element = nullptr;
         SetValue(env, item, element);
         status = napi_set_element(env, out, index++, element);
-        LOG_ERROR_RETURN((status == napi_ok), "napi_set_element failed!", status);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_set_element failed, status=%{public}d", status);
+            return status;
+        }
     }
     return status;
 }
@@ -177,9 +200,12 @@ napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, std::vector<uin
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI,
         "array type=%{public}d length=%{public}d offset=%{public}d  status=%{public}d",
         (int)type, (int)length, (int)offset, status);
-    LOG_ERROR_RETURN(status == napi_ok, "napi_get_typedarray_info failed!", napi_invalid_arg);
-    LOG_ERROR_RETURN(type == napi_uint8_array, "is not Uint8Array!", napi_invalid_arg);
-    LOG_ERROR_RETURN((length > 0) && (data != nullptr), "invalid data!", napi_invalid_arg);
+    if (!((status == napi_ok) && (length > 0) && (type == napi_uint8_array) && (data != nullptr))) {
+         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI,
+            "array type=%{public}d length=%{public}d offset=%{public}d  status=%{public}d",
+            static_cast<int32_t>(type), static_cast<int32_t>(length), status);
+        return napi_invalid_arg;
+    }
     out.assign(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + length);
     return status;
 }
@@ -187,18 +213,28 @@ napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, std::vector<uin
 napi_status NapiDataUtils::SetValue(napi_env env, const std::vector<uint8_t> &in, napi_value &out)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value <- std::vector<uint8_t> ");
-    LOG_ERROR_RETURN(in.size() > 0, "invalid std::vector<uint8_t>", napi_invalid_arg);
+    if (in.size() <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid std::vector<uint8_t>");
+        return napi_invalid_arg;
+    }
     void *data = nullptr;
     napi_value buffer = nullptr;
     napi_status status = napi_create_arraybuffer(env, in.size(), &data, &buffer);
-    LOG_ERROR_RETURN((status == napi_ok), "create array buffer failed!", status);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "create array buffer failed, status=%{public}d", status);
+        return status;
+    }
 
     if (memcpy_s(data, in.size(), in.data(), in.size()) != EOK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "memcpy_s not EOK");
         return napi_invalid_arg;
     }
     status = napi_create_typedarray(env, napi_uint8_array, in.size(), buffer, 0, &out);
-    LOG_ERROR_RETURN((status == napi_ok), "napi_value <- std::vector<uint8_t> invalid value", status);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI,
+            "napi_value <- std::vector<uint8_t> invalid value, status=%{public}d", status);
+        return status;
+    }
     return status;
 }
 
@@ -209,7 +245,7 @@ napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, std::map<std::s
     (void)(env);
     (void)(in);
     (void)(out);
-    LOG_ERROR_RETURN(false, "std::map<std::string, uint32_t> from napi_value, unsupported!", napi_invalid_arg);
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "std::map<std::string, uint32_t> from napi_value, unsupported!");
     return napi_invalid_arg;
 }
 
@@ -217,7 +253,10 @@ napi_status NapiDataUtils::SetValue(napi_env env, const std::map<std::string, in
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value <- std::map<std::string, int32_t> ");
     napi_status status = napi_create_array_with_length(env, in.size(), &out);
-    LOG_ERROR_RETURN((status == napi_ok), "invalid object", status);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid object, status=%{public}d", status);
+        return status;
+    }
     int index = 0;
     for (const auto &[key, value] : in) {
         napi_value element = nullptr;
@@ -240,7 +279,7 @@ napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, std::map<std::s
     (void)(env);
     (void)(in);
     (void)(out);
-    LOG_ERROR_RETURN(false, "std::map<std::string, int64_t> from napi_value, unsupported!", napi_invalid_arg);
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "std::map<std::string, int64_t> from napi_value, unsupported!");
     return napi_invalid_arg;
 }
 
@@ -248,7 +287,10 @@ napi_status NapiDataUtils::SetValue(napi_env env, const std::map<std::string, in
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value <- std::map<std::string, int64_t> ");
     napi_status status = napi_create_array_with_length(env, in.size(), &out);
-    LOG_ERROR_RETURN((status == napi_ok), "invalid object", status);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid object, status=%{public}d", status);
+        return status;
+    }
     int index = 0;
     for (const auto &[key, value] : in) {
         napi_value element = nullptr;

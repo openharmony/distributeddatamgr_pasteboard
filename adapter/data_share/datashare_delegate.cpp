@@ -13,29 +13,30 @@
  * limitations under the License.
  */
 
+#include <memory>
+#include <string>
+
 #include "datashare_delegate.h"
-#include "pasteboard_hilog.h"
-#include "pasteboard_error.h"
 #include "datashare_predicates.h"
 #include "datashare_result_set.h"
 #include "datashare_values_bucket.h"
 #include "iservice_registry.h"
+#include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 #include "third_party/vixl/src/utils-vixl.h"
-#include <memory>
-#include <string>
 
 namespace OHOS::MiscServices {
-const constexpr char* SETTING_COLUMN_KEYWORD = "KEYWORD";
-const constexpr char* SETTING_COLUMN_VALUE = "VALUE";
-const constexpr char* SETTING_URI_PROXY =
-    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
-constexpr const char* SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
+const constexpr char *SETTING_COLUMN_KEYWORD = "KEYWORD";
+const constexpr char *SETTING_COLUMN_VALUE = "VALUE";
+const constexpr char *SETTING_URI_PROXY = "datashare:///com.ohos.settingsdata/entry/settingsdata/"
+                                          "SETTINGSDATA?Proxy=true";
+constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
 std::mutex DataShareDelegate::mutex_;
 sptr<IRemoteObject> DataShareDelegate::remoteObj_ = nullptr;
-DataShareDelegate* DataShareDelegate::instance_ = nullptr;
-DataShareDelegate& DataShareDelegate::GetInstance()
+DataShareDelegate *DataShareDelegate::instance_ = nullptr;
+DataShareDelegate &DataShareDelegate::GetInstance()
 {
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -81,20 +82,20 @@ bool DataShareDelegate::ReleaseDataShareHelper(std::shared_ptr<DataShare::DataSh
     return true;
 }
 
-int32_t DataShareDelegate::GetValue(const std::string& key, std::string& value)
+int32_t DataShareDelegate::GetValue(const std::string &key, std::string &value)
 {
     auto helper = CreateDataShareHelper();
     if (helper == nullptr) {
         return static_cast<int32_t>(PasteboardError::CREATE_DATASHARE_SERVICE_ERROR);
     }
-    std::vector<std::string> columns = {SETTING_COLUMN_VALUE};
+    std::vector<std::string> columns = { SETTING_COLUMN_VALUE };
     DataShare::DataSharePredicates predicates;
     predicates.EqualTo(SETTING_COLUMN_KEYWORD, key);
     Uri uri = MakeUri(key);
     auto resultSet = helper->Query(uri, predicates, columns);
     ReleaseDataShareHelper(helper);
     if (resultSet == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Query failed key=%{public}s",  key.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Query failed key=%{public}s", key.c_str());
         return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
     }
     int32_t count;
@@ -116,13 +117,13 @@ int32_t DataShareDelegate::GetValue(const std::string& key, std::string& value)
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-Uri DataShareDelegate::MakeUri(const std::string& key)
+Uri DataShareDelegate::MakeUri(const std::string &key)
 {
     Uri uri(std::string(SETTING_URI_PROXY) + "&key=" + key);
     return uri;
 }
 
-int32_t DataShareDelegate::RegisterObserver(const std::string& key, sptr<AAFwk::IDataAbilityObserver> observer)
+int32_t DataShareDelegate::RegisterObserver(const std::string &key, sptr<AAFwk::IDataAbilityObserver> observer)
 {
     auto uri = MakeUri(key);
     auto helper = CreateDataShareHelper();
@@ -135,7 +136,7 @@ int32_t DataShareDelegate::RegisterObserver(const std::string& key, sptr<AAFwk::
     return ERR_OK;
 }
 
-int32_t DataShareDelegate::UnregisterObserver(const std::string& key, sptr<AAFwk::IDataAbilityObserver> observer)
+int32_t DataShareDelegate::UnregisterObserver(const std::string &key, sptr<AAFwk::IDataAbilityObserver> observer)
 {
     auto uri = MakeUri(key);
     auto helper = CreateDataShareHelper();

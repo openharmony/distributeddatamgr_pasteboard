@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-#include "convert_utils.h"
 #include <gtest/gtest.h>
+
+#include "convert_utils.h"
 #include "unified_meta.h"
 
 namespace OHOS::MiscServices {
@@ -57,7 +58,7 @@ PasteDataEntry PasteDataEntryTest::InitPlaintTextEntry()
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     udsObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
     udsObject->value_[UDMF::CONTENT] = text_;
-    return {utdId, udsObject};
+    return { utdId, udsObject };
 }
 
 PasteDataEntry PasteDataEntryTest::InitUriEntry()
@@ -67,7 +68,7 @@ PasteDataEntry PasteDataEntryTest::InitUriEntry()
     udsObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
     udsObject->value_[UDMF::FILE_URI_PARAM] = uri_;
     udsObject->value_[UDMF::FILE_TYPE] = "";
-    return {utdId, udsObject};
+    return { utdId, udsObject };
 }
 
 PasteDataEntry PasteDataEntryTest::InitWantEntry()
@@ -79,7 +80,7 @@ PasteDataEntry PasteDataEntryTest::InitWantEntry()
     int32_t idValue = 123;
     std::string deviceKey = "deviceId_key";
     want->SetParam(idKey, idValue);
-    return {utdId, want};
+    return { utdId, want };
 }
 
 PasteDataEntry PasteDataEntryTest::InitHtmlEntry()
@@ -88,7 +89,7 @@ PasteDataEntry PasteDataEntryTest::InitHtmlEntry()
     auto udsObject = std::make_shared<Object>();
     udsObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
     udsObject->value_[UDMF::HTML_CONTENT] = html_;
-    return {utdId, udsObject};
+    return { utdId, udsObject };
 }
 
 PasteDataEntry PasteDataEntryTest::InitPixelMapEntry()
@@ -101,9 +102,8 @@ PasteDataEntry PasteDataEntryTest::InitPixelMapEntry()
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     udsObject->value_[UDMF::PIXEL_MAP] = pixelMapIn;
-    return {utdId, udsObject};
+    return { utdId, udsObject };
 }
-
 
 void PasteDataEntryTest::CheckPlainUds(const std::shared_ptr<PasteDataEntry> entry)
 {

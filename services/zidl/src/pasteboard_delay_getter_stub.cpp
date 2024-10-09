@@ -14,9 +14,9 @@
 */
 
 #include "ipc_skeleton.h"
+#include "paste_uri_handler.h"
 #include "pasteboard_delay_getter_stub.h"
 #include "pasteboard_error.h"
-#include "paste_uri_handler.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -28,8 +28,8 @@ const PasteboardDelayGetterStub::Handler PasteboardDelayGetterStub::HANDLERS[TRA
 int PasteboardDelayGetterStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "code:%{public}u, callingPid:%{public}d", code,
-                      IPCSkeleton::GetCallingPid());
+    PASTEBOARD_HILOGI(
+        PASTEBOARD_MODULE_SERVICE, "code:%{public}u, callingPid:%{public}d", code, IPCSkeleton::GetCallingPid());
     std::u16string localDescriptor = PasteboardDelayGetterStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (remoteDescriptor != localDescriptor) {

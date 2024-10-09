@@ -16,8 +16,7 @@
 #include "eventcenter/pasteboard_event.h"
 namespace OHOS::MiscServices {
 
-PasteboardEvent::PasteboardEvent(int32_t evtId, std::string networkId)
-    : Event(evtId), networkId_(std::move(networkId))
+PasteboardEvent::PasteboardEvent(int32_t evtId, std::string networkId) : Event(evtId), networkId_(std::move(networkId))
 {
 }
 

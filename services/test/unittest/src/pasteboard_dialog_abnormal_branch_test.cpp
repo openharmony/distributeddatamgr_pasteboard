@@ -12,8 +12,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include <thread>
 #include <gtest/gtest.h>
+#include <thread>
+
 #include "iservice_registry.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_error.h"
@@ -35,21 +36,13 @@ public:
     void TearDown();
 };
 
-void PasteboardDialogAbnormalBranchTest::SetUpTestCase(void)
-{
-}
+void PasteboardDialogAbnormalBranchTest::SetUpTestCase(void) {}
 
-void PasteboardDialogAbnormalBranchTest::TearDownTestCase(void)
-{
-}
+void PasteboardDialogAbnormalBranchTest::TearDownTestCase(void) {}
 
-void PasteboardDialogAbnormalBranchTest::SetUp(void)
-{
-}
+void PasteboardDialogAbnormalBranchTest::SetUp(void) {}
 
-void PasteboardDialogAbnormalBranchTest::TearDown(void)
-{
-}
+void PasteboardDialogAbnormalBranchTest::TearDown(void) {}
 
 /**
 * @tc.name: ShowToastAbnormalTest

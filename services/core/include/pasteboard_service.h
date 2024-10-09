@@ -35,21 +35,21 @@
 #include "common/block_object.h"
 #include "common/concurrent_map.h"
 #include "distributed_module_config.h"
-#include "eventcenter/event_center.h"
-#include "pasteboard_switch.h"
 #include "event_handler.h"
-#include "iremote_object.h"
+#include "eventcenter/event_center.h"
+#include "ffrt_utils.h"
 #include "i_pasteboard_delay_getter.h"
 #include "i_pasteboard_observer.h"
-#include "pasteboard_common_event_subscriber.h"
+#include "input_manager.h"
+#include "iremote_object.h"
 #include "paste_data.h"
+#include "pasteboard_common_event_subscriber.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
-#include "system_ability.h"
+#include "pasteboard_switch.h"
 #include "privacy_kit.h"
-#include "input_manager.h"
-#include "ffrt_utils.h"
 #include "security_level.h"
+#include "system_ability.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -87,6 +87,7 @@ public:
     void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
     bool IsCtrlVProcess(uint32_t callingPid, bool isFocused);
     void Clear();
+
 private:
     static constexpr uint32_t EVENT_TIME_OUT = 2000;
     mutable int32_t windowPid_;
@@ -110,10 +111,10 @@ public:
     virtual bool HasDataType(const std::string &mimeType) override;
     virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
-    virtual void SubscribeObserver(PasteboardObserverType type,
-        const sptr<IPasteboardChangedObserver> &observer) override;
-    virtual void UnsubscribeObserver(PasteboardObserverType type,
-        const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void SubscribeObserver(
+        PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual void UnsubscribeObserver(
+        PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void UnsubscribeAllObserver(PasteboardObserverType type) override;
     virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) override;
     virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
@@ -156,7 +157,8 @@ private:
     public:
         explicit DelayGetterDeathRecipient(int32_t userId, PasteboardService &service);
         virtual ~DelayGetterDeathRecipient() = default;
-        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+
     private:
         int32_t userId_ = ERROR_USERID;
         PasteboardService &service_;
@@ -166,7 +168,8 @@ private:
     public:
         explicit EntryGetterDeathRecipient(int32_t userId, PasteboardService &service);
         virtual ~EntryGetterDeathRecipient() = default;
-        void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+        void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+
     private:
         int32_t userId_ = ERROR_USERID;
         PasteboardService &service_;
@@ -176,14 +179,15 @@ private:
     public:
         struct TaskContext {
             std::atomic<bool> pasting_ = false;
-            ConcurrentMap<uint32_t, std::shared_ptr<BlockObject<bool>>>  getDataBlocks_;
-            std::shared_ptr<PasteDateTime>  data_;
+            ConcurrentMap<uint32_t, std::shared_ptr<BlockObject<bool>>> getDataBlocks_;
+            std::shared_ptr<PasteDateTime> data_;
         };
         using DataTask = std::pair<std::shared_ptr<PasteboardService::RemoteDataTaskManager::TaskContext>, bool>;
         DataTask GetRemoteDataTask(const Event &event);
         void Notify(const Event &event, std::shared_ptr<PasteDateTime> data);
         void ClearRemoteDataTask(const Event &event);
         std::shared_ptr<PasteDateTime> WaitRemoteData(const Event &event);
+
     private:
         std::atomic<uint32_t> mapKey_ = 0;
         std::mutex mutex_;
@@ -208,20 +212,18 @@ private:
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
 
-    int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData,
-        sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+    int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         sptr<IPasteboardEntryGetter> entryGetter = nullptr) override;
-    int32_t SaveData(std::shared_ptr<PasteData>& pasteData,
-        sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+    int32_t SaveData(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         sptr<IPasteboardEntryGetter> entryGetter = nullptr);
-    void HandleDelayDataAndRecord(std::shared_ptr<PasteData> &pasteData,
-        sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter, const AppInfo& appInfo);
+    void HandleDelayDataAndRecord(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter,
+        sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo);
     int32_t PreParePasteData(std::shared_ptr<PasteData> &pasteData, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
     std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
     int32_t GetSdkVersion(uint32_t tokenId);
-    bool IsPermissionGranted(const std::string& perm, uint32_t tokenId);
+    bool IsPermissionGranted(const std::string &perm, uint32_t tokenId);
     int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime);
 
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
@@ -239,8 +241,8 @@ private:
     void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
-    void EstablishP2PLink(const std::string& networkId, const std::string &pasteId);
-    void CloseP2PLink(const std::string& networkId);
+    void EstablishP2PLink(const std::string &networkId, const std::string &pasteId);
+    void CloseP2PLink(const std::string &networkId);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
@@ -293,13 +295,8 @@ private:
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
-    std::map<std::string, int> typeMap_ = {
-        { MIMETYPE_TEXT_PLAIN, PLAIN_INDEX },
-        { MIMETYPE_TEXT_HTML, HTML_INDEX },
-        { MIMETYPE_TEXT_URI, URI_INDEX },
-        { MIMETYPE_TEXT_WANT, WANT_INDEX },
-        { MIMETYPE_PIXELMAP, PIXELMAP_INDEX }
-    };
+    std::map<std::string, int> typeMap_ = { { MIMETYPE_TEXT_PLAIN, PLAIN_INDEX }, { MIMETYPE_TEXT_HTML, HTML_INDEX },
+        { MIMETYPE_TEXT_URI, URI_INDEX }, { MIMETYPE_TEXT_WANT, WANT_INDEX }, { MIMETYPE_PIXELMAP, PIXELMAP_INDEX } };
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
     ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
@@ -307,8 +304,8 @@ private:
     PastedSwitch switch_;
 
     void AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
-    void RemoveSingleObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer,
-        ObserverMap &observerMap);
+    void RemoveSingleObserver(
+        int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveAllObserver(int32_t userId, ObserverMap &observerMap);
     inline bool IsCallerUidValid();
     bool HasLocalDataType(const std::string &mimeType);
@@ -324,7 +321,7 @@ private:
     DistributedModuleConfig moduleConfig_;
     std::vector<std::string> bundles_;
     int32_t uid_ = -1;
-    RemoteDataTaskManager  taskMgr_;
+    RemoteDataTaskManager taskMgr_;
     pid_t setPasteDataUId_ = 0;
     static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;

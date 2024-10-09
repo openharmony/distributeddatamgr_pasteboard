@@ -15,25 +15,24 @@
 
 #include <gtest/gtest.h>
 
-#include "pasteboard_client.h"
-#include "pasteboard_error.h"
-
 #include "application_defined_record.h"
 #include "audio.h"
 #include "folder.h"
 #include "html.h"
 #include "image.h"
 #include "link.h"
+#include "pasteboard_client.h"
+#include "pasteboard_error.h"
+#include "pixel_map.h"
 #include "plain_text.h"
 #include "system_defined_appitem.h"
 #include "system_defined_form.h"
-#include "system_defined_record.h"
 #include "system_defined_pixelmap.h"
+#include "system_defined_record.h"
 #include "text.h"
 #include "unified_data.h"
 #include "unified_record.h"
 #include "video.h"
-#include "pixel_map.h"
 #include "want.h"
 
 using namespace OHOS::AAFwk;
@@ -90,22 +89,16 @@ public:
     }
 };
 
-void PasteboardClientUdmfDelayTest::SetUpTestCase()
-{
-}
+void PasteboardClientUdmfDelayTest::SetUpTestCase() {}
 
-void PasteboardClientUdmfDelayTest::TearDownTestCase()
-{
-}
+void PasteboardClientUdmfDelayTest::TearDownTestCase() {}
 
 void PasteboardClientUdmfDelayTest::SetUp()
 {
     PasteboardClient::GetInstance()->Clear();
 }
 
-void PasteboardClientUdmfDelayTest::TearDown()
-{
-}
+void PasteboardClientUdmfDelayTest::TearDown() {}
 
 void PasteboardClientUdmfDelayTest::SetUnifiedData()
 {
@@ -830,7 +823,6 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetWantDataTest001, TestSize.Level1)
     auto deviceValue1 = (*(want))->GetStringParam("deviceId_key");
     ASSERT_EQ(deviceValue1, "deviceId_value");
 
-
     PasteData pasteData;
     status = PasteboardClient::GetInstance()->GetPasteData(pasteData);
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::E_OK));
@@ -878,4 +870,4 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetPixelMapDataTest001, TestSize.Level1)
     ASSERT_EQ(imageInfo2.size.width, 5);
     ASSERT_EQ(imageInfo2.pixelFormat, PixelFormat::ARGB_8888);
 }
-} // OHOS::Test
+} // namespace OHOS::Test

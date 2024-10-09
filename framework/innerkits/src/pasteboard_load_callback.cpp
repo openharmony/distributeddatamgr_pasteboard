@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "pasteboard_load_callback.h"
 #include "pasteboard_client.h"
+#include "pasteboard_load_callback.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -31,5 +31,5 @@ void PasteboardLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
     PasteboardClient::GetInstance()->LoadSystemAbilityFail();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Load system ability failed!");
 }
-}
+} // namespace MiscServices
 }

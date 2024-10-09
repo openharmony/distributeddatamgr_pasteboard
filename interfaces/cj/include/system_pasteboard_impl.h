@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef SYSTEM_PASTEBOARD_IMPL_H
 #define SYSTEM_PASTEBOARD_IMPL_H
- 
+
 #include "ffi_remote_data.h"
 #include "paste_data_impl.h"
- 
+
 namespace OHOS {
 namespace MiscServicesCj {
 #define PASTEBOARD_SUCCESS 0
@@ -38,7 +38,10 @@ public:
     bool IsRemoteData();
     bool HasDataType(std::string mimeType);
     std::string GetDataSource();
-    OHOS::FFI::RuntimeType *GetRuntimeType() override { return GetClassType(); }
+    OHOS::FFI::RuntimeType *GetRuntimeType() override
+    {
+        return GetClassType();
+    }
 
 private:
     friend class OHOS::FFI::RuntimeType;
@@ -47,8 +50,8 @@ private:
     sptr<PasteDataImpl> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
 };
- 
-}
-}
- 
+
+} // namespace MiscServicesCj
+} // namespace OHOS
+
 #endif

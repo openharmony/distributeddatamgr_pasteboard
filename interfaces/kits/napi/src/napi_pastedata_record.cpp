@@ -39,13 +39,9 @@ const int ARGC_TYPE_SET2 = 2;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 constexpr size_t ENTRY_GETTER_TIMEOUT = 2;
 
-PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr)
-{
-}
+PasteDataRecordNapi::PasteDataRecordNapi() : env_(nullptr) {}
 
-PasteDataRecordNapi::~PasteDataRecordNapi()
-{
-}
+PasteDataRecordNapi::~PasteDataRecordNapi() {}
 
 bool PasteDataRecordNapi::NewInstanceByRecord(
     napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record)

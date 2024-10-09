@@ -18,12 +18,12 @@
 
 namespace OHOS {
 namespace MiscServices {
-void FFRTUtils::SubmitTask(const FFRTTask& task)
+void FFRTUtils::SubmitTask(const FFRTTask &task)
 {
     ffrt::submit(task);
 }
 
-void FFRTUtils::SubmitQueueTasks(const std::vector<FFRTTask>& tasks, FFRTQueue& queue)
+void FFRTUtils::SubmitQueueTasks(const std::vector<FFRTTask> &tasks, FFRTQueue &queue)
 {
     if (tasks.empty()) {
         return;
@@ -33,7 +33,7 @@ void FFRTUtils::SubmitQueueTasks(const std::vector<FFRTTask>& tasks, FFRTQueue& 
     }
 }
 
-FFRTHandle FFRTUtils::SubmitDelayTask(FFRTTask& task, uint32_t delayMs, FFRTQueue& queue)
+FFRTHandle FFRTUtils::SubmitDelayTask(FFRTTask &task, uint32_t delayMs, FFRTQueue &queue)
 {
     using namespace std::chrono;
     milliseconds ms(delayMs);
@@ -41,7 +41,7 @@ FFRTHandle FFRTUtils::SubmitDelayTask(FFRTTask& task, uint32_t delayMs, FFRTQueu
     return queue.submit_h(task, ffrt::task_attr().delay(us.count()));
 }
 
-FFRTHandle FFRTUtils::SubmitDelayTask(FFRTTask& task, uint32_t delayMs, std::shared_ptr<FFRTQueue> queue)
+FFRTHandle FFRTUtils::SubmitDelayTask(FFRTTask &task, uint32_t delayMs, std::shared_ptr<FFRTQueue> queue)
 {
     using namespace std::chrono;
     milliseconds ms(delayMs);
@@ -49,30 +49,26 @@ FFRTHandle FFRTUtils::SubmitDelayTask(FFRTTask& task, uint32_t delayMs, std::sha
     return queue->submit_h(task, ffrt::task_attr().delay(us.count()));
 }
 
-bool FFRTUtils::SubmitTimeoutTask(const FFRTTask& task, uint32_t timeoutMs)
+bool FFRTUtils::SubmitTimeoutTask(const FFRTTask &task, uint32_t timeoutMs)
 {
     ffrt::future<void> future = ffrt::async(task);
     auto status = future.wait_for(std::chrono::milliseconds(timeoutMs));
     return status == ffrt::future_status::ready;
 }
 
-int FFRTUtils::CancelTask(FFRTHandle& handle, FFRTQueue& queue)
+int FFRTUtils::CancelTask(FFRTHandle &handle, FFRTQueue &queue)
 {
     return queue.cancel(handle);
 }
 
-int FFRTUtils::CancelTask(FFRTHandle& handle, std::shared_ptr<FFRTQueue> queue)
+int FFRTUtils::CancelTask(FFRTHandle &handle, std::shared_ptr<FFRTQueue> queue)
 {
     return queue->cancel(handle);
 }
 
-FFRTTimer::FFRTTimer(): queue_("ffrt_timer")
-{
-}
+FFRTTimer::FFRTTimer() : queue_("ffrt_timer") {}
 
-FFRTTimer::FFRTTimer(const char *timer_name): queue_(timer_name)
-{
-}
+FFRTTimer::FFRTTimer(const char *timer_name) : queue_(timer_name) {}
 
 FFRTTimer::~FFRTTimer()
 {
@@ -103,18 +99,18 @@ void FFRTTimer::CancelTimer(const std::string &timerId)
     mutex_.unlock();
 }
 
-void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask& task)
+void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask &task)
 {
     mutex_.lock();
     CancelTimerInner(timerId);
     ++taskId_[timerId];
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Add Task[%{public}u]", timerId.c_str(),
-        taskId_[timerId]);
+    PASTEBOARD_HILOGD(
+        PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Add Task[%{public}u]", timerId.c_str(), taskId_[timerId]);
     FFRTUtils::SubmitTask(task);
     mutex_.unlock();
 }
 
-void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask& task, uint32_t delayMs)
+void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask &task, uint32_t delayMs)
 {
     if (delayMs == 0) {
         return SetTimer(timerId, task);
@@ -152,8 +148,8 @@ void FFRTTimer::CancelAllTimerInner()
 void FFRTTimer::CancelTimerInner(const std::string &timerId)
 {
     if (handleMap_[timerId] != nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Cancel Task[%{public}u]", timerId.c_str(),
-            taskId_[timerId]);
+        PASTEBOARD_HILOGD(
+            PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Cancel Task[%{public}u]", timerId.c_str(), taskId_[timerId]);
         FFRTUtils::CancelTask(handleMap_[timerId], queue_);
         handleMap_[timerId] = nullptr;
     }

@@ -115,22 +115,6 @@ private:
     };
     static constexpr int32_t STR_MAX_SIZE = 256;
 };
-
-#define LOG_ERROR_RETURN(condition, message, retVal)                                                \
-    do {                                                                                            \
-        if (!(condition)) {                                                                         \
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "test (" #condition ") failed: " message); \
-            return retVal;                                                                          \
-        }                                                                                           \
-    } while (0)
-
-#define LOG_ERROR_RETURN_VOID(condition, message)                                                   \
-    do {                                                                                            \
-        if (!(condition)) {                                                                         \
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "test (" #condition ") failed: " message); \
-            return;                                                                                 \
-        }                                                                                           \
-    } while (0)
 } // namespace MiscServicesNapi
 } // namespace OHOS
 #endif // PASTEBOARD_NAPI_DATA_UTILS_H

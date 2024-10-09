@@ -22,17 +22,17 @@ namespace OHOS {
 namespace MiscServices {
 namespace UeReporter {
 using namespace OHOS::HiviewDFX;
-constexpr const char* CROSS_FLAG = "IS_DISTRIBUTED_PASTEBOARD";
+constexpr const char *CROSS_FLAG = "IS_DISTRIBUTED_PASTEBOARD";
 
 constexpr HiviewDFX::HiSysEvent::EventType UE_OPERATION_TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 constexpr HiviewDFX::HiSysEvent::EventType UE_STATUS_TYPE = HiviewDFX::HiSysEvent::EventType::STATISTIC;
 
-constexpr const char* VERSION = "1.0";
+constexpr const char *VERSION = "1.0";
 
-constexpr const char* UE_COPY = "DISTRIBUTED_PASTEBOARD_COPY";
-constexpr const char* UE_PASTE = "DISTRIBUTED_PASTEBOARD_PASTE";
-constexpr const char* UE_SWITCH_STATUS = "PASTEBOARD_SWITCH_STATUS";
-constexpr const char* UE_SWITCH_OPERATION = "PASTEBOARD_SWITCH_OPERATION";
+constexpr const char *UE_COPY = "DISTRIBUTED_PASTEBOARD_COPY";
+constexpr const char *UE_PASTE = "DISTRIBUTED_PASTEBOARD_PASTE";
+constexpr const char *UE_SWITCH_STATUS = "PASTEBOARD_SWITCH_STATUS";
+constexpr const char *UE_SWITCH_OPERATION = "PASTEBOARD_SWITCH_OPERATION";
 
 constexpr const int32_t E_OK_OPERATION = 0;
 
@@ -43,23 +43,19 @@ enum SwitchStatus : std::int32_t {
     SWITCH_OPEN = 1,
 };
 
-#define UE_SWITCH(eventName, eventType, switchStatus, ...)                                        \
-({                                                                                                \
-    HiSysEventWrite(UeReporter::UE_DOMAIN, eventName, eventType,                                  \
-    "PNAMEID", "pasteboard_service", "PVERSIONID", UeReporter::VERSION,                           \
-    "SWITCH_STATUS", switchStatus,                                                                \
-    ##__VA_ARGS__);                                                                               \
-})
+#define UE_SWITCH(eventName, eventType, switchStatus, ...)                                                          \
+    ({                                                                                                              \
+        HiSysEventWrite(UeReporter::UE_DOMAIN, eventName, eventType, "PNAMEID", "pasteboard_service", "PVERSIONID", \
+            UeReporter::VERSION, "SWITCH_STATUS", switchStatus, ##__VA_ARGS__);                                     \
+    })
 
-#define UE_REPORT(eventName, dataType, bundleName, pasteResult, deviceType, ...)                  \
-({                                                                                                \
-    HiSysEventWrite(UeReporter::UE_DOMAIN, eventName, UeReporter::UE_OPERATION_TYPE,              \
-    "PNAMEID", "pasteboard_service", "PVERSIONID", UeReporter::VERSION,                           \
-    "PASTEDATA_TYPE", dataType, "BUNDLE_NAME", bundleName,                                        \
-    "PASTE_RESULT", pasteResult, "DEVICE_TYPE", deviceType,                                       \
-    ##__VA_ARGS__);                                                                               \
-})
-}
-}
-}
+#define UE_REPORT(eventName, dataType, bundleName, pasteResult, deviceType, ...)                                \
+    ({                                                                                                          \
+        HiSysEventWrite(UeReporter::UE_DOMAIN, eventName, UeReporter::UE_OPERATION_TYPE, "PNAMEID",             \
+            "pasteboard_service", "PVERSIONID", UeReporter::VERSION, "PASTEDATA_TYPE", dataType, "BUNDLE_NAME", \
+            bundleName, "PASTE_RESULT", pasteResult, "DEVICE_TYPE", deviceType, ##__VA_ARGS__);                 \
+    })
+} // namespace UeReporter
+} // namespace MiscServices
+} // namespace OHOS
 #endif //DISTRIBUTEDDATAMGR_PASTEBOARD_EVENT_UE_H

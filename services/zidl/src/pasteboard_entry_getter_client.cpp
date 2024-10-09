@@ -14,19 +14,20 @@
 */
 
 #include "convert_utils.h"
-#include "pasteboard_error.h"
 #include "pasteboard_entry_getter_client.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
 using namespace OHOS::UDMF;
 PasteboardEntryGetterClient::PasteboardEntryGetterClient(
-    const std::map<uint32_t, std::shared_ptr<EntryGetter>> entryGetters) : entryGetters_(entryGetters)
+    const std::map<uint32_t, std::shared_ptr<EntryGetter>> entryGetters)
+    : entryGetters_(entryGetters)
 {
 }
 
-int32_t PasteboardEntryGetterClient::GetRecordValueByType(uint32_t recordId, PasteDataEntry& value)
+int32_t PasteboardEntryGetterClient::GetRecordValueByType(uint32_t recordId, PasteDataEntry &value)
 {
     auto it = entryGetters_.find(recordId);
     if (it == entryGetters_.end()) {

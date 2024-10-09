@@ -22,13 +22,13 @@
 #include <string>
 #include <vector>
 
+#include "parcel.h"
 #include "paste_data_record.h"
 #include "pasteboard_hilog.h"
 #include "tlv_object.h"
 #include "uri.h"
 #include "want.h"
 #include "want_params.h"
-#include "parcel.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -38,7 +38,7 @@ struct API_EXPORT PasteDataProperty : public TLVObject {
     PasteDataProperty() = default;
     ~PasteDataProperty();
     explicit PasteDataProperty(const PasteDataProperty &property);
-    PasteDataProperty& operator=(const PasteDataProperty &property);
+    PasteDataProperty &operator=(const PasteDataProperty &property);
     AAFwk::WantParams additions;
     std::vector<std::string> mimeTypes;
     std::string tag;
@@ -63,7 +63,7 @@ public:
     PasteData();
     ~PasteData();
     PasteData(const PasteData &data);
-    PasteData& operator=(const PasteData &data);
+    PasteData &operator=(const PasteData &data);
     explicit PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records);
 
     void AddHtmlRecord(const std::string &html);
@@ -132,7 +132,7 @@ public:
     void SetDataId(uint32_t dataId);
     uint32_t GetDataId() const;
     bool Marshalling(Parcel &parcel) const override;
-    static PasteData* Unmarshalling(Parcel &parcel);
+    static PasteData *Unmarshalling(Parcel &parcel);
     void SetPasteId(const std::string &pasteId);
     std::string GetPasteId() const;
     std::string GetDeviceId() const;
@@ -168,7 +168,6 @@ private:
     using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
     std::map<uint16_t, Func> decodeMap_;
     void InitDecodeMap();
-
 };
 } // namespace MiscServices
 } // namespace OHOS

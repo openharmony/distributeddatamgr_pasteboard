@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
-#include "convert_utils.h"
-
 #include <gtest/gtest.h>
 #include <paste_data.h>
 #include <unified_data.h>
 
+#include "convert_utils.h"
 #include "paste_data_entry.h"
 #include "tlv_object.h"
 #include "unified_meta.h"
@@ -45,7 +44,7 @@ protected:
     std::vector<uint8_t> rawData1_ = { 1, 2, 3, 4, 5, 6, 7, 8 };
     std::vector<uint8_t> rawData2_ = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-    void CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>>& entries);
+    void CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>> &entries);
     void CheckPlainUds(const std::shared_ptr<PasteDataEntry> entry);
     void CheckFileUriUds(const std::shared_ptr<PasteDataEntry> entry);
     void CheckPixelMapUds(const std::shared_ptr<PasteDataEntry> entry);
@@ -53,23 +52,23 @@ protected:
     void CheckLinkUds(const std::shared_ptr<PasteDataEntry> entry);
     void CheckCustomEntry(const std::shared_ptr<PasteDataEntry> entry);
 
-    void InitDataWithEntries(UDMF::UnifiedData& data);
-    void InitDataWithPlainEntry(UDMF::UnifiedData& data);
-    void InitDataWithHtmlEntry(UDMF::UnifiedData& data);
-    void InitDataWithFileUriEntry(UDMF::UnifiedData& data);
-    void InitDataWithPixelMapEntry(UDMF::UnifiedData& data);
-    void InitDataWitCustomEntry(UDMF::UnifiedData& data);
-    void InitDataWitSameCustomEntry(UDMF::UnifiedData& data);
+    void InitDataWithEntries(UDMF::UnifiedData &data);
+    void InitDataWithPlainEntry(UDMF::UnifiedData &data);
+    void InitDataWithHtmlEntry(UDMF::UnifiedData &data);
+    void InitDataWithFileUriEntry(UDMF::UnifiedData &data);
+    void InitDataWithPixelMapEntry(UDMF::UnifiedData &data);
+    void InitDataWitCustomEntry(UDMF::UnifiedData &data);
+    void InitDataWitSameCustomEntry(UDMF::UnifiedData &data);
 
-    void AddPlainUdsEntry(UDMF::UnifiedRecord& record);
-    void AddFileUriUdsEntry(UDMF::UnifiedRecord& record);
-    void AddHtmlUdsEntry(UDMF::UnifiedRecord& record);
-    void AddPixelMapUdsEntry(UDMF::UnifiedRecord& record);
-    void AddLinkUdsEntry(UDMF::UnifiedRecord& record);
-    void AddCustomEntry(UDMF::UnifiedRecord& record);
-    void AddCustomEntries(UDMF::UnifiedRecord& record);
+    void AddPlainUdsEntry(UDMF::UnifiedRecord &record);
+    void AddFileUriUdsEntry(UDMF::UnifiedRecord &record);
+    void AddHtmlUdsEntry(UDMF::UnifiedRecord &record);
+    void AddPixelMapUdsEntry(UDMF::UnifiedRecord &record);
+    void AddLinkUdsEntry(UDMF::UnifiedRecord &record);
+    void AddCustomEntry(UDMF::UnifiedRecord &record);
+    void AddCustomEntries(UDMF::UnifiedRecord &record);
 
-    static PasteData TlvData(const std::shared_ptr<PasteData>& data);
+    static PasteData TlvData(const std::shared_ptr<PasteData> &data);
 };
 
 void ConvertUtilsTest::SetUpTestCase(void) {}
@@ -80,7 +79,7 @@ void ConvertUtilsTest::SetUp(void) {}
 
 void ConvertUtilsTest::TearDown(void) {}
 
-PasteData ConvertUtilsTest::TlvData(const std::shared_ptr<PasteData>& data)
+PasteData ConvertUtilsTest::TlvData(const std::shared_ptr<PasteData> &data)
 {
     std::vector<std::uint8_t> buffer;
     data->Init(buffer);
@@ -90,7 +89,7 @@ PasteData ConvertUtilsTest::TlvData(const std::shared_ptr<PasteData>& data)
     return decodePasteData;
 }
 
-void ConvertUtilsTest::AddPlainUdsEntry(UDMF::UnifiedRecord& record)
+void ConvertUtilsTest::AddPlainUdsEntry(UDMF::UnifiedRecord &record)
 {
     Object plainUds;
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
@@ -99,7 +98,7 @@ void ConvertUtilsTest::AddPlainUdsEntry(UDMF::UnifiedRecord& record)
     record.AddEntry(utdId, std::make_shared<Object>(plainUds));
 }
 
-void ConvertUtilsTest::AddFileUriUdsEntry(UDMF::UnifiedRecord& record)
+void ConvertUtilsTest::AddFileUriUdsEntry(UDMF::UnifiedRecord &record)
 {
     Object fileUriobject;
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
@@ -109,7 +108,7 @@ void ConvertUtilsTest::AddFileUriUdsEntry(UDMF::UnifiedRecord& record)
     record.AddEntry(utdId, std::make_shared<Object>(fileUriobject));
 }
 
-void ConvertUtilsTest::AddHtmlUdsEntry(UDMF::UnifiedRecord& record)
+void ConvertUtilsTest::AddHtmlUdsEntry(UDMF::UnifiedRecord &record)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
     Object htmlobject;
@@ -118,7 +117,7 @@ void ConvertUtilsTest::AddHtmlUdsEntry(UDMF::UnifiedRecord& record)
     record.AddEntry(utdId, std::make_shared<Object>(htmlobject));
 }
 
-void ConvertUtilsTest::AddLinkUdsEntry(UDMF::UnifiedRecord& record)
+void ConvertUtilsTest::AddLinkUdsEntry(UDMF::UnifiedRecord &record)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HYPERLINK);
     Object linkObject;
@@ -127,18 +126,18 @@ void ConvertUtilsTest::AddLinkUdsEntry(UDMF::UnifiedRecord& record)
     record.AddEntry(utdId, std::make_shared<Object>(linkObject));
 }
 
-void ConvertUtilsTest::AddCustomEntry(UDMF::UnifiedRecord& record)
+void ConvertUtilsTest::AddCustomEntry(UDMF::UnifiedRecord &record)
 {
     record.AddEntry(appUtdId1_, rawData1_);
 }
 
-void ConvertUtilsTest::AddCustomEntries(UDMF::UnifiedRecord& record)
+void ConvertUtilsTest::AddCustomEntries(UDMF::UnifiedRecord &record)
 {
     record.AddEntry(appUtdId1_, rawData1_);
     record.AddEntry(appUtdId2_, rawData2_);
 }
 
-void ConvertUtilsTest::AddPixelMapUdsEntry(UDMF::UnifiedRecord& record)
+void ConvertUtilsTest::AddPixelMapUdsEntry(UDMF::UnifiedRecord &record)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
     Object object;
@@ -151,7 +150,7 @@ void ConvertUtilsTest::AddPixelMapUdsEntry(UDMF::UnifiedRecord& record)
     record.AddEntry(utdId, std::make_shared<Object>(object));
 }
 
-void ConvertUtilsTest::InitDataWithPlainEntry(UDMF::UnifiedData& data)
+void ConvertUtilsTest::InitDataWithPlainEntry(UDMF::UnifiedData &data)
 {
     std::shared_ptr<UDMF::UnifiedRecord> record = std::make_shared<UDMF::UnifiedRecord>();
     AddPlainUdsEntry(*record);
@@ -162,7 +161,7 @@ void ConvertUtilsTest::InitDataWithPlainEntry(UDMF::UnifiedData& data)
     ASSERT_EQ(1, entriesSize);
 }
 
-void ConvertUtilsTest::InitDataWithHtmlEntry(UDMF::UnifiedData& data)
+void ConvertUtilsTest::InitDataWithHtmlEntry(UDMF::UnifiedData &data)
 {
     std::shared_ptr<UDMF::UnifiedRecord> record = std::make_shared<UDMF::UnifiedRecord>();
     AddHtmlUdsEntry(*record);
@@ -173,7 +172,7 @@ void ConvertUtilsTest::InitDataWithHtmlEntry(UDMF::UnifiedData& data)
     ASSERT_EQ(1, entriesSize);
 }
 
-void ConvertUtilsTest::InitDataWithFileUriEntry(UDMF::UnifiedData& data)
+void ConvertUtilsTest::InitDataWithFileUriEntry(UDMF::UnifiedData &data)
 {
     std::shared_ptr<UDMF::UnifiedRecord> record = std::make_shared<UDMF::UnifiedRecord>();
     AddFileUriUdsEntry(*record);
@@ -184,7 +183,7 @@ void ConvertUtilsTest::InitDataWithFileUriEntry(UDMF::UnifiedData& data)
     ASSERT_EQ(1, entriesSize);
 }
 
-void ConvertUtilsTest::InitDataWithPixelMapEntry(UDMF::UnifiedData& data)
+void ConvertUtilsTest::InitDataWithPixelMapEntry(UDMF::UnifiedData &data)
 {
     std::shared_ptr<UDMF::UnifiedRecord> record = std::make_shared<UDMF::UnifiedRecord>();
     AddPixelMapUdsEntry(*record);
@@ -195,7 +194,7 @@ void ConvertUtilsTest::InitDataWithPixelMapEntry(UDMF::UnifiedData& data)
     ASSERT_EQ(1, entriesSize);
 }
 
-void ConvertUtilsTest::InitDataWitCustomEntry(UDMF::UnifiedData& data)
+void ConvertUtilsTest::InitDataWitCustomEntry(UDMF::UnifiedData &data)
 {
     std::shared_ptr<UDMF::UnifiedRecord> record = std::make_shared<UDMF::UnifiedRecord>();
     AddCustomEntry(*record);
@@ -206,7 +205,7 @@ void ConvertUtilsTest::InitDataWitCustomEntry(UDMF::UnifiedData& data)
     ASSERT_EQ(1, entriesSize);
 }
 
-void ConvertUtilsTest::InitDataWitSameCustomEntry(UDMF::UnifiedData& data)
+void ConvertUtilsTest::InitDataWitSameCustomEntry(UDMF::UnifiedData &data)
 {
     std::shared_ptr<UDMF::UnifiedRecord> record = std::make_shared<UDMF::UnifiedRecord>();
     AddCustomEntry(*record);
@@ -218,7 +217,7 @@ void ConvertUtilsTest::InitDataWitSameCustomEntry(UDMF::UnifiedData& data)
     ASSERT_EQ(1, entriesSize);
 }
 
-void ConvertUtilsTest::InitDataWithEntries(UDMF::UnifiedData& data)
+void ConvertUtilsTest::InitDataWithEntries(UDMF::UnifiedData &data)
 {
     std::shared_ptr<UDMF::UnifiedRecord> record = std::make_shared<UDMF::UnifiedRecord>();
     AddPlainUdsEntry(*record);
@@ -233,9 +232,9 @@ void ConvertUtilsTest::InitDataWithEntries(UDMF::UnifiedData& data)
     ASSERT_EQ(1, size);
 }
 
-void ConvertUtilsTest::CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>>& entries)
+void ConvertUtilsTest::CheckEntries(const std::vector<std::shared_ptr<PasteDataEntry>> &entries)
 {
-    for (auto const& entry : entries) {
+    for (auto const &entry : entries) {
         if (entry->GetUtdId() == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT)) {
             CheckPlainUds(entry);
         } else if (entry->GetUtdId() == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI)) {

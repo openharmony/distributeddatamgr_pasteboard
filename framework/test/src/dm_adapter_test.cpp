@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
+#include <gtest/gtest.h>
+
 #include "device/dm_adapter.h"
 #include "distributed_clip.h"
-#include <gtest/gtest.h>
 #include "pasteboard_error.h"
 
 namespace OHOS::MiscServices {
@@ -28,21 +29,13 @@ public:
     void TearDown();
 };
 
-void DMAdapterTest::SetUpTestCase(void)
-{
-}
+void DMAdapterTest::SetUpTestCase(void) {}
 
-void DMAdapterTest::TearDownTestCase(void)
-{
-}
+void DMAdapterTest::TearDownTestCase(void) {}
 
-void DMAdapterTest::SetUp(void)
-{
-}
+void DMAdapterTest::SetUp(void) {}
 
-void DMAdapterTest::TearDown(void)
-{
-}
+void DMAdapterTest::TearDown(void) {}
 
 /**
 * @tc.name: GetLocalDeviceUdid
@@ -138,4 +131,4 @@ HWTEST_F(DMAdapterTest, IsSameAccount, TestSize.Level0)
     bool ret = DMAdapter::GetInstance().IsSameAccount(networkId);
     ASSERT_FALSE(ret);
 }
-}
+} // namespace OHOS::MiscServices

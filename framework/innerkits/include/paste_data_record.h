@@ -91,25 +91,26 @@ public:
     void SetGrantUriPermission(bool hasPermission);
     bool HasGrantUriPermission();
 
-    void SetTextContent(const std::string& content);
+    void SetTextContent(const std::string &content);
     std::string GetTextContent() const;
-    void SetDetails(const Details& details);
+    void SetDetails(const Details &details);
     std::shared_ptr<Details> GetDetails() const;
-    void SetSystemDefinedContent(const Details& contents);
+    void SetSystemDefinedContent(const Details &contents);
     std::shared_ptr<Details> GetSystemDefinedContent() const;
     int32_t GetUDType() const;
     void SetUDType(int32_t type);
 
     bool IsEmpty() const;
-    void SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue);
+    void SetUDMFValue(const std::shared_ptr<EntryValue> &udmfValue);
     std::shared_ptr<EntryValue> GetUDMFValue();
-    void AddEntry(const std::string& utdType, std::shared_ptr<PasteDataEntry> value);
-    void AddEntryByMimeType(const std::string& mimeType, std::shared_ptr<PasteDataEntry> value);
-    std::shared_ptr<PasteDataEntry> GetEntry(const std::string& utdType);
-    std::shared_ptr<PasteDataEntry> GetEntryByMimeType(const std::string& mimeType);
+
+    void AddEntry(const std::string &utdType, std::shared_ptr<PasteDataEntry> value);
+    void AddEntryByMimeType(const std::string &mimeType, std::shared_ptr<PasteDataEntry> value);
+    std::shared_ptr<PasteDataEntry> GetEntry(const std::string &utdType);
+    std::shared_ptr<PasteDataEntry> GetEntryByMimeType(const std::string &mimeType);
     std::vector<std::shared_ptr<PasteDataEntry>> GetEntries() const;
-    std::vector<std::string> GetValidTypes(const std::vector<std::string>& types) const;
-    std::vector<std::string> GetValidMimeTypes(const std::vector<std::string>& mimeTypes) const;
+    std::vector<std::string> GetValidTypes(const std::vector<std::string> &types) const;
+    std::vector<std::string> GetValidMimeTypes(const std::vector<std::string> &mimeTypes) const;
 
     void SetDelayRecordFlag(bool isDelay);
     bool IsDelayRecord() const;

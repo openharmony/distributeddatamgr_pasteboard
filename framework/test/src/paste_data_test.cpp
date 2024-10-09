@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+* Copyright (c) 2023-2024 Huawei Device Co., Ltd.
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
@@ -12,17 +12,18 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include <cstdio>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "copy_uri_handler.h"
-#include "common/block_object.h"
 #include "clip/clip_plugin.h"
 #include "clip_factory.h"
+#include "common/block_object.h"
+#include "copy_uri_handler.h"
 #include "int_wrapper.h"
 #include "paste_uri_handler.h"
 #include "pasteboard_client.h"
 #include "remote_file_share.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -39,21 +40,13 @@ public:
     void TearDown();
 };
 
-void PasteDataTest::SetUpTestCase(void)
-{
-}
+void PasteDataTest::SetUpTestCase(void) {}
 
-void PasteDataTest::TearDownTestCase(void)
-{
-}
+void PasteDataTest::TearDownTestCase(void) {}
 
-void PasteDataTest::SetUp(void)
-{
-}
+void PasteDataTest::SetUp(void) {}
 
-void PasteDataTest::TearDown(void)
-{
-}
+void PasteDataTest::TearDown(void) {}
 
 ClipFactory::ClipFactory()
 {
@@ -102,6 +95,74 @@ HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
     data.ReplaceShareUri(200);
     std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
     EXPECT_EQ(mockUri2, data.GetPrimaryUri()->ToString());
+}
+
+/**
+* @tc.name: IsFileTest001
+* @tc.desc: is file
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteDataTest, IsFileTest001, TestSize.Level0)
+{
+    const CopyUriHandler cpyUriHandler;
+    std::string uri = "";
+    bool result = cpyUriHandler.IsFile(uri);
+    EXPECT_FALSE(result);
+
+    std::string path = "/data/local/tmp/pasteboardtest/";
+    std::string fileName = "uttest.txt";
+    uri = path + fileName;
+    int res = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+    if (res == 0) {
+        FILE *file = fopen(uri.c_str(), "w+");
+        if (file) {
+            result = cpyUriHandler.IsFile(uri);
+            EXPECT_TRUE(result);
+            fclose(file);
+        }
+
+        uri = path;
+        result = cpyUriHandler.IsFile(uri);
+        EXPECT_FALSE(result);
+        (void)remove(path.c_str());
+    }
+}
+
+/**
+* @tc.name: ToFdTest001
+* @tc.desc: uri convert to fd
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteDataTest, ToFdTest001, TestSize.Level0)
+{
+    CopyUriHandler cpyUriHandler;
+    std::string path = "/data/local/tmp/pasteboardTest/";
+    int32_t result = cpyUriHandler.ToFd(path, true);
+    EXPECT_TRUE(result == INVALID_FD);
+
+    PasteData::sharePath = "";
+    int res = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+    if (res == 0) {
+        result = cpyUriHandler.ToFd(path, true);
+        EXPECT_TRUE(result == INVALID_FD);
+
+        std::string fileName = "unittest.txt";
+        std::string uri = path + fileName;
+        FILE *file = fopen(uri.c_str(), "w+");
+        if (file) {
+            GTEST_LOG_(INFO) << "File creation succeed!";
+            result = cpyUriHandler.ToFd(uri, false);
+            EXPECT_TRUE(result == INVALID_FD);
+
+            result = cpyUriHandler.ToFd(uri, true);
+            EXPECT_TRUE(result >= 0);
+            cpyUriHandler.ReleaseFd(result);
+            fclose(file);
+        }
+        (void)remove(path.c_str());
+    } else {
+        EXPECT_TRUE(result == INVALID_FD);
+    }
 }
 
 /**
@@ -276,8 +337,7 @@ HWTEST_F(PasteDataTest, MaxLength001, TestSize.Level0)
     int maxLength = 20 * 1024 * 1024;
     std::string res = "hello";
     std::string temp = "world";
-    for (int i = 0; i < maxLength; i++)
-    {
+    for (int i = 0; i < maxLength; i++) {
         res += temp;
     }
     std::string htmlText = "<div class='disabled'>" + res + "</div>";
@@ -297,8 +357,7 @@ HWTEST_F(PasteDataTest, MaxLength002, TestSize.Level0)
     int maxLength = 20 * 1024 * 1024;
     std::string plainText = "hello";
     std::string temp = "world";
-    for (int i = 0; i < maxLength; i++)
-    {
+    for (int i = 0; i < maxLength; i++) {
         plainText += temp;
     }
     auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord(plainText);
@@ -422,7 +481,7 @@ HWTEST_F(PasteDataTest, GetPasteDataMsg002, TestSize.Level0)
     ASSERT_TRUE(primaryUri == nullptr);
     auto record = newPasteData->GetRecordAt(1);
     ASSERT_TRUE(record == nullptr);
-    auto res1 =  newPasteData->RemoveRecordAt(1);
+    auto res1 = newPasteData->RemoveRecordAt(1);
     ASSERT_FALSE(res1);
     std::string mimeType = "text/plain";
     ASSERT_FALSE(newPasteData->HasMimeType(mimeType));

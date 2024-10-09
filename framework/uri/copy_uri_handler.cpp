@@ -12,11 +12,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "copy_uri_handler.h"
-
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "copy_uri_handler.h"
 #include "errors.h"
 #include "os_account_manager.h"
 #include "pasteboard_hilog.h"

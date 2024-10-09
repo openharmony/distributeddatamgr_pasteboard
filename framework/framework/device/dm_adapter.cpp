@@ -13,9 +13,8 @@
  * limitations under the License.
  */
 #include "device/dm_adapter.h"
-
-#include "pasteboard_hilog.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 #ifdef PB_DEVICE_MANAGER_ENABLE
 #include "device_manager.h"
 #include "device_manager_callback.h"
@@ -30,7 +29,7 @@ public:
     DmStateObserver(const std::function<void(const DmDeviceInfo &)> online,
         const std::function<void(const DmDeviceInfo &)> onReady,
         const std::function<void(const DmDeviceInfo &)> offline)
-        :online_(std::move(online)), onReady_(std::move(onReady)), offline_(std::move(offline))
+        : online_(std::move(online)), onReady_(std::move(onReady)), offline_(std::move(offline))
     {
     }
 
@@ -45,7 +44,7 @@ public:
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
     {
-        if (offline_ == nullptr)  {
+        if (offline_ == nullptr) {
             return;
         }
         offline_(deviceInfo);
@@ -93,13 +92,9 @@ private:
 };
 #endif
 
-DMAdapter::DMAdapter()
-{
-}
+DMAdapter::DMAdapter() {}
 
-DMAdapter::~DMAdapter()
-{
-}
+DMAdapter::~DMAdapter() {}
 
 DMAdapter &DMAdapter::GetInstance()
 {
@@ -110,34 +105,38 @@ DMAdapter &DMAdapter::GetInstance()
 bool DMAdapter::Initialize(const std::string &pkgName)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
-    auto stateObserver = std::make_shared<DmStateObserver>([this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
-            DMAdapter::GetInstance().SetDevices();
-            value->Online(deviceInfo.networkId);
-            return false;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [this](const DmDeviceInfo &deviceInfo) {
+            observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
+                DMAdapter::GetInstance().SetDevices();
+                value->Online(deviceInfo.networkId);
+                return false;
+            });
+        },
+        [this](const DmDeviceInfo &deviceInfo) {
+            observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
+                value->OnReady(deviceInfo.networkId);
+                return false;
+            });
+        },
+        [this](const DmDeviceInfo &deviceInfo) {
+            observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
+                DMAdapter::GetInstance().SetDevices();
+                value->Offline(deviceInfo.networkId);
+                return false;
+            });
         });
-    }, [this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
-            value->OnReady(deviceInfo.networkId);
-            return false;
-        });
-    }, [this](const DmDeviceInfo &deviceInfo) {
-        observers_.ForEachCopies([&deviceInfo](auto &key, auto &value) {
-            DMAdapter::GetInstance().SetDevices();
-            value->Offline(deviceInfo.networkId);
-            return false;
-        });
-    });
     pkgName_ = pkgName + NAME_EX;
     auto deathObserver = std::make_shared<DmDeath>(stateObserver, pkgName_);
     deathObserver->OnRemoteDied();
+    SetDevices();
 #endif
     return false;
 }
 
 void DMAdapter::DeInitialize()
 {
-    auto& deviceManager = DeviceManager::GetInstance();
+    auto &deviceManager = DeviceManager::GetInstance();
     deviceManager.UnRegisterDevStateCallback(pkgName_);
     deviceManager.UnInitDeviceManager(pkgName_);
 }

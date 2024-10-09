@@ -13,9 +13,8 @@
 * limitations under the License.
 */
 
-#include "paste_data_entry.h"
-
 #include "common/constant.h"
+#include "paste_data_entry.h"
 #include "pasteboard_hilog.h"
 #include "pixel_map.h"
 #include "tlv_object.h"
@@ -37,18 +36,18 @@ std::map<std::string, std::vector<uint8_t>> MineCustomData::GetItemData()
     return this->itemData_;
 }
 
-void MineCustomData::AddItemData(const std::string& mimeType, const std::vector<uint8_t>& arrayBuffer)
+void MineCustomData::AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
 {
     itemData_.emplace(mimeType, arrayBuffer);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "itemData_.size = %{public}zu", itemData_.size());
 }
 
-bool MineCustomData::Encode(std::vector<std::uint8_t>& buffer)
+bool MineCustomData::Encode(std::vector<std::uint8_t> &buffer)
 {
     return Write(buffer, TAG_ITEM_DATA, itemData_);
 }
 
-bool MineCustomData::Decode(const std::vector<std::uint8_t>& buffer)
+bool MineCustomData::Decode(const std::vector<std::uint8_t> &buffer)
 {
     for (; IsEnough();) {
         TLVHead head{};
@@ -73,12 +72,12 @@ size_t MineCustomData::Count()
     return TLVObject::Count(itemData_);
 }
 
-PasteDataEntry::PasteDataEntry(const PasteDataEntry& entry)
+PasteDataEntry::PasteDataEntry(const PasteDataEntry &entry)
     : utdId_(entry.utdId_), mimeType_(entry.mimeType_), value_(entry.value_)
 {
 }
 
-PasteDataEntry& PasteDataEntry::operator=(const PasteDataEntry& entry)
+PasteDataEntry &PasteDataEntry::operator=(const PasteDataEntry &entry)
 {
     if (this == &entry) {
         return *this;
@@ -89,17 +88,17 @@ PasteDataEntry& PasteDataEntry::operator=(const PasteDataEntry& entry)
     return *this;
 }
 
-PasteDataEntry::PasteDataEntry(const std::string& utdId, const EntryValue& value) : utdId_(utdId), value_(value)
+PasteDataEntry::PasteDataEntry(const std::string &utdId, const EntryValue &value) : utdId_(utdId), value_(value)
 {
     mimeType_ = CommonUtils::Convert2MimeType(utdId_);
 }
 
-PasteDataEntry::PasteDataEntry(const std::string& utdId, const std::string& mimeType, const EntryValue& value)
+PasteDataEntry::PasteDataEntry(const std::string &utdId, const std::string &mimeType, const EntryValue &value)
     : utdId_(utdId), mimeType_(std::move(mimeType)), value_(std::move(value))
 {
 }
 
-void PasteDataEntry::SetUtdId(const std::string& utdId)
+void PasteDataEntry::SetUtdId(const std::string &utdId)
 {
     utdId_ = utdId;
 }
@@ -109,7 +108,7 @@ std::string PasteDataEntry::GetUtdId() const
     return utdId_;
 }
 
-void PasteDataEntry::SetMimeType(const std::string& mimeType)
+void PasteDataEntry::SetMimeType(const std::string &mimeType)
 {
     mimeType_ = mimeType;
 }
@@ -124,12 +123,12 @@ EntryValue PasteDataEntry::GetValue() const
     return value_;
 }
 
-void PasteDataEntry::SetValue(const EntryValue& value)
+void PasteDataEntry::SetValue(const EntryValue &value)
 {
     value_ = value;
 }
 
-bool PasteDataEntry::Encode(std::vector<std::uint8_t>& buffer)
+bool PasteDataEntry::Encode(std::vector<std::uint8_t> &buffer)
 {
     bool ret = Write(buffer, TAG_ENTRY_UTDID, utdId_);
     ret = ret && Write(buffer, TAG_ENTRY_MIMETYPE, mimeType_);
@@ -137,7 +136,7 @@ bool PasteDataEntry::Encode(std::vector<std::uint8_t>& buffer)
     return ret;
 }
 
-bool PasteDataEntry::Decode(const std::vector<std::uint8_t>& buffer)
+bool PasteDataEntry::Decode(const std::vector<std::uint8_t> &buffer)
 {
     for (; IsEnough();) {
         TLVHead head{};
@@ -167,13 +166,13 @@ bool PasteDataEntry::Decode(const std::vector<std::uint8_t>& buffer)
     return true;
 }
 
-bool PasteDataEntry::Marshalling(std::vector<std::uint8_t>& buffer)
+bool PasteDataEntry::Marshalling(std::vector<std::uint8_t> &buffer)
 {
     Init(buffer);
     return Encode(buffer);
 }
 
-bool PasteDataEntry::Unmarshalling(const std::vector<std::uint8_t>& buffer)
+bool PasteDataEntry::Unmarshalling(const std::vector<std::uint8_t> &buffer)
 {
     total_ = buffer.size();
     return Decode(buffer);
@@ -308,12 +307,28 @@ std::shared_ptr<MineCustomData> PasteDataEntry::ConvertToCustomData() const
         customdata.AddItemData(GetMimeType(), std::get<std::vector<uint8_t>>(entry));
         return std::make_shared<MineCustomData>(customdata);
     }
-    // deal u8 only, object not surpport
-    if (std::holds_alternative<std::shared_ptr<Object>>(entry)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value not surpport, object");
+    if (!std::holds_alternative<std::shared_ptr<Object>>(entry)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error,  utdId:%{public}s", utdId_.c_str());
+        return nullptr;
     }
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error,  utdId:%{public}s", GetUtdId().c_str());
-    return nullptr;
+    auto object = std::get<std::shared_ptr<Object>>(entry);
+    std::string objecType;
+    if (!object->GetValue(UDMF::UNIFORM_DATA_TYPE, objecType)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type error, utdId:%{public}s", utdId_.c_str());
+        return nullptr;
+    }
+    if (objecType != GetUtdId()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type diff error, utdId:%{public}s, objecType:%{public}s",
+            utdId_.c_str(), objecType.c_str());
+        return nullptr;
+    }
+    std::vector<uint8_t> recordValue;
+    if (!object->GetValue(UDMF::ARRAY_BUFFER, recordValue)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get value error, utdId:%{public}s", utdId_.c_str());
+        return nullptr;
+    }
+    customdata.AddItemData(objecType, recordValue);
+    return std::make_shared<MineCustomData>(customdata);
 }
 
 std::string CommonUtils::Convert(UDType uDType)
@@ -340,7 +355,7 @@ std::string CommonUtils::Convert(UDType uDType)
     }
 }
 
-std::string CommonUtils::Convert2MimeType(const std::string& utdId)
+std::string CommonUtils::Convert2MimeType(const std::string &utdId)
 {
     if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::PLAIN_TEXT) ||
         utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HYPERLINK)) {
@@ -362,7 +377,7 @@ std::string CommonUtils::Convert2MimeType(const std::string& utdId)
 }
 
 // other is appdefined-types
-std::string CommonUtils::Convert2UtdId(int32_t uDType, const std::string& mimeType)
+std::string CommonUtils::Convert2UtdId(int32_t uDType, const std::string &mimeType)
 {
     if (mimeType == MIMETYPE_TEXT_PLAIN && uDType == UDMF::HYPERLINK) {
         return UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HYPERLINK);
@@ -385,7 +400,7 @@ std::string CommonUtils::Convert2UtdId(int32_t uDType, const std::string& mimeTy
     return mimeType;
 }
 
-UDMF::UDType CommonUtils::Convert(int32_t uDType, const std::string& mimeType)
+UDMF::UDType CommonUtils::Convert(int32_t uDType, const std::string &mimeType)
 {
     if (uDType != UDMF::UD_BUTT) {
         return static_cast<UDType>(uDType);

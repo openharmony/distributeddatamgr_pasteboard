@@ -28,7 +28,7 @@ PasteboardEntryGetterProxy::PasteboardEntryGetterProxy(const sptr<IRemoteObject>
 {
 }
 
-int32_t PasteboardEntryGetterProxy::MakeRequest(uint32_t recordId, PasteDataEntry& value, MessageParcel& request)
+int32_t PasteboardEntryGetterProxy::MakeRequest(uint32_t recordId, PasteDataEntry &value, MessageParcel &request)
 {
     if (!request.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write descriptor failed");
@@ -54,7 +54,7 @@ int32_t PasteboardEntryGetterProxy::MakeRequest(uint32_t recordId, PasteDataEntr
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, PasteDataEntry& value)
+int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, PasteDataEntry &value)
 {
     MessageParcel request;
     auto res = MakeRequest(recordId, value, request);

@@ -15,9 +15,9 @@
 
 #define LOG_TAG "Pasteboard_Observer_Impl"
 
+#include "oh_pasteboard_common.h"
 #include "oh_pasteboard_observer_impl.h"
 #include "pasteboard_hilog.h"
-#include "oh_pasteboard_common.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -40,9 +40,9 @@ Pasteboard_NotifyType PasteboardObserverCapiImpl::GetType()
     return type_;
 }
 
-void PasteboardObserverCapiImpl::SetInnerObserver(const OH_PasteboardObserver* innerObserver)
+void PasteboardObserverCapiImpl::SetInnerObserver(const OH_PasteboardObserver *innerObserver)
 {
     innerObserver_ = innerObserver;
 }
-}
+} // namespace MiscServices
 }

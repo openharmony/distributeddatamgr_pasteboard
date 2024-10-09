@@ -13,8 +13,9 @@
  * limitations under the License.
  */
 
-#include "pasteboard_ffi.h"
 #include <securec.h>
+
+#include "pasteboard_ffi.h"
 
 using namespace OHOS::FFI;
 using namespace OHOS::Media;
@@ -24,7 +25,7 @@ using namespace OHOS::MiscServicesCj;
 namespace OHOS {
 namespace CJSystemapi {
 extern "C" {
-RetDataI64 FfiOHOSCreateStringPasteData(const char* mimeType, const char* value)
+RetDataI64 FfiOHOSCreateStringPasteData(const char *mimeType, const char *value)
 {
     LOGI("[PasteData] FfiOHOSCreateStringPasteData");
     RetDataI64 ret;
@@ -39,7 +40,7 @@ RetDataI64 FfiOHOSCreateStringPasteData(const char* mimeType, const char* value)
     return ret;
 }
 
-RetDataI64 FfiOHOSCreatePixelMapPasteData(const char* mimeType, int64_t pixelMapId)
+RetDataI64 FfiOHOSCreatePixelMapPasteData(const char *mimeType, int64_t pixelMapId)
 {
     LOGI("[PasteData] FfiOHOSCreatePixelMapPasteData");
     RetDataI64 ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
@@ -58,7 +59,7 @@ RetDataI64 FfiOHOSCreatePixelMapPasteData(const char* mimeType, int64_t pixelMap
     return ret;
 }
 
-RetDataI64 FfiOHOSCreateArrayBufPasteData(const char* mimeType, uint8_t *buffPtr, int64_t bufferSize)
+RetDataI64 FfiOHOSCreateArrayBufPasteData(const char *mimeType, uint8_t *buffPtr, int64_t bufferSize)
 {
     LOGI("[PasteData] FfiOHOSCreateArrayBufPasteData");
     RetDataI64 ret;
@@ -74,10 +75,10 @@ RetDataI64 FfiOHOSCreateArrayBufPasteData(const char* mimeType, uint8_t *buffPtr
     return ret;
 }
 
-char *PasteBoardMallocCString(const std::string& origin)
+char *PasteBoardMallocCString(const std::string &origin)
 {
     auto len = origin.length() + 1;
-    char* res = static_cast<char*>(malloc(sizeof(char) * len));
+    char *res = static_cast<char *>(malloc(sizeof(char) * len));
     if (res == nullptr) {
         return nullptr;
     }
@@ -102,15 +103,15 @@ void FillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRec
     retPtr->pixelMap = ERR_INVALID_INSTANCE_CODE;
     if (record->GetHtmlText() != nullptr) {
         std::string resHtmlText = *(record->GetHtmlText());
-        retPtr->htmlText =  PasteBoardMallocCString(resHtmlText);
+        retPtr->htmlText = PasteBoardMallocCString(resHtmlText);
     }
     if (!record->GetMimeType().empty()) {
         std::string resMimeType = record->GetMimeType();
-        retPtr->mimeType =  PasteBoardMallocCString(resMimeType);
+        retPtr->mimeType = PasteBoardMallocCString(resMimeType);
     }
     if (record->GetPlainText() != nullptr) {
         std::string resPlainText = *(record->GetPlainText());
-        retPtr->plainText =  PasteBoardMallocCString(resPlainText);
+        retPtr->plainText = PasteBoardMallocCString(resPlainText);
     }
     if (record->GetUri() != nullptr) {
         std::string resUri = record->GetUri()->ToString();
@@ -125,7 +126,7 @@ void FillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRec
     retPtr->pixelMap = nativeImage->GetID();
 }
 
-RetDataI64 FfiOHOSCreateStringPasteDataRecord(const char* mimeType, const char* value, CPasteDataRecord *retPtr)
+RetDataI64 FfiOHOSCreateStringPasteDataRecord(const char *mimeType, const char *value, CPasteDataRecord *retPtr)
 {
     LOGI("[PasteDataRecord] FfiOHOSCreateStringPasteDataRecord");
     RetDataI64 ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
@@ -150,7 +151,7 @@ RetDataI64 FfiOHOSCreateStringPasteDataRecord(const char* mimeType, const char* 
     return ret;
 }
 
-RetDataI64 FfiOHOSCreatePixelMapPasteDataRecord(const char* mimeType, int64_t pixelMapId, CPasteDataRecord *retPtr)
+RetDataI64 FfiOHOSCreatePixelMapPasteDataRecord(const char *mimeType, int64_t pixelMapId, CPasteDataRecord *retPtr)
 {
     LOGI("[PasteDataRecord] FfiOHOSCreateStringPasteDataRecord");
     RetDataI64 ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
@@ -180,8 +181,8 @@ RetDataI64 FfiOHOSCreatePixelMapPasteDataRecord(const char* mimeType, int64_t pi
     return ret;
 }
 
-RetDataI64 FfiOHOSCreateArrayBufPasteDataRecord(const char* mimeType, uint8_t *buffPtr, int64_t bufferSize,
-                                                CPasteDataRecord *retPtr)
+RetDataI64 FfiOHOSCreateArrayBufPasteDataRecord(
+    const char *mimeType, uint8_t *buffPtr, int64_t bufferSize, CPasteDataRecord *retPtr)
 {
     LOGI("[PasteDataRecord] FfiOHOSCreateArrayBufPasteDataRecord");
     RetDataI64 ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
@@ -222,7 +223,7 @@ RetDataCString FfiOHOSPasteDataGetPrimaryText(int64_t id)
         LOGE("[PasteData] GetPrimaryText: pasteData not exist");
         return ret;
     }
-    
+
     std::shared_ptr<std::string> p = pasteData->GetPrimaryText();
     if (p != nullptr) {
         ret.data = PasteBoardMallocCString(*p);
@@ -383,9 +384,9 @@ RetDataCString FfiOHOSPasteDataGetPrimaryMimeType(int64_t id)
     return ret;
 }
 
-static char** VectorToCArrString(std::vector<std::string> &vec)
+static char **VectorToCArrString(std::vector<std::string> &vec)
 {
-    char** result = new char* [vec.size()];
+    char **result = new char *[vec.size()];
     if (result == nullptr) {
         return nullptr;
     }
@@ -458,8 +459,8 @@ static std::vector<std::string> CArrStringToVector(CArrString src)
     return res;
 }
 
-int32_t FfiOHOSPasteDataSetProperty(int64_t id, CArrString mimeTypes, const char* tag,
-                                    int64_t timestamp, bool localOnly, int32_t shareOption)
+int32_t FfiOHOSPasteDataSetProperty(
+    int64_t id, CArrString mimeTypes, const char *tag, int64_t timestamp, bool localOnly, int32_t shareOption)
 {
     LOGI("[PasteData] FfiOHOSPasteDataSetProperty start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
@@ -516,7 +517,7 @@ RetDataCString FfiOHOSPasteDataGetTag(int64_t id)
     return ret;
 }
 
-RetDataBool FfiOHOSPasteDataHasType(int64_t id, const char* mimeTypes)
+RetDataBool FfiOHOSPasteDataHasType(int64_t id, const char *mimeTypes)
 {
     LOGI("[PasteData] FfiOHOSPasteDataHasType start");
     RetDataBool ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = false };
@@ -569,8 +570,7 @@ int32_t FfiOHOSPasteDataAddRecord(int64_t id, int64_t recordId)
     return SUCCESS_CODE;
 }
 
-
-int32_t FfiOHOSPasteDataAddMimeTypeRecord(int64_t id, const char* mimeType, const char* value)
+int32_t FfiOHOSPasteDataAddMimeTypeRecord(int64_t id, const char *mimeType, const char *value)
 {
     LOGI("[PasteData] FfiOHOSPasteDataAddMimeTypeRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
@@ -600,7 +600,7 @@ int32_t FfiOHOSPasteDataAddMimeTypeRecord(int64_t id, const char* mimeType, cons
     return SUCCESS_CODE;
 }
 
-int32_t FfiOHOSPasteDataAddPixelMapRecord(int64_t id, const char* mimeType, int64_t pixelMapId)
+int32_t FfiOHOSPasteDataAddPixelMapRecord(int64_t id, const char *mimeType, int64_t pixelMapId)
 {
     LOGI("[PasteData] FfiOHOSPasteDataAddPixelMapRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
@@ -631,7 +631,7 @@ int32_t FfiOHOSPasteDataAddPixelMapRecord(int64_t id, const char* mimeType, int6
     return SUCCESS_CODE;
 }
 
-int32_t FfiOHOSPasteDataAddArrayRecord(int64_t id, const char* mimeType, uint8_t *buffPtr, int64_t bufferSize)
+int32_t FfiOHOSPasteDataAddArrayRecord(int64_t id, const char *mimeType, uint8_t *buffPtr, int64_t bufferSize)
 {
     LOGI("[PasteData] FfiOHOSPasteDataAddArrayRecord start");
     auto instance = FFIData::GetData<PasteDataImpl>(id);
@@ -650,8 +650,8 @@ int32_t FfiOHOSPasteDataAddArrayRecord(int64_t id, const char* mimeType, uint8_t
         return ERR_INVALID_INSTANCE_CODE;
     }
 
-    pasteData->AddKvRecord(types,
-        std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
+    pasteData->AddKvRecord(
+        types, std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen));
     LOGI("[PasteData] FfiOHOSPasteDataAddArrayRecord success");
 
     return SUCCESS_CODE;
@@ -747,7 +747,7 @@ RetDataUI FfiOHOSPasteDataGetRecordCount(int64_t id)
         return ret;
     }
 
-    ret.data = pasteData ->GetRecordCount();
+    ret.data = pasteData->GetRecordCount();
     ret.code = SUCCESS_CODE;
     LOGI("[PasteData] FfiOHOSPasteDataGetRecordCount success");
 
@@ -930,7 +930,7 @@ RetDataBool FfiOHOSSystemPasteboardIsRemoteData(int64_t id)
     return ret;
 }
 
-RetDataBool FfiOHOSSystemPasteboardHasDataType(int64_t id, const char* mimeType)
+RetDataBool FfiOHOSSystemPasteboardHasDataType(int64_t id, const char *mimeType)
 {
     RetDataBool ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = false };
     LOGI("[SystemPasteboard] FfiOHOSSystemPasteboardHasDataType start");
@@ -968,5 +968,5 @@ RetDataCString FfiOHOSSystemPasteboardGetDataSource(int64_t id)
     return ret;
 }
 }
-}
-}
+} // namespace CJSystemapi
+} // namespace OHOS

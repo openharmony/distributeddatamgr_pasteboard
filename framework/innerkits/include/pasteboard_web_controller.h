@@ -31,10 +31,10 @@ namespace MiscServices {
 
 class API_EXPORT PasteboardWebController : public RefBase {
 public:
-    PasteboardWebController() {};
-    ~PasteboardWebController() {};
+    PasteboardWebController(){};
+    ~PasteboardWebController(){};
 
-    static PasteboardWebController& GetInstance();
+    static PasteboardWebController &GetInstance();
 
     std::shared_ptr<PasteData> SplitHtml(std::shared_ptr<std::string> html) noexcept;
     std::shared_ptr<std::string> RebuildHtml(std::shared_ptr<PasteData> pasteData) noexcept;
@@ -43,11 +43,11 @@ private:
     std::vector<std::pair<std::string, uint32_t>> SplitHtmlWithImgLabel(
         const std::shared_ptr<std::string> html) noexcept;
     std::map<std::string, std::vector<uint8_t>> SplitHtmlWithImgSrcLabel(
-        const std::vector<std::pair<std::string, uint32_t>>& matchVec) noexcept;
+        const std::vector<std::pair<std::string, uint32_t>> &matchVec) noexcept;
     std::shared_ptr<PasteData> BuildPasteData(
-        std::shared_ptr<std::string> html, const std::map<std::string, std::vector<uint8_t>>& imgSrcMap) noexcept;
+        std::shared_ptr<std::string> html, const std::map<std::string, std::vector<uint8_t>> &imgSrcMap) noexcept;
     void RemoveAllRecord(std::shared_ptr<PasteData> pasteData) noexcept;
-    bool IsLocalURI(std::string& uri) noexcept;
+    bool IsLocalURI(std::string &uri) noexcept;
 };
 } // namespace MiscServices
 } // namespace OHOS

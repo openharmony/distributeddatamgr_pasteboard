@@ -16,8 +16,9 @@
 #ifndef PASTE_BOARD_DEV_PROFILE_H
 #define PASTE_BOARD_DEV_PROFILE_H
 
-#include "api/visibility.h"
 #include <functional>
+
+#include "api/visibility.h"
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
 #include "distributed_device_profile_client.h"
 #include "profile_change_listener_stub.h"
@@ -39,7 +40,7 @@ public:
     void Watch(Observer observer);
     static constexpr const uint32_t FIRST_VERSION = 4;
 
-    #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     class SubscribeDPChangeListener : public DistributedDeviceProfile::ProfileChangeListenerStub {
     public:
         SubscribeDPChangeListener();
@@ -61,7 +62,7 @@ public:
         int32_t OnCharacteristicProfileUpdate(const DistributedDeviceProfile::CharacteristicProfile &oldProfile,
             const DistributedDeviceProfile::CharacteristicProfile &newProfile) override;
     };
-    #endif
+#endif
 
 private:
     DevProfile();
@@ -69,10 +70,9 @@ private:
     void Notify(bool isEnable);
     std::mutex callbackMutex_;
     Observer observer_ = nullptr;
-    #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::map<std::string, DistributedDeviceProfile::SubscribeInfo> subscribeInfoCache_;
-    #endif // PB_DEVICE_INFO_MANAGER_ENABLE
-
+#endif // PB_DEVICE_INFO_MANAGER_ENABLE
 };
 } // namespace MiscServices
 } // namespace OHOS

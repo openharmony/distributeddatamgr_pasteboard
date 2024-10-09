@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
-#include "eventcenter/event_center.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include "eventcenter/event_center.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -30,15 +31,15 @@ public:
     };
     class TestBegin : public Event {
     public:
-        TestBegin(): Event(TEST_EVT_BEGIN) {};
+        TestBegin() : Event(TEST_EVT_BEGIN){};
     };
     class TestMiddle : public Event {
     public:
-        TestMiddle(): Event(TEST_EVT_MIDDLE) {};
+        TestMiddle() : Event(TEST_EVT_MIDDLE){};
     };
     class TestEnd : public Event {
     public:
-        TestEnd(): Event(TEST_EVT_END) {};
+        TestEnd() : Event(TEST_EVT_END){};
     };
     static void SetUpTestCase(void) {}
     static void TearDownTestCase(void) {}
@@ -134,7 +135,6 @@ HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
     ASSERT_EQ(currEvent_, TEST_EVT_UNKNOWN);
     ASSERT_EQ(waitEvent_, TEST_EVT_BEGIN);
 }
-
 
 /**
 * @tc.name: ImmediatelyASyncEvent

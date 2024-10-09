@@ -24,9 +24,11 @@ class PasteBoardCommonEventSubscriber : public EventFwk::CommonEventSubscriber {
 public:
     PasteBoardCommonEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo)
         : EventFwk::CommonEventSubscriber(subscribeInfo)
-    {}
+    {
+    }
     ~PasteBoardCommonEventSubscriber() = default;
     void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
+
 private:
     std::mutex mutex_;
 };

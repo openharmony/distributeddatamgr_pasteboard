@@ -29,9 +29,7 @@ std::vector<DefaultClip::GlobalEvent> DefaultClip::GetTopEvents(uint32_t topN, i
     return std::vector<GlobalEvent>();
 }
 
-void DefaultClip::Clear(int32_t user)
-{
-}
+void DefaultClip::Clear(int32_t user) {}
 
 int32_t DefaultClip::PublishServiceState(const std::string &networkId, ServiceStatus status)
 {

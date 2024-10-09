@@ -122,7 +122,7 @@ bool FuzzFfRTTimerSingleSetAndCancel(const uint8_t *rawData, size_t size)
     FFRTTask task = [&] {
         m /= 2;
     };
-    
+
     string timerId(reinterpret_cast<const char*>(rawData + pos), size - pos);
     FFRTTimer ffrtTimer;
     ffrtTimer.SetTimer(timerId, task);

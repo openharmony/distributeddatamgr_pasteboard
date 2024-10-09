@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "tlv_object.h"
-
 #include "securec.h"
+#include "tlv_object.h"
 #include "unified_meta.h"
 #include "want.h"
 namespace OHOS::MiscServices {
@@ -27,7 +26,7 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::mon
     cursor_ += sizeof(TLVHead);
     return true;
 }
-bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, void* value)
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, void *value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
@@ -125,7 +124,7 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Ob
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
-    for (const auto& [key, val] : value.value_) {
+    for (const auto &[key, val] : value.value_) {
         if (!Write(buffer, TAG_MAP_KEY, key)) {
             return false;
         }
@@ -157,13 +156,13 @@ bool TLVObject::Write(
 }
 
 template<typename _InTp>
-bool TLVObject::WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, uint32_t step, const _InTp &input)
+bool TLVObject::WriteVariant(std::vector<std::uint8_t> &buffer, uint16_t type, uint32_t step, const _InTp &input)
 {
     return true;
 }
 
 template<typename _InTp, typename _First, typename... _Rest>
-bool TLVObject::WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, uint32_t step, const _InTp &input)
+bool TLVObject::WriteVariant(std::vector<std::uint8_t> &buffer, uint16_t type, uint32_t step, const _InTp &input)
 {
     if (step == input.index()) {
         auto val = std::get<_First>(input);
@@ -173,7 +172,7 @@ bool TLVObject::WriteVariant(std::vector<std::uint8_t>& buffer, uint16_t type, u
 }
 
 template<typename... _Types>
-bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const std::variant<_Types...> &input)
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::variant<_Types...> &input)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
@@ -192,7 +191,7 @@ bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const st
 }
 
 template<>
-bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const EntryValue& input)
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const EntryValue &input)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
@@ -206,13 +205,13 @@ bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const En
         return false;
     }
     WriteVariant<decltype(input), std::monostate, int32_t, int64_t, double, bool, std::string, std::vector<uint8_t>,
-        std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>,
-        nullptr_t>(buffer, TAG_VARIANT_VALUE, 0, input);
+        std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>, nullptr_t>(
+        buffer, TAG_VARIANT_VALUE, 0, input);
     WriteHead(buffer, type, tagCursor, cursor_ - valueCursor);
     return true;
 }
 
-bool TLVObject::Write(std::vector<std::uint8_t>& buffer, uint16_t type, const Details& value)
+bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Details &value)
 {
     if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
         return false;
@@ -373,15 +372,15 @@ bool TLVObject::ReadValue(
 }
 
 template<typename _OutTp>
-bool TLVObject::ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t step, uint32_t index, _OutTp& output,
-    const TLVHead& head)
+bool TLVObject::ReadVariant(
+    const std::vector<std::uint8_t> &buffer, uint32_t step, uint32_t index, _OutTp &output, const TLVHead &head)
 {
     return true;
 }
 
 template<typename _OutTp, typename _First, typename... _Rest>
-bool TLVObject::ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t step, uint32_t index, _OutTp& value,
-    const TLVHead& head)
+bool TLVObject::ReadVariant(
+    const std::vector<std::uint8_t> &buffer, uint32_t step, uint32_t index, _OutTp &value, const TLVHead &head)
 {
     if (step == index) {
         TLVHead valueHead{};
@@ -395,7 +394,7 @@ bool TLVObject::ReadVariant(const std::vector<std::uint8_t>& buffer, uint32_t st
 }
 
 template<typename... _Types>
-bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, std::variant<_Types...>& value, const TLVHead& head)
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::variant<_Types...> &value, const TLVHead &head)
 {
     TLVHead valueHead{};
     ReadHead(buffer, valueHead);
@@ -407,7 +406,7 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, std::variant<
 }
 
 template<>
-bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, EntryValue& value, const TLVHead& head)
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, EntryValue &value, const TLVHead &head)
 {
     TLVHead valueHead{};
     ReadHead(buffer, valueHead);
@@ -415,12 +414,13 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, EntryValue& v
     if (!ReadValue(buffer, index, valueHead)) {
         return false;
     }
-    return ReadVariant<decltype(value), std::monostate, int32_t, int64_t, double, bool, std::string,
-        std::vector<uint8_t>, std::shared_ptr<OHOS::AAFwk::Want>, std::shared_ptr<OHOS::Media::PixelMap>,
-        std::shared_ptr<Object>, nullptr_t>(buffer, 0, index, value, valueHead);
+    return ReadVariant<decltype(value), std::monostate, int32_t, int64_t, double, bool,
+        std::string, std::vector<uint8_t>, std::shared_ptr<OHOS::AAFwk::Want>,
+        std::shared_ptr<OHOS::Media::PixelMap>, std::shared_ptr<Object>, nullptr_t>(
+        buffer, 0, index, value, valueHead);
 }
 
-bool TLVObject::ReadValue(const std::vector<std::uint8_t>& buffer, Details& value, const TLVHead& head)
+bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, Details &value, const TLVHead &head)
 {
     auto mapEnd = cursor_ + head.len;
     while (cursor_ < mapEnd) {
@@ -480,8 +480,8 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, AAFwk::Want &
     return true;
 }
 
-bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::shared_ptr<Media::PixelMap> &value,
-    const TLVHead &head)
+bool TLVObject::ReadValue(
+    const std::vector<std::uint8_t> &buffer, std::shared_ptr<Media::PixelMap> &value, const TLVHead &head)
 {
     std::vector<std::uint8_t> u8Value;
     if (!ReadValue(buffer, u8Value, head)) {
@@ -513,7 +513,7 @@ std::shared_ptr<Media::PixelMap> TLVObject::Vector2PixelMap(std::vector<std::uin
     if (value.size() == 0) {
         return nullptr;
     }
-    return std::shared_ptr<Media::PixelMap> (Media::PixelMap::DecodeTlv(value));
+    return std::shared_ptr<Media::PixelMap>(Media::PixelMap::DecodeTlv(value));
 }
 
 std::vector<std::uint8_t> TLVObject::PixelMap2Vector(std::shared_ptr<Media::PixelMap> pixelMap)

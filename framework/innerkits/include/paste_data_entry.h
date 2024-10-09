@@ -25,9 +25,9 @@ class API_EXPORT MineCustomData : public TLVObject {
 public:
     MineCustomData() = default;
     std::map<std::string, std::vector<uint8_t>> GetItemData();
-    void AddItemData(const std::string& mimeType, const std::vector<uint8_t>& arrayBuffer);
-    bool Encode(std::vector<std::uint8_t>& buffer) override;
-    bool Decode(const std::vector<std::uint8_t>& buffer) override;
+    void AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
+    bool Encode(std::vector<std::uint8_t> &buffer) override;
+    bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
 
 private:
@@ -38,10 +38,10 @@ class API_EXPORT PasteDataEntry : public TLVObject {
 public:
     using UDType = UDMF::UDType;
     PasteDataEntry() = default;
-    PasteDataEntry(const PasteDataEntry& entry);
-    PasteDataEntry& operator=(const PasteDataEntry& entry);
-    PasteDataEntry(const std::string& utdId, const EntryValue& value);
-    PasteDataEntry(const std::string& utdId, const std::string& mimeType, const EntryValue& value);
+    PasteDataEntry(const PasteDataEntry &entry);
+    PasteDataEntry &operator=(const PasteDataEntry &entry);
+    PasteDataEntry(const std::string &utdId, const EntryValue &value);
+    PasteDataEntry(const std::string &utdId, const std::string &mimeType, const EntryValue &value);
 
     std::shared_ptr<std::string> ConvertToPlianText() const;
     std::shared_ptr<std::string> ConvertToHtml() const;
@@ -50,18 +50,19 @@ public:
     std::shared_ptr<Media::PixelMap> ConvertToPixelMap() const;
     std::shared_ptr<MineCustomData> ConvertToCustomData() const;
 
-    void SetValue(const EntryValue& value);
+    void SetValue(const EntryValue &value);
     EntryValue GetValue() const;
-    void SetUtdId(const std::string& utdId);
+    void SetUtdId(const std::string &utdId);
     std::string GetUtdId() const;
-    void SetMimeType(const std::string& mimeType);
+    void SetMimeType(const std::string &mimeType);
     std::string GetMimeType() const;
-    bool Encode(std::vector<std::uint8_t>& buffer) override;
-    bool Decode(const std::vector<std::uint8_t>& buffer) override;
+    bool Encode(std::vector<std::uint8_t> &buffer) override;
+    bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
 
-    bool Marshalling(std::vector<std::uint8_t>& buffer);
-    bool Unmarshalling(const std::vector<std::uint8_t>& buffer);
+    bool Marshalling(std::vector<std::uint8_t> &buffer);
+    bool Unmarshalling(const std::vector<std::uint8_t> &buffer);
+
 private:
     std::string utdId_;
     std::string mimeType_; // pasteboard mimeType
@@ -72,9 +73,9 @@ class API_EXPORT CommonUtils {
 public:
     using UDType = UDMF::UDType;
     static std::string Convert(UDType uDType);
-    static std::string Convert2MimeType(const std::string& utdId);
-    static UDType Convert(int32_t uDType, const std::string& mimeType);
-    static std::string Convert2UtdId(int32_t uDType, const std::string& mimeType);
+    static std::string Convert2MimeType(const std::string &utdId);
+    static UDType Convert(int32_t uDType, const std::string &mimeType);
+    static std::string Convert2UtdId(int32_t uDType, const std::string &mimeType);
 };
 } // namespace MiscServices
 } // namespace OHOS

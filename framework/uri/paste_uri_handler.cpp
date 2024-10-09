@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 #include "paste_uri_handler.h"
-
 #include "pasteboard_hilog.h"
 #include "remote_uri.h"
 namespace OHOS::MiscServices {

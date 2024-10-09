@@ -140,8 +140,9 @@ public:
         }
         std::lock_guard<decltype(mutex_)> lock(mutex_);
 #if __cplusplus > 201703L
-        auto count = std::erase_if(
-            entries_, [&action](value_type &value) -> bool { return action(value.first, value.second); });
+        auto count = std::erase_if(entries_, [&action](value_type &value) -> bool {
+            return action(value.first, value.second);
+        });
 #else
         auto count = entries_.size();
         for (auto it = entries_.begin(); it != entries_.end();) {

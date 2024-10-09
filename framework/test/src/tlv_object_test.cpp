@@ -13,10 +13,11 @@
 * limitations under the License.
 */
 
-#include "tlv_object.h"
+#include <gtest/gtest.h>
+
 #include "pasteboard_client.h"
 #include "pasteboard_hilog.h"
-#include <gtest/gtest.h>
+#include "tlv_object.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -31,21 +32,13 @@ public:
     static std::shared_ptr<PasteDataRecord> GenRecord(std::uint32_t index);
 };
 
-void TLVObjectTest::SetUpTestCase(void)
-{
-}
+void TLVObjectTest::SetUpTestCase(void) {}
 
-void TLVObjectTest::TearDownTestCase(void)
-{
-}
+void TLVObjectTest::TearDownTestCase(void) {}
 
-void TLVObjectTest::SetUp(void)
-{
-}
+void TLVObjectTest::SetUp(void) {}
 
-void TLVObjectTest::TearDown(void)
-{
-}
+void TLVObjectTest::TearDown(void) {}
 
 std::shared_ptr<PasteDataRecord> TLVObjectTest::GenRecord(std::uint32_t index)
 {

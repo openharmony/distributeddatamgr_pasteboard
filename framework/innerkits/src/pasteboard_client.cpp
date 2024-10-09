@@ -13,16 +13,19 @@
  * limitations under the License.
  */
 
+#include <chrono>
 #include <if_system_ability_manager.h>
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
 #include <algorithm>
 #include <chrono>
 #include <memory>
+
 #include "convert_utils.h"
 #include "file_uri.h"
-#include "hiview_adapter.h"
 #include "hitrace_meter.h"
+#include "hiview_adapter.h"
+#include "ipasteboard_client_death_observer.h"
 #include "pasteboard_client.h"
 #include "pasteboard_delay_getter_client.h"
 #include "pasteboard_entry_getter_client.h"
@@ -30,11 +33,10 @@
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_load_callback.h"
 #include "pasteboard_observer.h"
+#include "pasteboard_utils.h"
+#include "pasteboard_web_controller.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#include "pasteboard_web_controller.h"
-#include "pasteboard_utils.h"
-#include "ipasteboard_client_death_observer.h"
 using namespace OHOS::Media;
 
 namespace OHOS {
@@ -256,7 +258,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     return ret;
 }
 
-int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData& unifiedData)
+int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData &unifiedData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
     PasteData pasteData;
@@ -282,7 +284,13 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
         return;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData start.");
-    for (auto& item : pasteData.AllRecords()) {
+    auto details = std::make_shared<Details>();
+    std::string textContent;
+    for (auto &item : pasteData.AllRecords()) {
+        if (!item->GetTextContent().empty() && textContent.empty()) {
+            details = item->GetDetails();
+            textContent = item->GetTextContent();
+        }
         if (item->GetUri() == nullptr) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview one of uri is null.");
             continue;
@@ -304,20 +312,20 @@ void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
     auto PasteboardWebController = PasteboardWebController::GetInstance();
     auto webData = std::make_shared<PasteData>(pasteData);
     PasteboardWebController.RebuildHtml(webData);
-
-    std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
-    std::shared_ptr<std::string> html = webData->GetPrimaryHtml();
-    std::string mimeType = MIMETYPE_TEXT_HTML;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
-    std::shared_ptr<PasteDataRecord> pasteDataRecord =
-        builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(MIMETYPE_TEXT_HTML).
+        SetPlainText(pasteData.GetPrimaryText()).SetHtmlText(webData->GetPrimaryHtml()).Build();
+    if (details) {
+        pasteDataRecord->SetDetails(*details);
+    }
+    pasteDataRecord->SetUDType(UDMF::HTML);
+    pasteDataRecord->SetTextContent(textContent);
     webData->AddRecord(pasteDataRecord);
     std::size_t recordCnt = webData->GetRecordCount();
     if (recordCnt >= 1) {
         webData->RemoveRecordAt(recordCnt - 1);
     }
     pasteData = *webData;
-
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData end.");
 }
 
@@ -347,8 +355,8 @@ bool PasteboardClient::HasPasteData()
     return proxyService->HasPasteData();
 }
 
-int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr <PasteboardDelayGetter> delayGetter,
-                                       std::map <uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters)
+int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter,
+    std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetPasteData start.");
     RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
@@ -365,13 +373,13 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr <Pa
         pasteData.SetDelayData(true);
         delayGetterAgent = new (std::nothrow) PasteboardDelayGetterClient(delayGetter);
     }
-    sptr <PasteboardEntryGetterClient> entryGetterAgent;
+    sptr<PasteboardEntryGetterClient> entryGetterAgent;
     if (!(entryGetters.empty())) {
         pasteData.SetDelayRecord(true);
-        entryGetterAgent = new(std::nothrow) PasteboardEntryGetterClient(entryGetters);
+        entryGetterAgent = new (std::nothrow) PasteboardEntryGetterClient(entryGetters);
     }
     std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
-    if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || html == nullptr) {
+    if (html == nullptr) {
         auto noHtmlRet = proxyService->SetPasteData(pasteData, delayGetterAgent, entryGetterAgent);
         return noHtmlRet;
     }
@@ -390,8 +398,8 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr <Pa
     return ret;
 }
 
-int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData,
-    std::shared_ptr<PasteboardDelayGetter> delayGetter)
+int32_t PasteboardClient::SetUnifiedData(
+    const UDMF::UnifiedData &unifiedData, std::shared_ptr<PasteboardDelayGetter> delayGetter)
 {
     auto pasteData = PasteboardUtils::GetInstance().Convert(unifiedData);
     return SetPasteData(*pasteData, delayGetter);
@@ -400,7 +408,7 @@ int32_t PasteboardClient::SetUnifiedData(const UDMF::UnifiedData &unifiedData,
 int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
 {
     auto pasteData = ConvertUtils::Convert(unifiedData);
-    std::map <uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters;
+    std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters;
     for (auto record : unifiedData.GetRecords()) {
         if (record != nullptr && record->GetEntryGetter() != nullptr) {
             entryGetters.emplace(record->GetRecordId(), record->GetEntryGetter());
@@ -416,11 +424,24 @@ std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pa
     std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
     auto PasteboardWebController = PasteboardWebController::GetInstance();
     std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
+    if (webPasteData == nullptr) {
+        return std::make_shared<PasteData>(pasteData);
+    }
     webPasteData->SetProperty(pasteData.GetProperty());
     std::string mimeType = MIMETYPE_TEXT_HTML;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
     std::shared_ptr<PasteDataRecord> pasteDataRecord =
         builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
+    if (pasteData.GetRecordAt(0)) {
+        auto details = pasteData.GetRecordAt(0)->GetDetails();
+        auto content = pasteData.GetRecordAt(0)->GetTextContent();
+        if (details) {
+            pasteDataRecord->SetDetails(*details);
+        }
+        if (!content.empty()) {
+            pasteDataRecord->SetTextContent(content);
+        }
+    }
     webPasteData->AddRecord(pasteDataRecord);
     std::size_t recordCnt = webPasteData->GetRecordCount();
     if (recordCnt >= 1) {
@@ -616,8 +637,9 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Failed to load systemAbility.");
         return nullptr;
     }
-    auto waitStatus = proxyConVar_.wait_for(lock, std::chrono::milliseconds(LOADSA_TIMEOUT_MS),
-        [this]() { return pasteboardServiceProxy_ != nullptr; });
+    auto waitStatus = proxyConVar_.wait_for(lock, std::chrono::milliseconds(LOADSA_TIMEOUT_MS), [this]() {
+        return pasteboardServiceProxy_ != nullptr;
+    });
     if (!waitStatus) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Load systemAbility timeout.");
         return nullptr;
@@ -679,9 +701,7 @@ void PasteboardClient::PasteComplete(const std::string &deviceId, const std::str
     proxyService->PasteComplete(deviceId, pasteId);
 }
 
-PasteboardSaDeathRecipient::PasteboardSaDeathRecipient()
-{
-}
+PasteboardSaDeathRecipient::PasteboardSaDeathRecipient() {}
 
 void PasteboardSaDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {
