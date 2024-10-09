@@ -50,7 +50,6 @@ struct PasteboardSwitch {
   @State imageAnimatorWidth: number = 0;
   @State textWidth: number = 0;
   @State gapLength: number = 0;
-  @State videoSrc: Resource = $rawfile('clipboard.mp4');
   @State isShow: boolean = false;
   @State is2in1: boolean = false;
   @State portraitFunc: mediaQuery.MediaQueryResult | void | null = null;
@@ -59,23 +58,22 @@ struct PasteboardSwitch {
   @State animationState: AnimationStatus = AnimationStatus.Running;
   @State reverse: boolean = false;
   @State iterations: number = -1;
-  private videoController: VideoController | undefined = undefined;
+  @State isShowBack: boolean = true;
   private listener: mediaQuery.MediaQueryListener = mediaQuery.matchMediaSync('(dark-mode:true)');
   private extContext?: common.UIExtensionContext;
   private scroller: Scroller = new Scroller();
+  private startReason?: string = '';
 
   onPortrait(mediaQueryResult: mediaQuery.MediaQueryResult) {
     console.log(TAG + 'onPortrait in');
     if (mediaQueryResult.matches as boolean) {
-      this.videoSrc = $rawfile('clipboard_dark.mp4');
       this.extContext?.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_DARK);
     } else {
-      this.videoSrc = $rawfile('clipboard.mp4');
       this.extContext?.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT);
     }
   }
 
-   /**
+  /**
    * @description Calculate the ImageAnimator size
    *   Calculation rule:
    *    1.general phone & pad : screen height/2 compare with width,shorter is ImageAnimator width
@@ -96,10 +94,10 @@ struct PasteboardSwitch {
       this.imageAnimatorHeight = this.shortSideSize * 0.8;
     }
     console.log(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.imageAnimatorWidth = ' +
-        this.imageAnimatorWidth + ', this.imageAnimatorHeight = ' + this.imageAnimatorHeight);
+    this.imageAnimatorWidth + ', this.imageAnimatorHeight = ' + this.imageAnimatorHeight);
   }
 
-getStringSync() {
+  getStringSync() {
     console.log(TAG + 'getStringSync in');
     try {
       context.resourceManager.getStringValue($r('app.string.pasteboard_title')
@@ -124,20 +122,8 @@ getStringSync() {
       this.imageArray.push({
         src: $r(`app.media.pasteboard_${i}`),
         duration: (i == CommonConstants.IMAGE_COUNT) ? CommonConstants.IMG_ANIMATOR_OVER_DURATION
-                                                     : CommonConstants.IMG_ANIMATOR_NORMAL_DURATION
+          : CommonConstants.IMG_ANIMATOR_NORMAL_DURATION
       })
-    }
-  }
-
-
-  @Builder
-  NavigationTitle() {
-    Column() {
-      Text($r('app.string.pasteboard_title'))
-        .fontColor($r('sys.color.ohos_id_color_text_primary'))
-        .fontSize($r('sys.float.ohos_id_text_size_headline8'))
-        .lineHeight(45)
-        .fontWeight(FontWeight.Bold)
     }
   }
 
@@ -150,14 +136,12 @@ getStringSync() {
       this.contentHeight = this.screenHeight;
       console.log(TAG + 'screenWidth = ' + this.screenWidth + '; screenHeight = ' + this.screenHeight);
     })
-    if (this.videoController) {
-      this.videoController.start();
-    }
     this.is2in1 = deviceInfo.deviceType === '2in1' ? true : false;
   }
 
   aboutToAppear() {
     console.log(TAG + 'aboutToAppear in');
+    // Switch State Initialization
     let value = settings.getValueSync(context, 'distributed_pasteboard_switch', switchState.open);
     this.isSwitchOn = value != switchState.close ? true : false;
     console.log(TAG + '<aboutToAppear> this.isSwitchOn : ' + this.isSwitchOn + '; value: ' + value);
@@ -177,6 +161,17 @@ getStringSync() {
       this.onPortrait(mediaQueryResult);
     })
     this.extContext = localStorage.get<common.UIExtensionContext>('context');
+    this.startReason = AppStorage.get<string>('startReason');
+    this.isShowBack = AppStorage.get<boolean>('isShowBack') ?? true;
+    console.info(`${TAG} aboutToAppear: startReason is ${this.startReason}, isShowBack: ${this.isShowBack}`);
+    if (this.isPhone()) {
+      this.checkFoldBackButton();
+    }
+    this.checkPcPadBackButton();
+  }
+
+  aboutToDisappear() {
+    console.info(`${TAG} aboutToDisappear in`);
   }
 
   getGapLength() {
@@ -193,162 +188,186 @@ getStringSync() {
     console.log(TAG + 'onBackPress in');
   }
 
-  async awaitTime(time: number) {
-    setTimeout(() => {
-      console.log(TAG, 'awaitTime is' + time);
-    }, time)
+  @Builder
+  NormalRootContent() {
+    this.titleBar();
+    this.ContentBuilder();
   }
 
-  build() {
+  @Builder
+  SearchRootContent() {
+    NavDestination() {
+      this.ContentBuilder();
+    }
+    .hideTitleBar(false)
+    .title(this.title)
+    .backgroundColor($r('sys.color.ohos_id_color_titlebar_sub_bg'))
+  }
+
+  @Builder
+  titleBar() {
     Column() {
+      EditableTitleBar({
+        leftIconStyle: EditableLeftIconType.Back,
+        title: $r('app.string.pasteboard_title'),
+        isSaveIconRequired: false,
+        onCancel: () => {
+          if (this.pasteboardSession) {
+            this.pasteboardSession.sendData({ 'action': 'pop' })
+          } else {
+            console.error(TAG + 'pasteboardSession is undefined');
+          }
+        }
+      })
+    }
+  }
+
+  @Builder
+  ContentBuilder() {
+    Scroll(this.scroller) {
       Column() {
-        EditableTitleBar({
-          leftIconStyle: EditableLeftIconType.Back,
-          title: $r('app.string.pasteboard_title'),
-          isSaveIconRequired: false,
-          onCancel: () => {
-            if (this.pasteboardSession) {
-              this.pasteboardSession.sendData({ 'action': 'pop' })
-            } else {
-              console.error(TAG + 'pasteboardSession is undefined');
-            }
-          }
-        })
-      }
-
-      Scroll(this.scroller) {
-        Column() {
-          ImageAnimator()
-            .images(this.imageArray)
-            .state(this.animationState)
-            .reverse(this.reverse)
-            .fillMode(this.iterations)
-            .iterations(this.iterations)
-            .width(this.imageAnimatorWidth)
-            .height(this.imageAnimatorHeight)
-            .onStart(() => {
-              console.info(TAG + 'ImageAnimator Start');
-            })
-            .onFinish(() => {
-              console.info(TAG + 'ImageAnimator Finish');
-            })
-
-          Text($r('app.string.pasteboard_desc'))
-            .fontSize($r('sys.float.ohos_id_text_size_body2'))
-            .fontWeight(FontWeight.Regular)
-            .margin({
-              bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
-              top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
-            })
-            .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-            .textAlign(TextAlign.Center)
-            .width('100%')
-            .maxLines(10)
-            .onAreaChange((oldArea: Area, newArea: Area) => {
-              console.info(TAG + 'Text:continue desc, oldArea.height = ' + oldArea.height +
-                ', newArea.height = ' + newArea.height);
-            })
-
-
-          Column() {
-            Flex({
-              direction: FlexDirection.Row,
-              justifyContent: FlexAlign.SpaceBetween,
-              alignItems: ItemAlign.Center
-            }) {
-              Text($r('app.string.pasteboard_title'))
-                .fontSize($r('sys.float.ohos_id_text_size_sub_title2'))
-                .fontWeight(FontWeight.Medium)
-                .fontColor($r('sys.color.ohos_id_color_text_primary'))
-                .accessibilityLevel('no')
-                .maxFontScale(2.8)
-                .padding({
-                  top: this.is2in1 ? CommonConstants.ITEM_LIST_PADDING_TOP_PC : CommonConstants.ITEM_LIST_PADDING_TOP,
-                  bottom: this.is2in1 ? CommonConstants.ITEM_LIST_PADDING_BOTTOM_PC :
-                  CommonConstants.ITEM_LIST_PADDING_BOTTOM
-                })
-
-              Toggle({ type: ToggleType.Switch, isOn: this.isSwitchOn })
-                .width(CommonConstants.PASTEBOARD_SWITCH_WIDTH)
-                .height(CommonConstants.PASTEBOARD_SWITCH_HEIGHT)
-                .hoverEffect(HoverEffect.None)
-                .onChange((isOn: boolean) => {
-                  console.log(TAG + 'isOn:' + isOn);
-                  this.isSwitchOn = isOn;
-                  AppStorage.setAndLink('isSwitchOn', isOn);
-                  if (isOn) {
-                    let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open);
-                    console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is on');
-                  } else {
-                    let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close);
-                    console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is close');
-                  }
-                })
-              }
-              .width('100%')
-              .padding({
-              left: CommonConstants.TEXT_LIST_ALIGN_DISTANCE,
-              right: CommonConstants.TEXT_LIST_ALIGN_DISTANCE
-              })
-              .backgroundColor($r('sys.color.ohos_id_color_list_card_bg'))
-              .borderRadius(this.is2in1 ? CommonConstants.PC_BORDER_RADIUS : CommonConstants.NON_PC_BORDER_RADIUS)
-              .accessibilityText(this.title)
-          }
-          .width('100%')
-          .constraintSize({
-            minHeight: CommonConstants.PC_LIST_HEIGHT
+        ImageAnimator()
+          .images(this.imageArray)
+          .state(this.animationState)
+          .reverse(this.reverse)
+          .fillMode(this.iterations)
+          .iterations(this.iterations)
+          .width(this.imageAnimatorWidth)
+          .height(this.imageAnimatorHeight)
+          .onStart(() => {
+            console.info(TAG + 'ImageAnimator Start');
+          })
+          .onFinish(() => {
+            console.info(TAG + 'ImageAnimator Finish');
           })
 
-          Column() {
-            Flex({
-              direction: FlexDirection.Row,
-              justifyContent: FlexAlign.Start,
-              alignItems: ItemAlign.Center
-            }) {
-              SymbolGlyph($r('sys.symbol.info_circle_fill'))
-                .fontWeight(FontWeight.Medium)
-                .fontSize(CommonConstants.SYMBOL_INFO_CIRCLE)
-                .fontColor([$r('sys.color.ohos_id_color_activated')])
-                .margin({ right: CommonConstants.SYMBOL_MARGIN_RIGHT })
+        Text($r('app.string.pasteboard_desc'))
+          .fontSize($r('sys.float.ohos_id_text_size_body2'))
+          .fontWeight(FontWeight.Regular)
+          .margin({
+            bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
+            top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
+          })
+          .fontColor($r('sys.color.ohos_id_color_text_secondary'))
+          .textAlign(TextAlign.Center)
+          .width('100%')
+          .maxLines(10)
+          .onAreaChange((oldArea: Area, newArea: Area) => {
+            console.info(TAG + 'Text:continue desc, oldArea.height = ' + oldArea.height +
+              ', newArea.height = ' + newArea.height);
+          })
 
-              Text($r('app.string.update_version_prompt'))
-                .fontSize($r('sys.float.ohos_id_text_size_body3'))
-                .fontWeight(FontWeight.Medium)
-                .fontColor($r('sys.color.ohos_id_color_text_primary'))
-                .textAlign(TextAlign.Start)
-                .lineHeight(CommonConstants.UPDATE_PROMPT_LINE_HEIGHT)
-            }
-            .margin({ top: CommonConstants.UPDATE_PROMPT_MARGIN_TOP })
+
+        Column() {
+          Flex({
+            direction: FlexDirection.Row,
+            justifyContent: FlexAlign.SpaceBetween,
+            alignItems: ItemAlign.Center
+          }) {
+            Text($r('app.string.pasteboard_title'))
+              .fontSize($r('sys.float.ohos_id_text_size_sub_title2'))
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('sys.color.ohos_id_color_text_primary'))
+              .accessibilityLevel('no')
+              .maxFontScale(2.8)
+              .padding({
+                top: this.is2in1 ? CommonConstants.ITEM_LIST_PADDING_TOP_PC : CommonConstants.ITEM_LIST_PADDING_TOP,
+                bottom: this.is2in1 ? CommonConstants.ITEM_LIST_PADDING_BOTTOM_PC :
+                CommonConstants.ITEM_LIST_PADDING_BOTTOM
+              })
+
+            Toggle({ type: ToggleType.Switch, isOn: this.isSwitchOn })
+              .width(CommonConstants.PASTEBOARD_SWITCH_WIDTH)
+              .height(CommonConstants.PASTEBOARD_SWITCH_HEIGHT)
+              .hoverEffect(HoverEffect.None)
+              .onChange((isOn: boolean) => {
+                console.log(TAG + 'isOn:' + isOn);
+                this.isSwitchOn = isOn;
+                AppStorage.setAndLink('isSwitchOn', isOn);
+                if (isOn) {
+                  let status: boolean =
+                    settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open);
+                  console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is on');
+                } else {
+                  let status: boolean =
+                    settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close);
+                  console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is close');
+                }
+              })
           }
+          .width('100%')
           .padding({
             left: CommonConstants.TEXT_LIST_ALIGN_DISTANCE,
             right: CommonConstants.TEXT_LIST_ALIGN_DISTANCE
           })
+          .backgroundColor($r('sys.color.ohos_id_color_list_card_bg'))
+          .borderRadius(this.is2in1 ? CommonConstants.PC_BORDER_RADIUS : CommonConstants.NON_PC_BORDER_RADIUS)
+          .accessibilityText(this.title)
         }
         .width('100%')
-        .padding({ left: this.gapLength, right: this.gapLength })
-        .margin({ bottom: this.contentHeight * 0.09 })
-        .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
+        .constraintSize({
+          minHeight: CommonConstants.PC_LIST_HEIGHT
+        })
+
+        Column() {
+          Flex({
+            direction: FlexDirection.Row,
+            justifyContent: FlexAlign.Start,
+            alignItems: ItemAlign.Center
+          }) {
+            SymbolGlyph($r('sys.symbol.info_circle_fill'))
+              .fontWeight(FontWeight.Medium)
+              .fontSize(CommonConstants.SYMBOL_INFO_CIRCLE)
+              .fontColor([$r('sys.color.ohos_id_color_activated')])
+              .margin({ right: CommonConstants.SYMBOL_MARGIN_RIGHT })
+
+            Text($r('app.string.update_version_prompt'))
+              .fontSize($r('sys.float.ohos_id_text_size_body3'))
+              .fontWeight(FontWeight.Medium)
+              .fontColor($r('sys.color.ohos_id_color_text_primary'))
+              .textAlign(TextAlign.Start)
+              .lineHeight(CommonConstants.UPDATE_PROMPT_LINE_HEIGHT)
+          }
+          .margin({ top: CommonConstants.UPDATE_PROMPT_MARGIN_TOP })
+        }
+        .padding({
+          left: CommonConstants.TEXT_LIST_ALIGN_DISTANCE,
+          right: CommonConstants.TEXT_LIST_ALIGN_DISTANCE
+        })
       }
       .width('100%')
-      .height(this.screenHeight)
-      .scrollable(ScrollDirection.Vertical)
-      .scrollBar(BarState.Off)
-      .align(Alignment.TopStart)
-      .friction(0.6)
-      .edgeEffect(EdgeEffect.Spring)
-      .onWillScroll((xOffset: number, yOffset: number) => {
-        console.info(TAG + 'onScroll : xOffset:' + xOffset + ' ; yOffset' + yOffset);
-      })
-      .onScrollEdge(() => {
-        console.info('To the edge');
-      })
-      .onScrollStop(() => {
-        console.info('Scroll Stop');
-      })
-      .onAreaChange((oldArea: Area, newArea: Area) => {
-        console.log(TAG + 'Scroll, oldArea.height = ' + oldArea.height + ', newArea.height = ' + newArea.height);
-      })
+      .padding({ left: this.gapLength, right: this.gapLength })
+      .margin({ bottom: this.contentHeight * 0.09 })
+      .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
+    }
+    .width('100%')
+    .height(this.screenHeight)
+    .scrollable(ScrollDirection.Vertical)
+    .scrollBar(BarState.Off)
+    .align(Alignment.TopStart)
+    .friction(0.6)
+    .edgeEffect(EdgeEffect.Spring)
+    .onWillScroll((xOffset: number, yOffset: number) => {
+      console.info(TAG + 'onScroll : xOffset:' + xOffset + ' ; yOffset' + yOffset);
+    })
+    .onScrollEdge(() => {
+      console.info('To the edge');
+    })
+    .onScrollStop(() => {
+      console.info('Scroll Stop');
+    })
+    .onAreaChange((oldArea: Area, newArea: Area) => {
+      console.log(TAG + 'Scroll, oldArea.height = ' + oldArea.height + ', newArea.height = ' + newArea.height);
+    })
+  }
+
+  build() {
+    Column() {
+      if (this.isShowBack) {
+        this.NormalRootContent();
+      } else {
+        this.SearchRootContent();
+      }
     }
     .width('100%')
     .height('100%')
@@ -359,5 +378,52 @@ getStringSync() {
       console.info(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.imageAnimatorWidth = ' +
       this.imageAnimatorWidth + ', this.imageAnimatorHeight = ' + this.imageAnimatorHeight);
     })
+  }
+
+  private checkPcPadBackButton(): void {
+    console.info(`${TAG} checkPcPadBackButton in`);
+    if (this.startReason === 'from_search') {
+      if (deviceInfo.deviceType === '2in1' || deviceInfo.deviceType === 'tablet') {
+        this.isShowBack = false;
+      }
+    }
+  }
+
+  private isPhone(): boolean {
+    console.info(`${TAG} isPhone in`);
+    return (deviceInfo.deviceType === 'phone' || deviceInfo.deviceType === 'default');
+  }
+
+  private refreshFoldStatus(foldStatus: display.FoldStatus): void {
+    console.info(`${TAG} refreshFoldStatus in. foldStatus: ${foldStatus}. startReason: ${this.startReason}`);
+    if (this.startReason === 'from_search') {
+      if (foldStatus === display.FoldStatus.FOLD_STATUS_FOLDED) {
+        this.isShowBack = true;
+        console.info(`${TAG} foldStatus: ${foldStatus}. this.isShowBack: ${this.isShowBack}`);
+      } else {
+        this.isShowBack = false;
+        console.info(`${TAG} foldStatus: ${foldStatus}. this.isShowBack: ${this.isShowBack}`);
+      }
+    } else {
+      this.isShowBack = true;
+      console.info(`${TAG} startReason: ${this.startReason}. this.isShowBack: ${this.isShowBack}`);
+    }
+  }
+
+  private checkFoldBackButton(): void {
+    console.info(`${TAG} checkFoldBackButton in`);
+    if (display.isFoldable()) {
+      try {
+        display.on('foldStatusChange', (foldStatus: display.FoldStatus) => {
+          let foldStatusValue = foldStatus.valueOf();
+          console.info(`${TAG} checkFoldBackButton: foldStatusValue is ${foldStatusValue}`);
+          this.refreshFoldStatus(foldStatusValue);
+        })
+        let data: display.FoldStatus = display.getFoldStatus();
+        this.refreshFoldStatus(data);
+      } catch (err) {
+        console.error(`${TAG} Register failed. exception: ${err.message}`);
+      }
+    }
   }
 }
