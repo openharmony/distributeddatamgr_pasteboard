@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-=======
 #include "napi_common_want.h"
 #include "paste_data_record.h"
 #include "pasteboard_common.h"

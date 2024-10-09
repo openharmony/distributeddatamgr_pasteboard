@@ -201,8 +201,8 @@ napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, std::vector<uin
         "array type=%{public}d length=%{public}d offset=%{public}d  status=%{public}d",
         (int)type, (int)length, (int)offset, status);
     if (!((status == napi_ok) && (length > 0) && (type == napi_uint8_array) && (data != nullptr))) {
-         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI,
-            "array type=%{public}d length=%{public}d offset=%{public}d  status=%{public}d",
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI,
+            "array type=%{public}d length=%{public}d status=%{public}d",
             static_cast<int32_t>(type), static_cast<int32_t>(length), status);
         return napi_invalid_arg;
     }
