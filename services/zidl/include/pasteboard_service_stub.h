@@ -47,6 +47,7 @@ private:
     int32_t OnIsRemoteData(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetDataSource(MessageParcel &data, MessageParcel &reply);
     int32_t OnHasDataType(MessageParcel &data, MessageParcel &reply);
+    int32_t OnDetectPatterns(MessageParcel &data, MessageParcel &reply);
     int32_t OnSetGlobalShareOption(MessageParcel &data, MessageParcel &reply);
     int32_t OnRemoveGlobalShareOption(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetGlobalShareOption(MessageParcel &data, MessageParcel &reply);
