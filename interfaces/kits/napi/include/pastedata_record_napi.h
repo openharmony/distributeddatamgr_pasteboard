@@ -35,7 +35,7 @@ public:
         UDMF::ValueType GetValueByType(const std::string &utdId) override;
         void SetEntryGetterWrapper(const std::shared_ptr<PastedataRecordEntryGetterInstance> instance);
     private:
-        std::weak_ptr<PastedataRecordEntryGetterInstance> wrapper_;
+        std::shared_ptr<PastedataRecordEntryGetterInstance> wrapper_;
     };
     explicit PastedataRecordEntryGetterInstance(const napi_env &env, const napi_ref &ref);
     ~PastedataRecordEntryGetterInstance();

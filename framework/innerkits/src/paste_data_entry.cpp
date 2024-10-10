@@ -320,15 +320,35 @@ std::shared_ptr<MineCustomData> PasteDataEntry::ConvertToCustomData() const
     if (objecType != GetUtdId()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type diff error, utdId:%{public}s, objecType:%{public}s",
             utdId_.c_str(), objecType.c_str());
-        return nullptr;
     }
     std::vector<uint8_t> recordValue;
     if (!object->GetValue(UDMF::ARRAY_BUFFER, recordValue)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get value error, utdId:%{public}s", utdId_.c_str());
         return nullptr;
     }
-    customdata.AddItemData(objecType, recordValue);
+    customdata.AddItemData(utdId_, recordValue);
     return std::make_shared<MineCustomData>(customdata);
+}
+
+bool PasteDataEntry::HasContent(const std::string &utdId) const
+{
+    auto mimeType = CommonUtils::Convert2MimeType(utdId);
+    if (mimeType == MIMETYPE_PIXELMAP) {
+        return ConvertToPixelMap() != nullptr;
+    } else if (mimeType == MIMETYPE_TEXT_HTML) {
+        auto html = ConvertToHtml();
+        return html != nullptr && !html->empty();
+    } else if (mimeType == MIMETYPE_TEXT_PLAIN) {
+        auto plianText = ConvertToPlianText();
+        return plianText != nullptr && !plianText->empty();
+    } else if (mimeType == MIMETYPE_TEXT_URI) {
+        auto uri = ConvertToUri();
+        return uri != nullptr && !uri->ToString().empty();
+    } else if (mimeType == MIMETYPE_TEXT_WANT) {
+        return ConvertToWant() != nullptr;
+    } else {
+        return ConvertToCustomData() != nullptr;
+    }
 }
 
 std::string CommonUtils::Convert(UDType uDType)

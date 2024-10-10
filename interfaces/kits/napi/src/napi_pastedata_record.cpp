@@ -579,11 +579,12 @@ void UvWorkGetRecordByEntryGetter(uv_work_t *work, int status)
         auto ret = napi_call_function(env, undefined, callback, 1, argv, &resultOut);
         if (ret == napi_ok) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "get delay data success");
-            UDMF::ValueType *entryValue = nullptr;
-            napi_unwrap(env, resultOut, reinterpret_cast<void **>(&entryValue));
-            if (entryValue != nullptr) {
-                entryGetterWork->entryValue = std::shared_ptr<UDMF::ValueType>(entryValue);
+            EntryValue entryValue;
+            if (GetNativeValue(env, mimeType, resultOut, entryValue)) {
+                entryGetterWork->entryValue = std::make_shared<UDMF::ValueType>(entryValue);
             }
+        } else {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "clll napi_call_function is not ok, ret: %{public}d", ret);
         }
         napi_close_handle_scope(env, scope);
         entryGetterWork->complete = true;
@@ -653,12 +654,11 @@ UDMF::ValueType PastedataRecordEntryGetterInstance::GetValueByType(const std::st
 UDMF::ValueType PastedataRecordEntryGetterInstance::PastedataRecordEntryGetterImpl::GetValueByType(
     const std::string &utdId)
 {
-    std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetterInstance(wrapper_.lock());
-    if (entryGetterInstance == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "no entry getter");
+    if (wrapper_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "PastedataRecordEntryGetterImpl::GetValueByType no entry getter");
         return std::monostate{};
     }
-    return entryGetterInstance->GetValueByType(utdId);
+    return wrapper_->GetValueByType(utdId);
 }
 
 void PastedataRecordEntryGetterInstance::PastedataRecordEntryGetterImpl::SetEntryGetterWrapper(

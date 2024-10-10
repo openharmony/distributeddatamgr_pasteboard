@@ -717,14 +717,16 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
     }
     if (CommonUtils::Convert2UtdId(udType_, mimeType_) == utdType) {
         auto entry = std::make_shared<PasteDataEntry>(utdType, *udmfValue_);
-        if (std::holds_alternative<std::monostate>(*udmfValue_) && entryGetter_ != nullptr) {
+        if (isDelay_ && !entry->HasContent(utdType)) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Begin GetRecordValueByType1");
             PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
         }
         return entry;
     }
     for (auto const &entry : entries_) {
         if (entry->GetUtdId() == utdType) {
-            if (std::holds_alternative<std::monostate>(entry->GetValue()) && entryGetter_ != nullptr) {
+            if (isDelay_ && !entry->HasContent(utdType)) {
+                PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Begin GetRecordValueByType2");
                 PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
             }
             return entry;

@@ -692,6 +692,9 @@ std::vector<std::shared_ptr<UnifiedRecord>> PasteboardUtils::Custom2AppDefined(
     if (record == nullptr) {
         return unifiedRecords;
     }
+    if (record->GetCustomData() == nullptr) {
+        return unifiedRecords;
+    }
     auto customData = record->GetCustomData();
     if (customData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "customData is null");
