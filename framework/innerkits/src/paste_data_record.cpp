@@ -183,7 +183,10 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewMultiTypeDelayRecord(
         entry->SetUtdId(utdId);
         record->AddEntry(utdId, entry);
     }
-    record->SetEntryGetter(entryGetter);
+    if (entryGetter != nullptr) {
+        record->SetEntryGetter(entryGetter);
+        record->SetDelayRecordFlag(true);
+    }
     return record;
 }
 
