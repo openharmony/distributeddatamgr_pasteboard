@@ -298,7 +298,10 @@ bool CheckArgsMap(napi_env env, napi_value in,
 {
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, in, &valueType), false);
-    NAPI_ASSERT_BASE(env, valueType == napi_object, "Wrong argument type. Object expected.", false);
+    if (!CheckExpression(env, valueType == napi_object, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. When there is only one parameter, it must be a Record.")) {
+        return false;
+    }
     
     napi_value typeValueMap = nullptr;
     NAPI_CALL_BASE(env, napi_get_property_names(env, in, &typeValueMap), false);

@@ -488,8 +488,7 @@ napi_value PasteboardNapi::JSCreateData(napi_env env, napi_callback_info info)
         return nullptr;
     }
     if (argc == ARGC_TYPE_SET1) {
-        if (!CheckExpression(env, CheckArgsMap(env, argv[0], typeValueMap), JSErrorCode::INVALID_PARAMETERS,
-            "Parameter error. When there is only one parameter, it must be a Record.")) {
+        if (!CheckArgsMap(env, argv[0], typeValueMap)) {
             return nullptr;
         }
         return CreateMultiTypeData(env, typeValueMap);
