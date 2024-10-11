@@ -177,11 +177,11 @@ std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
 }
 
 std::shared_ptr<PasteData> PasteboardClient::CreateMultiTypeData(
-    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap)
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap, const std::string &recordMimeType)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New multiType data");
     auto pasteData = std::make_shared<PasteData>();
-    pasteData->AddRecord(PasteDataRecord::NewMultiTypeRecord(std::move(typeValueMap)));
+    pasteData->AddRecord(PasteDataRecord::NewMultiTypeRecord(std::move(typeValueMap), recordMimeType));
     return pasteData;
 }
 

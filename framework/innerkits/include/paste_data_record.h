@@ -61,7 +61,8 @@ public:
     static std::shared_ptr<PasteDataRecord> NewKvRecord(
         const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
     static std::shared_ptr<PasteDataRecord> NewMultiTypeRecord(
-        std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> values);
+        std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> values,
+        const std::string &recordMimeType = "");
     static std::shared_ptr<PasteDataRecord> NewMultiTypeDelayRecord(
         std::vector<std::string> mimeTypes, const std::shared_ptr<UDMF::EntryGetter> entryGetter);
 
