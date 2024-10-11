@@ -162,10 +162,20 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
 }
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewMultiTypeRecord(
-    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> values)
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> values, const std::string &recordMimeType)
 {
     auto record = std::make_shared<PasteDataRecord>();
+    if (!recordMimeType.empty()) {
+        auto recordDefaultIter = values->find(recordMimeType);
+        if (recordDefaultIter != values->end()){
+            auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, recordMimeType);
+            record->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, *(recordDefaultIter->second)));
+        }
+    }
     for (auto [mimeType, value] : *values) {
+        if (mimeType == recordMimeType) {
+            continue;
+        }
         auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, mimeType);
         record->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, *value));
     }
@@ -214,7 +224,7 @@ PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
       hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_), udType_(record.udType_),
       details_(record.details_), textContent_(record.textContent_),
       systemDefinedContents_(record.systemDefinedContents_), udmfValue_(record.udmfValue_), entries_(record.entries_),
-      dataId_(record.dataId_), recordId_(record.recordId_), isDelay_(record.isDelay_)
+      dataId_(record.dataId_), recordId_(record.recordId_), isDelay_(record.isDelay_), entryGetter_(record.entryGetter_)
 {
     this->isConvertUriFromRemote = record.isConvertUriFromRemote;
     InitDecodeMap();
