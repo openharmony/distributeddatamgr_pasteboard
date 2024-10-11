@@ -19,8 +19,14 @@
 #include "api/visibility.h"
 #include "parcel.h"
 #include "securec.h"
-#include "tlv_object.h"
 namespace OHOS::MiscServices {
+
+struct RawMem {
+    uintptr_t buffer;
+    size_t bufferLen;
+    // notice:Keep the parcel reference to prevent the memory in the parcel from being destructed
+    std::shared_ptr<OHOS::Parcel> parcel;
+};
 
 class ParcelUtil {
 public:

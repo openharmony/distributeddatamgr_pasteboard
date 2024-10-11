@@ -76,6 +76,7 @@ ohos_shared_library("pasteboard_service") {
     "switch/pasteboard_switch.cpp",
     "zidl/src/ipasteboard_client_death_observer.cpp",
     "zidl/src/pasteboard_delay_getter_proxy.cpp",
+    "zidl/src/pasteboard_entry_getter_proxy.cpp",
     "zidl/src/pasteboard_observer_proxy.cpp",
     "zidl/src/pasteboard_service_stub.cpp",
   ]
@@ -126,13 +127,14 @@ ohos_shared_library("pasteboard_service") {
     "init:libbegetutil",
     "input:libmmi-client",
     "ipc:ipc_core",
+    "libxml2:libxml2",
     "memmgr:memmgrclient",
     "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "time_service:time_client",
   ]
-  if (scene_board_enabled) {
+  if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
   } else {

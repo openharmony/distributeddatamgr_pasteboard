@@ -28,6 +28,7 @@
 #include "system_defined_appitem.h"
 #include "system_defined_form.h"
 #include "system_defined_record.h"
+#include "system_defined_pixelmap.h"
 #include "text.h"
 #include "unified_data.h"
 #include "unified_record.h"
@@ -328,7 +329,8 @@ void PasteboardClientUdmfDelayTest::SetPixelMapUnifiedData()
     InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<UnifiedRecord>(SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
+    std::shared_ptr<UnifiedRecord> record =
+        std::make_shared<SystemDefinedPixelMap>(SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
     UnifiedData data;
     data.AddRecord(record);
     unifiedData_ = data;
@@ -753,12 +755,16 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysAppItemDataTest001, TestSize.Level
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::E_OK));
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
-    auto customData = pasteRecord->GetCustomData();
-    ASSERT_NE(customData, nullptr);
-    auto itemData = customData->GetItemData();
-    ASSERT_EQ(itemData.size(), 1);
-    auto item = itemData.find("openharmony.app-item");
-    ASSERT_NE(item, itemData.end());
+    auto details1 = pasteRecord->GetDetails();
+    auto udmfValue = pasteRecord->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto newAppItem1 = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, *udmfValue);
+    ASSERT_EQ(newAppItem1->GetAppId(), "appId");
+    ASSERT_EQ(newAppItem1->GetAppIconId(), "appIconId");
+    ASSERT_EQ(newAppItem1->GetAppName(), "appName");
+    ASSERT_EQ(newAppItem1->GetAppLabelId(), "appLabelId");
+    ASSERT_EQ(newAppItem1->GetBundleName(), "bundleName");
+    ASSERT_EQ(newAppItem1->GetAbilityName(), "abilityName");
 }
 
 /**

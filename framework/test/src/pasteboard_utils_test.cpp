@@ -26,11 +26,13 @@
 #include "plain_text.h"
 #include "system_defined_appitem.h"
 #include "system_defined_form.h"
+#include "system_defined_pixelmap.h"
 #include "video.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::Media;
+using UnifiedDataProperties = UDMF::UnifiedDataProperties;
 class PasteboardUtilsTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -94,6 +96,9 @@ UDMF::UnifiedData PasteboardUtilsTest::InitPlainData()
     std::shared_ptr<UDMF::PlainText> plainTextRecord = std::make_shared<UDMF::PlainText>(text_, extraText_);
     plainTextRecord->SetDetails(details_);
     data.AddRecord(plainTextRecord);
+    auto unifiedDataProperties = std::make_shared<UnifiedDataProperties>();
+    unifiedDataProperties->isRemote = true;
+    data.SetProperties(unifiedDataProperties);
     return data;
 }
 
@@ -238,7 +243,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitSystemPixelMapData()
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     std::shared_ptr<UDMF::UnifiedRecord> pixelMapRecord =
-        std::make_shared<UDMF::UnifiedRecord>(UDMF::SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
+        std::make_shared<UDMF::SystemDefinedPixelMap>(UDMF::SYSTEM_DEFINED_PIXEL_MAP, pixelMapIn);
     UDMF::UnifiedData data;
     data.AddRecord(pixelMapRecord);
     return data;
@@ -303,12 +308,11 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_PLAIN);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::PLAIN_TEXT);
-    auto plain = record->GetPlainText();
-    auto textContent = record->GetTextContent();
-    ASSERT_EQ(*plain, text_);
-    ASSERT_EQ(textContent, extraText_);
-    auto details1 = record->GetDetails();
-    ASSERT_EQ(*details1, details_);
+    auto udmfValue = record->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto link = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, *udmfValue);
+    ASSERT_EQ(link->GetContent(), text_);
+    ASSERT_EQ(link->GetAbstract(), extraText_);
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
@@ -322,6 +326,8 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newPlainText, text_);
     ASSERT_EQ(newAbstract, extraText_);
     ASSERT_EQ(newDetails, details_);
+    auto unifiedProp = newData->GetProperties();
+    ASSERT_EQ(unifiedProp->isRemote, true);
 }
 
 /**
@@ -341,12 +347,11 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_HTML);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::HTML);
-    auto plain = record->GetHtmlText();
-    auto textContent = record->GetTextContent();
-    ASSERT_EQ(*plain, text_);
-    ASSERT_EQ(textContent, extraText_);
-    auto details1 = record->GetDetails();
-    ASSERT_EQ(*details1, details_);
+    auto udmfValue = record->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto link = std::make_shared<UDMF::Html>(UDMF::HTML, *udmfValue);
+    ASSERT_EQ(link->GetHtmlContent(), text_);
+    ASSERT_EQ(link->GetPlainContent(), extraText_);
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
@@ -379,12 +384,11 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_PLAIN);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::HYPERLINK);
-    auto plain = record->GetPlainText();
-    auto textContent = record->GetTextContent();
-    ASSERT_EQ(*plain, text_);
-    ASSERT_EQ(textContent, extraText_);
-    auto details1 = record->GetDetails();
-    ASSERT_EQ(*details1, details_);
+    auto udmfValue = record->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, *udmfValue);
+    ASSERT_EQ(link->GetUrl(), text_);
+    ASSERT_EQ(link->GetDescription(), extraText_);
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
@@ -650,20 +654,17 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::SYSTEM_DEFINED_APP_ITEM);
     auto details1 = record->GetDetails();
-    auto content = *(record->GetSystemDefinedContent());
+    ASSERT_NE(details1, nullptr);
     ASSERT_EQ(*details1, details_);
-    auto appIconId1 = std::get<std::string>(content["appIconId"]);
-    auto appId1 = std::get<std::string>(content["appId"]);
-    auto appName1 = std::get<std::string>(content["appName"]);
-    auto appLabelId1 = std::get<std::string>(content["appLabelId"]);
-    auto bundleName1 = std::get<std::string>(content["bundleName"]);
-    auto abilityName1 = std::get<std::string>(content["abilityName"]);
-    ASSERT_EQ("appId", appId1);
-    ASSERT_EQ("appIconId", appIconId1);
-    ASSERT_EQ("appName", appName1);
-    ASSERT_EQ("appLabelId", appLabelId1);
-    ASSERT_EQ("bundleName", bundleName1);
-    ASSERT_EQ("abilityName", abilityName1);
+    auto udmfValue = record->GetUDMFValue();
+    ASSERT_NE(udmfValue, nullptr);
+    auto newAppItem1 = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, *udmfValue);
+    ASSERT_EQ(newAppItem1->GetAppId(), "appId");
+    ASSERT_EQ(newAppItem1->GetAppIconId(), "appIconId");
+    ASSERT_EQ(newAppItem1->GetAppName(), "appName");
+    ASSERT_EQ(newAppItem1->GetAppLabelId(), "appLabelId");
+    ASSERT_EQ(newAppItem1->GetBundleName(), "bundleName");
+    ASSERT_EQ(newAppItem1->GetAbilityName(), "abilityName");
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
     ASSERT_EQ(1, newData->GetRecords().size());
@@ -671,12 +672,12 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
     auto newType = newRecord->GetType();
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_APP_ITEM);
     auto newAppItem = static_cast<UDMF::SystemDefinedAppItem*>(newRecord.get());
-    ASSERT_EQ(newAppItem->GetAppId(), appId1);
-    ASSERT_EQ(newAppItem->GetAppIconId(), appIconId1);
-    ASSERT_EQ(newAppItem->GetAppName(), appName1);
-    ASSERT_EQ(newAppItem->GetAppLabelId(), appLabelId1);
-    ASSERT_EQ(newAppItem->GetBundleName(), bundleName1);
-    ASSERT_EQ(newAppItem->GetAbilityName(), abilityName1);
+    ASSERT_EQ(newAppItem->GetAppId(), "appId");
+    ASSERT_EQ(newAppItem->GetAppIconId(), "appIconId");
+    ASSERT_EQ(newAppItem->GetAppName(), "appName");
+    ASSERT_EQ(newAppItem->GetAppLabelId(), "appLabelId");
+    ASSERT_EQ(newAppItem->GetBundleName(), "bundleName");
+    ASSERT_EQ(newAppItem->GetAbilityName(), "abilityName");
     ASSERT_EQ(newAppItem->GetDetails(), details_);
 }
 

@@ -36,14 +36,19 @@ enum PasteboardServiceInterfaceCode {
     GET_GLOBAL_SHARE_OPTION = 12,
     SET_APP_SHARE_OPTIONS = 13,
     REMOVE_APP_SHARE_OPTIONS = 14,
-    PASTE_START = 18,
-    PASTE_COMPLETE = 19,
-    REGISTER_CLIENT_DEATH_OBSERVER = 20,
+    PASTE_START = 15,
+    PASTE_COMPLETE = 16,
+    REGISTER_CLIENT_DEATH_OBSERVER = 17,
+    GET_RECORD_VALUE = 21,
 };
 
 enum PasteboardObserverInterfaceCode {
     ON_PASTE_BOARD_CHANGE = 0,
     ON_PASTE_BOARD_EVENT = 1,
+};
+
+enum PasteboardEntryGetterInterfaceCode {
+    GET_RECORD_VALUE_BY_TYPE = 0,
 };
 } // namespace PasteboardServ
 } // namespace Security
