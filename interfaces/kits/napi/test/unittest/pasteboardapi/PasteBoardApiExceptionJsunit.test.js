@@ -801,4 +801,161 @@ describe('PasteBoardJSTest', function () {
     }
     done();
   });
+
+  /**
+   * @tc.name      pasteboard_exception_test28
+   * @tc.desc      异常值 非数组
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_exception_test28', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns = pasteboard.Pattern.EMAIL_ADDRESS;
+    try {
+      await systemPasteboard.detectPatterns(patterns);
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_exception_test29
+   * @tc.desc      异常值 传空
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_exception_test29', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    try {
+      await systemPasteboard.detectPatterns();
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_exception_test30
+   * @tc.desc      异常值 数组内元素出错
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_exception_test30', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns = ["dsa", "fdsf", "da"];
+    try {
+      await systemPasteboard.detectPatterns(patterns);
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_exception_test31
+   * @tc.desc      异常值 参数个数异常
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_exception_test31', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns1 = [0, 1];
+    const patterns2 = [1, 2];
+    try {
+      await systemPasteboard.detectPatterns(patterns1, patterns2);
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_exception_test32
+   * @tc.desc      异常值-非预期数字数组
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_exception_test32', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "<!DOCTYPE html><html><head><title>" +
+    "，尽快改好Greg就就。、</title></head><body><h2>访如果如果</h2>" +
+    "<p>搞了个<a href=\"https://grehtjeffxample.com\">" +
+    "剖一个v给ioadhoa@wdoiewf.com</a>。</p></body></html>";
+    const pasteData = pasteboard.createHtmlData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns1 = [0, 1, 23789, 238];
+    try {
+      await systemPasteboard.detectPatterns(patterns1);
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_exception_test33
+   * @tc.desc      异常值-空数组
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_exception_test33', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "<!DOCTYPE html><html><head><title>" +
+    "，尽快改好Greg就就。、</title></head><body><h2>访如果如果</h2>" +
+    "<p>搞了个<a href=\"https://grehtjeffxample.com\">" +
+    "剖一个v给ioadhoa@wdoiewf.com</a>。</p></body></html>";
+    const pasteData = pasteboard.createHtmlData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns1 = [];
+    try {
+      await systemPasteboard.detectPatterns(patterns1);
+    } catch (e) {
+      expect(e.code == 401).assertTrue();
+    }
+    done();
+  });
+
 });

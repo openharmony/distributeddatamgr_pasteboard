@@ -90,6 +90,76 @@ bool GetValue(napi_env env, napi_value in, std::string &out)
     return true;
 }
 
+/* napi_value <-> std::set<Pattern> */
+bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
+{
+    bool isArray = false;
+    NAPI_CALL_BASE(env, napi_is_array(env, in, &isArray), false);
+    if (!isArray) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type. pattern/uint32 array expected.");
+        return false;
+    }
+    
+    uint32_t len = 0;
+    napi_status status = napi_get_array_length(env, in, &len);
+    if (status != napi_ok || len == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_array_length status = %{public}d, len = %{public}d",
+            status, len);
+        return false;
+    }
+
+    for (uint32_t i = 0; i < len; i++) {
+        napi_value element;
+        napi_status status = napi_get_element(env, in, i, &element);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "napi_get_element%{public}d err status = %{public}d", i, status);
+            return false;
+        }
+        uint32_t pattern;
+        status = napi_get_value_uint32(env, element, &pattern);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "napi_get_value_uint32 err status = %{public}d", status);
+            return false;
+        }
+        if (pattern >= static_cast<uint32_t>(Pattern::PatternCount)) {
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "Unsurportted pattern value: %{public}d", pattern);
+            return false;
+        }
+        out.insert(static_cast<Pattern>(pattern));
+    }
+    return true;
+}
+
+/* napi_value <-> std::set<Pattern> */
+napi_status SetValue(napi_env env, std::set<Pattern> &in, napi_value &result)
+{
+    napi_status status = napi_create_array_with_length(env, in.size(), &result);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_create_array_with_length error status = %{public}d", status);
+        return status;
+    }
+    int i = 0;
+    for (auto &pattern : in) {
+        napi_value element;
+        status = napi_create_uint32(env, static_cast<uint32_t>(pattern), &element);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_create_uint32 error status = %{public}d", status);
+            return status;
+        }
+        status = napi_set_element(env, result, i, element);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(
+                PASTEBOARD_MODULE_JS_NAPI, "napi_set_element %{public}d err status = %{public}d", i, status);
+            return status;
+        }
+        ++i;
+    }
+    return status;
+}
+
 bool CheckArgsType(napi_env env, napi_value in, napi_valuetype expectedType, const char *message)
 {
     napi_valuetype type = napi_undefined;

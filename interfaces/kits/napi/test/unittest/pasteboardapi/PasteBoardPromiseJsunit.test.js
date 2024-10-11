@@ -1486,6 +1486,65 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
+   * @tc.name      pasteboard_promise_test53
+   * @tc.desc      html
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test53', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "<!DOCTYPE html><html><head><title>" +
+    "的厚爱hi哦</title></head><body><h2>恶风无关痛痒和</h2>" +
+    "<p>Greg任何人https://exampsaole.com问我的<a href=\"https://exaeqdwerfmple.com\">" +
+    "如果qwiuyhw@huedqw.dsh站</a>。</p></body></html>";
+    const pasteData = pasteboard.createHtmlData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns = [pasteboard.Pattern.EMAIL_ADDRESS, pasteboard.Pattern.NUMBER];
+    systemPasteboard.detectPatterns(patterns).then((data) => {
+      const patternsRight = [pasteboard.Pattern.EMAIL_ADDRESS];
+      expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
+      done();
+    }).catch((error)=>{
+      console.error('promise_test53: systemPasteboard.detectPatterns promise error:' + error.message);
+      return;
+    });
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test54
+   * @tc.desc      plaintext
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test54', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "部分人的十点半：\n" +
+    "「而飞过海」\n" +
+    "方法：\n" +
+    "https://pr5yyye-drseyive.u54yk.cwerfe/s/42e1ewed77f3dab4" +
+    "网gest加尔文iqru发的我ui哦计划任务i文化人:\n" +
+    "~b0043fg3423tddj~";
+    const pasteData = pasteboard.createPlainTextData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    const patterns = [pasteboard.Pattern.EMAIL_ADDRESS,
+      pasteboard.Pattern.URL, pasteboard.Pattern.NUMBER];
+    systemPasteboard.detectPatterns(patterns).then((data) => {
+      const patternsRight = [pasteboard.Pattern.NUMBER, pasteboard.Pattern.URL];
+      expect(data.sort().join('')).assertEqual(patternsRight.sort().join(''));
+      done();
+    }).catch((error)=>{
+      console.error('promise_test54: systemPasteboard.detectPatterns promise error:' + error.message);
+      return;
+    });
+  });
+
+  /**
    *  The callback function is used for pasteboard content changes
    */
   function contentChanges() {

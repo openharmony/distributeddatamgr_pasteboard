@@ -33,6 +33,7 @@ public:
     virtual bool HasPasteData() override;
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
         const sptr<IPasteboardEntryGetter> entryGetter) override;
+    virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual bool IsRemoteData() override;
     virtual int32_t GetDataSource(std::string &bundleName) override;
     virtual bool HasDataType(const std::string &mimeType) override;

@@ -243,6 +243,14 @@ public:
     bool HasDataType(const std::string &mimeType);
 
     /**
+     * DetectPatterns
+     * @description Checks the specified patterns contained in clipboard, and removes if not found.
+     * @param patternsToCheck A reference to an set of Pattern to check against the clipboard.
+     * @return Returns DetectPatterns.
+     */
+    std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck);
+
+    /**
      * Subscribe
      * @descrition
      * @param type observer type

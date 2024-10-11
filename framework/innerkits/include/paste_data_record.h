@@ -22,6 +22,7 @@
 #include "common/constant.h"
 #include "message_parcel.h"
 #include "pixel_map.h"
+#include "paste_data_entry.h"
 #include "string_ex.h"
 #include "tlv_object.h"
 #include "unified_meta.h"
@@ -31,19 +32,6 @@
 namespace OHOS {
 namespace MiscServices {
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
-
-class API_EXPORT MineCustomData : public TLVObject {
-public:
-    MineCustomData() = default;
-    std::map<std::string, std::vector<uint8_t>> GetItemData();
-    void AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
-    bool Encode(std::vector<std::uint8_t> &buffer) override;
-    bool Decode(const std::vector<std::uint8_t> &buffer) override;
-    size_t Count() override;
-
-private:
-    std::map<std::string, std::vector<uint8_t>> itemData_;
-};
 
 class FileDescriptor {
 public:

@@ -20,6 +20,7 @@
 #include "convert_utils.h"
 #include "copy_uri_handler.h"
 #include "parcel_util.h"
+#include "paste_data_entry.h"
 #include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
@@ -303,17 +304,6 @@ std::shared_ptr<MineCustomData> PasteDataRecord::GetCustomData() const
     return this->customData_;
 }
 
-std::map<std::string, std::vector<uint8_t>> MineCustomData::GetItemData()
-{
-    return this->itemData_;
-}
-
-void MineCustomData::AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
-{
-    itemData_.insert(std::make_pair(mimeType, arrayBuffer));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "itemData_.size = %{public}zu", itemData_.size());
-}
-
 std::string PasteDataRecord::ConvertToText() const
 {
     if (this->htmlText_) {
@@ -325,36 +315,6 @@ std::string PasteDataRecord::ConvertToText() const
     } else {
         return "";
     }
-}
-
-bool MineCustomData::Encode(std::vector<std::uint8_t> &buffer)
-{
-    return TLVObject::Write(buffer, TAG_ITEM_DATA, itemData_);
-}
-
-bool MineCustomData::Decode(const std::vector<std::uint8_t> &buffer)
-{
-    for (; IsEnough();) {
-        TLVHead head{};
-        bool ret = ReadHead(buffer, head);
-        switch (head.tag) {
-            case TAG_ITEM_DATA:
-                ret = ret && ReadValue(buffer, itemData_, head);
-                break;
-            default:
-                ret = ret && Skip(head.len, buffer.size());
-                break;
-        }
-        if (!ret) {
-            return false;
-        }
-    }
-    return true;
-}
-
-size_t MineCustomData::Count()
-{
-    return TLVObject::Count(itemData_);
 }
 
 bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)

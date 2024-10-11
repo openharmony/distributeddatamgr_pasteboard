@@ -577,6 +577,20 @@ bool PasteboardClient::HasDataType(const std::string &mimeType)
     return ret;
 }
 
+std::set<Pattern> PasteboardClient::DetectPatterns(const std::set<Pattern> &patternsToCheck)
+{
+    if (!PatternDetection::IsValid(patternsToCheck)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid number in Pattern set!");
+        return {};
+    }
+
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return {};
+    }
+    return proxyService->DetectPatterns(patternsToCheck);
+}
+
 sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
 {
     std::unique_lock<std::mutex> lock(instanceLock_);

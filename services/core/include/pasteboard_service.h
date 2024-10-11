@@ -43,6 +43,7 @@
 #include "i_pasteboard_observer.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "paste_data.h"
+#include "paste_data_entry.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
 #include "system_ability.h"
@@ -103,6 +104,7 @@ public:
         const sptr<IPasteboardEntryGetter> entryGetter) override;
     virtual bool IsRemoteData() override;
     virtual bool HasDataType(const std::string &mimeType) override;
+    virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
     virtual void SubscribeObserver(PasteboardObserverType type,
         const sptr<IPasteboardChangedObserver> &observer) override;
