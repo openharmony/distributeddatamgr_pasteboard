@@ -576,15 +576,14 @@ void UvWorkGetRecordByEntryGetter(uv_work_t *work, int status)
     napi_get_reference_value(env, ref, &callback);
     {
         std::unique_lock<std::mutex> lock(entryGetterWork->mutex);
-        auto ret = napi_call_function(env, undefined, callback, 1, argv, &resultOut);
-        if (ret == napi_ok) {
+        if (napi_call_function(env, undefined, callback, 1, argv, &resultOut) == napi_ok) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "get delay data success");
             EntryValue entryValue;
             if (GetNativeValue(env, mimeType, resultOut, entryValue)) {
                 entryGetterWork->entryValue = std::make_shared<UDMF::ValueType>(entryValue);
             }
         } else {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "clll napi_call_function is not ok, ret: %{public}d", ret);
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "call napi_call_function is not ok, ret: %{public}d", ret);
         }
         napi_close_handle_scope(env, scope);
         entryGetterWork->complete = true;

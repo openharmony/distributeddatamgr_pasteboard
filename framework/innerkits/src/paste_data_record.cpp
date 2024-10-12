@@ -167,7 +167,7 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewMultiTypeRecord(
     auto record = std::make_shared<PasteDataRecord>();
     if (!recordMimeType.empty()) {
         auto recordDefaultIter = values->find(recordMimeType);
-        if (recordDefaultIter != values->end()){
+        if (recordDefaultIter != values->end()) {
             auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, recordMimeType);
             record->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, *(recordDefaultIter->second)));
         }

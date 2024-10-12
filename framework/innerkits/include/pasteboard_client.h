@@ -161,7 +161,7 @@ public:
  * @param recordMimeType record's default mimeType
  * @return PasteData.
  */
-   std::shared_ptr<PasteData> CreateMultiTypeData(
+    std::shared_ptr<PasteData> CreateMultiTypeData(
        std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap,
        const std::string &recordMimeType = "");
 
