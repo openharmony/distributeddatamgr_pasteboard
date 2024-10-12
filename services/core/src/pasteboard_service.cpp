@@ -2114,7 +2114,7 @@ void PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
                 continue;
             }
             if (entry->GetMimeType() == mimeType) {
-                record->SetUDMFValue(std::make_shared<EntryValue>(entry->GetValue()));
+                record->AddEntry(entry->GetUtdId(), std::make_shared<PasteDataEntry>(*entry));
             }
         }
     }

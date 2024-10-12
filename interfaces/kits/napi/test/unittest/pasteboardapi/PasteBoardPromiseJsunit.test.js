@@ -1621,7 +1621,46 @@ describe('PasteBoardJSTest', function () {
       expect(pasteData5.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
       done();
     });
-  });  
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test58
+   * @tc.desc      test addEntry and getData
+   * @tc.type      Function
+   * @tc.require   AR000HEECD
+   */
+  it('pasteboard_promise_test58', 0, async function (done) {
+    const htmlText = "<html><head></head><body>Hello World!</body></html>";
+    const plainData = "Hello World!";
+    const uriText = "https://www.AACCSVDSVSDV.com/";
+    const buffer58 = new ArrayBuffer(128);
+    const opt58 = {
+      size: { height: 5, width: 5 },
+      pixelFormat: 3,
+      editable: true,
+      alphaType: 1,
+      scaleMode: 1,
+    };
+    const pixelMap = await image.createPixelMap(buffer58, opt58);
+    const pasteRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_TEXT_PLAIN, plainData);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
+
+    const html = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_HTML);
+    expect(html.toString()).assertEqual(htmlText.toString());
+    const plain = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_PLAIN);
+    expect(plain.toString()).assertEqual(plainData.toString());
+    const uri = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_URI);
+    expect(uri.toString()).assertEqual(uriText.toString());
+    const pixel = await pasteRecord.getData(pasteboard.MIMETYPE_PIXELMAP);
+    const PixelMapBytesNumber = pixel.getPixelBytesNumber();
+    expect(PixelMapBytesNumber).assertEqual(100);
+    const imageInfo = await pixel.getImageInfo();
+    expect(imageInfo.size.height === 5 && imageInfo.size.width === 5).assertEqual(true);
+
+    done();
+  });
   /**
    *  The callback function is used for pasteboard content changes
    */

@@ -17,6 +17,9 @@
 #include <if_system_ability_manager.h>
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
+#include <algorithm>
+#include <chrono>
+#include <memory>
 
 #include "convert_utils.h"
 #include "file_uri.h"
@@ -118,6 +121,12 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateKvRecord(
     return PasteDataRecord::NewKvRecord(mimeType, arrayBuffer);
 }
 
+std::shared_ptr<PasteDataRecord> PasteboardClient::CreateMultiDelayRecord(
+    std::vector<std::string> mimeTypes, const std::shared_ptr<UDMF::EntryGetter> entryGetter)
+{
+    return PasteDataRecord::NewMultiTypeDelayRecord(mimeTypes, entryGetter);
+}
+
 std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &htmlText)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New htmlText data");
@@ -164,6 +173,24 @@ std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New Kv data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddKvRecord(mimeType, arrayBuffer);
+    return pasteData;
+}
+
+std::shared_ptr<PasteData> PasteboardClient::CreateMultiTypeData(
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap, const std::string &recordMimeType)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New multiType data");
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddRecord(PasteDataRecord::NewMultiTypeRecord(std::move(typeValueMap), recordMimeType));
+    return pasteData;
+}
+
+std::shared_ptr<PasteData> PasteboardClient::CreateMultiTypeDelayData(std::vector<std::string> mimeTypes,
+    std::shared_ptr<UDMF::EntryGetter> entryGetter)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New multiTypeDelay data");
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddRecord(PasteDataRecord::NewMultiTypeDelayRecord(mimeTypes, entryGetter));
     return pasteData;
 }
 
