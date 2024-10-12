@@ -548,7 +548,6 @@ PastedataRecordEntryGetterInstance::~PastedataRecordEntryGetterInstance()
 
 void UvWorkGetRecordByEntryGetter(uv_work_t *work, int status)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "UvQueueWorkGetDelayPasteData start");
     if (UV_ECANCELED == status || work == nullptr || work->data == nullptr) {
         return;
     }
@@ -576,8 +575,8 @@ void UvWorkGetRecordByEntryGetter(uv_work_t *work, int status)
     napi_get_reference_value(env, ref, &callback);
     {
         std::unique_lock<std::mutex> lock(entryGetterWork->mutex);
-        if (napi_call_function(env, undefined, callback, 1, argv, &resultOut) == napi_ok) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "get delay data success");
+        auto ret = napi_call_function(env, undefined, callback, 1, argv, &resultOut);
+        if (ret == napi_ok) {
             EntryValue entryValue;
             if (GetNativeValue(env, mimeType, resultOut, entryValue)) {
                 entryGetterWork->entryValue = std::make_shared<UDMF::ValueType>(entryValue);
