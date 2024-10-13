@@ -32,7 +32,6 @@ public:
         :online_(std::move(online)), onReady_(std::move(onReady)), offline_(std::move(offline))
     {
     }
-
     void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override
     {
         if (online_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
@@ -44,7 +43,7 @@ public:
 
     void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
     {
-        if (offline_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT)  {
+        if (offline_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
             return;
         }
         offline_(deviceInfo);
@@ -98,9 +97,6 @@ DMAdapter::DMAdapter()
 
 DMAdapter::~DMAdapter()
 {
-    auto &deviceManager = DeviceManager::GetInstance();
-    deviceManager.UnRegisterDevStateCallback(PKG_NAME);
-    deviceManager.UnInitDeviceManager(PKG_NAME);
 }
 
 DMAdapter &DMAdapter::GetInstance()
@@ -136,6 +132,13 @@ bool DMAdapter::Initialize(const std::string &pkgName)
     SetDevices();
 #endif
     return false;
+}
+
+void DMAdapter::UnInitialize()
+{
+    auto& deviceManager = DeviceManager::GetInstance();
+    deviceManager.UnRegisterDevStateCallback(pkgName_);
+    deviceManager.UnInitDeviceManager(pkgName_);
 }
 
 const std::string &DMAdapter::GetLocalDeviceUdid()
