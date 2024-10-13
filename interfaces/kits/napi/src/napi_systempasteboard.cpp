@@ -587,13 +587,13 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     NAPI_CALL(env, UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance));
     UDMF::UnifiedDataNapi* obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void**>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    if ((status != napi_ok) || (obj == nullptr) || obj->value_ == nullptr) {
         return nullptr;
     }
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
-    std::thread thread([block, &obj]() mutable {
-        auto ret = PasteboardClient::GetInstance()->GetUnifiedData(*(obj->value_));
-        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
+    std::thread thread([block, unifiedData = obj->value_]() mutable {
+        auto ret = PasteboardClient::GetInstance()->GetUnifiedData(*unifiedData);
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(ret);
         block->SetValue(value);
     });
     thread.detach();
@@ -618,7 +618,7 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     }
     UDMF::UnifiedDataNapi* unifiedDataNapi = nullptr;
     napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
-    if (!CheckExpression(env, unifiedDataNapi != nullptr,
+    if (!CheckExpression(env, (unifiedDataNapi != nullptr && unifiedDataNapi->value_ != nullptr),
         JSErrorCode::INVALID_PARAMETERS, "Parameter error. The Type of data must be unifiedData.")) {
         return nullptr;
     }
@@ -631,10 +631,11 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
         isDelay = true;
     }
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
-    std::thread thread([block, unifiedDataNapi, isDelay, delayGetter]() mutable {
+    std::shared_ptr<UDMF::UnifiedData> unifiedData = unifiedDataNapi->value_;
+    std::thread thread([block, unifiedData, isDelay, delayGetter]() mutable {
         int32_t ret = isDelay ?
-            PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_), delayGetter->GetStub()) :
-            PasteboardClient::GetInstance()->SetUnifiedData(*(unifiedDataNapi->value_));
+            PasteboardClient::GetInstance()->SetUnifiedData(*unifiedData, delayGetter->GetStub()) :
+            PasteboardClient::GetInstance()->SetUnifiedData(*unifiedData);
         std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
         block->SetValue(value);
     });
@@ -644,7 +645,6 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, SetUnifiedDataSync failed.");
         return nullptr;
     }
-
     if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, SetUnifiedDataSync failed");
         return nullptr;
@@ -901,13 +901,13 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    if ((status != napi_ok) || (obj == nullptr) || obj->value_ == nullptr) {
         return nullptr;
     }
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
-    std::thread thread([block, &obj]() mutable {
-        auto ret = PasteboardClient::GetInstance()->GetPasteData(*(obj->value_));
-        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
+    std::thread thread([block, pasteData = obj->value_]() mutable {
+        auto ret = PasteboardClient::GetInstance()->GetPasteData(*pasteData);
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(ret);
         block->SetValue(value);
     });
     thread.detach();
@@ -935,13 +935,14 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
 
     PasteDataNapi *pasteData = nullptr;
     napi_unwrap(env, argv[0], reinterpret_cast<void **>(&pasteData));
-    if (pasteData == nullptr) {
+    if (pasteData == nullptr || pasteData->value_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue!");
         return nullptr;
     }
     auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
-    std::thread thread([block, pasteData]() {
-        auto ret = PasteboardClient::GetInstance()->SetPasteData(*(pasteData->value_));
+    std::shared_ptr<PasteData> data = pasteData->value_;
+    std::thread thread([block, data]() {
+        auto ret = PasteboardClient::GetInstance()->SetPasteData(*data);
         std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
         block->SetValue(value);
     });
