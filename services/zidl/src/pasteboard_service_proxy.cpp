@@ -77,36 +77,36 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     std::vector<uint8_t> pasteDataTlv(0);
     bool ret = pasteData.Encode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to encode pastedata in TLV");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteInt32(pasteDataTlv.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw size");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw data");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     CopyUriHandler copyHandler;
     if (!pasteData.WriteUriFd(data, copyHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (pasteData.IsDelayData() &&
         !data.WriteRemoteObject(delayGetter->AsObject())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed to write delay getter");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::SET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-        return ERR_INVALID_OPERATION;
+        return result;
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return reply.ReadInt32();
@@ -121,38 +121,38 @@ __attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteDat
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteString(pasteData.GetPasteId())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_PASTE_DATA, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-        return ERR_INVALID_OPERATION;
+        return result;
     }
     pasteData.SetPasteId("");
     int32_t rawDataSize = reply.ReadInt32();
     if (rawDataSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw size");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     auto *rawData = (uint8_t *)reply.ReadRawData(rawDataSize);
     if (rawData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw data");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
     bool ret = pasteData.Decode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     PasteUriHandler pasteHandler;
     if (!pasteData.ReadUriFd(reply, pasteHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     syncTime = reply.ReadInt32();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
@@ -252,12 +252,12 @@ int32_t PasteboardServiceProxy::GetDataSource(std::string &bundleName)
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_DATA_SOURCE, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-        return ERR_INVALID_OPERATION;
+        return result;
     }
     bundleName = reply.ReadString();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
@@ -272,16 +272,16 @@ bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteString(mimeType)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::HAS_DATA_TYPE, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-        return ERR_INVALID_OPERATION;
+        return result;
     }
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
@@ -295,27 +295,27 @@ int32_t PasteboardServiceProxy::SetGlobalShareOption(const std::map<uint32_t, Sh
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteInterfaceToken failed.");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteUint32(static_cast<uint32_t>(globalShareOptions.size()))) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write size failed.");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     for (const auto &[tokenId, shareOption] : globalShareOptions) {
         if (!data.WriteUint32(tokenId)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenId failed.");
-            return ERR_INVALID_VALUE;
+            return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
         }
         if (!data.WriteInt32(static_cast<int32_t>(shareOption))) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write shareOption failed.");
-            return ERR_INVALID_VALUE;
+            return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
         }
     }
     int32_t result = Remote()->SendRequest(
         PasteboardServiceInterfaceCode::SET_GLOBAL_SHARE_OPTION, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
-        return ERR_INVALID_OPERATION;
+        return result;
     }
     return reply.ReadInt32();
 }
@@ -327,17 +327,17 @@ int32_t PasteboardServiceProxy::RemoveGlobalShareOption(const std::vector<uint32
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteInterfaceToken failed.");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteUInt32Vector(tokenIds)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write tokenIds failed.");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     int32_t result = Remote()->SendRequest(
         PasteboardServiceInterfaceCode::REMOVE_GLOBAL_SHARE_OPTION, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "SendRequest failed, error code: %{public}d.", result);
-        return ERR_INVALID_OPERATION;
+        return result;
     }
     return reply.ReadInt32();
 }
@@ -395,11 +395,11 @@ int32_t PasteboardServiceProxy::SetAppShareOptions(const ShareOption &shareOptio
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write interface token failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteInt32(shareOptions)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write share options failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     auto result = Remote()->SendRequest(PasteboardServiceInterfaceCode::SET_APP_SHARE_OPTIONS, data, reply, option);
     if (result != ERR_NONE) {
@@ -416,7 +416,7 @@ int32_t PasteboardServiceProxy::RemoveAppShareOptions()
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write interface token failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     auto result = Remote()->SendRequest(PasteboardServiceInterfaceCode::REMOVE_APP_SHARE_OPTIONS, data, reply, option);
     if (result != ERR_NONE) {
@@ -472,18 +472,18 @@ int32_t PasteboardServiceProxy::RegisterClientDeathObserver(sptr<IRemoteObject> 
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "observer is nullptr");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write interface token failed.");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!data.WriteRemoteObject(observer)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remote observer failed.");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     auto result = Remote()->SendRequest(
         PasteboardServiceInterfaceCode::REGISTER_CLIENT_DEATH_OBSERVER, data, reply, option);
