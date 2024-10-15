@@ -305,6 +305,8 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.height == opts.size.height);
     ASSERT_TRUE(imageInfo.size.width == opts.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+    pasteDataRecord->ClearPixelMap();
+    ASSERT_TRUE(pasteDataRecord->GetPixelMap() == nullptr);
 }
 
 /**

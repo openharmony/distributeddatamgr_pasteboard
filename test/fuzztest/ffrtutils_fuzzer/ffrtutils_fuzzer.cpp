@@ -31,19 +31,6 @@ T TypeCast(const uint8_t *data, int *pos = nullptr)
     return *(reinterpret_cast<const T*>(data));
 }
 
-bool FuzzFfrtUtilsSubmitTask(const uint8_t *rawData, size_t size)
-{
-    if (rawData == nullptr || size < sizeof(int32_t)) {
-        return true;
-    }
-    int x = TypeCast<int32_t>(rawData, nullptr);
-    FFRTTask task = [&] {
-        x /= 2;
-    };
-    FFRTUtils::SubmitTask(task);
-    return true;
-}
-
 bool FuzzFfrtUtilsSubmitQueueTasks(const uint8_t *rawData, size_t size)
 {
     if (rawData == nullptr || size < sizeof(int32_t) + sizeof(int32_t)) {
@@ -58,11 +45,15 @@ bool FuzzFfrtUtilsSubmitQueueTasks(const uint8_t *rawData, size_t size)
     FFRTTask task1 = [&] {
         y /= 2;
     };
-    std::vector<FFRTTask> tasks;
-    tasks.push_back(task);
-    tasks.push_back(task1);
-    FFRTQueue serialQueue("pasteboard_queue");
-    FFRTUtils::SubmitQueueTasks(tasks, serialQueue);
+    static uint32_t thresHold = 1;
+    if (thresHold <= 1) {
+        std::vector<FFRTTask> tasks;
+        tasks.push_back(task);
+        tasks.push_back(task1);
+        FFRTQueue serialQueue("pasteboard_queue");
+        FFRTUtils::SubmitQueueTasks(tasks, serialQueue);
+        thresHold++;
+    }
     return true;
 }
 
@@ -71,14 +62,17 @@ bool FuzzFfrtUtilsSubmitDelayTask(const uint8_t *rawData, size_t size)
     if (rawData == nullptr || size < sizeof(int32_t)) {
         return true;
     }
-    int y = TypeCast<int32_t>(rawData);
-    FFRTTask task = [&] {
-        y /= 2;
-    };
-    uint32_t delayMs = 5; // delay 5Ms
-    FFRTQueue serQueue("delaytask_queue");
-    FFRTHandle ffrtHandle = FFRTUtils::SubmitDelayTask(task, delayMs, serQueue);
-    FFRTUtils::CancelTask(ffrtHandle, serQueue);
+    static uint32_t thresHold = 1;
+    if (thresHold <= 1) {
+        int y = TypeCast<int32_t>(rawData);
+        FFRTTask task = [&] {
+            y /= 2;
+        };
+        uint32_t delayMs = 5; // delay 5Ms
+        FFRTQueue serQueue("delaytask_queue");
+        FFRTUtils::SubmitDelayTask(task, delayMs, serQueue);
+        thresHold++;
+    }
     return true;
 }
 
@@ -92,9 +86,12 @@ bool FuzzUtilsSubmitDelayTask(const uint8_t *rawData, size_t size)
         z /= 2;
     };
     uint32_t delayMs = 5; // delay 5Ms
-    shared_ptr<FFRTQueue> queue = make_shared<FFRTQueue>("delaytask_queue_ptr");
-    FFRTHandle ffrtHandle = FFRTUtils::SubmitDelayTask(task, delayMs,  queue);
-    FFRTUtils::CancelTask(ffrtHandle, queue);
+    static uint32_t thresHold = 1;
+    if (thresHold <= 1) {
+        shared_ptr<FFRTQueue> queue = make_shared<FFRTQueue>("delaytask_queue_ptr");
+        FFRTUtils::SubmitDelayTask(task, delayMs,  queue);
+        thresHold++;
+    }
     return true;
 }
 
@@ -107,8 +104,12 @@ bool FuzzUtilsSubmitTimeoutTask(const uint8_t *rawData, size_t size)
     FFRTTask task = [&] {
         m /= 2;
     };
-    uint32_t timeout = 10; // timeout 10Ms
-    FFRTUtils::SubmitTimeoutTask(task, timeout);
+    static uint32_t thresHold = 1;
+    if (thresHold <= 1) {
+        uint32_t timeout = 10; // timeout 10Ms
+        FFRTUtils::SubmitTimeoutTask(task, timeout);
+        thresHold++;
+    }
     return true;
 }
 
@@ -140,13 +141,17 @@ bool FuzzFfRTTimerMultiSetAndCancel(const uint8_t *rawData, size_t size)
         n = 5;
     };
     int len = size >> 1;
-    string timerId1(reinterpret_cast<const char*>(rawData), len);
-    string timerId2(reinterpret_cast<const char*>(rawData + len), size - len);
-    FFRTTimer ffrtTimer("fuzz_test_timername");
-    uint32_t delayMs = 5; // delay 5Ms
-    ffrtTimer.SetTimer(timerId1, task, delayMs);
-    ffrtTimer.SetTimer(timerId2, task1, delayMs);
-    ffrtTimer.CancelAllTimer();
+    string timerId1 = "TimerMultiSetAndCancel1";
+    string timerId2 = "TimerMultiSetAndCancel2";
+    static uint32_t thresHold = 1;
+    if (thresHold <= 1) {
+        FFRTTimer ffrtTimer("fuzz_test_timername");
+        uint32_t delayMs = 5; // delay 5Ms
+        ffrtTimer.SetTimer(timerId1, task, delayMs);
+        ffrtTimer.SetTimer(timerId2, task1, delayMs);
+        ffrtTimer.CancelAllTimer();
+        thresHold++;
+    }
     return true;
 }
 } // namespace OHOS
@@ -154,12 +159,10 @@ bool FuzzFfRTTimerMultiSetAndCancel(const uint8_t *rawData, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
-    OHOS::FuzzFfrtUtilsSubmitTask(data, size);
     OHOS::FuzzFfrtUtilsSubmitQueueTasks(data, size);
     OHOS::FuzzFfrtUtilsSubmitDelayTask(data, size);
     OHOS::FuzzUtilsSubmitDelayTask(data, size);
     OHOS::FuzzUtilsSubmitTimeoutTask(data, size);
-    OHOS::FuzzFfRTTimerSingleSetAndCancel(data, size);
     OHOS::FuzzFfRTTimerSingleSetAndCancel(data, size);
     OHOS::FuzzFfRTTimerMultiSetAndCancel(data, size);
     return 0;

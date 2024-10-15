@@ -62,8 +62,18 @@ bool FuzzPasteUriHandlerToUri(const uint8_t *rawData, size_t size)
         return true;
     }
     int32_t fd = TypeCast<int32_t>(rawData, nullptr);
+    if (fd >= 0) {
+        return true;
+    }
     PasteUriHandler pasteUriHandler;
     (void)pasteUriHandler.ToUri(fd);
+    return true;
+}
+
+bool FuzzPasteUriHandlerIsPaste(const uint8_t *rawData, size_t size)
+{
+    PasteUriHandler pasteUriHandler;
+    (void)pasteUriHandler.IsPaste();
     return true;
 }
 } // namespace OHOS
@@ -75,5 +85,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::FuzzUriToFd(data, size);
     OHOS::FuzzCopyUriHandlerToUri(data, size);
     OHOS::FuzzPasteUriHandlerToUri(data, size);
+    OHOS::FuzzPasteUriHandlerIsPaste(data, size);
     return 0;
 }

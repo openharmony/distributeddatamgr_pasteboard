@@ -33,12 +33,7 @@ ohos_fuzztest("UriHandlerFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [
-    "${pasteboard_root_path}/framework/uri/copy_uri_handler.cpp",
-    "${pasteboard_root_path}/framework/uri/paste_uri_handler.cpp",
-    "${pasteboard_root_path}/framework/uri/uri_handler.cpp",
-    "urihandler_fuzzer.cpp",
-  ]
+  sources = [ "urihandler_fuzzer.cpp" ]
 
   deps = [
     "${pasteboard_innerkits_path}:pasteboard_client",

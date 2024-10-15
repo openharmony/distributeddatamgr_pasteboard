@@ -131,13 +131,13 @@ public:
     bool IsDelayRecord() const;
     void SetDataId(uint32_t dataId);
     uint32_t GetDataId() const;
-    bool Marshalling(Parcel &parcel) const override;
-    static PasteData *Unmarshalling(Parcel &parcel);
     void SetPasteId(const std::string &pasteId);
     std::string GetPasteId() const;
     std::string GetDeviceId() const;
 
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
+    bool Marshalling(Parcel &parcel) const override;
+    static PasteData *Unmarshalling(Parcel &parcel);
     static std::string sharePath;
     static std::string WEBVIEW_PASTEDATA_TAG;
     static const std::string DISTRIBUTEDFILES_TAG;
@@ -153,6 +153,7 @@ public:
 private:
     void RefreshMimeProp();
     bool ReadFromParcel(Parcel &parcel);
+
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
     std::string orginAuthority_;
