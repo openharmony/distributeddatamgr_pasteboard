@@ -147,7 +147,6 @@ void PasteboardService::OnStart()
     loader.LoadComponents();
     bundles_ = loader.LoadBundles();
     uid_ = loader.LoadUid();
-    DMAdapter::GetInstance().Initialize(appInfo.bundleName);
     moduleConfig_.Init();
     auto ret = DATASL_OnStart();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", ret);
@@ -194,7 +193,7 @@ void PasteboardService::OnStop()
     }
     serviceHandler_ = nullptr;
     state_ = ServiceRunningState::STATE_NOT_START;
-
+    DMAdapter::GetInstance().UnInitialize();
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
     }
@@ -522,8 +521,8 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, 
     AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = READ_PASTEBOARD_PERMISSION;
-    info.successCount = isGrant ? 1 : 0;
-    info.failCount = isGrant ? 0 : 1;
+    info.successCount = 1;
+    info.failCount = 0;
     info.type = permUsedType;
     int32_t result = PrivacyKit::AddPermissionUsedRecord(info);
     if (result != RET_SUCCESS) {
@@ -1027,7 +1026,9 @@ bool PasteboardService::HasPasteData()
     }
     auto it = clips_.Find(userId);
     if (!it.first) {
-        if (GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
+        ScreenEvent screenStatus = GetCurrentScreenStatus();
+        if (screenStatus != ScreenEvent::ScreenUnlocked) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screenStatus:%{public}d.", screenStatus);
             return false;
         }
         auto evt = GetValidDistributeEvent(userId);
