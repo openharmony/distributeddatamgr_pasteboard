@@ -104,6 +104,16 @@
               ],
               "header_base":"//foundation/distributeddatamgr/pasteboard/framework/framework/include"
             }
+          },
+          {
+            "name": "//foundation/distributeddatamgr/pasteboard/interfaces/ndk:libpasteboard",
+            "header": {
+              "header_files": [
+                "oh_pasteboard.h",
+                "oh_pasteboard_err_code.h"
+              ],
+              "header_base":"//foundation/distributeddatamgr/pasteboard/interfaces/ndk/include"
+            }
           }
         ],
         "test": [
@@ -111,7 +121,8 @@
           "//foundation/distributeddatamgr/pasteboard/services/test:PasteboardServiceTest",
           "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest",
           "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardapi:unittest",
-          "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardperf:unittest"
+          "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardperf:unittest",
+          "//foundation/distributeddatamgr/pasteboard/interfaces/ndk/unittest:unittest"
         ]
       },
         "hisysevent_config": [

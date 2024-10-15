@@ -19,10 +19,12 @@ config("module_private_config") {
 
   include_dirs = [
     "${pasteboard_innerkits_path}/include",
+    "${pasteboard_utils_path}/native/include",
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/dfx/src/behaviour",
     "${pasteboard_service_path}/dfx/src/fault",
     "${pasteboard_service_path}/dfx/src/statistic",
+    "${pasteboard_service_path}/core/include",
     "include",
     "unittest/include",
     "//base/security/access_token/interfaces/innerkits/accesstoken/include",
@@ -57,6 +59,7 @@ ohos_unittest("PasteboardServiceTest") {
     "image_framework:image_native",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
+    "udmf:udmf_client",
   ]
 
   deps = [

@@ -144,6 +144,16 @@ public:
     std::shared_ptr<PasteData> CreateKvData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
     /**
+    * GetRecordValueByType
+    * @descrition get entry value from the pasteboard.
+    * @param dataId the dataId of the PasteData.
+    * @param recordId the recordId of the PasteRecord.
+    * @param value the value of the PasteDataEntry.
+    * @return int32_t.
+    */
+    int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry& value);
+
+    /**
      * GetPasteData
      * @descrition get paste data from the pasteboard.
      * @param pasteData the object of the PasteDate.
@@ -168,10 +178,13 @@ public:
     /**
      * SetPasteData
      * @descrition set paste data to the pasteboard.
-     * @param pasteData the object of the PasteDate.
+     * @param pasteData the object of the PasteData.
+     * @param pasteData the object of the PasteboardDelayGetter.
+     * @param pasteData the map of the EntryGetter.
      * @return int32_t.
      */
-    int32_t SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter = nullptr);
+    int32_t SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter = nullptr,
+        std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters = {});
 
     /**
      * SetPasteData
@@ -189,6 +202,22 @@ public:
      * @return int32_t.
      */
     int32_t GetUnifiedData(UDMF::UnifiedData &unifiedData);
+
+    /**
+    * SetUdsdData
+    * @descrition set unified data with uds entries to the pasteboard.
+    * @param unifiedData the object of the PasteDate.
+    * @return int32_t.
+    */
+    int32_t SetUdsdData(const UDMF::UnifiedData& unifiedData);
+
+    /**
+    * GetUnifiedDataWithEntry
+    * @descrition get unified data with uds entries from the pasteboard.
+    * @param unifiedData the object of the PasteDate.
+    * @return int32_t.
+    */
+    int32_t GetUdsdData(UDMF::UnifiedData& unifiedData);
 
     /**
      * IsRemoteData

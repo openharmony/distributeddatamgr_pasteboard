@@ -22,6 +22,7 @@
 #include "common/constant.h"
 #include "message_parcel.h"
 #include "pixel_map.h"
+#include "paste_data_entry.h"
 #include "string_ex.h"
 #include "tlv_object.h"
 #include "unified_meta.h"
@@ -31,19 +32,6 @@
 namespace OHOS {
 namespace MiscServices {
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
-
-class API_EXPORT MineCustomData : public TLVObject {
-public:
-    MineCustomData() = default;
-    std::map<std::string, std::vector<uint8_t>> GetItemData();
-    void AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
-    bool Encode(std::vector<std::uint8_t> &buffer) override;
-    bool Decode(const std::vector<std::uint8_t> &buffer) override;
-    size_t Count() override;
-
-private:
-    std::map<std::string, std::vector<uint8_t>> itemData_;
-};
 
 class FileDescriptor {
 public:
@@ -110,6 +98,21 @@ public:
     int32_t GetUDType() const;
     void SetUDType(int32_t type);
 
+    bool IsEmpty() const;
+    void SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue);
+    std::shared_ptr<EntryValue> GetUDMFValue();
+    void AddEntry(const std::string& utdType, std::shared_ptr<PasteDataEntry> value);
+    std::shared_ptr<PasteDataEntry> GetEntry(const std::string& utdType) const;
+    std::vector<std::shared_ptr<PasteDataEntry>> GetEntries() const;
+    std::vector<std::string> GetValidTypes(const std::vector<std::string>& types) const;
+
+    void SetDelayRecordFlag(bool isDelay);
+    bool IsDelayRecord() const;
+    void SetDataId(uint32_t dataId);
+    uint32_t GetDataId() const;
+    void SetRecordId(uint32_t recordId);
+    uint32_t GetRecordId() const;
+
     class Builder {
     public:
         explicit Builder(const std::string &mimeType);
@@ -132,6 +135,8 @@ private:
         return resultCode == ResultCode::OK;
     }
     std::string GetPassUri();
+    void AddUriEntry();
+    std::set<std::string> GetUdtTypes() const;
 
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
@@ -151,6 +156,11 @@ private:
     std::shared_ptr<Details> details_;
     std::string textContent_;
     std::shared_ptr<Details> systemDefinedContents_;
+    std::shared_ptr<EntryValue> udmfValue_;
+    std::vector<std::shared_ptr<PasteDataEntry>> entries_;
+    uint32_t dataId_ = 0;
+    uint32_t recordId_ = 0;
+    bool isDelay_ = false;
 };
 } // namespace MiscServices
 } // namespace OHOS

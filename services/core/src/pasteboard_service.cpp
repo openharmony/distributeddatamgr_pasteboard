@@ -41,6 +41,7 @@
 #include "os_account_manager.h"
 #include "parameters.h"
 #include "pasteboard_dialog.h"
+#include "paste_data_entry.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_error.h"
 #include "pasteboard_trace.h"
@@ -248,6 +249,27 @@ void PasteboardService::NotifyDelayGetterDied(int32_t userId)
     delayGetters_.Erase(userId);
 }
 
+PasteboardService::EntryGetterDeathRecipient::EntryGetterDeathRecipient(int32_t userId, PasteboardService &service)
+    : userId_(userId), service_(service)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Construct Entry Getter Death Recipient");
+}
+
+void PasteboardService::EntryGetterDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start");
+    (void) remote;
+    service_.NotifyEntryGetterDied(userId_);
+}
+
+void PasteboardService::NotifyEntryGetterDied(int32_t userId)
+{
+    if (userId == ERROR_USERID) {
+        return;
+    }
+    entryGetters_.Erase(userId);
+}
+
 void PasteboardService::DMAdapterInit()
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
@@ -290,6 +312,57 @@ void PasteboardService::Clear()
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
     }
     CleanDistributedData(userId);
+}
+
+int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry& value)
+{
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto callPid = IPCSkeleton::GetCallingPid();
+    if (!VerifyPermission(tokenId)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, calling pid is %{public}d", callPid);
+        return static_cast<int32_t>(PasteboardError::E_NO_PERMISSION);
+    }
+    auto appInfo = GetAppInfo(tokenId);
+    auto clip = clips_.Find(appInfo.userId);
+    auto tempTime = copyTime_.Find(appInfo.userId);
+    auto entryGetter = entryGetters_.Find(appInfo.userId);
+    if (!clip.first || !tempTime.first || !entryGetter.first) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard has no data or entry getter");
+        return static_cast<int32_t>(PasteboardError::E_ERROR);
+    }
+    auto data = clip.second;
+    if (dataId != data->GetDataId()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "get record value fail, data is out time, pre dataId is %{public}d, cur dataId is %{public}d",
+            dataId, data->GetDataId());
+        return static_cast<int32_t>(PasteboardError::E_ERROR);
+    }
+    auto getter = entryGetter.second;
+    if (getter.first == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "entry getter is nullptr, dataId is %{public}d, recordId is %{public}d", dataId, recordId);
+        return static_cast<int32_t>(PasteboardError::E_ERROR);
+    }
+    auto result = getter.first->GetRecordValueByType(recordId, value);
+    if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "get record value fail, dataId is %{public}d, recordId is %{public}d", dataId, recordId);
+        return result;
+    }
+    clips_.ComputeIfPresent(appInfo.userId, [dataId, recordId, value](auto, auto &data) {
+        if (dataId != data->GetDataId()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "set record value fail, data is out time, pre dataId is %{public}d, cur dataId is %{public}d",
+                dataId, data->GetDataId());
+            return true;
+        }
+        auto record = data->GetRecordAt(recordId - 1);
+        if (record != nullptr) {
+            record->AddEntry(value.GetUtdId(), std::make_shared<PasteDataEntry>(value));
+        }
+        return true;
+    });
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
@@ -729,6 +802,10 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
         GetDelayPasteData(appInfo, data);
         RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_DELAY_PASTE, DFX_SUCCESS, CONCURRENT_ID, pasteId);
     }
+    bool isDelayRecordPadding = false;
+    if (it.second->IsDelayRecord()) {
+        isDelayRecordPadding = GetDelayPasteRecord(appInfo, data);
+    }
     data.SetBundleName(appInfo.bundleName);
     auto result = copyTime_.Find(appInfo.userId);
     if (!result.first) {
@@ -738,8 +815,8 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     auto curTime = result.second;
     if (tempTime.second == curTime) {
         bool isNotify = false;
-        clips_.ComputeIfPresent(appInfo.userId, [&data, &isNotify](auto &key, auto &value) {
-            if (value->IsDelayData()) {
+        clips_.ComputeIfPresent(appInfo.userId, [&data, &isNotify, &isDelayRecordPadding](auto &key, auto &value) {
+            if (value->IsDelayData() || (value->IsDelayRecord() && isDelayRecordPadding)) {
                 value = std::make_shared<PasteData>(data);
                 isNotify = true;
             }
@@ -775,6 +852,42 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
         data = delayData;
         return false;
     });
+}
+
+bool PasteboardService::GetDelayPasteRecord(const AppInfo &appInfo, PasteData &data)
+{
+    auto entryGetter = entryGetters_.Find(appInfo.userId);
+    if (!entryGetter.first) {
+        return false;
+    }
+    auto getter = entryGetter.second;
+    if (getter.first == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entry getter is nullptr, dataId is %{public}d", data.GetDataId());
+        return false;
+    }
+    bool isPadding = false;
+    for (auto record : data.AllRecords()) {
+        if (!(record->IsEmpty())) {
+            continue;
+        }
+        if (!record->IsDelayRecord()) {
+            continue;
+        }
+        auto entries = record->GetEntries();
+        if (entries.size() <= 0) {
+            continue;
+        }
+        auto result = getter.first->GetRecordValueByType(record->GetRecordId(), *entries[0]);
+        if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "get record value fail, dataId is %{public}d, recordId is %{public}d",
+                data.GetDataId(), record->GetRecordId());
+            continue;
+        }
+        record->AddEntry(entries[0]->GetUtdId(), entries[0]);
+        isPadding = true;
+    }
+    return isPadding;
 }
 
 void PasteboardService::EstablishP2PLink(const std::string &networkId, const std::string &pasteId)
@@ -1039,10 +1152,11 @@ bool PasteboardService::HasPasteData()
     return IsDataVaild(*(it.second), tokenId);
 }
 
-int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter)
+int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
+    const sptr<IPasteboardEntryGetter> entryGetter)
 {
     auto data = std::make_shared<PasteData>(pasteData);
-    return SavePasteData(data);
+    return SavePasteData(data, delayGetter, entryGetter);
 }
 
 bool PasteboardService::IsBasicType(const std::string &mimeType)
@@ -1138,25 +1252,33 @@ bool PasteboardService::HasLocalDataType(const std::string &mimeType)
     auto userId = GetCurrentAccountId();
     auto it = clips_.Find(userId);
     if (!it.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "can not find data");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "can not find data. userId: %{public}d, mimeType: %{public}s",
+            userId, mimeType.c_str());
         return false;
     }
     if (it.second == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr. userId: %{public}d, mimeType: %{public}s",
+            userId, mimeType.c_str());
+        return false;
+    }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto ret = IsDataVaild(*(it.second), tokenId);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteData is invalid, tokenId is %{public}d, userId: %{public}d,"
+            "mimeType: %{public}s", tokenId, userId, mimeType.c_str());
         return false;
     }
     auto screenStatus = GetCurrentScreenStatus();
     if (it.second->GetScreenStatus() > screenStatus) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "current screen is %{public}d, set data screen is %{public}d.",
-            screenStatus, it.second->GetScreenStatus());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "current screen is %{public}d, set data screen is %{public}d."
+            "userId: %{public}d, mimeType: %{public}s",
+            screenStatus, it.second->GetScreenStatus(), userId, mimeType.c_str());
         return false;
     }
     std::vector<std::string> mimeTypes = it.second->GetMimeTypes();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "type is %{public}s", mimeType.c_str());
     auto isWebData = it.second->GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG;
     auto isExistType = std::find(mimeTypes.begin(), mimeTypes.end(), mimeType) != mimeTypes.end();
     if (isWebData) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "is Web Data");
         return mimeType == MIMETYPE_TEXT_HTML && isExistType;
     }
     return isExistType;
@@ -1197,7 +1319,7 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
 }
 
 int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
-    sptr<IPasteboardDelayGetter> delayGetter)
+    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -1224,7 +1346,11 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     pasteData->SetTime(time);
     pasteData->SetScreenStatus(GetCurrentScreenStatus());
     pasteData->SetTokenId(tokenId);
-
+    auto dataId = ++dataId_;
+    pasteData->SetDataId(dataId);
+    for (auto &record : pasteData->AllRecords()) {
+        record->SetDataId(dataId);
+    }
     UpdateShareOption(*pasteData);
     CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
@@ -1232,9 +1358,16 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
         appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
     if (pasteData->IsDelayData()) {
-        auto deathRecipient = new DelayGetterDeathRecipient(appInfo.userId, *this);
+        sptr<DelayGetterDeathRecipient> deathRecipient =
+            new (std::nothrow) DelayGetterDeathRecipient(appInfo.userId, *this);
         delayGetter->AsObject()->AddDeathRecipient(deathRecipient);
         delayGetters_.InsertOrAssign(appInfo.userId, std::make_pair(delayGetter, deathRecipient));
+    }
+    if (pasteData->IsDelayRecord()) {
+        sptr<EntryGetterDeathRecipient> deathRecipient =
+            new (std::nothrow) EntryGetterDeathRecipient(appInfo.userId, *this);
+        entryGetter->AsObject()->AddDeathRecipient(deathRecipient);
+        entryGetters_.InsertOrAssign(appInfo.userId, std::make_pair(entryGetter, deathRecipient));
     }
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
@@ -1251,19 +1384,23 @@ int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
 
 void PasteboardService::RemovePasteData(const AppInfo &appInfo)
 {
-    auto it = clips_.Find(appInfo.userId);
-    auto getter = delayGetters_.Find(appInfo.userId);
-    if (it.first) {
-        RevokeUriPermission(it.second);
-        clips_.Erase(appInfo.userId);
-    }
-    if (getter.first) {
+    clips_.ComputeIfPresent(appInfo.userId, [this](auto, auto &clip) {
+        RevokeUriPermission(clip);
+        return false;
+    });
+    delayGetters_.ComputeIfPresent(appInfo.userId, [](auto, auto &delayGetter) {
         RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, DFX_SUCCESS, COVER_DELAY_DATA, DFX_SUCCESS);
-        if (getter.second.first != nullptr && getter.second.second != nullptr) {
-            getter.second.first->AsObject()->RemoveDeathRecipient(getter.second.second);
+        if (delayGetter.first != nullptr && delayGetter.second != nullptr) {
+            delayGetter.first->AsObject()->RemoveDeathRecipient(delayGetter.second);
         }
-        delayGetters_.Erase(appInfo.userId);
-    }
+        return false;
+    });
+    entryGetters_.ComputeIfPresent(appInfo.userId, [](auto, auto &entryGetter) {
+        if (entryGetter.first != nullptr && entryGetter.second != nullptr) {
+            entryGetter.first->AsObject()->RemoveDeathRecipient(entryGetter.second);
+        }
+        return false;
+    });
 }
 
 void PasteboardService::SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName)
@@ -1752,6 +1889,7 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
     std::string time = GetTime();
     HistoryInfo info{ time, bundleName, "get", remote };
     SetPasteboardHistory(info);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     int pState = StatisticPasteboardState::SPS_INVALID_STATE;
     int bState = BehaviourPasteboardState::BPS_INVALID_STATE;
     if (pasteData.IsRemote()) {
@@ -1763,8 +1901,10 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
     };
 
     Reporter::GetInstance().PasteboardBehaviour().Report({ bState, bundleName });
-    
+
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData GetDataSize");
     size_t dataSize = GetDataSize(pasteData);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData timeC");
     CalculateTimeConsuming timeC(dataSize, pState);
 }
 
@@ -1841,17 +1981,9 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     if (!IsAllowSendData()) {
         return false;
     }
-    std::shared_ptr<std::vector<uint8_t>> rawData = std::make_shared<std::vector<uint8_t>>();
-    auto clipPlugin = GetClipPlugin();
-    if (clipPlugin == nullptr) {
-        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_SUCCESS);
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
-        return false;
-    }
-    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
-    GenerateDistributedUri(data);
-    if (data.GetShareOption() == InApp || !data.Encode(*rawData)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InApp data is not supports cross device, or data encode failed.");
+    if (data.GetShareOption() == InApp) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data share option is in app, dataId:%{public}d",
+            data.GetDataId());
         return false;
     }
 
@@ -1860,24 +1992,87 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
         return false;
     }
-
-    auto expiration =
-        duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_SUCCESS);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clip plugin is null, dataId:%{public}d", data.GetDataId());
+        return false;
+    }
+    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
     Event event;
     event.user = user;
     event.seqId = ++sequenceId_;
+    auto expiration =
+        duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
     event.expiration = static_cast<uint64_t>(expiration);
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
     event.status = ClipPlugin::EVT_NORMAL;
     event.dataType = data.GetMimeTypes();
     currentEvent_ = event;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "expiration = %{public}" PRIu64, event.expiration);
-    std::thread thread([clipPlugin, event, rawData]() mutable {
-        clipPlugin->SetPasteData(event, *rawData);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}d, seqId:%{public}d, expiration:%{public}" PRIu64,
+        data.GetDataId(), event.seqId, event.expiration);
+    std::thread thread([this, clipPlugin, event, user, data]() mutable {
+        if (data.IsDelayRecord()) {
+            GetFullDelayPasteData(user, data);
+        }
+        GenerateDistributedUri(data);
+        std::vector<uint8_t> rawData;
+        if (!data.Encode(rawData)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "distributed data encode failed, dataId:%{public}d, seqId:%{public}d", data.GetDataId(), event.seqId);
+        } else {
+            clipPlugin->SetPasteData(event, rawData);
+        }
     });
     thread.detach();
     return true;
+}
+
+void PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
+{
+    auto entryGetter = entryGetters_.Find(userId);
+    if (!entryGetter.first) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entry getter is nullptr, userId is %{public}d", userId);
+        return;
+    }
+    auto getter = entryGetter.second;
+    if (getter.first == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entry getter is nullptr, dataId is %{public}d", data.GetDataId());
+        return;
+    }
+    for (auto record : data.AllRecords()) {
+        if (!record->IsDelayRecord()) {
+            continue;
+        }
+        auto recordId = record->GetRecordId();
+        auto mimeType = record->GetMimeType();
+        for (auto entry : record->GetEntries()) {
+            if (!std::holds_alternative<std::monostate>(entry->GetValue())) {
+                continue;
+            }
+            auto result = getter.first->GetRecordValueByType(recordId, *entry);
+            if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                    "get record value fail, dataId is %{public}d, recordId is %{public}d, mimeType is %{public}s",
+                    data.GetDataId(), record->GetRecordId(), entry->GetMimeType().c_str());
+                continue;
+            }
+            if (entry->GetMimeType() == mimeType) {
+                record->SetUDMFValue(std::make_shared<EntryValue>(entry->GetValue()));
+            }
+        }
+    }
+    clips_.ComputeIfPresent(userId, [&data](auto, auto &value) {
+        if (data.GetDataId() != value->GetDataId()) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "set data fail, data is out time, pre dataId is %{public}d, cur dataId is %{public}d",
+                data.GetDataId(), value->GetDataId());
+            return true;
+        }
+        value = std::make_shared<PasteData>(data);
+        return true;
+    });
 }
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)
