@@ -139,6 +139,9 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
     if (PasteboardClient::GetInstance()->HasPasteData()) {
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
     }
+    PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    std::set<Pattern> patternsToCheck = {Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(code)};
+    PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
 }
 
 void FuzzPastedata(const uint8_t *rawData, size_t size)

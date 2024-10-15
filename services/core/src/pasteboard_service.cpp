@@ -1313,9 +1313,9 @@ std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEv
     Event evt;
     auto plugin = GetClipPlugin();
     if (plugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is nullptr.");
         return std::make_pair(false, evt);
     }
-
     auto events = plugin->GetTopEvents(1, user);
     if (events.empty()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "events empty.");
@@ -1397,6 +1397,7 @@ bool PasteboardService::IsRemoteData()
 {
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId is error.");
         return false;
     }
     auto it = clips_.Find(userId);
@@ -1940,6 +1941,7 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
     std::string time = GetTime();
     HistoryInfo info{ time, bundleName, "get", remote };
     SetPasteboardHistory(info);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     int pState = StatisticPasteboardState::SPS_INVALID_STATE;
     int bState = BehaviourPasteboardState::BPS_INVALID_STATE;
     if (pasteData.IsRemote()) {
@@ -1951,7 +1953,6 @@ void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string 
     };
 
     Reporter::GetInstance().PasteboardBehaviour().Report({ bState, bundleName });
-
     size_t dataSize = GetDataSize(pasteData);
     CalculateTimeConsuming timeC(dataSize, pState);
 }

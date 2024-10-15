@@ -1,8 +1,8 @@
 {
-  "string": [
-    {
-      "name":"pasteboard_desc",
-      "value":"在一台设备上进行复制，然后可在附近另一台登录相同帐号的设备上粘贴。此功能需双方设备开启“跨设备剪贴板”、WLAN和蓝牙。"
-    }
-  ]
+    "string":[
+        {
+            "name":"pasteboard_desc",
+            "value":"Copy on one device, paste on another.\n\nDevices need to be close to each other, have this feature, WLAN, and Bluetooth enabled, and be using the same ID."
+        }
+    ]
 }

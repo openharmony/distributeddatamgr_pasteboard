@@ -26,6 +26,8 @@
 namespace OHOS {
 using namespace OHOS::Security::PasteboardServ;
 using namespace OHOS::MiscServices;
+constexpr size_t THRESHOLD = 2;
+const std::u16string PASTEBOARDSERVICE_INTERFACE_TOKEN = u"ohos.miscservices.pasteboard.IPasteboardService";
 
 template<class T>
 T TypeCast(const uint8_t *data, int *pos = nullptr)
@@ -34,6 +36,21 @@ T TypeCast(const uint8_t *data, int *pos = nullptr)
         *pos += sizeof(T);
     }
     return *(reinterpret_cast<const T*>(data));
+}
+
+bool FuzzPasteboardObserver(const uint8_t *rawData, size_t size)
+{
+    if (rawData == nullptr || size < sizeof(uint32_t)) {
+        return true;
+    }
+    uint32_t code = TypeCast<uint32_t>(rawData);
+    MessageParcel data;
+    data.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);
+    MessageParcel reply;
+    MessageOption option;
+    std::make_shared<PasteboardObserver>()->OnRemoteRequest(
+        static_cast<uint32_t>(code % THRESHOLD), data, reply, option);
+    return true;
 }
 
 bool FuzzPasteboardObserverOnPasteboardChangedStub(const uint8_t *rawData, size_t size)
@@ -70,6 +87,7 @@ bool FuzzPasteboardObserverOnPasteboardEventStub(const uint8_t *rawData, size_t 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
+    OHOS::FuzzPasteboardObserver(data, size);
     OHOS::FuzzPasteboardObserverOnPasteboardChangedStub(data, size);
     OHOS::FuzzPasteboardObserverOnPasteboardEventStub(data, size);
     return 0;
