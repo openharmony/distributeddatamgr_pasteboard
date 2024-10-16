@@ -101,7 +101,7 @@ public:
     int32_t GetUDType() const;
     void SetUDType(int32_t type);
 
-    bool IsEmpty() const;
+    bool HasEmptyEntry() const;
     void SetUDMFValue(const std::shared_ptr<EntryValue> &udmfValue);
     std::shared_ptr<EntryValue> GetUDMFValue();
 

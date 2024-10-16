@@ -70,13 +70,13 @@ std::shared_ptr<UnifiedRecord> ConvertUtils::Convert(std::shared_ptr<PasteDataRe
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "entries is nullptr");
         auto udmfValue = record->GetUDMFValue();
         if (udmfValue) {
-            udmfRecord->AddEntry(
-                CommonUtils::Convert2UtdId(record->GetUDType(), record->GetMimeType()), std::move(*udmfValue));
+            auto utdId = CommonUtils::Convert2UtdId(record->GetUDType(), record->GetMimeType());
+            udmfRecord->AddEntry(utdId, std::move(*udmfValue));
         }
         return udmfRecord;
     }
-    for (auto &[utdId, value] : *entries) {
-        udmfRecord->AddEntry(utdId, std::move(value));
+    for (auto &udmfEntry : *entries) {
+        udmfRecord->AddEntry(udmfEntry.first, std::move(udmfEntry.second));
     }
     udmfRecord->SetChannelName(CHANNEL_NAME);
     udmfRecord->SetDataId(record->GetDataId());
@@ -125,17 +125,28 @@ std::vector<std::shared_ptr<PasteDataEntry>> ConvertUtils::Convert(
     return pbEntries;
 }
 
-std::shared_ptr<std::map<std::string, UDMF::ValueType>> ConvertUtils::Convert(
+std::shared_ptr<std::vector<std::pair<std::string, UDMF::ValueType>>> ConvertUtils::Convert(
     const std::vector<std::shared_ptr<PasteDataEntry>> &entries)
 {
-    std::map<std::string, UDMF::ValueType> udmfEntries;
+    std::map<std::string, UDMF::ValueType> udmfEntryMap;
+    std::vector<std::pair<std::string, UDMF::ValueType>> udmfEntries;
+    std::vector<std::string> entryUtdIds;
     for (auto const &entry : entries) {
         if (entry == nullptr) {
             continue;
         }
-        udmfEntries.emplace(entry->GetUtdId(), entry->GetValue());
+        if (udmfEntryMap.find(entry->GetUtdId()) == udmfEntryMap.end()) {
+            entryUtdIds.emplace_back(entry->GetUtdId());
+        }
+        udmfEntryMap.insert_or_assign(entry->GetUtdId(), entry->GetValue());
     }
-    return std::make_shared<std::map<std::string, UDMF::ValueType>>(udmfEntries);
+    for (auto const &utdId : entryUtdIds) {
+        auto item = udmfEntryMap.find(utdId);
+        if (item != udmfEntryMap.end()) {
+            udmfEntries.emplace_back(std::pair<std::string, UDMF::ValueType>(item->first, item->second));
+        }
+    }
+    return std::make_shared<std::vector<std::pair<std::string, UDMF::ValueType>>>(udmfEntries);
 }
 
 PasteDataProperty ConvertUtils::ConvertProperty(
