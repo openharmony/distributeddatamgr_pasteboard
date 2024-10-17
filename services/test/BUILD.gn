@@ -69,10 +69,49 @@ ohos_unittest("PasteboardServiceTest") {
   ]
 }
 
+ohos_unittest("PasteboardDialogNormalTest") {
+  module_out_path = module_output_path
+  sources = [
+    "${pasteboard_service_path}/core/src/pasteboard_dialog.cpp",
+    "unittest/src/pasteboard_dialog_normal_branch_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
+}
+
+ohos_unittest("PasteboardDialogAbnormalTest") {
+  module_out_path = module_output_path
+
+  sources = [
+    "${pasteboard_service_path}/core/src/pasteboard_dialog.cpp",
+    "unittest/src/pasteboard_dialog_abnormal_branch_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
+}
+
 group("unittest") {
   testonly = true
 
   deps = []
 
-  deps += [ ":PasteboardServiceTest" ]
+  deps += [
+    ":PasteboardDialogAbnormalTest",
+    ":PasteboardDialogNormalTest",
+    ":PasteboardServiceTest",
+  ]
 }
