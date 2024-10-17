@@ -27,6 +27,7 @@
 #include "hiview_adapter.h"
 #include "ipasteboard_client_death_observer.h"
 #include "pasteboard_client.h"
+#include "pasteboard_deduplicate_memory.h"
 #include "pasteboard_delay_getter_client.h"
 #include "pasteboard_entry_getter_client.h"
 #include "pasteboard_error.h"
@@ -43,11 +44,23 @@ namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
 constexpr int32_t LOADSA_TIMEOUT_MS = 10000;
+constexpr int64_t REPORT_DUPLICATE_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
 sptr<IRemoteObject> clientDeathObserverPtr_;
+
+struct RadarReportIdentity {
+    pid_t pid;
+    int32_t errorCode;
+};
+
+bool operator==(const RadarReportIdentity &lhs, const RadarReportIdentity &rhs)
+{
+    return lhs.pid == rhs.pid && lhs.errorCode == rhs.errorCode;
+}
+
 PasteboardClient::PasteboardClient()
 {
     Init();
@@ -216,7 +229,9 @@ void PasteboardClient::Clear()
 
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
-    std::string currentPid = std::to_string(getpid());
+    static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
+    pid_t pid = getpid();
+    std::string currentPid = std::to_string(pid);
     uint32_t tmpSequenceId = getSequenceId_++;
     std::string currentId = "GetPasteData_" + currentPid + "_" + std::to_string(tmpSequenceId);
     pasteData.SetPasteId(currentId);
@@ -250,10 +265,16 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
                 RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
                 RadarReporter::PACKAGE_NAME, currentPid);
         }
-    } else {
+    } else if (ret != static_cast<int32_t>(PasteboardError::TASK_PROCESSING) ||
+               !reportMemory.IsDuplicate({.pid = pid, .errorCode = ret})) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE,
             RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME,
-            RadarReporter::PACKAGE_NAME, currentPid, syncTime, RadarReporter::ERROR_CODE, ret);
+            syncTime, RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::ERROR_CODE, ret);
+    } else {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_CANCELLED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+            RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME, currentPid,
+            RadarReporter::ERROR_CODE, ret);
     }
     return ret;
 }
