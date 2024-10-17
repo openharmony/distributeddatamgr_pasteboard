@@ -573,17 +573,17 @@ std::vector<std::string> PasteDataRecord::GetValidTypes(const std::vector<std::s
     return res;
 }
 
-bool PasteDataRecord::IsEmpty() const
+bool PasteDataRecord::HasEmptyEntry() const
 {
     if (udmfValue_ && !std::holds_alternative<std::monostate>(*udmfValue_)) {
         return false;
     }
     for (auto const &entry : entries_) {
-        if (!std::holds_alternative<std::monostate>(entry->GetValue())) {
-            return false;
+        if (std::holds_alternative<std::monostate>(entry->GetValue())) {
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 void PasteDataRecord::SetUDMFValue(const std::shared_ptr<EntryValue> &udmfValue)
@@ -594,6 +594,7 @@ void PasteDataRecord::SetUDMFValue(const std::shared_ptr<EntryValue> &udmfValue)
 std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
 {
     if (udmfValue_) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "udmfValue_ is not null");
         return this->udmfValue_;
     }
     if (mimeType_.empty()) {
@@ -618,8 +619,9 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
         }
     } else if (mimeType_ == MIMETYPE_TEXT_URI) {
         object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
-        if (uri_ != nullptr) {
-            object->value_[UDMF::FILE_URI_PARAM] = uri_->ToString();
+        auto uri = GetUri();
+        if (uri != nullptr) {
+            object->value_[UDMF::FILE_URI_PARAM] = uri->ToString();
         }
     } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not surpport");
