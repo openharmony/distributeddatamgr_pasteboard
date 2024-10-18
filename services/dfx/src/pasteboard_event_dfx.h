@@ -124,6 +124,7 @@ constexpr const char *CONCURRENT_ID = "CONCURRENT_ID";
 constexpr const char *DIS_SYNC_TIME = "DIS_SYNC_TIME";
 constexpr const char *PACKAGE_NAME = "PACKAGE_NAME";
 constexpr const char *PEER_NET_ID = "PEER_NET_ID";
+constexpr const char *PEER_UDID = "PEER_UDID";
 constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                                              \
@@ -135,4 +136,4 @@ constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventTy
 } // namespace RadarReporter
 } // namespace MiscServices
 } // namespace OHOS
-#endif //DISTRIBUTEDDATAMGR_PASTEBOARD_EVENT_DFX_H
+#endif // DISTRIBUTEDDATAMGR_PASTEBOARD_EVENT_DFX_H

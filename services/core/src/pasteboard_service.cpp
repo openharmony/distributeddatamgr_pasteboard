@@ -620,13 +620,15 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     auto appInfo = GetAppInfo(tokenId);
     int32_t result = static_cast<int32_t>(PasteboardError::E_OK);
     std::string peerNetId = "";
+    std::string peerUdid = "";
     std::string pasteId = data.GetPasteId();
     auto event = GetValidDistributeEvent(appInfo.userId);
     if (!event.first || GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
         result = GetLocalData(appInfo, data);
     } else {
         result = GetRemoteData(appInfo.userId, event.second, data, syncTime);
-        peerNetId = DMAdapter::GetInstance().GetUdidByNetworkId(event.second.deviceId);
+        peerNetId = event.second.deviceId;
+        peerUdid = DMAdapter::GetInstance().GetUdidByNetworkId(peerNetId);
     }
     if (observerEventMap_.size() != 0) {
         std::string targetBundleName = GetAppBundleName(appInfo);
@@ -634,7 +636,8 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     }
     RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_DATA_INFO, DFX_SUCCESS, CONCURRENT_ID, pasteId, GET_DATA_APP,
         appInfo.bundleName, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
-        DMAdapter::GetInstance().GetLocalDeviceType(), PEER_NET_ID, PasteboardDfxUntil::GetAnonymousID(peerNetId));
+        DMAdapter::GetInstance().GetLocalDeviceType(), PEER_NET_ID, PasteboardDfxUntil::GetAnonymousID(peerNetId),
+        PEER_UDID, PasteboardDfxUntil::GetAnonymousID(peerUdid));
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
         return result;
     }
