@@ -95,6 +95,38 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD[PASTEBOARD_MODULE_BUTT] 
                 "%{public}s# " fmt, __FUNCTION__, ##__VA_ARGS__));                                    \
         }                                                                                             \
     } while (0)
+
+// check then return ret and print log
+#define CHECK_AND_RETURN_RET_LOG_INNER(cond, ret, log, label, fmt, ...) \
+    do {                                                                \
+        if (!(cond)) {                                                  \
+            log(label, fmt, ##__VA_ARGS__);                             \
+            return ret;                                                 \
+        }                                                               \
+    } while (0)
+
+// check then return and print log
+#define CHECK_AND_RETURN_LOG_INNER(cond, log, label, fmt, ...) \
+    do {                                                       \
+        if (!(cond)) {                                         \
+            log(label, fmt, ##__VA_ARGS__);                    \
+            return;                                            \
+        }                                                      \
+    } while (0)
+
+#define PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(cond, ret, label, fmt, ...) \
+    CHECK_AND_RETURN_RET_LOG_INNER(cond, ret, PASTEBOARD_HILOGD, label, fmt, ##__VA_ARGS__)
+#define PASTEBOARD_CHECK_AND_RETURN_RET_LOGW(cond, ret, label, fmt, ...) \
+    CHECK_AND_RETURN_RET_LOG_INNER(cond, ret, PASTEBOARD_HILOGW, label, fmt, ##__VA_ARGS__)
+#define PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(cond, ret, label, fmt, ...) \
+    CHECK_AND_RETURN_RET_LOG_INNER(cond, ret, PASTEBOARD_HILOGE, label, fmt, ##__VA_ARGS__)
+#define PASTEBOARD_CHECK_AND_RETURN_LOGD(cond, label, fmt, ...) \
+    CHECK_AND_RETURN_LOG_INNER(cond, PASTEBOARD_HILOGD, label, fmt, ##__VA_ARGS__)
+#define PASTEBOARD_CHECK_AND_RETURN_LOGW(cond, label, fmt, ...) \
+    CHECK_AND_RETURN_LOG_INNER(cond, PASTEBOARD_HILOGW, label, fmt, ##__VA_ARGS__)
+#define PASTEBOARD_CHECK_AND_RETURN_LOGE(cond, label, fmt, ...) \
+    CHECK_AND_RETURN_LOG_INNER(cond, PASTEBOARD_HILOGE, label, fmt, ##__VA_ARGS__)
+
 } // namespace MiscServices
 } // namespace OHOS
 
