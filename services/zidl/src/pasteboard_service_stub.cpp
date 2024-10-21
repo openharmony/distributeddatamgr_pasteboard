@@ -374,12 +374,12 @@ int32_t PasteboardServiceStub::OnSetAppShareOptions(MessageParcel &data, Message
     int32_t shareOptions;
     if (!data.ReadInt32(shareOptions)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read share options failed.");
-        return static_cast<int32_t>(PasteboardError::E_READ_PARCEL_ERROR);
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     auto result = SetAppShareOptions(static_cast<ShareOption>(shareOptions));
     if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write result failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     return ERR_OK;
 }
@@ -389,7 +389,7 @@ int32_t PasteboardServiceStub::OnRemoveAppShareOptions(MessageParcel &data, Mess
     auto result = RemoveAppShareOptions();
     if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write result failed.");
-        return static_cast<int32_t>(PasteboardError::E_WRITE_PARCEL_ERROR);
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     return ERR_OK;
 }
