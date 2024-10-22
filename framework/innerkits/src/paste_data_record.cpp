@@ -578,7 +578,7 @@ bool PasteDataRecord::HasEmptyEntry() const
     if (udmfValue_ && !std::holds_alternative<std::monostate>(*udmfValue_)) {
         return false;
     }
-    for (auto const &entry : entries_) {
+    for (auto const &entry : GetEntries()) {
         if (std::holds_alternative<std::monostate>(entry->GetValue())) {
             return true;
         }

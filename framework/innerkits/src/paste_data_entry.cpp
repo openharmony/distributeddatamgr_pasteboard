@@ -233,7 +233,7 @@ std::shared_ptr<std::string> PasteDataEntry::ConvertToHtml() const
 std::shared_ptr<Uri> PasteDataEntry::ConvertToUri() const
 {
     std::string res;
-    if (GetUtdId() != UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FILE_URI)) {
+    if (!UDMF::UnifiedDataUtils::IsFileUri(GetUtdId())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type error, utdId:%{public}s", GetUtdId().c_str());
         return nullptr;
     }
@@ -384,7 +384,7 @@ std::string CommonUtils::Convert2MimeType(const std::string &utdId)
     if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HTML)) {
         return MIMETYPE_TEXT_HTML;
     }
-    if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FILE_URI)) {
+    if (UDMF::UnifiedDataUtils::IsFileUri(utdId)) {
         return MIMETYPE_TEXT_URI;
     }
     if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::SYSTEM_DEFINED_PIXEL_MAP)) {

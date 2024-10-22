@@ -125,6 +125,48 @@ std::vector<std::shared_ptr<PasteDataEntry>> ConvertUtils::Convert(
     return pbEntries;
 }
 
+UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& entry)
+{
+    auto utdId = entry->GetUtdId();
+    auto value = entry->GetValue();
+    if (std::holds_alternative<std::monostate>(value) || std::holds_alternative<std::shared_ptr<Object>>(value)) {
+        return value;
+    }
+    auto mimeType = entry->GetMimeType();
+    auto object = std::make_shared<UDMF::Object>();
+    if (mimeType == MIMETYPE_TEXT_PLAIN) {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+        if (std::holds_alternative<std::string>(value)) {
+            object->value_[UDMF::CONTENT] = std::get<std::string>(value);
+        }
+    } else if (mimeType == MIMETYPE_TEXT_HTML) {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+        if (std::holds_alternative<std::string>(value)) {
+            object->value_[UDMF::HTML_CONTENT] = std::get<std::string>(value);
+        }
+    } else if (mimeType == MIMETYPE_TEXT_URI) {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+        if (std::holds_alternative<std::string>(value)) {
+            object->value_[UDMF::FILE_URI_PARAM] = std::get<std::string>(value);
+        }
+    } else if (mimeType == MIMETYPE_PIXELMAP) {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+        if (std::holds_alternative<std::shared_ptr<OHOS::Media::PixelMap>>(value)) {
+            object->value_[UDMF::PIXEL_MAP] = std::get<std::shared_ptr<OHOS::Media::PixelMap>>(value);
+        }
+    } else if (mimeType == MIMETYPE_TEXT_WANT) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not surpport");
+    } else {
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+        if (std::holds_alternative<std::vector<uint8_t>>(value)) {
+            auto arrayBuffer = std::get<std::vector<uint8_t>>(value);
+            object->value_[UDMF::ARRAY_BUFFER] = arrayBuffer;
+            object->value_[UDMF::ARRAY_BUFFER_LENGTH] = static_cast<int64_t>(arrayBuffer.size());
+        }
+    }
+    return object;
+}
+
 std::shared_ptr<std::vector<std::pair<std::string, UDMF::ValueType>>> ConvertUtils::Convert(
     const std::vector<std::shared_ptr<PasteDataEntry>> &entries)
 {
@@ -138,7 +180,7 @@ std::shared_ptr<std::vector<std::pair<std::string, UDMF::ValueType>>> ConvertUti
         if (udmfEntryMap.find(entry->GetUtdId()) == udmfEntryMap.end()) {
             entryUtdIds.emplace_back(entry->GetUtdId());
         }
-        udmfEntryMap.insert_or_assign(entry->GetUtdId(), entry->GetValue());
+        udmfEntryMap.insert_or_assign(entry->GetUtdId(), Convert(entry));
     }
     for (auto const &utdId : entryUtdIds) {
         auto item = udmfEntryMap.find(utdId);
