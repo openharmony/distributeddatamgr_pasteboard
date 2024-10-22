@@ -1199,7 +1199,7 @@ HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
     PasteboardClient::GetInstance()->Clear();
     PasteData data;
     auto ret = PasteboardClient::GetInstance()->GetPasteData(data);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_NO_DATA));
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
 }
 
 /**
@@ -1338,7 +1338,7 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
     int32_t ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
     EXPECT_TRUE(ret == 0);
     ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION));
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR));
     ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_TRUE(ret == 0);
 
@@ -1346,14 +1346,14 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
     EXPECT_TRUE(ret == 0);
     ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION));
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR));
     ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_TRUE(ret == 0);
 
     ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
     EXPECT_TRUE(ret == 0);
     ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION));
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR));
     ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_TRUE(ret == 0);
     PasteboardServiceTest::RestoreSelfTokenId();

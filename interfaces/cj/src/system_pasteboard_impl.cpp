@@ -15,6 +15,7 @@
  
 #include "system_pasteboard_impl.h"
 #include "pasteboard_client.h"
+#include "pasteboard_error.h"
  
 using namespace OHOS::MiscServices;
  
@@ -71,11 +72,11 @@ int32_t SystemPasteboardImpl::SetData(sptr<PasteDataImpl> dataImpl, std::shared_
         value_ = dataImpl;
         pasteData_ = data;
         LOGI("[SystemPasteboardImpl] SetData OK");
-    } else if (ret == static_cast<int>(PasteboardError::E_COPY_FORBIDDEN)) {
+    } else if (ret == static_cast<int>(PasteboardError::PROHIBIT_COPY)) {
         res = PASTEBOARD_COPY_FORBIDDEN;
-        LOGE("[SystemPasteboardImpl] SetData ERR E_COPY_FORBIDDEN");
-    } else if (ret == static_cast<int>(PasteboardError::E_IS_BEGING_PROCESSED)) {
-        LOGE("[SystemPasteboardImpl] SetData ERR E_IS_BEGING_PROCESSED");
+        LOGE("[SystemPasteboardImpl] SetData ERR PROHIBIT_COPY");
+    } else if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
+        LOGE("[SystemPasteboardImpl] SetData ERR TASK_PROCESSING");
         res = PASTEBOARD_IS_BEGING_PROCESSED;
     }
 

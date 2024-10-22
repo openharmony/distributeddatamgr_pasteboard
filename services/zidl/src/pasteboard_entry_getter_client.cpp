@@ -31,7 +31,7 @@ int32_t PasteboardEntryGetterClient::GetRecordValueByType(uint32_t recordId, Pas
     auto it = entryGetters_.find(recordId);
     if (it == entryGetters_.end()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "recordId:%{public}d, have no entry getter", recordId);
-        return static_cast<int32_t>(PasteboardError::E_INVALID_VALUE);
+        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
     }
     auto utdId = value.GetUtdId();
     if (it->second != nullptr) {

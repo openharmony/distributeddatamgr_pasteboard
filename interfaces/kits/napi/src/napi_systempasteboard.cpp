@@ -441,7 +441,7 @@ napi_value SystemPasteboardNapi::GetData(napi_env env, napi_callback_info info)
     auto exec = [context](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
-        if (ret == static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED)) {
+        if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
             context->SetErrInfo(ret, "Another getData is being processed");
         } else {
             context->status = napi_ok;
@@ -505,16 +505,16 @@ napi_value SystemPasteboardNapi::SetData(napi_env env, napi_callback_info info)
 
     auto exec = [context](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
-        int32_t ret = static_cast<int32_t>(PasteboardError::E_ERROR);
+        int32_t ret = static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
         if (context->obj != nullptr) {
             ret = PasteboardClient::GetInstance()->SetPasteData(*(context->obj));
             context->obj = nullptr;
         }
         if (ret == static_cast<int>(PasteboardError::E_OK)) {
             context->status = napi_ok;
-        } else if (ret == static_cast<int>(PasteboardError::E_COPY_FORBIDDEN)) {
+        } else if (ret == static_cast<int>(PasteboardError::PROHIBIT_COPY)) {
             context->SetErrInfo(ret, "The system prohibits copying");
-        } else if (ret == static_cast<int>(PasteboardError::E_IS_BEGING_PROCESSED)) {
+        } else if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
             context->SetErrInfo(ret, "Another setData is being processed");
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec context->status[%{public}d]", context->status);
@@ -532,7 +532,7 @@ napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info
 
     auto exec = [context](AsyncCall::Context* ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
-        int32_t ret = static_cast<int32_t>(PasteboardError::E_ERROR);
+        int32_t ret = static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
         if (context->obj != nullptr) {
             if (context->isDelay && context->delayGetter != nullptr) {
                 ret = PasteboardClient::GetInstance()->SetUnifiedData(*(context->obj), context->delayGetter->GetStub());
@@ -543,9 +543,9 @@ napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info
         }
         if (ret == static_cast<int>(PasteboardError::E_OK)) {
             context->status = napi_ok;
-        } else if (ret == static_cast<int>(PasteboardError::E_COPY_FORBIDDEN)) {
+        } else if (ret == static_cast<int>(PasteboardError::PROHIBIT_COPY)) {
             context->SetErrInfo(ret, "The system prohibits copying");
-        } else if (ret == static_cast<int>(PasteboardError::E_IS_BEGING_PROCESSED)) {
+        } else if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
             context->SetErrInfo(ret, "Another setData is being processed");
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec context->status[%{public}d]", context->status);
@@ -566,7 +566,7 @@ napi_value SystemPasteboardNapi::GetUnifiedData(napi_env env, napi_callback_info
     auto exec = [context](AsyncCall::Context* ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetUnifiedData(*context->unifiedData);
-        if (ret == static_cast<int32_t>(PasteboardError::E_IS_BEGING_PROCESSED)) {
+        if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
             context->SetErrInfo(ret, "Another getData is being processed");
         } else {
             context->status = napi_ok;
@@ -678,12 +678,12 @@ napi_value SystemPasteboardNapi::SetAppShareOptions(napi_env env, napi_callback_
         return nullptr;
     }
     auto result = PasteboardClient::GetInstance()->SetAppShareOptions(static_cast<ShareOption>(shareOptions));
-    if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::E_NO_PERMISSION),
+    if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
         JSErrorCode::NO_SYSTEM_PERMISSION,
         "Permission verification failed. A non-system application calls a system API.")) {
         return nullptr;
     }
-    if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::E_INVALID_OPERATION),
+    if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR),
         JSErrorCode::SETTINGS_ALREADY_EXIST, "Settings already exist.")) {
         return nullptr;
     }
@@ -693,7 +693,7 @@ napi_value SystemPasteboardNapi::SetAppShareOptions(napi_env env, napi_callback_
 napi_value SystemPasteboardNapi::RemoveAppShareOptions(napi_env env, napi_callback_info info)
 {
     auto result = PasteboardClient::GetInstance()->RemoveAppShareOptions();
-    if (CheckExpression(env, result != static_cast<int32_t>(PasteboardError::E_NO_PERMISSION),
+    if (CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
         JSErrorCode::NO_SYSTEM_PERMISSION,
         "Permission verification failed. A non-system application calls a system API.")) {
         return nullptr;

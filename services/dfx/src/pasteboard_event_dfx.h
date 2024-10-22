@@ -21,8 +21,6 @@ namespace OHOS {
 namespace MiscServices {
 namespace RadarReporter {
 using namespace OHOS::HiviewDFX;
-constexpr int DIST_DATA_MGR_SYS_ID = 0xd;
-constexpr int PASTEBOARD_ID = 8;
 enum BizScene : std::int32_t {
     DFX_SET_PASTEBOARD = 1,
     DFX_DISTRIBUTED_PASTEBOARD_BROADCAST_SEND = 2,
@@ -97,36 +95,6 @@ enum StageRes : std::int32_t {
 enum BizState : std::int32_t {
     DFX_BEGIN = 1,
     DFX_END = 2,
-};
-
-enum ErrorCode : std::int32_t {
-    PASTEBOARD_ERROR = (DIST_DATA_MGR_SYS_ID << 21) | (PASTEBOARD_ID << 16),
-    INVALID_RETURN_VALUE_ERROR,
-    INVALID_PARAM_ERROR,
-    SERIALIZATION_ERROR,
-    DESERIALIZATION_ERROR,
-    OBTAIN_SERVER_SA_ERROR,
-    OTHER_ERROR,
-    CROSS_BORDER_ERROR,
-    PERMISSION_VERIFICATION_ERROR,
-    PARAM_ERROR,
-    TIMEOUT_ERROR,
-    CANCELED,
-    EXCEEDING_LIMIT_EXCEPTION,
-    TASK_PROCESSING,
-    PROHIBIT_COPY,
-    UNKNOWN_ERROR,
-    BACKUP_EXCEPTION,
-    REMOTE_EXCEPTION,
-    INVALID_DATA_ERROR,
-    NO_DATA_ERROR,
-    INVALID_USERID_ERROR,
-    REMOTE_TASK_ERROR,
-    INVALID_EVENT_ERROR,
-    GET_REMOTE_DATA_ERROR,
-    SEND_BROADCAST_ERROR,
-    SYNC_DATA_ERROR,
-    URI_GRANT_ERROR,
 };
 
 class PasteboardDfxUntil {
