@@ -69,9 +69,7 @@ ohos_shared_library("pasteboard_framework") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
-    "init:libbeget_proxy",
-    "init:libbegetutil",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
   ]
 
   if (pasteboard_device_info_manager_part_enabled) {
