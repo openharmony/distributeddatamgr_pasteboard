@@ -18,6 +18,11 @@ import pasteboard from '@ohos.pasteboard';
 import image from '@ohos.multimedia.image';
 
 describe('PasteBoardJSTest', function () {
+  const myType = 'my-mime-type';
+  const allTypes = [pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_HTML, pasteboard.MIMETYPE_TEXT_URI,
+    pasteboard.MIMETYPE_TEXT_WANT, pasteboard.MIMETYPE_PIXELMAP, myType
+  ];
+
   beforeAll(async function () {
     console.info('beforeAll');
   });
@@ -958,4 +963,138 @@ describe('PasteBoardJSTest', function () {
     done();
   });
 
+  /**
+   * @tc.name      pasteboard_exception_test34
+   * @tc.desc      createData(Record) exception param.
+   * @tc.type      Function
+   * @tc.require   API 14
+   */
+  it('pasteboard_exception_test34', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+
+    let record = await initRecordData();
+    let exceptionRecord = {}
+    exceptionRecord[pasteboard.MIMETYPE_TEXT_PLAIN] = record[pasteboard.MIMETYPE_PIXELMAP];
+    await systemPasteboard.setData(pasteboard.createData(exceptionRecord));
+
+    const outData = await systemPasteboard.getData();
+    expect(outData.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
+    const outValue = outData.getPrimaryText();
+    expect(outValue).assertUndefined();
+
+    let exceptionRecord1 = {}
+    exceptionRecord1[pasteboard.MIMETYPE_TEXT_WANT] = record[pasteboard.MIMETYPE_PIXELMAP];
+    await systemPasteboard.setData(pasteboard.createData(exceptionRecord1));
+
+    const outData1 = await systemPasteboard.getData();
+    expect(outData1.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_WANT);
+    const outValue1 = outData.getPrimaryWant();
+    expect(outValue1).assertUndefined();
+
+    let exceptionRecord2 = {}
+    exceptionRecord2[pasteboard.MIMETYPE_TEXT_WANT] = record[pasteboard.MIMETYPE_TEXT_HTML];
+    exceptionRecord2[pasteboard.MIMETYPE_PIXELMAP] = record[pasteboard.MIMETYPE_TEXT_URI];
+    exceptionRecord2[pasteboard.MIMETYPE_TEXT_PLAIN] = record[myType];
+    await systemPasteboard.setData(pasteboard.createData(exceptionRecord2));
+
+    const outData2 = await systemPasteboard.getData();
+    expect(outData2.getRecordCount()).assertEqual(1);
+    const outRecord = outData2.getRecord(0);
+    console.log('getValidTypes: ' + outRecord.getValidTypes(allTypes).toString());
+    expect(outRecord.getValidTypes(allTypes).toString()).assertEqual(
+      [pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_WANT, pasteboard.MIMETYPE_PIXELMAP].toString()
+    );
+
+    await systemPasteboard.clearData();
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_exception_test35
+   * @tc.desc      addEntry exception param.
+   * @tc.type      Function
+   * @tc.require   API 14
+   */
+  it('pasteboard_exception_test35', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+
+    const record = await initRecordData();
+    const pasteRecord =
+      pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_PLAIN, record[pasteboard.MIMETYPE_TEXT_PLAIN]);
+    try {
+      pasteRecord.addEntry(pasteboard.MIMETYPE_TEXT_URI, record[pasteboard.MIMETYPE_PIXELMAP]);
+    } catch (err) {
+      expect(err.code).assertEqual('401');
+    }
+
+    try {
+      pasteRecord.addEntry(pasteboard.MIMETYPE_PIXELMAP, record[pasteboard.MIMETYPE_TEXT_PLAIN]);
+    } catch (err) {
+      expect(err.code).assertEqual('401');
+    }
+
+    try {
+      pasteRecord.addEntry(pasteboard.MIMETYPE_TEXT_PLAIN, record[myType]);
+    } catch (err) {
+      expect(err.code).assertEqual('401');
+    }
+
+    try {
+      pasteRecord.addEntry(myType, record[pasteboard.MIMETYPE_TEXT_PLAIN]);
+    } catch (err) {
+      expect(err.code).assertEqual('401');
+    }
+
+    await systemPasteboard.clearData();
+    done();
+  });
+
+  async function buildPixelMap() {
+    let buffer = new ArrayBuffer(500);
+    let realSize = {height: 5, width: 100};
+    let opt = {
+      size: realSize,
+      pixelFormat: 3,
+      editable: true,
+      alphaType: 1,
+      scaleMode: 1,
+    };
+    return await image.createPixelMap(buffer, opt);
+  }
+
+  function string2ArrayBuffer(input) {
+    let arr = [];
+    for (let index = 0; index < input.length; index++) {
+      arr.push(input.charCodeAt(index));
+    }
+    let arrayBuffer = new Uint8Array(arr).buffer;
+    return arrayBuffer;
+  }
+
+  async function initRecordData(temp) {
+    const inputPlainText = 'Hello world.' + (temp ? temp : '');
+    const inputHtml = '<p>Hello world.' + (temp ? temp : '') + '</p>';
+    const inputUri = 'file://abc/def' + (temp ? temp : '') + '.png';
+    const inputWant = {
+      deviceId: '',
+      bundleName: 'test.bundle.name' + (temp ? temp : ''),
+      abilityName: 'test.ability,name' + (temp ? temp : ''),
+      moduleName: 'test.module.name' + (temp ? temp : ''),
+    };
+    const inputPixelMap = await buildPixelMap();
+    const inputArrayBuffer = string2ArrayBuffer('Hello world.' + (temp ? temp : ''));
+
+
+    let record = {};
+    record[pasteboard.MIMETYPE_TEXT_PLAIN] = inputPlainText;
+    record[pasteboard.MIMETYPE_TEXT_HTML] = inputHtml;
+    record[pasteboard.MIMETYPE_TEXT_URI] = inputUri;
+    record[pasteboard.MIMETYPE_TEXT_WANT] = inputWant;
+    record[pasteboard.MIMETYPE_PIXELMAP] = inputPixelMap;
+    record[myType] = inputArrayBuffer;
+
+    return record;
+  }
 });
