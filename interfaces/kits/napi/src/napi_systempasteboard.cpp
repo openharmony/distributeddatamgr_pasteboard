@@ -134,7 +134,7 @@ PasteboardDelayGetterInstance::PasteboardDelayGetterInstance(const napi_env &env
 
 PasteboardDelayGetterInstance::~PasteboardDelayGetterInstance()
 {
-    napi_delete_reference(env_, ref_);
+    ref_ = nullptr;
 }
 
 void UvQueueWorkGetDelayPasteData(uv_work_t *work, int status)
