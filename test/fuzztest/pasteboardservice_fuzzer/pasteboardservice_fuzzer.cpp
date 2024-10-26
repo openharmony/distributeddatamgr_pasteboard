@@ -15,6 +15,8 @@
 
 #include "pasteboardservice_fuzzer.h"
 
+#include <thread>
+
 #include "message_parcel.h"
 #include "pasteboard_service.h"
 #include "pasteboard_serv_ipc_interface_code.h"
@@ -179,6 +181,12 @@ public:
     }
 };
 
+static inline void DoSleep(void)
+{
+    constexpr uint32_t SLEEP_MS = 10;
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
+}
+
 class TestEnv {
 public:
     TestEnv()
@@ -234,5 +242,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     parcel.WriteBuffer(data + 1, size - 1);
 
     env.DoRemoteRequest(code, parcel);
+    DoSleep();
     return 0;
 }
