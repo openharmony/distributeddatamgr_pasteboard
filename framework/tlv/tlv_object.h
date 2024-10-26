@@ -402,14 +402,14 @@ private:
             return false;
         }
         uint8_t rawValue = 0;
-        auto ret = memcpy_s(&value, sizeof(bool), buffer.data() + cursor_, sizeof(bool));
+        auto ret = memcpy_s(&rawValue, sizeof(bool), buffer.data() + cursor_, sizeof(bool));
         if (ret != EOK) {
             return false;
         }
         if (rawValue > 1) {
             return false;
         }
-        value = NetToHost(value);
+        value = NetToHost(rawValue);
         cursor_ += sizeof(bool);
         return true;
     }
