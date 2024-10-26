@@ -15,6 +15,7 @@
 
 #include "datashare_delegate.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_error.h"
 #include "datashare_predicates.h"
 #include "datashare_result_set.h"
 #include "datashare_values_bucket.h"
@@ -84,7 +85,7 @@ int32_t DataShareDelegate::GetValue(const std::string& key, std::string& value)
 {
     auto helper = CreateDataShareHelper();
     if (helper == nullptr) {
-        return -1;
+        return static_cast<int32_t>(PasteboardError::CREATE_DATASHARE_SERVICE_ERROR);
     }
     std::vector<std::string> columns = {SETTING_COLUMN_VALUE};
     DataShare::DataSharePredicates predicates;
@@ -94,14 +95,14 @@ int32_t DataShareDelegate::GetValue(const std::string& key, std::string& value)
     ReleaseDataShareHelper(helper);
     if (resultSet == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Query failed key=%{public}s",  key.c_str());
-        return ERR_INVALID_OPERATION;
+        return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
     }
     int32_t count;
     resultSet->GetRowCount(count);
     if (count == 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no value, key=%{public}s, count=%{public}d", key.c_str(), count);
         resultSet->Close();
-        return ERR_NAME_NOT_FOUND;
+        return static_cast<int32_t>(PasteboardError::QUERY_SETTING_NO_DATA_ERROR);
     }
     int32_t index = 0;
     resultSet->GoToRow(index);
@@ -109,10 +110,10 @@ int32_t DataShareDelegate::GetValue(const std::string& key, std::string& value)
     if (ret != DataShare::E_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get value failed, ret=%{public}d", ret);
         resultSet->Close();
-        return ERR_INVALID_VALUE;
+        return ret;
     }
     resultSet->Close();
-    return ERR_OK;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 Uri DataShareDelegate::MakeUri(const std::string& key)

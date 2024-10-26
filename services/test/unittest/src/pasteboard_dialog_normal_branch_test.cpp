@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include "iservice_registry.h"
 #include "pasteboard_dialog.h"
+#include "pasteboard_error.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -54,7 +55,7 @@ HWTEST_F(PasteboardDialogNormalBranchTest, ShowToastNormalTest, TestSize.Level0)
     PasteBoardDialog::ToastMessageInfo message;
     message.appName = "myAppName";
     int32_t ret = PasteBoardDialog::GetInstance().ShowToast(message);
-    EXPECT_TRUE(ret == -1);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING));
 }
 
 /**

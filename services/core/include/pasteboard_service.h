@@ -74,8 +74,13 @@ struct HistoryInfo {
 struct PasteDateTime {
     int32_t syncTime = 0;
     std::shared_ptr<PasteData> data;
+    int32_t errorCode = 0;
 };
 
+struct PasteDateResult {
+    int32_t syncTime = 0;
+    int32_t errorCode = 0;
+};
 class InputEventCallback : public MMI::IInputEventConsumer {
 public:
     void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
@@ -236,7 +241,7 @@ private:
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
-    std::pair<std::shared_ptr<PasteData>, int32_t> GetDistributedData(const Event &event, int32_t user);
+    std::pair<std::shared_ptr<PasteData>, PasteDateResult> GetDistributedData(const Event &event, int32_t user);
     void GetFullDelayPasteData(int32_t userId, PasteData &data);
     bool SetDistributedData(int32_t user, PasteData &data);
     bool CleanDistributedData(int32_t user);
@@ -246,7 +251,7 @@ private:
     static std::string GetTime();
     bool IsDataAged();
     bool VerifyPermission(uint32_t tokenId);
-    bool IsDataVaild(PasteData &pasteData, uint32_t tokenId);
+    int32_t IsDataVaild(PasteData &pasteData, uint32_t tokenId);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     bool IsDefaultIME(const AppInfo &appInfo);

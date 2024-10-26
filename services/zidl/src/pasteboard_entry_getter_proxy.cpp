@@ -16,6 +16,7 @@
 #include "message_option.h"
 #include "message_parcel.h"
 #include "pasteboard_entry_getter_proxy.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
 
@@ -31,33 +32,33 @@ int32_t PasteboardEntryGetterProxy::MakeRequest(uint32_t recordId, PasteDataEntr
 {
     if (!request.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write descriptor failed");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!request.WriteUint32(recordId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write recordId failed");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     std::vector<uint8_t> sendEntryTLV(0);
     if (!value.Marshalling(sendEntryTLV)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "marshall entry value failed");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!request.WriteInt32(sendEntryTLV.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write entry tlv raw data size failed");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (!request.WriteRawData(sendEntryTLV.data(), sendEntryTLV.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write entry tlv raw data failed");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    return ERR_OK;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, PasteDataEntry& value)
 {
     MessageParcel request;
     auto res = MakeRequest(recordId, value, request);
-    if (res != ERR_OK) {
+    if (res != static_cast<int32_t>(PasteboardError::E_OK)) {
         return res;
     }
     MessageParcel reply;
@@ -66,24 +67,24 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
         static_cast<int>(PasteboardEntryGetterInterfaceCode::GET_RECORD_VALUE_BY_TYPE), request, reply, option);
     if (result != ERR_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "send request failed, error:%{public}d", result);
-        return ERR_INVALID_OPERATION;
+        return result;
     }
     res = reply.ReadInt32();
     int32_t rawDataSize = reply.ReadInt32();
     if (rawDataSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "read entry tlv raw data size failed");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     const uint8_t *rawData = reinterpret_cast<const uint8_t *>(reply.ReadRawData(rawDataSize));
     if (rawData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "read entry tlv raw data failed");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     std::vector<uint8_t> recvEntryTlv(rawData, rawData + rawDataSize);
     PasteDataEntry entryValue;
     if (!entryValue.Unmarshalling(recvEntryTlv)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "unmarshall entry value failed");
-        return ERR_INVALID_VALUE;
+        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     value = entryValue;
     return res;
