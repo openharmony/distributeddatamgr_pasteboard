@@ -29,6 +29,7 @@
 #include "eventcenter/pasteboard_event.h"
 #include "hiview_adapter.h"
 #include "int_wrapper.h"
+#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "loader.h"
 #include "long_wrapper.h"
@@ -70,6 +71,7 @@ constexpr const int GET_WRONG_SIZE = 0;
 constexpr const size_t MAX_URI_COUNT = 500;
 constexpr const int32_t COMMON_USERID = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
+constexpr uint32_t MAX_IPC_THREAD_NUM = 32;
 constexpr const char *PASTEBOARD_SERVICE_NAME = "PasteboardService";
 constexpr const char *FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 constexpr const char *SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
@@ -139,6 +141,8 @@ void PasteboardService::OnStart()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
         return;
     }
+
+    IPCSkeleton::SetMaxWorkThreadNum(MAX_IPC_THREAD_NUM);
 
     InitServiceHandler();
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());

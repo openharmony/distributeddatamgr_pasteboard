@@ -372,6 +372,15 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataSrouce001, TestSize.Level1)
     char source[100];
     int res = OH_Pasteboard_GetDataSource(pasteboard, source, len);
     EXPECT_EQ(res, ERR_OK);
+
+    int res1 = OH_Pasteboard_GetDataSource(nullptr, source, len);
+    EXPECT_EQ(res1, ERR_INVALID_PARAMETER);
+
+    int res2 = OH_Pasteboard_GetDataSource(pasteboard, nullptr, len);
+    EXPECT_EQ(res2, ERR_INVALID_PARAMETER);
+
+    int res3 = OH_Pasteboard_GetDataSource(pasteboard, source, 0);
+    EXPECT_EQ(res3, ERR_INVALID_PARAMETER);
     
     OH_Pasteboard_Destroy(pasteboard);
 }
@@ -441,6 +450,9 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_ClearData001, TestSize.Level1)
     OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
     bool res = OH_Pasteboard_ClearData(pasteboard);
     EXPECT_EQ(res, ERR_OK);
+
+    int res2 = OH_Pasteboard_ClearData(nullptr);
+    EXPECT_EQ(res2, ERR_INVALID_PARAMETER);
     
     OH_Pasteboard_Destroy(pasteboard);
 }
@@ -464,6 +476,12 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_SetData001, TestSize.Level1)
 
     bool res = OH_Pasteboard_SetData(pasteboard, setData);
     EXPECT_EQ(res, ERR_OK);
+
+    int res1 = OH_Pasteboard_SetData(pasteboard, nullptr);
+    EXPECT_EQ(res1, ERR_INVALID_PARAMETER);
+
+    int res2 = OH_Pasteboard_SetData(nullptr, setData);
+    EXPECT_EQ(res2, ERR_INVALID_PARAMETER);
     
     OH_Pasteboard_Destroy(pasteboard);
     OH_UdsPlainText_Destroy(plainText);

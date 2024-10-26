@@ -99,6 +99,16 @@ static inline uint64_t NetToHost(uint64_t value)
     return le64toh(value);
 }
 
+static inline bool HostToNet(bool value)
+{
+    return value;
+}
+
+static inline bool NetToHost(bool value)
+{
+    return value;
+}
+
 inline double HostToNet(double value)
 {
     double to;
