@@ -2,7 +2,7 @@
     "string":[
         {
             "name":"pasteboard_desc",
-            "value":"Copy on one device, paste on another.\n\nDevices need to be close to each other, have this feature, WLAN, and Bluetooth enabled, and be using the same ID."
+            "value":"Copy on one device, paste on another. Devices need to be near each other, using the same HUAWEI ID, and have WLAN, Bluetooth, and this feature enabled."
         }
     ]
 }
