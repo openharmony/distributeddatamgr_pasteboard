@@ -127,6 +127,10 @@ std::vector<std::shared_ptr<PasteDataEntry>> ConvertUtils::Convert(
 
 UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& entry)
 {
+    if (entry == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "entry is null, convert failed.");
+        return nullptr;
+    }
     auto utdId = entry->GetUtdId();
     auto value = entry->GetValue();
     if (std::holds_alternative<std::monostate>(value) || std::holds_alternative<std::shared_ptr<Object>>(value)) {
@@ -155,7 +159,7 @@ UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& ent
             object->value_[UDMF::PIXEL_MAP] = std::get<std::shared_ptr<OHOS::Media::PixelMap>>(value);
         }
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not surpport");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "mimeType is want, udmf not support");
     } else {
         object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
         if (std::holds_alternative<std::vector<uint8_t>>(value)) {

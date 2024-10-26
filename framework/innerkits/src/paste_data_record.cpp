@@ -739,7 +739,8 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
         return entry;
     }
     for (auto const &entry : entries_) {
-        if (entry->GetUtdId() == utdType) {
+        if (entry->GetUtdId() == utdType ||
+            (CommonUtils::IsFileUri(utdType) && CommonUtils::IsFileUri(entry->GetUtdId()))) {
             if (isDelay_ && !entry->HasContent(utdType)) {
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Begin GetRecordValueByType2");
                 PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);

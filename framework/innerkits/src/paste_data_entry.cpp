@@ -233,7 +233,7 @@ std::shared_ptr<std::string> PasteDataEntry::ConvertToHtml() const
 std::shared_ptr<Uri> PasteDataEntry::ConvertToUri() const
 {
     std::string res;
-    if (!UDMF::UnifiedDataUtils::IsFileUri(GetUtdId())) {
+    if (!CommonUtils::IsFileUri(GetUtdId())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type error, utdId:%{public}s", GetUtdId().c_str());
         return nullptr;
     }
@@ -384,7 +384,7 @@ std::string CommonUtils::Convert2MimeType(const std::string &utdId)
     if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HTML)) {
         return MIMETYPE_TEXT_HTML;
     }
-    if (UDMF::UnifiedDataUtils::IsFileUri(utdId)) {
+    if (IsFileUri(utdId)) {
         return MIMETYPE_TEXT_URI;
     }
     if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::SYSTEM_DEFINED_PIXEL_MAP)) {
@@ -445,6 +445,16 @@ UDMF::UDType CommonUtils::Convert(int32_t uDType, const std::string &mimeType)
         return static_cast<UDType>(type);
     }
     return UDMF::APPLICATION_DEFINED_RECORD;
+}
+
+bool CommonUtils::IsFileUri(const std::string &utdId)
+{
+    return utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FILE_URI) ||
+           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FILE) ||
+           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::AUDIO) ||
+           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::IMAGE) ||
+           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FOLDER) ||
+           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::VIDEO);
 }
 } // namespace MiscServices
 } // namespace OHOS
