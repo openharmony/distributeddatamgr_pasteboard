@@ -56,9 +56,6 @@ ohos_shared_library("cj_pasteboard_ffi") {
       "c_utils:utils",
       "hilog:libhilog",
       "image_framework:cj_image_ffi",
-      "image_framework:image_native",
-      "ipc:ipc_core",
-      "napi:ace_napi",
       "napi:cj_bind_ffi",
       "napi:cj_bind_native",
     ]

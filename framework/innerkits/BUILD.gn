@@ -81,15 +81,11 @@ ohos_shared_library("pasteboard_client") {
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "image_framework:image_native",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "samgr:samgr_proxy",
     "time_service:time_client",
   ]
-  public_external_deps = [
-    "ability_base:want",
-    "c_utils:utils",
-    "udmf:udmf_client",
-  ]
+  public_external_deps = [ "udmf:udmf_client" ]
   subsystem_name = "distributeddatamgr"
   innerapi_tags = [ "platformsdk" ]
   part_name = "pasteboard"
