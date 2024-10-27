@@ -116,7 +116,10 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
     const CharacteristicProfile &oldProfile, const CharacteristicProfile &newProfile)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileUpdate start.");
-    DevProfile::GetInstance().Notify(newProfile.GetCharacteristicValue() == SUPPORT_STATUS);
+    std::string id = newProfile.GetDeviceId();
+    std::string status = newProfile.GetCharacteristicValue();
+    UpdateEnabledStatus(id, std::make_pire(static_cast<int32_t>(PasteboardError::E_OK), status));
+    DevProfile::GetInstance().Notify(status == SUPPORT_STATUS);
     return 0;
 }
 #endif
@@ -137,15 +140,20 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    auto ret = GetEnabledStatus(networkId);
-    if (ret.first == static_cast<int32_t>(PasteboardError::E_OK) && (enabledStatus == ret.second)) {
-        return;
-    }
+//    auto ret = GetEnabledStatus(networkId);
+//    if (ret.first == static_cast<int32_t>(PasteboardError::E_OK) && (enabledStatus == ret.second)) {
+//        return;
+//    }
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
         PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, networkId is %{public}.5s", networkId.c_str());
         return;
+    }
+    if (enabledStatus != enabledStatusCache_.find(udid)->second.second ||
+        enabledStatusCache_.find(udid) == enabledStatusCache_.end()) {
+        auto ret = GetEnabledStatus(networkId);
+        UpdateEnabledStatus(udid, ret);
     }
     UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE,
         (enabledStatus == SUPPORT_STATUS) ? UeReporter::SwitchStatus::SWITCH_OPEN
@@ -173,6 +181,10 @@ std::pair<int32_t, std::string> DevProfile::GetEnabledStatus(const std::string &
     if (udid.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR), "");
+    }
+    auto it = enabledStatusCache_.find(udid);
+    if (it != enabledStatusCache_.end()) {
+        return it->second;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
     int32_t ret =
@@ -304,6 +316,16 @@ void DevProfile::Notify(bool isEnable)
     if (observer_ != nullptr) {
         observer_(isEnable);
     }
+}
+
+void UpdateEnabledStatus(const std::string &networkId, std::pire<int32_t, std::string> res)
+{
+    enaledStatusCache_[networkId] = res;
+}
+
+void EraseEnabledStatus(const std::string &networkId)
+{
+    enaledStatusCache_.erase(networkId);
 }
 } // namespace MiscServices
 } // namespace OHOS

@@ -118,6 +118,9 @@ void DistributedModuleConfig::Online(const std::string &device)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
     DevProfile::GetInstance().SubscribeProfileEvent(device);
+    auto res = DevProfile::GetInstance().GetEnabledStatus(device);
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(device);
+    DevProfile::GetInstance().UpdateEnabledStatus(udid, res);
     Notify();
 }
 
@@ -125,6 +128,8 @@ void DistributedModuleConfig::Offline(const std::string &device)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
     DevProfile::GetInstance().UnSubscribeProfileEvent(device);
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(device);
+    DevProfile::GetInstance().EraseEnabledStatus(udid);
     Notify();
 }
 
