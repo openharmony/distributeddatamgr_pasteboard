@@ -22,6 +22,7 @@ namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::Media;
+using UDType = UDMF::UDType;
 class PasteDataEntryTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -327,6 +328,35 @@ HWTEST_F(PasteDataEntryTest, Convert006, TestSize.Level0)
     entry.SetValue(object);
     customData = entry.ConvertToCustomData();
     EXPECT_EQ(customData, nullptr);
+}
+
+/**
+* @tc.name: EntriesTest001
+* @tc.desc:
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:tarowang
+*/
+HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
+{
+    PasteDataEntry entry;
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    entry.SetUtdId(utdId);
+    entry.SetMimeType(MIMETYPE_TEXT_PLAIN);
+    entry.SetValue(text_);
+
+    std::vector<std::uint8_t> buffer;
+    entry.Marshalling(buffer);
+    PasteDataEntry decodePasteEntry;
+    auto ret = decodePasteEntry.Unmarshalling(buffer);
+
+    ASSERT_EQ(ret, true);
+    ASSERT_EQ(decodePasteEntry.GetUtdId(), utdId);
+    ASSERT_EQ(decodePasteEntry.GetMimeType(), MIMETYPE_TEXT_PLAIN);
+    auto value = decodePasteEntry.GetValue();
+    auto str = std::get_if<std::string>(&value);
+    ASSERT_NE(str, nullptr);
+    ASSERT_EQ(text_, *str);
 }
 
 /**
