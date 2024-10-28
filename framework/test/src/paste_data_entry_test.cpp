@@ -186,68 +186,147 @@ HWTEST_F(PasteDataEntryTest, Convert001, TestSize.Level0)
 * @tc.desc: convert to html;
 * @tc.type: FUNC
 * @tc.require:entries
-* @tc.author: wang-boyi666
+* @tc.author: tarowang
 */
 HWTEST_F(PasteDataEntryTest, Convert002, TestSize.Level0)
 {
-    auto entry = InitPlaintTextEntry();
-    auto str = entry.ConvertToPlianText();
-    ASSERT_NE(nullptr, str);
-    EXPECT_EQ(text_, *str);
-
-    entry = InitHtmlEntry();
+    PasteDataEntry entry;
+    std::string utdId = "NotHTML";
+    entry.SetUtdId(utdId);
     auto html = entry.ConvertToHtml();
-    ASSERT_NE(nullptr, html);
-    EXPECT_EQ(html_, *html);
+    EXPECT_EQ(html, nullptr);
 
-    entry = InitUriEntry();
-    auto uri = entry.ConvertToUri();
-    ASSERT_NE(nullptr, uri);
-    EXPECT_EQ(uri_, uri->ToString());
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
+    entry.SetUtdId(utdId);
+    std::string value_str = "TestString";
+    entry.SetValue(value_str);
+    html = entry.ConvertToHtml();
+    EXPECT_EQ(*html, "TestString");
 
-    entry = InitWantEntry();
-    auto want = entry.ConvertToWant();
-    ASSERT_NE(nullptr, want);
-    int32_t idValue1 = want->GetIntParam("id", 0);
-    ASSERT_EQ(idValue1, 123);
-
-    entry = InitPixelMapEntry();
-    auto pixelMap = entry.ConvertToPixelMap();
-    ASSERT_NE(nullptr, pixelMap);
-    ImageInfo imageInfo = {};
-    pixelMap->GetImageInfo(imageInfo);
-    ASSERT_TRUE(imageInfo.size.height == height_);
-    ASSERT_TRUE(imageInfo.size.width == width_);
-    ASSERT_TRUE(imageInfo.pixelFormat == PixelFormat::ARGB_8888);
+    int32_t value_int = 123;
+    entry.SetValue(value_int);
+    html = entry.ConvertToHtml();
+    EXPECT_EQ(html, nullptr);
 }
 
 /**
-* @tc.name: EntriesTest001
-* @tc.desc:
+* @tc.name: Convert003
+* @tc.desc: convert to uri;
 * @tc.type: FUNC
-* @tc.require:
-* @tc.author:tarowang
+* @tc.require:entries
+* @tc.author: tarowang
 */
-HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
+HWTEST_F(PasteDataEntryTest, Convert003, TestSize.Level0)
 {
     PasteDataEntry entry;
-    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    std::string utdId = "NotURI";
     entry.SetUtdId(utdId);
-    entry.SetMimeType(MIMETYPE_TEXT_PLAIN);
-    entry.SetValue(text_);
+    auto uri = entry.ConvertToUri();
+    EXPECT_EQ(uri, nullptr);
 
-    std::vector<std::uint8_t> buffer;
-    entry.Marshalling(buffer);
-    PasteDataEntry decodePasteEntry;
-    auto ret = decodePasteEntry.Unmarshalling(buffer);
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
+    entry.SetUtdId(utdId);
+    std::string value_str = "TestString";
+    entry.SetValue(value_str);
+    auto value = entry.GetValue();
+    auto res = std::get<std::string>(value);
+    uri = entry.ConvertToUri();
+    EXPECT_EQ(*uri, Uri(res));
+}
 
-    ASSERT_EQ(ret, true);
-    ASSERT_EQ(decodePasteEntry.GetUtdId(), utdId);
-    ASSERT_EQ(decodePasteEntry.GetMimeType(), MIMETYPE_TEXT_PLAIN);
-    auto value = decodePasteEntry.GetValue();
-    auto str = std::get_if<std::string>(&value);
-    ASSERT_NE(str, nullptr);
-    ASSERT_EQ(text_, *str);
+/**
+* @tc.name: Convert004
+* @tc.desc: convert to want;
+* @tc.type: FUNC
+* @tc.require:entries
+* @tc.author: tarowang
+*/
+HWTEST_F(PasteDataEntryTest, Convert004, TestSize.Level0)
+{
+    PasteDataEntry entry;
+    std::string utdId = "NotWANT";
+    entry.SetUtdId(utdId);
+    auto want = entry.ConvertToWant();
+    EXPECT_EQ(want, nullptr);
+
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::OPENHARMONY_WANT);
+    entry.SetUtdId(utdId);
+    std::string value_str = "TestString";
+    entry.SetValue(value_str);
+    want = entry.ConvertToWant();
+    EXPECT_EQ(want, nullptr);
+}
+
+/**
+* @tc.name: Convert005
+* @tc.desc: convert to PixelMap;
+* @tc.type: FUNC
+* @tc.require:entries
+* @tc.author: tarowang
+*/
+HWTEST_F(PasteDataEntryTest, Convert005, TestSize.Level0)
+{
+    PasteDataEntry entry;
+    std::string utdId = "NotPixelMap";
+    entry.SetUtdId(utdId);
+    auto pixelMap = entry.ConvertToPixelMap();
+    EXPECT_EQ(pixelMap, nullptr);
+
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+    entry.SetUtdId(utdId);
+    auto pixelmap_ = std::make_shared<Media::PixelMap>();
+    entry.SetValue(pixelmap_);
+    pixelMap = entry.ConvertToPixelMap();
+    EXPECT_EQ(pixelMap, pixelmap_);
+
+    std::string value_str = "TestString";
+    entry.SetValue(value_str);
+    pixelMap = entry.ConvertToPixelMap();
+    EXPECT_EQ(pixelMap, nullptr);
+
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::HTML_CONTENT] = html_;
+    entry.SetValue(object);
+    pixelMap = entry.ConvertToPixelMap();
+    EXPECT_EQ(pixelMap, nullptr);
+
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = html_;
+    entry.SetValue(object);
+    pixelMap = entry.ConvertToPixelMap();
+    EXPECT_EQ(pixelMap, nullptr);
+
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    entry.SetValue(object);
+    pixelMap = entry.ConvertToPixelMap();
+    EXPECT_EQ(pixelMap, nullptr);
+}
+
+/**
+* @tc.name: Convert006
+* @tc.desc: convert to CustomData;
+* @tc.type: FUNC
+* @tc.require:entries
+* @tc.author: tarowang
+*/
+HWTEST_F(PasteDataEntryTest, Convert006, TestSize.Level0)
+{
+    PasteDataEntry entry;
+    std::string value_str = "TestString";
+    entry.SetValue(value_str);
+    auto customData = entry.ConvertToCustomData();
+    EXPECT_EQ(customData, nullptr);
+
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::HTML_CONTENT] = html_;
+    entry.SetValue(object);
+    customData = entry.ConvertToCustomData();
+    EXPECT_EQ(customData, nullptr);
+
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    entry.SetValue(object);
+    customData = entry.ConvertToCustomData();
+    EXPECT_EQ(customData, nullptr);
 }
 
 /**
@@ -290,5 +369,125 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest003, TestSize.Level0)
     ASSERT_EQ(decodePasteEntry.GetUtdId(), utdId);
     ASSERT_EQ(decodePasteEntry.GetMimeType(), MIMETYPE_PIXELMAP);
     CheckPixelMapUds(std::make_shared<PasteDataEntry>(decodePasteEntry));
+}
+
+/**
+* @tc.name: EntryTlvTest004
+* @tc.desc:
+* @tc.type: EntryTlvTest004 with pixelMap
+* @tc.require:
+* @tc.author:tarowang
+*/
+HWTEST_F(PasteDataEntryTest, EntryTlvTest004, TestSize.Level0)
+{
+    PasteDataEntry entry;
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    EXPECT_EQ(entry.HasContent(utdId), false);
+
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HYPERLINK);
+    EXPECT_EQ(entry.HasContent(utdId), false);
+
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
+    EXPECT_EQ(entry.HasContent(utdId), false);
+
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
+    EXPECT_EQ(entry.HasContent(utdId), false);
+
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+    EXPECT_EQ(entry.HasContent(utdId), false);
+
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::OPENHARMONY_WANT);
+    EXPECT_EQ(entry.HasContent(utdId), false);
+
+    utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::ENTITY);
+    EXPECT_EQ(entry.HasContent(utdId), false);
+}
+
+/**
+* @tc.name: EntryTlvTest005
+* @tc.desc:
+* @tc.type: EntryTlvTest005 with pixelMap
+* @tc.require:
+* @tc.author:tarowang
+*/
+HWTEST_F(PasteDataEntryTest, EntryTlvTest005, TestSize.Level0)
+{
+    CommonUtils utils;
+    UDType uDType = UDType::PLAIN_TEXT;
+    std::string expect = MIMETYPE_TEXT_PLAIN;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::HYPERLINK;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::HTML;
+    expect = MIMETYPE_TEXT_HTML;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::FILE;
+    expect = MIMETYPE_TEXT_URI;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::IMAGE;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::VIDEO;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::AUDIO;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::FOLDER;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::FILE_URI;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::SYSTEM_DEFINED_PIXEL_MAP;
+    expect = MIMETYPE_PIXELMAP;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::OPENHARMONY_WANT;
+    expect = MIMETYPE_TEXT_WANT;
+    EXPECT_EQ(utils.Convert(uDType), expect);
+
+    uDType = UDType::ENTITY;
+    EXPECT_EQ(utils.Convert(uDType), "general.entity");
+}
+
+/**
+* @tc.name: EntryTlvTest006
+* @tc.desc:
+* @tc.type: EntryTlvTest006 with pixelMap
+* @tc.require:
+* @tc.author:tarowang
+*/
+HWTEST_F(PasteDataEntryTest, EntryTlvTest006, TestSize.Level0)
+{
+    CommonUtils utils;
+    int32_t uDType = 1;
+    std::string mimeType = MIMETYPE_TEXT_URI;
+    EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::OBJECT);
+
+    uDType = UDMF::UD_BUTT;
+    EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::FILE_URI);
+
+    mimeType = MIMETYPE_TEXT_PLAIN;
+    EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::PLAIN_TEXT);
+
+    mimeType = MIMETYPE_TEXT_HTML;
+    EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::HTML);
+
+    mimeType = MIMETYPE_TEXT_WANT;
+    EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::OPENHARMONY_WANT);
+
+    mimeType = MIMETYPE_PIXELMAP;
+    EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+
+    mimeType = "general.entity";
+    EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::ENTITY);
+
+    mimeType = "test";
+    EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::APPLICATION_DEFINED_RECORD);
 }
 } // namespace OHOS::MiscServices
