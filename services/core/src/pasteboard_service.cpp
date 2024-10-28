@@ -1219,8 +1219,8 @@ int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData,
         record->SetDataId(dataId);
     }
     UpdateShareOption(*pasteData);
-    CheckAppUriPermission(*pasteData);
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
+    CheckAppUriPermission(*pasteData);
     clips_.InsertOrAssign(appInfo.userId, pasteData);
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
         appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());

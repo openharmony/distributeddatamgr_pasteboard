@@ -1545,6 +1545,84 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
+   * @tc.name      pasteboard_promise_test55
+   * @tc.desc      Add html with local uri
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test55', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const htmlText5 = "<html><head></head><body><div class='item'><img " +
+        "src='file:///com.example.webview/data/storage/el1/base/test.png'></div></body></html>";
+    const pasteData = pasteboard.createHtmlData(htmlText5);
+    await systemPasteboard.setPasteData(pasteData);
+    const res5 = await systemPasteboard.hasPasteData();
+    expect(res5).assertEqual(true);
+    systemPasteboard.getPasteData().then((data) => {
+      const pasteData5 = data;
+      expect(pasteData5.getRecordCount()).assertEqual(1);
+      const primaryHtml6 = pasteData5.getPrimaryHtml();
+      expect(primaryHtml6).assertEqual(htmlText5);
+      expect(pasteData5.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
+      expect(pasteData5.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
+      done();
+    });
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test56
+   * @tc.desc      Add html with distributed uri
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test56', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const htmlText5 = "<html><head></head><body><div class='item'><img src='file://com.byy.testdpb/data/storage/el2/" +
+        "distributedfiles/.remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div></body></html>";
+    const pasteData = pasteboard.createHtmlData(htmlText5);
+    await systemPasteboard.setPasteData(pasteData);
+    const res5 = await systemPasteboard.hasPasteData();
+    expect(res5).assertEqual(true);
+    systemPasteboard.getPasteData().then((data) => {
+      const pasteData5 = data;
+      expect(pasteData5.getRecordCount()).assertEqual(1);
+      const primaryHtml6 = pasteData5.getPrimaryHtml();
+      expect(primaryHtml6).assertEqual(htmlText5);
+      expect(pasteData5.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
+      expect(pasteData5.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
+      done();
+    });
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test57
+   * @tc.desc      Add html with uris
+   * @tc.type      Function
+   * @tc.require   AR000H5HVI
+   */
+  it('pasteboard_promise_test57', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const htmlText5 = "<html><head></head><body><div class='item'><img src='file://com.byy.testdpb/data/storage/el2/" +
+        "distributedfiles/.remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>" +
+        "<div class='item'><img src='file:///com.example.webview/data/storage/el1/base/test.png'></div></body></html>";
+    const pasteData = pasteboard.createHtmlData(htmlText5);
+    await systemPasteboard.setPasteData(pasteData);
+    const res5 = await systemPasteboard.hasPasteData();
+    expect(res5).assertEqual(true);
+    systemPasteboard.getPasteData().then((data) => {
+      const pasteData5 = data;
+      expect(pasteData5.getRecordCount()).assertEqual(1);
+      const primaryHtml6 = pasteData5.getPrimaryHtml();
+      expect(primaryHtml6).assertEqual(htmlText5);
+      expect(pasteData5.hasMimeType(pasteboard.MIMETYPE_TEXT_HTML)).assertEqual(true);
+      expect(pasteData5.getPrimaryMimeType()).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
+      done();
+    });
+  });
+  /**
    *  The callback function is used for pasteboard content changes
    */
   function contentChanges() {
