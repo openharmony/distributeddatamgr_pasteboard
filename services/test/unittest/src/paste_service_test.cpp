@@ -53,7 +53,6 @@ public:
 
     static void AllocTestTokenId();
     static void DeleteTestTokenId();
-    static void SetTestTokenId();
     static void RestoreSelfTokenId();
     static void CommonTest(PasteData &oldPasteData, PasteData &newPasteData);
     static sptr<PasteboardObserver> pasteboardObserver_;
@@ -170,13 +169,6 @@ void PasteboardServiceTest::AllocTestTokenId()
 void PasteboardServiceTest::DeleteTestTokenId()
 {
     AccessTokenKit::DeleteToken(testTokenId_);
-}
-
-
-void PasteboardServiceTest::SetTestTokenId()
-{
-    auto ret = SetSelfTokenID(testTokenId_);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "testTokenId = 0x%{public}x, ret = %{public}d!", testTokenId_, ret);
 }
 
 void PasteboardServiceTest::RestoreSelfTokenId()
@@ -1211,7 +1203,6 @@ HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
 {
-    PasteboardServiceTest::SetTestTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     pasteData->SetRemote(true);
@@ -1225,7 +1216,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
     EXPECT_TRUE(result.find("CrossDevice") != std::string::npos);
     EXPECT_TRUE(result.find("remote") != std::string::npos);
     PasteboardClient::GetInstance()->Clear();
-    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1237,7 +1227,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
 {
-    PasteboardServiceTest::SetTestTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     pasteData->SetShareOption(ShareOption::LocalDevice);
@@ -1250,7 +1239,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
     EXPECT_TRUE(result.find("LocalDevice") != std::string::npos);
     EXPECT_TRUE(result.find("local") != std::string::npos);
     PasteboardClient::GetInstance()->Clear();
-    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1262,7 +1250,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
 {
-    PasteboardServiceTest::SetTestTokenId();
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     pasteData->SetShareOption(ShareOption::InApp);
@@ -1275,7 +1262,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
     EXPECT_TRUE(result.find("InAPP") != std::string::npos);
     EXPECT_TRUE(result.find("local") != std::string::npos);
     PasteboardClient::GetInstance()->Clear();
-    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1287,7 +1273,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
 {
-    PasteboardServiceTest::SetTestTokenId();
     PasteboardClient::GetInstance()->Clear();
 
     std::string result;
@@ -1295,7 +1280,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
     EXPECT_TRUE(ret);
     EXPECT_EQ(result.find("Share"), std::string::npos);
     EXPECT_EQ(result.find("Option"), std::string::npos);
-    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
@@ -1307,7 +1291,6 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
 */
 HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
 {
-    PasteboardServiceTest::SetTestTokenId();
     std::vector<uint8_t> arrayBuffer(46);
     arrayBuffer = { 2, 7, 6, 8, 9 };
     std::string mimeType = "image/jpg";
@@ -1319,7 +1302,6 @@ HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
     // not DraggedData, not DefaultIME
     EXPECT_TRUE(hasPasteData);
     PasteboardClient::GetInstance()->Clear();
-    PasteboardServiceTest::RestoreSelfTokenId();
 }
 
 /**
