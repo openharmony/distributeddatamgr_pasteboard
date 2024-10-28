@@ -234,11 +234,9 @@ std::vector<std::string> DMAdapter::GetNetworkIds()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
         return {};
     }
-    std::vector<std::string> networkIds;
+    std::vector<DmDeviceInfo> networkIds;
     for (auto &item : devices) {
-        if (DeviceManager::GetInstance().IsSameAccount(item.networkId)) {
-            networkIds.emplace_back(item.networkId);
-        }
+        networkIds.emplace_back(item.networkId);
     }
     return networkIds;
 #else
@@ -281,8 +279,14 @@ void DMAdapter::SetDevices()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get device list failed, errCode: %{public}d", ret);
         return;
     }
+    std::vector<DmDeviceInfo> networkIds;
+    for (auto &item : devices) {
+        if (DeviceManager::GetInstance().IsSameAccount(item.networkId)) {
+            networkIds.emplace_back(item);
+        }
+    }
     std::unique_lock<std::shared_mutex> lock(dmMutex_);
-    devices_ = std::move(devices);
+    devices_ = std::move(networkIds);
 }
 
 std::vector<DmDeviceInfo> DMAdapter::GetDevices()

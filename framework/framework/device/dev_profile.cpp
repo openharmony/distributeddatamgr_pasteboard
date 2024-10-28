@@ -118,7 +118,7 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileUpdate start.");
     std::string id = newProfile.GetDeviceId();
     std::string status = newProfile.GetCharacteristicValue();
-    UpdateEnabledStatus(id, std::make_pire(static_cast<int32_t>(PasteboardError::E_OK), status));
+    UpdateEnabledStatus(id, std::make_pair(static_cast<int32_t>(PasteboardError::E_OK), status));
     DevProfile::GetInstance().Notify(status == SUPPORT_STATUS);
     return 0;
 }
@@ -146,8 +146,8 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
             PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, networkId is %{public}.5s", networkId.c_str());
         return;
     }
-    if (enabledStatus != enabledStatusCache_.find(udid)->second.second ||
-        enabledStatusCache_.find(udid) == enabledStatusCache_.end()) {
+    auto it = enabledStatusCache_.find(udid);
+    if (it == enabledStatusCache_.end() || enabledStatus != it->second.second) {
         auto ret = GetEnabledStatus(networkId);
         UpdateEnabledStatus(udid, ret);
     }
@@ -314,7 +314,7 @@ void DevProfile::Notify(bool isEnable)
     }
 }
 
-void UpdateEnabledStatus(const std::string &networkId, std::pire<int32_t, std::string> res)
+void UpdateEnabledStatus(const std::string &networkId, std::pair<int32_t, std::string> res)
 {
     enaledStatusCache_[networkId] = res;
 }

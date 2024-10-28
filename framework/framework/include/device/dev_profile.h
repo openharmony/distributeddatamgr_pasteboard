@@ -38,8 +38,8 @@ public:
     void UnSubscribeProfileEvent(const std::string &networkId);
     void UnsubscribeAllProfileEvents();
     void Watch(Observer observer);
-    void UpdateEnabledStatus(const std::string &networkId, std::pire<int32_t, std::string> res);
-    void EraseEnabledStatus(const std::string &networkId, std::pire<int32_t, std::string> res);
+    void UpdateEnabledStatus(const std::string &networkId, std::pair<int32_t, std::string> res);
+    void EraseEnabledStatus(const std::string &networkId, std::pair<int32_t, std::string> res);
     static constexpr const uint32_t FIRST_VERSION = 4;
 
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
@@ -74,7 +74,7 @@ private:
     Observer observer_ = nullptr;
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::map<std::string, DistributedDeviceProfile::SubscribeInfo> subscribeInfoCache_;
-    std::map<std::string, std::pire<int32_t, std::string>> enabledStatusCache_;
+    std::map<std::string, std::pair<int32_t, std::string>> enabledStatusCache_;
 #endif // PB_DEVICE_INFO_MANAGER_ENABLE
 };
 } // namespace MiscServices
