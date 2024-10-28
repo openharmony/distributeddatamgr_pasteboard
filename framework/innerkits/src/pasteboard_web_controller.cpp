@@ -18,7 +18,7 @@
 #include "pasteboard_web_controller.h"
 
 namespace {
-const std::string IMG_TAG_PATTERN = "<img.*?data-ohos=.*?>";
+const std::string IMG_TAG_PATTERN = "<img.*?>";
 const std::string IMG_TAG_SRC_PATTERN = "src=(['\"])(.*?)\\1";
 const std::string IMG_TAG_SRC_HEAD = "src=\"";
 const std::string IMG_LOCAL_URI = "file:///";
@@ -47,6 +47,9 @@ PasteboardWebController& PasteboardWebController::GetInstance()
 std::shared_ptr<PasteData> PasteboardWebController::SplitHtml(std::shared_ptr<std::string> html) noexcept
 {
     std::vector<std::pair<std::string, uint32_t>> matchVec = SplitHtmlWithImgLabel(html);
+    if (matchVec.empty()) {
+        return nullptr;
+    }
     std::map<std::string, std::vector<uint8_t>> imgSrcMap = SplitHtmlWithImgSrcLabel(matchVec);
     std::shared_ptr<PasteData> pasteData = BuildPasteData(html, imgSrcMap);
     return pasteData;

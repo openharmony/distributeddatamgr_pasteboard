@@ -453,6 +453,54 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0010, TestSize.Level0)
 }
 
 /**
+* @tc.name: PasteRecordTest0011
+* @tc.desc: Create paste board html distributed uri.
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0011, TestSize.Level0)
+{
+    std::string htmlText =
+        "<div class='item'><img "
+        "src='file://com.byy.testdpb/data/storage/el2/distributedfiles/"
+        ".remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(data != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData2;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData2);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData2.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_TRUE(*record == htmlText);
+}
+
+/**
+* @tc.name: PasteRecordTest0012
+* @tc.desc: Create paste board html local url
+* @tc.type: FUNC
+*/
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0012, TestSize.Level0)
+{
+    std::string htmlText =
+        "<div class='item'><img data-ohos='clipboard' "
+        "src='file:///com.example.webview/data/storage/el1/base/test.png'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(data != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+}
+
+/**
 * @tc.name: PasteDataTest001
 * @tc.desc: Create paste board data test.
 * @tc.type: FUNC
