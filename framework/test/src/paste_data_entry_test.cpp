@@ -402,13 +402,13 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntryTlvTest004
-* @tc.desc:
-* @tc.type: EntryTlvTest004 with pixelMap
-* @tc.require:
+* @tc.name: EntryTest001
+* @tc.desc: Whether to include the target content
+* @tc.type: FUNC
+* @tc.require: entries
 * @tc.author:tarowang
 */
-HWTEST_F(PasteDataEntryTest, EntryTlvTest004, TestSize.Level0)
+HWTEST_F(PasteDataEntryTest, EntryTest001, TestSize.Level0)
 {
     PasteDataEntry entry;
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
@@ -434,13 +434,13 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest004, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntryTlvTest005
-* @tc.desc:
-* @tc.type: EntryTlvTest005 with pixelMap
-* @tc.require:
+* @tc.name: EntryTest002
+* @tc.desc: convert to string
+* @tc.type: FUNC
+* @tc.require:entries
 * @tc.author:tarowang
 */
-HWTEST_F(PasteDataEntryTest, EntryTlvTest005, TestSize.Level0)
+HWTEST_F(PasteDataEntryTest, EntryTest002, TestSize.Level0)
 {
     CommonUtils utils;
     UDType uDType = UDType::PLAIN_TEXT;
@@ -486,13 +486,13 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest005, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntryTlvTest006
-* @tc.desc:
-* @tc.type: EntryTlvTest006 with pixelMap
-* @tc.require:
+* @tc.name: EntryTest003
+* @tc.desc: convert to UDType
+* @tc.type: FUNC
+* @tc.require:entries
 * @tc.author:tarowang
 */
-HWTEST_F(PasteDataEntryTest, EntryTlvTest006, TestSize.Level0)
+HWTEST_F(PasteDataEntryTest, EntryTest003, TestSize.Level0)
 {
     CommonUtils utils;
     int32_t uDType = 1;
