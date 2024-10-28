@@ -1,12 +1,16 @@
 {
-  "string": [
-    {
-      "name":"pasteboard_title",
-      "value":"跨設備剪貼板"
-    },
-    {
-      "name":"pasteboard_desc",
-      "value":"在一台设备上进行复制，然后可在附近另一台登录相同帐号的设备上粘贴。此功能需双方设备开启“跨设备剪贴板”、WLAN和蓝牙."
-    }
-  ]
+    "string":[
+        {
+            "name":"pasteboard_title",
+            "value":"跨裝置剪貼簿"
+        },
+        {
+            "name":"pasteboard_desc",
+            "value":"在一部裝置上進行複製，然後可以在附近另一部登入相同 ID 的裝置上貼上。此功能需要雙方裝置啟用「跨裝置剪貼簿」、WLAN 和藍牙。"
+        },
+        {
+            "name":"update_version_prompt",
+            "value":"對方需要升級至 HarmonyOS NEXT 及以上版本。"
+        }
+    ]
 }
