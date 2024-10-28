@@ -234,7 +234,7 @@ std::vector<std::string> DMAdapter::GetNetworkIds()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "no device online!");
         return {};
     }
-    std::vector<DmDeviceInfo> networkIds;
+    std::vector<std::string> networkIds;
     for (auto &item : devices) {
         networkIds.emplace_back(item.networkId);
     }
