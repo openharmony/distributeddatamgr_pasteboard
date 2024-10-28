@@ -35,6 +35,10 @@
     {
       "name":"ToastExtensionAbility_label",
       "value":"[TS_909189]_Pasteboard Toast"
+    },
+    {
+      "name":"update_version_prompt",
+      "value":"[TS_966674]_Both devices must be running HarmonyOS NEXT."
     }
   ]
 }

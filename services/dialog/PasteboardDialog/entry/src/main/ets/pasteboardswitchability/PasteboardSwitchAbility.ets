@@ -30,28 +30,40 @@ export default class PasteboardSwitchAbility extends UIExtensionAbility {
   }
 
   onForeground() {
-    console.log(TAG, `UIExtAbility onForeground`)
+    console.log(TAG, `UIExtAbility onForeground`);
   }
 
   onBackground() {
-    console.log(TAG, `UIExtAbility onBackground`)
+    console.log(TAG, `UIExtAbility onBackground`);
   }
 
   onDestroy() {
-    console.log(TAG, `UIExtAbility onDestroy`)
+    console.log(TAG, `UIExtAbility onDestroy`);
   }
 
   onSessionCreate(want: Want, session: UIExtensionContentSession) {
     console.log(TAG, `UIExtAbility onSessionCreate`);
+    let parameters = want.parameters;
+    let pushParams = want.parameters?.pushParams as string | undefined;
+    let startReason = '';
+    let isShowBack =
+      pushParams?.includes('isShowBack') ? (pushParams?.includes('isShowBack:false') ? false : true) : true;
+    if (parameters) {
+      startReason = parameters['startReason'] as string;
+    }
     AppStorage.setOrCreate('pasteboardSession', session);
+    AppStorage.setOrCreate('startReason', startReason);
+    AppStorage.setOrCreate('isShowBack', isShowBack);
     let param: Record<string, UIExtensionContentSession> = {
       'session': session
     };
     let storage: LocalStorage = new LocalStorage(param);
     session.loadContent('pages/PasteboardSwitch', storage);
+    console.log(TAG,
+      `onSessionCreate end. AppStorage.get<string>('startReason')= ${AppStorage.get<string>('startReason')}`);
   }
 
   onSessionDestroy(session: UIExtensionContentSession) {
-    console.log(TAG, `UIExtAbility onSessionDestroy`)
+    console.log(TAG, `UIExtAbility onSessionDestroy`);
   }
 }
