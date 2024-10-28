@@ -314,14 +314,14 @@ void DevProfile::Notify(bool isEnable)
     }
 }
 
-void UpdateEnabledStatus(const std::string &networkId, std::pair<int32_t, std::string> res)
+void DevProfile::UpdateEnabledStatus(const std::string &networkId, std::pair<int32_t, std::string> res)
 {
-    enaledStatusCache_[networkId] = res;
+    enabledStatusCache_[networkId] = res;
 }
 
-void EraseEnabledStatus(const std::string &networkId)
+void DevProfile::EraseEnabledStatus(const std::string &networkId)
 {
-    enaledStatusCache_.erase(networkId);
+    enabledStatusCache_.erase(networkId);
 }
 } // namespace MiscServices
 } // namespace OHOS

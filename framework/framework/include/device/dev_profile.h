@@ -39,7 +39,7 @@ public:
     void UnsubscribeAllProfileEvents();
     void Watch(Observer observer);
     void UpdateEnabledStatus(const std::string &networkId, std::pair<int32_t, std::string> res);
-    void EraseEnabledStatus(const std::string &networkId, std::pair<int32_t, std::string> res);
+    void EraseEnabledStatus(const std::string &networkId);
     static constexpr const uint32_t FIRST_VERSION = 4;
 
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
