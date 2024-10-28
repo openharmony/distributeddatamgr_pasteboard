@@ -29,7 +29,7 @@ class API_EXPORT DevProfile {
 public:
     using Observer = std::function<void(bool isEnable)>;
     static DevProfile &GetInstance();
-    int32_t GetEnabledStatus(const std::string &networkId);
+    std::pair<int32_t, std::string> GetEnabledStatus(const std::string &networkId);
     void OnReady();
     void PutEnabledStatus(const std::string &enabledStatus);
     void GetRemoteDeviceVersion(const std::string &networkId, uint32_t &deviceVersion);
