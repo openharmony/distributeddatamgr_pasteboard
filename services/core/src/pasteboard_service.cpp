@@ -43,6 +43,7 @@
 #include "pasteboard_dialog.h"
 #include "paste_data_entry.h"
 #include "pasteboard_event_dfx.h"
+#include "pasteboard_event_ue.h"
 #include "pasteboard_error.h"
 #include "pasteboard_trace.h"
 #include "remote_file_share.h"
@@ -66,6 +67,7 @@ using namespace Rosen;
 using namespace std::chrono;
 using namespace Storage::DistributedFile;
 using namespace RadarReporter;
+using namespace UeReporter;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 constexpr const size_t MAX_URI_COUNT = 500;
@@ -279,6 +281,14 @@ void PasteboardService::DMAdapterInit()
 void PasteboardService::NotifySaStatus()
 {
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, PASTEBOARD_SERVICE_ID);
+}
+
+void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int32_t result)
+{
+    auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
+    auto res = (result == static_cast<int32_t>(PasteboardError::E_OK)) ? UeReporter::E_OK_OPERATION : result;
+    UE_REPORT(UeReporter::UE_COPY, GenerateDataType(pasteData), appInfo.bundleName, res,
+        DMAdapter::GetInstance().GetLocalDeviceType());
 }
 
 void PasteboardService::InitServiceHandler()
@@ -573,6 +583,9 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
         return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
     }
     auto ret = GetData(tokenId, data, syncTime);
+    UE_REPORT(UeReporter::UE_PASTE, GenerateDataType(data), appInfo.bundleName,
+        (ret == static_cast<int32_t>(PasteboardError::E_OK)) ? UeReporter::E_OK_OPERATION : ret,
+        DMAdapter::GetInstance().GetLocalDeviceType(), UeReporter::CROSS_FLAG, data.IsRemote());
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "data is invalid, ret is %{public}d, callPid is %{public}d, tokenId is %{public}d", ret, callPid, tokenId);
@@ -1172,6 +1185,76 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
     return SavePasteData(data, delayGetter, entryGetter);
 }
 
+int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData,
+    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
+{
+    PasteboardTrace tracer("PasteboardService, SetPasteData");
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!IsCopyable(tokenId)) {
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_AUTHORITY, DFX_SUCCESS);
+        return static_cast<int32_t>(PasteboardError::PROHIBIT_COPY);
+    }
+    if (setting_.exchange(true)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is setting.");
+        return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
+    }
+    CalculateTimeConsuming::SetBeginTime();
+    auto appInfo = GetAppInfo(tokenId);
+    if (appInfo.userId == ERROR_USERID) {
+        setting_.store(false);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
+        return static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR);
+    }
+    setPasteDataUId_ = IPCSkeleton::GetCallingUid();
+    RemovePasteData(appInfo);
+    pasteData->SetBundleName(appInfo.bundleName);
+    pasteData->SetOrginAuthority(appInfo.bundleName);
+    std::string time = GetTime();
+    pasteData->SetTime(time);
+    pasteData->SetScreenStatus(GetCurrentScreenStatus());
+    pasteData->SetTokenId(tokenId);
+    auto dataId = ++dataId_;
+    pasteData->SetDataId(dataId);
+    for (auto &record : pasteData->AllRecords()) {
+        record->SetDataId(dataId);
+    }
+    UpdateShareOption(*pasteData);
+    CheckAppUriPermission(*pasteData);
+    SetWebViewPasteData(*pasteData, appInfo.bundleName);
+    clips_.InsertOrAssign(appInfo.userId, pasteData);
+    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
+        appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
+    HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
+    copyTime_.InsertOrAssign(appInfo.userId, curTime);
+    if (!(pasteData->IsDelayData())) {
+        SetDistributedData(appInfo.userId, *pasteData);
+        NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
+    }
+    SetPasteDataDot(*pasteData);
+    setting_.store(false);
+    SubscribeKeyboardEvent();
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardService::HandleDelayDataAndRecord(std::shared_ptr<PasteData> &pasteData,
+    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter, const AppInfo& appInfo)
+{
+    if (pasteData->IsDelayData()) {
+        sptr<DelayGetterDeathRecipient> deathRecipient =
+            new (std::nothrow) DelayGetterDeathRecipient(appInfo.userId, *this);
+        delayGetter->AsObject()->AddDeathRecipient(deathRecipient);
+        delayGetters_.InsertOrAssign(appInfo.userId, std::make_pair(delayGetter, deathRecipient));
+    }
+    if (pasteData->IsDelayRecord()) {
+        sptr<EntryGetterDeathRecipient> deathRecipient =
+            new (std::nothrow) EntryGetterDeathRecipient(appInfo.userId, *this);
+        entryGetter->AsObject()->AddDeathRecipient(deathRecipient);
+        entryGetters_.InsertOrAssign(appInfo.userId, std::make_pair(entryGetter, deathRecipient));
+    }
+}
+
 bool PasteboardService::IsBasicType(const std::string &mimeType)
 {
     if (mimeType == MIMETYPE_TEXT_HTML || mimeType == MIMETYPE_TEXT_PLAIN || mimeType == MIMETYPE_TEXT_URI) {
@@ -1334,65 +1417,9 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
 int32_t PasteboardService::SavePasteData(std::shared_ptr<PasteData> &pasteData,
     sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
 {
-    PasteboardTrace tracer("PasteboardService, SetPasteData");
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!IsCopyable(tokenId)) {
-        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_AUTHORITY, DFX_SUCCESS);
-        return static_cast<int32_t>(PasteboardError::PROHIBIT_COPY);
-    }
-    if (setting_.exchange(true)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "is setting.");
-        return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
-    }
-    CalculateTimeConsuming::SetBeginTime();
-    auto appInfo = GetAppInfo(tokenId);
-    if (appInfo.userId == ERROR_USERID) {
-        setting_.store(false);
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
-        return static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR);
-    }
-    setPasteDataUId_ = IPCSkeleton::GetCallingUid();
-    RemovePasteData(appInfo);
-    pasteData->SetBundleName(appInfo.bundleName);
-    pasteData->SetOrginAuthority(appInfo.bundleName);
-    std::string time = GetTime();
-    pasteData->SetTime(time);
-    pasteData->SetScreenStatus(GetCurrentScreenStatus());
-    pasteData->SetTokenId(tokenId);
-    auto dataId = ++dataId_;
-    pasteData->SetDataId(dataId);
-    for (auto &record : pasteData->AllRecords()) {
-        record->SetDataId(dataId);
-    }
-    UpdateShareOption(*pasteData);
-    CheckAppUriPermission(*pasteData);
-    SetWebViewPasteData(*pasteData, appInfo.bundleName);
-    clips_.InsertOrAssign(appInfo.userId, pasteData);
-    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()), SET_DATA_APP,
-        appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
-    if (pasteData->IsDelayData()) {
-        sptr<DelayGetterDeathRecipient> deathRecipient =
-            new (std::nothrow) DelayGetterDeathRecipient(appInfo.userId, *this);
-        delayGetter->AsObject()->AddDeathRecipient(deathRecipient);
-        delayGetters_.InsertOrAssign(appInfo.userId, std::make_pair(delayGetter, deathRecipient));
-    }
-    if (pasteData->IsDelayRecord()) {
-        sptr<EntryGetterDeathRecipient> deathRecipient =
-            new (std::nothrow) EntryGetterDeathRecipient(appInfo.userId, *this);
-        entryGetter->AsObject()->AddDeathRecipient(deathRecipient);
-        entryGetters_.InsertOrAssign(appInfo.userId, std::make_pair(entryGetter, deathRecipient));
-    }
-    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
-    copyTime_.InsertOrAssign(appInfo.userId, curTime);
-    if (!(pasteData->IsDelayData())) {
-        SetDistributedData(appInfo.userId, *pasteData);
-        NotifyObservers(appInfo.bundleName, PasteboardEventStatus::PASTEBOARD_WRITE);
-    }
-    SetPasteDataDot(*pasteData);
-    setting_.store(false);
-    SubscribeKeyboardEvent();
-    return static_cast<int32_t>(PasteboardError::E_OK);
+    auto ret = SaveData(pasteData, delayGetter, entryGetter);
+    ReportUeCopyEvent(*pasteData, ret);
+    return ret;
 }
 
 void PasteboardService::RemovePasteData(const AppInfo &appInfo)
