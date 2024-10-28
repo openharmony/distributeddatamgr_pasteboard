@@ -578,7 +578,7 @@ bool PasteDataRecord::HasEmptyEntry() const
     if (udmfValue_ && !std::holds_alternative<std::monostate>(*udmfValue_)) {
         return false;
     }
-    for (auto const &entry : entries_) {
+    for (auto const &entry : GetEntries()) {
         if (std::holds_alternative<std::monostate>(entry->GetValue())) {
             return true;
         }
@@ -739,7 +739,8 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
         return entry;
     }
     for (auto const &entry : entries_) {
-        if (entry->GetUtdId() == utdType) {
+        if (entry->GetUtdId() == utdType ||
+            (CommonUtils::IsFileUri(utdType) && CommonUtils::IsFileUri(entry->GetUtdId()))) {
             if (isDelay_ && !entry->HasContent(utdType)) {
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Begin GetRecordValueByType2");
                 PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);

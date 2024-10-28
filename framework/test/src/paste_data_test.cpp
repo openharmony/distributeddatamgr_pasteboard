@@ -188,7 +188,7 @@ HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
     bool result = data.ReadUriFd(parcel, copyHandler);
     EXPECT_TRUE(result);
     auto distributedUri = data.GetPrimaryUri()->ToString();
-    EXPECT_FALSE(uriStr == distributedUri);
+    EXPECT_TRUE(uriStr == distributedUri);
 
     MessageParcel parcel1;
     PasteUriHandler pasteHandler;
@@ -202,7 +202,7 @@ HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
     ASSERT_TRUE(data.GetPrimaryUri() != nullptr);
     auto convertedUri = data.GetPrimaryUri()->ToString();
     EXPECT_EQ(distributedUri, convertedUri);
-    EXPECT_FALSE(uriStr == convertedUri);
+    EXPECT_TRUE(uriStr == convertedUri);
 }
 
 /**

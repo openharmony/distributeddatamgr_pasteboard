@@ -47,6 +47,8 @@ public:
     static std::shared_ptr<std::vector<std::pair<std::string, UDMF::ValueType>>> Convert(
         const std::vector<std::shared_ptr<PasteDataEntry>> &entries);
 
+    static UDMF::ValueType Convert(const std::shared_ptr<PasteDataEntry>& entry);
+
     static std::vector<std::string> Convert(const std::vector<std::string> &utdIds);
 
 private:
