@@ -182,6 +182,46 @@ HWTEST_F(PasteDataEntryTest, Convert001, TestSize.Level0)
 }
 
 /**
+* @tc.name: Convert002
+* @tc.desc: convert to html;
+* @tc.type: FUNC
+* @tc.require:entries
+* @tc.author: wang-boyi666
+*/
+HWTEST_F(PasteDataEntryTest, Convert002, TestSize.Level0)
+{
+    auto entry = InitPlaintTextEntry();
+    auto str = entry.ConvertToPlianText();
+    ASSERT_NE(nullptr, str);
+    EXPECT_EQ(text_, *str);
+
+    entry = InitHtmlEntry();
+    auto html = entry.ConvertToHtml();
+    ASSERT_NE(nullptr, html);
+    EXPECT_EQ(html_, *html);
+
+    entry = InitUriEntry();
+    auto uri = entry.ConvertToUri();
+    ASSERT_NE(nullptr, uri);
+    EXPECT_EQ(uri_, uri->ToString());
+
+    entry = InitWantEntry();
+    auto want = entry.ConvertToWant();
+    ASSERT_NE(nullptr, want);
+    int32_t idValue1 = want->GetIntParam("id", 0);
+    ASSERT_EQ(idValue1, 123);
+
+    entry = InitPixelMapEntry();
+    auto pixelMap = entry.ConvertToPixelMap();
+    ASSERT_NE(nullptr, pixelMap);
+    ImageInfo imageInfo = {};
+    pixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == height_);
+    ASSERT_TRUE(imageInfo.size.width == width_);
+    ASSERT_TRUE(imageInfo.pixelFormat == PixelFormat::ARGB_8888);
+}
+
+/**
 * @tc.name: EntriesTest001
 * @tc.desc:
 * @tc.type: FUNC
