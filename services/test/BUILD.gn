@@ -118,12 +118,30 @@ ohos_unittest("PasteboardDeduplicateMemoryTest") {
   ]
 }
 
+ohos_unittest("PasteboardPatternTest") {
+  module_out_path = module_output_path
+  sources = [
+    "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
+    "unittest/src/pasteboard_pattern_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  external_deps = [
+    "hilog:libhilog",
+    "libxml2:libxml2",
+  ]
+  deps = [
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "//third_party/googletest:gtest_main",
+  ]
+}
+
 group("unittest") {
   testonly = true
   deps = [
     ":PasteboardDeduplicateMemoryTest",
     ":PasteboardDialogAbnormalTest",
     ":PasteboardDialogNormalTest",
+    ":PasteboardPatternTest",
     ":PasteboardServiceTest",
   ]
 }
