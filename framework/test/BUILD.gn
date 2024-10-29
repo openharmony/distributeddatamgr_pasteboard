@@ -64,6 +64,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "//commonlibrary/c_utils/base:utils_config",
     ":module_private_config",
   ]
+  cflags = [ "-fno-access-control" ]
   external_deps = [
     "ability_base:base",
     "ability_base:want",
