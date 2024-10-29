@@ -115,10 +115,11 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileDelete(con
 int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
     const CharacteristicProfile &oldProfile, const CharacteristicProfile &newProfile)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileUpdate start.");
     std::string id = newProfile.GetDeviceId();
     std::string status = newProfile.GetCharacteristicValue();
-    UpdateEnabledStatus(id, std::make_pair(static_cast<int32_t>(PasteboardError::E_OK), status));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "status is %{public}s, id is %{public}s.", status.c_str(), id.c_str());
+    DevProfile::GetInstance().UpdateEnabledStatus(id,
+        std::make_pair(static_cast<int32_t>(PasteboardError::E_OK), status));
     DevProfile::GetInstance().Notify(status == SUPPORT_STATUS);
     return 0;
 }
@@ -316,11 +317,13 @@ void DevProfile::Notify(bool isEnable)
 
 void DevProfile::UpdateEnabledStatus(const std::string &networkId, std::pair<int32_t, std::string> res)
 {
+    std::lock_guard<std::mutex> mutexLock(catchMutex_);
     enabledStatusCache_[networkId] = res;
 }
 
 void DevProfile::EraseEnabledStatus(const std::string &networkId)
 {
+    std::lock_guard<std::mutex> mutexLock(catchMutex_);
     enabledStatusCache_.erase(networkId);
 }
 } // namespace MiscServices

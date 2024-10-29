@@ -75,6 +75,7 @@ private:
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::map<std::string, DistributedDeviceProfile::SubscribeInfo> subscribeInfoCache_;
     std::map<std::string, std::pair<int32_t, std::string>> enabledStatusCache_;
+    std::mutex catchMutex_;
 #endif // PB_DEVICE_INFO_MANAGER_ENABLE
 };
 } // namespace MiscServices
