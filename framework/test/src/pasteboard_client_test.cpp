@@ -394,4 +394,52 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
     ASSERT_EQ(ret3, std::set<Pattern>{});
 }
 
+/**
+* @tc.name: CreateMultiDelayRecord001
+* @tc.desc: call CreateMultiDelayRecord
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, CreateMultiDelayRecord001, TestSize.Level0)
+{
+    std::vector<std::string> mineTypes;
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateMultiDelayRecord(mineTypes, nullptr);
+    EXPECT_NE(nullptr, pasteDataRecord);
+}
+
+/**
+* @tc.name: CreateMultiTypeData001
+* @tc.desc: call CreateMultiTypeData
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, CreateMultiTypeData001, TestSize.Level0)
+{
+    std::map<std::string, std::shared_ptr<EntryValue>> typeValueMap;
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> mapPtr =
+        std::make_shared<std::map<std::string, std::shared_ptr<EntryValue>>>(typeValueMap);
+    const std::string recordMimeType = "record_mime_type";
+    auto pasteData = PasteboardClient::GetInstance()->CreateMultiTypeData(mapPtr, recordMimeType);
+    EXPECT_NE(nullptr, pasteData);
+}
+
+/**
+* @tc.name: CreateMultiTypeDelayData001
+* @tc.desc: call CreateMultiTypeDelayData and some misc branches
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardClientTest, CreateMultiTypeDelayData001, TestSize.Level0)
+{
+    std::vector<std::string> mimeTypes;
+    auto pasteData = PasteboardClient::GetInstance()->CreateMultiTypeDelayData(mimeTypes, nullptr);
+    EXPECT_NE(nullptr, pasteData);
+    PasteboardClient::GetInstance()->PasteStart("paste_id");
+    PasteboardClient::GetInstance()->PasteComplete("device_id", "paste_id");
+    PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, nullptr);
+}
+
 } // namespace OHOS::MiscServices
