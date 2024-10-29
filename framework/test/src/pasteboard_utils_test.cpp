@@ -291,6 +291,23 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: Text2PasteRecord002
+* @tc.desc: textRecord is nullptr
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Text2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::Text> textRecord;
+    auto pasteRecord = PasteboardUtils::Text2PasteRecord(textRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Text(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: PlainText2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -327,6 +344,23 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto unifiedProp = newData->GetProperties();
     ASSERT_EQ(unifiedProp->isRemote, true);
+}
+
+/**
+* @tc.name: PlainText2PasteRecord002
+* @tc.desc: plainTextRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::PlainText> plainTextRecord;
+    auto pasteRecord = PasteboardUtils::PlainText2PasteRecord(plainTextRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2PlaintText(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
 }
 
 /**
@@ -367,6 +401,23 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: Html2PasteRecord002
+* @tc.desc: htmlRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Html2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::Html> htmlRecord;
+    auto pasteRecord = PasteboardUtils::Html2PasteRecord(htmlRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Html(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: Link2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -404,6 +455,23 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: Link2PasteRecord002
+* @tc.desc: linkRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Link2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::Link> linkRecord;
+    auto pasteRecord = PasteboardUtils::Link2PasteRecord(linkRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Link(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: Want2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -434,6 +502,23 @@ HWTEST_F(PasteboardUtilsTest, Want2PasteRecord001, TestSize.Level0)
     ASSERT_NE(wantValue, nullptr);
     int32_t idValue2 = (*(wantValue))->GetIntParam("id", 0);
     ASSERT_EQ(idValue2, 123);
+}
+
+/**
+* @tc.name: Want2PasteRecord002
+* @tc.desc: wantRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Want2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::UnifiedRecord> wantRecord;
+    auto pasteRecord = PasteboardUtils::Want2PasteRecord(wantRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Want(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
 }
 
 /**
@@ -471,6 +556,23 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: File2PasteRecord002
+* @tc.desc: fileRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, File2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::File> fileRecord;
+    auto pasteRecord = PasteboardUtils::File2PasteRecord(fileRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2File(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: Image2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -502,6 +604,23 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newImageRecord->GetUri();
     ASSERT_EQ(uri2, uri_);
+}
+
+/**
+* @tc.name: Image2PasteRecord002
+* @tc.desc: imageRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Image2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::Image> imageRecord;
+    auto pasteRecord = PasteboardUtils::Image2PasteRecord(imageRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Image(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
 }
 
 /**
@@ -539,6 +658,23 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: Audio2PasteRecord002
+* @tc.desc: audioRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::Audio> audioRecord;
+    auto pasteRecord = PasteboardUtils::Audio2PasteRecord(audioRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Audio(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: Video2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -570,6 +706,23 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newVideoRecord->GetUri();
     ASSERT_EQ(uri2, uri_);
+}
+
+/**
+* @tc.name: Video2PasteRecord002
+* @tc.desc: videoRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Video2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::Video> videoRecord;
+    auto pasteRecord = PasteboardUtils::Video2PasteRecord(videoRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Video(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
 }
 
 /**
@@ -607,6 +760,23 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: Folder2PasteRecord002
+* @tc.desc: folderRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::Folder> folderRecord;
+    auto pasteRecord = PasteboardUtils::Folder2PasteRecord(folderRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Folder(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: SystemDefined2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -633,6 +803,23 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_RECORD);
     auto newSystemRecord = static_cast<UDMF::SystemDefinedRecord *>(newRecord.get());
     ASSERT_EQ(newSystemRecord->GetDetails(), details_);
+}
+
+/**
+* @tc.name: SystemDefined2PasteRecord002
+* @tc.desc: systemRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::SystemDefinedRecord> systemRecord;
+    auto pasteRecord = PasteboardUtils::SystemDefined2PasteRecord(systemRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2SystemDefined(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
 }
 
 /**
@@ -681,6 +868,23 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: AppItem2PasteRecord002
+* @tc.desc: systemDefinedAppItem is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::SystemDefinedAppItem> systemDefinedAppItem;
+    auto pasteRecord = PasteboardUtils::AppItem2PasteRecord(systemDefinedAppItem);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2AppItem(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: Form2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -726,6 +930,23 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: Form2PasteRecord002
+* @tc.desc: form is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, Form2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::SystemDefinedForm> form;
+    auto pasteRecord = PasteboardUtils::Form2PasteRecord(form);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2Form(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: PixelMap2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -766,6 +987,23 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
 }
 
 /**
+* @tc.name: PixelMap2PasteRecord002
+* @tc.desc: pixelMapRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::UnifiedRecord> pixelMapRecord;
+    auto pasteRecord = PasteboardUtils::PixelMap2PasteRecord(pixelMapRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::PasteRecord2PixelMap(pasteRecord);
+    ASSERT_EQ(ret, nullptr);
+}
+
+/**
 * @tc.name: AppDefined2PasteRecord001
 * @tc.desc: pasteData is local data.
 * @tc.type: FUNC
@@ -793,5 +1031,57 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newType, UDMF::APPLICATION_DEFINED_RECORD);
     auto newSystemRecord = static_cast<UDMF::ApplicationDefinedRecord *>(newRecord.get());
     ASSERT_EQ(newSystemRecord->GetRawData(), rawData_);
+}
+
+/**
+* @tc.name: AppDefined2PasteRecord002
+* @tc.desc: appRecord is nullptr.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<UDMF::ApplicationDefinedRecord> appRecord;
+    auto pasteRecord = PasteboardUtils::AppDefined2PasteRecord(appRecord);
+    ASSERT_EQ(pasteRecord, nullptr);
+
+    auto ret = PasteboardUtils::Custom2AppDefined(pasteRecord);
+    ASSERT_EQ(ret.size(), 0);
+}
+
+/**
+* @tc.name: ConvertTest001
+* @tc.desc: Traverse UDType.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertTest001, TestSize.Level0)
+{
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::PLAIN_TEXT), MIMETYPE_TEXT_PLAIN);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::HTML), MIMETYPE_TEXT_HTML);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::FILE_URI), MIMETYPE_TEXT_URI);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::SYSTEM_DEFINED_PIXEL_MAP), MIMETYPE_PIXELMAP);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::OPENHARMONY_WANT), MIMETYPE_TEXT_WANT);
+}
+
+/**
+* @tc.name: ConvertTest002
+* @tc.desc: Traverse MIMEType.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertTest002, TestSize.Level0)
+{
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_TEXT_URI), UDMF::FILE);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_TEXT_PLAIN), UDMF::PLAIN_TEXT);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_TEXT_HTML), UDMF::HTML);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_TEXT_WANT), UDMF::OPENHARMONY_WANT);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_PIXELMAP), UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, text_), UDMF::UD_BUTT);
+    std::string mimeType = "general.jpeg-2000";
+    ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, mimeType), UDMF::JPEG2000);
 }
 } // namespace OHOS::MiscServices
