@@ -131,4 +131,62 @@ HWTEST_F(DMAdapterTest, IsSameAccount, TestSize.Level0)
     bool ret = DMAdapter::GetInstance().IsSameAccount(networkId);
     ASSERT_FALSE(ret);
 }
+
+/**
+* @tc.name: GetDevices
+* @tc.desc: Get Devices.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, GetDevices, TestSize.Level0)
+{
+    DMAdapter::GetInstance().SetDevices();
+    std::vector<DmDeviceInfo> devices = DMAdapter::GetInstance().GetDevices();
+    ASSERT_TRUE(devices.empty());
+}
+
+/**
+* @tc.name: GetLocalDeviceType
+* @tc.desc: Get Local Device Type
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, GetLocalDeviceType, TestSize.Level0)
+{
+    int32_t type = 14;
+    int32_t ret = DMAdapter::GetInstance().GetLocalDeviceType();
+    ASSERT_EQ(ret, type);
+}
+
+/**
+* @tc.name: GetDeviceName001
+* @tc.desc: Get Local Device Type
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, GetDeviceName001, TestSize.Level0)
+{
+    std::string networkId = "invalidnetworkId";
+    std::string expectedDeviceName = "unknown";
+    std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName(networkId);
+    EXPECT_EQ(expectedDeviceName, actualDeviceName);
+}
+
+/**
+* @tc.name: GetDeviceName002
+* @tc.desc: Get Local Device Type
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, GetDeviceName002, TestSize.Level0)
+{
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    std::string expectedDeviceName = "unknown";
+    std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName(networkId);
+    EXPECT_EQ(expectedDeviceName, actualDeviceName);
+}
 } // namespace OHOS::MiscServices
