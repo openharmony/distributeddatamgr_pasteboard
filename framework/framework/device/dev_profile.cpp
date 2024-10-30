@@ -181,7 +181,7 @@ std::pair<int32_t, std::string> DevProfile::GetEnabledStatus(const std::string &
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR), "");
     }
     auto it = enabledStatusCache_.Find(udid);
-    if (!it.first) {
+    if (it.first) {
         return it->second;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
@@ -318,7 +318,7 @@ void DevProfile::Notify(bool isEnable)
 
 void DevProfile::UpdateEnabledStatus(const std::string &udid, std::pair<int32_t, std::string> res)
 {
-    enabledStatusCache_.Compute(udid, [res](const auto &key, auto &value) {
+    enabledStatusCache_.Compute(udid, [&res](const auto& key, auto& value) {
         value = res;
         return true;
     });
