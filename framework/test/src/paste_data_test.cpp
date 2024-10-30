@@ -1044,4 +1044,18 @@ HWTEST_F(PasteDataTest, GetMimeTypes, TestSize.Level0)
     EXPECT_TRUE(mimeType.at(1) == MIMETYPE_TEXT_URI);
     EXPECT_TRUE(mimeType.at(0) == MIMETYPE_TEXT_PLAIN);
 }
+
+/**
+* @tc.name: GetDeviceId
+* @tc.desc: Get DeviceId
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(PasteDataTest, GetDeviceId, TestSize.Level0)
+{
+    PasteData data;
+    data.GetDeviceId();
+    ASSERT_TRUE(true);
+}
 } // namespace OHOS::MiscServices
