@@ -200,7 +200,6 @@ HWTEST_F(DMAdapterTest, GetDeviceName002, TestSize.Level0)
 HWTEST_F(DMAdapterTest, DeInitialize, TestSize.Level0)
 {
     DMAdapter::GetInstance().DeInitialize();
-    //EXPECT_TRUE(true);
     ASSERT_TRUE(true);
 }
 } // namespace OHOS::MiscServices
