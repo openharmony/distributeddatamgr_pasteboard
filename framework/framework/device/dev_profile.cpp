@@ -182,7 +182,7 @@ std::pair<int32_t, std::string> DevProfile::GetEnabledStatus(const std::string &
     }
     auto it = enabledStatusCache_.Find(udid);
     if (it.first) {
-        return it->second;
+        return it.second;
     }
     DistributedDeviceProfile::CharacteristicProfile profile;
     int32_t ret =
