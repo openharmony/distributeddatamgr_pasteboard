@@ -124,11 +124,6 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
     DevProfile::GetInstance().Notify(status == SUPPORT_STATUS);
     return 0;
 }
-
-
-
-
-
 #endif
 
 DevProfile::DevProfile() {}
