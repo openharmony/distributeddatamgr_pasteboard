@@ -204,7 +204,7 @@ napi_value PasteboardNapi::CreateWantData(napi_env env, napi_value in)
 }
 
 napi_value PasteboardNapi::CreateMultiTypeData(napi_env env,
-    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap)
+    std::shared_ptr<std::vector<std::pair<std::string, std::shared_ptr<EntryValue>>>> typeValueVector)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateMultiTypeData is called!");
     napi_value instance = nullptr;
@@ -214,7 +214,16 @@ napi_value PasteboardNapi::CreateMultiTypeData(napi_env env,
     if ((status != napi_ok) || (obj == nullptr)) {
         return nullptr;
     }
-    obj->value_ = PasteboardClient::GetInstance()->CreateMultiTypeData(std::move(typeValueMap));
+    if (typeValueVector == nullptr || typeValueVector->empty()) {
+        return nullptr;
+    }
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap =
+            std::make_shared<std::map<std::string, std::shared_ptr<EntryValue>>>();
+    for (const auto &item : *typeValueVector) {
+        typeValueMap->emplace(item.first, item.second);
+    }
+    obj->value_ = PasteboardClient::GetInstance()->CreateMultiTypeData(std::move(typeValueMap),
+        typeValueVector->begin()->first);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return instance;
 }
@@ -481,17 +490,17 @@ napi_value PasteboardNapi::JSCreateData(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     std::string mimeType;
-    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap =
-        std::make_shared<std::map<std::string, std::shared_ptr<MiscServices::EntryValue>>>();
+    std::shared_ptr<std::vector<std::pair<std::string, std::shared_ptr<EntryValue>>>> typeValueVector =
+        std::make_shared<std::vector<std::pair<std::string, std::shared_ptr<EntryValue>>>>();
     if (!CheckExpression(env, argc >= ARGC_TYPE_SET1, JSErrorCode::INVALID_PARAMETERS,
         "Parameter error. The number of arguments cannot be less than one.")) {
         return nullptr;
     }
     if (argc == ARGC_TYPE_SET1) {
-        if (!CheckArgsMap(env, argv[0], typeValueMap)) {
+        if (!CheckArgsVector(env, argv[0], typeValueVector)) {
             return nullptr;
         }
-        return CreateMultiTypeData(env, typeValueMap);
+        return CreateMultiTypeData(env, typeValueVector);
     }
     bool isArray = false;
     NAPI_CALL(env, napi_is_array(env, argv[0], &isArray));

@@ -293,8 +293,8 @@ bool CheckArgsFunc(napi_env env, napi_value in, napi_ref &provider)
     return true;
 }
 
-bool CheckArgsMap(napi_env env, napi_value in,
-    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> result)
+bool CheckArgsVector(napi_env env, napi_value in,
+    std::shared_ptr<std::vector<std::pair<std::string, std::shared_ptr<EntryValue>>>> result)
 {
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, in, &valueType), false);
@@ -324,7 +324,7 @@ bool CheckArgsMap(napi_env env, napi_value in,
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetNativeValue failed");
             return false;
         }
-        result->emplace(mimeType, entryValue);
+        result->emplace_back(std::make_pair(mimeType, entryValue));
     }
     return true;
 }

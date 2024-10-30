@@ -42,8 +42,8 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
 bool CheckArgsMimeType(napi_env env, napi_value in, std::string &mimeType);
 bool CheckArgsArray(napi_env env, napi_value in, std::vector<std::string> &mimeTypes);
 bool CheckArgsFunc(napi_env env, napi_value in, napi_ref &provider);
-bool CheckArgsMap(napi_env env, napi_value in,
-    std::shared_ptr<std::map<std::string, std::shared_ptr<MiscServices::EntryValue>>> result);
+bool CheckArgsVector(napi_env env, napi_value in,
+    std::shared_ptr<std::vector<std::pair<std::string, std::shared_ptr<MiscServices::EntryValue>>>> result);
 napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &udtType,
     std::shared_ptr<MiscServices::PasteDataEntry> value);
 bool GetNativeValue(napi_env env, std::string type, napi_value valueNapi, MiscServices::EntryValue &value);

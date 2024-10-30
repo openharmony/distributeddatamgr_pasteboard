@@ -414,7 +414,8 @@ private:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void RetainUri(PasteData &pasteData);
-    static std::shared_ptr<PasteData> SplitWebviewPasteData(PasteData &pasteData);
+    static void SplitWebviewPasteData(PasteData &pasteData);
+    static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;
