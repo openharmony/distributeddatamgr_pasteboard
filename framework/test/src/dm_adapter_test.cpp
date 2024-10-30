@@ -189,4 +189,18 @@ HWTEST_F(DMAdapterTest, GetDeviceName002, TestSize.Level0)
     std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName(networkId);
     EXPECT_EQ(expectedDeviceName, actualDeviceName);
 }
+
+/**
+* @tc.name: DeInitialize
+* @tc.desc: De Initi alize
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, DeInitialize, TestSize.Level0)
+{
+    DMAdapter::GetInstance().DeInitialize();
+    //EXPECT_TRUE(true);
+    ASSERT_TRUE(true);
+}
 } // namespace OHOS::MiscServices
