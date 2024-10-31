@@ -27,6 +27,7 @@ public:
     using UnifiedData = UDMF::UnifiedData;
     using UnifiedDataProperties = UDMF::UnifiedDataProperties;
     using UDType = UDMF::UDType;
+    using ShareOptions = UDMF::ShareOptions;
     static PasteboardUtils& GetInstance();
     std::shared_ptr<PasteData> Convert(const UnifiedData& unifiedData);
     std::shared_ptr<UnifiedData> Convert(const PasteData& pasteData);
@@ -81,6 +82,8 @@ private:
 
     std::map<int32_t, Convert2URecord> convert2URecordMap_;
     std::map<int32_t, Convert2PRecord> convert2PRecordMap_;
+    static ShareOption UdmfOptions2PbOption(ShareOptions udmfOptions);
+    static ShareOptions PbOption2UdmfOptions(ShareOption pbOption);
 };
 } // namespace MiscServices
 } // namespace OHOS

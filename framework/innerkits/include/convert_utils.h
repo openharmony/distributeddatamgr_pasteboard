@@ -26,6 +26,7 @@ public:
     using UnifiedData = UDMF::UnifiedData;
     using UnifiedDataProperties = UDMF::UnifiedDataProperties;
     using UDType = UDMF::UDType;
+    using ShareOptions = UDMF::ShareOptions;
 
     static std::shared_ptr<PasteData> Convert(const UnifiedData &unifiedData);
     static std::shared_ptr<UnifiedData> Convert(const PasteData &pasteData);
@@ -53,6 +54,8 @@ public:
 
 private:
     static constexpr const char *CHANNEL_NAME = "pasteboard";
+    static ShareOption UdmfOptions2PbOption(ShareOptions udmfOptions);
+    static ShareOptions PbOption2UdmfOptions(ShareOption pbOption);
 };
 } // namespace MiscServices
 } // namespace OHOS
