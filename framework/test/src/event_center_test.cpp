@@ -150,4 +150,33 @@ HWTEST_F(EventCenterTest, ImmediatelyASyncEvent, TestSize.Level2)
     ASSERT_EQ(currEvent_, TEST_EVT_END);
     ASSERT_EQ(waitEvent_, TEST_EVT_UNKNOWN);
 }
+
+/**
+* @tc.name: SubscribeTest
+* @tc.desc: Subscribe.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author: Sven Wang
+*/
+HWTEST_F(EventCenterTest, SubscribeTest, TestSize.Level2)
+{
+    int32_t evtId = 1;
+    std::function<void(const Event &)> observer = nullptr;
+    bool result = EventCenter::GetInstance().Subscribe(evtId, observer);
+    EXPECT_TRUE(result);
+}
+
+/**
+* @tc.name: UnsubscribeTest
+* @tc.desc: Unsubscribe.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author: Sven Wang
+*/
+HWTEST_F(EventCenterTest, UnsubscribeTest, TestSize.Level2)
+{
+    int32_t evtId = 2;
+    bool result = EventCenter::GetInstance().Unsubscribe(evtId);
+    EXPECT_FALSE(result);
+}
 } // namespace OHOS::MiscServices
