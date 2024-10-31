@@ -48,6 +48,7 @@ const std::vector<PasteboardServiceInterfaceCode> CODE_LIST = {
     REGISTER_CLIENT_DEATH_OBSERVER,
     DETECT_PATTERNS,
     GET_RECORD_VALUE,
+    GET_MIME_TYPES,
 };
 
 class PasteboardServiceMock : public PasteboardServiceStub {
@@ -135,6 +136,11 @@ public:
     {
         (void)mimeType;
         return true;
+    }
+
+    std::vector<std::string> GetMimeTypes() override
+    {
+        return {};
     }
 
     bool IsRemoteData() override

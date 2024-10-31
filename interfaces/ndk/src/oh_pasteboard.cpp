@@ -31,6 +31,51 @@
 #include "udmf_capi_common.h"
 
 using namespace OHOS::MiscServices;
+
+static constexpr uint64_t MAX_RECORDS_COUNT = 1024;
+static constexpr uint64_t MAX_KEY_STRING_LEN = 1024;
+
+static void DestroyStringArray(char**& bufArray, unsigned int &count)
+{
+    if (bufArray == nullptr) {
+        return;
+    }
+    for (unsigned int i = 0; i < count; i++) {
+        if (bufArray[i] != nullptr) {
+            delete[] bufArray[i];
+            bufArray[i] = nullptr;
+        }
+    }
+    delete[] bufArray;
+    bufArray = nullptr;
+    count = 0;
+}
+
+static char** StrVectorToTypesArray(const std::vector<std::string>& strVector)
+{
+    unsigned int vectorSize = strVector.size();
+    if (vectorSize > MAX_RECORDS_COUNT) {
+        return nullptr;
+    }
+    char** typesArray = new (std::nothrow) char* [vectorSize] {nullptr};
+    for (unsigned int i = 0; i < vectorSize; ++i) {
+        unsigned int strLen = strVector[i].length() + 1;
+        if (strLen > MAX_KEY_STRING_LEN) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "string exceeds maximum length, length=%{public}u", strLen);
+            DestroyStringArray(typesArray, vectorSize);
+            return nullptr;
+        }
+        typesArray[i] = new (std::nothrow) char[strLen];
+        if (typesArray[i] == nullptr ||
+            (strcpy_s(typesArray[i], strLen, strVector[i].c_str())) != EOK) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "string copy failed");
+            DestroyStringArray(typesArray, vectorSize);
+            return nullptr;
+        }
+    }
+    return typesArray;
+}
+
 static bool IsPasteboardValid(OH_Pasteboard *pasteboard)
 {
     return pasteboard != nullptr && pasteboard->cid == PASTEBOARD_STRUCT_ID;
@@ -179,6 +224,19 @@ int OH_Pasteboard_GetDataSource(OH_Pasteboard *pasteboard, char *source, unsigne
         return ERR_INNER_ERROR;
     }
     return ERR_OK;
+}
+
+char **OH_Pasteboard_GetMimeTypes(OH_Pasteboard *pasteboard, unsigned int *count)
+{
+    if (!IsPasteboardValid(pasteboard) || count == nullptr) {
+        return nullptr;
+    }
+    std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
+    *count = mimeTypes.size();
+    if (*count == 0) {
+        return new char *[1]{nullptr};
+    }
+    return StrVectorToTypesArray(mimeTypes);
 }
 
 bool OH_Pasteboard_HasType(OH_Pasteboard *pasteboard, const char *type)

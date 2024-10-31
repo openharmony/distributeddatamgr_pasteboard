@@ -1632,11 +1632,50 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_promise_test58
+   * @tc.desc      test addEntry and getData
+   * @tc.type      Function
+   * @tc.require   AR000HEECD
+   */
+  it('pasteboard_promise_test58', 0, async function (done) {
+    const htmlText = "<html><head></head><body>Hello World!</body></html>";
+    const plainData = "Hello World!";
+    const uriText = "https://www.AACCSVDSVSDV.com/";
+    const buffer58 = new ArrayBuffer(128);
+    const opt58 = {
+      size: { height: 5, width: 5 },
+      pixelFormat: 3,
+      editable: true,
+      alphaType: 1,
+      scaleMode: 1,
+    };
+    const pixelMap = await image.createPixelMap(buffer58, opt58);
+    const pasteRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_TEXT_PLAIN, plainData);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
+
+    const html = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_HTML);
+    expect(html.toString()).assertEqual(htmlText.toString());
+    const plain = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_PLAIN);
+    expect(plain.toString()).assertEqual(plainData.toString());
+    const uri = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_URI);
+    expect(uri.toString()).assertEqual(uriText.toString());
+    const pixel = await pasteRecord.getData(pasteboard.MIMETYPE_PIXELMAP);
+    const PixelMapBytesNumber = pixel.getPixelBytesNumber();
+    expect(PixelMapBytesNumber).assertEqual(100);
+    const imageInfo = await pixel.getImageInfo();
+    expect(imageInfo.size.height === 5 && imageInfo.size.width === 5).assertEqual(true);
+
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test59
    * @tc.desc      Single style with createData(Record) function.
    * @tc.type      Function
    * @tc.require   API 14
    */
-  it('pasteboard_promise_test58', 0, async function (done) {
+  it('pasteboard_promise_test59', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
 
@@ -1675,12 +1714,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_promise_test59
+   * @tc.name      pasteboard_promise_test60
    * @tc.desc      Multi style with createData(Record) function.
    * @tc.type      Function
    * @tc.require   API 14
    */
-  it('pasteboard_promise_test59', 0, async function (done) {
+  it('pasteboard_promise_test60', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
 
@@ -1718,12 +1757,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_promise_test60
+   * @tc.name      pasteboard_promise_test61
    * @tc.desc      Multi style with addEntry function.
    * @tc.type      Function
    * @tc.require   API 14
    */
-  it('pasteboard_promise_test60', 0, async function (done) {
+  it('pasteboard_promise_test61', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
 
@@ -1777,12 +1816,12 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_promise_test61
+   * @tc.name      pasteboard_promise_test62
    * @tc.desc      Paste record's getValidType function.
    * @tc.type      Function
    * @tc.require   API 14
    */
-  it('pasteboard_promise_test61', 0, async function (done) {
+  it('pasteboard_promise_test62', 0, async function (done) {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
 
@@ -1881,6 +1920,62 @@ describe('PasteBoardJSTest', function () {
 
     return record;
   }
+
+  /**
+   * @tc.name      pasteboard_promise_test63
+   * @tc.desc      html
+   * @tc.type      Function
+   * @tc.require   AR20241012964265
+   */
+  it('pasteboard_promise_test63', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData = "<!DOCTYPE html><html><head><title>" +
+    "的厚爱hi哦</title></head><body><h2>恶风无关痛痒和</h2>" +
+    "<p>Greg任何人https://exampsaole.com问我的<a href=\"https://exaeqdwerfmple.com\">" +
+    "如果qwiuyhw@huedqw.dsh站</a>。</p></body></html>";
+    const pasteData = pasteboard.createHtmlData(textData);
+    await systemPasteboard.setPasteData(pasteData);
+    const res = await systemPasteboard.hasPasteData();
+    expect(res).assertEqual(true);
+    systemPasteboard.getMimeTypes().then((data) => {
+      expect(data.size()).assertEqual(1);
+      expect(data[0]).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
+      done();
+    }).catch((error)=>{
+      console.error('promise_test63: systemPasteboard.getMimeTypes promise error:' + error.message);
+      return;
+    });
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test47
+   * @tc.desc      复制文本、uri格式
+   * @tc.type      Function
+   * @tc.require   AR20241012964265
+   */
+  it('pasteboard_promise_test64', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+    const textData64 = 'Hello World0';
+    const pasteData = pasteboard.createPlainTextData(textData64);
+    const uriText64 = pasteboard.createUriRecord('https://www.baidu.com/');
+    pasteData.addRecord(uriText64);
+    const htmlText64 = '<html><head></head><body>Hello World 1</body></html>';
+    const pasteDataRecord = pasteboard.createHtmlTextRecord(htmlText64);
+    pasteData.addRecord(uriText47);
+    await systemPasteboard.setPasteData(pasteData);
+
+    systemPasteboard.getMimeTypes().then((data) => {
+      expect(data.size()).assertEqual(3);
+      const expectedMimeTypes = new Set([pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_HTML, pasteboard.MIMETYPE_TEXT_URI]);
+      expect(Array.from(data).every(type => expectedMimeTypes.has(type))).assertEqual(true);
+      done();
+    }).catch((error)=>{
+      console.error('promise_test64: systemPasteboard.getMimeTypes promise error:' + error.message);
+      return;
+    });
+  });
 
   /**
    *  The callback function is used for pasteboard content changes

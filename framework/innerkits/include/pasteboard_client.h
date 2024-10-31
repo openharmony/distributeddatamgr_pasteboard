@@ -194,6 +194,13 @@ public:
     int32_t GetPasteData(PasteData &pasteData);
 
     /**
+     * GetMimeTypes
+     * @descrition get mime types from the pasteboard.
+     * @return Returns MimeTypes
+     */
+    std::vector<std::string> GetMimeTypes();
+
+    /**
  * HasPasteData
  * @descrition check paste data exist in the pasteboard.
  * @return bool. True exists, false does not exist
