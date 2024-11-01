@@ -54,6 +54,7 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_DATA_ID,
     TAG_RECORD_ID,
     TAG_DELAY_RECORD_FLAG,
+    TAG_FROM,
 };
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<std::string> htmlText)
@@ -224,7 +225,8 @@ PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
       hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_), udType_(record.udType_),
       details_(record.details_), textContent_(record.textContent_),
       systemDefinedContents_(record.systemDefinedContents_), udmfValue_(record.udmfValue_), entries_(record.entries_),
-      dataId_(record.dataId_), recordId_(record.recordId_), isDelay_(record.isDelay_), entryGetter_(record.entryGetter_)
+      dataId_(record.dataId_), recordId_(record.recordId_), isDelay_(record.isDelay_),
+      entryGetter_(record.entryGetter_), from_(record.from_)
 {
     this->isConvertUriFromRemote = record.isConvertUriFromRemote;
     InitDecodeMap();
@@ -275,6 +277,8 @@ void PasteDataRecord::InitDecodeMap()
             ret = ret && ReadValue(buffer, recordId_, head);}},
         {TAG_DELAY_RECORD_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, isDelay_, head);}},
+        {TAG_FROM, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+            ret = ret && ReadValue(buffer, from_, head);}},
     };
 }
 
@@ -374,6 +378,7 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_DATA_ID, dataId_) && ret;
     ret = Write(buffer, TAG_RECORD_ID, recordId_) && ret;
     ret = Write(buffer, TAG_DELAY_RECORD_FLAG, isDelay_) && ret;
+    ret = Write(buffer, TAG_FROM, from_) && ret;
     return ret;
 }
 
@@ -420,6 +425,7 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(dataId_);
     expectedSize += TLVObject::Count(recordId_);
     expectedSize += TLVObject::Count(isDelay_);
+    expectedSize += TLVObject::Count(from_);
     return expectedSize;
 }
 
@@ -794,6 +800,16 @@ bool PasteDataRecord::IsDelayRecord() const
 void PasteDataRecord::SetEntryGetter(const std::shared_ptr<UDMF::EntryGetter> entryGetter)
 {
     entryGetter_ = std::move(entryGetter);
+}
+
+void PasteDataRecord::SetFrom(uint32_t from)
+{
+    from_ = from;
+}
+
+uint32_t PasteDataRecord::GetFrom() const
+{
+    return from_;
 }
 
 std::shared_ptr<UDMF::EntryGetter> PasteDataRecord::GetEntryGetter()

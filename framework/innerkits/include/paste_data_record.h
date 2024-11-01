@@ -123,6 +123,9 @@ public:
     void SetEntryGetter(const std::shared_ptr<UDMF::EntryGetter> entryGetter);
     std::shared_ptr<UDMF::EntryGetter> GetEntryGetter();
 
+    void SetFrom(uint32_t from);
+    uint32_t GetFrom() const;
+
     class Builder {
     public:
         explicit Builder(const std::string &mimeType);
@@ -173,6 +176,7 @@ private:
     uint32_t recordId_ = 0;
     bool isDelay_ = false;
     std::shared_ptr<UDMF::EntryGetter> entryGetter_;
+    uint32_t from_ = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS
