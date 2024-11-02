@@ -140,10 +140,6 @@ public:
     };
 
 private:
-    inline static bool CheckResult(ResultCode resultCode)
-    {
-        return resultCode == ResultCode::OK;
-    }
     std::string GetPassUri();
     void AddUriEntry();
     std::set<std::string> GetUdtTypes() const;
