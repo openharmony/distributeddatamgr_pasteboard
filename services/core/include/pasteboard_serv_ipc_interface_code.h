@@ -41,6 +41,7 @@ enum PasteboardServiceInterfaceCode {
     REGISTER_CLIENT_DEATH_OBSERVER = 17,
     DETECT_PATTERNS = 18,
     GET_RECORD_VALUE = 19,
+    GET_MIME_TYPES = 20,
 };
 
 enum PasteboardObserverInterfaceCode {

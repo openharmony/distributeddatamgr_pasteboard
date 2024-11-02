@@ -36,6 +36,7 @@ public:
         const sptr<IPasteboardEntryGetter> entryGetter) override;
     virtual bool IsRemoteData() override;
     virtual int32_t GetDataSource(std::string &bundleName) override;
+    virtual std::vector<std::string> GetMimeTypes() override;
     virtual bool HasDataType(const std::string &mimeType) override;
     virtual void SubscribeObserver(PasteboardObserverType type,
         const sptr<IPasteboardChangedObserver> &observer) override;
