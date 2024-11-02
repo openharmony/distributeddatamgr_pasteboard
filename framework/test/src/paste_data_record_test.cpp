@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "copy_uri_handler.h"
 #include "paste_data_record.h"
 #include "tlv_object.h"
 #include "unified_meta.h"
@@ -222,12 +223,12 @@ void PasteDataRecordTest::CheckLinkUds(const std::shared_ptr<PasteDataEntry> ent
 }
 
 /**
-* @tc.name: GetValidTypesTest001
-* @tc.desc: GetValidTypesTest001;
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: GetValidTypesTest001
+ * @tc.desc: GetValidTypesTest001;
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataRecordTest, GetValidTypesTest001, TestSize.Level0)
 {
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
@@ -244,12 +245,12 @@ HWTEST_F(PasteDataRecordTest, GetValidTypesTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: AddEntryTest001
-* @tc.desc: Add entry test
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: AddEntryTest001
+ * @tc.desc: Add entry test
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataRecordTest, AddEntryTest001, TestSize.Level0)
 {
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
@@ -258,12 +259,12 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetEntries001
-* @tc.desc: convert to palinText;
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: GetEntries001
+ * @tc.desc: convert to palinText;
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataRecordTest, GetEntries001, TestSize.Level0)
 {
     std::vector<std::string> inputTypes;
@@ -302,4 +303,500 @@ HWTEST_F(PasteDataRecordTest, GetEntries001, TestSize.Level0)
     CheckEntries(entries);
 }
 
+/**
+ * @tc.name: BuilderTest001
+ * @tc.desc: PasteDataRecord::Builder
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, BuilderTest001, TestSize.Level0)
+{
+    PasteDataRecord::Builder builder("");
+    builder.SetHtmlText(nullptr);
+    builder.SetWant(nullptr);
+    builder.SetPlainText(nullptr);
+    builder.SetUri(nullptr);
+    builder.SetPixelMap(nullptr);
+    builder.SetCustomData(nullptr);
+    builder.SetMimeType("");
+
+    auto record = builder.Build();
+    EXPECT_NE(record, nullptr);
+}
+
+/**
+ * @tc.name: SetUriTest001
+ * @tc.desc: SetUri & GetUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, SetUriTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    record.SetUri(nullptr);
+
+    auto uri = record.GetUri();
+    EXPECT_NE(uri, nullptr);
+}
+
+/**
+ * @tc.name: NewMultiTypeRecordTest001
+ * @tc.desc: NewMultiTypeRecord
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+
+    auto ret = record.NewMultiTypeRecord(nullptr, "");
+    EXPECT_NE(ret, nullptr);
+
+    ret = record.NewMultiTypeRecord(nullptr, "0");
+    EXPECT_NE(ret, nullptr);
+
+    auto values = std::make_shared<std::map<std::string, std::shared_ptr<EntryValue>>>();
+    ASSERT_NE(values, nullptr);
+
+    ret = record.NewMultiTypeRecord(nullptr, "0");
+    EXPECT_NE(ret, nullptr);
+
+    (*values)["0"] = nullptr;
+    ret = record.NewMultiTypeRecord(nullptr, "0");
+    EXPECT_NE(ret, nullptr);
+
+    (*values)["0"] = std::make_shared<EntryValue>();
+    (*values)["1"] = std::make_shared<EntryValue>();
+    ret = record.NewMultiTypeRecord(nullptr, "0");
+    EXPECT_NE(ret, nullptr);
+
+    ret = record.NewMultiTypeRecord(nullptr, "");
+    EXPECT_NE(ret, nullptr);
+
+    ret = record.NewMultiTypeRecord(nullptr, "2");
+    EXPECT_NE(ret, nullptr);
+}
+
+class EntryGetterImplement : public UDMF::EntryGetter {
+public:
+    UDMF::ValueType GetValueByType(const std::string &utdId) override
+    {
+        return nullptr;
+    }
+};
+
+/**
+ * @tc.name: GetEntryGetterTest001
+ * @tc.desc: SetEntryGetter & GetEntryGetter
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetEntryGetterTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    std::shared_ptr<UDMF::EntryGetter> entryGetter = nullptr;
+    record.SetEntryGetter(entryGetter);
+    auto ret = record.GetEntryGetter();
+    EXPECT_EQ(ret, nullptr);
+
+    entryGetter = std::make_shared<EntryGetterImplement>();
+    record.SetEntryGetter(entryGetter);
+    ret = record.GetEntryGetter();
+    EXPECT_NE(ret, nullptr);
+}
+
+/**
+ * @tc.name: NewMultiTypeDelayRecordTest001
+ * @tc.desc: NewMultiTypeDelayRecord
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, NewMultiTypeDelayRecordTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    std::vector<std::string> mimeTypes = {"0", "1", "2"};
+    auto ret = record.NewMultiTypeDelayRecord(mimeTypes, nullptr);
+    EXPECT_NE(ret, nullptr);
+
+    auto entryGetter = std::make_shared<EntryGetterImplement>();
+    ret = record.NewMultiTypeDelayRecord(mimeTypes, entryGetter);
+    EXPECT_NE(ret, nullptr);
+}
+
+/**
+ * @tc.name: ClearPixelMapTest001
+ * @tc.desc: ClearPixelMap & GetPixelMap
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, ClearPixelMapTest001, TestSize.Level0)
+{
+    auto pixelMap = std::make_shared<OHOS::Media::PixelMap>();
+    auto record = PasteDataRecord::NewPixelMapRecord(pixelMap);
+    ASSERT_NE(record, nullptr);
+
+    pixelMap = record->GetPixelMap();
+    EXPECT_NE(pixelMap, nullptr);
+
+    record->ClearPixelMap();
+    pixelMap = record->GetPixelMap();
+    EXPECT_EQ(pixelMap, nullptr);
+}
+
+/**
+ * @tc.name: ConstructorTest001
+ * @tc.desc: PasteDataRecord::PasteDataRecord
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, ConstructorTest001, TestSize.Level0)
+{
+    PasteDataRecord record("", nullptr, nullptr, nullptr, nullptr);
+    auto pixelMap = record.GetPixelMap();
+    EXPECT_EQ(pixelMap, nullptr);
+}
+
+/**
+ * @tc.name: AddEntryTest002
+ * @tc.desc: AddEntry & GetEntry
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, AddEntryTest002, TestSize.Level0)
+{
+    PasteDataRecord record;
+    record.AddEntry("1", nullptr);
+
+    auto plainTextUtdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = plainTextUtdId;
+    object->value_[UDMF::CONTENT] = text_;
+    auto fileUriUtdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
+    auto entry = std::make_shared<PasteDataEntry>(plainTextUtdId, object);
+    record.AddEntry(fileUriUtdId, entry);
+
+    auto ret = record.GetEntry(plainTextUtdId);
+    EXPECT_EQ(ret, nullptr);
+}
+
+/**
+ * @tc.name: AddEntryTest003
+ * @tc.desc: AddEntry & GetEntry
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, AddEntryTest003, TestSize.Level0)
+{
+    PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
+    auto wantUtdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::OPENHARMONY_WANT);
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = wantUtdId;
+    auto entry = std::make_shared<PasteDataEntry>(wantUtdId, object);
+    record.AddEntry(wantUtdId, entry);
+
+    auto ret = record.GetEntry(wantUtdId);
+    EXPECT_NE(ret, nullptr);
+}
+
+/**
+ * @tc.name: AddEntryTest004
+ * @tc.desc: AddEntry & GetEntry
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, AddEntryTest004, TestSize.Level0)
+{
+    PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
+    AddLinkUdsEntry(record);
+    auto ret = record.GetEntry(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HYPERLINK));
+    EXPECT_NE(ret, nullptr);
+
+    ret = record.GetEntry(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE));
+    EXPECT_EQ(ret, nullptr);
+
+    AddFileUriUdsEntry(record);
+    ret = record.GetEntry(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE));
+    EXPECT_NE(ret, nullptr);
+}
+
+/**
+ * @tc.name: WriteFdTest001
+ * @tc.desc: ReadFd & WriteFd
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, WriteFdTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    MessageParcel parcel;
+    CopyUriHandler uriHandler;
+    bool isClient = false;
+
+    parcel.WriteFileDescriptor(1);
+    record.ReadFd(parcel, uriHandler);
+    bool ret = record.WriteFd(parcel, uriHandler, isClient);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: SetTextContentTest001
+ * @tc.desc: SetTextContent & GetTextContent
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, SetTextContentTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    std::string ret = record.GetTextContent();
+    EXPECT_STREQ(ret.c_str(), "");
+
+    record.SetTextContent(text_);
+    ret = record.GetTextContent();
+    EXPECT_STREQ(ret.c_str(), text_.c_str());
+}
+
+/**
+ * @tc.name: GetValidMimeTypesTest001
+ * @tc.desc: GetValidMimeTypes
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetValidMimeTypesTest001, TestSize.Level0)
+{
+    PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
+    std::vector<std::string> mimeTypes = {MIMETYPE_TEXT_WANT, MIMETYPE_TEXT_URI};
+    std::vector<std::string> validTypes = record.GetValidMimeTypes(mimeTypes);
+    EXPECT_NE(validTypes.size(), 0);
+}
+
+/**
+ * @tc.name: ReplaceShareUriTest001
+ * @tc.desc: SetConvertUri & GetConvertUri & GetPassUri ReplaceShareUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, ReplaceShareUriTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    std::string convertUri = "1";
+    record.SetConvertUri(convertUri);
+    record.ReplaceShareUri(0);
+
+    std::string replaceUri = record.GetConvertUri();
+    EXPECT_EQ(replaceUri, convertUri);
+
+    std::string passUri = record.GetPassUri();
+    EXPECT_EQ(passUri, convertUri);
+}
+
+/**
+ * @tc.name: AddEntryByMimeTypeTest001
+ * @tc.desc: AddEntryByMimeType & GetEntryByMimeType
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    std::string mimeType = "";
+    record.AddEntryByMimeType(mimeType, nullptr);
+
+    auto ret = record.GetEntryByMimeType(mimeType);
+    EXPECT_EQ(ret, nullptr);
+}
+
+/**
+ * @tc.name: AddEntryByMimeTypeTest002
+ * @tc.desc: AddEntryByMimeType & GetEntryByMimeType
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest002, TestSize.Level0)
+{
+    PasteDataRecord record;
+    auto entry = std::make_shared<PasteDataEntry>();
+    record.AddEntryByMimeType(MIMETYPE_TEXT_PLAIN, entry);
+
+    auto ret = record.GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
+    EXPECT_EQ(ret, nullptr);
+}
+
+/**
+ * @tc.name: AddEntryByMimeTypeTest003
+ * @tc.desc: AddEntryByMimeType & GetMimeTypes
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest003, TestSize.Level0)
+{
+    PasteDataRecord record(MIMETYPE_TEXT_PLAIN, nullptr, nullptr, nullptr, nullptr);
+    AddPlainUdsEntry(record);
+
+    std::set<std::string> mimeTypes = record.GetMimeTypes();
+    bool isExist = mimeTypes.find(MIMETYPE_TEXT_PLAIN) == mimeTypes.end();
+    EXPECT_FALSE(isExist);
+}
+
+/**
+ * @tc.name: AddEntryByMimeTypeTest004
+ * @tc.desc: AddEntryByMimeType & GetEntryByMimeType
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest004, TestSize.Level0)
+{
+    PasteDataRecord record(MIMETYPE_TEXT_PLAIN, nullptr, nullptr, nullptr, nullptr);
+    auto plainTextUtdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    auto object = std::make_shared<Object>();
+    object->value_[UDMF::UNIFORM_DATA_TYPE] = plainTextUtdId;
+    object->value_[UDMF::CONTENT] = text_;
+    auto entry = std::make_shared<PasteDataEntry>(plainTextUtdId, object);
+
+    record.AddEntryByMimeType(MIMETYPE_TEXT_PLAIN, entry);
+    auto ret = record.GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
+    EXPECT_NE(ret, nullptr);
+
+    record.SetUDMFValue(nullptr);
+    ret = record.GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
+    EXPECT_NE(ret, nullptr);
+
+    AddHtmlUdsEntry(record);
+    std::set<std::string> mimeTypes = record.GetMimeTypes();
+    bool isExist = mimeTypes.find(MIMETYPE_TEXT_PLAIN) == mimeTypes.end();
+    EXPECT_FALSE(isExist);
+}
+
+/**
+ * @tc.name: HasEmptyEntryTest001
+ * @tc.desc: HasEmptyEntry
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    auto value = record.GetUDMFValue();
+    EXPECT_EQ(value, nullptr);
+
+    bool ret = record.HasEmptyEntry();
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: HasEmptyEntryTest002
+ * @tc.desc: HasEmptyEntry
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest002, TestSize.Level0)
+{
+    PasteDataRecord record;
+    auto udmfValue = std::make_shared<EntryValue>();
+    record.SetUDMFValue(udmfValue);
+    auto value = record.GetUDMFValue();
+    EXPECT_EQ(value, udmfValue);
+
+    bool ret = record.HasEmptyEntry();
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: GetUDMFValueTest001
+ * @tc.desc: SetUDMFValue & GetUDMFValue
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUDMFValueTest001, TestSize.Level0)
+{
+    PasteDataRecord record1("1", nullptr, nullptr, nullptr, nullptr);
+    auto value = record1.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+
+    auto customData = std::make_shared<MineCustomData>();
+    PasteDataRecord::Builder builder("1");
+    builder.SetCustomData(customData);
+    auto record2 = builder.Build();
+    ASSERT_NE(record2, nullptr);
+    value = record2->GetUDMFValue();
+    EXPECT_EQ(value, nullptr);
+
+    auto udmfValue = std::make_shared<EntryValue>();
+    record2->SetUDMFValue(udmfValue);
+    value = record2->GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+}
+
+/**
+ * @tc.name: GetUDMFValueTest002
+ * @tc.desc: GetUDMFValue
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUDMFValueTest002, TestSize.Level0)
+{
+    PasteDataRecord record1(MIMETYPE_PIXELMAP, nullptr, nullptr, nullptr, nullptr);
+    auto value = record1.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+
+    const uint32_t color[] = {0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08};
+    uint32_t len = sizeof(color) / sizeof(color[0]);
+    Media::InitializationOptions opts;
+    opts.size.width = 2;
+    opts.size.height = 3;
+    opts.pixelFormat = Media::PixelFormat::UNKNOWN;
+    opts.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
+    std::shared_ptr<OHOS::Media::PixelMap> pixelMap = Media::PixelMap::Create(color, len, 0, opts.size.width, opts);
+
+    PasteDataRecord::Builder builder(MIMETYPE_PIXELMAP);
+    builder.SetPixelMap(pixelMap);
+    auto record2 = builder.Build();
+    ASSERT_NE(record2, nullptr);
+    value = record2->GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+}
+
+/**
+ * @tc.name: GetUDMFValueTest003
+ * @tc.desc: GetUDMFValue
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUDMFValueTest003, TestSize.Level0)
+{
+    PasteDataRecord record1(MIMETYPE_TEXT_HTML, nullptr, nullptr, nullptr, nullptr);
+    auto value = record1.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+
+    auto htmlText = std::make_shared<std::string>("1");
+    PasteDataRecord record2(MIMETYPE_TEXT_HTML, htmlText, nullptr, nullptr, nullptr);
+    value = record2.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+}
+
+/**
+ * @tc.name: GetUDMFValueTest004
+ * @tc.desc: GetUDMFValue
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUDMFValueTest004, TestSize.Level0)
+{
+    PasteDataRecord record1(MIMETYPE_TEXT_PLAIN, nullptr, nullptr, nullptr, nullptr);
+    auto value = record1.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+
+    auto plainText = std::make_shared<std::string>("1");
+    PasteDataRecord record2(MIMETYPE_TEXT_PLAIN, nullptr, nullptr, plainText, nullptr);
+    value = record2.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+}
+
+/**
+ * @tc.name: GetUDMFValueTest005
+ * @tc.desc: GetUDMFValue
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUDMFValueTest005, TestSize.Level0)
+{
+    PasteDataRecord record1(MIMETYPE_TEXT_URI, nullptr, nullptr, nullptr, nullptr);
+    auto value = record1.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+
+    auto uri = std::make_shared<OHOS::Uri>(uri_);
+    PasteDataRecord record2(MIMETYPE_TEXT_URI, nullptr, nullptr, nullptr, uri);
+    value = record2.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+
+    AddFileUriUdsEntry(record2);
+    value = record2.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+}
+
+/**
+ * @tc.name: GetUDMFValueTest006
+ * @tc.desc: GetUDMFValue
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUDMFValueTest006, TestSize.Level0)
+{
+    PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
+    auto value = record.GetUDMFValue();
+    EXPECT_NE(value, nullptr);
+}
 } // namespace OHOS::MiscServices

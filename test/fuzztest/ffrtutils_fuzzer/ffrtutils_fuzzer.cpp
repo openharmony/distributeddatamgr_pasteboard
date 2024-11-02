@@ -39,11 +39,11 @@ bool FuzzFfrtUtilsSubmitQueueTasks(const uint8_t *rawData, size_t size)
     int pos = 0;
     int x = TypeCast<int32_t>(rawData, &pos);
     int y = TypeCast<int32_t>(rawData + pos);
-    FFRTTask task = [&] {
-        x /= 2;
+    FFRTTask task = [=] {
+        return x / 2;
     };
-    FFRTTask task1 = [&] {
-        y /= 2;
+    FFRTTask task1 = [=] {
+        return y / 2;
     };
     static uint32_t thresHold = 1;
     if (thresHold <= 1) {
@@ -65,8 +65,8 @@ bool FuzzFfrtUtilsSubmitDelayTask(const uint8_t *rawData, size_t size)
     static uint32_t thresHold = 1;
     if (thresHold <= 1) {
         int y = TypeCast<int32_t>(rawData);
-        FFRTTask task = [&] {
-            y /= 2;
+        FFRTTask task = [=] {
+            return y / 2;
         };
         uint32_t delayMs = 5; // delay 5Ms
         FFRTQueue serQueue("delaytask_queue");
@@ -82,8 +82,8 @@ bool FuzzUtilsSubmitDelayTask(const uint8_t *rawData, size_t size)
         return true;
     }
     int z = TypeCast<int32_t>(rawData, nullptr);
-    FFRTTask task = [&] {
-        z /= 2;
+    FFRTTask task = [=] {
+        return z / 2;
     };
     uint32_t delayMs = 5; // delay 5Ms
     static uint32_t thresHold = 1;
@@ -101,8 +101,8 @@ bool FuzzUtilsSubmitTimeoutTask(const uint8_t *rawData, size_t size)
         return true;
     }
     int m = TypeCast<int32_t>(rawData, nullptr);
-    FFRTTask task = [&] {
-        m /= 2;
+    FFRTTask task = [=] {
+        return m / 2;
     };
     static uint32_t thresHold = 1;
     if (thresHold <= 1) {
@@ -120,8 +120,8 @@ bool FuzzFfRTTimerSingleSetAndCancel(const uint8_t *rawData, size_t size)
     }
     int pos = 0;
     int m = TypeCast<int32_t>(rawData, &pos);
-    FFRTTask task = [&] {
-        m /= 2;
+    FFRTTask task = [=] {
+        return m / 2;
     };
     static uint32_t thresHold = 1;
     if (thresHold <= 1) {
@@ -137,13 +137,12 @@ bool FuzzFfRTTimerSingleSetAndCancel(const uint8_t *rawData, size_t size)
 bool FuzzFfRTTimerMultiSetAndCancel(const uint8_t *rawData, size_t size)
 {
     int n = 0;
-    FFRTTask task = [&] {
-        n = 2;
+    FFRTTask task = [=] {
+        return n;
     };
-    FFRTTask task1 = [&] {
-        n = 5;
+    FFRTTask task1 = [=] {
+        return n;
     };
-    int len = size >> 1;
     string timerId1 = "TimerMultiSetAndCancel1";
     string timerId2 = "TimerMultiSetAndCancel2";
     static uint32_t thresHold = 1;
