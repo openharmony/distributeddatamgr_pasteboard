@@ -6,11 +6,15 @@
         },
         {
             "name":"pasteboard_desc",
-            "value":"在一部裝置上進行複製，然後可以在附近另一部登入相同 ID 的裝置上貼上。此功能需要雙方裝置啟用「跨裝置剪貼簿」、WLAN 和藍牙。"
+            "value":"在一部裝置上進行複製，然後可以在附近另一部登入相同 ID 的裝置上貼上。此功能需要雙方裝置啟用「跨裝置剪貼簿」、WLAN 和藍牙。%s"
         },
         {
             "name":"update_version_prompt",
             "value":"對方需要升級至 HarmonyOS NEXT 及以上版本。"
+        },
+        {
+            "name":"learn_more",
+            "value":"了解詳細資訊"
         }
     ]
 }
