@@ -1512,7 +1512,7 @@ void PasteboardService::SetWebViewPasteData(PasteData &pasteData, const std::str
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardService for webview.");
     for (auto &item : pasteData.AllRecords()) {
-        if (item->GetUri() == nullptr) {
+        if (item->GetUri() == nullptr || item->GetFrom() == 0 || item->GetRecordId() == item->GetFrom()) {
             continue;
         }
         std::shared_ptr<Uri> uri = item->GetUri();

@@ -301,8 +301,8 @@ int32_t PasteboardClient::GetUdsdData(UDMF::UnifiedData &unifiedData)
 
 void PasteboardClient::RefreshUri(std::shared_ptr<PasteDataRecord> &record)
 {
-    if (record->GetUri() == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview one of uri is null.");
+    if (record->GetUri() == nullptr || record->GetFrom() == 0 || record->GetRecordId() == record->GetFrom()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview one of uri is null or not extra uri.");
         return;
     }
     std::shared_ptr<Uri> uri = record->GetUri();
@@ -467,7 +467,7 @@ void PasteboardClient::SplitWebviewPasteData(PasteData &pasteData)
             continue;
         }
         hasExtraRecord = true;
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "extraUriRecords number: %{public}d", extraUriRecords.size());
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "extraUriRecords number: %{public}zu", extraUriRecords.size());
         for (const auto &item : extraUriRecords) {
             pasteData.AddRecord(item);
         }
