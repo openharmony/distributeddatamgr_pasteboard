@@ -489,4 +489,197 @@ HWTEST_F(ConvertUtilsTest, SameTypeEntryTest001, TestSize.Level0)
     ASSERT_EQ(rawData.size(), 1);
     ASSERT_EQ(rawData[appUtdId1_], rawData2_);
 }
+
+/**
+* @tc.name: ConvertPropertyTest001
+* @tc.desc: Test ConvertProperty function when properties is nullptr
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(ConvertUtilsTest, ConvertPropertyTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest001 start");
+    std::shared_ptr<UDMF::UnifiedDataProperties> properties = nullptr;
+    UDMF::UnifiedData unifiedData;
+    PasteDataProperty result;
+
+    result.shareOption = InApp;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, 0);
+
+    result.shareOption = LocalDevice;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, 0);
+
+    result.shareOption = CrossDevice;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, 0);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest001 end");
+}
+
+/**
+* @tc.name: ConvertPropertyTest002
+* @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::IN_APP
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(ConvertUtilsTest, ConvertPropertyTest002, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest002 start");
+    std::shared_ptr<UDMF::UnifiedDataProperties> properties = std::make_shared<UDMF::UnifiedDataProperties>();
+    UDMF::UnifiedData unifiedData;
+    PasteDataProperty result;
+
+    properties->shareOptions = UDMF::IN_APP;
+    result.shareOption = LocalDevice;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, InApp);
+    result.shareOption = CrossDevice;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, InApp);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest002 end");
+}
+
+/**
+* @tc.name: ConvertPropertyTest003
+* @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::CROSS_APP
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(ConvertUtilsTest, ConvertPropertyTest003, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest003 start");
+    std::shared_ptr<UDMF::UnifiedDataProperties> properties = std::make_shared<UDMF::UnifiedDataProperties>();
+    UDMF::UnifiedData unifiedData;
+    PasteDataProperty result;
+
+    properties->shareOptions = UDMF::CROSS_APP;
+    result.shareOption = InApp;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, LocalDevice);
+    result.shareOption = CrossDevice;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, LocalDevice);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest003 end");
+}
+
+/**
+* @tc.name: ConvertPropertyTest004
+* @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::CROSS_DEVICE
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(ConvertUtilsTest, ConvertPropertyTest004, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest004 start");
+    std::shared_ptr<UDMF::UnifiedDataProperties> properties = std::make_shared<UDMF::UnifiedDataProperties>();
+    UDMF::UnifiedData unifiedData;
+    PasteDataProperty result;
+
+    properties->shareOptions = UDMF::CROSS_DEVICE;
+    result.shareOption = InApp;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, CrossDevice);
+    result.shareOption = CrossDevice;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, CrossDevice);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest004 end");
+}
+
+/**
+* @tc.name: ConvertPropertyTest005
+* @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::SHARE_OPTIONS_BUTT
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(ConvertUtilsTest, ConvertPropertyTest005, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest005 start");
+    std::shared_ptr<UDMF::UnifiedDataProperties> properties = std::make_shared<UDMF::UnifiedDataProperties>();
+    UDMF::UnifiedData unifiedData;
+    PasteDataProperty result;
+
+    properties->shareOptions = UDMF::SHARE_OPTIONS_BUTT;
+    result.shareOption = InApp;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, CrossDevice);
+    result.shareOption = CrossDevice;
+    result = ConvertUtils::ConvertProperty(properties, unifiedData);
+    EXPECT_EQ(result.shareOption, CrossDevice);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest005 end");
+}
+
+/**
+* @tc.name: ConvertPropertyTest006
+* @tc.desc: Test ConvertProperty function when properties.shareOption is InApp
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(ConvertUtilsTest, ConvertPropertyTest006, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest006 start");
+    PasteDataProperty properties;
+    std::shared_ptr<UDMF::UnifiedDataProperties> result = std::make_shared<UDMF::UnifiedDataProperties>();
+
+    properties.shareOption = InApp;
+    result->shareOptions = UDMF::CROSS_APP;
+    result = ConvertUtils::ConvertProperty(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::IN_APP);
+    result->shareOptions = UDMF::CROSS_DEVICE;
+    result = ConvertUtils::ConvertProperty(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::IN_APP);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest006 end");
+}
+
+/**
+* @tc.name: ConvertPropertyTest007
+* @tc.desc: Test ConvertProperty function when properties.shareOption is LocalDevice
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(ConvertUtilsTest, ConvertPropertyTest007, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest007 start");
+    PasteDataProperty properties;
+    std::shared_ptr<UDMF::UnifiedDataProperties> result = std::make_shared<UDMF::UnifiedDataProperties>();
+
+    properties.shareOption = LocalDevice;
+    result->shareOptions = UDMF::IN_APP;
+    result = ConvertUtils::ConvertProperty(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::CROSS_APP);
+    result->shareOptions = UDMF::CROSS_DEVICE;
+    result = ConvertUtils::ConvertProperty(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::CROSS_APP);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest007 end");
+}
+
+/**
+* @tc.name: ConvertPropertyTest008
+* @tc.desc: Test ConvertProperty function when properties.shareOption is CrossDevice
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(ConvertUtilsTest, ConvertPropertyTest008, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest008 start");
+    PasteDataProperty properties;
+    std::shared_ptr<UDMF::UnifiedDataProperties> result = std::make_shared<UDMF::UnifiedDataProperties>();
+
+    properties.shareOption = CrossDevice;
+    result->shareOptions = UDMF::IN_APP;
+    result = ConvertUtils::ConvertProperty(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::CROSS_DEVICE);
+    result->shareOptions = UDMF::CROSS_APP;
+    result = ConvertUtils::ConvertProperty(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::CROSS_DEVICE);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest008 end");
+}
+
 } // namespace OHOS::MiscServices

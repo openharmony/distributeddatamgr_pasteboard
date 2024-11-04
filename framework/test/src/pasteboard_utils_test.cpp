@@ -1084,4 +1084,165 @@ HWTEST_F(PasteboardUtilsTest, ConvertTest002, TestSize.Level0)
     std::string mimeType = "general.jpeg-2000";
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, mimeType), UDMF::JPEG2000);
 }
+
+/**
+* @tc.name: ConvertShareOptionTest001
+* @tc.desc: Test Convert function when properties.shareOptions is UDMF::IN_APP
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest001 start");
+    UDMF::UnifiedDataProperties properties;
+    PasteDataProperty result;
+
+    properties.shareOptions = UDMF::IN_APP;
+    result.shareOption = LocalDevice;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result.shareOption, InApp);
+    result.shareOption = CrossDevice;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result.shareOption, InApp);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest001 end");
+}
+
+/**
+* @tc.name: ConvertShareOptionTest002
+* @tc.desc: Test Convert function when properties.shareOptions is UDMF::CROSS_APP
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest002, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest002 start");
+    UDMF::UnifiedDataProperties properties;
+    PasteDataProperty result;
+
+    properties.shareOptions = UDMF::CROSS_APP;
+    result.shareOption = InApp;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result.shareOption, LocalDevice);
+    result.shareOption = CrossDevice;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result.shareOption, LocalDevice);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest002 end");
+}
+
+/**
+* @tc.name: ConvertShareOptionTest003
+* @tc.desc: Test Convert function when properties.shareOptions is UDMF::CROSS_DEVICE
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest003, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest003 start");
+    UDMF::UnifiedDataProperties properties;
+    PasteDataProperty result;
+
+    properties.shareOptions = UDMF::CROSS_DEVICE;
+    result.shareOption = InApp;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result.shareOption, CrossDevice);
+    result.shareOption = CrossDevice;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result.shareOption, CrossDevice);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest003 end");
+}
+
+/**
+* @tc.name: ConvertShareOptionTest004
+* @tc.desc: Test Convert function when properties.shareOptions is UDMF::SHARE_OPTIONS_BUTT
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest004, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest004 start");
+    UDMF::UnifiedDataProperties properties;
+    PasteDataProperty result;
+
+    properties.shareOptions = UDMF::SHARE_OPTIONS_BUTT;
+    result.shareOption = InApp;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result.shareOption, CrossDevice);
+    result.shareOption = CrossDevice;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result.shareOption, CrossDevice);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest004 end");
+}
+
+/**
+* @tc.name: ConvertShareOptionTest005
+* @tc.desc: Test Convert function when properties.shareOption is InApp
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest005, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest005 start");
+    PasteDataProperty properties;
+    std::shared_ptr<UDMF::UnifiedDataProperties> result = std::make_shared<UDMF::UnifiedDataProperties>();
+
+    properties.shareOption = InApp;
+    result->shareOptions = UDMF::CROSS_APP;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::IN_APP);
+    result->shareOptions = UDMF::CROSS_DEVICE;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::IN_APP);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest005 end");
+}
+
+/**
+* @tc.name: ConvertShareOptionTest006
+* @tc.desc: Test Convert function when properties.shareOption is LocalDevice
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest006, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest006 start");
+    PasteDataProperty properties;
+    std::shared_ptr<UDMF::UnifiedDataProperties> result = std::make_shared<UDMF::UnifiedDataProperties>();
+
+    properties.shareOption = LocalDevice;
+    result->shareOptions = UDMF::IN_APP;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::CROSS_APP);
+    result->shareOptions = UDMF::CROSS_DEVICE;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::CROSS_APP);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest006 end");
+}
+
+/**
+* @tc.name: ConvertShareOptionTest007
+* @tc.desc: Test Convert function when properties.shareOption is CrossDevice
+* @tc.type: FUNC
+* @tc.require:
+*/
+HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest007, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest007 start");
+    PasteDataProperty properties;
+    std::shared_ptr<UDMF::UnifiedDataProperties> result = std::make_shared<UDMF::UnifiedDataProperties>();
+
+    properties.shareOption = CrossDevice;
+    result->shareOptions = UDMF::IN_APP;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::CROSS_DEVICE);
+    result->shareOptions = UDMF::CROSS_APP;
+    result = PasteboardUtils::Convert(properties);
+    EXPECT_EQ(result->shareOptions, UDMF::CROSS_DEVICE);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest007 end");
+}
+
 } // namespace OHOS::MiscServices
