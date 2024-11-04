@@ -1157,25 +1157,27 @@ bool PasteboardService::HasPasteData()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return false;
     }
-    auto it = clips_.Find(userId);
-    if (!it.first) {
-        ScreenEvent screenStatus = GetCurrentScreenStatus();
-        if (screenStatus != ScreenEvent::ScreenUnlocked) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screenStatus:%{public}d.", screenStatus);
-            return false;
-        }
+
+    if (GetCurrentScreenStatus() == ScreenEvent::ScreenUnlocked) {
         auto evt = GetValidDistributeEvent(userId);
-        return evt.first;
+        if (evt.first) {
+            return true;
+        }
     }
 
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto ret = IsDataVaild(*(it.second), tokenId);
-    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteData is invalid, tokenId: %{public}d, userId: %{public}d,"
-            "ret is %{public}d", tokenId, userId, ret);
-        return false;
+    auto it = clips_.Find(userId);
+    if (it.first && (it.second != nullptr)) {
+        auto tokenId = IPCSkeleton::GetCallingTokenID();
+        auto ret = IsDataVaild(*(it.second), tokenId);
+        if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "pasteData is invalid, tokenId: %{public}d, userId: %{public}d,"
+                "ret is %{public}d", tokenId, userId, ret);
+            return false;
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 
 int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
