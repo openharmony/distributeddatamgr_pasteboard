@@ -547,17 +547,17 @@ std::vector<std::string> PasteDataRecord::GetValidTypes(const std::vector<std::s
     return res;
 }
 
-bool PasteDataRecord::IsEmpty() const
+bool PasteDataRecord::HasEmptyEntry() const
 {
     if (udmfValue_ && !std::holds_alternative<std::monostate>(*udmfValue_)) {
         return false;
     }
-    for (auto const& entry : entries_) {
-        if (!std::holds_alternative<std::monostate>(entry->GetValue())) {
-            return false;
+    for (auto const &entry : GetEntries()) {
+        if (std::holds_alternative<std::monostate>(entry->GetValue())) {
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 void PasteDataRecord::SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue)
@@ -568,6 +568,7 @@ void PasteDataRecord::SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue)
 std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
 {
     if (udmfValue_) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "udmfValue_ is not null");
         return this->udmfValue_;
     }
     if (mimeType_.empty()) {
@@ -592,12 +593,13 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
         }
     } else if (mimeType_ == MIMETYPE_TEXT_URI) {
         object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
-        if (uri_ != nullptr) {
-            object->value_[UDMF::FILE_URI_PARAM] = uri_->ToString();
+        auto uri = GetUri();
+        if (uri != nullptr) {
+            object->value_[UDMF::FILE_URI_PARAM] = uri->ToString();
         }
     } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not surpport");
-    } else {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want, udmf not support");
+    } else if (customData_ != nullptr) {
         auto itemData = customData_->GetItemData();
         if (itemData.size() == 0) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no customData");
@@ -605,7 +607,7 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
         }
         if (itemData.size() != 1) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-                "not surrport u8 map, mimeType:%{public}s, customData.size:%{public}zu", mimeType_.c_str(),
+                "not support u8 map, mimeType:%{public}s, customData.size:%{public}zu", mimeType_.c_str(),
                 itemData.size());
         }
         udmfValue_ = std::make_shared<EntryValue>(itemData.begin()->second);
@@ -677,7 +679,8 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
         return std::make_shared<PasteDataEntry>(utdType, *udmfValue_);
     }
     for (auto const& entry : entries_) {
-        if (entry->GetUtdId() == utdType) {
+        if (entry->GetUtdId() == utdType ||
+            (CommonUtils::IsFileUri(utdType) && CommonUtils::IsFileUri(entry->GetUtdId()))) {
             return entry;
         }
     }

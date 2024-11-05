@@ -694,7 +694,11 @@ std::vector<std::shared_ptr<UnifiedRecord>> PasteboardUtils::Custom2AppDefined(
         return unifiedRecords;
     }
     auto customData = record->GetCustomData();
-    for (auto& [type, rawData] : customData->GetItemData()) {
+    if (customData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "customData is null");
+        return unifiedRecords;
+    }
+    for (auto &[type, rawData] : customData->GetItemData()) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "app defied type:%{public}s.", type.c_str());
         unifiedRecords.push_back(std::make_shared<UDMF::ApplicationDefinedRecord>(type, rawData));
     }

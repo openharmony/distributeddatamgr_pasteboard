@@ -75,6 +75,7 @@ public:
     static std::string Convert2MimeType(const std::string& utdId);
     static UDType Convert(int32_t uDType, const std::string& mimeType);
     static std::string Convert2UtdId(int32_t uDType, const std::string& mimeType);
+    static bool IsFileUri(const std::string &utdId);
 };
 } // namespace MiscServices
 } // namespace OHOS
