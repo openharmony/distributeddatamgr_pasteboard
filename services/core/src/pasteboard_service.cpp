@@ -44,6 +44,7 @@
 #include "pasteboard_event_ue.h"
 #include "pasteboard_service.h"
 #include "pasteboard_trace.h"
+#include "pasteboard_utils.h"
 #include "remote_file_share.h"
 #include "reporter.h"
 #include "screenlock_manager.h"
@@ -1288,10 +1289,10 @@ std::vector<std::string> PasteboardService::GetMimeTypes()
         auto userId = GetCurrentAccountId();
         auto event = GetValidDistributeEvent(userId);
         if (event.first) {
-            return event.second.dataType;
+            return PasteboardUtils::GetInstance().DeduplicateVector(event.second.dataType);
         }
     }
-    return GetLocalMimeTypes();
+    return PasteboardUtils::GetInstance().DeduplicateVector(GetLocalMimeTypes());
 }
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
