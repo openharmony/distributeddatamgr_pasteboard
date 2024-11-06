@@ -33,12 +33,12 @@ public:
         uint8_t frameNum = 0;
         uint16_t user = 0;
         uint16_t seqId = 0;
-        uint64_t expiration = 0;
         uint16_t status = EVT_UNKNOWN;
+        int32_t syncTime = 0;
+        uint64_t expiration = 0;
         std::string deviceId;
         std::string account;
         std::vector<std::string> dataType;
-        int32_t syncTime = 0;
         bool operator==(const GlobalEvent globalEvent)
         {
             return globalEvent.seqId == this->seqId && globalEvent.deviceId == this->deviceId;

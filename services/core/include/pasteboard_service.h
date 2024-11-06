@@ -72,8 +72,8 @@ struct HistoryInfo {
 
 struct PasteDateTime {
     int32_t syncTime = 0;
-    std::shared_ptr<PasteData> data;
     int32_t errorCode = 0;
+    std::shared_ptr<PasteData> data;
 };
 
 struct PasteDateResult {
