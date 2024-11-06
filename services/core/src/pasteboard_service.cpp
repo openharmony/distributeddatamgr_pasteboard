@@ -878,6 +878,7 @@ bool PasteboardService::GetDelayPasteRecord(const AppInfo &appInfo, PasteData &d
 {
     auto entryGetter = entryGetters_.Find(appInfo.userId);
     if (!entryGetter.first) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "entryGetter.first is null");
         return false;
     }
     auto getter = entryGetter.second;
@@ -887,21 +888,27 @@ bool PasteboardService::GetDelayPasteRecord(const AppInfo &appInfo, PasteData &d
     }
     bool isPadding = false;
     for (auto record : data.AllRecords()) {
-        if (!(record->IsEmpty())) {
+        if (!(record->HasEmptyEntry())) {
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "record do not has empty value.");
             continue;
         }
         if (!record->IsDelayRecord()) {
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "record is not DelayRecord.");
             continue;
         }
         auto entries = record->GetEntries();
-        if (entries.size() <= 0) {
+        if (entries.empty()) {
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "record size is 0.");
+            continue;
+        }
+        if (!std::holds_alternative<std::monostate>(entries[0]->GetValue())) {
             continue;
         }
         auto result = getter.first->GetRecordValueByType(record->GetRecordId(), *entries[0]);
         if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "get record value fail, dataId is %{public}d, recordId is %{public}d",
-                data.GetDataId(), record->GetRecordId());
+                "get record value fail, dataId is %{public}d, recordId is %{public}d", data.GetDataId(),
+                record->GetRecordId());
             continue;
         }
         record->AddEntry(entries[0]->GetUtdId(), entries[0]);
@@ -2079,6 +2086,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 
 void PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, userId is %{public}d", userId);
     auto entryGetter = entryGetters_.Find(userId);
     if (!entryGetter.first) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entry getter is nullptr, userId is %{public}d", userId);
@@ -2107,7 +2115,7 @@ void PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
                 continue;
             }
             if (entry->GetMimeType() == mimeType) {
-                record->SetUDMFValue(std::make_shared<EntryValue>(entry->GetValue()));
+                record->AddEntry(entry->GetUtdId(), std::make_shared<PasteDataEntry>(*entry));
             }
         }
     }
