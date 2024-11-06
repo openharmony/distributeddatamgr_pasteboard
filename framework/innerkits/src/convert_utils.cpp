@@ -22,6 +22,7 @@ using UnifiedRecord = UDMF::UnifiedRecord;
 using UnifiedData = UDMF::UnifiedData;
 using UnifiedDataProperties = UDMF::UnifiedDataProperties;
 using UDType = UDMF::UDType;
+using ShareOptions = UDMF::ShareOptions;
 
 std::shared_ptr<PasteData> ConvertUtils::Convert(const UnifiedData& unifiedData)
 {
@@ -139,6 +140,44 @@ std::shared_ptr<std::map<std::string, UDMF::ValueType>> ConvertUtils::Convert(
     return std::make_shared<std::map<std::string, UDMF::ValueType>>(udmfEntries);
 }
 
+ShareOption ConvertUtils::UdmfOptions2PbOption(ShareOptions udmfOptions)
+{
+    ShareOption pbOption = CrossDevice;
+    switch (udmfOptions) {
+        case UDMF::IN_APP:
+            pbOption = InApp;
+            break;
+        case UDMF::CROSS_APP:
+            pbOption = LocalDevice;
+            break;
+        case UDMF::CROSS_DEVICE:
+            pbOption = CrossDevice;
+            break;
+        default:
+            break;
+    }
+    return pbOption;
+}
+
+ShareOptions ConvertUtils::PbOption2UdmfOptions(ShareOption pbOption)
+{
+    ShareOptions udmfOptions = UDMF::CROSS_DEVICE;
+    switch (pbOption) {
+        case InApp:
+            udmfOptions = UDMF::IN_APP;
+            break;
+        case LocalDevice:
+            udmfOptions = UDMF::CROSS_APP;
+            break;
+        case CrossDevice:
+            udmfOptions = UDMF::CROSS_DEVICE;
+            break;
+        default:
+            break;
+    }
+    return udmfOptions;
+}
+
 PasteDataProperty ConvertUtils::ConvertProperty(const std::shared_ptr<UnifiedDataProperties>& properties,
     const UnifiedData& unifiedData)
 {
@@ -146,7 +185,7 @@ PasteDataProperty ConvertUtils::ConvertProperty(const std::shared_ptr<UnifiedDat
         return {};
     }
     PasteDataProperty pasteDataProperty;
-    pasteDataProperty.shareOption = static_cast<ShareOption>(properties->shareOptions);
+    pasteDataProperty.shareOption = UdmfOptions2PbOption(properties->shareOptions);
     pasteDataProperty.additions = properties->extras;
     pasteDataProperty.timestamp = properties->timestamp;
     pasteDataProperty.tag = properties->tag;
@@ -159,8 +198,7 @@ PasteDataProperty ConvertUtils::ConvertProperty(const std::shared_ptr<UnifiedDat
 std::shared_ptr<UnifiedDataProperties> ConvertUtils::ConvertProperty(const PasteDataProperty& properties)
 {
     auto unifiedDataProperties = std::make_shared<UnifiedDataProperties>();
-    unifiedDataProperties->shareOptions = properties.shareOption == InApp ? UDMF::ShareOptions::IN_APP
-                                                                          : UDMF::ShareOptions::CROSS_APP;
+    unifiedDataProperties->shareOptions = PbOption2UdmfOptions(properties.shareOption);
     unifiedDataProperties->extras = properties.additions;
     unifiedDataProperties->timestamp = properties.timestamp;
     unifiedDataProperties->tag = properties.tag;

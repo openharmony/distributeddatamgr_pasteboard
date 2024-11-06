@@ -2029,21 +2029,17 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     if (!IsAllowSendData()) {
         return false;
     }
-    if (data.GetShareOption() == InApp) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data share option is in app, dataId:%{public}d",
-            data.GetDataId());
-        return false;
-    }
-
+    ShareOption shareOpt = data.GetShareOption();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(shareOpt != InApp, false, PASTEBOARD_MODULE_SERVICE,
+        "data share option is in app, dataId:%{public}u", data.GetDataId());
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(shareOpt != LocalDevice, false, PASTEBOARD_MODULE_SERVICE,
+        "data share option is local device, dataId:%{public}u", data.GetDataId());
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    if (networkId.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!networkId.empty(), false, PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_SUCCESS);
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clip plugin is null, dataId:%{public}d", data.GetDataId());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clip plugin is null, dataId:%{public}u", data.GetDataId());
         return false;
     }
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
@@ -2058,7 +2054,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.status = ClipPlugin::EVT_NORMAL;
     event.dataType = data.GetMimeTypes();
     currentEvent_ = event;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}d, seqId:%{public}d, expiration:%{public}" PRIu64,
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}u, seqId:%{public}hu, expiration:%{public}" PRIu64,
         data.GetDataId(), event.seqId, event.expiration);
     std::thread thread([this, clipPlugin, event, user, data]() mutable {
         if (data.IsDelayRecord()) {
@@ -2068,7 +2064,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         std::vector<uint8_t> rawData;
         if (!data.Encode(rawData)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "distributed data encode failed, dataId:%{public}d, seqId:%{public}d", data.GetDataId(), event.seqId);
+                "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", data.GetDataId(), event.seqId);
         } else {
             clipPlugin->SetPasteData(event, rawData);
         }
