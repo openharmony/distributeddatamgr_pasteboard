@@ -171,7 +171,6 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
         return result;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return reply.ReadInt32();
 }
 
