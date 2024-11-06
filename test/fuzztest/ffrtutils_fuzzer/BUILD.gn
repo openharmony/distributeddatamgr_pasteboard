@@ -19,12 +19,12 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 
 ##############################fuzztest##########################################
-ohos_fuzztest("UriHandlerFuzzTest") {
+ohos_fuzztest("FfrtutilsFuzzTest") {
   module_out_path = "pasteboard/pasteboard"
 
-  fuzz_config_file = "${pasteboard_root_path}/test/fuzztest/urihandler_fuzzer"
+  fuzz_config_file = "${pasteboard_root_path}/test/fuzztest/ffrtutils_fuzzer"
 
-  include_dirs = [ "${pasteboard_root_path}/framework/uri" ]
+  include_dirs = [ "${pasteboard_root_path}/framework/framework/include/ffrt" ]
 
   cflags = [
     "-g",
@@ -33,21 +33,19 @@ ohos_fuzztest("UriHandlerFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [ "urihandler_fuzzer.cpp" ]
+  sources = [ "ffrtutils_fuzzer.cpp" ]
 
-  deps = [
-    "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_root_path}/framework/uri:pasteboard_uri",
-  ]
+  deps = [ "${pasteboard_root_path}/framework/framework:pasteboard_framework" ]
 
   external_deps = [
-    "ability_base:zuri",
-    "app_file_service:remote_file_share_native",
+    "cJSON:cjson",
     "c_utils:utils",
+    "ffrt:libffrt",
     "hilog:libhilog",
-    "image_framework:image_native",
-    "os_account:os_account_innerkits",
-    "safwk:system_ability_fwk",
+    "hisysevent:libhisysevent",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_core",
   ]
 }
 
@@ -55,6 +53,6 @@ ohos_fuzztest("UriHandlerFuzzTest") {
 group("fuzztest") {
   testonly = true
   deps = []
-  deps += [ ":UriHandlerFuzzTest" ]
+  deps += [ ":FfrtutilsFuzzTest" ]
 }
 ###############################################################################

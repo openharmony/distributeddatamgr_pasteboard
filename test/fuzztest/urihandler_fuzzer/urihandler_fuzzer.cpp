@@ -16,30 +16,64 @@
 #include "urihandler_fuzzer.h"
 
 #include "copy_uri_handler.h"
+#include "paste_uri_handler.h"
 
 using namespace OHOS::MiscServices;
 
 namespace OHOS {
-constexpr size_t THRESHOLD = 10;
-constexpr size_t OFFSET = 4;
-uint32_t ConvertToUint32(const uint8_t *ptr)
+
+template<class T>
+T TypeCast(const uint8_t *data, int *pos = nullptr)
 {
-    if (ptr == nullptr) {
-        return 0;
+    if (pos) {
+        *pos += sizeof(T);
     }
-    uint32_t bigVar = (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
-    return bigVar;
+    return *(reinterpret_cast<const T*>(data));
 }
 
 bool FuzzUriToFd(const uint8_t *rawData, size_t size)
 {
-    uint32_t value = ConvertToUint32(rawData);
-    rawData = rawData + OFFSET;
-    size = size - OFFSET;
-    std::string uri(reinterpret_cast<const char *>(rawData), size);
+    if (rawData == nullptr || size < (sizeof(uint32_t) + sizeof(uint32_t))) {
+        return true;
+    }
+    int pos = 0;
+    uint32_t value = TypeCast<uint32_t>(rawData, &pos);
+    std::string uri(reinterpret_cast<const char *>(rawData + pos), size - pos);
     bool isClient = value % 2;
     CopyUriHandler uriHandler;
     uriHandler.ToFd(uri, isClient);
+    return true;
+}
+
+bool FuzzCopyUriHandlerToUri(const uint8_t *rawData, size_t size)
+{
+    if (rawData == nullptr || size < sizeof(int32_t)) {
+        return true;
+    }
+    int32_t fd = TypeCast<int32_t>(rawData, nullptr);
+    CopyUriHandler uriHandler;
+    (void)uriHandler.ToUri(fd);
+    return true;
+}
+
+bool FuzzPasteUriHandlerToUri(const uint8_t *rawData, size_t size)
+{
+    if (rawData == nullptr || size < sizeof(int32_t)) {
+        return true;
+    }
+    int32_t fd = TypeCast<int32_t>(rawData, nullptr);
+    if (fd >= 0) {
+        return true;
+    }
+    PasteUriHandler pasteUriHandler;
+    (void)pasteUriHandler.ToUri(fd);
+    return true;
+}
+
+bool FuzzPasteUriHandlerIsPaste(const uint8_t *rawData, size_t size)
+{
+    PasteUriHandler pasteUriHandler;
+    (void)pasteUriHandler.IsPaste();
     return true;
 }
 } // namespace OHOS
@@ -47,10 +81,10 @@ bool FuzzUriToFd(const uint8_t *rawData, size_t size)
 /* Fuzzer entry point */
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    if (size < OHOS::THRESHOLD) {
-        return 0;
-    }
     /* Run your code on data */
     OHOS::FuzzUriToFd(data, size);
+    OHOS::FuzzCopyUriHandlerToUri(data, size);
+    OHOS::FuzzPasteUriHandlerToUri(data, size);
+    OHOS::FuzzPasteUriHandlerIsPaste(data, size);
     return 0;
 }
