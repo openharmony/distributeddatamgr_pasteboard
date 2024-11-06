@@ -1,44 +1,44 @@
 {
   "string":[
-    {
-      "name":"pasteboard_title",
-      "value":"[TS_940609]_Cross-device clipboard"
-    },
-    {
-      "name":"pasteboard_desc",
-      "value":"[TS_940611]_Copy on one device, paste on another.\n\nDevices need to be close to each other, have this feature, WLAN, and Bluetooth enabled, and be using the same HUAWEI ID."
-    },
-    {
-      "name":"PasteboardSwitchAbility_desc",
-      "value":"[TS_940613]_description"
-    },
-    {
-      "name":"typeface",
-      "value":"[TS_909191]_HarmonyHeiTi"
-    },
-    {
-      "name":"entry_desc",
-      "value":"[TS_849893]_Pasteboard dialog"
-    },
-    {
-      "name":"ToastExtensionAbility_desc",
-      "value":"[TS_909190]_Pasteboard toast extension"
-    },
-    {
-      "name":"PasteboardSwitchAbility_label",
-      "value":"[TS_940612]_label"
-    },
-    {
-      "name":"multi_device_collaboration",
-      "value":"[TS_940610]_More connectivity options"
-    },
-    {
-      "name":"ToastExtensionAbility_label",
-      "value":"[TS_909189]_Pasteboard Toast"
-    },
-    {
-      "name":"update_version_prompt",
-      "value":"[TS_966674]_Both devices must be running HarmonyOS NEXT."
-    }
+      {
+          "name":"pasteboard_title",
+          "value":"[TS_940609]_Cross-device clipboard"
+      },
+      {
+          "name":"pasteboard_desc",
+          "value":"[TS_940611]_Copy on one device, paste on another. Devices need to be near each other, using the same HUAWEI ID, and have WLAN, Bluetooth, and this feature enabled."
+      },
+      {
+          "name":"PasteboardSwitchAbility_desc",
+          "value":"[TS_940613]_description"
+      },
+      {
+          "name":"typeface",
+          "value":"[TS_909191]_HarmonyHeiTi"
+      },
+      {
+          "name":"entry_desc",
+          "value":"[TS_849893]_Pasteboard dialog"
+      },
+      {
+          "name":"ToastExtensionAbility_desc",
+          "value":"[TS_909190]_Pasteboard toast extension"
+      },
+      {
+          "name":"PasteboardSwitchAbility_label",
+          "value":"[TS_940612]_label"
+      },
+      {
+          "name":"multi_device_collaboration",
+          "value":"[TS_940610]_More connectivity options"
+      },
+      {
+          "name":"ToastExtensionAbility_label",
+          "value":"[TS_909189]_Pasteboard Toast"
+      },
+      {
+          "name":"update_version_prompt",
+          "value":"[TS_966674]_Both devices must be running HarmonyOS NEXT."
+      }
   ]
 }
