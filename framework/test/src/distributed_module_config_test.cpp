@@ -37,18 +37,36 @@ void DistributedModuleConfigTest::SetUp(void) {}
 void DistributedModuleConfigTest::TearDown(void) {}
 
 /**
+* @tc.name: IsOnTest001
+* @tc.desc: Is On.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DistributedModuleConfigTest, IsOnTest001, TestSize.Level0)
+{
+    DistributedModuleConfig config;
+    config.Init();
+    bool result = config.IsOn();
+    config.DeInit();
+    EXPECT_FALSE(result);
+}
+
+/**
 * @tc.name: IsOnTest
 * @tc.desc: Is On.
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
 */
-HWTEST_F(DistributedModuleConfigTest, IsOnTest, TestSize.Level0)
+HWTEST_F(DistributedModuleConfigTest, IsOnTest002, TestSize.Level0)
 {
     DistributedModuleConfig config;
-    config.Init();
+    std::string device = "validDevice";
     bool result = config.IsOn();
-    config.DeInit();
+    config.OnReady(device);
+    config.Online(device);
+    config.Offline(device);
     EXPECT_FALSE(result);
 }
 
@@ -63,6 +81,7 @@ HWTEST_F(DistributedModuleConfigTest, WatchTest, TestSize.Level0)
 {
     DistributedModuleConfig::Observer observer;
     DistributedModuleConfig config;
+    config.Notify();
     config.Watch(observer);
     EXPECT_FALSE(observer);
 }

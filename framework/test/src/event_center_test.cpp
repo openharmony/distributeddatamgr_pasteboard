@@ -152,6 +152,19 @@ HWTEST_F(EventCenterTest, ImmediatelyASyncEvent, TestSize.Level2)
 }
 
 /**
+* @tc.name: PostEvent
+* @tc.desc: post the async event.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author: Sven Wang
+*/
+HWTEST_F(EventCenterTest, PostEvent, TestSize.Level2)
+{
+    int32_t result = EventCenter::GetInstance().PostEvent(nullptr);
+    EXPECT_EQ(result, EventCenter::CODE_INVALID_ARGS);
+}
+
+/**
 * @tc.name: SubscribeTest
 * @tc.desc: Subscribe.
 * @tc.type: FUNC
