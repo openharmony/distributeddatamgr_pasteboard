@@ -136,7 +136,7 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewWantRecord(std::shared_ptr<
     return Builder(MIMETYPE_TEXT_WANT).SetWant(std::move(want)).Build();
 }
 
-std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPlaintTextRecord(const std::string &text)
+std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPlainTextRecord(const std::string &text)
 {
     if (text.length() >= MAX_TEXT_LEN) {
         return nullptr;
@@ -704,7 +704,7 @@ void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<Paste
         } else if (mimeType_ == MIMETYPE_TEXT_HTML) {
             htmlText_ = value->ConvertToHtml();
         } else if (mimeType_ == MIMETYPE_TEXT_PLAIN) {
-            plainText_ = value->ConvertToPlianText();
+            plainText_ = value->ConvertToPlainText();
         } else if (mimeType_ == MIMETYPE_TEXT_URI) {
             uri_ = value->ConvertToUri();
         } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
@@ -714,7 +714,7 @@ void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<Paste
         }
         return;
     }
-    // not firest entry
+    // not first entry
     bool has = false;
     for (auto &entry : entries_) {
         if (entry->GetUtdId() == utdType) {

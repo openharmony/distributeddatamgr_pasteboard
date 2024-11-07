@@ -256,7 +256,7 @@ void FuzzPastedataRecord(const uint8_t *rawData, size_t size)
     const std::string htmlText2(reinterpret_cast<const char *>(rawData), size);
     pasteDataRecord.NewHtmlRecord(htmlText2);
     pasteDataRecord.NewWantRecord(want);
-    pasteDataRecord.NewPlaintTextRecord(str);
+    pasteDataRecord.NewPlainTextRecord(str);
     pasteDataRecord.NewPixelMapRecord(pixelMap);
     pasteDataRecord.GetHtmlText();
     pasteDataRecord.GetMimeType();

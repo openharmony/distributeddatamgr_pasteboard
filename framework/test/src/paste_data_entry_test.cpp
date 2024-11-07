@@ -31,7 +31,7 @@ public:
     void TearDown();
 
 protected:
-    PasteDataEntry InitPlaintTextEntry();
+    PasteDataEntry InitPlainTextEntry();
     PasteDataEntry InitPixelMapEntry();
     PasteDataEntry InitUriEntry();
     PasteDataEntry InitWantEntry();
@@ -53,7 +53,7 @@ void PasteDataEntryTest::SetUp(void) {}
 
 void PasteDataEntryTest::TearDown(void) {}
 
-PasteDataEntry PasteDataEntryTest::InitPlaintTextEntry()
+PasteDataEntry PasteDataEntryTest::InitPlainTextEntry()
 {
     auto udsObject = std::make_shared<Object>();
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
@@ -151,8 +151,8 @@ void PasteDataEntryTest::CheckPixelMapUds(const std::shared_ptr<PasteDataEntry> 
 */
 HWTEST_F(PasteDataEntryTest, Convert001, TestSize.Level0)
 {
-    auto entry = InitPlaintTextEntry();
-    auto str = entry.ConvertToPlianText();
+    auto entry = InitPlainTextEntry();
+    auto str = entry.ConvertToPlainText();
     ASSERT_NE(nullptr, str);
     EXPECT_EQ(text_, *str);
 
@@ -369,7 +369,7 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
 HWTEST_F(PasteDataEntryTest, EntryTlvTest002, TestSize.Level0)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
-    auto entry = InitPlaintTextEntry();
+    auto entry = InitPlainTextEntry();
     std::vector<std::uint8_t> buffer;
     entry.Marshalling(buffer);
     PasteDataEntry decodePasteEntry;

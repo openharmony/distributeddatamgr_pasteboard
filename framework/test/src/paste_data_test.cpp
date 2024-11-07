@@ -347,7 +347,7 @@ HWTEST_F(PasteDataTest, MaxLength001, TestSize.Level0)
 
 /**
 * @tc.name: MaxLength002
-* @tc.desc: PasteDataRecord: maxLength NewPlaintTextRecord
+* @tc.desc: PasteDataRecord: maxLength NewPlainTextRecord
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:

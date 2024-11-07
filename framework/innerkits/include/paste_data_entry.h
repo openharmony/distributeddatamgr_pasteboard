@@ -43,7 +43,7 @@ public:
     PasteDataEntry(const std::string &utdId, const EntryValue &value);
     PasteDataEntry(const std::string &utdId, const std::string &mimeType, const EntryValue &value);
 
-    std::shared_ptr<std::string> ConvertToPlianText() const;
+    std::shared_ptr<std::string> ConvertToPlainText() const;
     std::shared_ptr<std::string> ConvertToHtml() const;
     std::shared_ptr<Uri> ConvertToUri() const;
     std::shared_ptr<AAFwk::Want> ConvertToWant() const;
