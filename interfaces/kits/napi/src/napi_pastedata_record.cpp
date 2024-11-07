@@ -511,7 +511,7 @@ napi_value PasteDataRecordNapi::New(napi_env env, napi_callback_info info)
     // get native object
     PasteDataRecordNapi *obj = new PasteDataRecordNapi();
     obj->env_ = env;
-    NAPI_CALL(env, napi_wrap(env, thisVar, obj, PasteDataRecordNapi::Destructor, nullptr, nullptr));
+    ASSERT_CALL(env, napi_wrap(env, thisVar, obj, PasteDataRecordNapi::Destructor, nullptr, nullptr), obj);
     return thisVar;
 }
 

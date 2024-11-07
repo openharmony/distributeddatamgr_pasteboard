@@ -1091,9 +1091,9 @@ napi_value SystemPasteboardNapi::New(napi_env env, napi_callback_info info)
         return nullptr;
     }
     obj->env_ = env;
-    NAPI_CALL(env, napi_wrap(env, thisVar, obj, SystemPasteboardNapi::Destructor,
+    ASSERT_CALL(env, napi_wrap(env, thisVar, obj, SystemPasteboardNapi::Destructor,
                        nullptr, // finalize_hint
-                       nullptr));
+                       nullptr), obj);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return thisVar;
 }
