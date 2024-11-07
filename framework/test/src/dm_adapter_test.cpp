@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "device/dm_adapter.h"
+#include "device_manager.h"
 #include "distributed_clip.h"
 #include "pasteboard_error.h"
 
@@ -38,13 +39,13 @@ void DMAdapterTest::SetUp(void) {}
 void DMAdapterTest::TearDown(void) {}
 
 /**
-* @tc.name: GetLocalDeviceUdid
+* @tc.name: GetLocalDeviceUdid001
 * @tc.desc: Get the local device udid.
 * @tc.type: FUNC
 * @tc.require:
 * @tc.author:
 */
-HWTEST_F(DMAdapterTest, GetLocalDeviceUdid, TestSize.Level0)
+HWTEST_F(DMAdapterTest, GetLocalDeviceUdid001, TestSize.Level0)
 {
     std::string bundleName = "com.example.myapplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
@@ -52,6 +53,27 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid, TestSize.Level0)
     std::string device = "deviceTestName";
     auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
     ASSERT_FALSE(fromDevice.empty());
+    auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
+    ASSERT_FALSE(udid.empty());
+}
+
+/**
+* @tc.name: GetLocalDeviceUdid002
+* @tc.desc: Get the local device udid.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(DMAdapterTest, GetLocalDeviceUdid002, TestSize.Level0)
+{
+    std::string bundleName = "com.example.myapplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    std::string device = "deviceTestName";
+    auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
+    DmDeviceInfo info;
+    std::string pkgName_ = "pkgName";
+    std::string localDeviceUdid_ = "localDeviceUdid";
+    DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceUdid_);
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     ASSERT_FALSE(udid.empty());
 }
