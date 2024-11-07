@@ -222,7 +222,7 @@ RetDataCString FfiOHOSPasteDataGetPrimaryText(int64_t id)
         LOGE("[PasteData] GetPrimaryText: pasteData not exist");
         return ret;
     }
-    
+
     std::shared_ptr<std::string> p = pasteData->GetPrimaryText();
     if (p != nullptr) {
         ret.data = PasteBoardMallocCString(*p);
@@ -396,7 +396,7 @@ static char** VectorToCArrString(std::vector<std::string> &vec)
             break;
         }
         if (strcpy_s(result[i], vec[i].length() + 1, vec[i].c_str()) != 0) {
-            delete result[i];
+            delete[] result[i];
             result[i] = nullptr;
             break;
         }
@@ -404,7 +404,7 @@ static char** VectorToCArrString(std::vector<std::string> &vec)
     }
     if (temp != vec.size()) {
         for (size_t j = temp; j > 0; j--) {
-            delete result[j - 1];
+            delete[] result[j - 1];
             result[j - 1] = nullptr;
         }
         delete[] result;

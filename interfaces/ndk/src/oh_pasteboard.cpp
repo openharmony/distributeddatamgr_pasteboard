@@ -203,7 +203,7 @@ OH_UdmfData* OH_Pasteboard_GetData(OH_Pasteboard* pasteboard, int* status)
         return nullptr;
     }
     auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
-    auto ret = PasteboardClient::GetInstance()->GetUdsdData(*unifiedData);
+    int32_t ret = PasteboardClient::GetInstance()->GetUdsdData(*unifiedData);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_GetData return invalid, result is %{public}d", ret);
@@ -221,7 +221,7 @@ int OH_Pasteboard_SetData(OH_Pasteboard* pasteboard, OH_UdmfData* data)
     if (!IsPasteboardValid(pasteboard) || data == nullptr) {
         return ERR_INVALID_PARAMETER;
     }
-    auto ret = PasteboardClient::GetInstance()->SetUdsdData(*(data->unifiedData_));
+    int32_t ret = PasteboardClient::GetInstance()->SetUdsdData(*(data->unifiedData_));
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_SetData return invalid, result is %{public}d", ret);
