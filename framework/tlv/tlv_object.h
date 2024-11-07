@@ -395,6 +395,27 @@ private:
         return ret;
     }
 
+    bool ReadBasicValue(const std::vector<std::uint8_t> &buffer, bool &value, const TLVHead &head)
+    {
+        if (head.len != sizeof(bool) || head.len == 0) {
+            return false;
+        }
+        if (!HasExpectBuffer(buffer, head.len)) {
+            return false;
+        }
+        uint8_t rawValue = 0;
+        auto ret = memcpy_s(&rawValue, sizeof(bool), buffer.data() + cursor_, sizeof(bool));
+        if (ret != EOK) {
+            return false;
+        }
+        if (rawValue > 1) {
+            return false;
+        }
+        value = NetToHost(rawValue);
+        cursor_ += sizeof(bool);
+        return true;
+    }
+
     template<typename T>
     bool ReadBasicValue(const std::vector<std::uint8_t> &buffer, T &value, const TLVHead &head)
     {
