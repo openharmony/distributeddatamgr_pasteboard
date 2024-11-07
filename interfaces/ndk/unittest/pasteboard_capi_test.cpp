@@ -28,6 +28,7 @@
 #include "udmf.h"
 #include "uds.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_client.h"
 #include "os_account_manager.h"
 
 using namespace testing::ext;
@@ -56,6 +57,8 @@ public:
     static AccessTokenID testTokenId_;
     static constexpr char PLAINTEXT_CONTENT[] = "PLAINTEXT_CONTENT";
     static constexpr char HYPERLINK_URL[] = "file://data/image.png";
+    static constexpr char HTML_URL[] = "file://data/image.png";
+    static constexpr char HTML_TEXT[] = "<P>html text</P>";
 };
 uint64_t PasteboardCapiTest::selfTokenId_ = 0;
 AccessTokenID PasteboardCapiTest::testTokenId_ = 0;
@@ -157,6 +160,10 @@ void* PasteboardCapiTest::GetDataCallback(void* context, const char* type)
         OH_UdsHyperlink* link = OH_UdsHyperlink_Create();
         OH_UdsHyperlink_SetUrl(link, HYPERLINK_URL);
         return link;
+    } else if (std::string(type) == "general.html") {
+        OH_UdsHtml* html = OH_UdsHtml_Create();
+        OH_UdsHtml_SetContent(html, HTML_URL);
+        return html;
     }
     return nullptr;
 }
@@ -610,7 +617,6 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData001, TestSize.Level1)
     OH_UdsPlainText *getPlainText = OH_UdsPlainText_Create();
     OH_UdmfRecord_GetPlainText(getRecords[0], getPlainText);
     const char *getContent = OH_UdsPlainText_GetContent(getPlainText);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "content is %{public}s", getContent);
     EXPECT_EQ(strcmp(getContent, content), 0);
 
     OH_Pasteboard_Destroy(pasteboard);
@@ -708,5 +714,163 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData003, TestSize.Level1)
     OH_UdmfRecord_Destroy(record);
     OH_UdmfData_Destroy(setData);
     OH_UdmfData_Destroy(getData);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetData004
+ * @tc.desc: OH_Pasteboard_GetData test data type
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData004, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OH_Pasteboard_GetData004 start");
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+
+    OH_UdmfRecordProvider* provider = OH_UdmfRecordProvider_Create();
+    EXPECT_NE(provider, nullptr);
+    OH_UdmfRecordProvider_SetData(provider, static_cast<void *>(record), GetDataCallback, ContextFinalizeFunc);
+
+    const char* types[3] = { "general.plain-text", "general.hyperlink", "general.html" };
+    OH_UdmfRecord_SetProvider(record, types, 3, provider);
+    OH_UdmfData_AddRecord(setData, record);
+
+    int res = OH_Pasteboard_SetData(pasteboard, setData);
+    EXPECT_EQ(res, ERR_OK);
+    
+    PasteData pasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+
+    auto record1 = pasteData.GetRecordAt(0);
+    auto mimeType = record1->GetMimeType();
+    EXPECT_EQ(mimeType, MIMETYPE_TEXT_PLAIN);
+
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_UdmfRecord_Destroy(record);
+    OH_UdmfData_Destroy(setData);
+    OH_UdmfRecordProvider_Destroy(provider);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OH_Pasteboard_GetData004 end");
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetData005
+ * @tc.desc: OH_Pasteboard_GetData test data type
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData005, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OH_Pasteboard_GetData005 start");
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+
+    OH_UdmfRecordProvider* provider = OH_UdmfRecordProvider_Create();
+    EXPECT_NE(provider, nullptr);
+    OH_UdmfRecordProvider_SetData(provider, static_cast<void *>(record), GetDataCallback, ContextFinalizeFunc);
+    const char* types[3] = { "general.plain-text", "general.hyperlink", "general.html" };
+    OH_UdmfRecord_SetProvider(record, types, 3, provider);
+
+    OH_UdsHyperlink *link = OH_UdsHyperlink_Create();
+    OH_UdsHyperlink_SetUrl(link, HYPERLINK_URL);
+    OH_UdmfRecord_AddHyperlink(record, link);
+
+    OH_UdmfData_AddRecord(setData, record);
+    auto res = OH_Pasteboard_SetData(pasteboard, setData);
+    EXPECT_EQ(res, ERR_OK);
+    
+    PasteData pasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+
+    auto record1 = pasteData.GetRecordAt(0);
+    auto mimeType = record1->GetMimeType();
+    EXPECT_EQ(mimeType, MIMETYPE_TEXT_PLAIN);
+
+    auto text = record1->GetPlainText();
+    EXPECT_EQ(strcmp(text->c_str(), PLAINTEXT_CONTENT), 0);
+
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_UdmfRecord_Destroy(record);
+    OH_UdmfData_Destroy(setData);
+    OH_UdsHyperlink_Destroy(link);
+    OH_UdmfRecordProvider_Destroy(provider);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OH_Pasteboard_GetData005 end");
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetData006
+ * @tc.desc: OH_Pasteboard_GetData test data type
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData006, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OH_Pasteboard_GetData006 start");
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+
+    OH_UdsHtml *html = OH_UdsHtml_Create();
+    OH_UdsHtml_SetContent(html, HTML_TEXT);
+    OH_UdmfRecord_AddHtml(record, html);
+
+    OH_UdmfRecordProvider* provider = OH_UdmfRecordProvider_Create();
+    EXPECT_NE(provider, nullptr);
+    OH_UdmfRecordProvider_SetData(provider, static_cast<void *>(record), GetDataCallback, ContextFinalizeFunc);
+    const char* types[3] = { "general.plain-text", "general.hyperlink", "general.html" };
+    OH_UdmfRecord_SetProvider(record, types, 3, provider);
+
+    OH_UdmfData_AddRecord(setData, record);
+    bool res = OH_Pasteboard_SetData(pasteboard, setData);
+    EXPECT_EQ(res, ERR_OK);
+    
+    PasteData pasteData;
+    auto ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+
+    auto record1 = pasteData.GetRecordAt(0);
+    auto mimeType = record1->GetMimeType();
+    EXPECT_EQ(mimeType, MIMETYPE_TEXT_HTML);
+
+    auto html1 = record1->GetHtmlText();
+    EXPECT_EQ(strcmp(html1->c_str(), HTML_TEXT), 0);
+
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_UdmfRecord_Destroy(record);
+    OH_UdmfData_Destroy(setData);
+    OH_UdmfRecordProvider_Destroy(provider);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OH_Pasteboard_GetData006 end");
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetData007
+ * @tc.desc: OH_Pasteboard_GetData test data type
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData007, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OH_Pasteboard_GetData007 start");
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetData(pasteboard, &status);
+    EXPECT_EQ(status, ERR_OK);
+    EXPECT_NE(getData, nullptr);
+
+    unsigned int getrecordCount = 0;
+    OH_UdmfRecord **getRecords = OH_UdmfData_GetRecords(getData, &getrecordCount);
+    EXPECT_EQ(getrecordCount, 1);
+    OH_UdsPlainText *getPlainText = OH_UdsPlainText_Create();
+    OH_UdmfRecord_GetPlainText(getRecords[0], getPlainText);
+    const char *getContent = OH_UdsPlainText_GetContent(getPlainText);
+    EXPECT_STREQ(getContent, plainText.c_str());
+
+    OH_Pasteboard_Destroy(pasteboard);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OH_Pasteboard_GetData007 end");
 }
 }
