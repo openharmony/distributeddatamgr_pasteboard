@@ -22,6 +22,7 @@ import { EditableLeftIconType, EditableTitleBar } from '@ohos.arkui.advanced.Edi
 import mediaQuery from '@ohos.mediaquery';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import CommonConstants from '../common/constants/CommonConstants';
+import { TipsJumpUtils } from '../utils/TipsJumpUtils';
 
 const TAG = '[PasteboardSwitch_Page] : ';
 let context = getContext(this) as common.UIAbilityContext;
@@ -63,6 +64,8 @@ struct PasteboardSwitch {
   private extContext?: common.UIExtensionContext;
   private scroller: Scroller = new Scroller();
   private startReason?: string = '';
+  private learnMore: ResourceStr = $r('app.string.learn_more');
+  private pasteboardDesc: ResourceStr = $r('app.string.pasteboard_desc', '');
 
   onPortrait(mediaQueryResult: mediaQuery.MediaQueryResult) {
     console.log(TAG + 'onPortrait in');
@@ -241,22 +244,28 @@ struct PasteboardSwitch {
             console.info(TAG + 'ImageAnimator Finish');
           })
 
-        Text($r('app.string.pasteboard_desc'))
-          .fontSize($r('sys.float.ohos_id_text_size_body2'))
-          .fontWeight(FontWeight.Regular)
-          .margin({
-            bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
-            top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
-          })
-          .fontColor($r('sys.color.ohos_id_color_text_secondary'))
-          .textAlign(TextAlign.Center)
-          .width('100%')
-          .maxLines(10)
-          .onAreaChange((oldArea: Area, newArea: Area) => {
-            console.info(TAG + 'Text:continue desc, oldArea.height = ' + oldArea.height +
-              ', newArea.height = ' + newArea.height);
-          })
-
+        Text() {
+          Span(this.pasteboardDesc)
+            .fontFamily('HarmonyHeiTi')
+            .fontSize($r('sys.float.ohos_id_text_size_body2'))
+            .fontColor($r('sys.color.ohos_id_color_text_secondary'))
+            .fontWeight(FontWeight.Regular)
+          Span(this.learnMore)
+            .fontFamily('HarmonyHeiTi')
+            .fontSize($r('sys.float.ohos_id_text_size_body2'))
+            .fontColor($r('sys.color.ohos_id_color_text_primary_activated'))
+            .fontWeight(FontWeight.Medium)
+            .onClick(() => {
+              TipsJumpUtils.jumpTips(getContext(this) as common.UIAbilityContext, CommonConstants.FUN_NUM,
+                CommonConstants.TIPS_TYPE);
+            })
+        }
+        .margin({
+          bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
+          top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
+        })
+        .textAlign(TextAlign.Center)
+        .width('100%')
 
         Column() {
           Flex({
