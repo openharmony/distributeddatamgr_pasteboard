@@ -344,7 +344,7 @@ napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &mim
         std::string str = uri->ToString();
         return napi_create_string_utf8(env, str.c_str(), str.size(), result);
     } else if (mimeType == MIMETYPE_TEXT_PLAIN) {
-        std::shared_ptr<std::string> str = value->ConvertToPlianText();
+        std::shared_ptr<std::string> str = value->ConvertToPlainText();
         if (str == nullptr) {
             return napi_generic_failure;
         }

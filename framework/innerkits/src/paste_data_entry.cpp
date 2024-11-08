@@ -187,7 +187,7 @@ size_t PasteDataEntry::Count()
     return expectedSize;
 }
 
-std::shared_ptr<std::string> PasteDataEntry::ConvertToPlianText() const
+std::shared_ptr<std::string> PasteDataEntry::ConvertToPlainText() const
 {
     std::string res;
     auto utdId = GetUtdId();
@@ -339,8 +339,8 @@ bool PasteDataEntry::HasContent(const std::string &utdId) const
         auto html = ConvertToHtml();
         return html != nullptr && !html->empty();
     } else if (mimeType == MIMETYPE_TEXT_PLAIN) {
-        auto plianText = ConvertToPlianText();
-        return plianText != nullptr && !plianText->empty();
+        auto plainText = ConvertToPlainText();
+        return plainText != nullptr && !plainText->empty();
     } else if (mimeType == MIMETYPE_TEXT_URI) {
         auto uri = ConvertToUri();
         return uri != nullptr && !uri->ToString().empty();

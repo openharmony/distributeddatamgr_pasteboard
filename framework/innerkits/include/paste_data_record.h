@@ -55,7 +55,7 @@ public:
 
     static std::shared_ptr<PasteDataRecord> NewHtmlRecord(const std::string &htmlText);
     static std::shared_ptr<PasteDataRecord> NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
-    static std::shared_ptr<PasteDataRecord> NewPlaintTextRecord(const std::string &text);
+    static std::shared_ptr<PasteDataRecord> NewPlainTextRecord(const std::string &text);
     static std::shared_ptr<PasteDataRecord> NewPixelMapRecord(std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
     static std::shared_ptr<PasteDataRecord> NewUriRecord(const OHOS::Uri &uri);
     static std::shared_ptr<PasteDataRecord> NewKvRecord(

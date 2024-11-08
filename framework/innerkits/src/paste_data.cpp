@@ -146,7 +146,7 @@ void PasteData::AddWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want)
 
 void PasteData::AddTextRecord(const std::string &text)
 {
-    this->AddRecord(PasteDataRecord::NewPlaintTextRecord(text));
+    this->AddRecord(PasteDataRecord::NewPlainTextRecord(text));
 }
 
 void PasteData::AddUriRecord(const OHOS::Uri &uri)

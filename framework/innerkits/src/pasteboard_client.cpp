@@ -112,7 +112,7 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateWantRecord(std::shared_
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePlainTextRecord(const std::string &text)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New text record");
-    return PasteDataRecord::NewPlaintTextRecord(text);
+    return PasteDataRecord::NewPlainTextRecord(text);
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreatePixelMapRecord(std::shared_ptr<PixelMap> pixelMap)
