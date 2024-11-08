@@ -23,11 +23,11 @@ extern "C" {
 #define OUT_OF_RANGE 12900001
 
 typedef struct {
-    CArrString mimeTypes;
-    char *tag;
-    int64_t timestamp;
     bool localOnly;
     int32_t shareOption;
+    char *tag;
+    int64_t timestamp;
+    CArrString mimeTypes;
 } CPasteDataProperty;
 
 typedef struct {
