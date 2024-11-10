@@ -12,6 +12,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include <unordered_set>
+
 #include "application_defined_record.h"
 #include "audio.h"
 #include "folder.h"
@@ -765,6 +767,13 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::AppDefined2PasteRecord(const s
     object->value_[UDMF::ARRAY_BUFFER_LENGTH] = static_cast<int64_t>(appRecord->GetRawData().size());
     pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
     return pbRecord;
+}
+
+std::vector<std::string> PasteboardUtils::DeduplicateVector(const std::vector<std::string> &vec)
+{
+    std::unordered_set<std::string> tmp(vec.begin(), vec.end());
+    std::vector<std::string> result(tmp.begin(), tmp.end());
+    return result;
 }
 
 PasteboardUtils::PasteboardUtils()

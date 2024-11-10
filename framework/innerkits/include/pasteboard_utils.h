@@ -31,6 +31,7 @@ public:
     static PasteboardUtils& GetInstance();
     std::shared_ptr<PasteData> Convert(const UnifiedData& unifiedData);
     std::shared_ptr<UnifiedData> Convert(const PasteData& pasteData);
+    std::vector<std::string> DeduplicateVector(const std::vector<std::string> &vec);
 
 private:
     using Convert2URecord = std::function<std::shared_ptr<UnifiedRecord>(std::shared_ptr<PasteDataRecord>)>;
