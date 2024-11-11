@@ -320,7 +320,7 @@ std::shared_ptr<MineCustomData> PasteDataEntry::ConvertToCustomData() const
     }
     if (objecType != GetUtdId()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type diff error, utdId:%{public}s, objecType:%{public}s",
-            utdId_.c_str(), objecType.c_str());
+                          utdId_.c_str(), objecType.c_str());
     }
     std::vector<uint8_t> recordValue;
     if (!object->GetValue(UDMF::ARRAY_BUFFER, recordValue)) {
@@ -364,7 +364,7 @@ std::string CommonUtils::Convert2MimeType(const std::string& utdId)
     if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HTML)) {
         return MIMETYPE_TEXT_HTML;
     }
-    if (IsFileUri(utdId)) {
+    if (CommonUtils::IsFileUri(utdId)) {
         return MIMETYPE_TEXT_URI;
     }
     if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::SYSTEM_DEFINED_PIXEL_MAP)) {
@@ -430,11 +430,11 @@ UDMF::UDType CommonUtils::Convert(int32_t uDType, const std::string& mimeType)
 bool CommonUtils::IsFileUri(const std::string &utdId)
 {
     return utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FILE_URI) ||
-           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FILE) ||
-           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::AUDIO) ||
-           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::IMAGE) ||
-           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FOLDER) ||
-           utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::VIDEO);
+        utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FILE) ||
+        utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::AUDIO) ||
+        utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::IMAGE) ||
+        utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::FOLDER) ||
+        utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::VIDEO);
 }
 } // namespace MiscServices
 } // namespace OHOS

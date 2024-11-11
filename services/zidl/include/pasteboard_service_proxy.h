@@ -31,9 +31,9 @@ public:
     virtual int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value) override;
     virtual int32_t GetPasteData(PasteData &data, int32_t &syncTime) override;
     virtual bool HasPasteData() override;
+    virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
         const sptr<IPasteboardEntryGetter> entryGetter) override;
-    virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual bool IsRemoteData() override;
     virtual int32_t GetDataSource(std::string &bundleName) override;
     virtual bool HasDataType(const std::string &mimeType) override;

@@ -44,6 +44,7 @@ ohos_fuzztest("UriHandlerFuzzTest") {
     "ability_base:zuri",
     "app_file_service:remote_file_share_native",
     "c_utils:utils",
+    "file_api:remote_uri_native",
     "hilog:libhilog",
     "image_framework:image_native",
     "os_account:os_account_innerkits",

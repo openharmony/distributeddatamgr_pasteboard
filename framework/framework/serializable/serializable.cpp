@@ -37,6 +37,7 @@ std::string Serializable::Marshall() const
         result = std::string(value);
         cJSON_free(value);
     }
+    cJSON_Delete(node);
     return result;
 }
 
