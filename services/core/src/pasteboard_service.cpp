@@ -135,6 +135,12 @@ void PasteboardService::InitScreenStatus()
 #endif
 }
 
+void PasteboardService::InitBundles(Loader &loader)
+{
+    std::lock_guard<std::mutex> lock(bundleMutex_);
+    bundles_ = loader.LoadBundles();
+}
+
 void PasteboardService::OnStart()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardService OnStart.");
@@ -149,7 +155,7 @@ void PasteboardService::OnStart()
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     Loader loader;
     loader.LoadComponents();
-    bundles_ = loader.LoadBundles();
+    InitBundles(loader);
     uid_ = loader.LoadUid();
     moduleConfig_.Init();
     auto ret = DATASL_OnStart();
@@ -1040,7 +1046,7 @@ int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string
         auto permissionCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(
             sendValues, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
         if (permissionCode == 0) {
-            std::lock_guard<std::mutex> lock(bundleMutex_);
+            std::lock_guard<std::mutex> lock(readBundleMutex_);
             if (readBundles_.count(targetBundleName) == 0) {
                 readBundles_.insert(targetBundleName);
             }
@@ -1087,7 +1093,7 @@ void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData
 {
     std::set<std::string> bundles;
     {
-        std::lock_guard<std::mutex> lock(bundleMutex_);
+        std::lock_guard<std::mutex> lock(readBundleMutex_);
         bundles = std::move(readBundles_);
     }
     if (pasteData == nullptr || bundles.empty()) {

@@ -17,6 +17,7 @@
 
 #include <thread>
 
+#include "loader.h"
 #include "message_parcel.h"
 #include "pasteboard_service.h"
 #include "pasteboard_serv_ipc_interface_code.h"
