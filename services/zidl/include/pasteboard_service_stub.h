@@ -21,7 +21,6 @@
 
 #include "ipc_skeleton.h"
 #include "iremote_stub.h"
-#include "i_pasteboard_delay_getter.h"
 #include "i_pasteboard_service.h"
 
 namespace OHOS {
@@ -61,7 +60,7 @@ private:
     int32_t OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply);
 
     std::shared_ptr<PasteData> UnmarshalPasteData(MessageParcel &data, MessageParcel &reply);
-    
+
     std::map<uint32_t, PasteboardServiceFunc> memberFuncMap_;
     static constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;
     static constexpr int32_t MAX_SET_GLOBAL_SHARE_OPTION_SIZE = 100;

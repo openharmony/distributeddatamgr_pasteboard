@@ -43,7 +43,6 @@
 #include "i_pasteboard_observer.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "paste_data.h"
-#include "paste_data_entry.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
 #include "system_ability.h"
