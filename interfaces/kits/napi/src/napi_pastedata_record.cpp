@@ -18,6 +18,7 @@
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
+#include "pasteboard_napi.h"
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 
@@ -378,7 +379,7 @@ napi_value PasteDataRecordNapi::New(napi_env env, napi_callback_info info)
     // get native object
     PasteDataRecordNapi *obj = new PasteDataRecordNapi();
     obj->env_ = env;
-    NAPI_CALL(env, napi_wrap(env, thisVar, obj, PasteDataRecordNapi::Destructor, nullptr, nullptr));
+    ASSERT_CALL(env, napi_wrap(env, thisVar, obj, PasteDataRecordNapi::Destructor, nullptr, nullptr), obj);
     return thisVar;
 }
 

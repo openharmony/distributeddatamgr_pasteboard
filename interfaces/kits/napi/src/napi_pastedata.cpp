@@ -18,6 +18,7 @@
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
+#include "pasteboard_napi.h"
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 using namespace OHOS::MiscServices;
@@ -999,9 +1000,9 @@ napi_value PasteDataNapi::New(napi_env env, napi_callback_info info)
     // get native object
     PasteDataNapi *obj = new PasteDataNapi();
     obj->env_ = env;
-    NAPI_CALL(env, napi_wrap(env, thisVar, obj, PasteDataNapi::Destructor,
+    ASSERT_CALL(env, napi_wrap(env, thisVar, obj, PasteDataNapi::Destructor,
                        nullptr, // finalize_hint
-                       nullptr));
+                       nullptr), obj);
     return thisVar;
 }
 
