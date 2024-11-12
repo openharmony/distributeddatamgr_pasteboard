@@ -157,7 +157,7 @@ UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& ent
             object->value_[UDMF::PIXEL_MAP] = std::get<std::shared_ptr<OHOS::Media::PixelMap>>(value);
         }
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not support");
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not surpport");
     } else {
         return value;
     }

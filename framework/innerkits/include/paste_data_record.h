@@ -99,7 +99,7 @@ public:
     void SetUDType(int32_t type);
 
     bool HasEmptyEntry() const;
-    void SetUDMFValue(const std::shared_ptr<EntryValue>& udmfValue);
+    void SetUDMFValue(const std::shared_ptr<EntryValue> &udmfValue);
     std::shared_ptr<EntryValue> GetUDMFValue();
     void AddEntry(const std::string& utdType, std::shared_ptr<PasteDataEntry> value);
     std::shared_ptr<PasteDataEntry> GetEntry(const std::string& utdType) const;
