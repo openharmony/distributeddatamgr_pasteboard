@@ -154,6 +154,7 @@ private:
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; //ms
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
+    void InitBundles(Loader &loader);
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
         explicit DelayGetterDeathRecipient(int32_t userId, PasteboardService &service);
@@ -291,6 +292,7 @@ private:
     std::atomic<uint32_t> dataId_ = 0;
     static std::mutex historyMutex_;
     std::mutex bundleMutex_;
+    std::mutex readBundleMutex_;
     static std::vector<std::string> dataHistory_;
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
