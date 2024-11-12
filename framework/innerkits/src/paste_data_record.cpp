@@ -68,21 +68,25 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<
     record_->htmlText_ = std::move(htmlText);
     return *this;
 }
+
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetWant(std::shared_ptr<OHOS::AAFwk::Want> want)
 {
     record_->want_ = std::move(want);
     return *this;
 }
+
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetPlainText(std::shared_ptr<std::string> plainText)
 {
     record_->plainText_ = std::move(plainText);
     return *this;
 }
+
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetUri(std::shared_ptr<OHOS::Uri> uri)
 {
     record_->uri_ = std::move(uri);
     return *this;
 }
+
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetPixelMap(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
 {
     record_->pixelMap_ = std::move(pixelMap);
@@ -99,6 +103,7 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::Builder::Build()
 {
     return record_;
 }
+
 PasteDataRecord::Builder::Builder(const std::string &mimeType)
 {
     record_ = std::make_shared<PasteDataRecord>();
@@ -598,7 +603,7 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
             object->value_[UDMF::FILE_URI_PARAM] = uri->ToString();
         }
     } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want, udmf not support");
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want, udmf not surpport");
     } else if (customData_ != nullptr) {
         auto itemData = customData_->GetItemData();
         if (itemData.size() == 0) {
@@ -607,7 +612,7 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
         }
         if (itemData.size() != 1) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-                "not support u8 map, mimeType:%{public}s, customData.size:%{public}zu", mimeType_.c_str(),
+                "not surrport u8 map, mimeType:%{public}s, customData.size:%{public}zu", mimeType_.c_str(),
                 itemData.size());
         }
         udmfValue_ = std::make_shared<EntryValue>(itemData.begin()->second);
