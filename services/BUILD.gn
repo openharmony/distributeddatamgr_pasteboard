@@ -96,9 +96,8 @@ ohos_shared_library("pasteboard_service") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
-    "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
-    "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
+    "${pasteboard_uri_path}:pasteboard_uri",
   ]
   defines = []
 
