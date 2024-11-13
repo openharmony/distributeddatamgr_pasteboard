@@ -20,9 +20,6 @@
 #include "convert_utils.h"
 #include "copy_uri_handler.h"
 #include "parcel_util.h"
-#include "paste_data_entry.h"
-#include "paste_uri_handler.h"
-#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pixel_map_parcel.h"
 
@@ -59,10 +56,6 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_DELAY_RECORD_FLAG,
 };
 
-enum TAG_CUSTOMDATA : uint16_t {
-    TAG_ITEM_DATA = TAG_BUFF + 1,
-};
-
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<std::string> htmlText)
 {
     record_->htmlText_ = std::move(htmlText);
@@ -80,7 +73,6 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetPlainText(std::shared_ptr
     record_->plainText_ = std::move(plainText);
     return *this;
 }
-
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetUri(std::shared_ptr<OHOS::Uri> uri)
 {
     record_->uri_ = std::move(uri);
@@ -366,6 +358,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
     }
     return true;
 }
+
 size_t PasteDataRecord::Count()
 {
     size_t expectedSize = 0;
@@ -389,29 +382,6 @@ size_t PasteDataRecord::Count()
     expectedSize += TLVObject::Count(recordId_);
     expectedSize += TLVObject::Count(isDelay_);
     return expectedSize;
-}
-
-std::shared_ptr<PixelMap> PasteDataRecord::Vector2PixelMap(std::vector<std::uint8_t> &value)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Vector2PixelMap, size is %{public}zu", value.size());
-    if (value.size() == 0) {
-        return nullptr;
-    }
-    return std::shared_ptr<PixelMap> (PixelMap::DecodeTlv(value));
-}
-
-std::vector<std::uint8_t> PasteDataRecord::PixelMap2Vector(std::shared_ptr<PixelMap> &pixelMap)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "PixelMap2Vector");
-    if (pixelMap == nullptr) {
-        return {};
-    }
-    std::vector<std::uint8_t> value;
-    if (!pixelMap->EncodeTlv(value)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pixelMap encode failed");
-        return {};
-    }
-    return value;
 }
 
 bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, bool isClient)
@@ -604,7 +574,7 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
         }
     } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want, udmf not surpport");
-    } else if (customData_ != nullptr) {
+    } else {
         auto itemData = customData_->GetItemData();
         if (itemData.size() == 0) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no customData");

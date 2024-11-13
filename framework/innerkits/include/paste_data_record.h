@@ -21,8 +21,8 @@
 
 #include "common/constant.h"
 #include "message_parcel.h"
-#include "pixel_map.h"
 #include "paste_data_entry.h"
+#include "pixel_map.h"
 #include "string_ex.h"
 #include "tlv_object.h"
 #include "unified_meta.h"
@@ -32,7 +32,6 @@
 namespace OHOS {
 namespace MiscServices {
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
-
 class FileDescriptor {
 public:
     FileDescriptor() = default;
@@ -86,8 +85,6 @@ public:
     std::string GetConvertUri() const;
     void SetGrantUriPermission(bool hasPermission);
     bool HasGrantUriPermission();
-    static std::shared_ptr<OHOS::Media::PixelMap> Vector2PixelMap(std::vector<std::uint8_t> &value);
-    static std::vector<std::uint8_t> PixelMap2Vector(std::shared_ptr<OHOS::Media::PixelMap> &pixelMap);
 
     void SetTextContent(const std::string& content);
     std::string GetTextContent() const;
