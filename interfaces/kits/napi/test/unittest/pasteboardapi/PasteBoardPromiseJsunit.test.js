@@ -1939,12 +1939,9 @@ describe('PasteBoardJSTest', function () {
     const res = await systemPasteboard.hasPasteData();
     expect(res).assertEqual(true);
     systemPasteboard.getMimeTypes().then((data) => {
-      expect(data.size()).assertEqual(1);
+      expect(data.length).assertEqual(1);
       expect(data[0]).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
       done();
-    }).catch((error)=>{
-      console.error('promise_test63: systemPasteboard.getMimeTypes promise error:' + error.message);
-      return;
     });
   });
 
@@ -1963,17 +1960,14 @@ describe('PasteBoardJSTest', function () {
     pasteData.addRecord(uriText64);
     const htmlText64 = '<html><head></head><body>Hello World 1</body></html>';
     const pasteDataRecord = pasteboard.createHtmlTextRecord(htmlText64);
-    pasteData.addRecord(uriText47);
+    pasteData.addRecord(pasteDataRecord);
     await systemPasteboard.setPasteData(pasteData);
 
     systemPasteboard.getMimeTypes().then((data) => {
-      expect(data.size()).assertEqual(3);
+      expect(data.length).assertEqual(3);
       const expectedMimeTypes = new Set([pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_HTML, pasteboard.MIMETYPE_TEXT_URI]);
       expect(Array.from(data).every(type => expectedMimeTypes.has(type))).assertEqual(true);
       done();
-    }).catch((error)=>{
-      console.error('promise_test64: systemPasteboard.getMimeTypes promise error:' + error.message);
-      return;
     });
   });
 

@@ -1041,8 +1041,10 @@ HWTEST_F(PasteDataTest, GetMimeTypes, TestSize.Level0)
     data.AddRecord(*record1);
 
     auto mimeType = data.GetMimeTypes();
-    EXPECT_TRUE(mimeType.at(1) == MIMETYPE_TEXT_URI);
-    EXPECT_TRUE(mimeType.at(0) == MIMETYPE_TEXT_PLAIN);
+    EXPECT_TRUE((strcmp(MIMETYPE_TEXT_PLAIN, mimeType.at(0).c_str()) == 0 &&
+        strcmp(MIMETYPE_TEXT_URI, mimeType.at(1).c_str()) == 0) ||
+        (strcmp(MIMETYPE_TEXT_PLAIN, mimeType.at(1).c_str()) == 0 &&
+        strcmp(MIMETYPE_TEXT_URI, mimeType.at(0).c_str()) == 0));
 }
 
 /**

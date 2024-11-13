@@ -399,8 +399,7 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetMimeTypes001, TestSize.Level1)
     unsigned int count = 1000;
     char** res = OH_Pasteboard_GetMimeTypes(pasteboard, &count);
     EXPECT_EQ(0, count);
-    EXPECT_TRUE(res != nullptr);
-    EXPECT_TRUE(res[0] == nullptr);
+    EXPECT_TRUE(res == nullptr);
 }
 
 /**
@@ -469,8 +468,8 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetMimeTypes003, TestSize.Level1)
     char** res = OH_Pasteboard_GetMimeTypes(pasteboard, &count);
     EXPECT_EQ(2, count);
     EXPECT_TRUE(res != nullptr);
-    EXPECT_STREQ(MIMETYPE_TEXT_PLAIN, res[0]);
-    EXPECT_STREQ(MIMETYPE_TEXT_HTML, res[1]);
+    EXPECT_TRUE((strcmp(MIMETYPE_TEXT_PLAIN, res[0]) == 0 && strcmp(MIMETYPE_TEXT_HTML, res[1]) == 0) ||
+        (strcmp(MIMETYPE_TEXT_PLAIN, res[1]) == 0 && strcmp(MIMETYPE_TEXT_HTML, res[0]) == 0));
     
     OH_Pasteboard_Destroy(pasteboard);
 }
