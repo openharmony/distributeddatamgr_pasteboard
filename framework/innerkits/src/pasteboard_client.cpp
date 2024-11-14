@@ -237,7 +237,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
                 RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
                 RadarReporter::PACKAGE_NAME, currentPid);
         }
-    } else if (ret != static_cast<int32_t>(PasteboardError::TASK_PROCESSING) ||
+    } else if (ret != static_cast<int32_t>(PasteboardError::TASK_PROCESSING) &&
                !reportMemory.IsDuplicate({.pid = pid, .errorCode = ret})) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE,
             RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME,
