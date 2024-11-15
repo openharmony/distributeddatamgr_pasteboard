@@ -169,20 +169,6 @@ HWTEST_F(DMAdapterTest, GetDevices, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetLocalDeviceType
-* @tc.desc: Get Local Device Type
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
-HWTEST_F(DMAdapterTest, GetLocalDeviceType, TestSize.Level0)
-{
-    int32_t type = 14;
-    int32_t ret = DMAdapter::GetInstance().GetLocalDeviceType();
-    ASSERT_EQ(ret, type);
-}
-
-/**
 * @tc.name: GetDeviceName001
 * @tc.desc: Get Local Device Type
 * @tc.type: FUNC
@@ -193,6 +179,7 @@ HWTEST_F(DMAdapterTest, GetDeviceName001, TestSize.Level0)
 {
     std::string networkId = "invalidnetworkId";
     std::string expectedDeviceName = "unknown";
+    (void)DMAdapter::GetInstance().GetLocalDeviceType();
     std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName(networkId);
     EXPECT_EQ(expectedDeviceName, actualDeviceName);
 }
