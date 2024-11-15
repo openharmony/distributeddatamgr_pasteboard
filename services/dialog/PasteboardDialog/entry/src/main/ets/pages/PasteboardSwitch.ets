@@ -65,7 +65,7 @@ struct PasteboardSwitch {
   private scroller: Scroller = new Scroller();
   private startReason?: string = '';
   private learnMore: ResourceStr = $r('app.string.learn_more');
-  private pasteboardDesc: ResourceStr = $r('app.string.pasteboard_desc', '');
+  private pasteboardDesc: ResourceStr = $r('app.string.pasteboard_desc_text', '');
 
   onPortrait(mediaQueryResult: mediaQuery.MediaQueryResult) {
     console.log(TAG + 'onPortrait in');
