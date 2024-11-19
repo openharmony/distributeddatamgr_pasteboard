@@ -23,6 +23,7 @@ import mediaQuery from '@ohos.mediaquery';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import CommonConstants from '../common/constants/CommonConstants';
 import { TipsJumpUtils } from '../utils/TipsJumpUtils';
+import { LengthMetrics } from '@ohos.arkui.node';
 
 const TAG = '[PasteboardSwitch_Page] : ';
 let context = getContext(this) as common.UIAbilityContext;
@@ -60,6 +61,14 @@ struct PasteboardSwitch {
   @State reverse: boolean = false;
   @State iterations: number = -1;
   @State isShowBack: boolean = true;
+  @State titleBarMarginNormal: LocalizedMargin = {
+    start: LengthMetrics.resource($r('sys.float.margin_left')),
+  };
+  @State titleBarMarginPc: LocalizedMargin = {
+    start: LengthMetrics.vp(16),
+  };
+  @State paddingStartNormal: LengthMetrics = LengthMetrics.resource($r('sys.float.margin_left'));
+  @State paddingStartPc: LengthMetrics = LengthMetrics.vp(16);
   private listener: mediaQuery.MediaQueryListener = mediaQuery.matchMediaSync('(dark-mode:true)');
   private extContext?: common.UIExtensionContext;
   private scroller: Scroller = new Scroller();
@@ -203,7 +212,9 @@ struct PasteboardSwitch {
       this.ContentBuilder();
     }
     .hideTitleBar(false)
-    .title(this.title)
+    .title($r('app.string.pasteboard_title'), {
+      paddingStart: this.is2in1 ? this.paddingStartPc : this.paddingStartNormal,
+    })
     .backgroundColor($r('sys.color.ohos_id_color_titlebar_sub_bg'))
   }
 
@@ -214,6 +225,7 @@ struct PasteboardSwitch {
         leftIconStyle: EditableLeftIconType.Back,
         title: $r('app.string.pasteboard_title'),
         isSaveIconRequired: false,
+        contentMargin: this.is2in1 ? this.titleBarMarginPc : this.titleBarMarginNormal,
         onCancel: () => {
           if (this.pasteboardSession) {
             this.pasteboardSession.sendData({ 'action': 'pop' })
