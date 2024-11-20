@@ -1132,7 +1132,6 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
     std::vector<std::string> uris;
     std::vector<size_t> indexs;
     std::vector<bool> checkResults;
-    pid_t callingUid = IPCSkeleton::GetCallingUid();
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr || item->GetOrginUri() == nullptr) {
@@ -1164,8 +1163,7 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
         if (item == nullptr || item->GetOrginUri() == nullptr) {
             continue;
         }
-        bool result = (uid_ != -1 && callingUid == uid_) ? true : checkResults[i];
-        item->SetGrantUriPermission(result);
+        item->SetGrantUriPermission(checkResults[i]);
     }
 }
 
