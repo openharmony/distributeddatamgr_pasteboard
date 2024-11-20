@@ -37,6 +37,22 @@ void ClipPluginTest::SetUp(void) {}
 
 void ClipPluginTest::TearDown(void) {}
 
+class CustomClipPlugin : public ClipPlugin{
+public:
+    int32_t SetPasteData(const GlobalEvent &event, const std::vector<uint8_t> &data) override
+    {
+        (void)event;
+        (void)data;
+        return 0;
+    }
+    std::pair<int32_t, int32_t> GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data) override
+    {
+        (void)event;
+        (void)data;
+        return std::make_pair(0, 0);
+    }
+};
+
 /**
 * @tc.name: MarshalTest001
 * @tc.desc: Marshal.
@@ -84,5 +100,20 @@ HWTEST_F(ClipPluginTest, UnmarshalTest001, TestSize.Level0)
     ClipPlugin::GlobalEvent globalEvent;
     ASSERT_FALSE(globalEvent.Unmarshal(node));
     cJSON_Delete(node);
+}
+
+/**
+* @tc.name: PublishServiceStateTest
+* @tc.desc: PublishServiceState.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(ClipPluginTest, PublishServiceStateTest, TestSize.Level0)
+{
+    CustomClipPlugin clipPlugin;
+    std::string networkId = "testNetworkId";
+    int32_t result = clipPlugin.PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
+    ASSERT_EQ(0, result);
 }
 } // namespace OHOS::MiscServices
