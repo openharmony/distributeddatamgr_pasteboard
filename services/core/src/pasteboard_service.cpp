@@ -148,9 +148,7 @@ void PasteboardService::OnStart()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
         return;
     }
-
     IPCSkeleton::SetMaxWorkThreadNum(MAX_IPC_THREAD_NUM);
-
     InitServiceHandler();
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     Loader loader;
@@ -158,8 +156,7 @@ void PasteboardService::OnStart()
     InitBundles(loader);
     uid_ = loader.LoadUid();
     moduleConfig_.Init();
-    auto ret = DATASL_OnStart();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", DATASL_OnStart());
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
     if (Init() != ERR_OK) {
@@ -170,23 +167,23 @@ void PasteboardService::OnStart()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Init failed. Try again 10s later.");
         return;
     }
-    switch_.Init();
+    auto callback = [this]() {
+        switch_.Init();
+    };
+    serviceHandler_->PostTask(callback);
     copyHistory = std::make_shared<Command>(std::vector<std::string>{ "--copy-history" },
         "Dump access history last ten times.",
         [this](const std::vector<std::string> &input, std::string &output) -> bool {
             output = DumpHistory();
             return true;
         });
-
     copyData = std::make_shared<Command>(std::vector<std::string>{ "--data" }, "Show copy data details.",
         [this](const std::vector<std::string> &input, std::string &output) -> bool {
             output = DumpData();
             return true;
         });
-
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyHistory);
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyData);
-
     CommonEventSubscriber();
     PasteboardEventSubscriber();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
