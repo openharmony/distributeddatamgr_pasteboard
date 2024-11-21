@@ -37,7 +37,7 @@ void ClipPluginTest::SetUp(void) {}
 
 void ClipPluginTest::TearDown(void) {}
 
-class CustomClipPlugin : public ClipPlugin{
+class CustomClipPlugin : public ClipPlugin {
 public:
     int32_t SetPasteData(const GlobalEvent &event, const std::vector<uint8_t> &data) override
     {
@@ -45,6 +45,7 @@ public:
         (void)data;
         return 0;
     }
+
     std::pair<int32_t, int32_t> GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data) override
     {
         (void)event;
@@ -54,12 +55,12 @@ public:
 };
 
 /**
-* @tc.name: MarshalTest001
-* @tc.desc: Marshal.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: MarshalTest001
+ * @tc.desc: Marshal.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(ClipPluginTest, MarshalTest001, TestSize.Level0)
 {
     std::string PLUGIN_NAME_VAL = "distributed_clip";
@@ -76,12 +77,12 @@ HWTEST_F(ClipPluginTest, MarshalTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: UnmarshalTest001
-* @tc.desc: Unmarshal.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: UnmarshalTest001
+ * @tc.desc: Unmarshal.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(ClipPluginTest, UnmarshalTest001, TestSize.Level0)
 {
     std::string str = R"({
@@ -103,12 +104,12 @@ HWTEST_F(ClipPluginTest, UnmarshalTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PublishServiceStateTest
-* @tc.desc: PublishServiceState.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: PublishServiceStateTest
+ * @tc.desc: PublishServiceState.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(ClipPluginTest, PublishServiceStateTest, TestSize.Level0)
 {
     CustomClipPlugin clipPlugin;
