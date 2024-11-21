@@ -203,6 +203,8 @@ std::shared_ptr<std::string> PasteDataEntry::ConvertToPlainText() const
     auto object = std::get<std::shared_ptr<Object>>(entry);
     if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::PLAIN_TEXT)) {
         object->GetValue(UDMF::CONTENT, res);
+    } else if (utdId == UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HTML)) {
+        object->GetValue(UDMF::PLAIN_CONTENT, res);
     } else {
         object->GetValue(UDMF::URL, res);
     }
