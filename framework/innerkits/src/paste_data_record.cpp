@@ -621,6 +621,9 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
         if (htmlText_ != nullptr) {
             object->value_[UDMF::HTML_CONTENT] = *htmlText_;
         }
+        if (plainText_ != nullptr) {
+            object->value_[UDMF::PLAIN_CONTENT] = *plainText_;
+        }
     } else if (mimeType_ == MIMETYPE_PIXELMAP) {
         object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
         if (pixelMap_ != nullptr) {
@@ -703,6 +706,7 @@ void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<Paste
             pixelMap_ = value->ConvertToPixelMap();
         } else if (mimeType_ == MIMETYPE_TEXT_HTML) {
             htmlText_ = value->ConvertToHtml();
+            plainText_ = value->ConvertToPlainText();
         } else if (mimeType_ == MIMETYPE_TEXT_PLAIN) {
             plainText_ = value->ConvertToPlainText();
         } else if (mimeType_ == MIMETYPE_TEXT_URI) {
