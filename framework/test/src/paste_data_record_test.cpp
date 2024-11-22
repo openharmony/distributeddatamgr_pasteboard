@@ -799,4 +799,18 @@ HWTEST_F(PasteDataRecordTest, GetUDMFValueTest006, TestSize.Level0)
     auto value = record.GetUDMFValue();
     EXPECT_NE(value, nullptr);
 }
+
+/**
+ * @tc.name: IsDelayRecordTest
+ * @tc.desc: IsDelayRecord
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, IsDelayRecordTest, TestSize.Level0)
+{
+    PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
+    record.SetDelayRecordFlag(true);
+    EXPECT_TRUE(record.IsDelayRecord());
+    record.SetDelayRecordFlag(false);
+    EXPECT_FALSE(record.IsDelayRecord());
+}
 } // namespace OHOS::MiscServices
