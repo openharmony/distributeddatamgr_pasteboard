@@ -21,9 +21,10 @@ import { BusinessError } from '@ohos.base';
 import { EditableLeftIconType, EditableTitleBar } from '@ohos.arkui.advanced.EditableTitleBar';
 import mediaQuery from '@ohos.mediaquery';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
-import CommonConstants from '../common/constants/CommonConstants';
+import CommonConstants, { FontSizeScale } from '../common/constants/CommonConstants';
 import { TipsJumpUtils } from '../utils/TipsJumpUtils';
 import { LengthMetrics } from '@ohos.arkui.node';
+import systemParameterEnhance from '@ohos.systemParameterEnhance';
 
 const TAG = '[PasteboardSwitch_Page] : ';
 let context = getContext(this) as common.UIAbilityContext;
@@ -69,6 +70,9 @@ struct PasteboardSwitch {
   };
   @State paddingStartNormal: LengthMetrics = LengthMetrics.resource($r('sys.float.margin_left'));
   @State paddingStartPc: LengthMetrics = LengthMetrics.vp(16);
+  @StorageProp('currentFontSizeScale') @Watch('onFontSizeScaleChange') fontSizeScale: number = 1;
+  @State phoneSwitchTextTopMargin: string = '17vp';
+  @State phoneSwitchTextBottomMargin: string = '18vp';
   private listener: mediaQuery.MediaQueryListener = mediaQuery.matchMediaSync('(dark-mode:true)');
   private extContext?: common.UIExtensionContext;
   private scroller: Scroller = new Scroller();
@@ -83,6 +87,38 @@ struct PasteboardSwitch {
     } else {
       this.extContext?.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT);
     }
+  }
+
+  onFontSizeScaleChange(): void {
+    console.info(`${TAG} onFontSizeScaleChange`);
+    this.phoneSwitchTextTopMargin = this.UpdateMarginBasedOnFontSize(17, this.fontSizeScale);
+    this.phoneSwitchTextBottomMargin = this.UpdateMarginBasedOnFontSize(18, this.fontSizeScale);
+  }
+
+  /**
+   * Update the margins of the switch list according to the font size.
+   */
+  public UpdateMarginBasedOnFontSize(fontFp: number, fontSizeScale: number): string {
+    console.info(`${TAG} getlistSpace, fontSizeScale: ${fontSizeScale} ; fontFp: ${fontFp}`);
+    switch (fontSizeScale) {
+      case FontSizeScale.XXL1:
+        return '16vp';
+      case FontSizeScale.XXL2:
+        return '20vp';
+      case FontSizeScale.XXL3:
+        return '24vp';
+      default:
+        return `${fontFp}vp`;
+    }
+  }
+
+  /**
+   *  Initialize the switch list spacing size
+   */
+  public phoneSwitchTextMarginInit(): void {
+    let fontSizeScale = parseFloat(systemParameterEnhance.getSync(CommonConstants.FONT_SIZE_SCALE_PARAM, '1'));
+    this.phoneSwitchTextTopMargin = this.UpdateMarginBasedOnFontSize(17, fontSizeScale);
+    this.phoneSwitchTextBottomMargin = this.UpdateMarginBasedOnFontSize(18, fontSizeScale);
   }
 
   /**
@@ -180,6 +216,7 @@ struct PasteboardSwitch {
       this.checkFoldBackButton();
     }
     this.checkPcPadBackButton();
+    this.phoneSwitchTextMarginInit();
   }
 
   aboutToDisappear() {
@@ -298,9 +335,8 @@ struct PasteboardSwitch {
               .accessibilityLevel('no')
               .maxFontScale(2.8)
               .padding({
-                top: this.is2in1 ? CommonConstants.ITEM_LIST_PADDING_TOP_PC : CommonConstants.ITEM_LIST_PADDING_TOP,
-                bottom: this.is2in1 ? CommonConstants.ITEM_LIST_PADDING_BOTTOM_PC :
-                CommonConstants.ITEM_LIST_PADDING_BOTTOM
+                top: this.is2in1 ? CommonConstants.ITEM_LIST_PADDING_TOP_PC : this.phoneSwitchTextTopMargin,
+                bottom: this.is2in1 ? CommonConstants.ITEM_LIST_PADDING_BOTTOM_PC : this.phoneSwitchTextBottomMargin
               })
 
             Toggle({ type: ToggleType.Switch, isOn: this.isSwitchOn })

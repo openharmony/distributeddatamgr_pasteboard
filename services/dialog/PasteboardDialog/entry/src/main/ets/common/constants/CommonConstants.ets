@@ -32,9 +32,10 @@ export default class CommonConstants {
   public static readonly PASTEBOARD_SWITCH_WIDTH:number = 36;
   public static readonly PASTEBOARD_SWITCH_HEIGHT:number = 20;
   public static readonly ITEM_LIST_PADDING_TOP_PC: number = 13;
-  public static readonly ITEM_LIST_PADDING_BOTTOM_PC: number = 14;
+  public static readonly ITEM_LIST_PADDING_BOTTOM_PC: number = 13;
   public static readonly ITEM_LIST_PADDING_TOP: number = 17;
   public static readonly ITEM_LIST_PADDING_BOTTOM: number = 18;
+  public static readonly FONT_SIZE_SCALE_PARAM: string = 'persist.sys.font_scale_for_user0';
 
   // Tips
   public static readonly TIPS_TYPE:string = '119';
@@ -45,4 +46,16 @@ export default class CommonConstants {
   // Update prompt text
   public static readonly UPDATE_PROMPT_LINE_HEIGHT:number = 16;
   public static readonly UPDATE_PROMPT_MARGIN_TOP:number = 9;
+}
+
+export enum FontSizeScale {
+  SM = 0.85,
+  MD = 1.0,
+  DEFAULT = MD,
+  L = 1.15,
+  XL = 1.3,
+  XXL = 1.45,
+  XXL1 = 1.75,
+  XXL2 = 2,
+  XXL3 = 3.2,
 }
