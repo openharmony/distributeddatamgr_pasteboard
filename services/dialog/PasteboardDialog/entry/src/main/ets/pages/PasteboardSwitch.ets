@@ -227,10 +227,16 @@ struct PasteboardSwitch {
         isSaveIconRequired: false,
         contentMargin: this.is2in1 ? this.titleBarMarginPc : this.titleBarMarginNormal,
         onCancel: () => {
-          if (this.pasteboardSession) {
-            this.pasteboardSession.sendData({ 'action': 'pop' })
-          } else {
-            console.error(TAG + 'pasteboardSession is undefined');
+          try {
+            if (this.pasteboardSession && this.pasteboardSession.sendData) {
+              this.pasteboardSession.sendData({ 'action': 'pop' })
+            } else {
+              console.error(TAG + 'pasteboardSession is undefined');
+            }
+          } catch (error) {
+            let code: number = (error as BusinessError).code;
+            let message: string = (error as BusinessError).message;
+            console.error(`${TAG} call onCancel failed, error code: ${code}, message: ${message}.`);
           }
         }
       })
