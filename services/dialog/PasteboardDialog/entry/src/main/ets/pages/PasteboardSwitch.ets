@@ -190,7 +190,8 @@ struct PasteboardSwitch {
   aboutToAppear() {
     console.log(TAG + 'aboutToAppear in');
     // Switch State Initialization
-    let value = settings.getValueSync(context, 'distributed_pasteboard_switch', switchState.open);
+    let value = settings.getValueSync(context, 'distributed_pasteboard_switch', switchState.open,
+      settings.domainName.USER_SECURITY);
     this.isSwitchOn = value != switchState.close ? true : false;
     console.log(TAG + '<aboutToAppear> this.isSwitchOn : ' + this.isSwitchOn + '; value: ' + value);
 
@@ -198,7 +199,8 @@ struct PasteboardSwitch {
     console.log(TAG + 'AppStorage.get<boolean>(isSwitchOn) : ' + AppStorage.get<boolean>('isSwitchOn'));
 
     if (this.isSwitchOn) {
-      let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open);
+      let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open,
+        settings.domainName.USER_SECURITY);
       console.log(TAG + 'set value success :' + status + '; set:distributed_pasteboard_switch is 1');
     }
 
@@ -349,11 +351,13 @@ struct PasteboardSwitch {
                 AppStorage.setAndLink('isSwitchOn', isOn);
                 if (isOn) {
                   let status: boolean =
-                    settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open);
+                    settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open,
+                      settings.domainName.USER_SECURITY);
                   console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is on');
                 } else {
                   let status: boolean =
-                    settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close);
+                    settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close,
+                      settings.domainName.USER_SECURITY);
                   console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is close');
                 }
               })
