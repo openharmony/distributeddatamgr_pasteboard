@@ -26,19 +26,19 @@ public:
     void TearDown();
 };
 
-void DMAdapterTest::SetUpTestCase(void) {}
+void DMAdapterTest::SetUpTestCase(void) { }
 
-void DMAdapterTest::TearDownTestCase(void) {}
+void DMAdapterTest::TearDownTestCase(void) { }
 
-void DMAdapterTest::SetUp(void) {}
+void DMAdapterTest::SetUp(void) { }
 
-void DMAdapterTest::TearDown(void) {}
+void DMAdapterTest::TearDown(void) { }
 
 /**
-* @tc.name: GetLocalDeviceUdid
-* @tc.desc: Get the local device udid.
-* @tc.type: FUNC
-*/
+ * @tc.name: GetLocalDeviceUdid
+ * @tc.desc: Get the local device udid.
+ * @tc.type: FUNC
+ */
 HWTEST_F(DMAdapterTest, GetLocalDeviceUdid, TestSize.Level0)
 {
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();

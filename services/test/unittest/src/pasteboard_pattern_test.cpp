@@ -34,19 +34,19 @@ public:
     void TearDown();
 };
 
-void PasteboardPatternTest::SetUpTestCase(void) {}
+void PasteboardPatternTest::SetUpTestCase(void) { }
 
-void PasteboardPatternTest::TearDownTestCase(void) {}
+void PasteboardPatternTest::TearDownTestCase(void) { }
 
-void PasteboardPatternTest::SetUp(void) {}
+void PasteboardPatternTest::SetUp(void) { }
 
-void PasteboardPatternTest::TearDown(void) {}
+void PasteboardPatternTest::TearDown(void) { }
 
 /**
-* @tc.name: PasteboardPatternTest001
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest001
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest001, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest001 start");
@@ -83,10 +83,10 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardPatternTest002
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest002
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest002, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest002 start");
@@ -123,10 +123,10 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardPatternTest003
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest003
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest003, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest003 start");
@@ -163,10 +163,10 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardPatternTest004
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest004
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest004, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest004 start");
@@ -202,10 +202,10 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest004, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardPatternTest005
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest005
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest005, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest005 start");
@@ -242,10 +242,10 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest005, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardPatternTest006
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest006
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest006, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest006 start");
@@ -281,10 +281,10 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest006, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardPatternTest007
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest007
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest007, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest007 start");
@@ -320,10 +320,10 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest007, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardPatternTest008
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest008
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest008, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest008 start");
@@ -359,10 +359,10 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest008, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteboardPatternTest009
-* @tc.desc: detect test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardPatternTest009
+ * @tc.desc: detect test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardPatternTest, PasteboardPatternTest009, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest009 start");
@@ -396,4 +396,4 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest009, TestSize.Level0)
     auto detect = PatternDetection::Detect(patternsToCheck, pasteData, hasHTML, hasPlain);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest009 end");
 }
-}
+} // namespace OHOS::MiscServices

@@ -1,17 +1,17 @@
 /*
-* Copyright (c) 2023-2024 Huawei Device Co., Ltd.
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <gtest/gtest.h>
 
@@ -29,19 +29,19 @@ public:
     void TearDown();
 };
 
-void FFRTTimerTest::SetUpTestCase(void) {}
+void FFRTTimerTest::SetUpTestCase(void) { }
 
-void FFRTTimerTest::TearDownTestCase(void) {}
+void FFRTTimerTest::TearDownTestCase(void) { }
 
-void FFRTTimerTest::SetUp(void) {}
+void FFRTTimerTest::SetUp(void) { }
 
-void FFRTTimerTest::TearDown(void) {}
+void FFRTTimerTest::TearDown(void) { }
 
 /**
-* @tc.name: SetTimerTest001
-* @tc.desc: Set Timer
-* @tc.type: FUNC
-*/
+ * @tc.name: SetTimerTest001
+ * @tc.desc: Set Timer
+ * @tc.type: FUNC
+ */
 HWTEST_F(FFRTTimerTest, SetTimerTest001, TestSize.Level0)
 {
     FFRTTimer ffrtTimer;
@@ -56,10 +56,10 @@ HWTEST_F(FFRTTimerTest, SetTimerTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetTimerTest002
-* @tc.desc: Set Timer
-* @tc.type: FUNC
-*/
+ * @tc.name: SetTimerTest002
+ * @tc.desc: Set Timer
+ * @tc.type: FUNC
+ */
 HWTEST_F(FFRTTimerTest, SetTimerTest002, TestSize.Level0)
 {
     FFRTTimer pbFfrtTimer("paste_ffrt_timer");
@@ -75,10 +75,10 @@ HWTEST_F(FFRTTimerTest, SetTimerTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: SubmitQueueTasksTest
-* @tc.desc: Submit Queue Tasks
-* @tc.type: FUNC
-*/
+ * @tc.name: SubmitQueueTasksTest
+ * @tc.desc: Submit Queue Tasks
+ * @tc.type: FUNC
+ */
 HWTEST_F(FFRTTimerTest, SubmitQueueTasksTest, TestSize.Level0)
 {
     std::vector<FFRTTask> tasks;
@@ -100,10 +100,10 @@ HWTEST_F(FFRTTimerTest, SubmitQueueTasksTest, TestSize.Level0)
 }
 
 /**
-* @tc.name: SubmitDelayTaskTest
-* @tc.desc: Submit Delay Task
-* @tc.type: FUNC
-*/
+ * @tc.name: SubmitDelayTaskTest
+ * @tc.desc: Submit Delay Task
+ * @tc.type: FUNC
+ */
 HWTEST_F(FFRTTimerTest, SubmitDelayTaskTest, TestSize.Level0)
 {
     std::shared_ptr<FFRTQueue> queu = std::make_shared<FFRTQueue>("delayTask");
@@ -118,10 +118,10 @@ HWTEST_F(FFRTTimerTest, SubmitDelayTaskTest, TestSize.Level0)
 }
 
 /**
-* @tc.name: SubmitTimeoutTaskTest
-* @tc.desc: Submit Timeout Task
-* @tc.type: FUNC
-*/
+ * @tc.name: SubmitTimeoutTaskTest
+ * @tc.desc: Submit Timeout Task
+ * @tc.type: FUNC
+ */
 HWTEST_F(FFRTTimerTest, SubmitTimeoutTaskTest, TestSize.Level0)
 {
     uint32_t timeoutMs = 5;

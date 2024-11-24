@@ -56,9 +56,9 @@ protected:
     void AddLinkUdsEntry(PasteDataRecord &record);
 };
 
-void PasteDataRecordTest::SetUpTestCase(void) {}
+void PasteDataRecordTest::SetUpTestCase(void) { }
 
-void PasteDataRecordTest::TearDownTestCase(void) {}
+void PasteDataRecordTest::TearDownTestCase(void) { }
 
 void PasteDataRecordTest::SetUp(void)
 {
@@ -70,7 +70,7 @@ void PasteDataRecordTest::SetUp(void)
     details_.insert({ "KeyDouble", 1.234 });
 }
 
-void PasteDataRecordTest::TearDown(void) {}
+void PasteDataRecordTest::TearDown(void) { }
 
 void PasteDataRecordTest::AddPlainUdsEntry(PasteDataRecord &record)
 {
@@ -409,7 +409,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryGetterTest001, TestSize.Level0)
 HWTEST_F(PasteDataRecordTest, NewMultiTypeDelayRecordTest001, TestSize.Level0)
 {
     PasteDataRecord record;
-    std::vector<std::string> mimeTypes = {"0", "1", "2"};
+    std::vector<std::string> mimeTypes = { "0", "1", "2" };
     auto ret = record.NewMultiTypeDelayRecord(mimeTypes, nullptr);
     EXPECT_NE(ret, nullptr);
 
@@ -551,7 +551,7 @@ HWTEST_F(PasteDataRecordTest, SetTextContentTest001, TestSize.Level0)
 HWTEST_F(PasteDataRecordTest, GetValidMimeTypesTest001, TestSize.Level0)
 {
     PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
-    std::vector<std::string> mimeTypes = {MIMETYPE_TEXT_WANT, MIMETYPE_TEXT_URI};
+    std::vector<std::string> mimeTypes = { MIMETYPE_TEXT_WANT, MIMETYPE_TEXT_URI };
     std::vector<std::string> validTypes = record.GetValidMimeTypes(mimeTypes);
     EXPECT_NE(validTypes.size(), 0);
 }
@@ -716,7 +716,7 @@ HWTEST_F(PasteDataRecordTest, GetUDMFValueTest002, TestSize.Level0)
     auto value = record1.GetUDMFValue();
     EXPECT_NE(value, nullptr);
 
-    const uint32_t color[] = {0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08};
+    const uint32_t color[] = { 0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08 };
     uint32_t len = sizeof(color) / sizeof(color[0]);
     Media::InitializationOptions opts;
     opts.size.width = 2;

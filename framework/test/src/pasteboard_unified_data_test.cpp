@@ -61,9 +61,9 @@ protected:
     std::string uri_;
 };
 
-void PasteboardUnifiedDataTest::SetUpTestCase(void) {}
+void PasteboardUnifiedDataTest::SetUpTestCase(void) { }
 
-void PasteboardUnifiedDataTest::TearDownTestCase(void) {}
+void PasteboardUnifiedDataTest::TearDownTestCase(void) { }
 
 void PasteboardUnifiedDataTest::SetUp(void)
 {
@@ -75,7 +75,7 @@ void PasteboardUnifiedDataTest::SetUp(void)
     details_.insert({ "KeyDouble", 1.234 });
 }
 
-void PasteboardUnifiedDataTest::TearDown(void) {}
+void PasteboardUnifiedDataTest::TearDown(void) { }
 
 UDMF::UnifiedData PasteboardUnifiedDataTest::InitTextData()
 {
@@ -257,12 +257,12 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitAppDefinedData()
 }
 
 /**
-* @tc.name: SetText001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetText001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetText001, TestSize.Level0)
 {
     auto data = InitTextData();
@@ -290,12 +290,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetText001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetPlainText001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetPlainText001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetPlainText001, TestSize.Level0)
 {
     auto data = InitPlainData();
@@ -330,12 +330,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetPlainText001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetLink001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetLink001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetLink001, TestSize.Level0)
 {
     auto data = InitLinkData();
@@ -370,12 +370,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetLink001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetHtml001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetHtml001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetHtml001, TestSize.Level0)
 {
     auto data = InitHtmlData();
@@ -410,12 +410,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetHtml001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetWant001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetWant001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetWant001, TestSize.Level0)
 {
     auto data = InitWantData();
@@ -446,12 +446,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetWant001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetFile001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetFile001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetFile001, TestSize.Level0)
 {
     auto data = InitFileData();
@@ -484,12 +484,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFile001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetImage001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetImage001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetImage001, TestSize.Level0)
 {
     auto data = InitImageData();
@@ -521,12 +521,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetImage001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetAudio001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetAudio001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetAudio001, TestSize.Level0)
 {
     auto data = InitAudioData();
@@ -558,12 +558,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAudio001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetVideo001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetVideo001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetVideo001, TestSize.Level0)
 {
     auto data = InitVideoData();
@@ -595,12 +595,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetVideo001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetFolder001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetFolder001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetFolder001, TestSize.Level0)
 {
     auto data = InitFolderData();
@@ -632,12 +632,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFolder001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetSystemDefined001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetSystemDefined001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetSystemDefined001, TestSize.Level0)
 {
     auto data = InitSystemRecordData();
@@ -664,12 +664,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetSystemDefined001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetAppItem001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetAppItem001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetAppItem001, TestSize.Level0)
 {
     auto data = InitSystemAppItemData();
@@ -713,12 +713,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppItem001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetForm001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetForm001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetForm001, TestSize.Level0)
 {
     auto data = InitSysteFormData();
@@ -761,12 +761,12 @@ HWTEST_F(PasteboardUnifiedDataTest, SetForm001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetAppDefined001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetAppDefined001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetAppDefined001, TestSize.Level0)
 {
     auto data = InitAppDefinedData();
@@ -790,17 +790,17 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppDefined001, TestSize.Level0)
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::APPLICATION_DEFINED_RECORD);
     auto items = record->GetCustomData()->GetItemData();
-    std::map<std::string, std::vector<uint8_t>> customData{ { type, rawData_ } };
+    std::map<std::string, std::vector<uint8_t>> customData { { type, rawData_ } };
     ASSERT_EQ(items, customData);
 }
 
 /**
-* @tc.name: SetPixelMap001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetPixelMap001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUnifiedDataTest, SetPixelMap001, TestSize.Level0)
 {
     auto data = InitSystemPixelMapData();

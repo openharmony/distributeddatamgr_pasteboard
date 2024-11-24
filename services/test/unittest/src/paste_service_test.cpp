@@ -79,7 +79,7 @@ void PasteboardServiceTest::TearDownTestCase(void)
     DeleteTestTokenId();
 }
 
-void PasteboardServiceTest::SetUp(void) {}
+void PasteboardServiceTest::SetUp(void) { }
 
 void PasteboardServiceTest::TearDown(void)
 {
@@ -145,16 +145,15 @@ void PasteboardServiceTest::AllocTestTokenId()
         .resDeviceID = { "local" },
         .grantStatus = { PermissionState::PERMISSION_GRANTED },
         .grantFlags = { 1 } };
-    HapPolicyParams policyParams = { .apl = APL_NORMAL,
-        .domain = "test.domain.pasteboard",
-        .permList = {},
-        .permStateList = { testState } };
+    HapPolicyParams policyParams = {
+        .apl = APL_NORMAL, .domain = "test.domain.pasteboard", .permList = {}, .permStateList = { testState }
+    };
 
     AccessTokenKit::AllocHapToken(infoParams, policyParams);
     testTokenId_ = Security::AccessToken::AccessTokenKit::GetHapTokenID(
         infoParams.userID, infoParams.bundleName, infoParams.instIndex);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "userID = %{public}d, testTokenId = 0x%{public}x.", infoParams.userID,
-        testTokenId_);
+    PASTEBOARD_HILOGD(
+        PASTEBOARD_MODULE_SERVICE, "userID = %{public}d, testTokenId = 0x%{public}x.", infoParams.userID, testTokenId_);
 }
 
 void PasteboardServiceTest::DeleteTestTokenId()
@@ -188,17 +187,17 @@ string GetTime()
     time_t curtime;
     time(&curtime);
     tm *nowtime = localtime(&curtime);
-    std::string targetTime = std::to_string(1900 + nowtime->tm_year) + "-" + std::to_string(1 + nowtime->tm_mon) +
-                             "-" + std::to_string(nowtime->tm_mday) + " " + std::to_string(nowtime->tm_hour) + ":" +
-                             std::to_string(nowtime->tm_min) + ":" + std::to_string(nowtime->tm_sec);
+    std::string targetTime = std::to_string(1900 + nowtime->tm_year) + "-" + std::to_string(1 + nowtime->tm_mon) + "-" +
+        std::to_string(nowtime->tm_mday) + " " + std::to_string(nowtime->tm_hour) + ":" +
+        std::to_string(nowtime->tm_min) + ":" + std::to_string(nowtime->tm_sec);
     return targetTime;
 }
 
 /**
-* @tc.name: PasteboardTest001
-* @tc.desc: Create paste board test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteboardTest001
+ * @tc.desc: Create paste board test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
 {
     auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record1");
@@ -220,10 +219,10 @@ HWTEST_F(PasteboardServiceTest, PasteboardTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest001
-* @tc.desc: Create paste board record test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteRecordTest001
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest001, TestSize.Level0)
 {
     std::string plainText = "helloWorld";
@@ -235,10 +234,10 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest002
-* @tc.desc: Create paste board record test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteRecordTest002
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest002, TestSize.Level0)
 {
     std::string htmlText = "<div class='disabled item tip user-programs'>";
@@ -250,10 +249,10 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest003
-* @tc.desc: Create paste board record test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteRecordTest003
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest003, TestSize.Level0)
 {
     using namespace OHOS::AAFwk;
@@ -270,10 +269,10 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest004
-* @tc.desc: Create paste board record test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteRecordTest004
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest004, TestSize.Level0)
 {
     OHOS::Uri uri("uri");
@@ -285,11 +284,11 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest004, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest005
-* @tc.desc: Create paste board record test.
-* @tc.type: FUNC
-* @tc.require: AR000H5GKU
-*/
+ * @tc.name: PasteRecordTest005
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ * @tc.require: AR000H5GKU
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
@@ -310,11 +309,11 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest006
-* @tc.desc: Create paste board record test.
-* @tc.type: FUNC
-* @tc.require: AR000H5GKU
-*/
+ * @tc.name: PasteRecordTest006
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ * @tc.require: AR000H5GKU
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest006, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
@@ -338,11 +337,11 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest006, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest007
-* @tc.desc: Create paste board record test.
-* @tc.type: FUNC
-* @tc.require: AR000HEECD
-*/
+ * @tc.name: PasteRecordTest007
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ * @tc.require: AR000HEECD
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest007, TestSize.Level0)
 {
     std::vector<uint8_t> arrayBuffer(46);
@@ -360,11 +359,11 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest007, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest008
-* @tc.desc: Create paste board record test.
-* @tc.type: FUNC
-* @tc.require: AR000HEECD
-*/
+ * @tc.name: PasteRecordTest008
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ * @tc.require: AR000HEECD
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest008, TestSize.Level0)
 {
     std::vector<uint8_t> arrayBuffer(46);
@@ -386,10 +385,10 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest008, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest009
-* @tc.desc: Create paste board html local url
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteRecordTest009
+ * @tc.desc: Create paste board html local url
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest009, TestSize.Level0)
 {
     std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
@@ -409,10 +408,10 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest009, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest0010
-* @tc.desc: Create paste board html distributed uri.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteRecordTest0010
+ * @tc.desc: Create paste board html distributed uri.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest0010, TestSize.Level0)
 {
     std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
@@ -434,10 +433,10 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0010, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest0011
-* @tc.desc: Create paste board html distributed uri.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteRecordTest0011
+ * @tc.desc: Create paste board html distributed uri.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest0011, TestSize.Level0)
 {
     std::string htmlText = "<div class='item'><img "
@@ -458,10 +457,10 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0011, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteRecordTest0012
-* @tc.desc: Create paste board html local url
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteRecordTest0012
+ * @tc.desc: Create paste board html local url
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteRecordTest0012, TestSize.Level0)
 {
     std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
@@ -480,10 +479,10 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0012, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest001
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteDataTest001
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest001, TestSize.Level0)
 {
     using namespace OHOS::AAFwk;
@@ -510,10 +509,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest002
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteDataTest002
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest002, TestSize.Level0)
 {
     OHOS::Uri uri("uri");
@@ -535,10 +534,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest003
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteDataTest003
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest003, TestSize.Level0)
 {
     std::string text = "plain text";
@@ -560,10 +559,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest004
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteDataTest004
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
 {
     std::string htmlText = "<div class='disabled item tip user-programs'>";
@@ -585,11 +584,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest004, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest005
-* @tc.desc: CreateHtmlData test.
-* @tc.type: FUNC
-* @tc.require: AR000HEECD
-*/
+ * @tc.name: PasteDataTest005
+ * @tc.desc: CreateHtmlData test.
+ * @tc.type: FUNC
+ * @tc.require: AR000HEECD
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
 {
     std::string htmlText = "<div class='disabled item tip user-programs'>";
@@ -633,10 +632,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest006
-* @tc.desc: CreatePlainTextData test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteDataTest006
+ * @tc.desc: CreatePlainTextData test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest006, TestSize.Level0)
 {
     using namespace OHOS::AAFwk;
@@ -666,11 +665,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest006, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest007
-* @tc.desc: PixelMap test.
-* @tc.type: FUNC
-* @tc.require: AR000H5GKU
-*/
+ * @tc.name: PasteDataTest007
+ * @tc.desc: PixelMap test.
+ * @tc.type: FUNC
+ * @tc.require: AR000H5GKU
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
 {
     std::string htmlText = "<div class='disabled item tip user-programs'>";
@@ -703,11 +702,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest008
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-* @tc.require: AR000H5GKU
-*/
+ * @tc.name: PasteDataTest008
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ * @tc.require: AR000H5GKU
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
@@ -728,11 +727,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest008, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest009
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-* @tc.require: AR000H5GKU
-*/
+ * @tc.name: PasteDataTest009
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ * @tc.require: AR000H5GKU
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -758,11 +757,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest009, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0010
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-* @tc.require: AR000HEECD
-*/
+ * @tc.name: PasteDataTest0010
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ * @tc.require: AR000HEECD
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0010, TestSize.Level0)
 {
     std::vector<uint8_t> arrayBuffer(46);
@@ -783,11 +782,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0010, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0011
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-* @tc.require: AR000HEECD
-*/
+ * @tc.name: PasteDataTest0011
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ * @tc.require: AR000HEECD
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0011, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -813,11 +812,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0011, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0012
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-* @tc.require: AR000HEECD
-*/
+ * @tc.name: PasteDataTest0012
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ * @tc.require: AR000HEECD
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0012, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -859,11 +858,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0012, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0014
-* @tc.desc: Create paste board data test.
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-*/
+ * @tc.name: PasteDataTest0014
+ * @tc.desc: Create paste board data test.
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -884,11 +883,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0014, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0015
-* @tc.desc: isLocalPaste test.
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-*/
+ * @tc.name: PasteDataTest0015
+ * @tc.desc: isLocalPaste test.
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -917,11 +916,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0015, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0016
-* @tc.desc: RemoveRecordAt HasMimeType test.
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-*/
+ * @tc.name: PasteDataTest0016
+ * @tc.desc: RemoveRecordAt HasMimeType test.
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0016, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -956,11 +955,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0016, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0017
-* @tc.desc: ReplaceRecordAt GetProperty GetTag test.
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-*/
+ * @tc.name: PasteDataTest0017
+ * @tc.desc: ReplaceRecordAt GetProperty GetTag test.
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
@@ -1008,11 +1007,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0018
-* @tc.desc: AddPasteboardChangedObserver RemovePasteboardChangedObserver OnRemoteDied OnRemoteSaDied test.
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-*/
+ * @tc.name: PasteDataTest0018
+ * @tc.desc: AddPasteboardChangedObserver RemovePasteboardChangedObserver OnRemoteDied OnRemoteSaDied test.
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
 {
     PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
@@ -1107,10 +1106,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0020
-* @tc.desc: Create paste board test set bundleName and time.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteDataTest0020
+ * @tc.desc: Create paste board test set bundleName and time.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0020, TestSize.Level0)
 {
     std::string text = "plain text";
@@ -1127,10 +1126,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0020, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0021
-* @tc.desc: AddPasteboardEventObserver RemovePasteboardEventObserver test.
-* @tc.type: FUNC
-*/
+ * @tc.name: PasteDataTest0021
+ * @tc.desc: AddPasteboardEventObserver RemovePasteboardEventObserver test.
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0021, TestSize.Level0)
 {
     PasteboardClient::GetInstance()->AddPasteboardEventObserver(new PasteboardEventObserverCallback());
@@ -1152,11 +1151,11 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0021, TestSize.Level0)
 }
 
 /**
-* @tc.name: PasteDataTest0022
-* @tc.desc: isDraggedData test.
-* @tc.type: FUNC
-* @tc.require: AROOOH5R5G
-*/
+ * @tc.name: PasteDataTest0022
+ * @tc.desc: isDraggedData test.
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0022, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -1181,12 +1180,12 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0022, TestSize.Level0)
 }
 
 /**
-* @tc.name: BigPixelMap001
-* @tc.desc: paste big pixel map image
-* @tc.type: FUNC
-* @tc.require:AR000H5I1D
-* @tc.author: baoyayong
-*/
+ * @tc.name: BigPixelMap001
+ * @tc.desc: paste big pixel map image
+ * @tc.type: FUNC
+ * @tc.require:AR000H5I1D
+ * @tc.author: baoyayong
+ */
 HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
 {
     constexpr uint32_t COLOR_SIZE = 1024 * 1960;
@@ -1206,7 +1205,7 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto pixelMap2 = pasteData2.GetPrimaryPixelMap();
     ASSERT_TRUE(pixelMap2 != nullptr);
-    ImageInfo imageInfo{};
+    ImageInfo imageInfo {};
     pixelMap2->GetImageInfo(imageInfo);
     EXPECT_TRUE(imageInfo.size.height == opts.size.height);
     EXPECT_TRUE(imageInfo.size.width == opts.size.width);
@@ -1214,12 +1213,12 @@ HWTEST_F(PasteboardServiceTest, BigPixelMap001, TestSize.Level1)
 }
 
 /**
-* @tc.name: GetPastedataFail001
-* @tc.desc: get paste data fail - SetValue()
-* @tc.type: FUNC
-* @tc.require: issuesI5WPTM
-* @tc.author: chenyu
-*/
+ * @tc.name: GetPastedataFail001
+ * @tc.desc: get paste data fail - SetValue()
+ * @tc.type: FUNC
+ * @tc.require: issuesI5WPTM
+ * @tc.author: chenyu
+ */
 HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
 {
     PasteboardClient::GetInstance()->Clear();
@@ -1229,12 +1228,12 @@ HWTEST_F(PasteboardServiceTest, GetPastedataFail001, TestSize.Level1)
 }
 
 /**
-* @tc.name: DumpDataTest001
-* @tc.desc: DumpData()-remote, CrossDevice
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
+ * @tc.name: DumpDataTest001
+ * @tc.desc: DumpData()-remote, CrossDevice
+ * @tc.type: FUNC
+ * @tc.require: issueshI5YDEV
+ * @tc.author: chenyu
+ */
 HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
 {
     std::string plainText = "plain text";
@@ -1253,12 +1252,12 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: DumpDataTest002
-* @tc.desc: DumpData()-local, LocalDevice
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
+ * @tc.name: DumpDataTest002
+ * @tc.desc: DumpData()-local, LocalDevice
+ * @tc.type: FUNC
+ * @tc.require: issueshI5YDEV
+ * @tc.author: chenyu
+ */
 HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
 {
     std::string plainText = "plain text";
@@ -1276,12 +1275,12 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest002, TestSize.Level1)
 }
 
 /**
-* @tc.name: DumpDataTest003
-* @tc.desc: DumpData()-local, InApp
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
+ * @tc.name: DumpDataTest003
+ * @tc.desc: DumpData()-local, InApp
+ * @tc.type: FUNC
+ * @tc.require: issueshI5YDEV
+ * @tc.author: chenyu
+ */
 HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
 {
     std::string plainText = "plain text";
@@ -1299,12 +1298,12 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest003, TestSize.Level1)
 }
 
 /**
-* @tc.name: DumpDataTest004
-* @tc.desc: DumpData()-no data
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
+ * @tc.name: DumpDataTest004
+ * @tc.desc: DumpData()-no data
+ * @tc.type: FUNC
+ * @tc.require: issueshI5YDEV
+ * @tc.author: chenyu
+ */
 HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
 {
     PasteboardClient::GetInstance()->Clear();
@@ -1317,12 +1316,12 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest004, TestSize.Level1)
 }
 
 /**
-* @tc.name: HasPasteDataTest001
-* @tc.desc: if !pasteData->IsDraggedData()
-* @tc.type: FUNC
-* @tc.require: issueshI5YDEV
-* @tc.author: chenyu
-*/
+ * @tc.name: HasPasteDataTest001
+ * @tc.desc: if !pasteData->IsDraggedData()
+ * @tc.type: FUNC
+ * @tc.require: issueshI5YDEV
+ * @tc.author: chenyu
+ */
 HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
 {
     std::vector<uint8_t> arrayBuffer(46);
@@ -1339,12 +1338,12 @@ HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetAppShareOptions
-* @tc.desc: set app share options
-* @tc.type: FUNC
-* @tc.require: issuesIA7V62
-* @tc.author: caozhijun
-*/
+ * @tc.name: SetAppShareOptions
+ * @tc.desc: set app share options
+ * @tc.type: FUNC
+ * @tc.require: issuesIA7V62
+ * @tc.author: caozhijun
+ */
 HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
 {
     uint64_t tempTokenID = testTokenId_ | SYSTEM_APP_MASK;

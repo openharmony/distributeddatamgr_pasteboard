@@ -30,21 +30,21 @@ public:
     void TearDown();
 };
 
-void DMAdapterTest::SetUpTestCase(void) {}
+void DMAdapterTest::SetUpTestCase(void) { }
 
-void DMAdapterTest::TearDownTestCase(void) {}
+void DMAdapterTest::TearDownTestCase(void) { }
 
-void DMAdapterTest::SetUp(void) {}
+void DMAdapterTest::SetUp(void) { }
 
-void DMAdapterTest::TearDown(void) {}
+void DMAdapterTest::TearDown(void) { }
 
 /**
-* @tc.name: GetLocalDeviceUdid001
-* @tc.desc: Get the local device udid.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetLocalDeviceUdid001
+ * @tc.desc: Get the local device udid.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, GetLocalDeviceUdid001, TestSize.Level0)
 {
     std::string bundleName = "com.example.myapplication";
@@ -58,12 +58,12 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid001, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetLocalDeviceUdid002
-* @tc.desc: Get the local device udid.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetLocalDeviceUdid002
+ * @tc.desc: Get the local device udid.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, GetLocalDeviceUdid002, TestSize.Level0)
 {
     std::string bundleName = "com.example.myapplication";
@@ -79,12 +79,12 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid002, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetLocalNetworkId
-* @tc.desc: Get the local network id.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetLocalNetworkId
+ * @tc.desc: Get the local network id.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, GetLocalNetworkId, TestSize.Level0)
 {
     std::string bundleName = "com.example.myapplication";
@@ -95,12 +95,12 @@ HWTEST_F(DMAdapterTest, GetLocalNetworkId, TestSize.Level0)
 }
 
 /**
-* @tc.name: DistributedClipRegister
-* @tc.desc: DistributedClip Register and Unregister.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: DistributedClipRegister
+ * @tc.desc: DistributedClip Register and Unregister.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, DistributedClipRegister, TestSize.Level0)
 {
     DistributedClip *observer = new DistributedClip();
@@ -110,12 +110,12 @@ HWTEST_F(DMAdapterTest, DistributedClipRegister, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetRemoteDeviceInfo
-* @tc.desc: Get the remote device info.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetRemoteDeviceInfo
+ * @tc.desc: Get the remote device info.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
@@ -128,12 +128,12 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetUdidByNetworkId
-* @tc.desc: Get Udid By NetworkId.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetUdidByNetworkId
+ * @tc.desc: Get Udid By NetworkId.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, GetUdidByNetworkId, TestSize.Level0)
 {
     auto udid = DMAdapter::GetInstance().GetUdidByNetworkId("");
@@ -141,12 +141,12 @@ HWTEST_F(DMAdapterTest, GetUdidByNetworkId, TestSize.Level0)
 }
 
 /**
-* @tc.name: IsSameAccount
-* @tc.desc: is same account.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: IsSameAccount
+ * @tc.desc: is same account.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, IsSameAccount, TestSize.Level0)
 {
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -155,12 +155,12 @@ HWTEST_F(DMAdapterTest, IsSameAccount, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetDevices
-* @tc.desc: Get Devices.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetDevices
+ * @tc.desc: Get Devices.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, GetDevices, TestSize.Level0)
 {
     DMAdapter::GetInstance().SetDevices();
@@ -169,12 +169,12 @@ HWTEST_F(DMAdapterTest, GetDevices, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetDeviceName001
-* @tc.desc: Get Local Device Type
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetDeviceName001
+ * @tc.desc: Get Local Device Type
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, GetDeviceName001, TestSize.Level0)
 {
     std::string networkId = "invalidnetworkId";
@@ -185,12 +185,12 @@ HWTEST_F(DMAdapterTest, GetDeviceName001, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetDeviceName002
-* @tc.desc: Get Local Device Type
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetDeviceName002
+ * @tc.desc: Get Local Device Type
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, GetDeviceName002, TestSize.Level0)
 {
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -200,12 +200,12 @@ HWTEST_F(DMAdapterTest, GetDeviceName002, TestSize.Level0)
 }
 
 /**
-* @tc.name: DeInitialize
-* @tc.desc: De Initi alize
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: DeInitialize
+ * @tc.desc: De Initi alize
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DMAdapterTest, DeInitialize, TestSize.Level0)
 {
     DMAdapter::GetInstance().DeInitialize();

@@ -42,17 +42,17 @@ void PasteboardClientTest::TearDownTestCase(void)
     setuid(0);
 }
 
-void PasteboardClientTest::SetUp(void) {}
+void PasteboardClientTest::SetUp(void) { }
 
-void PasteboardClientTest::TearDown(void) {}
+void PasteboardClientTest::TearDown(void) { }
 
 /**
-* @tc.name: IsRemoteData001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: IsRemoteData001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, IsRemoteData001, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -63,12 +63,12 @@ HWTEST_F(PasteboardClientTest, IsRemoteData001, TestSize.Level0)
 }
 
 /**
-* @tc.name: IsRemoteData002
-* @tc.desc: pasteData is remote data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: IsRemoteData002
+ * @tc.desc: pasteData is remote data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, IsRemoteData002, TestSize.Level0)
 {
     std::string plainText = "plain text";
@@ -173,7 +173,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes005, TestSize.Level0)
     std::shared_ptr<PasteDataRecord> pasteDataRecord = builder2.SetWant(std::make_shared<Want>(wantIn)).Build();
     data.AddRecord(pasteDataRecord);
 
-    const uint32_t color[] = {0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80};
+    const uint32_t color[] = { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80 };
     uint32_t len = sizeof(color) / sizeof(color[0]);
     Media::InitializationOptions opts;
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap = Media::PixelMap::Create(color, len, 0, 2, opts);
@@ -192,19 +192,17 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes005, TestSize.Level0)
     std::set<std::string> mimeTypesSet(mimeTypes.begin(), mimeTypes.end());
     ASSERT_EQ(3, mimeTypesSet.size());
     for (const std::string &type : mimeTypesSet) {
-        ASSERT_TRUE(MIMETYPE_TEXT_WANT == type ||
-                    MIMETYPE_PIXELMAP == type ||
-                    MIMETYPE_TEXT_URI == type);
+        ASSERT_TRUE(MIMETYPE_TEXT_WANT == type || MIMETYPE_PIXELMAP == type || MIMETYPE_TEXT_URI == type);
     }
 }
 
 /**
-* @tc.name: HasDataType001
-* @tc.desc: data type is MIMETYPE_TEXT_PLAIN.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: HasDataType001
+ * @tc.desc: data type is MIMETYPE_TEXT_PLAIN.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, HasDataType001, TestSize.Level0)
 {
     std::string plainText = "helloWorld";
@@ -217,12 +215,12 @@ HWTEST_F(PasteboardClientTest, HasDataType001, TestSize.Level0)
 }
 
 /**
-* @tc.name: HasDataType002
-* @tc.desc: data type is MIMETYPE_TEXT_HTML.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: HasDataType002
+ * @tc.desc: data type is MIMETYPE_TEXT_HTML.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, HasDataType002, TestSize.Level0)
 {
     std::string htmlText = "<div class='disable'>helloWorld</div>";
@@ -235,12 +233,12 @@ HWTEST_F(PasteboardClientTest, HasDataType002, TestSize.Level0)
 }
 
 /**
-* @tc.name: HasDataType003
-* @tc.desc: data type is MIMETYPE_TEXT_URI
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: HasDataType003
+ * @tc.desc: data type is MIMETYPE_TEXT_URI
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, HasDataType003, TestSize.Level0)
 {
     OHOS::Uri uri("uri");
@@ -253,12 +251,12 @@ HWTEST_F(PasteboardClientTest, HasDataType003, TestSize.Level0)
 }
 
 /**
-* @tc.name: HasDataType004
-* @tc.desc: data type is MIMETYPE_PIXELMAP
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: HasDataType004
+ * @tc.desc: data type is MIMETYPE_PIXELMAP
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, HasDataType004, TestSize.Level0)
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
@@ -274,12 +272,12 @@ HWTEST_F(PasteboardClientTest, HasDataType004, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetDataSource001
-* @tc.desc: Get the source of the data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetDataSource001
+ * @tc.desc: Get the source of the data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, GetDataSource001, TestSize.Level0)
 {
     std::string plainText = "helloWorld";
@@ -291,12 +289,12 @@ HWTEST_F(PasteboardClientTest, GetDataSource001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SetGlobalShareOption
-* @tc.desc: Set global shareOption
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SetGlobalShareOption
+ * @tc.desc: Set global shareOption
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, SetGlobalShareOption, TestSize.Level0)
 {
     std::map<uint32_t, ShareOption> settings = { { 100, ShareOption::InApp }, { 200, ShareOption::LocalDevice },
@@ -317,12 +315,12 @@ HWTEST_F(PasteboardClientTest, SetGlobalShareOption, TestSize.Level0)
 }
 
 /**
-* @tc.name: GetGlobalShareOption
-* @tc.desc: Get global shareOption
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetGlobalShareOption
+ * @tc.desc: Get global shareOption
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, GetGlobalShareOption, TestSize.Level0)
 {
     std::map<uint32_t, ShareOption> settings = { { 100, ShareOption::InApp }, { 200, ShareOption::LocalDevice },
@@ -341,12 +339,12 @@ HWTEST_F(PasteboardClientTest, GetGlobalShareOption, TestSize.Level0)
 }
 
 /**
-* @tc.name: RemoveGlobalShareOption
-* @tc.desc: Remove global shareOption
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: RemoveGlobalShareOption
+ * @tc.desc: Remove global shareOption
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, RemoveGlobalShareOption, TestSize.Level0)
 {
     std::map<uint32_t, ShareOption> settings = { { 100, ShareOption::InApp }, { 200, ShareOption::LocalDevice },
@@ -368,12 +366,12 @@ HWTEST_F(PasteboardClientTest, RemoveGlobalShareOption, TestSize.Level0)
 }
 
 /**
-* @tc.name: DetectPatterns001
-* @tc.desc: Cover Permutation
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: DetectPatterns001
+ * @tc.desc: Cover Permutation
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
 {
     std::string plainText("r法塔赫已经，速tdghf！】qd rqdswww.comsski,.sjopwe"
@@ -383,13 +381,13 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
     std::string plainText1("2我就破888芙蓉王82h7");
     std::string plainText2("uhiyqydueuw@kahqw.oisko.sji");
 
-    std::vector<std::string> plainTextVec{ plainText, plainText + plainText0, plainText + plainText1,
+    std::vector<std::string> plainTextVec { plainText, plainText + plainText0, plainText + plainText1,
         plainText + plainText2, plainText + plainText0 + plainText1, plainText0 + plainText2 + plainText,
         plainText1 + plainText + plainText2, plainText0 + plainText1 + plainText + plainText2 };
-    std::vector<Patterns> patternsVec{ {}, { Pattern::URL }, { Pattern::Number }, { Pattern::EmailAddress },
+    std::vector<Patterns> patternsVec { {}, { Pattern::URL }, { Pattern::Number }, { Pattern::EmailAddress },
         { Pattern::URL, Pattern::Number }, { Pattern::URL, Pattern::EmailAddress },
         { Pattern::Number, Pattern::EmailAddress }, { Pattern::URL, Pattern::Number, Pattern::EmailAddress } };
-    std::vector<std::vector<int>> patternsRightIndexVec{ { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 0, 1, 1, 0, 1 },
+    std::vector<std::vector<int>> patternsRightIndexVec { { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 0, 1, 1, 0, 1 },
         { 0, 0, 2, 0, 2, 0, 2, 2 }, { 0, 0, 0, 3, 0, 3, 3, 3 }, { 0, 1, 2, 0, 4, 1, 2, 4 }, { 0, 1, 0, 3, 1, 5, 3, 5 },
         { 0, 0, 2, 3, 2, 3, 6, 6 }, { 0, 1, 2, 3, 4, 5, 6, 7 } };
     for (int i = 0; i != 8; ++i) {
@@ -404,12 +402,12 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
 }
 
 /**
-* @tc.name: DetectPatterns002
-* @tc.desc: check HTML
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: DetectPatterns002
+ * @tc.desc: check HTML
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
 {
     std::string htmlText1 = "<!DOCTYPE html><html><head><title>"
@@ -418,9 +416,9 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
                             "个人网站https://ex24t33tamp65hhle.com</a>。</p></body></html>";
     auto newData1 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    Patterns patternsToCheck1{ Pattern::URL, Pattern::EmailAddress };
+    Patterns patternsToCheck1 { Pattern::URL, Pattern::EmailAddress };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck1);
-    Patterns expected1{ Pattern::URL };
+    Patterns expected1 { Pattern::URL };
     ASSERT_EQ(ret1, expected1);
 
     std::string htmlText2 = "<!DOCTYPE html><html><head><title>"
@@ -430,19 +428,19 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
                             "阿婆吗weqkqo@exaetmple.com</a>。？？？？打法</p></body></html>";
     auto newData2 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
-    Patterns patternsToCheck2{ Pattern::URL, Pattern::EmailAddress, Pattern::Number };
+    Patterns patternsToCheck2 { Pattern::URL, Pattern::EmailAddress, Pattern::Number };
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck2);
-    Patterns expected2{ Pattern::URL, Pattern::EmailAddress };
+    Patterns expected2 { Pattern::URL, Pattern::EmailAddress };
     ASSERT_EQ(ret2, expected2);
 }
 
 /**
-* @tc.name: DetectPatterns003
-* @tc.desc: Outlier force cast uint32_t to unsurportted Pattern
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: DetectPatterns003
+ * @tc.desc: Outlier force cast uint32_t to unsurportted Pattern
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
 {
     std::string plainText1 = "部分人的十点半：\n"
@@ -453,9 +451,9 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
                              "~b0043fg3423tddj~";
     auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    Patterns patternsToCheck{ Pattern::Number, Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(1023) };
+    Patterns patternsToCheck { Pattern::Number, Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(1023) };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    Patterns expected1{};
+    Patterns expected1 {};
     ASSERT_EQ(ret1, expected1);
     std::string plainText2 = "【撒迪化，等我i却很难，无穷花的！】"
                              "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg"
@@ -464,23 +462,23 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
     auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    Patterns expected2{};
+    Patterns expected2 {};
     ASSERT_EQ(ret2, expected2);
     std::string plainText3 = "【撒迪化，等我i却很难，无穷花的！】"
                              "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg";
     auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
     PasteboardClient::GetInstance()->SetPasteData(*newData3);
     auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    ASSERT_EQ(ret3, Patterns{});
+    ASSERT_EQ(ret3, Patterns {});
 }
 
 /**
-* @tc.name: DetectPatterns004
-* @tc.desc: Outlier force cast uint32_t 0xffffffff to unsurportted Pattern
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: DetectPatterns004
+ * @tc.desc: Outlier force cast uint32_t 0xffffffff to unsurportted Pattern
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
 {
     std::string plainText1 = "部分人的十点半：\n"
@@ -491,10 +489,10 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
                              "~b0043fg3423tddj~";
     auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    std::set<Pattern> patternsToCheck{ Pattern::Number, Pattern::URL, Pattern::EmailAddress,
+    std::set<Pattern> patternsToCheck { Pattern::Number, Pattern::URL, Pattern::EmailAddress,
         static_cast<Pattern>(0xffffffff), static_cast<Pattern>(0xffffff1a) };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    std::set<Pattern> expected1{};
+    std::set<Pattern> expected1 {};
     ASSERT_EQ(ret1, expected1);
     std::string plainText2 = "【撒迪化，等我i却很难，无穷花的！】"
                              "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg"
@@ -503,23 +501,23 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
     auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    std::set<Pattern> expected2{};
+    std::set<Pattern> expected2 {};
     ASSERT_EQ(ret2, expected2);
     std::string plainText3 = "【撒迪化，等我i却很难，无穷花的！】"
                              "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg";
     auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
     PasteboardClient::GetInstance()->SetPasteData(*newData3);
     auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    ASSERT_EQ(ret3, std::set<Pattern>{});
+    ASSERT_EQ(ret3, std::set<Pattern> {});
 }
 
 /**
-* @tc.name: CreateMultiDelayRecord001
-* @tc.desc: call CreateMultiDelayRecord
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: CreateMultiDelayRecord001
+ * @tc.desc: call CreateMultiDelayRecord
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, CreateMultiDelayRecord001, TestSize.Level0)
 {
     std::vector<std::string> mineTypes;
@@ -528,12 +526,12 @@ HWTEST_F(PasteboardClientTest, CreateMultiDelayRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: CreateMultiTypeData001
-* @tc.desc: call CreateMultiTypeData
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: CreateMultiTypeData001
+ * @tc.desc: call CreateMultiTypeData
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, CreateMultiTypeData001, TestSize.Level0)
 {
     std::map<std::string, std::shared_ptr<EntryValue>> typeValueMap;
@@ -545,12 +543,12 @@ HWTEST_F(PasteboardClientTest, CreateMultiTypeData001, TestSize.Level0)
 }
 
 /**
-* @tc.name: CreateMultiTypeDelayData001
-* @tc.desc: call CreateMultiTypeDelayData and some misc branches
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: CreateMultiTypeDelayData001
+ * @tc.desc: call CreateMultiTypeDelayData and some misc branches
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardClientTest, CreateMultiTypeDelayData001, TestSize.Level0)
 {
     std::vector<std::string> mimeTypes;

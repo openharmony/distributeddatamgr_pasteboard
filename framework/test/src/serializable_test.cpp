@@ -34,7 +34,7 @@ public:
     bool IsSame(Config &oldConfig, Config &newConfig);
     static bool IsSame(Config::Component &oldComp, Config::Component &newComp);
 
-    template<typename T>
+    template <typename T>
     static bool IsSame(std::vector<T> &olds, std::vector<T> &news)
     {
         if (olds.size() != news.size()) {
@@ -50,13 +50,13 @@ public:
     }
 };
 
-void SerializableTest::SetUpTestCase(void) {}
+void SerializableTest::SetUpTestCase(void) { }
 
-void SerializableTest::TearDownTestCase(void) {}
+void SerializableTest::TearDownTestCase(void) { }
 
-void SerializableTest::SetUp(void) {}
+void SerializableTest::SetUp(void) { }
 
-void SerializableTest::TearDown(void) {}
+void SerializableTest::TearDown(void) { }
 
 Serializable::json SerializableTest::ToJson(const std::string &str)
 {
@@ -110,12 +110,12 @@ void SerializableTest::CreateConfig(Config &config, const std::string &prefix)
 }
 
 /**
-* @tc.name: SerializableTest001
-* @tc.desc: test serializable with invalid jsonStr .
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest001
+ * @tc.desc: test serializable with invalid jsonStr .
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest001, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "SerializableTest001 Start.");
@@ -133,12 +133,12 @@ HWTEST_F(SerializableTest, SerializableTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest002
-* @tc.desc: test serializable with valid jsonStr .
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest002
+ * @tc.desc: test serializable with valid jsonStr .
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest002, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "SerializableTest002 Start.");
@@ -183,12 +183,12 @@ HWTEST_F(SerializableTest, SerializableTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest003
-* @tc.desc: test serializable GetValue and SetValue with invalid string value .
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest003
+ * @tc.desc: test serializable GetValue and SetValue with invalid string value .
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest003, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
@@ -208,12 +208,12 @@ HWTEST_F(SerializableTest, SerializableTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest004
-* @tc.desc: test serializable GetValue and SetValue with invalid uint32_t value .
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest004
+ * @tc.desc: test serializable GetValue and SetValue with invalid uint32_t value .
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest004, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
@@ -233,12 +233,12 @@ HWTEST_F(SerializableTest, SerializableTest004, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest005
-* @tc.desc: test serializable GetValue and SetValue with invalid int32_t value .
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest005
+ * @tc.desc: test serializable GetValue and SetValue with invalid int32_t value .
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest005, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
@@ -258,12 +258,12 @@ HWTEST_F(SerializableTest, SerializableTest005, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest006
-* @tc.desc: test serializable GetValue and SetValue with invalid int64_t value .
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest006
+ * @tc.desc: test serializable GetValue and SetValue with invalid int64_t value .
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest006, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
@@ -283,12 +283,12 @@ HWTEST_F(SerializableTest, SerializableTest006, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest007
-* @tc.desc: test serializable GetValue and SetValue with invalid bool value .
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest007
+ * @tc.desc: test serializable GetValue and SetValue with invalid bool value .
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest007, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
@@ -308,12 +308,12 @@ HWTEST_F(SerializableTest, SerializableTest007, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest008
-* @tc.desc: test serializable GetValue and SetValue with invalid std::vector<uint8_t> value .
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest008
+ * @tc.desc: test serializable GetValue and SetValue with invalid std::vector<uint8_t> value .
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest008, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
@@ -333,12 +333,12 @@ HWTEST_F(SerializableTest, SerializableTest008, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest009
-* @tc.desc: test serializable SetValue with valid value.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest009
+ * @tc.desc: test serializable SetValue with valid value.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest009, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
@@ -384,12 +384,12 @@ HWTEST_F(SerializableTest, SerializableTest009, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest010
-* @tc.desc: test serializable SetValue with valid value.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest010
+ * @tc.desc: test serializable SetValue with valid value.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest010, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "SerializableTest010 Start.");
@@ -418,12 +418,12 @@ HWTEST_F(SerializableTest, SerializableTest010, TestSize.Level0)
 }
 
 /**
-* @tc.name: SerializableTest011
-* @tc.desc: test serializable Unmarshall with valid jsonstr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SerializableTest011
+ * @tc.desc: test serializable Unmarshall with valid jsonstr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, SerializableTest011, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
@@ -470,12 +470,12 @@ HWTEST_F(SerializableTest, SerializableTest011, TestSize.Level0)
 }
 
 /**
-* @tc.name: GlobalEventTest001
-* @tc.desc: test GlobalEvent serializable.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GlobalEventTest001
+ * @tc.desc: test GlobalEvent serializable.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(SerializableTest, GlobalEventTest001, TestSize.Level0)
 {
     ClipPlugin::GlobalEvent event;

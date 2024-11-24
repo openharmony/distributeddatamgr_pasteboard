@@ -1,17 +1,17 @@
 /*
-* Copyright (c) 2024 Huawei Device Co., Ltd.
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <gtest/gtest.h>
 
@@ -89,16 +89,16 @@ public:
     }
 };
 
-void PasteboardClientUdmfDelayTest::SetUpTestCase() {}
+void PasteboardClientUdmfDelayTest::SetUpTestCase() { }
 
-void PasteboardClientUdmfDelayTest::TearDownTestCase() {}
+void PasteboardClientUdmfDelayTest::TearDownTestCase() { }
 
 void PasteboardClientUdmfDelayTest::SetUp()
 {
     PasteboardClient::GetInstance()->Clear();
 }
 
-void PasteboardClientUdmfDelayTest::TearDown() {}
+void PasteboardClientUdmfDelayTest::TearDown() { }
 
 void PasteboardClientUdmfDelayTest::SetUnifiedData()
 {
@@ -342,10 +342,10 @@ void PasteboardClientUdmfDelayTest::CompareDetails(const UDDetails &details)
 }
 
 /**
-* @tc.name: SetTextDataTest001
-* @tc.desc: SetUnifiedData of Text with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetTextDataTest001
+ * @tc.desc: SetUnifiedData of Text with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetTextDataTest001, TestSize.Level1)
 {
     SetTextUnifiedData();
@@ -370,10 +370,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetTextDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetPlainTextDataTest001
-* @tc.desc: SetUnifiedData of PlainText with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetPlainTextDataTest001
+ * @tc.desc: SetUnifiedData of PlainText with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetPlainTextDataTest001, TestSize.Level1)
 {
     SetPlainTextUnifiedData();
@@ -405,10 +405,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetPlainTextDataTest001, TestSize.Level1
 }
 
 /**
-* @tc.name: SetLinkDataTest001
-* @tc.desc: SetUnifiedData of Link with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetLinkDataTest001
+ * @tc.desc: SetUnifiedData of Link with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetLinkDataTest001, TestSize.Level1)
 {
     SetLinkUnifiedData();
@@ -440,10 +440,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetLinkDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetHtmlDataTest001
-* @tc.desc: SetUnifiedData of Html with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetHtmlDataTest001
+ * @tc.desc: SetUnifiedData of Html with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetHtmlDataTest001, TestSize.Level1)
 {
     SetHtmlUnifiedData();
@@ -475,10 +475,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetHtmlDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetFileDataTest001
-* @tc.desc: SetUnifiedData of File with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetFileDataTest001
+ * @tc.desc: SetUnifiedData of File with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetFileDataTest001, TestSize.Level1)
 {
     SetFileUnifiedData();
@@ -507,10 +507,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetFileDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetImageDataTest001
-* @tc.desc: SetUnifiedData of Image with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetImageDataTest001
+ * @tc.desc: SetUnifiedData of Image with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetImageDataTest001, TestSize.Level1)
 {
     SetImageUnifiedData();
@@ -541,10 +541,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetImageDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetVideoDataTest001
-* @tc.desc: SetUnifiedData of Video with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetVideoDataTest001
+ * @tc.desc: SetUnifiedData of Video with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetVideoDataTest001, TestSize.Level1)
 {
     SetVideoUnifiedData();
@@ -575,10 +575,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetVideoDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetAudioDataTest001
-* @tc.desc: SetUnifiedData of Audio with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetAudioDataTest001
+ * @tc.desc: SetUnifiedData of Audio with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetAudioDataTest001, TestSize.Level1)
 {
     SetAudioUnifiedData();
@@ -609,10 +609,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetAudioDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetFolderDataTest001
-* @tc.desc: Set UnifiedData of Folder with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetFolderDataTest001
+ * @tc.desc: Set UnifiedData of Folder with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetFolderDataTest001, TestSize.Level1)
 {
     SetFolderUnifiedData();
@@ -643,10 +643,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetFolderDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetSysRecordDataTest001
-* @tc.desc: SetUnifiedData of SysRecord with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetSysRecordDataTest001
+ * @tc.desc: SetUnifiedData of SysRecord with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetSysRecordDataTest001, TestSize.Level1)
 {
     SetSysRecordUnifiedData();
@@ -676,10 +676,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysRecordDataTest001, TestSize.Level1
 }
 
 /**
-* @tc.name: SetSysFormDataTest001
-* @tc.desc: SetUnifiedData of SysForm with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetSysFormDataTest001
+ * @tc.desc: SetUnifiedData of SysForm with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetSysFormDataTest001, TestSize.Level1)
 {
     SetSysFormUnifiedData();
@@ -716,10 +716,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysFormDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetSysAppItemDataTest001
-* @tc.desc: SetUnifiedData of SysAppItem with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetSysAppItemDataTest001
+ * @tc.desc: SetUnifiedData of SysAppItem with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetSysAppItemDataTest001, TestSize.Level1)
 {
     SetSysAppItemUnifiedData();
@@ -761,10 +761,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysAppItemDataTest001, TestSize.Level
 }
 
 /**
-* @tc.name: SetAppRecordDataTest001
-* @tc.desc: Set UnifiedData of AppRecord with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetAppRecordDataTest001
+ * @tc.desc: Set UnifiedData of AppRecord with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetAppRecordDataTest001, TestSize.Level1)
 {
     SetAppRecordUnifiedData();
@@ -800,10 +800,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetAppRecordDataTest001, TestSize.Level1
 }
 
 /**
-* @tc.name: SetWantDataTest001
-* @tc.desc: Set UnifiedData of Want with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetWantDataTest001
+ * @tc.desc: Set UnifiedData of Want with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetWantDataTest001, TestSize.Level1)
 {
     SetWantUnifiedData();
@@ -835,10 +835,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetWantDataTest001, TestSize.Level1)
 }
 
 /**
-* @tc.name: SetPixelMapDataTest001
-* @tc.desc: Set UnifiedData of PixelMap with delay getter and GetUnifiedData and GetPasteData
-* @tc.type: FUNC
-*/
+ * @tc.name: SetPixelMapDataTest001
+ * @tc.desc: Set UnifiedData of PixelMap with delay getter and GetUnifiedData and GetPasteData
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetPixelMapDataTest001, TestSize.Level1)
 {
     SetPixelMapUnifiedData();
