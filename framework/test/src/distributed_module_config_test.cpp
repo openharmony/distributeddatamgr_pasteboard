@@ -28,21 +28,21 @@ public:
     void TearDown();
 };
 
-void DistributedModuleConfigTest::SetUpTestCase(void) {}
+void DistributedModuleConfigTest::SetUpTestCase(void) { }
 
-void DistributedModuleConfigTest::TearDownTestCase(void) {}
+void DistributedModuleConfigTest::TearDownTestCase(void) { }
 
-void DistributedModuleConfigTest::SetUp(void) {}
+void DistributedModuleConfigTest::SetUp(void) { }
 
-void DistributedModuleConfigTest::TearDown(void) {}
+void DistributedModuleConfigTest::TearDown(void) { }
 
 /**
-* @tc.name: IsOnTest001
-* @tc.desc: Is On.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: IsOnTest001
+ * @tc.desc: Is On.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DistributedModuleConfigTest, IsOnTest001, TestSize.Level0)
 {
     DistributedModuleConfig config;
@@ -53,12 +53,12 @@ HWTEST_F(DistributedModuleConfigTest, IsOnTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: IsOnTest
-* @tc.desc: Is On.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: IsOnTest
+ * @tc.desc: Is On.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DistributedModuleConfigTest, IsOnTest002, TestSize.Level0)
 {
     DistributedModuleConfig config;
@@ -71,12 +71,12 @@ HWTEST_F(DistributedModuleConfigTest, IsOnTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: WatchTest
-* @tc.desc: Watch.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: WatchTest
+ * @tc.desc: Watch.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DistributedModuleConfigTest, WatchTest, TestSize.Level0)
 {
     DistributedModuleConfig::Observer observer;

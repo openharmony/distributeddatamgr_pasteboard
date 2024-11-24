@@ -31,18 +31,18 @@ public:
     };
     class TestBegin : public Event {
     public:
-        TestBegin() : Event(TEST_EVT_BEGIN){};
+        TestBegin() : Event(TEST_EVT_BEGIN) {};
     };
     class TestMiddle : public Event {
     public:
-        TestMiddle() : Event(TEST_EVT_MIDDLE){};
+        TestMiddle() : Event(TEST_EVT_MIDDLE) {};
     };
     class TestEnd : public Event {
     public:
-        TestEnd() : Event(TEST_EVT_END){};
+        TestEnd() : Event(TEST_EVT_END) {};
     };
-    static void SetUpTestCase(void) {}
-    static void TearDownTestCase(void) {}
+    static void SetUpTestCase(void) { }
+    static void TearDownTestCase(void) { }
     void SetUp()
     {
         waitEvent_ = TEST_EVT_UNKNOWN;
@@ -83,12 +83,12 @@ protected:
 };
 
 /**
-* @tc.name: TopLayerASyncEvent
-* @tc.desc: the async event on the top layer will dispatch, until the function completed.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author: Sven Wang
-*/
+ * @tc.name: TopLayerASyncEvent
+ * @tc.desc: the async event on the top layer will dispatch, until the function completed.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author: Sven Wang
+ */
 HWTEST_F(EventCenterTest, TopLayerASyncEvent, TestSize.Level2)
 {
     auto test = [this]() {
@@ -102,12 +102,12 @@ HWTEST_F(EventCenterTest, TopLayerASyncEvent, TestSize.Level2)
 }
 
 /**
-* @tc.name: SubLayerASyncEvent
-* @tc.desc: the async event on sub layer will defer to dispatch, until the top layer function completed.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author: Sven Wang
-*/
+ * @tc.name: SubLayerASyncEvent
+ * @tc.desc: the async event on sub layer will defer to dispatch, until the top layer function completed.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author: Sven Wang
+ */
 HWTEST_F(EventCenterTest, SubLayerASyncEvent, TestSize.Level2)
 {
     EventCenter::Defer defer;
@@ -118,12 +118,12 @@ HWTEST_F(EventCenterTest, SubLayerASyncEvent, TestSize.Level2)
 }
 
 /**
-* @tc.name: ASyncEventWithoutDefer
-* @tc.desc: async event without defer may call or not
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author: Sven Wang
-*/
+ * @tc.name: ASyncEventWithoutDefer
+ * @tc.desc: async event without defer may call or not
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author: Sven Wang
+ */
 HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
 {
     EventCenter::Defer defer;
@@ -137,12 +137,12 @@ HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
 }
 
 /**
-* @tc.name: ImmediatelyASyncEvent
-* @tc.desc: post the async event, there is top layer and no defer; we will dispatch the async event Immediately.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author: Sven Wang
-*/
+ * @tc.name: ImmediatelyASyncEvent
+ * @tc.desc: post the async event, there is top layer and no defer; we will dispatch the async event Immediately.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author: Sven Wang
+ */
 HWTEST_F(EventCenterTest, ImmediatelyASyncEvent, TestSize.Level2)
 {
     waitEvent_ = TEST_EVT_BEGIN;
@@ -152,12 +152,12 @@ HWTEST_F(EventCenterTest, ImmediatelyASyncEvent, TestSize.Level2)
 }
 
 /**
-* @tc.name: PostEvent
-* @tc.desc: post the async event.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author: Sven Wang
-*/
+ * @tc.name: PostEvent
+ * @tc.desc: post the async event.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author: Sven Wang
+ */
 HWTEST_F(EventCenterTest, PostEvent, TestSize.Level2)
 {
     int32_t result = EventCenter::GetInstance().PostEvent(nullptr);
@@ -165,12 +165,12 @@ HWTEST_F(EventCenterTest, PostEvent, TestSize.Level2)
 }
 
 /**
-* @tc.name: SubscribeTest
-* @tc.desc: Subscribe.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author: Sven Wang
-*/
+ * @tc.name: SubscribeTest
+ * @tc.desc: Subscribe.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author: Sven Wang
+ */
 HWTEST_F(EventCenterTest, SubscribeTest, TestSize.Level2)
 {
     int32_t evtId = 1;
@@ -180,12 +180,12 @@ HWTEST_F(EventCenterTest, SubscribeTest, TestSize.Level2)
 }
 
 /**
-* @tc.name: UnsubscribeTest
-* @tc.desc: Unsubscribe.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author: Sven Wang
-*/
+ * @tc.name: UnsubscribeTest
+ * @tc.desc: Unsubscribe.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author: Sven Wang
+ */
 HWTEST_F(EventCenterTest, UnsubscribeTest, TestSize.Level2)
 {
     int32_t evtId = 2;

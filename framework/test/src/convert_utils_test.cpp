@@ -71,13 +71,13 @@ protected:
     static PasteData TlvData(const std::shared_ptr<PasteData> &data);
 };
 
-void ConvertUtilsTest::SetUpTestCase(void) {}
+void ConvertUtilsTest::SetUpTestCase(void) { }
 
-void ConvertUtilsTest::TearDownTestCase(void) {}
+void ConvertUtilsTest::TearDownTestCase(void) { }
 
-void ConvertUtilsTest::SetUp(void) {}
+void ConvertUtilsTest::SetUp(void) { }
 
-void ConvertUtilsTest::TearDown(void) {}
+void ConvertUtilsTest::TearDown(void) { }
 
 PasteData ConvertUtilsTest::TlvData(const std::shared_ptr<PasteData> &data)
 {
@@ -350,12 +350,12 @@ void ConvertUtilsTest::CheckCustomEntry(const std::shared_ptr<PasteDataEntry> en
 }
 
 /**
-* @tc.name: PlainEntryTest001
-* @tc.desc:
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:tarowang
-*/
+ * @tc.name: PlainEntryTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:tarowang
+ */
 HWTEST_F(ConvertUtilsTest, PlainEntryTest001, TestSize.Level0)
 {
     UDMF::UnifiedData data;
@@ -377,12 +377,12 @@ HWTEST_F(ConvertUtilsTest, PlainEntryTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: HtmlEntryTest001
-* @tc.desc:
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:tarowang
-*/
+ * @tc.name: HtmlEntryTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:tarowang
+ */
 HWTEST_F(ConvertUtilsTest, HtmlEntryTest001, TestSize.Level0)
 {
     UDMF::UnifiedData data;
@@ -404,12 +404,12 @@ HWTEST_F(ConvertUtilsTest, HtmlEntryTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PixelMapEntryTest001
-* @tc.desc:
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:tarowang
-*/
+ * @tc.name: PixelMapEntryTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:tarowang
+ */
 HWTEST_F(ConvertUtilsTest, PixelMapEntryTest001, TestSize.Level0)
 {
     UDMF::UnifiedData data;
@@ -436,12 +436,12 @@ HWTEST_F(ConvertUtilsTest, PixelMapEntryTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntriesTest001
-* @tc.desc:
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:tarowang
-*/
+ * @tc.name: EntriesTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:tarowang
+ */
 HWTEST_F(ConvertUtilsTest, EntriesTest001, TestSize.Level0)
 {
     UDMF::UnifiedData data;
@@ -465,12 +465,12 @@ HWTEST_F(ConvertUtilsTest, EntriesTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SameTypeEntryTest001
-* @tc.desc:
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:tarowang
-*/
+ * @tc.name: SameTypeEntryTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:tarowang
+ */
 HWTEST_F(ConvertUtilsTest, SameTypeEntryTest001, TestSize.Level0)
 {
     UDMF::UnifiedData data;
@@ -491,11 +491,11 @@ HWTEST_F(ConvertUtilsTest, SameTypeEntryTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertPropertyTest001
-* @tc.desc: Test ConvertProperty function when properties is nullptr
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertPropertyTest001
+ * @tc.desc: Test ConvertProperty function when properties is nullptr
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(ConvertUtilsTest, ConvertPropertyTest001, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest001 start");
@@ -519,11 +519,11 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertPropertyTest002
-* @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::IN_APP
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertPropertyTest002
+ * @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::IN_APP
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(ConvertUtilsTest, ConvertPropertyTest002, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest002 start");
@@ -542,11 +542,11 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertPropertyTest003
-* @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::CROSS_APP
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertPropertyTest003
+ * @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::CROSS_APP
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(ConvertUtilsTest, ConvertPropertyTest003, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest003 start");
@@ -566,11 +566,11 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertPropertyTest004
-* @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::CROSS_DEVICE
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertPropertyTest004
+ * @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::CROSS_DEVICE
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(ConvertUtilsTest, ConvertPropertyTest004, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest004 start");
@@ -590,11 +590,11 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest004, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertPropertyTest005
-* @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::SHARE_OPTIONS_BUTT
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertPropertyTest005
+ * @tc.desc: Test ConvertProperty function when properties->shareOptions is UDMF::SHARE_OPTIONS_BUTT
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(ConvertUtilsTest, ConvertPropertyTest005, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest005 start");
@@ -614,11 +614,11 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest005, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertPropertyTest006
-* @tc.desc: Test ConvertProperty function when properties.shareOption is InApp
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertPropertyTest006
+ * @tc.desc: Test ConvertProperty function when properties.shareOption is InApp
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(ConvertUtilsTest, ConvertPropertyTest006, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest006 start");
@@ -637,11 +637,11 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest006, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertPropertyTest007
-* @tc.desc: Test ConvertProperty function when properties.shareOption is LocalDevice
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertPropertyTest007
+ * @tc.desc: Test ConvertProperty function when properties.shareOption is LocalDevice
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(ConvertUtilsTest, ConvertPropertyTest007, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest007 start");
@@ -660,11 +660,11 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest007, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertPropertyTest008
-* @tc.desc: Test ConvertProperty function when properties.shareOption is CrossDevice
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertPropertyTest008
+ * @tc.desc: Test ConvertProperty function when properties.shareOption is CrossDevice
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(ConvertUtilsTest, ConvertPropertyTest008, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest008 start");

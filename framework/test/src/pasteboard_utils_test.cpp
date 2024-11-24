@@ -62,9 +62,9 @@ protected:
     std::string uri_;
 };
 
-void PasteboardUtilsTest::SetUpTestCase(void) {}
+void PasteboardUtilsTest::SetUpTestCase(void) { }
 
-void PasteboardUtilsTest::TearDownTestCase(void) {}
+void PasteboardUtilsTest::TearDownTestCase(void) { }
 
 void PasteboardUtilsTest::SetUp(void)
 {
@@ -76,7 +76,7 @@ void PasteboardUtilsTest::SetUp(void)
     details_.insert({ "KeyDouble", 1.234 });
 }
 
-void PasteboardUtilsTest::TearDown(void) {}
+void PasteboardUtilsTest::TearDown(void) { }
 
 UDMF::UnifiedData PasteboardUtilsTest::InitTextData()
 {
@@ -261,12 +261,12 @@ UDMF::UnifiedData PasteboardUtilsTest::InitAppDefinedData()
 }
 
 /**
-* @tc.name: Text2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Text2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
 {
     auto data = InitTextData();
@@ -291,12 +291,12 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Text2PasteRecord002
-* @tc.desc: textRecord is nullptr
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Text2PasteRecord002
+ * @tc.desc: textRecord is nullptr
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Text2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::Text> textRecord;
@@ -308,12 +308,12 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: PlainText2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: PlainText2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
 {
     auto data = InitPlainData();
@@ -347,12 +347,12 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PlainText2PasteRecord002
-* @tc.desc: plainTextRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: PlainText2PasteRecord002
+ * @tc.desc: plainTextRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::PlainText> plainTextRecord;
@@ -364,12 +364,12 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Html2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Html2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
 {
     auto data = InitHtmlData();
@@ -401,12 +401,12 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Html2PasteRecord002
-* @tc.desc: htmlRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Html2PasteRecord002
+ * @tc.desc: htmlRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Html2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::Html> htmlRecord;
@@ -418,12 +418,12 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Link2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Link2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
 {
     auto data = InitLinkData();
@@ -455,12 +455,12 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Link2PasteRecord002
-* @tc.desc: linkRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Link2PasteRecord002
+ * @tc.desc: linkRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Link2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::Link> linkRecord;
@@ -472,12 +472,12 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Want2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Want2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Want2PasteRecord001, TestSize.Level0)
 {
     auto data = InitWantData();
@@ -505,12 +505,12 @@ HWTEST_F(PasteboardUtilsTest, Want2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Want2PasteRecord002
-* @tc.desc: wantRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Want2PasteRecord002
+ * @tc.desc: wantRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Want2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::UnifiedRecord> wantRecord;
@@ -522,12 +522,12 @@ HWTEST_F(PasteboardUtilsTest, Want2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: File2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: File2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
 {
     auto data = InitFileData();
@@ -556,12 +556,12 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: File2PasteRecord002
-* @tc.desc: fileRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: File2PasteRecord002
+ * @tc.desc: fileRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, File2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::File> fileRecord;
@@ -573,12 +573,12 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Image2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Image2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
 {
     auto data = InitImageData();
@@ -607,12 +607,12 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Image2PasteRecord002
-* @tc.desc: imageRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Image2PasteRecord002
+ * @tc.desc: imageRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Image2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::Image> imageRecord;
@@ -624,12 +624,12 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Audio2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Audio2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
 {
     auto data = InitAudioData();
@@ -658,12 +658,12 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Audio2PasteRecord002
-* @tc.desc: audioRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Audio2PasteRecord002
+ * @tc.desc: audioRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::Audio> audioRecord;
@@ -675,12 +675,12 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Video2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Video2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
 {
     auto data = InitVideoData();
@@ -709,12 +709,12 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Video2PasteRecord002
-* @tc.desc: videoRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Video2PasteRecord002
+ * @tc.desc: videoRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Video2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::Video> videoRecord;
@@ -726,12 +726,12 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Folder2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Folder2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
 {
     auto data = InitFolderData();
@@ -760,12 +760,12 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Folder2PasteRecord002
-* @tc.desc: folderRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Folder2PasteRecord002
+ * @tc.desc: folderRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::Folder> folderRecord;
@@ -777,12 +777,12 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: SystemDefined2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SystemDefined2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
 {
     auto data = InitSystemRecordData();
@@ -806,12 +806,12 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SystemDefined2PasteRecord002
-* @tc.desc: systemRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SystemDefined2PasteRecord002
+ * @tc.desc: systemRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::SystemDefinedRecord> systemRecord;
@@ -823,12 +823,12 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: AppItem2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: AppItem2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
 {
     auto data = InitSystemAppItemData();
@@ -868,12 +868,12 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: AppItem2PasteRecord002
-* @tc.desc: systemDefinedAppItem is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: AppItem2PasteRecord002
+ * @tc.desc: systemDefinedAppItem is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::SystemDefinedAppItem> systemDefinedAppItem;
@@ -885,12 +885,12 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Form2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Form2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
 {
     auto data = InitSysteFormData();
@@ -930,12 +930,12 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Form2PasteRecord002
-* @tc.desc: form is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: Form2PasteRecord002
+ * @tc.desc: form is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, Form2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::SystemDefinedForm> form;
@@ -947,12 +947,12 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: PixelMap2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: PixelMap2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
 {
     auto data = InitSystemPixelMapData();
@@ -987,12 +987,12 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: PixelMap2PasteRecord002
-* @tc.desc: pixelMapRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: PixelMap2PasteRecord002
+ * @tc.desc: pixelMapRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::UnifiedRecord> pixelMapRecord;
@@ -1004,12 +1004,12 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: AppDefined2PasteRecord001
-* @tc.desc: pasteData is local data.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: AppDefined2PasteRecord001
+ * @tc.desc: pasteData is local data.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
 {
     auto data = InitAppDefinedData();
@@ -1021,7 +1021,7 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::APPLICATION_DEFINED_RECORD);
     auto items = record->GetCustomData()->GetItemData();
-    std::map<std::string, std::vector<uint8_t>> customData{ { type, rawData_ } };
+    std::map<std::string, std::vector<uint8_t>> customData { { type, rawData_ } };
     ASSERT_EQ(items, customData);
 
     auto newData = PasteboardUtils::GetInstance().Convert(*pasteData);
@@ -1034,12 +1034,12 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
 }
 
 /**
-* @tc.name: AppDefined2PasteRecord002
-* @tc.desc: appRecord is nullptr.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: AppDefined2PasteRecord002
+ * @tc.desc: appRecord is nullptr.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord002, TestSize.Level0)
 {
     std::shared_ptr<UDMF::ApplicationDefinedRecord> appRecord;
@@ -1051,12 +1051,12 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord002, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertTest001
-* @tc.desc: Traverse UDType.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: ConvertTest001
+ * @tc.desc: Traverse UDType.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertTest001, TestSize.Level0)
 {
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::PLAIN_TEXT), MIMETYPE_TEXT_PLAIN);
@@ -1067,12 +1067,12 @@ HWTEST_F(PasteboardUtilsTest, ConvertTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertTest002
-* @tc.desc: Traverse MIMEType.
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: ConvertTest002
+ * @tc.desc: Traverse MIMEType.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertTest002, TestSize.Level0)
 {
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_TEXT_URI), UDMF::FILE);
@@ -1086,11 +1086,11 @@ HWTEST_F(PasteboardUtilsTest, ConvertTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertShareOptionTest001
-* @tc.desc: Test Convert function when properties.shareOptions is UDMF::IN_APP
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertShareOptionTest001
+ * @tc.desc: Test Convert function when properties.shareOptions is UDMF::IN_APP
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest001, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest001 start");
@@ -1108,11 +1108,11 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertShareOptionTest002
-* @tc.desc: Test Convert function when properties.shareOptions is UDMF::CROSS_APP
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertShareOptionTest002
+ * @tc.desc: Test Convert function when properties.shareOptions is UDMF::CROSS_APP
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest002, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest002 start");
@@ -1131,11 +1131,11 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertShareOptionTest003
-* @tc.desc: Test Convert function when properties.shareOptions is UDMF::CROSS_DEVICE
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertShareOptionTest003
+ * @tc.desc: Test Convert function when properties.shareOptions is UDMF::CROSS_DEVICE
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest003, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest003 start");
@@ -1154,11 +1154,11 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertShareOptionTest004
-* @tc.desc: Test Convert function when properties.shareOptions is UDMF::SHARE_OPTIONS_BUTT
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertShareOptionTest004
+ * @tc.desc: Test Convert function when properties.shareOptions is UDMF::SHARE_OPTIONS_BUTT
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest004, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest004 start");
@@ -1177,11 +1177,11 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest004, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertShareOptionTest005
-* @tc.desc: Test Convert function when properties.shareOption is InApp
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertShareOptionTest005
+ * @tc.desc: Test Convert function when properties.shareOption is InApp
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest005, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest005 start");
@@ -1200,11 +1200,11 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest005, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertShareOptionTest006
-* @tc.desc: Test Convert function when properties.shareOption is LocalDevice
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertShareOptionTest006
+ * @tc.desc: Test Convert function when properties.shareOption is LocalDevice
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest006, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest006 start");
@@ -1223,11 +1223,11 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest006, TestSize.Level0)
 }
 
 /**
-* @tc.name: ConvertShareOptionTest007
-* @tc.desc: Test Convert function when properties.shareOption is CrossDevice
-* @tc.type: FUNC
-* @tc.require:
-*/
+ * @tc.name: ConvertShareOptionTest007
+ * @tc.desc: Test Convert function when properties.shareOption is CrossDevice
+ * @tc.type: FUNC
+ * @tc.require:
+ */
 HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest007, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest007 start");

@@ -15,8 +15,8 @@
 
 #include <gtest/gtest.h>
 
-#include "device/dm_adapter.h"
 #include "device/dev_profile.h"
+#include "device/dm_adapter.h"
 #include "pasteboard_error.h"
 
 namespace OHOS::MiscServices {
@@ -29,21 +29,21 @@ public:
     void TearDown();
 };
 
-void DevProfileTest::SetUpTestCase(void) {}
+void DevProfileTest::SetUpTestCase(void) { }
 
-void DevProfileTest::TearDownTestCase(void) {}
+void DevProfileTest::TearDownTestCase(void) { }
 
-void DevProfileTest::SetUp(void) {}
+void DevProfileTest::SetUp(void) { }
 
-void DevProfileTest::TearDown(void) {}
+void DevProfileTest::TearDown(void) { }
 
 /**
-* @tc.name: GetRemoteDeviceVersion
-* @tc.desc: Get Remote Device Version
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: GetRemoteDeviceVersion
+ * @tc.desc: Get Remote Device Version
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
@@ -57,12 +57,12 @@ HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: SubscribeProfileEvent001
-* @tc.desc: Sub scribe Profile Event
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: SubscribeProfileEvent001
+ * @tc.desc: Sub scribe Profile Event
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
@@ -75,12 +75,12 @@ HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: UnSubscribeProfileEvent001
-* @tc.desc: UnSub scribe Profile Event
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: UnSubscribeProfileEvent001
+ * @tc.desc: UnSub scribe Profile Event
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
@@ -93,16 +93,16 @@ HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: WatchTest
-* @tc.desc: Watch
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:
-*/
+ * @tc.name: WatchTest
+ * @tc.desc: Watch
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
 HWTEST_F(DevProfileTest, Watch, TestSize.Level0)
 {
     DevProfile::Observer observer;
     DevProfile::GetInstance().Watch(observer);
     EXPECT_FALSE(observer);
 }
-}
+} // namespace OHOS::MiscServices

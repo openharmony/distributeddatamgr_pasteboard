@@ -61,11 +61,11 @@ void PasteboardMultiTypeUnifiedDataDelayTest::SetUpTestCase(void)
     PasteboardClient::GetInstance()->Clear();
 }
 
-void PasteboardMultiTypeUnifiedDataDelayTest::TearDownTestCase(void) {}
+void PasteboardMultiTypeUnifiedDataDelayTest::TearDownTestCase(void) { }
 
-void PasteboardMultiTypeUnifiedDataDelayTest::SetUp() {}
+void PasteboardMultiTypeUnifiedDataDelayTest::SetUp() { }
 
-void PasteboardMultiTypeUnifiedDataDelayTest::TearDown() {}
+void PasteboardMultiTypeUnifiedDataDelayTest::TearDown() { }
 
 UDMF::ValueType PasteboardMultiTypeUnifiedDataDelayTest::InitPlainUds()
 {

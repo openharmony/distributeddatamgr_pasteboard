@@ -45,13 +45,13 @@ protected:
     int32_t height_ = 7;
 };
 
-void PasteDataEntryTest::SetUpTestCase(void) {}
+void PasteDataEntryTest::SetUpTestCase(void) { }
 
-void PasteDataEntryTest::TearDownTestCase(void) {}
+void PasteDataEntryTest::TearDownTestCase(void) { }
 
-void PasteDataEntryTest::SetUp(void) {}
+void PasteDataEntryTest::SetUp(void) { }
 
-void PasteDataEntryTest::TearDown(void) {}
+void PasteDataEntryTest::TearDown(void) { }
 
 PasteDataEntry PasteDataEntryTest::InitPlainTextEntry()
 {
@@ -143,12 +143,12 @@ void PasteDataEntryTest::CheckPixelMapUds(const std::shared_ptr<PasteDataEntry> 
 }
 
 /**
-* @tc.name: Convert001
-* @tc.desc: convert to palinText;
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: Convert001
+ * @tc.desc: convert to palinText;
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataEntryTest, Convert001, TestSize.Level0)
 {
     auto entry = InitPlainTextEntry();
@@ -183,12 +183,12 @@ HWTEST_F(PasteDataEntryTest, Convert001, TestSize.Level0)
 }
 
 /**
-* @tc.name: Convert002
-* @tc.desc: convert to html;
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: Convert002
+ * @tc.desc: convert to html;
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataEntryTest, Convert002, TestSize.Level0)
 {
     PasteDataEntry entry;
@@ -211,12 +211,12 @@ HWTEST_F(PasteDataEntryTest, Convert002, TestSize.Level0)
 }
 
 /**
-* @tc.name: Convert003
-* @tc.desc: convert to uri;
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: Convert003
+ * @tc.desc: convert to uri;
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataEntryTest, Convert003, TestSize.Level0)
 {
     PasteDataEntry entry;
@@ -236,12 +236,12 @@ HWTEST_F(PasteDataEntryTest, Convert003, TestSize.Level0)
 }
 
 /**
-* @tc.name: Convert004
-* @tc.desc: convert to want;
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: Convert004
+ * @tc.desc: convert to want;
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataEntryTest, Convert004, TestSize.Level0)
 {
     PasteDataEntry entry;
@@ -259,12 +259,12 @@ HWTEST_F(PasteDataEntryTest, Convert004, TestSize.Level0)
 }
 
 /**
-* @tc.name: Convert005
-* @tc.desc: convert to PixelMap;
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: Convert005
+ * @tc.desc: convert to PixelMap;
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataEntryTest, Convert005, TestSize.Level0)
 {
     PasteDataEntry entry;
@@ -303,12 +303,12 @@ HWTEST_F(PasteDataEntryTest, Convert005, TestSize.Level0)
 }
 
 /**
-* @tc.name: Convert006
-* @tc.desc: convert to CustomData;
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author: tarowang
-*/
+ * @tc.name: Convert006
+ * @tc.desc: convert to CustomData;
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author: tarowang
+ */
 HWTEST_F(PasteDataEntryTest, Convert006, TestSize.Level0)
 {
     PasteDataEntry entry;
@@ -331,12 +331,12 @@ HWTEST_F(PasteDataEntryTest, Convert006, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntriesTest001
-* @tc.desc:
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:tarowang
-*/
+ * @tc.name: EntriesTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:tarowang
+ */
 HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
 {
     PasteDataEntry entry;
@@ -360,12 +360,12 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntryTlvTest002
-* @tc.desc:
-* @tc.type: FUNC
-* @tc.require:
-* @tc.author:tarowang
-*/
+ * @tc.name: EntryTlvTest002
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:tarowang
+ */
 HWTEST_F(PasteDataEntryTest, EntryTlvTest002, TestSize.Level0)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
@@ -381,12 +381,12 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntryTlvTest003
-* @tc.desc:
-* @tc.type: EntryTlvTest003 with pixelMap
-* @tc.require:
-* @tc.author:tarowang
-*/
+ * @tc.name: EntryTlvTest003
+ * @tc.desc:
+ * @tc.type: EntryTlvTest003 with pixelMap
+ * @tc.require:
+ * @tc.author:tarowang
+ */
 HWTEST_F(PasteDataEntryTest, EntryTlvTest003, TestSize.Level0)
 {
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
@@ -402,12 +402,12 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest003, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntryTest001
-* @tc.desc: Whether to include the target content
-* @tc.type: FUNC
-* @tc.require: entries
-* @tc.author:tarowang
-*/
+ * @tc.name: EntryTest001
+ * @tc.desc: Whether to include the target content
+ * @tc.type: FUNC
+ * @tc.require: entries
+ * @tc.author:tarowang
+ */
 HWTEST_F(PasteDataEntryTest, EntryTest001, TestSize.Level0)
 {
     PasteDataEntry entry;
@@ -434,12 +434,12 @@ HWTEST_F(PasteDataEntryTest, EntryTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntryTest002
-* @tc.desc: convert to string
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author:tarowang
-*/
+ * @tc.name: EntryTest002
+ * @tc.desc: convert to string
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author:tarowang
+ */
 HWTEST_F(PasteDataEntryTest, EntryTest002, TestSize.Level0)
 {
     CommonUtils utils;
@@ -486,12 +486,12 @@ HWTEST_F(PasteDataEntryTest, EntryTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: EntryTest003
-* @tc.desc: convert to UDType
-* @tc.type: FUNC
-* @tc.require:entries
-* @tc.author:tarowang
-*/
+ * @tc.name: EntryTest003
+ * @tc.desc: convert to UDType
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tc.author:tarowang
+ */
 HWTEST_F(PasteDataEntryTest, EntryTest003, TestSize.Level0)
 {
     CommonUtils utils;

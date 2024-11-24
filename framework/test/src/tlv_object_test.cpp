@@ -1,17 +1,17 @@
 /*
-* Copyright (c) 2022-2023 Huawei Device Co., Ltd.
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <gtest/gtest.h>
 
@@ -32,13 +32,13 @@ public:
     static std::shared_ptr<PasteDataRecord> GenRecord(std::uint32_t index);
 };
 
-void TLVObjectTest::SetUpTestCase(void) {}
+void TLVObjectTest::SetUpTestCase(void) { }
 
-void TLVObjectTest::TearDownTestCase(void) {}
+void TLVObjectTest::TearDownTestCase(void) { }
 
-void TLVObjectTest::SetUp(void) {}
+void TLVObjectTest::SetUp(void) { }
 
-void TLVObjectTest::TearDown(void) {}
+void TLVObjectTest::TearDown(void) { }
 
 std::shared_ptr<PasteDataRecord> TLVObjectTest::GenRecord(std::uint32_t index)
 {
@@ -57,12 +57,12 @@ std::shared_ptr<PasteDataRecord> TLVObjectTest::GenRecord(std::uint32_t index)
 }
 
 /**
-* @tc.name: TLVOjbectTest001
-* @tc.desc: test tlv coder.
-* @tc.type: FUNC
-* @tc.require:AR000H5I1D
-* @tc.author: baoyayong
-*/
+ * @tc.name: TLVOjbectTest001
+ * @tc.desc: test tlv coder.
+ * @tc.type: FUNC
+ * @tc.require:AR000H5I1D
+ * @tc.author: baoyayong
+ */
 HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
 {
     PasteData pasteData1;
@@ -91,12 +91,12 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
 }
 
 /**
-* @tc.name: TLVOjbectTest002
-* @tc.desc: test tlv coder.
-* @tc.type: FUNC
-* @tc.require:AR000H5I1D
-* @tc.author: baoyayong
-*/
+ * @tc.name: TLVOjbectTest002
+ * @tc.desc: test tlv coder.
+ * @tc.type: FUNC
+ * @tc.require:AR000H5I1D
+ * @tc.author: baoyayong
+ */
 HWTEST_F(TLVObjectTest, TLVOjbectTest002, TestSize.Level0)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
@@ -121,12 +121,12 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest002, TestSize.Level0)
 }
 
 /**
-* @tc.name: TLVOjbectTest003
-* @tc.desc: test tlv coder map.
-* @tc.type: FUNC
-* @tc.require:AR000H5I1D
-* @tc.author: baoyayong
-*/
+ * @tc.name: TLVOjbectTest003
+ * @tc.desc: test tlv coder map.
+ * @tc.type: FUNC
+ * @tc.require:AR000H5I1D
+ * @tc.author: baoyayong
+ */
 HWTEST_F(TLVObjectTest, TLVOjbectTest003, TestSize.Level0)
 {
     std::string plainText = "plain text";
