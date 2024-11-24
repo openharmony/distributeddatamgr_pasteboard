@@ -1292,7 +1292,11 @@ std::vector<std::string> PasteboardService::GetMimeTypes()
         auto userId = GetCurrentAccountId();
         auto event = GetValidDistributeEvent(userId);
         if (event.first) {
-            return PasteboardUtils::GetInstance().DeduplicateVector(event.second.dataType);
+            PasteData data;
+            int32_t syncTime = 0;
+            int32_t ret = GetRemoteData(userId, event.second, data, syncTime);
+            PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), {},
+                PASTEBOARD_MODULE_SERVICE, "get remote data failed, ret=%{public}d", ret);
         }
     }
     return PasteboardUtils::GetInstance().DeduplicateVector(GetLocalMimeTypes());
