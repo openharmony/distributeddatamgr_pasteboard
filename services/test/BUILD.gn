@@ -104,6 +104,13 @@ ohos_unittest("PasteboardDialogAbnormalTest") {
   deps = [ "//third_party/googletest:gtest_main" ]
 }
 
+ohos_unittest("PasteboardLinkedListTest") {
+  module_out_path = module_output_path
+  include_dirs = [ "${pasteboard_utils_path}/native/include" ]
+  sources = [ "unittest/src/pasteboard_linked_list_test.cpp" ]
+  external_deps = [ "googletest:gtest_main" ]
+}
+
 ohos_unittest("PasteboardDeduplicateMemoryTest") {
   module_out_path = module_output_path
   include_dirs = [
@@ -141,6 +148,7 @@ group("unittest") {
     ":PasteboardDeduplicateMemoryTest",
     ":PasteboardDialogAbnormalTest",
     ":PasteboardDialogNormalTest",
+    ":PasteboardLinkedListTest",
     ":PasteboardPatternTest",
     ":PasteboardServiceTest",
   ]
