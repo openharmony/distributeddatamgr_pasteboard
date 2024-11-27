@@ -148,10 +148,10 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
             PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, networkId is %{public}.5s", networkId.c_str());
         return;
     }
-    auto it = enabledStatusCache_.Find(udid);
-    if (!it.first || enabledStatus != it.second.second) {
-        auto ret = GetEnabledStatus(networkId);
-        UpdateEnabledStatus(udid, ret);
+    UpdateEnabledStatus(udid, std::make_pair(static_cast<int32_t>(PasteboardError::E_OK), enabledStatus));
+    auto ret = GetEnabledStatus(networkId);
+    if (ret.first == static_cast<int32_t>(PasteboardError::E_OK) && (enabledStatus == ret.second)) {
+        return;
     }
     UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE,
         (enabledStatus == SUPPORT_STATUS) ? UeReporter::SwitchStatus::SWITCH_OPEN
