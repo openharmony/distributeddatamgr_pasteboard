@@ -50,6 +50,7 @@ bool PasteDataRecordNapi::NewInstanceByRecord(
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
         return false;
     }
     obj->value_ = record;
@@ -63,6 +64,7 @@ bool PasteDataRecordNapi::NewHtmlTextRecordInstance(napi_env env, const std::str
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
         return false;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateHtmlTextRecord(text);
@@ -76,6 +78,7 @@ bool PasteDataRecordNapi::NewPlainTextRecordInstance(napi_env env, const std::st
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
         return false;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreatePlainTextRecord(text);
@@ -109,6 +112,7 @@ bool PasteDataRecordNapi::NewUriRecordInstance(napi_env env, const std::string &
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
         return false;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateUriRecord(OHOS::Uri(text));
@@ -127,6 +131,7 @@ bool PasteDataRecordNapi::NewWantRecordInstance(
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
         return false;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateWantRecord(want);
@@ -306,6 +311,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
         PasteDataRecordNapi *obj = nullptr;
         napi_status status = napi_unwrap(env, self, reinterpret_cast<void **>(&obj));
         if (status == napi_ok || obj != nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
             exeContext->obj = obj;
         }
         return napi_ok;
@@ -443,6 +449,7 @@ napi_value PasteDataRecordNapi::GetRecordData(napi_env env, napi_callback_info i
         }
         napi_status status = napi_unwrap(env, self, reinterpret_cast<void **>(&(exeContext->obj)));
         if ((status != napi_ok) || (exeContext->obj == nullptr)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
             return napi_object_expected;
         }
         return napi_ok;

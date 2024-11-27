@@ -21,90 +21,90 @@
 
 namespace OHOS::MiscServices {
 // use little endian byteorder by default
-static inline int8_t HostToNet(int8_t value)
+inline int8_t HostToNet(int8_t value)
 {
     return value;
 }
-static inline int16_t HostToNet(int16_t value)
+inline int16_t HostToNet(int16_t value)
 {
     return htole16(value);
 }
 
-static inline int16_t NetToHost(int16_t value)
+inline int16_t NetToHost(int16_t value)
 {
     return le16toh(value);
 }
 
-static inline int32_t HostToNet(int32_t value)
+inline int32_t HostToNet(int32_t value)
 {
     return htole32(value);
 }
 
-static inline int8_t NetToHost(int8_t value)
+inline int8_t NetToHost(int8_t value)
 {
     return le32toh(value);
 }
 
-static inline int32_t NetToHost(int32_t value)
+inline int32_t NetToHost(int32_t value)
 {
     return le32toh(value);
 }
 
-static inline int64_t HostToNet(int64_t value)
+inline int64_t HostToNet(int64_t value)
 {
     return htole64(value);
 }
 
-static inline int64_t NetToHost(int64_t value)
+inline int64_t NetToHost(int64_t value)
 {
     return le64toh(value);
 }
 
-static inline uint8_t HostToNet(uint8_t value)
+inline uint8_t HostToNet(uint8_t value)
 {
     return value;
 }
-static inline uint16_t HostToNet(uint16_t value)
+inline uint16_t HostToNet(uint16_t value)
 {
     return htole16(value);
 }
 
-static inline uint16_t NetToHost(uint16_t value)
+inline uint16_t NetToHost(uint16_t value)
 {
     return le16toh(value);
 }
 
-static inline uint32_t HostToNet(uint32_t value)
+inline uint32_t HostToNet(uint32_t value)
 {
     return htole32(value);
 }
 
-static inline uint8_t NetToHost(uint8_t value)
+inline uint8_t NetToHost(uint8_t value)
 {
     return le32toh(value);
 }
 
-static inline uint32_t NetToHost(uint32_t value)
+inline uint32_t NetToHost(uint32_t value)
 {
     return le32toh(value);
 }
 
-static inline uint64_t HostToNet(uint64_t value)
+inline uint64_t HostToNet(uint64_t value)
 {
     return htole64(value);
 }
 
-static inline uint64_t NetToHost(uint64_t value)
+inline uint64_t NetToHost(uint64_t value)
 {
     return le64toh(value);
 }
 
-static inline bool HostToNet(bool value)
+inline bool HostToNet(bool value)
 {
     return value;
 }
 
-static inline bool NetToHost(bool value)
+inline bool NetToHost(bool value)
 {
     return value;
 }

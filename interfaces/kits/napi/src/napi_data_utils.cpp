@@ -332,6 +332,10 @@ napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, std::shared_ptr
 napi_status NapiDataUtils::SetValue(napi_env env, const std::shared_ptr<OHOS::AAFwk::Want> &in, napi_value &out)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value <- std::shared_ptr<OHOS::AAFwk::Want>");
+    if (in == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "SetValue in is nullptr");
+        return napi_invalid_arg;
+    }
     out = OHOS::AppExecFwk::WrapWant(env, *in);
     return napi_ok;
 }
