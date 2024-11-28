@@ -17,7 +17,8 @@
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_DEDUPLICATE_MEMORY_H
 
 #include <cstdint>
-#include <list>
+
+#include "pasteboard_linked_list.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -39,7 +40,7 @@ private:
         const T data;
     };
 
-    std::list<MemoryIdentity> memory_;
+    LinkedList<MemoryIdentity> memory_;
     int64_t expirationMS_;
 };
 
@@ -51,7 +52,7 @@ DeduplicateMemory<T>::DeduplicateMemory(int64_t expirationMilliSeconds) : expira
 template <typename T>
 DeduplicateMemory<T>::~DeduplicateMemory()
 {
-    memory_.clear();
+    memory_.Clear();
 }
 
 template <typename T>
@@ -62,19 +63,16 @@ bool DeduplicateMemory<T>::IsDuplicate(const T &data)
         return true;
     }
     int64_t timestamp = GetTimestamp();
-    memory_.push_back(MemoryIdentity({.timestamp = timestamp, .data = data}));
+    memory_.InsertFront(MemoryIdentity({.timestamp = timestamp, .data = data}));
     return false;
 }
 
 template <typename T>
 bool DeduplicateMemory<T>::FindExist(const T &data)
 {
-    for (const MemoryIdentity &item : memory_) {
-        if (item.data == data) {
-            return true;
-        }
-    }
-    return false;
+    return memory_.FindExist([data](const MemoryIdentity &identity) {
+        return identity.data == data;
+    });
 }
 
 template <typename T>
@@ -92,7 +90,7 @@ void DeduplicateMemory<T>::ClearExpiration()
         return;
     }
     int64_t expirationTimestamp = timestamp - expirationMS_;
-    memory_.remove_if([expirationTimestamp](const MemoryIdentity &identity) {
+    memory_.RemoveIf([expirationTimestamp](const MemoryIdentity &identity) {
         return expirationTimestamp > identity.timestamp;
     });
 }
