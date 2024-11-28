@@ -2357,7 +2357,7 @@ bool PasteboardService::SubscribeKeyboardEvent()
     }
     inputEventCallback_ = std::make_shared<InputEventCallback>();
     int32_t monitorId = MMI::InputManager::GetInstance()->AddMonitor(
-        std::static_pointer_cast<MMI::IInputEventConsumer>(inputEventCallback_));
+        std::static_pointer_cast<MMI::IInputEventConsumer>(inputEventCallback_), MMI::HANDLE_EVENT_TYPE_KEY);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor ret is: %{public}d", monitorId);
     return monitorId >= 0;
 }
