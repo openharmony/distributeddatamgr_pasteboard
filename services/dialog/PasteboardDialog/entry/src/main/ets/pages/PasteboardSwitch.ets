@@ -69,7 +69,7 @@ struct PasteboardSwitch {
     start: LengthMetrics.vp(16),
   };
   @State paddingStartNormal: LengthMetrics = LengthMetrics.resource($r('sys.float.margin_left'));
-  @State paddingStartPc: LengthMetrics = LengthMetrics.vp(16);
+  @State paddingStartPc: LengthMetrics = LengthMetrics.vp(24);
   @StorageProp('currentFontSizeScale') @Watch('onFontSizeScaleChange') fontSizeScale: number = 1;
   @State phoneSwitchTextTopMargin: string = '17vp';
   @State phoneSwitchTextBottomMargin: string = '18vp';
