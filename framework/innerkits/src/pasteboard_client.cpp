@@ -43,7 +43,7 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
-constexpr int32_t LOADSA_TIMEOUT_MS = 10000;
+constexpr int32_t LOADSA_TIMEOUT_MS = 4000;
 constexpr int64_t REPORT_DUPLICATE_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
