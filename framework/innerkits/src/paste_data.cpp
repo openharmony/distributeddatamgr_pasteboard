@@ -20,7 +20,6 @@
 #include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_utils.h"
 #include "type_traits"
 
 using namespace std::chrono;
@@ -182,7 +181,7 @@ std::vector<std::string> PasteData::GetMimeTypes()
     for (const auto &item : records_) {
         mimeType.push_back(item->GetMimeType());
     }
-    return PasteboardUtils::GetInstance().DeduplicateVector(mimeType);
+    return mimeType;
 }
 
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
