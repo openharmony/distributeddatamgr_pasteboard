@@ -1704,7 +1704,8 @@ int32_t PasteboardService::SetGlobalShareOption(const std::map<uint32_t, ShareOp
         return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
     }
     for (const auto &[tokenId, shareOption] : globalShareOptions) {
-        globalShareOptions_.InsertOrAssign(tokenId, shareOption);
+        GlobalShareOption option = {.source = MDM, .shareOption = shareOption};
+        globalShareOptions_.InsertOrAssign(tokenId, option);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Set %{public}zu global shareOption.", globalShareOptions.size());
     return ERR_OK;
@@ -1718,7 +1719,7 @@ int32_t PasteboardService::RemoveGlobalShareOption(const std::vector<uint32_t> &
     }
     int32_t count = 0;
     for (const uint32_t &tokenId : tokenIds) {
-        globalShareOptions_.ComputeIfPresent(tokenId, [&count](const uint32_t &key, ShareOption &value) {
+        globalShareOptions_.ComputeIfPresent(tokenId, [&count](const uint32_t &key, GlobalShareOption &value) {
             count++;
             return false;
         });
@@ -1735,15 +1736,15 @@ std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const st
     }
     std::map<uint32_t, ShareOption> result;
     if (tokenIds.empty()) {
-        globalShareOptions_.ForEach([&result](const uint32_t &key, ShareOption &value) {
-            result[key] = value;
+        globalShareOptions_.ForEach([&result](const uint32_t &key, GlobalShareOption &value) {
+            result[key] = value.shareOption;
             return false;
         });
         return result;
     }
     for (const uint32_t &tokenId : tokenIds) {
-        globalShareOptions_.ComputeIfPresent(tokenId, [&result](const uint32_t &key, ShareOption &value) {
-            result[key] = value;
+        globalShareOptions_.ComputeIfPresent(tokenId, [&result](const uint32_t &key, GlobalShareOption &value) {
+            result[key] = value.shareOption;
             return true;
         });
     }
@@ -1759,8 +1760,9 @@ int32_t PasteboardService::SetAppShareOptions(const ShareOption &shareOptions)
         return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
     }
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto isAbsent = globalShareOptions_.ComputeIfAbsent(tokenId, [&shareOptions](const uint32_t &tokenId) {
-        return shareOptions;
+    GlobalShareOption option = {.source = APP, .shareOption = shareOptions};
+    auto isAbsent = globalShareOptions_.ComputeIfAbsent(tokenId, [&option](const uint32_t &tokenId) {
+        return option;
     });
     if (!isAbsent) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Settings already exist, token id: 0x%{public}x.", tokenId);
@@ -1788,10 +1790,23 @@ int32_t PasteboardService::RemoveAppShareOptions()
 void PasteboardService::UpdateShareOption(PasteData &pasteData)
 {
     globalShareOptions_.ComputeIfPresent(
-        pasteData.GetTokenId(), [&pasteData](const uint32_t &tokenId, ShareOption &shareOption) {
-            pasteData.SetShareOption(shareOption);
+        pasteData.GetTokenId(), [&pasteData](const uint32_t &tokenId, GlobalShareOption &option) {
+            pasteData.SetShareOption(option.shareOption);
             return true;
         });
+}
+
+bool PasteboardService::CheckMdmShareOption(PasteData &pasteData)
+{
+    bool result = false;
+    globalShareOptions_.ComputeIfPresent(
+        pasteData.GetTokenId(), [&result](const uint32_t &tokenId, GlobalShareOption &option) {
+            if (option.source == MDM) {
+                result = true;
+            }
+            return true;
+        });
+    return result;
 }
 
 inline bool PasteboardService::IsCallerUidValid()
@@ -2098,8 +2113,10 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     ShareOption shareOpt = data.GetShareOption();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(shareOpt != InApp, false, PASTEBOARD_MODULE_SERVICE,
         "data share option is in app, dataId:%{public}u", data.GetDataId());
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(shareOpt != LocalDevice, false, PASTEBOARD_MODULE_SERVICE,
-        "data share option is local device, dataId:%{public}u", data.GetDataId());
+    if (CheckMdmShareOption(data)) {
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(shareOpt != LocalDevice, false, PASTEBOARD_MODULE_SERVICE,
+            "data share option is local device, dataId:%{public}u", data.GetDataId());
+    }
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!networkId.empty(), false, PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
     auto clipPlugin = GetClipPlugin();
