@@ -688,8 +688,8 @@ napi_value SystemPasteboardNapi::SetAppShareOptions(napi_env env, napi_callback_
         return nullptr;
     }
     if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
-        JSErrorCode::NO_SYSTEM_PERMISSION,
-        "Permission verification failed. A non-system application calls a system API.")) {
+        JSErrorCode::NO_PERMISSION,
+        "Permission verification failed. A non-permission application calls a API.")) {
         return nullptr;
     }
     if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR),
@@ -703,8 +703,8 @@ napi_value SystemPasteboardNapi::RemoveAppShareOptions(napi_env env, napi_callba
 {
     auto result = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     if (CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
-        JSErrorCode::NO_SYSTEM_PERMISSION,
-        "Permission verification failed. A non-system application calls a system API.")) {
+        JSErrorCode::NO_PERMISSION,
+        "Permission verification failed. A non-permission application calls a API.")) {
         return nullptr;
     }
     return nullptr;
