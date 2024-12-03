@@ -2155,38 +2155,72 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.account = AccountManager::GetInstance().GetCurrentAccount();
     event.status = ClipPlugin::EVT_NORMAL;
     event.dataType = data.GetMimeTypes();
+    event.isDelay = data.IsDelayRecord();
+    event.dataId = data.GetDataId();
     currentEvent_ = event;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}u, seqId:%{public}hu, expiration:%{public}" PRIu64,
-        data.GetDataId(), event.seqId, event.expiration);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}u, seqId:%{public}hu, isDelay:%{public}d,"
+        "expiration:%{public}" PRIu64, event.dataId, event.seqId, event.isDelay, event.expiration);
     std::thread thread([this, clipPlugin, event, user, data]() mutable {
-        if (data.IsDelayRecord()) {
-            GetFullDelayPasteData(user, data);
-        }
         GenerateDistributedUri(data);
         std::vector<uint8_t> rawData;
         if (!data.Encode(rawData)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", data.GetDataId(), event.seqId);
-        } else {
-            clipPlugin->SetPasteData(event, rawData);
+                "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
+            return;
         }
+        if (data.IsDelayRecord()) {
+            clipPlugin->RegisterDelayCallback(std::bind(&PasteboardService::GetDistributedDelayData, this,
+                std::placeholders::_1));
+        }
+        clipPlugin->SetPasteData(event, rawData);
     });
     thread.detach();
     return true;
 }
 
-void PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
+std::pair<int32_t, std::vector<uint8_t>> PasteboardService::GetDistributedDelayData(const Event &evt)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}u, seqId:%{public}hu, expiration:%{public}" PRIu64,
+        evt.dataId, evt.seqId, evt.expiration);
+    auto it = clips_.Find(evt.user);
+    auto tmpTime = copyTime_.Find(evt.user);
+    std::vector<uint8_t> rawData;
+    if (!it.first || !tmpTime.first || it.second == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "userId:%{public}d data is out", evt.user);
+        return std::make_pair(static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR), rawData);
+    }
+    auto data = *(it.second);
+    if (evt.dataId != data.GetDataId()) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE,
+            "data is out, current dataId:%{public}d, event dataId:%{public}u", data.GetDataId(), evt.dataId);
+        return std::make_pair(static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR), rawData);
+    }
+    int32_t ret = GetFullDelayPasteData(evt.user, data);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        return std::make_pair(ret, rawData);
+    }
+    GenerateDistributedUri(data);
+    if (!data.Encode(rawData)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", evt.dataId, evt.seqId);
+        return std::make_pair(static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR), rawData);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "size=%{public}zu", rawData.size());
+    return std::make_pair(static_cast<int32_t>(PasteboardError::E_OK), rawData);
+}
+
+int32_t PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, userId is %{public}d", userId);
     auto entryGetter = entryGetters_.Find(userId);
     if (!entryGetter.first) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entry getter is nullptr, userId is %{public}d", userId);
-        return;
+        return static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR);
     }
     auto getter = entryGetter.second;
     if (getter.first == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entry getter is nullptr, dataId is %{public}d", data.GetDataId());
-        return;
+        return static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR);
     }
     for (auto record : data.AllRecords()) {
         if (!record->IsDelayRecord()) {
@@ -2220,6 +2254,7 @@ void PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data)
         value = std::make_shared<PasteData>(data);
         return true;
     });
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 void PasteboardService::GenerateDistributedUri(PasteData &data)

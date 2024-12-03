@@ -65,6 +65,7 @@ enum class PasteboardError : int32_t {
     QUERY_SETTING_NO_DATA_ERROR,
     GET_LOCAL_DEVICE_ID_ERROR,
     LOCAL_SWITCH_NOT_TURNED_ON,
+    DATA_ENCODE_ERROR,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
