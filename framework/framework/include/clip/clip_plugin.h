@@ -35,10 +35,13 @@ public:
         uint16_t seqId = 0;
         uint16_t status = EVT_UNKNOWN;
         int32_t syncTime = 0;
+        uint32_t dataId = 0;
         uint64_t expiration = 0;
+        bool isDelay = false;
         std::string deviceId;
         std::string account;
         std::vector<std::string> dataType;
+
         bool operator==(const GlobalEvent globalEvent)
         {
             return globalEvent.seqId == this->seqId && globalEvent.deviceId == this->deviceId;
@@ -46,11 +49,15 @@ public:
         bool Marshal(json &node) const override;
         bool Unmarshal(const json &node) override;
     };
+
     class Factory {
     public:
         virtual ClipPlugin *Create() = 0;
         virtual bool Destroy(ClipPlugin *) = 0;
     };
+
+    using DelayCallback = std::function<std::pair<int32_t, std::vector<uint8_t>>(GlobalEvent &)>;
+
     static bool RegCreator(const std::string &name, Factory *factory);
     static ClipPlugin *CreatePlugin(const std::string &name);
     static bool DestroyPlugin(const std::string &name, ClipPlugin *plugin);
@@ -63,6 +70,7 @@ public:
     virtual void Clear();
     virtual int32_t PublishServiceState(const std::string &networkId, ServiceStatus status);
     virtual void Clear(int32_t user);
+    virtual void RegisterDelayCallback(const DelayCallback &callback);
 
 private:
     static std::map<std::string, Factory *> factories_;

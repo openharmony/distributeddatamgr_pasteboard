@@ -82,6 +82,11 @@ void ClipPlugin::Clear(int32_t user)
     (void)user;
 }
 
+void ClipPlugin::RegisterDelayCallback(const DelayCallback &callback)
+{
+    (void)callback;
+}
+
 bool ClipPlugin::GlobalEvent::Marshal(Serializable::json &node) const
 {
     bool ret = true;
