@@ -846,7 +846,7 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     if (tempTime.second == curTime) {
         bool isNotify = false;
         clips_.ComputeIfPresent(appInfo.userId, [&data, &isNotify, &isDelayRecordPadding](auto &key, auto &value) {
-            if (value->IsDelayData() || (value->IsDelayRecord() && isDelayRecordPadding)) {
+            if (value->IsDelayData()) {
                 value = std::make_shared<PasteData>(data);
                 isNotify = true;
             }
