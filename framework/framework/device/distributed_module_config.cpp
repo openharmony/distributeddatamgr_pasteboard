@@ -114,6 +114,44 @@ int32_t DistributedModuleConfig::GetEnabledStatus()
     return static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR);
 }
 
+uint32_t DistributedModuleConfig::GetRemoteDeviceMinVersion()
+{
+    uint32_t minVersion = UINT_MAX;
+    uint32_t maxVersion = 0;
+    GetRemoteDeviceVersion(minVersion, maxVersion);
+    return minVersion;
+}
+
+uint32_t DistributedModuleConfig::GetRemoteDeviceMaxVersion()
+{
+    uint32_t minVersion = UINT_MAX;
+    uint32_t maxVersion = 0;
+    GetRemoteDeviceVersion(minVersion, maxVersion);
+    return maxVersion;
+}
+
+void DistributedModuleConfig::GetRemoteDeviceVersion(uint32_t &minVersion, uint32_t &maxVersion)
+{
+    minVersion = UINT_MAX;
+    maxVersion = 0;
+
+    const auto &networkIds = DMAdapter::GetInstance().GetNetworkIds();
+    for (const auto &networkId : networkIds) {
+        auto res = DevProfile::GetInstance().GetEnabledStatus(networkId);
+        if (res.first != static_cast<int32_t>(PasteboardError::E_OK) || res.second != SUPPORT_STATUS) {
+            continue;
+        }
+
+        uint32_t deviceVersion = 0;
+        if (!DevProfile::GetInstance().GetRemoteDeviceVersion(networkId, deviceVersion)) {
+            continue;
+        }
+
+        minVersion = minVersion < deviceVersion ? minVersion : deviceVersion;
+        maxVersion = maxVersion > deviceVersion ? maxVersion : deviceVersion;
+    }
+}
+
 void DistributedModuleConfig::Online(const std::string &device)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));

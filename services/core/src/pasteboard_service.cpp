@@ -2161,6 +2161,11 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}u, seqId:%{public}hu, isDelay:%{public}d,"
         "expiration:%{public}" PRIu64, event.dataId, event.seqId, event.isDelay, event.expiration);
     std::thread thread([this, clipPlugin, event, user, data]() mutable {
+        bool needFull = data.IsDelayRecord() && moduleConfig_.GetRemoteDeviceMinVersion() == DevProfile::FIRST_VERSION;
+        if (needFull) {
+            GetFullDelayPasteData(user, data);
+            event.isDelay = false;
+        }
         GenerateDistributedUri(data);
         std::vector<uint8_t> rawData;
         if (!data.Encode(rawData)) {
@@ -2168,7 +2173,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
                 "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
             return;
         }
-        if (data.IsDelayRecord()) {
+        if (data.IsDelayRecord() && !needFull) {
             clipPlugin->RegisterDelayCallback(std::bind(&PasteboardService::GetDistributedDelayData, this,
                 std::placeholders::_1));
         }
@@ -2192,7 +2197,7 @@ std::pair<int32_t, std::vector<uint8_t>> PasteboardService::GetDistributedDelayD
     auto data = *(it.second);
     if (evt.dataId != data.GetDataId()) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE,
-            "data is out, current dataId:%{public}d, event dataId:%{public}u", data.GetDataId(), evt.dataId);
+            "data is out, current dataId:%{public}u, event dataId:%{public}u", data.GetDataId(), evt.dataId);
         return std::make_pair(static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR), rawData);
     }
     int32_t ret = GetFullDelayPasteData(evt.user, data);
