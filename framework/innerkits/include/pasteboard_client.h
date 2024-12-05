@@ -25,6 +25,7 @@
 #include "paste_data_record.h"
 #include "pasteboard_delay_getter.h"
 #include "pasteboard_observer.h"
+#include "pasteboard_progress_signal.h"
 #include "unified_data.h"
 #include "want.h"
 
@@ -39,6 +40,34 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(PasteboardSaDeathRecipient);
 };
+
+enum FileConflictOption {
+    FILE_OVERWRITE = 0,
+    FILE_SKIP = 1,
+    FILE_RENAME = 2
+};
+
+enum ProgressIndicator {
+    NONE_PROGRESS_INDICATOR = 0,
+    DEFAULI_PROGRESS_INDICATOR = 1
+};
+
+struct ProgressInfo {
+    int percentage;
+};
+
+struct ProgressListener {
+    void (*ProgressNotify)(std::shared_ptr<ProgressInfo> progressInfo);
+};
+
+struct GetDataParams {
+    std::string destUri;
+    enum FileConflictOption fileConflictOption;
+    enum ProgressIndicator progressIndicator;
+    struct ProgressListener listener;
+    std::shared_ptr<ProgressSignalClient> progressSignal;
+};
+
 class API_EXPORT PasteboardClient : public DelayedSingleton<PasteboardClient> {
     DECLARE_DELAYED_SINGLETON(PasteboardClient);
 
@@ -417,12 +446,31 @@ public:
  */
     void PasteComplete(const std::string &deviceId, const std::string &pasteId);
 
+    /**
+ * GetDataWithProgress
+ * @descrition Get pastedata from the system pasteboard with system progress indicator.
+ * @param pasteData the object of the PasteData.
+ * @param params - Indicates the {@link GetDataParams}.
+ * @returns int32_t
+ */
+    int32_t GetDataWithProgress(PasteData &pasteData, std::shared_ptr<GetDataParams> params);
+
+    /**
+ * GetUnifiedDataWithProgress
+ * @descrition Get pastedata from the system pasteboard with system progress indicator.
+ * @param unifiedData - the object of the PasteData.
+ * @param params - Indicates the {@link GetDataParams}.
+ * @returns int32_t
+ */
+    int32_t GetUnifiedDataWithProgress(UDMF::UnifiedData &unifiedData, std::shared_ptr<GetDataParams> params);
+
 private:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void RetainUri(PasteData &pasteData);
     static void SplitWebviewPasteData(PasteData &pasteData);
     static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
+    int32_t GetPasteDataFromService(PasteData &pasteData, std::string currentPid, std::string currentId, pid_t pid);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;
@@ -447,6 +495,7 @@ private:
     static StaticDestoryMonitor staticDestoryMonitor_;
     void RebuildWebviewPasteData(PasteData &pasteData);
     void Init();
+    static void CopyFile(std::shared_ptr<GetDataParams> params);
 };
 } // namespace MiscServices
 } // namespace OHOS

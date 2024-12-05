@@ -56,6 +56,7 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_entry_getter.cpp",
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
+    "src/pasteboard_progress_signal.cpp",
     "src/pasteboard_utils.cpp",
     "src/pasteboard_web_controller.cpp",
   ]
