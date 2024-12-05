@@ -40,6 +40,8 @@ using namespace OHOS::Security::AccessToken;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
 constexpr const uint16_t EACH_LINE_LENGTH = 50;
 constexpr const uint16_t TOTAL_LENGTH = 500;
+constexpr const int32_t INVALID_SHARE_OPTION = 2;
+constexpr const int32_t EDM_UID = 3057;
 const uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
 std::string g_webviewPastedataTag = "WebviewPasteDataTag";
 class PasteboardServiceTest : public testing::Test {
@@ -50,7 +52,7 @@ public:
     void TearDown();
     static bool ExecuteCmd(std::string &result);
 
-    static void AllocTestTokenId();
+    static void AllocTestAppTokenId();
     static void DeleteTestTokenId();
     static void RestoreSelfTokenId();
     static void CommonTest(PasteData &oldPasteData, PasteData &newPasteData);
@@ -59,19 +61,19 @@ public:
     static std::atomic_bool pasteboardChangedFlag_;
     static std::atomic_int32_t pasteboardEventStatus_;
     static uint64_t selfTokenId_;
-    static AccessTokenID testTokenId_;
+    static AccessTokenID testAppTokenId_;
 };
 std::atomic_bool PasteboardServiceTest::pasteboardChangedFlag_ = false;
 std::atomic_int32_t PasteboardServiceTest::pasteboardEventStatus_ = -1;
 sptr<PasteboardObserver> PasteboardServiceTest::pasteboardObserver_ = nullptr;
 sptr<PasteboardObserver> PasteboardServiceTest::pasteboardEventObserver_ = nullptr;
 uint64_t PasteboardServiceTest::selfTokenId_ = 0;
-AccessTokenID PasteboardServiceTest::testTokenId_ = 0;
+AccessTokenID PasteboardServiceTest::testAppTokenId_ = 0;
 
 void PasteboardServiceTest::SetUpTestCase(void)
 {
     selfTokenId_ = GetSelfTokenID();
-    AllocTestTokenId();
+    AllocTestAppTokenId();
 }
 
 void PasteboardServiceTest::TearDownTestCase(void)
@@ -128,19 +130,13 @@ bool PasteboardServiceTest::ExecuteCmd(std::string &result)
     return true;
 }
 
-void PasteboardServiceTest::AllocTestTokenId()
+void PasteboardServiceTest::AllocTestAppTokenId()
 {
-    std::vector<int32_t> ids;
-    auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
-    if (ret != ERR_OK || ids.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode = %{public}d", ret);
-        return;
-    }
-    HapInfoParams infoParams = { .userID = ids[0],
+    HapInfoParams infoParams = { .userID = EDM_UID,
         .bundleName = "ohos.privacy_test.pasteboard",
         .instIndex = 0,
         .appIDDesc = "privacy_test.pasteboard" };
-    PermissionStateFull testState = { .permissionName = "ohos.permission.DUMP",
+    PermissionStateFull testState = { .permissionName = "ohos.permission.MANAGE_PASTEBOARD_APP_SHARE_OPTION",
         .isGeneral = true,
         .resDeviceID = { "local" },
         .grantStatus = { PermissionState::PERMISSION_GRANTED },
@@ -151,15 +147,15 @@ void PasteboardServiceTest::AllocTestTokenId()
         .permStateList = { testState } };
 
     AccessTokenKit::AllocHapToken(infoParams, policyParams);
-    testTokenId_ = Security::AccessToken::AccessTokenKit::GetHapTokenID(
+    testAppTokenId_ = Security::AccessToken::AccessTokenKit::GetHapTokenID(
         infoParams.userID, infoParams.bundleName, infoParams.instIndex);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "userID = %{public}d, testTokenId = 0x%{public}x.", infoParams.userID,
-        testTokenId_);
+        testAppTokenId_);
 }
 
 void PasteboardServiceTest::DeleteTestTokenId()
 {
-    AccessTokenKit::DeleteToken(testTokenId_);
+    AccessTokenKit::DeleteToken(testAppTokenId_);
 }
 
 void PasteboardServiceTest::RestoreSelfTokenId()
@@ -1347,9 +1343,12 @@ HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
 */
 HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
 {
-    uint64_t tempTokenID = testTokenId_ | SYSTEM_APP_MASK;
+    uint64_t tempTokenID = testAppTokenId_ | SYSTEM_APP_MASK;
     auto result = SetSelfTokenID(tempTokenID);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "testTokenId= 0x%{public}x, ret= %{public}d!", testTokenId_, result);
+    AccessTokenKit::GrantPermission(
+        tempTokenID, "ohos.permission.MANAGE_PASTEBOARD_APP_SHARE_OPTION", PERMISSION_USER_SET);
+    PASTEBOARD_HILOGD(
+        PASTEBOARD_MODULE_SERVICE, "testTokenId= 0x%{public}x, ret= %{public}d!", testAppTokenId_, result);
     ShareOption setting = ShareOption::InApp;
     int32_t ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
     EXPECT_TRUE(ret == 0);
@@ -1357,19 +1356,29 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
     EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR));
     ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_TRUE(ret == 0);
-
-    setting = ShareOption::LocalDevice;
-    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
+    ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_TRUE(ret == 0);
+
+    setting = static_cast<ShareOption>(INVALID_SHARE_OPTION);
+    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+
+    setuid(EDM_UID);
+    std::map<uint32_t, ShareOption> globalShareOptions;
+    setting = ShareOption::InApp;
+    globalShareOptions.insert({tempTokenID, setting});
+    PasteboardClient::GetInstance()->SetGlobalShareOption(globalShareOptions);
     ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
     EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR));
     ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_TRUE(ret == 0);
+    std::vector<uint32_t> tokenIds;
+    tokenIds.push_back(tempTokenID);
+    PasteboardClient::GetInstance()->RemoveGlobalShareOption(tokenIds);
 
     ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
     EXPECT_TRUE(ret == 0);
-    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR));
+    PasteboardClient::GetInstance()->SetGlobalShareOption(globalShareOptions);
     ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_TRUE(ret == 0);
     PasteboardServiceTest::RestoreSelfTokenId();
