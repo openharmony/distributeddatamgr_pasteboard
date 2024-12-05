@@ -68,6 +68,7 @@ public:
 
     bool isConvertUriFromRemote = false;
     std::string GetMimeType() const;
+    std::set<std::string> GetMimeTypes() const;
     std::shared_ptr<std::string> GetHtmlText() const;
     std::shared_ptr<std::string> GetPlainText() const;
     std::shared_ptr<OHOS::Media::PixelMap> GetPixelMap() const;
@@ -146,7 +147,6 @@ private:
     std::string GetPassUri();
     void AddUriEntry();
     std::set<std::string> GetUdtTypes() const;
-    std::set<std::string> GetMimeTypes() const;
 
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;

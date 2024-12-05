@@ -483,6 +483,47 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetMimeTypes003, TestSize.Level1)
 }
 
 /**
+ * @tc.name: OH_Pasteboard_GetMimeTypes004
+ * @tc.desc: OH_Pasteboard_GetMimeTypes test multi Mime types
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetMimeTypes004, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    ASSERT_TRUE(pasteboard);
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    ASSERT_TRUE(setData);
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    ASSERT_TRUE(record);
+
+    OH_UdsPlainText* plainText = OH_UdsPlainText_Create();
+    ASSERT_TRUE(plainText);
+    char content[] = "hello world";
+    OH_UdsPlainText_SetContent(plainText, content);
+
+    OH_UdsHtml* htmlText = OH_UdsHtml_Create();
+    ASSERT_TRUE(htmlText);
+    char html[] = "<div class='disabled'>hello</div>";
+    OH_UdsHtml_SetContent(htmlText, html);
+    
+    OH_UdmfRecord_AddPlainText(record, plainText);
+    OH_UdmfRecord_AddHtml(record, htmlText);
+    OH_UdmfData_AddRecord(setData, record);
+
+    OH_Pasteboard_SetData(pasteboard, setData);
+
+    unsigned int count = 1000;
+    char** res = OH_Pasteboard_GetMimeTypes(pasteboard, &count);
+    EXPECT_EQ(2, count);
+    EXPECT_TRUE(res != nullptr);
+    EXPECT_TRUE((strcmp(MIMETYPE_TEXT_PLAIN, res[0]) == 0 && strcmp(MIMETYPE_TEXT_HTML, res[1]) == 0) ||
+        (strcmp(MIMETYPE_TEXT_PLAIN, res[1]) == 0 && strcmp(MIMETYPE_TEXT_HTML, res[0]) == 0));
+
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
  * @tc.name: OH_Pasteboard_HasType001
  * @tc.desc: OH_Pasteboard_HasType test valid
  * @tc.type: FUNC
@@ -504,6 +545,92 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_HasType001, TestSize.Level1)
     bool res = OH_Pasteboard_HasType(pasteboard, type);
     EXPECT_FALSE(res);
     
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_HasType002
+ * @tc.desc: OH_Pasteboard_HasType test mutil entry
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_HasType002, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    ASSERT_TRUE(pasteboard);
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    ASSERT_TRUE(setData);
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    ASSERT_TRUE(record);
+
+    OH_UdsPlainText* plainText = OH_UdsPlainText_Create();
+    ASSERT_TRUE(plainText);
+    char content[] = "hello world";
+    OH_UdsPlainText_SetContent(plainText, content);
+
+    OH_UdsHtml* htmlText = OH_UdsHtml_Create();
+    ASSERT_TRUE(htmlText);
+    char html[] = "<div class='disabled'>hello</div>";
+    OH_UdsHtml_SetContent(htmlText, html);
+    
+    OH_UdmfRecord_AddPlainText(record, plainText);
+    OH_UdmfRecord_AddHtml(record, htmlText);
+    OH_UdmfData_AddRecord(setData, record);
+
+    OH_Pasteboard_SetData(pasteboard, setData);
+
+    bool res = OH_Pasteboard_HasType(pasteboard, "text/plain");
+    EXPECT_TRUE(res);
+
+    res = OH_Pasteboard_HasType(pasteboard, "text/html");
+    EXPECT_TRUE(res);
+
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_UdmfData_HasType001
+ * @tc.desc: OH_UdmfData_HasType test mutil entry
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_UdmfData_HasType001, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    ASSERT_TRUE(pasteboard);
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    ASSERT_TRUE(setData);
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    ASSERT_TRUE(record);
+
+    OH_UdsPlainText* plainText = OH_UdsPlainText_Create();
+    ASSERT_TRUE(plainText);
+    char content[] = "hello world";
+    OH_UdsPlainText_SetContent(plainText, content);
+
+    OH_UdsHtml* htmlText = OH_UdsHtml_Create();
+    ASSERT_TRUE(htmlText);
+    char html[] = "<div class='disabled'>hello</div>";
+    OH_UdsHtml_SetContent(htmlText, html);
+    
+    OH_UdmfRecord_AddPlainText(record, plainText);
+    OH_UdmfRecord_AddHtml(record, htmlText);
+    OH_UdmfData_AddRecord(setData, record);
+
+    OH_Pasteboard_SetData(pasteboard, setData);
+
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetData(pasteboard, &status);
+    EXPECT_TRUE(status == 0);
+
+    char type[] = "general.plain-text";
+    bool res = OH_UdmfData_HasType(getData, type);
+    EXPECT_TRUE(res);
+
+    char type2[] = "general.html";
+    res = OH_UdmfData_HasType(getData, type2);
+    EXPECT_TRUE(res);
+
     OH_Pasteboard_Destroy(pasteboard);
 }
 
