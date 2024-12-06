@@ -29,7 +29,7 @@ namespace OHOS::MiscServices {
 const constexpr char *SETTING_COLUMN_KEYWORD = "KEYWORD";
 const constexpr char *SETTING_COLUMN_VALUE = "VALUE";
 const constexpr char *SETTING_URI_PROXY = "datashare:///com.ohos.settingsdata/entry/settingsdata/"
-                                          "SETTINGSDATA?Proxy=true";
+                                          "USER_SETTINGSDATA_SECURE_100?Proxy=true";
 constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
