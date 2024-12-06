@@ -107,6 +107,7 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::QUERY_SETTING_NO_DATA_ERROR, "QUERY_SETTING_NO_DATA_ERROR"},
     {PasteboardError::GET_LOCAL_DEVICE_ID_ERROR, "GET_LOCAL_DEVICE_ID_ERROR"},
     {PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON, "LOCAL_SWITCH_NOT_TURNED_ON"},
+    {PasteboardError::DATA_ENCODE_ERROR, "DATA_ENCODE_ERROR"},
 };
 
 } // namespace MiscServices
