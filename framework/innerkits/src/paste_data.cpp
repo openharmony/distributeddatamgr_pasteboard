@@ -177,11 +177,12 @@ void PasteData::AddRecord(PasteDataRecord &record)
 
 std::vector<std::string> PasteData::GetMimeTypes()
 {
-    std::vector<std::string> mimeType;
+    std::set<std::string> mimeTypes;
     for (const auto &item : records_) {
-        mimeType.push_back(item->GetMimeType());
+        auto itemTypes = item->GetMimeTypes();
+        mimeTypes.insert(itemTypes.begin(), itemTypes.end());
     }
-    return mimeType;
+    return std::vector<std::string>(mimeTypes.begin(), mimeTypes.end());
 }
 
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
@@ -306,7 +307,8 @@ bool PasteData::ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRec
 bool PasteData::HasMimeType(const std::string &mimeType)
 {
     for (auto &item : records_) {
-        if (item->GetMimeType() == mimeType) {
+        auto itemTypes = item->GetMimeTypes();
+        if (itemTypes.find(mimeType) != itemTypes.end()) {
             return true;
         }
     }

@@ -44,7 +44,6 @@
 #include "pasteboard_event_ue.h"
 #include "pasteboard_service.h"
 #include "pasteboard_trace.h"
-#include "pasteboard_utils.h"
 #include "remote_file_share.h"
 #include "reporter.h"
 #include "screenlock_manager.h"
@@ -1301,7 +1300,7 @@ std::vector<std::string> PasteboardService::GetMimeTypes()
                 PASTEBOARD_MODULE_SERVICE, "get remote data failed, ret=%{public}d", ret);
         }
     }
-    return PasteboardUtils::GetInstance().DeduplicateVector(GetLocalMimeTypes());
+    return GetLocalMimeTypes();
 }
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
