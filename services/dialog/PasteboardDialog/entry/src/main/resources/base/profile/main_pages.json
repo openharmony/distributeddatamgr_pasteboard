@@ -1,5 +1,6 @@
 {
   "src": [
-    "pages/PasteboardSwitch"
+    "pages/PasteboardSwitch",
+    "pages/PasteboardProgress"
   ]
 }

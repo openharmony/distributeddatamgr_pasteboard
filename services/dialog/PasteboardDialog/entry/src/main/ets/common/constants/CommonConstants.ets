@@ -59,3 +59,17 @@ export enum FontSizeScale {
   XXL2 = 2,
   XXL3 = 3.2,
 }
+
+export enum ProgressPromptText {
+  PromptText_PasteBoard_Remote = 'prompttext_pasteboard_remote',
+  PromptText_PasteBoard_Local = 'prompttext_pasteboard_local',
+}
+
+export enum ProgressErrorPromptText {
+  PromptText_PasteBoard_Remote = 'prompttext_pasteboard_error',
+  PromptText_PasteBoard_Local = 'prompttext_pasteboard_error',
+}
+
+export enum SignalKey {
+  CANCEL_PROGRESS_TASK = '1'
+}
