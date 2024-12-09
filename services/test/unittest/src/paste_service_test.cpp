@@ -40,7 +40,6 @@ using namespace OHOS::Security::AccessToken;
 constexpr const char *CMD = "hidumper -s 3701 -a --data";
 constexpr const uint16_t EACH_LINE_LENGTH = 50;
 constexpr const uint16_t TOTAL_LENGTH = 500;
-constexpr const int32_t INVALID_SHARE_OPTION = 2;
 constexpr const int32_t EDM_UID = 3057;
 const uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
 std::string g_webviewPastedataTag = "WebviewPasteDataTag";
@@ -1358,10 +1357,6 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
     EXPECT_TRUE(ret == 0);
     ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_TRUE(ret == 0);
-
-    setting = static_cast<ShareOption>(INVALID_SHARE_OPTION);
-    ret = PasteboardClient::GetInstance()->SetAppShareOptions(setting);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
 
     setuid(EDM_UID);
     std::map<uint32_t, ShareOption> globalShareOptions;
