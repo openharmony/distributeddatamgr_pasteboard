@@ -66,6 +66,12 @@ enum class PasteboardError : int32_t {
     GET_LOCAL_DEVICE_ID_ERROR,
     LOCAL_SWITCH_NOT_TURNED_ON,
     DATA_ENCODE_ERROR,
+    NO_DELAY_GETTER,
+    PLUGIN_IS_NULL,
+    PLUGIN_EVENT_EMPTY,
+    GET_LOCAL_DATA,
+    INVALID_EVENT_ACCOUNT,
+    INVALID_EVENT_STATUS,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -108,6 +114,12 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::GET_LOCAL_DEVICE_ID_ERROR, "GET_LOCAL_DEVICE_ID_ERROR"},
     {PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON, "LOCAL_SWITCH_NOT_TURNED_ON"},
     {PasteboardError::DATA_ENCODE_ERROR, "DATA_ENCODE_ERROR"},
+    {PasteboardError::NO_DELAY_GETTER, "NO_DELAY_GETTER"},
+    {PasteboardError::PLUGIN_IS_NULL, "PLUGIN_IS_NULL"},
+    {PasteboardError::PLUGIN_EVENT_EMPTY, "PLUGIN_EVENT_EMPTY"},
+    {PasteboardError::GET_LOCAL_DATA, "GET_LOCAL_DATA"},
+    {PasteboardError::INVALID_EVENT_ACCOUNT, "INVALID_EVENT_ACCOUNT"},
+    {PasteboardError::INVALID_EVENT_STATUS, "INVALID_EVENT_STATUS"},
 };
 
 } // namespace MiscServices
