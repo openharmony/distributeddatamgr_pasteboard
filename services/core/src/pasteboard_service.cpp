@@ -1754,15 +1754,18 @@ std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const st
 
 int32_t PasteboardService::SetAppShareOptions(const ShareOption &shareOptions)
 {
-    if (shareOptions != InApp) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "param is invalid");
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-    }
+    auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto isManageGrant = IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION, tokenId);
-    if (!isManageGrant) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "No permission, token id: 0x%{public}x.", tokenId);
-        return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
+    if (!OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(fullTokenId)) {
+        if (shareOptions != InApp) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "param is invalid");
+            return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+        }
+        auto isManageGrant = IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION, tokenId);
+        if (!isManageGrant) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "No permission, token id: 0x%{public}x.", tokenId);
+            return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
+        }
     }
     GlobalShareOption option = {.source = APP, .shareOption = shareOptions};
     auto isAbsent = globalShareOptions_.ComputeIfAbsent(tokenId, [&option](const uint32_t &tokenId) {
@@ -1779,11 +1782,14 @@ int32_t PasteboardService::SetAppShareOptions(const ShareOption &shareOptions)
 
 int32_t PasteboardService::RemoveAppShareOptions()
 {
+    auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto isManageGrant = IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION, tokenId);
-    if (!isManageGrant) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "No permission, token id: 0x%{public}x.", tokenId);
-        return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
+    if (!OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(fullTokenId)) {
+        auto isManageGrant = IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION, tokenId);
+        if (!isManageGrant) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "No permission, token id: 0x%{public}x.", tokenId);
+            return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
+        }
     }
     std::map<uint32_t, GlobalShareOption> result;
     globalShareOptions_.ComputeIfPresent(tokenId, [&result](const uint32_t &key, GlobalShareOption &value) {
