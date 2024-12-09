@@ -69,6 +69,8 @@ PasteboardServiceStub::PasteboardServiceStub()
             &PasteboardServiceStub::OnRegisterClientDeathObserver;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_RECORD_VALUE)] =
         &PasteboardServiceStub::OnGetRecordValueByType;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_MIME_TYPES)] =
+        &PasteboardServiceStub::OnGetMimeTypes;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -342,6 +344,22 @@ int32_t PasteboardServiceStub::OnGetDataSource(MessageParcel &data, MessageParce
         return ERR_INVALID_VALUE;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end, ret is %{public}d.", ret);
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnGetMimeTypes(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<std::string> mimeTypes = GetMimeTypes();
+    if (!reply.WriteUint32(static_cast<uint32_t>(mimeTypes.size()))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write size failed.");
+        return ERR_INVALID_VALUE;
+    }
+    for (const std::string &type : mimeTypes) {
+        if (!reply.WriteString(type)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write mime type failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
     return ERR_OK;
 }
 

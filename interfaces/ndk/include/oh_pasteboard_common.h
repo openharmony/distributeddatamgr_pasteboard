@@ -23,6 +23,8 @@
 
 namespace OHOS {
 namespace MiscServices {
+static constexpr uint32_t MAX_MIMETYPES_NUM = 10000;
+
 const std::map<PasteboardError, PASTEBOARD_ErrCode> errCodeMap = {
     {PasteboardError::PERMISSION_VERIFICATION_ERROR, ERR_PERMISSION_ERROR},
     {PasteboardError::INVALID_PARAM_ERROR, ERR_INVALID_PARAMETER},
@@ -42,6 +44,8 @@ struct OH_Pasteboard {
     const int64_t cid = PASTEBOARD_STRUCT_ID;
     std::mutex mutex;
     std::map<const OH_PasteboardObserver*, OHOS::sptr<OHOS::MiscServices::PasteboardObserverCapiImpl>> observers_;
+    std::vector<std::string> mimeTypes_;
+    char **mimeTypesPtr = nullptr;
 };
 
 /** @} */

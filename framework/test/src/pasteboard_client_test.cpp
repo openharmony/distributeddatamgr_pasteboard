@@ -83,6 +83,125 @@ HWTEST_F(PasteboardClientTest, IsRemoteData002, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetMimeTypes001
+ * @tc.desc: get data type is empty.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetMimeTypes001, TestSize.Level0)
+{
+    PasteboardClient::GetInstance()->Clear();
+    std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
+    ASSERT_EQ(0, mimeTypes.size());
+}
+
+/**
+ * @tc.name: GetMimeTypes002
+ * @tc.desc: get data type is MIMETYPE_TEXT_PLAIN.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetMimeTypes002, TestSize.Level0)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(newData);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
+    ASSERT_EQ(1, mimeTypes.size());
+    ASSERT_EQ(MIMETYPE_TEXT_PLAIN, mimeTypes[0]);
+}
+
+/**
+ * @tc.name: GetMimeTypes003
+ * @tc.desc: data type is MIMETYPE_TEXT_HTML.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetMimeTypes003, TestSize.Level0)
+{
+    std::string htmlText = "<div class='disable'>helloWorld</div>";
+    auto newPasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(newPasteData);
+    PasteboardClient::GetInstance()->SetPasteData(*newPasteData);
+    std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
+    ASSERT_EQ(1, mimeTypes.size());
+    ASSERT_EQ(MIMETYPE_TEXT_HTML, mimeTypes[0]);
+}
+
+/**
+ * @tc.name: GetMimeTypes004
+ * @tc.desc: data type is MIMETYPE_TEXT_URI.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetMimeTypes004, TestSize.Level0)
+{
+    OHOS::Uri uri("uri");
+    auto newPasteData = PasteboardClient::GetInstance()->CreateUriData(uri);
+    ASSERT_TRUE(newPasteData);
+    PasteboardClient::GetInstance()->SetPasteData(*newPasteData);
+    std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
+    ASSERT_EQ(1, mimeTypes.size());
+    ASSERT_EQ(MIMETYPE_TEXT_URI, mimeTypes[0]);
+}
+
+/**
+ * @tc.name: GetMimeTypes005
+ * @tc.desc: get multi data types.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetMimeTypes005, TestSize.Level0)
+{
+    PasteData data;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    std::string uriStr = "/data/test/resource/pasteboardTest.txt";
+    auto uri = std::make_shared<OHOS::Uri>(uriStr);
+    auto record = builder.SetUri(uri).Build();
+    data.AddRecord(*record);
+
+    using namespace OHOS::AAFwk;
+    std::string plainText = "helloWorld";
+    std::shared_ptr<Want> want = std::make_shared<Want>();
+    std::string key = "id";
+    int32_t id = 456;
+    Want wantIn = want->SetParam(key, id);
+    PasteDataRecord::Builder builder2(MIMETYPE_TEXT_WANT);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder2.SetWant(std::make_shared<Want>(wantIn)).Build();
+    data.AddRecord(pasteDataRecord);
+
+    const uint32_t color[] = {0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80};
+    uint32_t len = sizeof(color) / sizeof(color[0]);
+    Media::InitializationOptions opts;
+    std::shared_ptr<OHOS::Media::PixelMap> pixelMap = Media::PixelMap::Create(color, len, 0, 2, opts);
+    PasteDataRecord::Builder builder3(MIMETYPE_PIXELMAP);
+    auto record3 = builder3.SetPixelMap(pixelMap).Build();
+    data.AddRecord(*record3);
+    PasteDataRecord::Builder builder4(MIMETYPE_TEXT_URI);
+    std::string uriStr4 = "/data/test/resource/pasteboardTest.txt";
+    auto uri4 = std::make_shared<OHOS::Uri>(uriStr4);
+    auto record4 = builder.SetUri(uri4).Build();
+    data.AddRecord(*record4);
+
+    PasteboardClient::GetInstance()->SetPasteData(data);
+    std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
+    ASSERT_EQ(3, mimeTypes.size());
+    std::set<std::string> mimeTypesSet(mimeTypes.begin(), mimeTypes.end());
+    ASSERT_EQ(3, mimeTypesSet.size());
+    for (const std::string &type : mimeTypesSet) {
+        ASSERT_TRUE(MIMETYPE_TEXT_WANT == type ||
+                    MIMETYPE_PIXELMAP == type ||
+                    MIMETYPE_TEXT_URI == type);
+    }
+}
+
+/**
 * @tc.name: HasDataType001
 * @tc.desc: data type is MIMETYPE_TEXT_PLAIN.
 * @tc.type: FUNC

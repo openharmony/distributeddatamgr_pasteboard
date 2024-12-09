@@ -326,6 +326,37 @@ int32_t PasteboardServiceProxy::GetDataSource(std::string &bundleName)
     return reply.ReadInt32();
 }
 
+std::vector<std::string> PasteboardServiceProxy::GetMimeTypes()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return {};
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_MIME_TYPES, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+        return {};
+    }
+    uint32_t size = 0;
+    if (!reply.ReadUint32(size)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read size of mime types");
+        return {};
+    }
+    std::vector<std::string> mimeTypes;
+    for (uint32_t i = 0; i < size; i++) {
+        std::string type;
+        if (!reply.ReadString(type)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read mime type");
+            return {};
+        }
+        mimeTypes.push_back(type);
+    }
+    return mimeTypes;
+}
+
 bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");

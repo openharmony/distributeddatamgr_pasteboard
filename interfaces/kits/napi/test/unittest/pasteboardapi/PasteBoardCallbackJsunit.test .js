@@ -385,10 +385,10 @@ describe('PasteBoardJSTest', function () {
             }
             expect(data.getRecordCount()).assertEqual(4);
             const MimeTypes8 = data.getMimeTypes();
-            expect(MimeTypes8[0]).assertEqual(pasteboard.MIMETYPE_TEXT_WANT);
-            expect(MimeTypes8[1]).assertEqual(pasteboard.MIMETYPE_TEXT_URI);
-            expect(MimeTypes8[2]).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
-            expect(MimeTypes8[3]).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
+            expect(MimeTypes8.length).assertEqual(4);
+            const expectedMimeTypes = new Set([pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_HTML,
+              pasteboard.MIMETYPE_TEXT_URI, pasteboard.MIMETYPE_TEXT_WANT]);
+            expect(Array.from(MimeTypes8).every(type => expectedMimeTypes.has(type))).assertEqual(true);
             done();
           });
         });
