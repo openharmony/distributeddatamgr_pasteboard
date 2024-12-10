@@ -1034,29 +1034,30 @@ int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "uri size: %{public}u, targetBundleName is %{public}s",
         static_cast<uint32_t>(grantUris.size()), targetBundleName.c_str());
+    bool hasGranted = false;
+    int32_t ret = 0;
     size_t offset = 0;
     size_t length = grantUris.size();
     size_t count = MAX_URI_COUNT;
-    bool grantSuccess = true;
     while (length > offset) {
         if (length - offset < MAX_URI_COUNT) {
             count = length - offset;
         }
         auto sendValues = std::vector<Uri>(grantUris.begin() + offset, grantUris.begin() + offset + count);
-        auto permissionCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(
+        int32_t permissionCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(
             sendValues, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
-        if (permissionCode == 0) {
-            std::lock_guard<std::mutex> lock(readBundleMutex_);
-            if (readBundles_.count(targetBundleName) == 0) {
-                readBundles_.insert(targetBundleName);
-            }
-        }
-        grantSuccess = grantSuccess && (permissionCode == 0);
+        hasGranted = hasGranted || (permissionCode == 0);
+        ret = permissionCode == 0 ? ret : permissionCode;
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
         offset += count;
     }
-    return grantSuccess ? static_cast<int32_t>(PasteboardError::E_OK)
-                        : static_cast<int32_t>(PasteboardError::URI_GRANT_ERROR);
+    if (hasGranted) {
+        std::lock_guard<std::mutex> lock(readBundleMutex_);
+        if (readBundles_.count(targetBundleName) == 0) {
+            readBundles_.insert(targetBundleName);
+        }
+    }
+    return ret == 0 ? static_cast<int32_t>(PasteboardError::E_OK) : ret;
 }
 
 void PasteboardService::CheckUriPermission(
@@ -1184,7 +1185,7 @@ bool PasteboardService::HasPasteData()
 
     if (GetCurrentScreenStatus() == ScreenEvent::ScreenUnlocked) {
         auto [distRet, distEvt] = GetValidDistributeEvent(userId);
-        if (distRet) {
+        if (distRet == static_cast<int32_t>(PasteboardError::E_OK)) {
             return true;
         }
     }
