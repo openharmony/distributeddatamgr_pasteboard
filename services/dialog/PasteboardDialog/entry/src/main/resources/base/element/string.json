@@ -38,7 +38,7 @@
         },
         {
             "name":"update_version_prompt",
-            "value":"Both devices must be running HarmonyOS NEXT."
+            "value":"Both devices must be running HarmonyOS NEXT"
         },
         {
             "name":"learn_more",
