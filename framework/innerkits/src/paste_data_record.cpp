@@ -755,6 +755,9 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Begin GetRecordValueByType1");
             PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
         }
+        if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
+            return std::make_shared<PasteDataEntry>(utdType, GetUri()->ToString());
+        }
         return entry;
     }
     for (auto const &entry : entries_) {
@@ -763,6 +766,9 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
             if (isDelay_ && !entry->HasContent(utdType)) {
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Begin GetRecordValueByType2");
                 PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
+            }
+            if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
+                return std::make_shared<PasteDataEntry>(utdType, GetUri()->ToString());
             }
             return entry;
         }
