@@ -16,7 +16,9 @@
 #include <if_system_ability_manager.h>
 #include <ipc_skeleton.h>
 #include <iservice_registry.h>
+#include <algorithm>
 #include <chrono>
+#include <memory>
 #include "convert_utils.h"
 #include "file_uri.h"
 #include "hiview_adapter.h"
@@ -130,6 +132,12 @@ std::shared_ptr<PasteDataRecord> PasteboardClient::CreateKvRecord(
     return PasteDataRecord::NewKvRecord(mimeType, arrayBuffer);
 }
 
+std::shared_ptr<PasteDataRecord> PasteboardClient::CreateMultiDelayRecord(
+    std::vector<std::string> mimeTypes, const std::shared_ptr<UDMF::EntryGetter> entryGetter)
+{
+    return PasteDataRecord::NewMultiTypeDelayRecord(mimeTypes, entryGetter);
+}
+
 std::shared_ptr<PasteData> PasteboardClient::CreateHtmlData(const std::string &htmlText)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New htmlText data");
@@ -176,6 +184,24 @@ std::shared_ptr<PasteData> PasteboardClient::CreateKvData(
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New Kv data");
     auto pasteData = std::make_shared<PasteData>();
     pasteData->AddKvRecord(mimeType, arrayBuffer);
+    return pasteData;
+}
+
+std::shared_ptr<PasteData> PasteboardClient::CreateMultiTypeData(
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap, const std::string &recordMimeType)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New multiType data");
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddRecord(PasteDataRecord::NewMultiTypeRecord(std::move(typeValueMap), recordMimeType));
+    return pasteData;
+}
+
+std::shared_ptr<PasteData> PasteboardClient::CreateMultiTypeDelayData(std::vector<std::string> mimeTypes,
+    std::shared_ptr<UDMF::EntryGetter> entryGetter)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "New multiTypeDelay data");
+    auto pasteData = std::make_shared<PasteData>();
+    pasteData->AddRecord(PasteDataRecord::NewMultiTypeDelayRecord(mimeTypes, entryGetter));
     return pasteData;
 }
 
@@ -271,40 +297,55 @@ int32_t PasteboardClient::GetUdsdData(UDMF::UnifiedData &unifiedData)
     return ret;
 }
 
-void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
+void PasteboardClient::RefreshUri(std::shared_ptr<PasteDataRecord> &record)
 {
-    if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG || pasteData.GetPrimaryHtml() == nullptr) {
+    if (record->GetUri() == nullptr || record->GetFrom() == 0 || record->GetRecordId() == record->GetFrom()) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview one of uri is null or not extra uri.");
         return;
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData start.");
+    std::shared_ptr<Uri> uri = record->GetUri();
+    std::string puri = uri->ToString();
+    std::string realUri = puri;
+    if (puri.substr(0, PasteData::FILE_SCHEME_PREFIX.size()) == PasteData::FILE_SCHEME_PREFIX) {
+        AppFileService::ModuleFileUri::FileUri fileUri(puri);
+        realUri = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RebuildWebview uri is file uri: %{public}s", realUri.c_str());
+    }
+    if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
+        record->SetConvertUri(realUri);
+    } else {
+        record->SetUri(std::make_shared<OHOS::Uri>(realUri));
+    }
+}
+
+void PasteboardClient::RebuildWebviewPasteData(PasteData &pasteData)
+{
+    if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG) {
+        return;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData start.");
+    auto justSplitHtml = false;
     auto details = std::make_shared<Details>();
     std::string textContent;
-    for (auto& item : pasteData.AllRecords()) {
+    for (auto &item : pasteData.AllRecords()) {
+        justSplitHtml = justSplitHtml || item->GetFrom() > 0;
         if (!item->GetTextContent().empty() && textContent.empty()) {
             details = item->GetDetails();
             textContent = item->GetTextContent();
         }
-        if (item->GetUri() == nullptr) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview one of uri is null.");
-            continue;
-        }
-        std::shared_ptr<Uri> uri = item->GetUri();
-        std::string puri = uri->ToString();
-        std::string realUri = puri;
-        if (puri.substr(0, PasteData::FILE_SCHEME_PREFIX.size()) == PasteData::FILE_SCHEME_PREFIX) {
-            AppFileService::ModuleFileUri::FileUri fileUri(puri);
-            realUri = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Rebuild webview uri is file uri.");
-        }
-        if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
-            item->SetConvertUri(realUri);
-        } else {
-            item->SetUri(std::make_shared<OHOS::Uri>(realUri));
-        }
+        RefreshUri(item);
     }
-    auto PasteboardWebController = PasteboardWebController::GetInstance();
+    if (justSplitHtml) {
+        PasteboardWebController::GetInstance().MergeExtraUris2Html(pasteData);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Rebuild webview PasteData end, merged uris into html.");
+        return;
+    }
+    if (pasteData.GetPrimaryHtml() == nullptr) {
+        return;
+    }
+
     auto webData = std::make_shared<PasteData>(pasteData);
-    PasteboardWebController.RebuildHtml(webData);
+    PasteboardWebController::GetInstance().RebuildHtml(webData);
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
     std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(MIMETYPE_TEXT_HTML).
         SetPlainText(pasteData.GetPrimaryText()).SetHtmlText(webData->GetPrimaryHtml()).Build();
@@ -371,16 +412,10 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr <Pa
         pasteData.SetDelayRecord(true);
         entryGetterAgent = new(std::nothrow) PasteboardEntryGetterClient(entryGetters);
     }
-    std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
-    if (html == nullptr) {
-        auto noHtmlRet = proxyService->SetPasteData(pasteData, delayGetterAgent, entryGetterAgent);
-        return noHtmlRet;
-    }
-    auto webData = SplitWebviewPasteData(pasteData);
-    if (webData == nullptr) {
-        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
-    }
-    auto ret = proxyService->SetPasteData(*webData, delayGetterAgent, entryGetterAgent);
+
+    SplitWebviewPasteData(pasteData);
+
+    auto ret = proxyService->SetPasteData(pasteData, delayGetterAgent, entryGetterAgent);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END);
@@ -410,39 +445,36 @@ int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
     return SetPasteData(*pasteData, nullptr, entryGetters);
 }
 
-std::shared_ptr<PasteData> PasteboardClient::SplitWebviewPasteData(PasteData &pasteData)
+void PasteboardClient::SplitWebviewPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData start.");
-    std::shared_ptr<std::string> html = pasteData.GetPrimaryHtml();
-    std::shared_ptr<std::string> primaryText = pasteData.GetPrimaryText();
-    auto PasteboardWebController = PasteboardWebController::GetInstance();
-    std::shared_ptr<PasteData> webPasteData = PasteboardWebController.SplitHtml(html);
-    if (webPasteData == nullptr) {
-        return std::make_shared<PasteData>(pasteData);
-    }
-    webPasteData->SetProperty(pasteData.GetProperty());
-    std::string mimeType = MIMETYPE_TEXT_HTML;
-    PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
-    std::shared_ptr<PasteDataRecord> pasteDataRecord =
-        builder.SetMimeType(mimeType).SetPlainText(primaryText).SetHtmlText(html).Build();
-    if (pasteData.GetRecordAt(0)) {
-        auto details = pasteData.GetRecordAt(0)->GetDetails();
-        auto content = pasteData.GetRecordAt(0)->GetTextContent();
-        if (details) {
-            pasteDataRecord->SetDetails(*details);
+    auto hasExtraRecord = false;
+    for (const auto &record : pasteData.AllRecords()) {
+        auto htmlEntry = record->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+        if (htmlEntry == nullptr) {
+            continue;
         }
-        if (!content.empty()) {
-            pasteDataRecord->SetTextContent(content);
+        std::shared_ptr<std::string> html = htmlEntry->ConvertToHtml();
+        if (html == nullptr || html->empty()) {
+            continue;
         }
+        std::vector<std::shared_ptr<PasteDataRecord>> extraUriRecords =
+                PasteboardWebController::GetInstance().SplitHtml2Records(html, record->GetRecordId());
+        if (extraUriRecords.empty()) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData extraUriRecords is empty.");
+            continue;
+        }
+        hasExtraRecord = true;
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "extraUriRecords number: %{public}zu", extraUriRecords.size());
+        for (const auto &item : extraUriRecords) {
+            pasteData.AddRecord(item);
+        }
+        record->SetFrom(record->GetRecordId());
     }
-    webPasteData->AddRecord(pasteDataRecord);
-    std::size_t recordCnt = webPasteData->GetRecordCount();
-    if (recordCnt >= 1) {
-        webPasteData->RemoveRecordAt(recordCnt - 1);
+    if (hasExtraRecord) {
+        pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
     }
-    webPasteData->SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SplitWebviewPasteData end.");
-    return webPasteData;
 }
 
 void PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)

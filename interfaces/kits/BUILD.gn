@@ -37,6 +37,7 @@ ohos_shared_library("pasteboard_napi") {
 
   sources = [
     "napi/src/async_call.cpp",
+    "napi/src/napi_data_utils.cpp",
     "napi/src/napi_init.cpp",
     "napi/src/napi_pasteboard.cpp",
     "napi/src/napi_pastedata.cpp",
