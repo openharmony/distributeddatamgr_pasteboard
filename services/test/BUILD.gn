@@ -45,26 +45,21 @@ ohos_unittest("PasteboardServiceTest") {
     "unittest/src/dfx_test.cpp",
     "unittest/src/paste_service_test.cpp",
   ]
-  configs = [
-    "//commonlibrary/c_utils/base:utils_config",
-    ":module_private_config",
-  ]
+  configs = [ ":module_private_config" ]
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtoken_setproc",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "image_framework:image_native",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
   ]
 
-  deps = [
-    "${pasteboard_innerkits_path}:pasteboard_client",
-    "//third_party/googletest:gtest_main",
-  ]
+  deps = [ "${pasteboard_innerkits_path}:pasteboard_client" ]
 }
 
 ohos_unittest("PasteboardDialogNormalTest") {
@@ -78,11 +73,11 @@ ohos_unittest("PasteboardDialogNormalTest") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
-  deps = [ "//third_party/googletest:gtest_main" ]
 }
 
 ohos_unittest("PasteboardDialogAbnormalTest") {
@@ -97,11 +92,11 @@ ohos_unittest("PasteboardDialogAbnormalTest") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "c_utils:utils",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
-  deps = [ "//third_party/googletest:gtest_main" ]
 }
 
 ohos_unittest("PasteboardLinkedListTest") {
@@ -133,13 +128,11 @@ ohos_unittest("PasteboardPatternTest") {
   ]
   configs = [ ":module_private_config" ]
   external_deps = [
+    "googletest:gtest_main",
     "hilog:libhilog",
     "libxml2:libxml2",
   ]
-  deps = [
-    "${pasteboard_innerkits_path}:pasteboard_client",
-    "//third_party/googletest:gtest_main",
-  ]
+  deps = [ "${pasteboard_innerkits_path}:pasteboard_client" ]
 }
 
 group("unittest") {
