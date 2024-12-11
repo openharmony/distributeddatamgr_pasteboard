@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef PASTEBOARD_TASK_SIGNAL_H
-#define PASTEBOARD_TASK_SIGNAL_H
+#ifndef PASTEBOARD_PROGRESS_SIGNAL_H
+#define PASTEBOARD_PROGRESS_SIGNAL_H
 
 #include <condition_variable>
 #include <memory>
@@ -46,4 +46,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTEBOARD_TASK_SIGNAL_H
+#endif // PASTEBOARD_PROGRESS_SIGNAL_H

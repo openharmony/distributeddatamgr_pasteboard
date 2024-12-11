@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -223,7 +223,7 @@ private:
     int32_t PreParePasteData(std::shared_ptr<PasteData> &pasteData, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
-    std::pair<bool, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
+    std::pair<int32_t, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string &perm, uint32_t tokenId);
     int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime);

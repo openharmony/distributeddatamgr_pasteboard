@@ -34,7 +34,7 @@ public:
     std::pair<int32_t, std::string> GetEnabledStatus(const std::string &networkId);
     void OnReady();
     void PutEnabledStatus(const std::string &enabledStatus);
-    void GetRemoteDeviceVersion(const std::string &networkId, uint32_t &deviceVersion);
+    bool GetRemoteDeviceVersion(const std::string &networkId, uint32_t &deviceVersion);
     void SubscribeProfileEvent(const std::string &networkId);
     void UnSubscribeProfileEvent(const std::string &networkId);
     void UnsubscribeAllProfileEvents();

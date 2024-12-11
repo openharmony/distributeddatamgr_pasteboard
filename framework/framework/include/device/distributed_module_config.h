@@ -31,6 +31,8 @@ public:
     void Watch(Observer observer);
     void Init();
     void DeInit();
+    uint32_t GetRemoteDeviceMinVersion();
+    uint32_t GetRemoteDeviceMaxVersion();
 
 protected:
     void Online(const std::string &device) override;
@@ -38,6 +40,7 @@ protected:
     void OnReady(const std::string &device) override;
 
 private:
+    void GetRemoteDeviceVersion(uint32_t &minVersion, uint32_t &maxVersion);
     int32_t GetEnabledStatus();
     void Notify();
     void GetRetryTask();

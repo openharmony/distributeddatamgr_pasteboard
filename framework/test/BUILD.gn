@@ -42,8 +42,6 @@ ohos_unittest("PasteboardFrameworkTest") {
   module_out_path = module_output_path
 
   sources = [
-    "${pasteboard_root_path}/framework/framework/clip/clip_plugin.cpp",
-    "${pasteboard_root_path}/framework/framework/clip/default_clip.cpp",
     "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
     "${pasteboard_service_path}/load/src/config.cpp",
     "src/clip_plugin_test.cpp",
@@ -65,20 +63,19 @@ ohos_unittest("PasteboardFrameworkTest") {
     "src/tlv_object_test.cpp",
     "src/web_controller_test.cpp",
   ]
-  configs = [
-    "//commonlibrary/c_utils/base:utils_config",
-    ":module_private_config",
-  ]
+  configs = [ ":module_private_config" ]
   cflags = [ "-fno-access-control" ]
   external_deps = [
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
     "app_file_service:remote_file_share_native",
+    "cJSON:cjson",
     "c_utils:utils",
     "ffrt:libffrt",
+    "googletest:gmock",
+    "googletest:gtest_main",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "image_framework:image_native",
     "init:libbeget_proxy",
     "init:libbegetutil",
@@ -90,8 +87,6 @@ ohos_unittest("PasteboardFrameworkTest") {
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
-    "//third_party/googletest:gmock",
-    "//third_party/googletest:gtest_main",
   ]
 
   defines = []
@@ -108,8 +103,4 @@ ohos_unittest("PasteboardFrameworkTest") {
     external_deps += [ "device_manager:devicemanagersdk" ]
     defines += [ "PB_DEVICE_MANAGER_ENABLE" ]
   }
-
-  configs += [ "//third_party/cJSON:cJSON_config" ]
-
-  deps += [ "//third_party/cJSON:cjson" ]
 }

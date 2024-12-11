@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef PASTEBOARD_TASK_SIGNAL_NAPI
-#define PASTEBOARD_TASK_SIGNAL_NAPI
+#ifndef PASTEBOARD_PROGRESS_SIGNAL_NAPI
+#define PASTEBOARD_PROGRESS_SIGNAL_NAPI
 
 #include "common/block_object.h"
 #include "napi/native_api.h"
@@ -37,4 +37,4 @@ private:
 } // namespace MiscServicesNapi
 } // namespace OHOS
 
-#endif // PASTEBOARD_TASK_SIGNAL_NAPI
+#endif // PASTEBOARD_PROGRESS_SIGNAL_NAPI

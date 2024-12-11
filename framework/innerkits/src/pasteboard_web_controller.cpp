@@ -216,6 +216,7 @@ void PasteboardWebController::ReplaceHtmlRecordContentByExtraUris(
             if (html != nullptr && !html->empty()) {
                 htmlData = html;
                 htmlRecord = item;
+                continue;
             }
         }
         std::shared_ptr<OHOS::Uri> uri = item->GetUri();
