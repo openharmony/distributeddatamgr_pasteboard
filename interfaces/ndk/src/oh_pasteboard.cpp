@@ -27,10 +27,13 @@
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_progress_signal.h"
 #include "udmf.h"
 #include "udmf_capi_common.h"
 
 using namespace OHOS::MiscServices;
+
+static struct Pasteboard_ProgressListener g_listener = {0};
 
 static bool IsPasteboardValid(OH_Pasteboard *pasteboard)
 {
@@ -232,6 +235,54 @@ OH_UdmfData *OH_Pasteboard_GetData(OH_Pasteboard *pasteboard, int *status)
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_GetData return invalid, result is %{public}d", ret);
+        *status = GetMappedCode(ret);
+        return nullptr;
+    }
+    OH_UdmfData *data = OH_UdmfData_Create();
+    data->unifiedData_ = std::move(unifiedData);
+    *status = ERR_OK;
+    return data;
+}
+
+void ProgressNotify(std::shared_ptr<ProgressInfo> progressInfo)
+{
+    auto info = std::make_shared<Pasteboard_ProgressInfo>();
+    info->percentage = progressInfo->percentage;
+    g_listener.callback(*info);
+}
+
+int ProgressCancel()
+{
+    auto ret = ProgressSignalClient::GetInstance().Cancel();
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "client Cancel return invalid, result is %{public}d", ret);
+        return GetMappedCode(ret);
+    }
+    return ERR_OK;
+}
+
+OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pasteboard_GetDataParams *params,
+    int *status)
+{
+    if (!IsPasteboardValid(pasteboard) || params == nullptr || status == nullptr) {
+        return nullptr;
+    }
+    auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
+    auto getDataParams = std::make_shared<OHOS::MiscServices::GetDataParams>();
+    getDataParams->destUri = params->destUri;
+    g_listener = params->progressListener;
+    getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOption;
+    getDataParams->progressIndicator = (ProgressIndicator)params->progressIndicator;
+    struct ProgressListener listener = {
+        .ProgressNotify = ProgressNotify,
+    };
+    getDataParams->listener = listener;
+    params->progressSignal.cancel = ProgressCancel;
+    int32_t ret = PasteboardClient::GetInstance()->GetUnifiedDataWithProgress(*unifiedData, getDataParams);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(
+            PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_GetDataWithProgress return invalid, result is %{public}d",
+            ret);
         *status = GetMappedCode(ret);
         return nullptr;
     }

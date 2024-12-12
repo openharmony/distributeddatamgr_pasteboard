@@ -279,6 +279,92 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     return ret;
 }
 
+void PasteboardClient::CopyFile(std::shared_ptr<GetDataParams> params)
+{
+    #define PROGRESS_PERCENTAGE 80
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "CopyFile in.");
+    std::shared_ptr<ProgressInfo> info = std::make_shared<ProgressInfo>();
+
+    info->percentage = PROGRESS_PERCENTAGE;
+    if (params->listener.ProgressNotify != nullptr) {
+        params->listener.ProgressNotify(info);
+    }
+}
+
+int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData, std::string currentPid, std::string currentId,
+    pid_t pid)
+{
+    static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+            RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::ERROR_CODE,
+            static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
+    }
+    int32_t syncTime = 0;
+    int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
+    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    RetainUri(pasteData);
+    RebuildWebviewPasteData(pasteData);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        if (pasteData.deviceId_.empty()) {
+            RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
+                RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+                RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME, currentPid);
+        } else {
+            RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
+                RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
+                RadarReporter::PACKAGE_NAME, currentPid);
+        }
+    } else if (ret != static_cast<int32_t>(PasteboardError::TASK_PROCESSING) &&
+               !reportMemory.IsDuplicate({.pid = pid, .errorCode = ret})) {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE,
+            RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME,
+            syncTime, RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::ERROR_CODE, ret);
+    } else {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_CANCELLED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+            RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME, currentPid,
+            RadarReporter::ERROR_CODE, ret);
+    }
+    return ret;
+}
+
+int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_ptr<GetDataParams> params)
+{
+    pid_t pid = getpid();
+    std::string currentPid = std::to_string(pid);
+    uint32_t tmpSequenceId = getSequenceId_++;
+    std::string currentId = "GetDataWithProgress_" + currentPid + "_" + std::to_string(tmpSequenceId);
+    PasteData pasteDat;
+    pasteData.SetPasteId(currentId);
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
+        RadarReporter::PACKAGE_NAME, currentPid);
+    StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetDataWithProgress", HITRACE_GETPASTEDATA);
+    int32_t ret = GetPasteDataFromService(pasteData, currentPid, currentId, pid);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteDataFromService is failed: ret=%{public}d.", ret);
+        return ret;
+    }
+    CopyFile(params);
+    FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetDataWithProgress", HITRACE_GETPASTEDATA);
+    return ret;
+}
+
+int32_t PasteboardClient::GetUnifiedDataWithProgress(UDMF::UnifiedData &unifiedData,
+    std::shared_ptr<GetDataParams> params)
+{
+    StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUdsdData", HITRACE_GETPASTEDATA);
+    PasteData pasteData;
+    int32_t ret = GetDataWithProgress(pasteData, params);
+    unifiedData = *(ConvertUtils::Convert(pasteData));
+    FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUdsdData", HITRACE_GETPASTEDATA);
+    return ret;
+}
+
 int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData &unifiedData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);

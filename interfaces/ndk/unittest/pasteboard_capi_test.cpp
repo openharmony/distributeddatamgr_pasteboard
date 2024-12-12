@@ -64,6 +64,7 @@ public:
 uint64_t PasteboardCapiTest::selfTokenId_ = 0;
 AccessTokenID PasteboardCapiTest::testTokenId_ = 0;
 int PasteboardCapiTest::callbackValue = 0;
+static OH_Pasteboard_GetDataParams *g_params = nullptr;
 
 void PasteboardCapiTest::SetUpTestCase(void)
 {
@@ -1121,6 +1122,53 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithMultiAttributes002, TestSi
 
     OH_UdmfData_Destroy(uData);
     uData = nullptr;
+}
+
+void Pasteboard_ProgressNotify(Pasteboard_ProgressInfo progressInfo)
+{
+    printf("percentage = %d\n", progressInfo.percentage);
+    if (g_params->progressSignal.cancel != nullptr) {
+        int ret = g_params->progressSignal.cancel();
+        EXPECT_EQ(ret, ERR_OK);
+    }
+    free(g_params);
+    g_params = nullptr;
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithProgress001
+ * @tc.desc: should get html & text when set html & text with https uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress001, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    const char *uri = "/data/storage/el2/base/haps/entry/files/dstFile.txt";
+    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
+    g_params->destUri = (char *)uri;
+    g_params->destUriLen = strlen(uri);
+    g_params->fileConflictOption = SKIP;
+    g_params->progressIndicator = DEFAULI;
+    g_params->progressListener.callback = Pasteboard_ProgressNotify;
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
+    EXPECT_EQ(status, ERR_OK);
+    EXPECT_NE(getData, nullptr);
+
+    unsigned int getrecordCount = 0;
+    OH_UdmfRecord **getRecords = OH_UdmfData_GetRecords(getData, &getrecordCount);
+    EXPECT_EQ(getrecordCount, 1);
+    OH_UdsPlainText *getPlainText = OH_UdsPlainText_Create();
+    OH_UdmfRecord_GetPlainText(getRecords[0], getPlainText);
+    const char *getContent = OH_UdsPlainText_GetContent(getPlainText);
+    EXPECT_STREQ(getContent, plainText.c_str());
+
+    OH_Pasteboard_Destroy(pasteboard);
 }
 } // namespace Test
 } // namespace OHOS

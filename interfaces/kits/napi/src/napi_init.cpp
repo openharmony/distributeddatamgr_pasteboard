@@ -17,6 +17,7 @@
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
 #include "systempasteboard_napi.h"
+#include "pasteboard_progress_signal_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -33,6 +34,7 @@ static napi_value NapiInit(napi_env env, napi_value exports)
     PasteDataNapi::PasteDataInit(env, exports);
     SystemPasteboardNapi::SystemPasteboardInit(env, exports);
     PasteboardNapi::PasteBoardInit(env, exports);
+    ProgressSignalNapi::ProgressSignalNapiInit(env, exports);
     return exports;
 }
 EXTERN_C_END
