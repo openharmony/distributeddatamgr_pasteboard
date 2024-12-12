@@ -23,6 +23,7 @@ config("pasteboard_client_config") {
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_utils_path}/native/include",
+    "//foundation/distributeddatamgr/pasteboard/adapter/pasteboard_progress",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri",
@@ -59,6 +60,7 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_progress_signal.cpp",
     "src/pasteboard_utils.cpp",
     "src/pasteboard_web_controller.cpp",
+    "//foundation/distributeddatamgr/pasteboard/adapter/pasteboard_progress/pasteboard_progress.cpp",
   ]
 
   cflags_cc = [
@@ -70,6 +72,7 @@ ohos_shared_library("pasteboard_client") {
 
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
     "${pasteboard_root_path}/framework/uri:pasteboard_uri",
   ]
@@ -77,7 +80,11 @@ ohos_shared_library("pasteboard_client") {
   external_deps = [
     "ability_base:zuri",
     "ability_runtime:wantagent_innerkits",
+    "ability_runtime:ability_manager",
+    "ability_runtime:uri_permission_mgr",
+    "ability_runtime:wantagent_innerkits",
     "app_file_service:fileuri_native",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",

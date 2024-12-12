@@ -29,6 +29,16 @@ public:
     struct ToastMessageInfo {
         std::string appName{ DEFAULT_LABEL };
     };
+    struct ProgressMessageInfo {
+        std::string appName{ DEFAULT_LABEL };
+        std::string promptText{ DEFAULT_LABEL };
+        std::string remoteDeviceName{ DEFAULT_LABEL };
+        std::string progressKey{ DEFAULT_LABEL };
+        std::string signalKey{ DEFAULT_LABEL };
+        bool isRemote {false};
+        int32_t windowId { 0 };
+        sptr<IRemoteObject> callerToken { nullptr };
+    };
     static constexpr uint32_t POPUP_INTERVAL = 1000;      // milliseconds
     static constexpr uint32_t MAX_LIFE_TIME = 300 * 1000; // milliseconds
     static constexpr uint32_t SHOW_TOAST_TIME = 3000;     // milliseconds

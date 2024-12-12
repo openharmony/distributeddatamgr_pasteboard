@@ -602,6 +602,51 @@ void PasteboardServiceProxy::PasteComplete(const std::string &deviceId, const st
     }
 }
 
+int32_t PasteboardServiceProxy::GetRemoteDeviceName(std::string &deviceName, bool &isRemote)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_REMOTE_DEVICE_NAME, data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+        return result;
+    }
+    deviceName = reply.ReadString();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
+    return reply.ReadInt32();
+}
+ 
+void PasteboardServiceProxy::ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
+        return;
+    }
+    if (!data.WriteString(progressKey)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
+        return;
+    }
+    if (!data.WriteString(signalKey)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
+        return;
+    }
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PROGRESS_MAKE_MESSAGE_INFO,
+        data, reply, option);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
+    }
+}
+
 int32_t PasteboardServiceProxy::RegisterClientDeathObserver(sptr<IRemoteObject> observer)
 {
     if (observer == nullptr) {
