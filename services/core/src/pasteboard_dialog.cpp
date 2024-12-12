@@ -119,7 +119,6 @@ int32_t PasteBoardDialog::ShowProgress(const ProgressMessageInfo &message)
     want.SetParam("appName", message.appName);
     want.SetParam("promptText", message.promptText);
     want.SetParam("remoteDeviceName", message.remoteDeviceName);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "wmx remoteDeviceName:%{public}s", message.remoteDeviceName.c_str());
     want.SetParam("progressKey", message.progressKey);
     want.SetParam("signalKey", message.signalKey);
     want.SetParam("isRemote", message.isRemote);

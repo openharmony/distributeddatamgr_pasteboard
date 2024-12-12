@@ -63,6 +63,10 @@ int32_t PasteBoardProgress::InsertValue(std::string &key, std::string &value)
     CustomOption option1 = {.intention = Intention::UD_INTENTION_DATA_HUB};
     UnifiedData data1;
     auto udsObject = std::make_shared<Object>();
+    if (udsObject == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "udsObject is nullptr");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     udsObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
     udsObject->value_[UDMF::CONTENT] = value;
@@ -78,6 +82,10 @@ int32_t PasteBoardProgress::UpdateValue(std::string &key, std::string value)
     QueryOption queryOption = { .key = key };
     UnifiedData data;
     auto udsObject = std::make_shared<Object>();
+    if (udsObject == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "udsObject is nullptr");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     udsObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
     udsObject->value_[UDMF::CONTENT] = value;
@@ -93,9 +101,21 @@ int32_t PasteBoardProgress::GetValue(const std::string &key, std::string &value)
     QueryOption option = { .key = key };
     UnifiedData data;
     UdmfClient::GetInstance().GetData(option, data);
+    if (data.GetRecords().empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getrecords is empty");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
     auto outputRecord = data.GetRecordAt(0);
+    if (outputRecord == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "outputRecord is nullptr");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
     auto plainText = outputRecord->GetValue();
     auto object = std::get<std::shared_ptr<Object>>(plainText);
+    if (object == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "object is nullptr");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
     object->GetValue(UDMF::CONTENT, value);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }

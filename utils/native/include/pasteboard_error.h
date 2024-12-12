@@ -15,6 +15,8 @@
 #ifndef PASTEBOARD_ERROR_H
 #define PASTEBOARD_ERROR_H
 
+#include <map>
+
 #include "errors.h"
 #include "pasteboard_hilog.h"
 

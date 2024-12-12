@@ -579,31 +579,30 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 void PasteboardService::ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey)
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto callPid = IPCSkeleton::GetCallingPid();
-    auto appInfo = GetAppInfo(tokenId);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
-        "[ttt] CallerInfo: tokenId:%{public}d, callPid:%{public}d, appInfo.bundleName:%{public}s, appInfo.tokenType:%{public}d",
-        tokenId, callPid, appInfo.bundleName.c_str(), appInfo.tokenType);
-
-    if (IsFocusedApp(tokenId)) {
-        PasteBoardDialog::ProgressMessageInfo message;
-        message.appName = GetAppLabel(tokenId);
-        std::string deviceName = "";
-        bool isRemote = false;
-        auto result = (GetRemoteDeviceName(deviceName, isRemote) == static_cast<int32_t>(PasteboardError::E_OK));
-        if (result && isRemote) {
-            message.promptText = "PromptText_PasteBoard_Remote";
-            message.remoteDeviceName = deviceName;
-        } else {
-            message.promptText = "PromptText_PasteBoard_Local";
-            message.remoteDeviceName = "";
-        }
-        message.isRemote = isRemote;
-        message.progressKey = progressKey;
-        message.signalKey = signalKey;
-        message.callerToken = GetFocusedAppToken();
-        PasteBoardDialog::GetInstance().ShowProgress(message);
+    if (!IsFocusedApp(tokenId)) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not focused app, no need to show progress.");
+        return;
     }
+    PasteBoardDialog::ProgressMessageInfo message;
+    message.appName = GetAppLabel(tokenId);
+    std::string deviceName = "";
+    bool isRemote = false;
+    auto result = (GetRemoteDeviceName(deviceName, isRemote) == static_cast<int32_t>(PasteboardError::E_OK));
+    if (result && isRemote) {
+        message.promptText = "PromptText_PasteBoard_Remote";
+        message.remoteDeviceName = deviceName;
+    } else {
+        message.promptText = "PromptText_PasteBoard_Local";
+        message.remoteDeviceName = "";
+    }
+    message.isRemote = isRemote;
+    message.progressKey = progressKey;
+    message.signalKey = signalKey;
+    
+    FocusedAppInfo appInfo = GetFocusedAppInfo();
+    message.windowId = appInfo.windowId;
+    message.callerToken = appInfo.abilityToken;
+    PasteBoardDialog::GetInstance().ShowProgress(message);
 }
 
 int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
@@ -1069,9 +1068,8 @@ int32_t PasteboardService::GetRemoteDeviceName(std::string &deviceName, bool &is
     } else {
         GetRemoteData(appInfo.userId, event.second, data, syncTime);
     }
-    int64_t fileSize = GetFileSize(data);
     DmDeviceInfo remoteDevice;
-    if (data.IsRemote() && fileSize > 0) {
+    if (data.IsRemote()) {
         auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(event.second.deviceId, remoteDevice);
         if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
@@ -2074,20 +2072,18 @@ bool PasteboardService::IsFocusedApp(uint32_t tokenId)
     return ret == NO_ERROR && isFocused;
 }
 
-sptr<IRemoteObject> PasteboardService::GetFocusedAppToken(void) const
+sptr<IRemoteObject> PasteboardService::GetFocusedAppInfo(void) const
 {
+    FocusedAppInfo appInfo = { 0 };
     FocusChangeInfo info;
 #ifdef SCENE_BOARD_ENABLE
     WindowManagerLite::GetInstance().GetFocusWindowInfo(info);
 #else
     WindowManager::GetInstance().GetFocusWindowInfo(info);
 #endif
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
-        "[ttt] FocusWindowInfo: windowId:%{public}d, pid_:%{public}d, uid_:%{public}d, windowType_:%{public}u",
-        info.windowId_, info.pid_, info.uid_, info.windowType_);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "[ttt] abilityToken_: %{public}s",
-        (info.abilityToken_ != nullptr? "valid" : "nullptr"));
-    return info.abilityToken_;
+    appInfo.windowId_ = info.windowId_;
+    appInfo.abilityToken_ = info.abilityToken_;
+    return appInfo;
 }
 
 void PasteboardService::SetPasteDataDot(PasteData &pasteData)

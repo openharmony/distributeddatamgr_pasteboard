@@ -47,12 +47,14 @@ public:
     static PasteBoardDialog &GetInstance();
     int32_t ShowToast(const ToastMessageInfo &message);
     void CancelToast();
+    int32_t ShowProgress(const ProgressMessageInfo &message);
 
 private:
     static sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerService();
 
     static constexpr const char *PASTEBOARD_DIALOG_APP = "com.ohos.pasteboarddialog";
     static constexpr const char *PASTEBOARD_TOAST_ABILITY = "ToastExtensionAbility";
+    static constexpr const char *PASTEBOARD_PROGRESS_ABILITY = "PasteboardProgressAbility";
 
     std::mutex connectionLock_;
     sptr<DialogConnection> connection_;

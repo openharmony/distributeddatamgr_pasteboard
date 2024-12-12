@@ -51,6 +51,7 @@ ohos_unittest("PasteboardServiceTest") {
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtoken_setproc",
+    "ffrt:libffrt",
     "c_utils:utils",
     "googletest:gtest_main",
     "hilog:libhilog",
@@ -59,7 +60,10 @@ ohos_unittest("PasteboardServiceTest") {
     "os_account:os_account_innerkits",
   ]
 
-  deps = [ "${pasteboard_innerkits_path}:pasteboard_client" ]
+  deps = [
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_framework_path}:pasteboard_framework",
+  ]
 }
 
 ohos_unittest("PasteboardDialogNormalTest") {
@@ -128,11 +132,15 @@ ohos_unittest("PasteboardPatternTest") {
   ]
   configs = [ ":module_private_config" ]
   external_deps = [
+    "ffrt:libffrt",
     "googletest:gtest_main",
     "hilog:libhilog",
     "libxml2:libxml2",
   ]
-  deps = [ "${pasteboard_innerkits_path}:pasteboard_client" ]
+  deps = [
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_framework_path}:pasteboard_framework",
+  ]
 }
 
 group("unittest") {

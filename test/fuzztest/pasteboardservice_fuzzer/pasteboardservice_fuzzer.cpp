@@ -186,6 +186,19 @@ public:
     void Clear() override
     {
     }
+
+    int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override
+    {
+        (void)deviceName;
+        (void)isRemote;
+        return 0;
+    }
+
+    void ProgressMakeMessage(const std::string &progressKey, const std::string &signalKey) override
+    {
+        (void)progressKey;
+        (void)signalKey;
+    }
 };
 
 static inline void DoSleep(void)

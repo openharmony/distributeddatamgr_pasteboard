@@ -19,11 +19,11 @@ config("pasteboard_client_config") {
   visibility += [ "//foundation/distributeddatamgr/pasteboard/test/fuzztest/pasteboardclient_fuzzer/*" ]
   include_dirs = [
     "include",
+    "${pasteboard_root_path}/adapter/pasteboard_progress",
     "${pasteboard_service_path}/core/include",
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_utils_path}/native/include",
-    "//foundation/distributeddatamgr/pasteboard/adapter/pasteboard_progress",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
     "//foundation/distributeddatamgr/pasteboard/framework/uri",
@@ -40,6 +40,7 @@ ohos_shared_library("pasteboard_client") {
     debug = false
   }
   sources = [
+    "${pasteboard_root_path}/adapter/pasteboard_progress/pasteboard_progress.cpp",
     "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
     "${pasteboard_service_path}/zidl/src/ipasteboard_client_death_observer.cpp",
@@ -60,7 +61,6 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_progress_signal.cpp",
     "src/pasteboard_utils.cpp",
     "src/pasteboard_web_controller.cpp",
-    "//foundation/distributeddatamgr/pasteboard/adapter/pasteboard_progress/pasteboard_progress.cpp",
   ]
 
   cflags_cc = [

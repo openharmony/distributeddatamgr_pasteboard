@@ -20,12 +20,14 @@
 #include <functional>
 #include <singleton.h>
 
+#include "ffrt_utils.h"
 #include "i_pasteboard_service.h"
 #include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_delay_getter.h"
 #include "pasteboard_observer.h"
 #include "pasteboard_progress_signal.h"
+#include "refbase.h"
 #include "unified_data.h"
 #include "want.h"
 
@@ -493,7 +495,7 @@ private:
     static void SplitWebviewPasteData(PasteData &pasteData);
     static void GetFileProgressCb(std::shared_ptr<ProgressInfo> progressInfo);
     int32_t PollHapSignal(std::string &signalKey);
-    static void SetProgressWithoutFile(std::string &progressKey);
+    static int32_t SetProgressWithoutFile(std::string &progressKey);
     static void ProgressSmoothToTwentyPercent(std::string &progressKey);
     static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
     int32_t GetPasteDataFromService(PasteData &pasteData, std::string currentPid, std::string currentId, pid_t pid,

@@ -20,7 +20,8 @@
 #include <memory>
 #include <shared_mutex>
  
-#include "datashare_helper.h"
+#include "iremote_object.h"
+#include "nocopyable.h"
  
 namespace OHOS::MiscServices {
 class PasteBoardProgress {
