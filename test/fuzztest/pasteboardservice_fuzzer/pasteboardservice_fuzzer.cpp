@@ -194,7 +194,7 @@ public:
         return 0;
     }
 
-    void ProgressMakeMessage(const std::string &progressKey, const std::string &signalKey) override
+    void ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey) override
     {
         (void)progressKey;
         (void)signalKey;
