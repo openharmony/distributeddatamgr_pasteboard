@@ -27,6 +27,7 @@
 #include "hiview_adapter.h"
 #include "ipasteboard_client_death_observer.h"
 #include "pasteboard_client.h"
+#include "pasteboard_copy.h"
 #include "pasteboard_deduplicate_memory.h"
 #include "pasteboard_delay_getter_client.h"
 #include "pasteboard_entry_getter_client.h"
@@ -349,7 +350,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteDataFromService is failed: ret=%{public}d.", ret);
         return ret;
     }
-    CopyFile(params);
+    ret = CopyPasteData(pasteData, params);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetDataWithProgress", HITRACE_GETPASTEDATA);
     return ret;
 }
