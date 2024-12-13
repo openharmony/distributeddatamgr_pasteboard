@@ -449,6 +449,7 @@ napi_value SystemPasteboardNapi::GetData(napi_env env, napi_callback_info info)
         } else {
             context->status = napi_ok;
         }
+        (void)GetContextSetErr(context, ret, { JSErrorCode::NO_PERMISSION });
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData End");
     };
     // 0: the AsyncCall at the first position;
@@ -580,6 +581,7 @@ napi_value SystemPasteboardNapi::GetUnifiedData(napi_env env, napi_callback_info
         } else {
             context->status = napi_ok;
         }
+        (void)UnifiedContextSetErr(context, ret, { JSErrorCode::NO_PERMISSION });
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData End");
     };
     // 0: the AsyncCall at the first position;
@@ -609,6 +611,9 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     auto value = block->GetValue();
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetUnifiedDataSync failed.");
+    }
+    if (!CheckRetCode(env, *value, { JSErrorCode::NO_PERMISSION })) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get data sync failed, ret=%{public}d.", *value);
     }
     return instance;
 }
@@ -947,6 +952,9 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
     auto value = block->GetValue();
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed.");
+    }
+    if (!CheckRetCode(env, *value, { JSErrorCode::NO_PERMISSION })) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get data sync failed, ret=%{public}d.", *value);
     }
     return instance;
 }

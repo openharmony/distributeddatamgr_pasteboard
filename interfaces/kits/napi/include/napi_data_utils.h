@@ -29,7 +29,9 @@
 #include "napi_common_want.h"
 #include "securec.h"
 
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_js_err.h"
 #include "unified_meta.h"
 #include "type_descriptor.h"
 #include "type_descriptor_napi.h"
@@ -39,6 +41,8 @@ namespace OHOS {
 namespace MiscServicesNapi {
 class  NapiDataUtils {
 public:
+    static std::pair<MiscServices::JSErrorCode, std::string> GetErrInfo(MiscServices::PasteboardError);
+
     /* napi_value <-> bool */
     static napi_status GetValue(napi_env env, napi_value in, bool &out);
     static napi_status SetValue(napi_env env, const bool &in, napi_value &out);
