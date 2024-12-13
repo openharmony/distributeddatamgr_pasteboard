@@ -2072,7 +2072,7 @@ bool PasteboardService::IsFocusedApp(uint32_t tokenId)
     return ret == NO_ERROR && isFocused;
 }
 
-sptr<IRemoteObject> PasteboardService::GetFocusedAppInfo(void) const
+FocusedAppInfo PasteboardService::GetFocusedAppInfo(void) const
 {
     FocusedAppInfo appInfo = { 0 };
     FocusChangeInfo info;
@@ -2081,8 +2081,8 @@ sptr<IRemoteObject> PasteboardService::GetFocusedAppInfo(void) const
 #else
     WindowManager::GetInstance().GetFocusWindowInfo(info);
 #endif
-    appInfo.windowId_ = info.windowId_;
-    appInfo.abilityToken_ = info.abilityToken_;
+    appInfo.windowId = info.windowId_;
+    appInfo.abilityToken = info.abilityToken_;
     return appInfo;
 }
 
