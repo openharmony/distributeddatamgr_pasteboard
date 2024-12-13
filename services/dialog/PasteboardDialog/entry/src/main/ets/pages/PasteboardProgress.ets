@@ -101,6 +101,7 @@ export struct Index {
   private pollInterval: number = 100;
   private timeoutInterval: number = 3000;
   private unChangeProgressTimes: number = 0;
+  private isTimeoutError: boolean = false;
 
   aboutToAppear(): void {
     const promptTextPre: string = this.want.parameters['promptText'];
@@ -146,7 +147,7 @@ export struct Index {
           this.unChangeProgressTimes++;
           console.error(TAG + `Failed to query data. code is ${err.code}, message is ${err.message}`);
           if (this.unChangeProgressTimes > this.timeoutInterval / this.pollInterval) {
-            this.showErrorPrompt();
+            this.handleTimeoutError();
           } else {
             this.pollQuery();
           }
@@ -163,7 +164,7 @@ export struct Index {
           this.unChangeProgressTimes = 0;
         }
         if (this.unChangeProgressTimes > this.timeoutInterval / this.pollInterval) {
-          this.showErrorPrompt();
+          this.handleTimeoutError();
         } else {
           (this.params as Params).currentNum = currentNum;
           this.contentNode?.update(this.params);
@@ -183,7 +184,8 @@ export struct Index {
     }, this.pollInterval);
   }
 
-  private showErrorPrompt(): void {
+  private handleTimeoutError(): void {
+    this.isTimeoutError = true;
     const promptTextPre: string = this.want.parameters['promptText'];
     (this.params as Params).promptText = $r(`app.string.${ProgressErrorPromptText[promptTextPre]}`);
     this.contentNode?.update(this.params);
@@ -229,7 +231,7 @@ export struct Index {
     try {
       let plainText: uniformDataStruct.PlainText = {
         uniformDataType: 'general.plain-text',
-        textContent: SignalKey.CANCEL_PROGRESS_TASK
+        textContent: this.isTimeoutError ? SignalKey.CANCEL_TIMEOUT_ERROR : SignalKey.CANCEL_PROGRESS_TASK
       }
       let unifiedData = new unifiedDataChannel.UnifiedData();
       let plainTextRecord =
@@ -275,8 +277,9 @@ struct PasteboardProgress {
   @State winWidth: number = 0;
   @State maxHeight: number = 0;
   @State oneLineOverFlow: boolean = false;
+  private promptTextMarginRight: number = 17;
   @Prop @Watch('currentPercentageChange') currentNum: number = 0;
-  @Prop promptText: Resource;
+  @Prop @Watch('onPromptTextChange') promptText: Resource;
   @State @Watch('onIdleWidthChanged') idleWidth: number = 100;
   public closeCallback: Callback<boolean> = () => {
   };
@@ -357,20 +360,24 @@ struct PasteboardProgress {
     }
   }
 
+  onPromptTextChange() {
+    this.onIdleWidthChanged();
+  }
+
   onIdleWidthChanged() {
     let itemLenWidthPX1: SizeOptions = measure.measureTextSize({
       textContent: this.promptText,
-      fontSize: $r('sys.float.Body_M'),
-      textAlign: TextAlign.Center,
-      wordBreak: WordBreak.BREAK_ALL,
+      fontSize: 14,
+      textAlign: TextAlign.Start,
+      fontWeight: FontWeight.Regular
     });
     let itemLenWidthPX2: SizeOptions = measure.measureTextSize({
       textContent: this.currentPercentage,
-      fontSize: $r('sys.float.Body_M'),
-      textAlign: TextAlign.Center,
-      wordBreak: WordBreak.BREAK_ALL,
+      fontSize: 14,
+      fontWeight: FontWeight.Regular
     })
-    if (this.idleWidth > px2vp((itemLenWidthPX1.width as number) + (itemLenWidthPX2.width as number))) {
+    if (this.idleWidth >
+      px2vp((itemLenWidthPX1.width as number) + (itemLenWidthPX2.width as number)) + this.promptTextMarginRight) {
       this.oneLineOverFlow = false
     } else {
       this.oneLineOverFlow = true
@@ -470,7 +477,7 @@ struct PasteboardProgress {
       .wordBreak(WordBreak.BREAK_ALL)
       .textAlign(TextAlign.Start)
       .textOverflow({ overflow: TextOverflow.Ellipsis })
-      .margin({ right: 17 })
+      .margin({ right: this.promptTextMarginRight })
       .maxLines(maxLines)
       .maxFontScale(maxFontScale)
       .layoutWeight(layoutWeight)
@@ -480,7 +487,7 @@ struct PasteboardProgress {
   BuilderPercentageText(maxFontScale: number | undefined) {
     Text(this.currentPercentage)
       .attributeModifier(this.percentageTextModifier)
-      .fontSize('14vp')
+      .fontSize(14)
       .fontWeight(FontWeight.Regular)
       .fontFamily('HarmonyHeiTi')
       .fontColor($r('sys.color.font_secondary'))

@@ -44,9 +44,9 @@ export default class PasteboardProgressAbility extends ServiceExtensionAbility {
   }
 
   async onRequest(want: Want, startId: number) {
-    console.info(TAG + 'PasteboardProgressAbility onRequest, startId is' + startId);
-    console.info(TAG + 'want: ' + JSON.stringify(want));
     try {
+      console.info(TAG + 'PasteboardProgressAbility onRequest, startId is' + startId);
+      console.info(TAG + 'want: ' + JSON.stringify(want));
       let displayClass = display.getDefaultDisplaySync();
       let navigationBarRect: IRect = {
         left: 0,

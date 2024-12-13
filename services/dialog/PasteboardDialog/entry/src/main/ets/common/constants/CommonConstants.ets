@@ -71,5 +71,6 @@ export enum ProgressErrorPromptText {
 }
 
 export enum SignalKey {
-  CANCEL_PROGRESS_TASK = '1'
+  CANCEL_PROGRESS_TASK = '1',
+  CANCEL_TIMEOUT_ERROR = '2',
 }
