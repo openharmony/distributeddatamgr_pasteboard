@@ -55,12 +55,15 @@ ohos_shared_library("pasteboard_client") {
     "src/paste_data_entry.cpp",
     "src/paste_data_record.cpp",
     "src/pasteboard_client.cpp",
+    "src/pasteboard_copy.cpp",
     "src/pasteboard_entry_getter.cpp",
+    "src/pasteboard_fd_guard.cpp",
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
     "src/pasteboard_progress_signal.cpp",
     "src/pasteboard_utils.cpp",
     "src/pasteboard_web_controller.cpp",
+    "src/trans_listener.cpp",
   ]
 
   cflags_cc = [
@@ -79,17 +82,26 @@ ohos_shared_library("pasteboard_client") {
 
   external_deps = [
     "ability_base:zuri",
-    "ability_runtime:wantagent_innerkits",
     "ability_runtime:ability_manager",
     "ability_runtime:uri_permission_mgr",
     "ability_runtime:wantagent_innerkits",
+    "access_token:libtokenid_sdk",
     "app_file_service:fileuri_native",
+    "app_file_service:fileuri_native",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "ffrt:libffrt",
+    "c_utils:utils",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
+    "dfs_service:distributed_file_daemon_kit_inner",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "image_framework:image_native",
+    "ipc:ipc_core",
     "ipc:ipc_single",
+    "libuv:uv",
     "samgr:samgr_proxy",
     "time_service:time_client",
   ]
