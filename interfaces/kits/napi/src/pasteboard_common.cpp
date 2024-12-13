@@ -329,6 +329,47 @@ bool CheckArgsVector(napi_env env, napi_value in,
     return true;
 }
 
+bool CheckRetCode(napi_env env, int32_t retCode, const std::vector<JSErrorCode> &focusErrCodes)
+{
+    auto errInfo = NapiDataUtils::GetErrInfo(static_cast<PasteboardError>(retCode));
+    auto iter = std::find(focusErrCodes.begin(), focusErrCodes.end(), errInfo.first);
+    if (iter != focusErrCodes.end()) {
+        NAPI_CALL_BASE(env,
+            napi_throw_error(env, std::to_string(static_cast<int32_t>(errInfo.first)).c_str(), errInfo.second.c_str()),
+            false);
+        return false;
+    }
+    return true;
+}
+
+bool GetContextSetErr(const std::shared_ptr<GetContextInfo> context, int32_t retCode,
+    const std::vector<JSErrorCode> &focusErrCodes, std::string defaultMsg)
+{
+    auto errInfo = NapiDataUtils::GetErrInfo(static_cast<PasteboardError>(retCode));
+    auto iter = std::find(focusErrCodes.begin(), focusErrCodes.end(), errInfo.first);
+    if (iter != focusErrCodes.end()) {
+        errInfo.second = defaultMsg.empty() ? errInfo.second : defaultMsg;
+        context->SetErrInfo(static_cast<int32_t>(errInfo.first), errInfo.second);
+        context->status = napi_generic_failure;
+        return true;
+    }
+    return false;
+}
+
+bool UnifiedContextSetErr(const std::shared_ptr<GetUnifiedContextInfo> context, int32_t retCode,
+    const std::vector<JSErrorCode> &focusErrCodes, std::string defaultMsg)
+{
+    auto errInfo = NapiDataUtils::GetErrInfo(static_cast<PasteboardError>(retCode));
+    auto iter = std::find(focusErrCodes.begin(), focusErrCodes.end(), errInfo.first);
+    if (iter != focusErrCodes.end()) {
+        errInfo.second = defaultMsg.empty() ? errInfo.second : defaultMsg;
+        context->SetErrInfo(static_cast<int32_t>(errInfo.first), errInfo.second);
+        context->status = napi_generic_failure;
+        return true;
+    }
+    return false;
+}
+
 napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &mimeType,
     std::shared_ptr<PasteDataEntry> value)
 {

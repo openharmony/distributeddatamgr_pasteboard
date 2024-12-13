@@ -24,6 +24,7 @@
 #include "pasteboard_js_err.h"
 #include "pasteboard_pattern.h"
 #include "pixel_map_napi.h"
+#include "systempasteboard_napi.h"
 #include "tlv_object.h"
 #include "napi_data_utils.h"
 namespace OHOS {
@@ -44,6 +45,11 @@ bool CheckArgsArray(napi_env env, napi_value in, std::vector<std::string> &mimeT
 bool CheckArgsFunc(napi_env env, napi_value in, napi_ref &provider);
 bool CheckArgsVector(napi_env env, napi_value in,
     std::shared_ptr<std::vector<std::pair<std::string, std::shared_ptr<MiscServices::EntryValue>>>> result);
+bool CheckRetCode(napi_env env, int32_t retCode, const std::vector<MiscServices::JSErrorCode> &focusErrCodes);
+bool GetContextSetErr(const std::shared_ptr<GetContextInfo> context, int32_t retCode,
+    const std::vector<MiscServices::JSErrorCode> &focusErrCodes, std::string defaultMsg = "");
+bool UnifiedContextSetErr(const std::shared_ptr<GetUnifiedContextInfo> context, int32_t retCode,
+    const std::vector<MiscServices::JSErrorCode> &focusErrCodes, std::string defaultMsg = "");
 napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &udtType,
     std::shared_ptr<MiscServices::PasteDataEntry> value);
 bool GetNativeValue(napi_env env, std::string type, napi_value valueNapi, MiscServices::EntryValue &value);

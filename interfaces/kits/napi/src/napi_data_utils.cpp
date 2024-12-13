@@ -22,6 +22,22 @@ namespace MiscServicesNapi {
 constexpr int32_t STR_MAX_LENGTH = 4096;
 constexpr size_t STR_TAIL_LENGTH = 1;
 
+const std::map<PasteboardError, std::pair<JSErrorCode, std::string>> errInfoMap = {
+    {PasteboardError::PERMISSION_VERIFICATION_ERROR,
+        {JSErrorCode::NO_PERMISSION, "Permission verification failed. A non-permission application calls a API."}},
+    {PasteboardError::TASK_PROCESSING,
+        {JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING, "Another calling is being processed."}}
+};
+
+std::pair<JSErrorCode, std::string> NapiDataUtils::GetErrInfo(PasteboardError retCode)
+{
+    auto iter = errInfoMap.find(retCode);
+    if (iter != errInfoMap.end()) {
+        return iter->second;
+    }
+    return {static_cast<JSErrorCode>(-1), "Unknown error."};
+}
+
 /* napi_value <-> bool */
 napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, bool &out)
 {
