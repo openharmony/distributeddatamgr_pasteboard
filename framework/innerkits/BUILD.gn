@@ -87,7 +87,6 @@ ohos_shared_library("pasteboard_client") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libtokenid_sdk",
     "app_file_service:fileuri_native",
-    "app_file_service:fileuri_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "ffrt:libffrt",
