@@ -23,6 +23,7 @@
 #include <thread>
 
 #include "convert_utils.h"
+#include "ffrt_utils.h"
 #include "file_uri.h"
 #include "hitrace_meter.h"
 #include "hiview_adapter.h"
@@ -48,9 +49,7 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
-std::string SIGNAL_KEY_DEFAULT = "0";
-std::string PROGRESS_START_PERCENT = "0";
-std::string progressKey_;
+std::string g_progressKey;
 constexpr int32_t LOADSA_TIMEOUT_MS = 4000;
 constexpr int32_t PASTEBOARD_PROGRESS_UPDATE_PERCENT = 5;
 constexpr int32_t PASTEBOARD_PROGRESS_TWENTY_PERCENT = 20;
@@ -306,16 +305,23 @@ void PasteboardClient::CopyFile(std::shared_ptr<GetDataParams> params)
 
 void PasteboardClient::GetFileProgressCb(std::shared_ptr<ProgressInfo> progressInfo)
 {
+    if (progressInfo == nullptr) {
+        return;
+    }
     std::lock_guard<std::mutex> lock(instanceLock_);
     std::string currentValue = std::to_string(progressInfo->percentage);
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cb=%{public}s", currentValue.c_str());
-    PasteBoardProgress::GetInstance().UpdateValue(progressKey_, currentValue);
+    PasteBoardProgress::GetInstance().UpdateValue(g_progressKey, currentValue);
 }
 
 int32_t PasteboardClient::PollHapSignal(std::string &signalKey)
 {
-    ffrtTimer_ = std::make_shared<FFRTTimer>("pasteboard_progress_abnormal");
-    if (ffrtTimer_ != nullptr) {
+    if (signalKey.empty()) {
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    std::shared_ptr<FFRTTimer> ffrtTimer;
+    ffrtTimer = std::make_shared<FFRTTimer>("pasteboard_progress_abnormal");
+    if (ffrtTimer != nullptr) {
         FFRTTask signaltask = [this, signalKey] {
             std::string defaultValue = "0";
             int32_t abnormalValue = 0;
@@ -334,7 +340,7 @@ int32_t PasteboardClient::PollHapSignal(std::string &signalKey)
                 return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
             }
         };
-        ffrtTimer_->SetTimer(signalKey, signaltask, 0);
+        ffrtTimer->SetTimer(signalKey, signaltask, 0);
     }
     return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
 }
@@ -414,25 +420,26 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData, std::str
 int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_ptr<GetDataParams> params)
 {
     if (params == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params is nullptr");
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
     std::string progressKey;
     std::string signalKey;
-    ffrtTimer_ = std::make_shared<FFRTTimer>("pasteboard_progress");
+    std::string keyDefaultValue = "0";
+    std::shared_ptr<FFRTTimer> ffrtTimer;
+    ffrtTimer = std::make_shared<FFRTTimer>("pasteboard_progress");
     if (params->progressIndicator == DEFAULT_PROGRESS_INDICATOR) {
-        PasteBoardProgress::GetInstance().InsertValue(progressKey, PROGRESS_START_PERCENT); // 0%
+        PasteBoardProgress::GetInstance().InsertValue(progressKey, keyDefaultValue); // 0%
         std::unique_lock<std::mutex> lock(instanceLock_);
-        progressKey_ = progressKey;
+        g_progressKey = progressKey;
         lock.unlock();
-        PasteBoardProgress::GetInstance().InsertValue(signalKey, SIGNAL_KEY_DEFAULT); // 0%
+        PasteBoardProgress::GetInstance().InsertValue(signalKey, keyDefaultValue); // 0%
         params->listener.ProgressNotify = GetFileProgressCb;
         PollHapSignal(signalKey);
-        if (ffrtTimer_ != nullptr) {
+        if (ffrtTimer != nullptr) {
             FFRTTask task = [this, progressKey, signalKey] {
                 ProgressMakeMessageInfo(progressKey, signalKey);
             };
-            ffrtTimer_->SetTimer(progressKey, task, HAP_PULL_UP_TIME);
+            ffrtTimer->SetTimer(progressKey, task, HAP_PULL_UP_TIME);
         }
     }
     pid_t pid = getpid();
@@ -456,8 +463,8 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     } else {
         ret = SetProgressWithoutFile(progressKey);
     }
-    if (ffrtTimer_ != nullptr) {
-        ffrtTimer_->CancelTimer(progressKey);
+    if (ffrtTimer != nullptr) {
+        ffrtTimer->CancelTimer(progressKey);
     }
     return ret;
 }

@@ -20,7 +20,6 @@
 #include <functional>
 #include <singleton.h>
 
-#include "ffrt_utils.h"
 #include "i_pasteboard_service.h"
 #include "paste_data.h"
 #include "paste_data_record.h"
@@ -56,7 +55,7 @@ enum FileConflictOption {
 
 enum ProgressIndicator {
     NONE_PROGRESS_INDICATOR = 0,
-    DEFAULI_PROGRESS_INDICATOR = 1
+    DEFAULT_PROGRESS_INDICATOR = 1
 };
 
 struct ProgressInfo {
@@ -505,7 +504,6 @@ private:
     static std::condition_variable proxyConVar_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
     std::atomic<uint32_t> getSequenceId_ = 0;
-    std::shared_ptr<FFRTTimer> ffrtTimer_;
     class StaticDestoryMonitor {
     public:
         StaticDestoryMonitor() : destoryed_(false) {}
