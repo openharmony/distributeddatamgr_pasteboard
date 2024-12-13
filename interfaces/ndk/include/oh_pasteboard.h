@@ -139,7 +139,7 @@ typedef struct Pasteboard_ProgressListener {
  *
  * @since 14
  */
-typedef int (*Pasteboard_ProgressCancel)();
+typedef int (*Pasteboard_ProgressCancel)(void);
 
 /**
  * brief Represents the Pasteboard progress signal when getting data.

@@ -20,7 +20,6 @@
 #include "napi_common_want.h"
 #include "napi_data_utils.h"
 #include "pasteboard_common.h"
-#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "systempasteboard_napi.h"
@@ -41,6 +40,7 @@ constexpr size_t DELAY_TIMEOUT = 2;
 const std::string STRING_UPDATE = "update";
 std::recursive_mutex SystemPasteboardNapi::listenerMutex_;
 std::map<std::string, std::shared_ptr<ProgressListenerFn>> SystemPasteboardNapi::listenerMap_;
+
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref) : env_(env), ref_(ref)
 {
     stub_ = new (std::nothrow) PasteboardObserverInstance::PasteboardObserverImpl();
@@ -1033,7 +1033,7 @@ void SystemPasteboardNapi::ProgressNotify(std::shared_ptr<ProgressInfo> progress
         listenerFn = it->second;
     }
 
-    if (listenerFn->tsFunction == nullptr) {
+    if (listenerFn == nullptr || listenerFn->tsFunction == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "thread safe function is nullptr!");
         return;
     }
@@ -1117,32 +1117,46 @@ bool SystemPasteboardNapi::AddProgressListener(napi_env env, std::shared_ptr<Mis
     return true;
 }
 
+bool SystemPasteboardNapi::CheckParamsType(napi_env env, napi_value in, napi_valuetype expectedType)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
+    if (type != expectedType) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid parametrs!");
+        return false;
+    }
+    return true;
+}
+
 bool SystemPasteboardNapi::ParseJsGetDataWithProgress(napi_env env, napi_value in,
     std::shared_ptr<MiscServices::GetDataParams> &getDataParam)
 {
     #define MAX_DESTURI_LEN 250
     napi_value destUri = nullptr;
     NAPI_CALL_BASE(env, napi_get_named_property(env, in, "destUri", &destUri), false);
-    size_t destUriLen = 0;
-    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, destUri, nullptr, 0, &destUriLen), false);
-    if (destUriLen <= 0 || destUriLen > MAX_DESTURI_LEN) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "destUriLen check failed!");
-        return false;
+    if (CheckParamsType(env, destUri, napi_string)) {
+        size_t destUriLen = 0;
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, destUri, nullptr, 0, &destUriLen), false);
+        if (destUriLen <= 0 || destUriLen > MAX_DESTURI_LEN) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "destUriLen check failed!");
+            return false;
+        }
+        char *uri = (char *)malloc(destUriLen + 1);
+        if (uri == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "malloc failed, uri is nullptr.");
+            return false;
+        }
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, destUri, uri, destUriLen + 1, &destUriLen), false);
+        getDataParam->destUri = uri;
+        free(uri);
     }
-
-    char *uri = (char *)malloc(destUriLen + 1);
-    if (uri == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "malloc failed, uri is nullptr.");
-        return false;
-    }
-    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, destUri, uri, destUriLen + 1, &destUriLen), false);
-    getDataParam->destUri = uri;
-    free(uri);
-
     napi_value fileConflictOption;
     NAPI_CALL_BASE(env, napi_get_named_property(env, in, "fileConflictOption", &fileConflictOption), false);
-    NAPI_CALL_BASE(env, napi_get_value_int32(env, fileConflictOption,
-        reinterpret_cast<int *>(&getDataParam->fileConflictOption)), false);
+    getDataParam->fileConflictOption = FILE_OVERWRITE;
+    if (CheckParamsType(env, fileConflictOption, napi_number)) {
+        NAPI_CALL_BASE(env, napi_get_value_int32(env, fileConflictOption,
+            reinterpret_cast<int *>(&getDataParam->fileConflictOption)), false);
+    }
     napi_value progressIndicator;
     NAPI_CALL_BASE(env, napi_get_named_property(env, in, "progressIndicator", &progressIndicator), false);
     NAPI_CALL_BASE(env, napi_get_value_int32(env, progressIndicator,
@@ -1150,19 +1164,11 @@ bool SystemPasteboardNapi::ParseJsGetDataWithProgress(napi_env env, napi_value i
 
     std::shared_ptr<ProgressListenerFn> listenerFn = std::make_shared<ProgressListenerFn>();
     NAPI_CALL_BASE(env, napi_get_named_property(env, in, "progressListener", &listenerFn->jsCallback), false);
-    if (!CheckArgsType(env, listenerFn->jsCallback, napi_function, "The type of jsCallback must be function.")) {
-        return false;
-    }
-
-    napi_value progressSignal;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, in, "progressSignal", &progressSignal), false);
-    if (!CheckArgsType(env, progressSignal, napi_object, "The type of progressSignal must be object.")) {
-        return false;
-    }
-
-    if (!AddProgressListener(env, getDataParam, listenerFn)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "add listener failed!");
-        return false;
+    if (CheckParamsType(env, listenerFn->jsCallback, napi_function)) {
+        if (!AddProgressListener(env, getDataParam, listenerFn)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "add listener failed!");
+            return false;
+        }
     }
     return true;
 }
@@ -1177,6 +1183,8 @@ void SystemPasteboardNapi::GetDataWithProgressParam(std::shared_ptr<GetDataParam
         }
         if (!ParseJsGetDataWithProgress(env, argv[0], context->getDataParams)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "parse getDataWithProgress param failed!");
+            context->SetErrInfo(static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+                "params is invalid.");
             return napi_invalid_arg;
         }
         return napi_ok;
@@ -1211,10 +1219,16 @@ napi_value SystemPasteboardNapi::GetDataWithProgress(napi_env env, napi_callback
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(*context->pasteData,
             context->getDataParams);
-        if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
-            context->SetErrInfo(ret, "Another getDataWithProgress is being processed");
+        auto it = ErrorCodeMap.find(PasteboardError(ret));
+        if (it != ErrorCodeMap.end()) {
+            context->SetErrInfo(static_cast<int32_t>(it->second), "getDataWithProgress is failed!");
         } else {
-            context->status = napi_ok;
+            if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+                context->SetErrInfo(static_cast<int32_t>(JSErrorCode::ERR_GET_DATA_FAILED),
+                    "getDataWithProgress is failed!");
+            } else {
+                context->status = napi_ok;
+            }
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress End");
     };
