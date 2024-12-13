@@ -42,6 +42,8 @@
 #include "pasteboard_error.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_event_ue.h"
+#include "pasteboard_progress.h"
+#include "pasteboard_progress_signal.h"
 #include "pasteboard_service.h"
 #include "pasteboard_trace.h"
 #include "remote_file_share.h"
@@ -574,6 +576,35 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isLocalPaste = %{public}d.", pasteData.IsLocalPaste());
 }
 
+void PasteboardService::ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey)
+{
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    if (!IsFocusedApp(tokenId)) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not focused app, no need to show progress.");
+        return;
+    }
+    PasteBoardDialog::ProgressMessageInfo message;
+    message.appName = GetAppLabel(tokenId);
+    std::string deviceName = "";
+    bool isRemote = false;
+    auto result = (GetRemoteDeviceName(deviceName, isRemote) == static_cast<int32_t>(PasteboardError::E_OK));
+    if (result && isRemote) {
+        message.promptText = "PromptText_PasteBoard_Remote";
+        message.remoteDeviceName = deviceName;
+    } else {
+        message.promptText = "PromptText_PasteBoard_Local";
+        message.remoteDeviceName = "";
+    }
+    message.isRemote = isRemote;
+    message.progressKey = progressKey;
+    message.signalKey = signalKey;
+    
+    FocusedAppInfo appInfo = GetFocusedAppInfo();
+    message.windowId = appInfo.windowId;
+    message.callerToken = appInfo.abilityToken;
+    PasteBoardDialog::GetInstance().ShowProgress(message);
+}
+
 int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
 {
     PasteboardTrace tracer("PasteboardService GetPasteData");
@@ -1022,6 +1053,35 @@ void PasteboardService::PasteComplete(const std::string &deviceId, const std::st
         }
         return true;
     });
+}
+
+int32_t PasteboardService::GetRemoteDeviceName(std::string &deviceName, bool &isRemote)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "enter");
+    PasteData data;
+    int32_t syncTime = 0;
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = GetAppInfo(tokenId);
+    auto event = GetValidDistributeEvent(appInfo.userId);
+    if (!event.first || GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
+        GetLocalData(appInfo, data);
+    } else {
+        GetRemoteData(appInfo.userId, event.second, data, syncTime);
+    }
+    DmDeviceInfo remoteDevice;
+    if (data.IsRemote()) {
+        auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(event.second.deviceId, remoteDevice);
+        if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
+            return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+        }
+        deviceName = remoteDevice.deviceName;
+        isRemote = true;
+    } else {
+        deviceName = "local";
+        isRemote = false;
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string &targetBundleName)
@@ -2010,6 +2070,20 @@ bool PasteboardService::IsFocusedApp(uint32_t tokenId)
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->CheckUIExtensionIsFocused(tokenId, isFocused);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check result:%{public}d, isFocused:%{public}d", ret, isFocused);
     return ret == NO_ERROR && isFocused;
+}
+
+FocusedAppInfo PasteboardService::GetFocusedAppInfo(void) const
+{
+    FocusedAppInfo appInfo = { 0 };
+    FocusChangeInfo info;
+#ifdef SCENE_BOARD_ENABLE
+    WindowManagerLite::GetInstance().GetFocusWindowInfo(info);
+#else
+    WindowManager::GetInstance().GetFocusWindowInfo(info);
+#endif
+    appInfo.windowId = info.windowId_;
+    appInfo.abilityToken = info.abilityToken_;
+    return appInfo;
 }
 
 void PasteboardService::SetPasteDataDot(PasteData &pasteData)

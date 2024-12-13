@@ -70,6 +70,10 @@ PasteboardServiceStub::PasteboardServiceStub()
         &PasteboardServiceStub::OnGetRecordValueByType;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_MIME_TYPES)] =
         &PasteboardServiceStub::OnGetMimeTypes;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_REMOTE_DEVICE_NAME)] =
+        &PasteboardServiceStub::OnGetRemoteDeviceName;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PROGRESS_MAKE_MESSAGE_INFO)] =
+        &PasteboardServiceStub::OnProgressMakeMessageInfo;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -358,6 +362,36 @@ int32_t PasteboardServiceStub::OnGetMimeTypes(MessageParcel &data, MessageParcel
             return ERR_INVALID_VALUE;
         }
     }
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnGetRemoteDeviceName(MessageParcel &data, MessageParcel &reply)
+{
+    std::string name;
+    bool isRemote;
+    auto ret = GetRemoteDeviceName(name, isRemote);
+    if (name.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get remote device name");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteString(name) || !reply.WriteBool(isRemote)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write name result");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(ret)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write result");
+        return ERR_INVALID_VALUE;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end, ret is %{public}d.", ret);
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnProgressMakeMessageInfo(MessageParcel &data, MessageParcel &reply)
+{
+    std::string progressKey = data.ReadString();
+    std::string signalKey = data.ReadString();
+    ProgressMakeMessageInfo(progressKey, signalKey);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }
 

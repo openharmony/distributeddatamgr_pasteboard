@@ -15,6 +15,8 @@
 #ifndef PASTEBOARD_ERROR_H
 #define PASTEBOARD_ERROR_H
 
+#include <map>
+
 #include "errors.h"
 #include "pasteboard_hilog.h"
 
@@ -72,6 +74,8 @@ enum class PasteboardError : int32_t {
     GET_LOCAL_DATA,
     INVALID_EVENT_ACCOUNT,
     INVALID_EVENT_STATUS,
+    PROGRESS_PASTE_TIME_OUT,
+    PROGRESS_CANCEL_PASTE,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {

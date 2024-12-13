@@ -22,6 +22,7 @@ config("module_private_config") {
     "${pasteboard_framework_path}/innerkits/include",
     "${pasteboard_interfaces_path}/kits/napi/include",
     "${pasteboard_framework_path}/framework/include",
+    "${pasteboard_framework_path}/include/ffrt",
   ]
 }
 
@@ -36,6 +37,7 @@ common_external_deps = [
   "access_token:libnativetoken",
   "access_token:libtoken_setproc",
   "c_utils:utils",
+  "ffrt:libffrt",
   "hilog:libhilog",
   "ipc:ipc_single",
   "os_account:os_account_innerkits",

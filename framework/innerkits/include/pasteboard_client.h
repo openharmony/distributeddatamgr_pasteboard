@@ -26,6 +26,7 @@
 #include "pasteboard_delay_getter.h"
 #include "pasteboard_observer.h"
 #include "pasteboard_progress_signal.h"
+#include "refbase.h"
 #include "unified_data.h"
 #include "want.h"
 
@@ -41,6 +42,11 @@ private:
     DISALLOW_COPY_AND_MOVE(PasteboardSaDeathRecipient);
 };
 
+enum HapAbnormalScenario {
+    CANCEL_PASTE = 1,
+    PASTE_TIME_OUT = 2,
+};
+
 enum FileConflictOption {
     FILE_OVERWRITE = 0,
     FILE_SKIP = 1,
@@ -49,7 +55,7 @@ enum FileConflictOption {
 
 enum ProgressIndicator {
     NONE_PROGRESS_INDICATOR = 0,
-    DEFAULI_PROGRESS_INDICATOR = 1
+    DEFAULT_PROGRESS_INDICATOR = 1
 };
 
 struct ProgressInfo {
@@ -464,13 +470,35 @@ public:
  */
     int32_t GetUnifiedDataWithProgress(UDMF::UnifiedData &unifiedData, std::shared_ptr<GetDataParams> params);
 
+    /**
+ * GetRemoteDeviceName
+ * @descrition Obtain the remote device name.
+ * @param std::string deviceName - the device name of the remote device.
+ * @returns int32_t
+ */
+    int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote);
+
+    /**
+ * ProgressMakeMessageInfo
+ * @descrition Make progress message information and pull up hap.
+ * @param std::string progressKey - the progressKey.
+ * @param std::string signalKey - the signalKey.
+ * @returns void
+ */
+    void ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey);
+
 private:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void RetainUri(PasteData &pasteData);
     static void SplitWebviewPasteData(PasteData &pasteData);
+    static void GetFileProgressCb(std::shared_ptr<ProgressInfo> progressInfo);
+    int32_t PollHapSignal(std::string &signalKey);
+    static int32_t SetProgressWithoutFile(std::string &progressKey);
+    static void ProgressSmoothToTwentyPercent(std::string &progressKey);
     static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
-    int32_t GetPasteDataFromService(PasteData &pasteData, std::string currentPid, std::string currentId, pid_t pid);
+    int32_t GetPasteDataFromService(PasteData &pasteData, std::string currentPid, std::string currentId, pid_t pid,
+      std::string progressKey);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;
