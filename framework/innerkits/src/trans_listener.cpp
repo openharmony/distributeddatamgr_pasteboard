@@ -39,7 +39,7 @@ constexpr int PERCENTAGE = 100;
 
 void TransListener::RmDir(const std::string &path)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "RmDirm path : %{private}s", path.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "RmDir path : %{private}s", path.c_str());
     std::filesystem::path pathName(path);
     std::error_code errCode;
     if (std::filesystem::exists(pathName, errCode)) {
@@ -240,13 +240,13 @@ int32_t MiscServices::TransListener::OnFinished(const std::string &sessionName)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnFinished");
     {
         std::lock_guard<std::mutex> lock(callbackMutex_);
+        callback_->percentage = PERCENTAGE;
+        std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
+        proInfo->percentage = callback_->percentage;
+        progressListener_.ProgressNotify(proInfo);
         callback_ = nullptr;
     }
     copyEvent_.copyResult = SUCCESS;
-    callback_->percentage = PERCENTAGE;
-    std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
-    proInfo->percentage = callback_->percentage;
-    progressListener_.ProgressNotify(proInfo);
     cv_.notify_all();
     return ERRNO_NOERR;
 }

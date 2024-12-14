@@ -37,7 +37,6 @@
 
 namespace OHOS {
 namespace MiscServices {
-using namespace std;
 using namespace OHOS::AppExecFwk;
 const uint64_t MAX_VALUE = 0x7FFFFFFFFFFFFFFF;
 
@@ -46,7 +45,6 @@ struct ReceiveInfo {
     std::map<std::string, uint64_t> fileList; // filename, proceededSize
 };
 
-#if !defined(WIN_PLATFORM) && !defined(IOS_PLATFORM)
 class FileIoToken : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.fileio.open");
@@ -54,7 +52,6 @@ public:
     FileIoToken() = default;
     virtual ~FileIoToken() noexcept = default;
 };
-#endif
 
 struct CopyCallback {
     int32_t notifyFd = -1;
@@ -119,23 +116,23 @@ bool IsDirectory(const std::string &path);
 bool IsFile(const std::string &path);
 bool IsMediaUri(const std::string &uriPath);
 int32_t CheckOrCreatePath(const std::string &destPath);
-int32_t MakeDir(const string &path);
-int32_t RecurCopyDir(const string &srcPath, const string &destPath, std::shared_ptr<CopyInfo> copyInfo);
-int32_t CopySubDir(const string &srcPath, const string &destPath, std::shared_ptr<CopyInfo> copyInfo);
-int32_t CopyDirFunc(const string &src, const string &dest, std::shared_ptr<CopyInfo> copyInfo);
-int32_t CopyFile(const string &src, const string &dest, std::shared_ptr<CopyInfo> copyInfo);
+int32_t MakeDir(const std::string &path);
+int32_t RecurCopyDir(const std::string &srcPath, const std::string &destPath, std::shared_ptr<CopyInfo> copyInfo);
+int32_t CopySubDir(const std::string &srcPath, const std::string &destPath, std::shared_ptr<CopyInfo> copyInfo);
+int32_t CopyDirFunc(const std::string &src, const std::string &dest, std::shared_ptr<CopyInfo> copyInfo);
+int32_t CopyFile(const std::string &src, const std::string &dest, std::shared_ptr<CopyInfo> copyInfo);
 int32_t ExecCopy(std::shared_ptr<CopyInfo> copyInfo);
 int32_t ExecLocal(std::shared_ptr<CopyInfo> copyInfo, std::shared_ptr<CopyCallback> callback);
 int32_t CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
 uint64_t GetDirSize(std::shared_ptr<CopyInfo> infos, std::string path);
-tuple<int, uint64_t> GetFileSize(const std::string &path);
+std::tuple<int, uint64_t> GetFileSize(const std::string &path);
 int32_t InitLocalListener(std::shared_ptr<CopyInfo> infos, std::shared_ptr<CopyCallback> callback);
 std::shared_ptr<CopyCallback> GetRegisteredListener(std::shared_ptr<CopyInfo> infos);
 std::shared_ptr<ReceiveInfo> GetReceivedInfo(int wd, std::shared_ptr<CopyCallback> callback);
 bool CheckFileValid(const std::string &filePath, std::shared_ptr<CopyInfo> infos);
 int UpdateProgressSize(const std::string &filePath, std::shared_ptr<ReceiveInfo> receivedInfo,
     std::shared_ptr<CopyCallback> callback);
-tuple<bool, int, bool> HandleProgress(
+std::tuple<bool, int, bool> HandleProgress(
     inotify_event *event, std::shared_ptr<CopyInfo> infos, std::shared_ptr<CopyCallback> callback);
 void ReadNotifyEvent(std::shared_ptr<CopyInfo> infos);
 void GetNotifyEvent(std::shared_ptr<CopyInfo> infos);
