@@ -260,11 +260,11 @@ int32_t RecurCopyDir(const std::string &srcPath, const std::string &destPath, st
         return ENOMEM;
     }
     int num = scandir(srcPath.c_str(), &(pNameList->namelist), FilterFunc, alphasort);
-    pNameList->direntNum = num;
     if (num <= 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid scandir num."); 
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid scandir num.");
         return ENOMEM;
     }
+    pNameList->direntNum = num;
 
     for (int i = 0; i < num; i++) {
         std::string src = srcPath + '/' + std::string((pNameList->namelist[i])->d_name);
@@ -387,12 +387,16 @@ int32_t ExecCopy(std::shared_ptr<CopyInfo> copyInfo)
 
 uint64_t GetDirSize(std::shared_ptr<CopyInfo> infos, std::string path)
 {
-    std::unique_ptr<struct NameList, decltype(Deleter) *> pNameList = { new (nothrow) struct NameList, Deleter };
+    std::unique_ptr<struct NameList, decltype(Deleter) *> pNameList = { new (std::nothrow) struct NameList, Deleter };
     if (pNameList == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to request heap memory.");
         return ENOMEM;
     }
     int num = scandir(path.c_str(), &(pNameList->namelist), FilterFunc, alphasort);
+    if (num <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid scandir num.");
+        return ENOMEM;
+    }
     pNameList->direntNum = num;
 
     long int size = 0;
@@ -698,7 +702,7 @@ static void InitCopyInfo(PasteData &pasteData, const std::string destUri, std::s
     std::shared_ptr<OHOS::Uri> srcUri = pasteData.GetPrimaryUri();
     if (srcUri == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPrimaryUri is nullptr!");
-        return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
+        return;
     }
     copyInfo->srcUri = srcUri->ToString();
     copyInfo->destUri = destUri;
