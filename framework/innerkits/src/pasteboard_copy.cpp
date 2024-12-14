@@ -44,6 +44,7 @@
 #include "iservice_registry.h"
 #include "paste_data.h"
 #include "pasteboard_copy.h"
+#include "pasteboard_error.h"
 #include "pasteboard_fd_guard.h"
 #include "pasteboard_hilog.h"
 #include "system_ability_definition.h"
@@ -58,7 +59,7 @@ using namespace AppFileService::ModuleFileUri;
 namespace fs = std::filesystem;
 const std::string FILE_PREFIX_NAME = "file://";
 const std::string NETWORK_PARA = "?networkid=";
-const string PROCEDURE_COPY_NAME = "FileFSCopy";
+const std::string PROCEDURE_COPY_NAME = "FileFSCopy";
 const std::string MEDIALIBRARY_DATA_URI = "datashare:///media";
 const std::string MEDIA = "media";
 constexpr int DISMATCH = 0;
@@ -73,13 +74,13 @@ std::recursive_mutex mutex_;
 std::map<CopyInfo, std::shared_ptr<CopyCallback>> cbMap_;
 static ProgressListener progressListener_;
 
-static string GetModeFromFlags(unsigned int flags)
+static std::string GetModeFromFlags(unsigned int flags)
 {
-    const string readMode = "r";
-    const string writeMode = "w";
-    const string appendMode = "a";
-    const string truncMode = "t";
-    string mode = readMode;
+    const std::string readMode = "r";
+    const std::string writeMode = "w";
+    const std::string appendMode = "a";
+    const std::string truncMode = "t";
+    std::string mode = readMode;
     mode += (((flags & O_RDWR) == O_RDWR) ? writeMode : "");
     mode = (((flags & O_WRONLY) == O_WRONLY) ? writeMode : mode);
     if (mode != readMode) {
@@ -89,7 +90,7 @@ static string GetModeFromFlags(unsigned int flags)
     return mode;
 }
 
-static int32_t OpenSrcFile(const string &srcPath, std::shared_ptr<CopyInfo> copyInfo, int32_t &srcFd)
+static int32_t OpenSrcFile(const std::string &srcPath, std::shared_ptr<CopyInfo> copyInfo, int32_t &srcFd)
 {
     Uri uri(copyInfo->srcUri);
     if (uri.GetAuthority() == MEDIA) {
@@ -133,7 +134,7 @@ static int32_t SendFileCore(std::shared_ptr<FDGuard> srcFdg,
                             std::shared_ptr<CopyInfo> copyInfo)
 {
     std::unique_ptr<uv_fs_t, decltype(fs_req_cleanup)*> sendFileReq = {
-        new (nothrow) uv_fs_t, fs_req_cleanup };
+        new (std::nothrow) uv_fs_t, fs_req_cleanup };
     if (sendFileReq == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to request heap memory");
         return ENOMEM;
@@ -193,14 +194,14 @@ bool IsFile(const std::string &path)
 bool IsMediaUri(const std::string &uriPath)
 {
     Uri uri(uriPath);
-    string bundleName = uri.GetAuthority();
+    std::string bundleName = uri.GetAuthority();
     return bundleName == MEDIA;
 }
 
 int32_t CheckOrCreatePath(const std::string &destPath)
 {
     std::error_code errCode;
-    if (!filesystem::exists(destPath, errCode) && errCode.value() == ERRNO_NOERR) {
+    if (!std::filesystem::exists(destPath, errCode) && errCode.value() == ERRNO_NOERR) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "destPath not exist");
         auto file = open(destPath.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
         if (file < 0) {
@@ -216,7 +217,7 @@ int32_t CheckOrCreatePath(const std::string &destPath)
 
 static int FilterFunc(const struct dirent *filename)
 {
-    if (string_view(filename->d_name) == "." || string_view(filename->d_name) == "..") {
+    if (std::string_view(filename->d_name) == "." || std::string_view(filename->d_name) == "..") {
         return DISMATCH;
     }
     return MATCH;
@@ -239,11 +240,11 @@ static void Deleter(struct NameList *arg)
     arg = nullptr;
 }
 
-int32_t MakeDir(const string &path)
+int32_t MakeDir(const std::string &path)
 {
-    filesystem::path destDir(path);
+    std::filesystem::path destDir(path);
     std::error_code errCode;
-    if (!filesystem::create_directory(destDir, errCode)) {
+    if (!std::filesystem::create_directory(destDir, errCode)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to create directory, errno code = %{public}d",
             errCode.value());
         return errCode.value();
@@ -251,19 +252,23 @@ int32_t MakeDir(const string &path)
     return ERRNO_NOERR;
 }
 
-int32_t RecurCopyDir(const string &srcPath, const string &destPath, std::shared_ptr<CopyInfo> copyInfo)
+int32_t RecurCopyDir(const std::string &srcPath, const std::string &destPath, std::shared_ptr<CopyInfo> copyInfo)
 {
-    unique_ptr<struct NameList, decltype(Deleter) *> pNameList = { new (nothrow) struct NameList, Deleter };
+    std::unique_ptr<struct NameList, decltype(Deleter) *> pNameList = { new (std::nothrow) struct NameList, Deleter };
     if (pNameList == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to request heap memory.");
         return ENOMEM;
     }
     int num = scandir(srcPath.c_str(), &(pNameList->namelist), FilterFunc, alphasort);
     pNameList->direntNum = num;
+    if (num <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid scandir num."); 
+        return ENOMEM;
+    }
 
     for (int i = 0; i < num; i++) {
-        string src = srcPath + '/' + string((pNameList->namelist[i])->d_name);
-        string dest = destPath + '/' + string((pNameList->namelist[i])->d_name);
+        std::string src = srcPath + '/' + std::string((pNameList->namelist[i])->d_name);
+        std::string dest = destPath + '/' + std::string((pNameList->namelist[i])->d_name);
         if ((pNameList->namelist[i])->d_type == DT_LNK) {
             continue;
         }
@@ -281,10 +286,10 @@ int32_t RecurCopyDir(const string &srcPath, const string &destPath, std::shared_
     return ERRNO_NOERR;
 }
 
-int32_t CopySubDir(const string &srcPath, const string &destPath, std::shared_ptr<CopyInfo> copyInfo)
+int32_t CopySubDir(const std::string &srcPath, const std::string &destPath, std::shared_ptr<CopyInfo> copyInfo)
 {
     std::error_code errCode;
-    if (!filesystem::exists(destPath, errCode) && errCode.value() == ERRNO_NOERR) {
+    if (!std::filesystem::exists(destPath, errCode) && errCode.value() == ERRNO_NOERR) {
         int res = MakeDir(destPath);
         if (res != ERRNO_NOERR) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to mkdir");
@@ -321,7 +326,7 @@ int32_t CopySubDir(const string &srcPath, const string &destPath, std::shared_pt
     return RecurCopyDir(srcPath, destPath, copyInfo);
 }
 
-int32_t CopyDirFunc(const string &src, const string &dest, std::shared_ptr<CopyInfo> copyInfo)
+int32_t CopyDirFunc(const std::string &src, const std::string &dest, std::shared_ptr<CopyInfo> copyInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "CopyDirFunc in, src=%{public}s, dest=%{public}s",
         src.c_str(), dest.c_str());
@@ -334,11 +339,11 @@ int32_t CopyDirFunc(const string &src, const string &dest, std::shared_ptr<CopyI
     if (srcPath.has_parent_path()) {
         dirName = srcPath.parent_path().filename();
     }
-    string destStr = dest + "/" + dirName;
+    std::string destStr = dest + "/" + dirName;
     return CopySubDir(src, destStr, copyInfo);
 }
 
-int32_t CopyFile(const string &src, const string &dest, std::shared_ptr<CopyInfo> copyInfo)
+int32_t CopyFile(const std::string &src, const std::string &dest, std::shared_ptr<CopyInfo> copyInfo)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "src = %{public}s, dest = %{public}s", src.c_str(), dest.c_str());
     int32_t srcFd = -1;
@@ -355,7 +360,7 @@ int32_t CopyFile(const string &src, const string &dest, std::shared_ptr<CopyInfo
     std::shared_ptr<FDGuard> srcFdg = std::make_shared<FDGuard>(srcFd, true);
     std::shared_ptr<FDGuard> destFdg = std::make_shared<FDGuard>(destFd, true);
     if (srcFdg == nullptr || destFdg == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to requet heap memory.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to request heap memory.");
         close(srcFd);
         close(destFd);
         return ENOMEM;
@@ -382,7 +387,7 @@ int32_t ExecCopy(std::shared_ptr<CopyInfo> copyInfo)
 
 uint64_t GetDirSize(std::shared_ptr<CopyInfo> infos, std::string path)
 {
-    unique_ptr<struct NameList, decltype(Deleter) *> pNameList = { new (nothrow) struct NameList, Deleter };
+    std::unique_ptr<struct NameList, decltype(Deleter) *> pNameList = { new (nothrow) struct NameList, Deleter };
     if (pNameList == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to request heap memory.");
         return ENOMEM;
@@ -392,7 +397,7 @@ uint64_t GetDirSize(std::shared_ptr<CopyInfo> infos, std::string path)
 
     long int size = 0;
     for (int i = 0; i < num; i++) {
-        string dest = path + '/' + string((pNameList->namelist[i])->d_name);
+        std::string dest = path + '/' + std::string((pNameList->namelist[i])->d_name);
         if ((pNameList->namelist[i])->d_type == DT_LNK) {
             continue;
         }
@@ -409,7 +414,7 @@ uint64_t GetDirSize(std::shared_ptr<CopyInfo> infos, std::string path)
     return size;
 }
 
-tuple<int, uint64_t> GetFileSize(const std::string &path)
+std::tuple<int, uint64_t> GetFileSize(const std::string &path)
 {
     struct stat buf {};
     int ret = stat(path.c_str(), &buf);
@@ -453,11 +458,19 @@ int32_t InitLocalListener(std::shared_ptr<CopyInfo> infos, std::shared_ptr<CopyC
     callback->wds.push_back({ newWd, receiveInfo });
     if (!infos->isFile) {
         callback->totalSize = GetDirSize(infos, infos->srcPath);
+        if (callback->totalSize == 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid totalSize.");
+            return ENOMEM;
+        }
         return ERRNO_NOERR;
     }
     auto [err, fileSize] = GetFileSize(infos->srcPath);
     if (err == ERRNO_NOERR) {
         callback->totalSize = fileSize;
+        if (callback->totalSize == 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid totalSize.");
+            return ENOMEM;
+        }
     }
     infos->hasListener = true;
     return err;
@@ -509,11 +522,15 @@ int UpdateProgressSize(const std::string &filePath, std::shared_ptr<ReceiveInfo>
             iter->second = size;
         }
     }
+    if (callback->totalSize == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid totalSize.");
+        return ENOMEM;
+    }
     callback->percentage = (int32_t)(PERCENTAGE * callback->progressSize / callback->totalSize);
     return ERRNO_NOERR;
 }
 
-tuple<bool, int, bool> HandleProgress(
+std::tuple<bool, int, bool> HandleProgress(
     inotify_event *event, std::shared_ptr<CopyInfo> infos, std::shared_ptr<CopyCallback> callback)
 {
     if (callback == nullptr) {
@@ -525,7 +542,7 @@ tuple<bool, int, bool> HandleProgress(
     }
     std::string fileName = receivedInfo->path;
     if (!infos->isFile) { // files under subdir
-        fileName += "/" + string(event->name);
+        fileName += "/" + std::string(event->name);
         if (!CheckFileValid(fileName, infos)) {
             return { true, EINVAL, false };
         }
@@ -539,6 +556,10 @@ tuple<bool, int, bool> HandleProgress(
             return { false, err, false };
         }
         callback->progressSize = fileSize;
+        if (callback->totalSize == 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid totalSize.");
+            return { false, ENOMEM, false };
+        }
         callback->percentage = (int32_t)(PERCENTAGE * callback->progressSize / callback->totalSize);
     }
     return { true, callback->errorCode, true };
@@ -551,7 +572,7 @@ void ReadNotifyEvent(std::shared_ptr<CopyInfo> infos)
     int len = 0;
     int64_t index = 0;
     auto callback = GetRegisteredListener(infos);
-    while (((len = read(infos->notifyFd, &buf, sizeof(buf))) < 0)) {
+    while (((len = read(infos->notifyFd, &buf, sizeof(buf))) <= 0)) {
         if (errno != EINTR) {
             break;
         }
@@ -674,7 +695,12 @@ std::string GetRealPath(const std::string& path)
 
 static void InitCopyInfo(PasteData &pasteData, const std::string destUri, std::shared_ptr<CopyInfo> copyInfo)
 {
-    copyInfo->srcUri = pasteData.GetPrimaryUri()->ToString();
+    std::shared_ptr<OHOS::Uri> srcUri = pasteData.GetPrimaryUri();
+    if (srcUri == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPrimaryUri is nullptr!");
+        return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
+    }
+    copyInfo->srcUri = srcUri->ToString();
     copyInfo->destUri = destUri;
     FileUri srcFileUri(copyInfo->srcUri);
     copyInfo->srcPath = srcFileUri.GetRealPath();
@@ -754,23 +780,23 @@ int32_t CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataP
 {
     if (dataParams == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid dataParams");
-        return -1;
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
     if (pasteData.GetPrimaryUri() == nullptr) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PasteData has no uri");
-        return 0;
+        return static_cast<int32_t>(PasteboardError::E_OK);
     }
     std::string destUri = dataParams->destUri;
     std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
     if (copyInfo == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Invalid copyInfo");
-        return -1;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copyInfo");
+        return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
     }
     InitCopyInfo(pasteData, destUri, copyInfo);
     auto callback = RegisterListener(copyInfo);
     if (callback == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CopyCallback registe failed");
-        return -1;
+        return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
     }
     if (pasteData.IsRemote() || IsRemoteUri(copyInfo->srcUri)) {
         int32_t ret = TransListener::CopyFileFromSoftBus(copyInfo->srcUri,
