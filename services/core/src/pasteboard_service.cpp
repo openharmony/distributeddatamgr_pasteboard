@@ -48,7 +48,9 @@
 #include "pasteboard_trace.h"
 #include "remote_file_share.h"
 #include "reporter.h"
+#ifdef PB_SCREENLOCK_MGR_ENABLE
 #include "screenlock_manager.h"
+#endif
 #include "tokenid_kit.h"
 #include "uri_permission_manager_client.h"
 #ifdef SCENE_BOARD_ENABLE
