@@ -50,11 +50,13 @@ namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
 std::string g_progressKey;
+bool g_isFinishProgress = false;
 constexpr int32_t LOADSA_TIMEOUT_MS = 4000;
 constexpr int32_t PASTEBOARD_PROGRESS_UPDATE_PERCENT = 5;
 constexpr int32_t PASTEBOARD_PROGRESS_TWENTY_PERCENT = 20;
-constexpr int32_t PASTEBOARD_PROGRESS_END_PERCENT = 100;
+constexpr int32_t PASTEBOARD_PROGRESS_FINISH_PERCENT = 100;
 constexpr int32_t PASTEBOARD_PROGRESS_SLEEP_TIME = 100; // ms
+constexpr int32_t PASTEBOARD_PROGRESS_RETRY_TIMES = 10;
 constexpr int64_t REPORT_DUPLICATE_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 static constexpr int32_t HAP_PULL_UP_TIME = 500; // ms
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
@@ -303,15 +305,50 @@ void PasteboardClient::CopyFile(std::shared_ptr<GetDataParams> params)
     }
 }
 
-void PasteboardClient::GetFileProgressCb(std::shared_ptr<ProgressInfo> progressInfo)
+void PasteboardClient::GetFileProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo)
 {
     if (progressInfo == nullptr) {
         return;
     }
-    std::lock_guard<std::mutex> lock(instanceLock_);
+    std::unique_lock<std::mutex> lock(instanceLock_);
+    std::string progressKey = g_progressKey;
+    if (progressInfo->percentage == PASTEBOARD_PROGRESS_FINISH_PERCENT) {
+        g_isFinishProgress = true;
+    }
+    lock.unlock();
     std::string currentValue = std::to_string(progressInfo->percentage);
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cb=%{public}s", currentValue.c_str());
-    PasteBoardProgress::GetInstance().UpdateValue(g_progressKey, currentValue);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "pasteboard file progress = %{public}s", currentValue.c_str());
+    PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
+}
+
+int32_t PasteboardClient::HandleProgressStatus(const std::string &signalKey)
+{
+    std::string defaultValue = "0";
+    int32_t progressStatusValue = 0;
+    int32_t retry = 0;
+    do {
+        std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
+        auto ret = PasteBoardProgress::GetInstance().GetValue(signalKey, defaultValue);
+        progressStatusValue = std::stoi(defaultValue);
+        if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+            retry++;
+        } else {
+            retry = 0;
+        }
+    } while (progressStatusValue == NORMAL_PASTE && retry <= PASTEBOARD_PROGRESS_RETRY_TIMES
+        && !g_isFinishProgress);
+    std::lock_guard<std::mutex> lock(instanceLock_);
+    g_isFinishProgress = true;
+    if (progressStatusValue == CANCEL_PASTE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cancel paste");
+        return static_cast<int32_t>(PasteboardError::PROGRESS_CANCEL_PASTE);
+    } else if (progressStatusValue == PASTE_TIME_OUT) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress time out");
+        return static_cast<int32_t>(PasteboardError::PROGRESS_PASTE_TIME_OUT);
+    } else {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress invalied status");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
 }
 
 int32_t PasteboardClient::PollHapSignal(std::string &signalKey)
@@ -322,27 +359,15 @@ int32_t PasteboardClient::PollHapSignal(std::string &signalKey)
     std::shared_ptr<FFRTTimer> ffrtTimer;
     ffrtTimer = std::make_shared<FFRTTimer>("pasteboard_progress_abnormal");
     if (ffrtTimer != nullptr) {
-        FFRTTask signaltask = [this, signalKey] {
-            std::string defaultValue = "0";
-            int32_t abnormalValue = 0;
-            do {
-                std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
-                PasteBoardProgress::GetInstance().GetValue(signalKey, defaultValue);
-                abnormalValue = std::stoi(defaultValue);
-            } while (abnormalValue == 0);
-            if (abnormalValue == CANCEL_PASTE) {
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cancel paste");
-                return static_cast<int32_t>(PasteboardError::PROGRESS_CANCEL_PASTE);
-            } else if (abnormalValue == PASTE_TIME_OUT) {
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress time out");
-                return static_cast<int32_t>(PasteboardError::PROGRESS_PASTE_TIME_OUT);
-            } else {
-                return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-            }
+        FFRTTask signalTask = [this, signalKey] {
+            HandleProgressStatus(signalKey);
         };
-        ffrtTimer->SetTimer(signalKey, signaltask, 0);
+        ffrtTimer->SetTimer(signalKey, signalTask, 0);
     }
-    return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    if (ffrtTimer != nullptr) {
+        ffrtTimer->CancelTimer(signalKey);
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey)
@@ -352,12 +377,14 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey)
     }
     int progressValue = PASTEBOARD_PROGRESS_TWENTY_PERCENT;
     std::string currentValue = std::to_string(PASTEBOARD_PROGRESS_TWENTY_PERCENT);
-    while (progressValue <= PASTEBOARD_PROGRESS_END_PERCENT) {
+    while (progressValue <= PASTEBOARD_PROGRESS_FINISH_PERCENT) {
         PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
         std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
         progressValue += PASTEBOARD_PROGRESS_UPDATE_PERCENT;
         currentValue = std::to_string(progressValue);
     }
+    std::lock_guard<std::mutex> lock(instanceLock_);
+    g_isFinishProgress = true;
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
@@ -433,7 +460,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
         g_progressKey = progressKey;
         lock.unlock();
         PasteBoardProgress::GetInstance().InsertValue(signalKey, keyDefaultValue); // 0%
-        params->listener.ProgressNotify = GetFileProgressCb;
+        params->listener.ProgressNotify = GetFileProgressByProgressInfo;
         PollHapSignal(signalKey);
         if (ffrtTimer != nullptr) {
             FFRTTask task = [this, progressKey, signalKey] {

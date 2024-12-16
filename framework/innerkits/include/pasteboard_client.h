@@ -42,7 +42,8 @@ private:
     DISALLOW_COPY_AND_MOVE(PasteboardSaDeathRecipient);
 };
 
-enum HapAbnormalScenario {
+enum ProgressStatus {
+    NORMAL_PASTE = 0,
     CANCEL_PASTE = 1,
     PASTE_TIME_OUT = 2,
 };
@@ -492,7 +493,8 @@ private:
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void RetainUri(PasteData &pasteData);
     static void SplitWebviewPasteData(PasteData &pasteData);
-    static void GetFileProgressCb(std::shared_ptr<ProgressInfo> progressInfo);
+    static void GetFileProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo);
+    static int32_t HandleProgressStatus(const std::string &signalKey);
     int32_t PollHapSignal(std::string &signalKey);
     static int32_t SetProgressWithoutFile(std::string &progressKey);
     static void ProgressSmoothToTwentyPercent(std::string &progressKey);

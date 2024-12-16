@@ -20,10 +20,9 @@
 #include "iservice_registry.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "third_party/vixl/src/utils-vixl.h"
-#include "udmf_client.h"
 #include "paste_data_entry.h"
- 
+#include "udmf_client.h"
+
 using namespace OHOS::UDMF;
 namespace OHOS::MiscServices {
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
@@ -60,8 +59,8 @@ void PasteBoardProgress::Initialize()
  
 int32_t PasteBoardProgress::InsertValue(std::string &key, std::string &value)
 {
-    CustomOption option1 = {.intention = Intention::UD_INTENTION_DATA_HUB};
-    UnifiedData data1;
+    CustomOption option = {.intention = Intention::UD_INTENTION_DATA_HUB};
+    UnifiedData data;
     auto udsObject = std::make_shared<Object>();
     if (udsObject == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "udsObject is nullptr");
@@ -70,10 +69,10 @@ int32_t PasteBoardProgress::InsertValue(std::string &key, std::string &value)
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     udsObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
     udsObject->value_[UDMF::CONTENT] = value;
-    std::shared_ptr<UnifiedRecord> record1 = std::make_shared<UnifiedRecord>();
-    record1->AddEntry(utdId, std::move(udsObject));
-    data1.AddRecord(record1);
-    int32_t val = UdmfClient::GetInstance().SetData(option1, data1, key);
+    std::shared_ptr<UnifiedRecord> record = std::make_shared<UnifiedRecord>();
+    record->AddEntry(utdId, std::move(udsObject));
+    data.AddRecord(record);
+    UdmfClient::GetInstance().SetData(option, data, key);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
  
@@ -92,29 +91,33 @@ int32_t PasteBoardProgress::UpdateValue(std::string &key, std::string value)
     std::shared_ptr<UnifiedRecord> record = std::make_shared<UnifiedRecord>();
     record->AddEntry(utdId, std::move(udsObject));
     data.AddRecord(record);
-    int32_t val = UdmfClient::GetInstance().UpdateData(queryOption, data);
+    UdmfClient::GetInstance().UpdateData(queryOption, data);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
  
 int32_t PasteBoardProgress::GetValue(const std::string &key, std::string &value)
 {
     QueryOption option = { .key = key };
-    UnifiedData data;
-    UdmfClient::GetInstance().GetData(option, data);
-    if (data.GetRecords().empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getrecords is empty");
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    std::vector<UnifiedData> data;
+    UdmfClient::GetInstance().GetBatchData(option, data);
+    if (data.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "data is empty");
+        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
     }
-    auto outputRecord = data.GetRecordAt(0);
+    if (data[0].GetRecords().empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getrecords is empty");
+        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
+    }
+    auto outputRecord = data[0].GetRecordAt(0);
     if (outputRecord == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "outputRecord is nullptr");
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
     }
     auto plainText = outputRecord->GetValue();
     auto object = std::get<std::shared_ptr<Object>>(plainText);
     if (object == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "object is nullptr");
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
     }
     object->GetValue(UDMF::CONTENT, value);
     return static_cast<int32_t>(PasteboardError::E_OK);
