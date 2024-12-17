@@ -200,38 +200,46 @@ std::pair<int32_t, std::string> DevProfile::GetEnabledStatus(const std::string &
     return std::make_pair(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), "");
 }
 
-void DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)
+bool DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion start.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "netid=%{public}.5s", networkId.c_str());
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed.");
-        return;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get udid failed, netid=%{public}.5s", networkId.c_str());
+        return false;
     }
+
     DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret =
-        DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(
-            udid, SERVICE_ID, STATIC_CHARACTER_ID, profile);
+    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SERVICE_ID,
+        STATIC_CHARACTER_ID, profile);
     if (ret != HANDLE_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetCharacteristicProfile failed, %{public}.5s.", udid.c_str());
-        return;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get profile failed, udid=%{public}.5s", udid.c_str());
+        return false;
     }
-    const auto &jsonData = profile.GetCharacteristicValue();
-    cJSON *jsonObject = cJSON_Parse(jsonData.c_str());
-    if (jsonObject == nullptr) {
-        cJSON_Delete(jsonObject);
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "json parse failed.");
-        return;
+
+    const std::string &jsonStr = profile.GetCharacteristicValue();
+    cJSON *jsonObj = cJSON_Parse(jsonStr.c_str());
+    if (jsonObj == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "parse profile failed, profile=%{public}s", jsonStr.c_str());
+        return false;
     }
-    if (cJSON_GetNumberValue(cJSON_GetObjectItem(jsonObject, VERSION_ID)) == FIRST_VERSION) {
-        versionId = FIRST_VERSION;
+
+    cJSON *version = cJSON_GetObjectItemCaseSensitive(jsonObj, VERSION_ID);
+    if (version == nullptr || !cJSON_IsNumber(version) || (version->valuedouble < 0)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "version not found, profile=%{public}s", jsonStr.c_str());
+        cJSON_Delete(jsonObj);
+        return false;
     }
-    cJSON_Delete(jsonObject);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetRemoteDeviceVersion success, versionId = %{public}d.", versionId);
+
+    versionId = static_cast<uint32_t>(version->valuedouble);
+    cJSON_Delete(jsonObj);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "netid=%{public}.5s, udid=%{public}.5s, version=%{public}u",
+        networkId.c_str(), udid.c_str(), versionId);
+    return true;
 #else
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
+    return true;
 #endif
 }
 
@@ -255,7 +263,7 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_ADD);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_UPDATE);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_DELETE);
-    sptr<IProfileChangeListener> subscribeDPChangeListener = new(std::nothrow) SubscribeDPChangeListener;
+    sptr<IProfileChangeListener> subscribeDPChangeListener = new (std::nothrow) SubscribeDPChangeListener;
     subscribeInfo.SetListener(subscribeDPChangeListener);
     subscribeInfoCache_[udid] = subscribeInfo;
     int32_t errCode = DistributedDeviceProfileClient::GetInstance().SubscribeDeviceProfile(subscribeInfo);
@@ -280,7 +288,7 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
     if (it == subscribeInfoCache_.end()) {
         return;
     }
-        int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(it->second);
+    int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(it->second);
     subscribeInfoCache_.erase(it);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "UnsubscribeProfileEvent result, errCode = %{public}d.", errCode);
 #else
