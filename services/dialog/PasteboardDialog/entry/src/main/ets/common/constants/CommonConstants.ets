@@ -36,6 +36,12 @@ export default class CommonConstants {
   public static readonly ITEM_LIST_PADDING_TOP: number = 17;
   public static readonly ITEM_LIST_PADDING_BOTTOM: number = 18;
   public static readonly FONT_SIZE_SCALE_PARAM: string = 'persist.sys.font_scale_for_user0';
+  public static readonly ANIMATOR_HEIGHT_PHONE: number = 192;
+  public static readonly ANIMATOR_HEIGHT_PC: number = 207;
+  public static readonly ANIMATOR_HEIGHT_PAD: number = 212;
+  public static readonly ANIMATOR_WIDTH_PHONE: number = 290;
+  public static readonly ANIMATOR_WIDTH_PC: number = 312;
+  public static readonly ANIMATOR_WIDTH_PAD: number = 320;
 
   // Tips
   public static readonly TIPS_TYPE:string = '119';
