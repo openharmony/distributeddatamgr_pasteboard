@@ -20,6 +20,7 @@
 #include <random>
 
 #include "ipc_skeleton.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "sandbox_helper.h"
 #include "uri.h"
@@ -117,7 +118,7 @@ int32_t MiscServices::TransListener::CopyFileFromSoftBus(const std::string &srcU
     }
     if (info.authority == FILE_MANAGER_AUTHORITY || info.authority == MEDIA_AUTHORITY) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Public or media path not copy");
-        return ERRNO_NOERR;
+        return static_cast<int32_t>(PasteboardError::E_OK);
     }
 
     ret = CopyToSandBox(srcUri, disSandboxPath, info.sandboxPath, currentId);
@@ -126,7 +127,7 @@ int32_t MiscServices::TransListener::CopyFileFromSoftBus(const std::string &srcU
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CopyToSandBox failed, ret = %{public}d.", ret);
         return EIO;
     }
-    return ERRNO_NOERR;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t MiscServices::TransListener::PrepareCopySession(const std::string &srcUri, const std::string &destUri,

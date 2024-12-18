@@ -28,21 +28,20 @@ namespace OHOS {
 namespace MiscServices {
 class API_EXPORT ProgressSignalClient {
 public:
-    ProgressSignalClient() {};
-    ~ProgressSignalClient() {};
     static ProgressSignalClient &GetInstance();
-    int32_t Cancel();
+    void Cancel();
     bool IsCanceled();
-    bool CheckCancelIfNeed(const std::string &path);
+    bool CheckCancelIfNeed();
     void MarkRemoteTask();
-    void SetFileInfoOfRemoteTask(const std::string &sessionName, const std::string &filePath);
-    std::atomic_bool needCancel_{ false };
-    std::atomic_bool remoteTask_{ false };
-    std::string sessionName_ = std::string("");
-    std::string filePath_ = std::string("");
 
 private:
-    static void CancelCopyTask();
+    ProgressSignalClient() = default;
+    ~ProgressSignalClient() = default;
+    DISALLOW_COPY_AND_MOVE(ProgressSignalClient);
+    std::atomic_bool needCancel_{ false };
+    std::atomic_bool remoteTask_{ false };
+    static std::mutex mutex_;
+    static ProgressSignalClient *instance_;
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -23,31 +23,24 @@
 
 namespace OHOS {
 namespace MiscServices {
+std::mutex ProgressSignalClient::mutex_;
+ProgressSignalClient *ProgressSignalClient::instance_ = nullptr;
+
 ProgressSignalClient &ProgressSignalClient::GetInstance()
 {
-    static ProgressSignalClient instance;
-    return instance;
+    if (instance_ == nullptr) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (instance_ == nullptr) {
+            instance_ = new ProgressSignalClient();
+        }
+    }
+    return *instance_;
 }
 
-void ProgressSignalClient::CancelCopyTask()
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CancelCopyTask in!");
-}
-
-int32_t ProgressSignalClient::Cancel()
+void ProgressSignalClient::Cancel()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressSignalClient Cancel in!");
-    if (remoteTask_.load()) {
-        if (sessionName_.empty()) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "sessionName_ is nullptr!");
-            return static_cast<int32_t>(PasteboardError::GET_REMOTE_DATA_ERROR);
-        }
-        CancelCopyTask();
-        return static_cast<int32_t>(PasteboardError::E_OK);
-    }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressSignalClient Cancel end!");
     needCancel_.store(true);
-    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 bool ProgressSignalClient::IsCanceled()
@@ -55,16 +48,17 @@ bool ProgressSignalClient::IsCanceled()
     return needCancel_.load() || remoteTask_.load();
 }
 
+bool ProgressSignalClient::CheckCancelIfNeed()
+{
+    if (!needCancel_.load()) {
+        return false;
+    }
+    return true;
+}
+
 void ProgressSignalClient::MarkRemoteTask()
 {
     remoteTask_.store(true);
-}
-
-void ProgressSignalClient::SetFileInfoOfRemoteTask(const std::string &sessionName, const std::string &filePath)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "SetFileInfoOfRemoteTask sessionName=%{public}s", sessionName.c_str());
-    sessionName_ = sessionName;
-    filePath_ = filePath;
 }
 } // namespace MiscServices
 } // namespace OHOS

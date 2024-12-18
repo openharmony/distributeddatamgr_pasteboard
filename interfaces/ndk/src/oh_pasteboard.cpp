@@ -247,18 +247,13 @@ OH_UdmfData *OH_Pasteboard_GetData(OH_Pasteboard *pasteboard, int *status)
 void ProgressNotify(std::shared_ptr<ProgressInfo> progressInfo)
 {
     auto info = std::make_shared<Pasteboard_ProgressInfo>();
-    info->percentage = progressInfo->percentage;
+    info->progress = progressInfo->percentage;
     g_listener.callback(*info);
 }
 
-int ProgressCancel()
+void ProgressCancel()
 {
-    auto ret = ProgressSignalClient::GetInstance().Cancel();
-    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "client Cancel return invalid, result is %{public}d", ret);
-        return GetMappedCode(ret);
-    }
-    return ERR_OK;
+    ProgressSignalClient::GetInstance().Cancel();
 }
 
 OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pasteboard_GetDataParams *params,
