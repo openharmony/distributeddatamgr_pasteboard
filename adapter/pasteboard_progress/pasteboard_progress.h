@@ -12,17 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_ADAPTER_PASTEBOARD_PROGRESS_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_ADAPTER_PASTEBOARD_PROGRESS_H
- 
+
 #include <cstdint>
 #include <memory>
 #include <shared_mutex>
- 
+
 #include "iremote_object.h"
 #include "nocopyable.h"
- 
+
 namespace OHOS::MiscServices {
 class PasteBoardProgress {
 public:
@@ -30,18 +30,18 @@ public:
     int32_t GetValue(const std::string &key, std::string &value);
     int32_t InsertValue(std::string &key, std::string &value);
     int32_t UpdateValue(std::string &key, std::string value);
- 
+
 private:
     PasteBoardProgress() = default;
     ~PasteBoardProgress() = default;
     DISALLOW_COPY_AND_MOVE(PasteBoardProgress);
- 
+
     static void Initialize();
- 
+
     static std::mutex mutex_;
     static PasteBoardProgress *instance_;
     static sptr<IRemoteObject> remoteObj_;
 };
 } // namespace OHOS::MiscServices
- 
+
 #endif // OHOS_DISTRIBUTED_DATA_PASTEBOARD_ADAPTER_PASTEBOARD_PROGRESS_H

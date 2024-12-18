@@ -53,9 +53,11 @@ std::string g_progressKey;
 bool g_isFinishProgress = false;
 constexpr int32_t LOADSA_TIMEOUT_MS = 4000;
 constexpr int32_t PASTEBOARD_PROGRESS_UPDATE_PERCENT = 5;
+constexpr int32_t UPDATE_PERCENT_WITHOUT_FILE = 10;
 constexpr int32_t PASTEBOARD_PROGRESS_TWENTY_PERCENT = 20;
 constexpr int32_t PASTEBOARD_PROGRESS_FINISH_PERCENT = 100;
 constexpr int32_t PASTEBOARD_PROGRESS_SLEEP_TIME = 100; // ms
+constexpr int32_t SLEEP_TIME_WITHOUT_FILE = 50; // ms
 constexpr int32_t PASTEBOARD_PROGRESS_RETRY_TIMES = 10;
 constexpr int64_t REPORT_DUPLICATE_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 static constexpr int32_t HAP_PULL_UP_TIME = 500; // ms
@@ -379,8 +381,8 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey)
     std::string currentValue = std::to_string(PASTEBOARD_PROGRESS_TWENTY_PERCENT);
     while (progressValue <= PASTEBOARD_PROGRESS_FINISH_PERCENT) {
         PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
-        std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
-        progressValue += PASTEBOARD_PROGRESS_UPDATE_PERCENT;
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_WITHOUT_FILE));
+        progressValue += UPDATE_PERCENT_WITHOUT_FILE;
         currentValue = std::to_string(progressValue);
     }
     std::lock_guard<std::mutex> lock(instanceLock_);
