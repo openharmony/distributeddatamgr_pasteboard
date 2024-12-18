@@ -40,13 +40,7 @@ ProgressSignalNapi::~ProgressSignalNapi() {}
 napi_value ProgressSignalNapi::Cancel(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "Cancel is called!");
-    auto &taskSignalClient = ProgressSignalClient::GetInstance();
-
-    auto ret = taskSignalClient.Cancel();
-    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to cancel the task.");
-        return nullptr;
-    }
+    ProgressSignalClient::GetInstance().Cancel();
     napi_value result = nullptr;
     napi_get_null(env, &result);
     return result;

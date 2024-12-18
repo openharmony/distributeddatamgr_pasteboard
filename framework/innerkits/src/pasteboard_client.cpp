@@ -341,6 +341,7 @@ int32_t PasteboardClient::HandleProgressStatus(const std::string &signalKey)
     g_isFinishProgress = true;
     if (progressStatusValue == CANCEL_PASTE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cancel paste");
+        ProgressSignalClient::GetInstance().Cancel();
         return static_cast<int32_t>(PasteboardError::PROGRESS_CANCEL_PASTE);
     } else if (progressStatusValue == PASTE_TIME_OUT) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress time out");
@@ -486,7 +487,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     }
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetDataWithProgress", HITRACE_GETPASTEDATA);
     if (pasteData.GetPrimaryUri() != nullptr) {
-        ret = CopyPasteData(pasteData, params);
+        ret = PasteBoardCopyFile::GetInstance().CopyPasteData(pasteData, params);
     } else {
         ret = SetProgressWithoutFile(progressKey);
     }

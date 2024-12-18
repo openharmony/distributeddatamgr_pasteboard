@@ -1126,10 +1126,9 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithMultiAttributes002, TestSi
 
 void Pasteboard_ProgressNotify(Pasteboard_ProgressInfo progressInfo)
 {
-    printf("percentage = %d\n", progressInfo.percentage);
+    printf("percentage = %d\n", progressInfo.progress);
     if (g_params != nullptr && g_params->progressSignal.cancel != nullptr) {
-        int ret = g_params->progressSignal.cancel();
-        EXPECT_EQ(ret, ERR_OK);
+        g_params->progressSignal.cancel();
     }
     free(g_params);
     g_params = nullptr;

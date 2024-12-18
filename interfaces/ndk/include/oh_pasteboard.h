@@ -114,7 +114,7 @@ typedef enum Pasteboard_ProgressIndicator {
  * @since 14
  */
 typedef struct Pasteboard_ProgressInfo {
-    int percentage;
+    int progress;
 } Pasteboard_ProgressInfo;
 
 /**
@@ -139,7 +139,7 @@ typedef struct Pasteboard_ProgressListener {
  *
  * @since 14
  */
-typedef int (*Pasteboard_ProgressCancel)(void);
+typedef void (*Pasteboard_ProgressCancel)(void);
 
 /**
  * brief Represents the Pasteboard progress signal when getting data.
