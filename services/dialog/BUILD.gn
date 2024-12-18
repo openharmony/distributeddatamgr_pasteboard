@@ -28,8 +28,8 @@ ohos_hap("pasteboard_dialog_hap") {
   certificate_profile =
       "PasteboardDialog/signature/com.ohos.pasteboarddialog.p7b"
   hap_name = "pasteboard_dialog"
-  subsystem_name = "distributeddatamgr"
-  part_name = "pasteboard"
+  subsystem_name = "applications"
+  part_name = "prebuilt_hap"
   module_install_dir = "app/com.ohos.pasteboarddialog"
 }
 

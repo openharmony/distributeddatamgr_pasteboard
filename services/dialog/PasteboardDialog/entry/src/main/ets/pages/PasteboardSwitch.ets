@@ -49,12 +49,13 @@ struct PasteboardSwitch {
   @State screenHeight: number = 0;
   @State screenWidth: number = 0;
   @State shortSideSize: number = 0;
-  @State imageAnimatorHeight: number = 0;
-  @State imageAnimatorWidth: number = 0;
+  @State imageAnimatorHeight: number = this.getImageAnimatorHeight();
+  @State imageAnimatorWidth: number = this.getImageAnimatorWidth();
   @State textWidth: number = 0;
   @State gapLength: number = 0;
   @State isShow: boolean = false;
   @State is2in1: boolean = false;
+   @State isAnimatorDone: boolean = false;
   @State portraitFunc: mediaQuery.MediaQueryResult | void | null = null;
   @State contentHeight: number = 0;
   @State imageArray: Array<ImageFrameInfo> = [];
@@ -219,6 +220,10 @@ struct PasteboardSwitch {
     }
     this.checkPcPadBackButton();
     this.phoneSwitchTextMarginInit();
+    setTimeout(() => {
+      this.isAnimatorDone = true;
+    }, 20)
+  }
   }
 
   aboutToDisappear() {
@@ -445,6 +450,32 @@ struct PasteboardSwitch {
       console.info(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.imageAnimatorWidth = ' +
       this.imageAnimatorWidth + ', this.imageAnimatorHeight = ' + this.imageAnimatorHeight);
     })
+  }
+
+  private getContentVisibility(): Visibility {
+    return (this.imageAnimatorWidth !== 0 && this.isAnimatorDone) ? Visibility.Visible : Visibility.Hidden;
+  }
+
+  private getImageAnimatorHeight(): number {
+    if (deviceInfo.deviceType === 'phone') {
+      return CommonConstants.ANIMATOR_HEIGHT_PHONE;
+    } else if (deviceInfo.deviceType === '2in1') {
+      return CommonConstants.ANIMATOR_HEIGHT_PC;
+    } else if (deviceInfo.deviceType === 'tablet') {
+      return CommonConstants.ANIMATOR_HEIGHT_PAD;
+    }
+    return CommonConstants.ANIMATOR_HEIGHT_PHONE;
+  }
+
+  private getImageAnimatorWidth(): number {
+    if (deviceInfo.deviceType === 'phone') {
+      return CommonConstants.ANIMATOR_WIDTH_PHONE;
+    } else if (deviceInfo.deviceType === '2in1') {
+      return CommonConstants.ANIMATOR_WIDTH_PC;
+    } else if (deviceInfo.deviceType === 'tablet') {
+      return CommonConstants.ANIMATOR_WIDTH_PAD;
+    }
+    return CommonConstants.ANIMATOR_WIDTH_PHONE;
   }
 
   private checkPcPadBackButton(): void {
