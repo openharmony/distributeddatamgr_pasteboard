@@ -16,6 +16,8 @@
 #include <securec.h>
 
 #include "pasteboard_ffi.h"
+#include "pixel_map_impl.h"
+#include "system_pasteboard_impl.h"
 
 using namespace OHOS::FFI;
 using namespace OHOS::Media;

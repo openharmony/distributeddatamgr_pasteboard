@@ -20,6 +20,7 @@
 #include "paste_data.h"
 #include "pasteboard_client.h"
 #include "pasteboard_log.h"
+#include "pixel_map.h"
 #include "pixel_map_impl.h"
 
 namespace OHOS {

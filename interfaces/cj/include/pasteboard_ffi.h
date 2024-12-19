@@ -16,8 +16,7 @@
 #ifndef PASTEBOARD_FFI_H
 #define PASTEBOARD_FFI_H
 
-#include "paste_data_impl.h"
-#include "system_pasteboard_impl.h"
+#include "cj_ffi/cj_common_ffi.h"
 
 extern "C" {
 #define OUT_OF_RANGE 12900001
