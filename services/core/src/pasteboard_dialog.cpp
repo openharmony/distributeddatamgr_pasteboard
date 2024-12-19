@@ -129,7 +129,7 @@ int32_t PasteBoardDialog::ShowProgress(const ProgressMessageInfo &message)
     int32_t result = IN_PROCESS_CALL(abilityManager->StartAbility(want));
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard progress failed, result:%{public}d", result);
-        return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
+        return static_cast<int32_t>(PasteboardError::PROGRESS_START_ERROR);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start pasteboard progress success.");
     return static_cast<int32_t>(PasteboardError::E_OK);

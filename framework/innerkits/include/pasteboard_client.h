@@ -59,6 +59,12 @@ enum ProgressIndicator {
     DEFAULT_PROGRESS_INDICATOR = 1
 };
 
+struct PasteDataFromServiceInfo {
+    pid_t pid;
+    std::string currentPid;
+    std::string currentId;
+};
+
 struct ProgressInfo {
     int percentage;
 };
@@ -496,11 +502,11 @@ private:
     static void GetFileProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo);
     static int32_t HandleProgressStatus(const std::string &signalKey);
     int32_t PollHapSignal(std::string &signalKey);
-    static int32_t SetProgressWithoutFile(std::string &progressKey);
-    static void ProgressSmoothToTwentyPercent(std::string &progressKey);
+    static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
+    static void ProgressSmoothToTwentyPercent(std::string &progressKey, std::shared_ptr<GetDataParams> params);
     static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
-    int32_t GetPasteDataFromService(PasteData &pasteData, std::string currentPid, std::string currentId, pid_t pid,
-      std::string progressKey);
+    int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData, PasteDataFromServiceInfo
+       &pasteDataFromServiceInfo, std::string progressKey, std::shared_ptr<GetDataParams> params)
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;

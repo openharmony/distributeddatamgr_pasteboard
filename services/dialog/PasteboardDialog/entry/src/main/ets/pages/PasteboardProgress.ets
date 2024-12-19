@@ -98,7 +98,7 @@ export struct Index {
   private params: Params | undefined = undefined;
   private contentNode: ComponentContent<Params> | undefined = undefined;
   private timer: number | null = null;
-  private pollInterval: number = 100;
+  private pollInterval: number = 50;
   private timeoutInterval: number = 3000;
   private unChangeProgressTimes: number = 0;
   private isTimeoutError: boolean = false;
@@ -153,7 +153,6 @@ export struct Index {
           }
           return;
         }
-        console.info(TAG + `Succeeded in querying data. size = ${data.length}`);
         let records = data[0].getRecords();
         let record = records[0].getValue() as uniformDataStruct.PlainText;
         console.info(TAG + `Succeeded in querying data. record.textContent = ${record.textContent}`);
@@ -246,7 +245,7 @@ export struct Index {
       })
     } catch (e) {
       const error: BusinessError = e as BusinessError;
-      console.error(`Update data throws an exception. code is ${error.code}, message is ${error.message}`);
+      console.error(TAG + `Update data throws an exception. code is ${error.code}, message is ${error.message}`);
     }
   }
 
@@ -356,7 +355,7 @@ struct PasteboardProgress {
     this.progressModifier.attribute?.value(this.currentPercentageNum);
     this.progressModifier.updateConstructorParams({ value: this.currentPercentageNum });
     if (this.currentPercentageNum === PERCENTAGE_CALCULATION) {
-      setTimeout(() => this.closeCallback(false), 100);
+      setTimeout(() => this.closeCallback(false), 300);
     }
   }
 
