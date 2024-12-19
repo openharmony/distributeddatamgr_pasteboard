@@ -23,6 +23,7 @@
 #define JSON_NOEXCEPTION
 #endif
 #include "cJSON.h"
+
 namespace OHOS {
 namespace DistributedData {
 #ifndef GET_NAME

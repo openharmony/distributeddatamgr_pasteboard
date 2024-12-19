@@ -22,6 +22,7 @@
 #include "api/visibility.h"
 #include "common/concurrent_map.h"
 #include "eventcenter/event.h"
+
 namespace OHOS::MiscServices {
 class EventCenter {
 public:

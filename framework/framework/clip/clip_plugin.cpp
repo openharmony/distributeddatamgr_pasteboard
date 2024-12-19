@@ -16,11 +16,15 @@
 #include "clip/clip_plugin.h"
 #include "default_clip.h"
 #include "pasteboard_event_dfx.h"
+
 namespace OHOS::MiscServices {
 std::map<std::string, ClipPlugin::Factory *> ClipPlugin::factories_;
 DefaultClip g_defaultClip;
 bool ClipPlugin::RegCreator(const std::string &name, Factory *factory)
 {
+    if (factory == nullptr) {
+        return false;
+    }
     auto it = factories_.find(name);
     if (it != factories_.end()) {
         return false;
@@ -42,6 +46,10 @@ ClipPlugin *ClipPlugin::CreatePlugin(const std::string &name)
 
 bool ClipPlugin::DestroyPlugin(const std::string &name, ClipPlugin *plugin)
 {
+    if (plugin == nullptr) {
+        return false;
+    }
+
     if (plugin == &g_defaultClip) {
         return true;
     }

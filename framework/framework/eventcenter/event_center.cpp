@@ -14,6 +14,7 @@
  */
 
 #include "eventcenter/event_center.h"
+
 namespace OHOS::MiscServices {
 thread_local EventCenter::AsyncQueue *EventCenter::asyncQueue_ = nullptr;
 constexpr int32_t EventCenter::AsyncQueue::MAX_CAPABILITY;
@@ -42,7 +43,6 @@ int32_t EventCenter::PostEvent(std::unique_ptr<Event> evt) const
         return CODE_INVALID_ARGS;
     }
     if (asyncQueue_ == nullptr) {
-        Defer defer;
         Dispatch(*evt);
         return CODE_SYNC;
     }

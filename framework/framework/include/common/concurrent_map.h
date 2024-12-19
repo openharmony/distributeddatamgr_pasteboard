@@ -18,6 +18,7 @@
 #include <functional>
 #include <map>
 #include <mutex>
+
 namespace OHOS {
 template<typename _Key, typename _Tp>
 class ConcurrentMap {
