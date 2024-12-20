@@ -46,6 +46,7 @@
 #include "pasteboard_event_ue.h"
 #include "pasteboard_error.h"
 #include "pasteboard_trace.h"
+#include "pasteboard_utils.h"
 #include "remote_file_share.h"
 #include "reporter.h"
 #include "screenlock_manager.h"
@@ -1277,6 +1278,22 @@ bool PasteboardService::IsBasicType(const std::string &mimeType)
     return false;
 }
 
+std::vector<std::string> PasteboardService::GetMimeTypes()
+{
+    if (GetCurrentScreenStatus() == ScreenEvent::ScreenUnlocked) {
+        auto userId = GetCurrentAccountId();
+        auto event = GetValidDistributeEvent(userId);
+        if (event.first) {
+            PasteData data;
+            int32_t syncTime = 0;
+            int32_t ret = GetRemoteData(userId, event.second, data, syncTime);
+            PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), {},
+                PASTEBOARD_MODULE_SERVICE, "get remote data failed, ret=%{public}d", ret);
+        }
+    }
+    return PasteboardUtils::GetInstance().DeduplicateVector(GetLocalMimeTypes());
+}
+
 bool PasteboardService::HasDataType(const std::string &mimeType)
 {
     if (GetCurrentScreenStatus() == ScreenEvent::ScreenUnlocked) {
@@ -1355,6 +1372,29 @@ std::pair<bool, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEv
     }
 
     return std::make_pair(false, evt);
+}
+
+std::vector<std::string> PasteboardService::GetLocalMimeTypes()
+{
+    auto userId = GetCurrentAccountId();
+    auto it = clips_.Find(userId);
+    if (!it.first) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "can not find data. userId: %{public}d", userId);
+        return {};
+    }
+    if (it.second == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is nullptr. userId: %{public}d", userId);
+        return {};
+    }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto ret = IsDataVaild(*(it.second), tokenId);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "pasteData is invalid, tokenId is %{public}d, userId: %{public}d, ret is %{public}d",
+            tokenId, userId, ret);
+        return {};
+    }
+    return it.second->GetMimeTypes();
 }
 
 bool PasteboardService::HasLocalDataType(const std::string &mimeType)

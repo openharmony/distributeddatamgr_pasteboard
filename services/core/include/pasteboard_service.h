@@ -107,6 +107,7 @@ public:
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
         const sptr<IPasteboardEntryGetter> entryGetter) override;
     virtual bool IsRemoteData() override;
+    virtual std::vector<std::string> GetMimeTypes() override;
     virtual bool HasDataType(const std::string &mimeType) override;
     virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
@@ -323,6 +324,7 @@ private:
         ObserverMap &observerMap);
     void RemoveAllObserver(int32_t userId, ObserverMap &observerMap);
     inline bool IsCallerUidValid();
+    std::vector<std::string> GetLocalMimeTypes();
     bool HasLocalDataType(const std::string &mimeType);
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
     bool SubscribeKeyboardEvent();

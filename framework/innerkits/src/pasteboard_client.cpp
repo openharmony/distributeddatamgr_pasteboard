@@ -597,6 +597,16 @@ int32_t PasteboardClient::GetDataSource(std::string &bundleName)
     return ret;
 }
 
+std::vector<std::string> PasteboardClient::GetMimeTypes()
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes start.");
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return {};
+    }
+    return proxyService->GetMimeTypes();
+}
+
 bool PasteboardClient::HasDataType(const std::string &mimeType)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "HasDataType start.");

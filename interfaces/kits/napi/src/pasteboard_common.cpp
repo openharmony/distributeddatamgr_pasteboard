@@ -159,6 +159,31 @@ napi_status SetValue(napi_env env, std::set<Pattern> &in, napi_value &result)
     return status;
 }
 
+napi_status SetValue(napi_env env, const std::vector<std::string> &in, napi_value &out)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value <- std::vector<std::string>");
+    napi_status status = napi_create_array_with_length(env, in.size(), &out);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "create array failed, status=%{public}d", status);
+        return status;
+    }
+    int index = 0;
+    for (auto &item : in) {
+        napi_value element = nullptr;
+        status = napi_create_string_utf8(env, item.c_str(), item.size(), &element);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_create_string_utf8 error status = %{public}d", status);
+            return status;
+        }
+        status = napi_set_element(env, out, index++, element);
+        if (status != napi_ok) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_set_element failed, status=%{public}d", status);
+            return status;
+        }
+    }
+    return status;
+}
+
 bool CheckArgsType(napi_env env, napi_value in, napi_valuetype expectedType, const char *message)
 {
     napi_valuetype type = napi_undefined;

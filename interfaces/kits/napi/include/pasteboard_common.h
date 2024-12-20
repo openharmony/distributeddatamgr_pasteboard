@@ -36,6 +36,7 @@ napi_value CreateNapiString(napi_env env, std::string str);
 bool GetValue(napi_env env, napi_value in, std::string &out);
 bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out);
 napi_status SetValue(napi_env env, std::set<MiscServices::Pattern> &in, napi_value &result);
+napi_status SetValue(napi_env env, const std::vector<std::string> &in, napi_value &out);
 bool CheckArgsType(napi_env env, napi_value in, napi_valuetype expectedType, const char *message);
 bool CheckExpression(napi_env env, bool expression, MiscServices::JSErrorCode errCode, const char *message);
 bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeType);

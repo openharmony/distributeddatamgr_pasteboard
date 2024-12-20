@@ -1923,6 +1923,56 @@ describe('PasteBoardJSTest', function () {
   }
 
   /**
+   * @tc.name      pasteboard_promise_test63
+   * @tc.desc      html
+   * @tc.type      Function
+   * @tc.require   AR20241012964265
+   */
+    it('pasteboard_promise_test63', 0, async function (done) {
+      const systemPasteboard = pasteboard.getSystemPasteboard();
+      await systemPasteboard.clearData();
+      const textData = "<!DOCTYPE html><html><head><title>" +
+      "的厚爱hi哦</title></head><body><h2>恶风无关痛痒和</h2>" +
+      "<p>Greg任何人https://exampsaole.com问我的<a href=\"https://exaeqdwerfmple.com\">" +
+      "如果qwiuyhw@huedqw.dsh站</a>。</p></body></html>";
+      const pasteData = pasteboard.createHtmlData(textData);
+      await systemPasteboard.setPasteData(pasteData);
+      const res = await systemPasteboard.hasPasteData();
+      expect(res).assertEqual(true);
+      systemPasteboard.getMimeTypes().then((data) => {
+        expect(data.length).assertEqual(1);
+        expect(data[0]).assertEqual(pasteboard.MIMETYPE_TEXT_HTML);
+        done();
+      });
+    });
+  
+    /**
+     * @tc.name      pasteboard_promise_test47
+     * @tc.desc      复制文本、uri格式
+     * @tc.type      Function
+     * @tc.require   AR20241012964265
+     */
+    it('pasteboard_promise_test64', 0, async function (done) {
+      const systemPasteboard = pasteboard.getSystemPasteboard();
+      await systemPasteboard.clearData();
+      const textData64 = 'Hello World0';
+      const pasteData = pasteboard.createPlainTextData(textData64);
+      const uriText64 = pasteboard.createUriRecord('https://www.baidu.com/');
+      pasteData.addRecord(uriText64);
+      const htmlText64 = '<html><head></head><body>Hello World 1</body></html>';
+      const pasteDataRecord = pasteboard.createHtmlTextRecord(htmlText64);
+      pasteData.addRecord(pasteDataRecord);
+      await systemPasteboard.setPasteData(pasteData);
+  
+      systemPasteboard.getMimeTypes().then((data) => {
+        expect(data.length).assertEqual(1);
+        const expectedMimeTypes = new Set([pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_HTML, pasteboard.MIMETYPE_TEXT_URI]);
+        expect(Array.from(data).every(type => expectedMimeTypes.has(type))).assertEqual(true);
+        done();
+      });
+    });
+ 
+  /**
    *  The callback function is used for pasteboard content changes
    */
   function contentChanges() {

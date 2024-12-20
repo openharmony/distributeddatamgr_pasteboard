@@ -377,6 +377,95 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataSrouce001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: OH_Pasteboard_GetMimeTypes001
+ * @tc.desc: OH_Pasteboard_GetMimeTypes test empty data
+ * @tc.type: FUNC
+ * @tc.require: AR20241012964265
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetMimeTypes001, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    ASSERT_TRUE(pasteboard);
+    OH_Pasteboard_ClearData(pasteboard);
+    unsigned int count = 1000;
+    char** res = OH_Pasteboard_GetMimeTypes(pasteboard, &count);
+    EXPECT_EQ(0, count);
+    EXPECT_TRUE(res == nullptr);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetMimeTypes002
+ * @tc.desc: OH_Pasteboard_GetMimeTypes test plainText
+ * @tc.type: FUNC
+ * @tc.require: AR20241012964265
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetMimeTypes002, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    ASSERT_TRUE(pasteboard);
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    ASSERT_TRUE(setData);
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    ASSERT_TRUE(record);
+    OH_UdsPlainText* plainText = OH_UdsPlainText_Create();
+    ASSERT_TRUE(plainText);
+    char content[] = "hello world";
+    OH_UdsPlainText_SetContent(plainText, content);
+    OH_UdmfRecord_AddPlainText(record, plainText);
+    OH_UdmfData_AddRecord(setData, record);
+    OH_Pasteboard_SetData(pasteboard, setData);
+
+    unsigned int count = 1000;
+    char** res = OH_Pasteboard_GetMimeTypes(pasteboard, &count);
+    EXPECT_EQ(1, count);
+    EXPECT_TRUE(res != nullptr);
+    EXPECT_STREQ(MIMETYPE_TEXT_PLAIN, res[0]);
+    
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetMimeTypes003
+ * @tc.desc: OH_Pasteboard_GetMimeTypes test multi Mime types
+ * @tc.type: FUNC
+ * @tc.require: AR20241012964265
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetMimeTypes003, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    ASSERT_TRUE(pasteboard);
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    ASSERT_TRUE(setData);
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    ASSERT_TRUE(record);
+    OH_UdsPlainText* plainText = OH_UdsPlainText_Create();
+    ASSERT_TRUE(plainText);
+    char content[] = "hello world";
+    OH_UdsPlainText_SetContent(plainText, content);
+    OH_UdmfRecord_AddPlainText(record, plainText);
+    OH_UdmfData_AddRecord(setData, record);
+
+    OH_UdmfRecord* record2 = OH_UdmfRecord_Create();
+    ASSERT_TRUE(record2);
+    OH_UdsHtml* htmlText = OH_UdsHtml_Create();
+    ASSERT_TRUE(htmlText);
+    char html[] = "<div class='disabled'>hello</div>";
+    OH_UdsHtml_SetContent(htmlText, html);
+    OH_UdmfRecord_AddHtml(record2, htmlText);
+    OH_UdmfData_AddRecord(setData, record2);
+    OH_Pasteboard_SetData(pasteboard, setData);
+
+    unsigned int count = 1000;
+    char** res = OH_Pasteboard_GetMimeTypes(pasteboard, &count);
+    EXPECT_EQ(2, count);
+    EXPECT_TRUE(res != nullptr);
+    EXPECT_TRUE((strcmp(MIMETYPE_TEXT_PLAIN, res[0]) == 0 && strcmp(MIMETYPE_TEXT_HTML, res[1]) == 0) ||
+        (strcmp(MIMETYPE_TEXT_PLAIN, res[1]) == 0 && strcmp(MIMETYPE_TEXT_HTML, res[0]) == 0));
+    
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
  * @tc.name: OH_Pasteboard_HasType001
  * @tc.desc: OH_Pasteboard_HasType test valid
  * @tc.type: FUNC

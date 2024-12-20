@@ -111,6 +111,9 @@ void OH_Pasteboard_Destroy(OH_Pasteboard* pasteboard)
         }
     }
     pasteboard->observers_.clear();
+    pasteboard->mimeTypes_.clear();
+    delete[] pasteboard->mimeTypesPtr;
+    pasteboard->mimeTypesPtr = nullptr;
     delete pasteboard;
 }
 
@@ -179,6 +182,27 @@ int OH_Pasteboard_GetDataSource(OH_Pasteboard* pasteboard, char* source, unsigne
         return ERR_INNER_ERROR;
     }
     return ERR_OK;
+}
+
+char **OH_Pasteboard_GetMimeTypes(OH_Pasteboard *pasteboard, unsigned int *count)
+{
+    if (!IsPasteboardValid(pasteboard) || count == nullptr) {
+        return nullptr;
+    }
+    std::lock_guard<std::mutex> lock(pasteboard->mutex);
+    pasteboard->mimeTypes_ = PasteboardClient::GetInstance()->GetMimeTypes();
+    unsigned int typeNum = pasteboard->mimeTypes_.size();
+    if (typeNum == 0 || typeNum > MAX_MIMETYPES_NUM) {
+        *count = 0;
+        return nullptr;
+    }
+    *count = typeNum;
+    delete[] pasteboard->mimeTypesPtr;
+    pasteboard->mimeTypesPtr = new char *[typeNum];
+    for (unsigned int i = 0; i < typeNum; ++i) {
+        pasteboard->mimeTypesPtr[i] = const_cast<char*>(pasteboard->mimeTypes_[i].c_str());
+    }
+    return pasteboard->mimeTypesPtr;
 }
 
 bool OH_Pasteboard_HasType(OH_Pasteboard* pasteboard, const char* type)

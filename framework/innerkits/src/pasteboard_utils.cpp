@@ -14,6 +14,8 @@
 */
 #include "pasteboard_utils.h"
 
+#include <unordered_set>
+
 #include "application_defined_record.h"
 #include "audio.h"
 #include "folder.h"
@@ -758,6 +760,13 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::AppDefined2PasteRecord(const s
     auto kvRecord = PasteDataRecord::NewKvRecord(type, appRecord->GetRawData());
     kvRecord->SetUDType(appRecord->GetType());
     return kvRecord;
+}
+
+std::vector<std::string> PasteboardUtils::DeduplicateVector(const std::vector<std::string> &vec)
+{
+    std::unordered_set<std::string> tmp(vec.begin(), vec.end());
+    std::vector<std::string> result(tmp.begin(), tmp.end());
+    return result;
 }
 
 PasteboardUtils::PasteboardUtils()
