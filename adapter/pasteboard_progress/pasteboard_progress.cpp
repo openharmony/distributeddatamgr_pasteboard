@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include <memory>
 #include <string>
- 
+
 #include "pasteboard_progress.h"
 #include "iservice_registry.h"
 #include "pasteboard_error.h"
@@ -26,7 +26,7 @@
 using namespace OHOS::UDMF;
 namespace OHOS::MiscServices {
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
- 
+
 std::mutex PasteBoardProgress::mutex_;
 sptr<IRemoteObject> PasteBoardProgress::remoteObj_ = nullptr;
 PasteBoardProgress *PasteBoardProgress::instance_ = nullptr;
@@ -41,7 +41,7 @@ PasteBoardProgress &PasteBoardProgress::GetInstance()
     }
     return *instance_;
 }
- 
+
 void PasteBoardProgress::Initialize()
 {
     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -56,7 +56,7 @@ void PasteBoardProgress::Initialize()
     }
     remoteObj_ = remoteObj;
 }
- 
+
 int32_t PasteBoardProgress::InsertValue(std::string &key, std::string &value)
 {
     CustomOption option = {.intention = Intention::UD_INTENTION_DATA_HUB};
@@ -75,7 +75,7 @@ int32_t PasteBoardProgress::InsertValue(std::string &key, std::string &value)
     UdmfClient::GetInstance().SetData(option, data, key);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
- 
+
 int32_t PasteBoardProgress::UpdateValue(std::string &key, std::string value)
 {
     QueryOption queryOption = { .key = key };
@@ -94,7 +94,7 @@ int32_t PasteBoardProgress::UpdateValue(std::string &key, std::string value)
     UdmfClient::GetInstance().UpdateData(queryOption, data);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
- 
+
 int32_t PasteBoardProgress::GetValue(const std::string &key, std::string &value)
 {
     QueryOption option = { .key = key };
