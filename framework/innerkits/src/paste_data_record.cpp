@@ -808,6 +808,8 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
         }
         if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
             return std::make_shared<PasteDataEntry>(utdType, GetUri()->ToString());
+        } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
+            return std::make_shared<PasteDataEntry>(utdType, want_);
         }
         return entry;
     }
