@@ -813,4 +813,99 @@ HWTEST_F(PasteDataRecordTest, IsDelayRecordTest, TestSize.Level0)
     record.SetDelayRecordFlag(false);
     EXPECT_FALSE(record.IsDelayRecord());
 }
+
+/**
+ * @tc.name: GetEntryByMimeType001
+ * @tc.desc: GetEntryByMimeType(MIMETYPE_TEXT_WANT)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetEntryByMimeType001, TestSize.Level0)
+{
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    want->SetUri(uri_);
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewWantRecord(want);
+    ASSERT_NE(record, nullptr);
+    std::shared_ptr<PasteDataEntry> entry = record->GetEntryByMimeType(MIMETYPE_TEXT_WANT);
+    ASSERT_NE(entry, nullptr);
+    std::shared_ptr<AAFwk::Want> converted = entry->ConvertToWant();
+    ASSERT_NE(converted, nullptr);
+    EXPECT_EQ(converted->ToString(), want->ToString());
+}
+
+/**
+ * @tc.name: GetEntryByMimeType002
+ * @tc.desc: GetEntryByMimeType(MIMETYPE_TEXT_PLAIN)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetEntryByMimeType002, TestSize.Level0)
+{
+    std::string text = text_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
+    ASSERT_NE(record, nullptr);
+    std::shared_ptr<PasteDataEntry> entry = record->GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
+    ASSERT_NE(entry, nullptr);
+    std::shared_ptr<std::string> converted = entry->ConvertToPlainText();
+    ASSERT_NE(converted, nullptr);
+    EXPECT_EQ(*converted, text);
+}
+
+/**
+ * @tc.name: GetEntryByMimeType003
+ * @tc.desc: GetEntryByMimeType(MIMETYPE_TEXT_HTML)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetEntryByMimeType003, TestSize.Level0)
+{
+    std::string html = html_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
+    ASSERT_NE(record, nullptr);
+    std::shared_ptr<PasteDataEntry> entry = record->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+    ASSERT_NE(entry, nullptr);
+    std::shared_ptr<std::string> converted = entry->ConvertToHtml();
+    ASSERT_NE(converted, nullptr);
+    EXPECT_EQ(*converted, html);
+}
+
+/**
+ * @tc.name: GetEntryByMimeType004
+ * @tc.desc: GetEntryByMimeType(MIMETYPE_TEXT_URI)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetEntryByMimeType004, TestSize.Level0)
+{
+    OHOS::Uri uri(uri_);
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewUriRecord(uri);
+    ASSERT_NE(record, nullptr);
+    std::shared_ptr<PasteDataEntry> entry = record->GetEntryByMimeType(MIMETYPE_TEXT_URI);
+    ASSERT_NE(entry, nullptr);
+    std::shared_ptr<OHOS::Uri> converted = entry->ConvertToUri();
+    ASSERT_NE(converted, nullptr);
+    EXPECT_EQ(converted->ToString(), uri.ToString());
+}
+
+/**
+ * @tc.name: GetEntryByMimeType005
+ * @tc.desc: GetEntryByMimeType(MIMETYPE_PIXELMAP)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetEntryByMimeType005, TestSize.Level0)
+{
+    const uint32_t color[] = { 0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08 };
+    uint32_t len = sizeof(color) / sizeof(color[0]);
+    Media::InitializationOptions opts;
+    opts.size.width = 2;
+    opts.size.height = 3;
+    opts.pixelFormat = Media::PixelFormat::UNKNOWN;
+    opts.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
+    std::shared_ptr<Media::PixelMap> pixelMap = Media::PixelMap::Create(color, len, 0, opts.size.width, opts);
+
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPixelMapRecord(pixelMap);
+    ASSERT_NE(record, nullptr);
+    std::shared_ptr<PasteDataEntry> entry = record->GetEntryByMimeType(MIMETYPE_PIXELMAP);
+    ASSERT_NE(entry, nullptr);
+    std::shared_ptr<Media::PixelMap> converted = entry->ConvertToPixelMap();
+    ASSERT_NE(converted, nullptr);
+    EXPECT_EQ(converted->GetWidth(), pixelMap->GetWidth());
+    EXPECT_EQ(converted->GetHeight(), pixelMap->GetHeight());
+}
 } // namespace OHOS::MiscServices
