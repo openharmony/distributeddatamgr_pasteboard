@@ -79,6 +79,7 @@ enum class PasteboardError : int32_t {
 	COPY_FILE_ERROR,
     PROGRESS_START_ERROR,
     PROGRESS_ABNORMAL,
+    PRPGRESS_CANCEL_SUCCESS,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {

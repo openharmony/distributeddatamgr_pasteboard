@@ -65,6 +65,10 @@ struct PasteDataFromServiceInfo {
     std::string currentId;
 };
 
+struct ProgressReportLintener {
+    void (*OnProgressFail)(int32_t result);
+};
+
 struct ProgressInfo {
     int percentage;
 };
@@ -500,18 +504,22 @@ private:
     static void RetainUri(PasteData &pasteData);
     static void SplitWebviewPasteData(PasteData &pasteData);
     static void GetFileProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo);
-    static int32_t HandleProgressStatus(const std::string &signalKey);
-    int32_t PollHapSignal(std::string &signalKey);
+    static int32_t HandleProgressStatus(const std::string &signalKey,
+       std::shared_ptr<ProgressReportLintener> progressReport);
+    int32_t PullHapSignal(std::string &signalKey, std::shared_ptr<ProgressReportLintener> progressReport);
     static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
     static void ProgressSmoothToTwentyPercent(std::string &progressKey, std::shared_ptr<GetDataParams> params);
     static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
-    int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData, PasteDataFromServiceInfo
-       &pasteDataFromServiceInfo, std::string progressKey, std::shared_ptr<GetDataParams> params)
+    int32_t GetPasteDataFromService(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo,
+      std::string progressKey, std::shared_ptr<GetDataParams> params);
+    static void OnProgressAbnormal(int32_t result);
+    void ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
     std::atomic<uint32_t> getSequenceId_ = 0;
+    static std::atomic<bool> remoteTask_;
     class StaticDestoryMonitor {
     public:
         StaticDestoryMonitor() : destoryed_(false) {}
@@ -531,7 +539,6 @@ private:
     static StaticDestoryMonitor staticDestoryMonitor_;
     void RebuildWebviewPasteData(PasteData &pasteData);
     void Init();
-    static void CopyFile(std::shared_ptr<GetDataParams> params);
 };
 } // namespace MiscServices
 } // namespace OHOS
