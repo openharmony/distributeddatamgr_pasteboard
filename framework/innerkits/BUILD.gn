@@ -106,6 +106,7 @@ ohos_shared_library("pasteboard_client") {
   ]
   public_external_deps = [ "udmf:udmf_client" ]
   subsystem_name = "distributeddatamgr"
+  use_exceptions = true
   innerapi_tags = [ "platformsdk" ]
   part_name = "pasteboard"
 }

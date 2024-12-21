@@ -378,13 +378,10 @@ int32_t PasteboardClient::PullHapSignal(std::string &signalKey, std::shared_ptr<
 
 int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params)
 {
-    if (progressKey.empty()) {
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-    }
     int progressValue = PASTEBOARD_PROGRESS_TWENTY_PERCENT;
     std::string currentValue = std::to_string(PASTEBOARD_PROGRESS_TWENTY_PERCENT);
     std::shared_ptr<ProgressInfo> info = std::make_shared<ProgressInfo>();
-    while (progressValue <= PASTEBOARD_PROGRESS_FINISH_PERCENT && !remoteTask_.load()) {
+    while (progressValue < PASTEBOARD_PROGRESS_FINISH_PERCENT && !remoteTask_.load()) {
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             return static_cast<int32_t>(PasteboardError::PRPGRESS_CANCEL_SUCCESS);
         }
@@ -442,9 +439,7 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
     }
     int32_t syncTime = 0;
     int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
-    if (!progressKey.empty()) {
-        ProgressSmoothToTwentyPercent(progressKey, params);
-    }
+    ProgressSmoothToTwentyPercent(progressKey, params);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     RetainUri(pasteData);
     RebuildWebviewPasteData(pasteData);
