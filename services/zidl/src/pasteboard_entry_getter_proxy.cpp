@@ -20,6 +20,8 @@
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
 
+#define MAX_RAWDATA_SIZE (128 * 1024 * 1024)
+
 namespace OHOS {
 namespace MiscServices {
 using namespace OHOS::Security::PasteboardServ;
@@ -71,7 +73,7 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
     }
     res = reply.ReadInt32();
     int32_t rawDataSize = reply.ReadInt32();
-    if (rawDataSize <= 0) {
+    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "read entry tlv raw data size failed");
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }

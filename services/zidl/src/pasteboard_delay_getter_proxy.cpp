@@ -20,6 +20,8 @@
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
+#define MAX_RAWDATA_SIZE (128 * 1024 * 1024)
+
 namespace OHOS {
 namespace MiscServices {
 PasteboardDelayGetterProxy::PasteboardDelayGetterProxy(const sptr<IRemoteObject> &object)
@@ -46,8 +48,8 @@ void PasteboardDelayGetterProxy::GetPasteData(const std::string &type, PasteData
         return;
     }
     int32_t rawDataSize = reply.ReadInt32();
-    if (rawDataSize <= 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to get data size");
+    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid raw data size");
         return;
     }
     const uint8_t *rawData = reinterpret_cast<const uint8_t *>(reply.ReadRawData(rawDataSize));
