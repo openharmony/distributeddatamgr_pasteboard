@@ -163,7 +163,7 @@ private:
     static int32_t OpenSrcFile(const std::string &srcPath, std::shared_ptr<CopyInfo> copyInfo, int32_t &srcFd);
     static int32_t SendFileCore(std::shared_ptr<MiscServices::FDGuard> srcFdg,
         std::shared_ptr<MiscServices::FDGuard> destFdg, std::shared_ptr<CopyInfo> copyInfo);
-    static void InitCopyInfo(const std::string srcUri, std::shared_ptr<GetDataParams> dataParams,
+    static int32_t InitCopyInfo(const std::string srcUri, std::shared_ptr<GetDataParams> dataParams,
         std::shared_ptr<CopyInfo> copyInfo, int32_t index);
     static int FilterFunc(const struct dirent *filename);
     static void Deleter(struct NameList *arg);
