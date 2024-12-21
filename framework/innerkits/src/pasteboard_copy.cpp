@@ -67,6 +67,7 @@ constexpr int MATCH = 1;
 constexpr int BUF_SIZE = 1024;
 constexpr int E_PERMISSION = 201;           //Just for compile
 constexpr int ERRNO_NOERR = 0;           //Just for compile
+constexpr int E_EXIST = 17;
 constexpr size_t MAX_SIZE = 1024 * 1024 * 4;
 static int32_t g_recordSize = 0;
 static uint64_t g_progressSize = 0;
@@ -74,7 +75,7 @@ static uint64_t g_totalSize = 0;
 constexpr std::chrono::milliseconds NOTIFY_PROGRESS_DELAY(100);
 std::recursive_mutex PasteBoardCopyFile::mutex_;
 std::map<CopyInfo, std::shared_ptr<CopyCallback>> PasteBoardCopyFile::cbMap_;
-std::map<int32_t, std::string> PasteBoardCopyFile::uriMap_;
+std::map<int32_t, std::pair<std::string, bool>> PasteBoardCopyFile::uriMap_;
 ProgressListener PasteBoardCopyFile::progressListener_;
 PasteBoardCopyFile *PasteBoardCopyFile::instance_ = nullptr;
 
@@ -368,15 +369,21 @@ int32_t PasteBoardCopyFile::CopyFile(const std::string &src, const std::string &
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "src = %{public}s, dest = %{public}s", src.c_str(), dest.c_str());
     int32_t srcFd = -1;
-    int32_t ret = OpenSrcFile(src, copyInfo, srcFd);
-    if (srcFd < 0) {
-        return ret;
-    }
     std::string realDest = dest;
     if (IsDirectory(dest)) {
         std::filesystem::path filePath(copyInfo->srcUri);
         auto fileName = filePath.filename();
         realDest = dest + fileName.string();
+    }
+    std::error_code errCode;
+    if (std::filesystem::exists(realDest, errCode) && errCode.value() == ERRNO_NOERR && copyInfo->option == FILE_SKIP) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File has existed. dest = %{public}s", realDest.c_str());
+        uriMap_[copyInfo->index].second = true;
+        return E_EXIST;
+    }
+    int32_t ret = OpenSrcFile(src, copyInfo, srcFd);
+    if (srcFd < 0) {
+        return ret;
     }
     auto destFd = open(realDest.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (destFd < 0) {
@@ -397,10 +404,10 @@ int32_t PasteBoardCopyFile::CopyFile(const std::string &src, const std::string &
 
 int32_t PasteBoardCopyFile::ExecCopy(std::shared_ptr<CopyInfo> copyInfo)
 {
-    if (copyInfo->isFile && (IsFile(copyInfo->destPath) || IsFile(copyInfo->srcPath))) {
+    if (copyInfo->isFile) {
         return CopyFile(copyInfo->srcPath.c_str(), copyInfo->destPath.c_str(), copyInfo);
     }
-    if (copyInfo->isFile && IsDirectory(copyInfo->destPath)) {
+    if (IsDirectory(copyInfo->destPath)) {
         if (copyInfo->srcPath.back() != '/') {
             copyInfo->srcPath += '/';
         }
@@ -621,7 +628,7 @@ void PasteBoardCopyFile::ReadNotifyEvent(std::shared_ptr<CopyInfo> infos)
         if (needContinue && !needSend) {
             index += static_cast<int64_t>(sizeof(struct inotify_event) + event->len);
             auto currentTime = std::chrono::steady_clock::now();
-            if (currentTime >= infos->notifyTime) {
+            if (currentTime >= infos->notifyTime && g_totalSize > 0) {
                 std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
                 proInfo->percentage = (int32_t)(PERCENTAGE * g_progressSize / g_totalSize);
                 progressListener_.ProgressNotify(proInfo);
@@ -634,7 +641,7 @@ void PasteBoardCopyFile::ReadNotifyEvent(std::shared_ptr<CopyInfo> infos)
             return;
         }
         auto currentTime = std::chrono::steady_clock::now();
-        if (currentTime >= infos->notifyTime) {
+        if (currentTime >= infos->notifyTime && g_totalSize > 0) {
             std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
             proInfo->percentage = (int32_t)(PERCENTAGE * g_progressSize / g_totalSize);
             progressListener_.ProgressNotify(proInfo);
@@ -727,11 +734,12 @@ std::string PasteBoardCopyFile::GetRealPath(const std::string& path)
     return realPath.string();
 }
 
-void PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, const std::string destUri,
-    std::shared_ptr<CopyInfo> copyInfo)
+void PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_ptr<GetDataParams> dataParams,
+    std::shared_ptr<CopyInfo> copyInfo, int32_t index)
 {
+    copyInfo->index = index;
     copyInfo->srcUri = srcUri;
-    copyInfo->destUri = destUri;
+    copyInfo->destUri = dataParams->destUri;
     FileUri srcFileUri(copyInfo->srcUri);
     copyInfo->srcPath = srcFileUri.GetRealPath();
     FileUri destFileUri(copyInfo->destUri);
@@ -740,6 +748,7 @@ void PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, const std::strin
     copyInfo->destPath = GetRealPath(copyInfo->destPath);
     copyInfo->isFile = IsMediaUri(copyInfo->srcUri) || IsFile(copyInfo->srcPath);
     copyInfo->notifyTime = std::chrono::steady_clock::now() + NOTIFY_PROGRESS_DELAY;
+    copyInfo->option = dataParams->fileConflictOption;
 }
 
 std::shared_ptr<CopyCallback> PasteBoardCopyFile::RegisterListener(const std::shared_ptr<CopyInfo> &infos)
@@ -792,7 +801,7 @@ void PasteBoardCopyFile::WaitNotifyFinished(std::shared_ptr<CopyCallback> callba
 
 void PasteBoardCopyFile::CopyComplete(std::shared_ptr<CopyInfo> infos, std::shared_ptr<CopyCallback> callback)
 {
-    if (callback != nullptr && infos->hasListener) {
+    if (callback != nullptr && infos->hasListener && g_totalSize > 0) {
         callback->progressSize = callback->totalSize;
         g_progressSize += callback->totalSize;
         callback->percentage = PERCENTAGE;
@@ -807,23 +816,6 @@ bool PasteBoardCopyFile::IsRemoteUri(const std::string &uri)
     return uri.find(NETWORK_PARA) != uri.npos;
 }
 
-bool PasteBoardCopyFile::CheckConflict(const std::string destPath, const std::string destUri,
-    const std::string srcUri)
-{
-    std::filesystem::path filePath(srcUri);
-    auto fileName = filePath.filename();
-    std::filesystem::path dstFPath(destUri);
-    auto dstName = dstFPath.filename();
-    std::error_code errCode;
-    std::string target = destPath + '/' + fileName.string();
-    if (IsDirectory(destPath) && std::filesystem::exists(target, errCode) && errCode.value() == ERRNO_NOERR) {
-        return true;
-    } else if (IsFile(destPath) && dstName == fileName) {
-        return true;
-    }
-    return false;
-}
-
 void PasteBoardCopyFile::GetTotalSize(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
     std::string srcUri;
@@ -831,25 +823,14 @@ void PasteBoardCopyFile::GetTotalSize(PasteData &pasteData, std::shared_ptr<GetD
     std::string srcPath;
     std::string destPath;
     bool isFile;
-    int32_t index = 0;
-    auto it = uriMap_.begin();
-    while (it != uriMap_.end()) {
-        index++;
-        srcUri = it->second;
+    for (const auto &it : uriMap_) {
+        srcUri = it.second.first;
         FileUri srcFileUri(srcUri);
         srcPath = srcFileUri.GetRealPath();
         srcPath = GetRealPath(srcPath);
         FileUri destFileUri(destUri);
         destPath = destFileUri.GetRealPath();
         destPath = GetRealPath(destPath);
-        if (dataParams->fileConflictOption == FILE_SKIP && CheckConflict(destPath, destUri, srcUri)) {
-            pasteData.RemoveRecordAt(index);
-            it = uriMap_.erase(it);
-            index--;
-            g_recordSize--;
-            continue;
-        }
-
         isFile = IsMediaUri(srcUri) || IsFile(srcPath);
         if (!isFile) {
             g_totalSize += GetDirSize(srcPath);
@@ -858,7 +839,6 @@ void PasteBoardCopyFile::GetTotalSize(PasteData &pasteData, std::shared_ptr<GetD
         if (err == ERRNO_NOERR) {
             g_totalSize += fileSize;
         }
-        it++;
     }
 }
 
@@ -885,7 +865,7 @@ int32_t PasteBoardCopyFile::CheckCopyParam(PasteData &pasteData, std::shared_ptr
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Record has no uri");
             continue;
         }
-        uriMap_.insert({ i, uri->ToString() });
+        uriMap_.insert({ i, { uri->ToString(), false }});
     }
     GetTotalSize(pasteData, dataParams);
     if (g_totalSize <= 0) {
@@ -895,22 +875,19 @@ int32_t PasteBoardCopyFile::CheckCopyParam(PasteData &pasteData, std::shared_ptr
     return ERRNO_NOERR;
 }
 
-
 int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
+    uriMap_.erase(uriMap_.begin(), uriMap_.end());
     int32_t ret = CheckCopyParam(pasteData, dataParams);
     if (ret != ERRNO_NOERR) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
         return ret;
     }
-    std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
-    if (copyInfo == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copyInfo");
-        return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
-    }
+
     for (int i = 0; i < g_recordSize; i++) {
-        std::string srcUri = uriMap_[i];
-        InitCopyInfo(srcUri, dataParams->destUri, copyInfo);
+        std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
+        std::string srcUri = uriMap_[i].first;
+        InitCopyInfo(srcUri, dataParams, copyInfo, i);
         auto callback = RegisterListener(copyInfo);
         if (callback == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CopyCallback registe failed");
@@ -928,11 +905,15 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
         copyInfo->run = false;
         WaitNotifyFinished(callback);
         CopyComplete(copyInfo, callback);
+        if (uriMap_[i].second == true) {
+            pasteData.RemoveRecordAt(i);
+        }
         UnregisterListener(copyInfo);
     }
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = PERCENTAGE;
     progressListener_.ProgressNotify(proInfo);
+    uriMap_.erase(uriMap_.begin(), uriMap_.end());
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 } // namespace MiscServices

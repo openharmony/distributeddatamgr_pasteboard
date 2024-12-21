@@ -91,9 +91,11 @@ struct CopyInfo {
     std::string destUri;
     std::string srcPath;
     std::string destPath;
+    int32_t index;
     int32_t notifyFd = -1;
     int32_t eventFd = -1;
     int exceptionCode = 0;    // notify copy thread or listener thread has exceptions.
+    FileConflictOption option = FILE_OVERWRITE;
     std::set<std::string> filePaths;
     std::chrono::steady_clock::time_point notifyTime;
     bool isFile = false;
@@ -155,21 +157,20 @@ private:
     static void WaitNotifyFinished(std::shared_ptr<CopyCallback> callback);
     static void CopyComplete(std::shared_ptr<CopyInfo> infos, std::shared_ptr<CopyCallback> callback);
     static bool IsRemoteUri(const std::string &uri);
-    static bool CheckConflict(const std::string destPath, const std::string destUri,
-        const std::string srcUri);
     static void GetTotalSize(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
     static int32_t CheckCopyParam(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
     static std::string GetModeFromFlags(unsigned int flags);
     static int32_t OpenSrcFile(const std::string &srcPath, std::shared_ptr<CopyInfo> copyInfo, int32_t &srcFd);
     static int32_t SendFileCore(std::shared_ptr<MiscServices::FDGuard> srcFdg,
         std::shared_ptr<MiscServices::FDGuard> destFdg, std::shared_ptr<CopyInfo> copyInfo);
-    static void InitCopyInfo(const std::string srcUri, const std::string destUri, std::shared_ptr<CopyInfo> copyInfo);
+    static void InitCopyInfo(const std::string srcUri, std::shared_ptr<GetDataParams> dataParams,
+        std::shared_ptr<CopyInfo> copyInfo, int32_t index);
     static int FilterFunc(const struct dirent *filename);
     static void Deleter(struct NameList *arg);
 
     static std::recursive_mutex mutex_;
     static std::map<CopyInfo, std::shared_ptr<CopyCallback>> cbMap_;
-    static std::map<int32_t, std::string> uriMap_;
+    static std::map<int32_t, std::pair<std::string, bool>> uriMap_;
     static ProgressListener progressListener_;
     static PasteBoardCopyFile *instance_;
 };
