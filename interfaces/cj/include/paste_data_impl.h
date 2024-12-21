@@ -22,7 +22,6 @@
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_log.h"
-#include "pixel_map_impl.h"
 
 namespace OHOS {
 namespace MiscServicesCj {

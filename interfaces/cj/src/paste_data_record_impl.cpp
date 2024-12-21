@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 
-#include "paste_data_impl.h"
+#include "paste_data_record_impl.h"
+#include "pasteboard_client.h"
 
 using namespace OHOS::MiscServices;
 
