@@ -734,7 +734,7 @@ std::string PasteBoardCopyFile::GetRealPath(const std::string& path)
     return realPath.string();
 }
 
-void PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_ptr<GetDataParams> dataParams,
+int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_ptr<GetDataParams> dataParams,
     std::shared_ptr<CopyInfo> copyInfo, int32_t index)
 {
     copyInfo->index = index;
@@ -746,9 +746,25 @@ void PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_ptr<
     copyInfo->destPath = destFileUri.GetPath();
     copyInfo->srcPath = GetRealPath(copyInfo->srcPath);
     copyInfo->destPath = GetRealPath(copyInfo->destPath);
+    std::string realSrc = srcUri;
+    if (IsRemoteUri(copyInfo->srcUri) && IsDirectory(copyInfo->destPath)) {
+        int index = copyInfo->srcUri.rfind("?", 0);
+        realSrc = copyInfo->srcUri.substr(0, index);
+        std::filesystem::path filePath(realSrc);
+        auto fileName = filePath.filename();
+        copyInfo->destUri = dataParams->destUri + fileName.string();
+    }
+    FileUri realFileUri(realSrc);
+    std::string realPath = realFileUri.GetRealPath();
+    realPath = GetRealPath(realPath);
+    if (IsRemoteUri(copyInfo->srcUri) && !IsFile(realPath)) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Softbus not support dir to remote.");
+        return ENOMEM;
+    }
     copyInfo->isFile = IsMediaUri(copyInfo->srcUri) || IsFile(copyInfo->srcPath);
     copyInfo->notifyTime = std::chrono::steady_clock::now() + NOTIFY_PROGRESS_DELAY;
     copyInfo->option = dataParams->fileConflictOption;
+    return ERRNO_NOERR;
 }
 
 std::shared_ptr<CopyCallback> PasteBoardCopyFile::RegisterListener(const std::shared_ptr<CopyInfo> &infos)
@@ -887,7 +903,9 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     for (int i = 0; i < g_recordSize; i++) {
         std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
         std::string srcUri = uriMap_[i].first;
-        InitCopyInfo(srcUri, dataParams, copyInfo, i);
+        if (InitCopyInfo(srcUri, dataParams, copyInfo, i) != ERRNO_NOERR) {
+            continue;
+        }
         auto callback = RegisterListener(copyInfo);
         if (callback == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CopyCallback registe failed");
