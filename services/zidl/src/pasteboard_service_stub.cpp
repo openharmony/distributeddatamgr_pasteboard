@@ -24,6 +24,8 @@
 #include "pasteboard_serv_ipc_interface_code.h"
 #include "pasteboard_service_stub.h"
 
+#define MAX_RAWDATA_SIZE (128 * 1024 * 1024)
+
 using namespace OHOS::Security::PasteboardServ;
 namespace OHOS {
 namespace MiscServices {
@@ -114,8 +116,8 @@ int32_t PasteboardServiceStub::OnGetRecordValueByType(MessageParcel &data, Messa
     uint32_t recordId = data.ReadUint32();
     PasteDataEntry entryValue;
     int32_t rawDataSize = data.ReadInt32();
-    if (rawDataSize <= 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail to get raw data size");
+    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid raw data size");
         return ERR_INVALID_VALUE;
     }
     const uint8_t *rawData = reinterpret_cast<const uint8_t *>(data.ReadRawData(rawDataSize));
@@ -199,8 +201,8 @@ int32_t PasteboardServiceStub::OnHasPasteData(MessageParcel &data, MessageParcel
 std::shared_ptr<PasteData> PasteboardServiceStub::UnmarshalPasteData(MessageParcel &data, MessageParcel &reply)
 {
     int32_t rawDataSize = data.ReadInt32();
-    if (rawDataSize <= 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read raw size");
+    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Invalid raw data size");
         return nullptr;
     }
     auto *rawData = (uint8_t *)data.ReadRawData(rawDataSize);
