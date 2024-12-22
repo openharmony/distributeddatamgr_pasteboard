@@ -167,6 +167,7 @@ private:
         std::shared_ptr<CopyInfo> copyInfo, int32_t index);
     static int FilterFunc(const struct dirent *filename);
     static void Deleter(struct NameList *arg);
+    static void OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo);
 
     static std::recursive_mutex mutex_;
     static std::map<CopyInfo, std::shared_ptr<CopyCallback>> cbMap_;

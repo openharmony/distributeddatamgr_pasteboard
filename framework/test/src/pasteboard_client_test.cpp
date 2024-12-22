@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "pasteboard_client.h"
+#include "pasteboard_error.h"
 #include "unistd.h"
 
 namespace OHOS::MiscServices {
@@ -23,6 +24,7 @@ using namespace testing::ext;
 using namespace testing;
 using namespace OHOS::Media;
 constexpr const uid_t EDM_UID = 3057;
+constexpr int32_t PERCENTAGE = 70;
 using Patterns = std::set<Pattern>;
 class PasteboardClientTest : public testing::Test {
 public:
@@ -559,4 +561,81 @@ HWTEST_F(PasteboardClientTest, CreateMultiTypeDelayData001, TestSize.Level0)
     PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, nullptr);
 }
 
+void ProgressNotify(std::shared_ptr<ProgressInfo> progressInfo)
+{
+    printf("percentage=%d\n", progressInfo->percentage);
+}
+
+/**
+ * @tc.name: GetDataWithProgress001
+ * @tc.desc: Getting data without system default progress indicator.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetDataWithProgress001, TestSize.Level0)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(newData != nullptr);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    PasteData pasteData;
+    std::shared_ptr<GetDataParams> params = std::make_shared<GetDataParams>();
+    params->fileConflictOption = FILE_OVERWRITE;
+    params->progressIndicator = NONE_PROGRESS_INDICATOR;
+    params->listener.ProgressNotify = ProgressNotify;
+    int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: GetDataWithProgress002
+ * @tc.desc: Getting data with system default progress indicator.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetDataWithProgress002, TestSize.Level0)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(newData != nullptr);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    PasteData pasteData;
+    std::shared_ptr<GetDataParams> params = std::make_shared<GetDataParams>();
+    params->fileConflictOption = FILE_OVERWRITE;
+    params->progressIndicator = DEFAULT_PROGRESS_INDICATOR;
+    int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+void ProgressNotifyTest(std::shared_ptr<ProgressInfo> progressInfo)
+{
+    printf("percentage=%d\n", progressInfo->percentage);
+    if (progressInfo->percentage == PERCENTAGE) {
+        ProgressSignalClient::GetInstance().Cancel();
+    }
+}
+
+/**
+ * @tc.name: GetDataWithProgress003
+ * @tc.desc: When the progress reaches 80, the download is canceled.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetDataWithProgress003, TestSize.Level0)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(newData != nullptr);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    PasteData pasteData;
+    std::shared_ptr<GetDataParams> params = std::make_shared<GetDataParams>();
+    params->fileConflictOption = FILE_OVERWRITE;
+    params->progressIndicator = DEFAULT_PROGRESS_INDICATOR;
+    params->listener.ProgressNotify = ProgressNotifyTest;
+    int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::PRPGRESS_CANCEL_SUCCESS));
+}
 } // namespace OHOS::MiscServices

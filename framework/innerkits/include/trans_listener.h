@@ -54,12 +54,14 @@ public:
     static int32_t HandleCopyFailure(CopyEvent &copyEvent, const Storage::DistributedFile::HmdfsInfo &info,
         const std::string &disSandboxPath, const std::string &currentId);
     static int WaitForCopyResult(TransListener* transListener);
+    static void OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo);
     static std::atomic<uint32_t> getSequenceId_;
     std::mutex cvMutex_;
     std::condition_variable cv_;
     CopyEvent copyEvent_;
     std::mutex callbackMutex_;
     std::shared_ptr<CopyCallback> callback_;
+    static ProgressListener progressListener_;
 };
 } // namespace MiscServices
 } // namespace OHOS
