@@ -606,6 +606,15 @@ std::tuple<bool, int, bool> PasteBoardCopyFile::HandleProgress(
     return { true, callback->errorCode, true };
 }
 
+void PasteBoardCopyFile::OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo)
+{
+    if (progressListener_.ProgressNotify != nullptr) {
+        progressListener_.ProgressNotify(proInfo);
+    } else {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressNotify is nullptr.");
+    }
+}
+
 void PasteBoardCopyFile::ReadNotifyEvent(std::shared_ptr<CopyInfo> infos)
 {
     char buf[BUF_SIZE] = { 0 };
@@ -631,7 +640,7 @@ void PasteBoardCopyFile::ReadNotifyEvent(std::shared_ptr<CopyInfo> infos)
             if (currentTime >= infos->notifyTime && g_totalSize > 0) {
                 std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
                 proInfo->percentage = (int32_t)(PERCENTAGE * g_progressSize / g_totalSize);
-                progressListener_.ProgressNotify(proInfo);
+                OnProgressNotify(proInfo);
                 infos->notifyTime = currentTime + NOTIFY_PROGRESS_DELAY;
             }
             continue;
@@ -644,7 +653,7 @@ void PasteBoardCopyFile::ReadNotifyEvent(std::shared_ptr<CopyInfo> infos)
         if (currentTime >= infos->notifyTime && g_totalSize > 0) {
             std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
             proInfo->percentage = (int32_t)(PERCENTAGE * g_progressSize / g_totalSize);
-            progressListener_.ProgressNotify(proInfo);
+            OnProgressNotify(proInfo);
             infos->notifyTime = currentTime + NOTIFY_PROGRESS_DELAY;
         }
         index += static_cast<int64_t>(sizeof(struct inotify_event) + event->len);
@@ -823,7 +832,7 @@ void PasteBoardCopyFile::CopyComplete(std::shared_ptr<CopyInfo> infos, std::shar
         callback->percentage = PERCENTAGE;
         std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
         proInfo->percentage = (int32_t)(PERCENTAGE * g_progressSize / g_totalSize);
-        progressListener_.ProgressNotify(proInfo);
+        OnProgressNotify(proInfo);
     }
 }
 
@@ -930,7 +939,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     }
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = PERCENTAGE;
-    progressListener_.ProgressNotify(proInfo);
+    OnProgressNotify(proInfo);
     uriMap_.erase(uriMap_.begin(), uriMap_.end());
     return static_cast<int32_t>(PasteboardError::E_OK);
 }

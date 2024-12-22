@@ -34,7 +34,7 @@ const std::string FILE_MANAGER_AUTHORITY = "docs";
 const std::string MEDIA_AUTHORITY = "media";
 const std::string DISTRIBUTED_PATH = "/data/storage/el2/distributedfiles/";
 std::atomic<uint32_t> TransListener::getSequenceId_ = 0;
-static ProgressListener progressListener_;
+ProgressListener TransListener::progressListener_;
 constexpr int ERRNO_NOERR = 0;
 constexpr int PERCENTAGE = 100;
 
@@ -216,6 +216,15 @@ std::string MiscServices::TransListener::GetNetworkIdFromUri(const std::string &
     return uri.substr(uri.find(NETWORK_PARA) + NETWORK_PARA.size(), uri.size());
 }
 
+void MiscServices::TransListener::OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo)
+{
+    if (progressListener_.ProgressNotify != nullptr) {
+        progressListener_.ProgressNotify(proInfo);
+    } else {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressNotify is nullptr");
+    }
+}
+
 int32_t MiscServices::TransListener::OnFileReceive(uint64_t totalBytes, uint64_t processedBytes)
 {
     std::lock_guard<std::mutex> lock(callbackMutex_);
@@ -231,7 +240,7 @@ int32_t MiscServices::TransListener::OnFileReceive(uint64_t totalBytes, uint64_t
     callback_->percentage = (int32_t)(PERCENTAGE * (processedBytes / totalBytes));
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = callback_->percentage;
-    progressListener_.ProgressNotify(proInfo);
+    OnProgressNotify(proInfo);
 
     return ERRNO_NOERR;
 }
@@ -244,7 +253,7 @@ int32_t MiscServices::TransListener::OnFinished(const std::string &sessionName)
         callback_->percentage = PERCENTAGE;
         std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
         proInfo->percentage = callback_->percentage;
-        progressListener_.ProgressNotify(proInfo);
+        OnProgressNotify(proInfo);
         callback_ = nullptr;
     }
     copyEvent_.copyResult = SUCCESS;
