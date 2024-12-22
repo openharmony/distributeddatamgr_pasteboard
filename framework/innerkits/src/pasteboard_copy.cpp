@@ -761,7 +761,10 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
         realSrc = copyInfo->srcUri.substr(0, index);
         std::filesystem::path filePath(realSrc);
         auto fileName = filePath.filename();
-        copyInfo->destUri = dataParams->destUri + fileName.string();
+        if (copyInfo->destUri.back() != '/') {
+            copyInfo->destUri += '/';
+        }
+        copyInfo->destUri += fileName.string();
     }
     FileUri realFileUri(realSrc);
     std::string realPath = realFileUri.GetRealPath();
@@ -908,7 +911,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
         return ret;
     }
-
+    progressListener_ = dataParams->listener;
     for (int i = 0; i < g_recordSize; i++) {
         std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
         std::string srcUri = uriMap_[i].first;
@@ -923,11 +926,9 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
         if (pasteData.IsRemote() || IsRemoteUri(copyInfo->srcUri)) {
             ret = TransListener::CopyFileFromSoftBus(copyInfo->srcUri,
                 copyInfo->destUri, copyInfo, callback, dataParams);
-            UnregisterListener(copyInfo);
-            return ret;
+        } else {
+            ExecLocal(copyInfo, callback);
         }
-        progressListener_ = dataParams->listener;
-        int32_t result = ExecLocal(copyInfo, callback);
         CloseNotifyFd(copyInfo, callback);
         copyInfo->run = false;
         WaitNotifyFinished(callback);
