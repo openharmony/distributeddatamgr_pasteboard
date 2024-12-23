@@ -503,7 +503,7 @@ private:
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void RetainUri(PasteData &pasteData);
     static void SplitWebviewPasteData(PasteData &pasteData);
-    static void GetFileProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo);
+    static void GetProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo);
     static int32_t HandleProgressStatus(const std::string &signalKey,
        std::shared_ptr<ProgressReportLintener> progressReport);
     int32_t PullHapSignal(std::string &signalKey, std::shared_ptr<ProgressReportLintener> progressReport);
