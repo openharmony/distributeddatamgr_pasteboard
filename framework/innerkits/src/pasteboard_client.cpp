@@ -297,7 +297,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     return ret;
 }
 
-void PasteboardClient::GetFileProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo)
+void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo)
 {
     if (progressInfo == nullptr) {
         return;
@@ -309,7 +309,7 @@ void PasteboardClient::GetFileProgressByProgressInfo(std::shared_ptr<ProgressInf
         isFinishProgress_.store(true);
     }
     std::string currentValue = std::to_string(progressInfo->percentage);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "pasteboard file progress = %{public}s", currentValue.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "pasteboard progress percent = %{public}s", currentValue.c_str());
     PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
 }
 
@@ -385,7 +385,6 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             return static_cast<int32_t>(PasteboardError::PRPGRESS_CANCEL_SUCCESS);
         }
-        PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_WITHOUT_FILE));
         progressValue += UPDATE_PERCENT_WITHOUT_FILE;
         currentValue = std::to_string(progressValue);
@@ -407,7 +406,6 @@ void PasteboardClient::ProgressSmoothToTwentyPercent(std::string &progressKey, s
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             return;
         }
-        PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
         std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
         progressValue += PASTEBOARD_PROGRESS_UPDATE_PERCENT;
         currentValue = std::to_string(progressValue);
@@ -501,7 +499,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
         g_progressKey = progressKey;
         lock.unlock();
         PasteBoardProgress::GetInstance().InsertValue(signalKey, keyDefaultValue); // 0%
-        params->listener.ProgressNotify = GetFileProgressByProgressInfo;
+        params->listener.ProgressNotify = GetProgressByProgressInfo;
         std::shared_ptr<ProgressReportLintener> progressReport = std::make_shared<ProgressReportLintener>();
         progressReport->OnProgressFail = OnProgressAbnormal;
         PullHapSignal(signalKey, progressReport);
