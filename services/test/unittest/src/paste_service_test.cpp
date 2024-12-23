@@ -475,6 +475,30 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0012, TestSize.Level0)
 }
 
 /**
+ * @tc.name: PasteRecordTest0013
+ * @tc.desc: Create paste board html local docs uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0013, TestSize.Level0)
+{
+    std::string htmlTextIn = "<div class='item'><img data-ohos='clipboard' "
+                             "src='file:///docs/storage/Users/currentUser/VMDocs/test.png'></div>";
+    std::string htmlTextOut = "<div class='item'><img data-ohos='clipboard' "
+                              "src='file:///storage/Users/currentUser/VMDocs/test.png'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlTextIn);
+    ASSERT_TRUE(data != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData.GetPrimaryHtml();
+    ASSERT_TRUE(*record == htmlTextOut);
+}
+
+/**
  * @tc.name: PasteDataTest001
  * @tc.desc: Create paste board data test.
  * @tc.type: FUNC

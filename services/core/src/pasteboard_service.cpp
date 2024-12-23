@@ -88,6 +88,7 @@ const std::int32_t INVAILD_VERSION = -1;
 const std::int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 const std::int32_t CTRLV_EVENT_SIZE = 2;
 const std::int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
+const std::int32_t DOCS_LOCAL_PATH_SUBSTR_START_INDEX = 1;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -1592,7 +1593,12 @@ void PasteboardService::SetWebViewPasteData(PasteData &pasteData, const std::str
         if (puri.substr(0, PasteData::IMG_LOCAL_URI.size()) == PasteData::IMG_LOCAL_URI &&
             puri.find(PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
             std::string path = uri->GetPath();
-            std::string newUriStr = PasteData::FILE_SCHEME_PREFIX + bundleName + path;
+            std::string newUriStr = "";
+            if (path.substr(0, PasteData::DOCS_LOCAL_TAG.size()) == PasteData::DOCS_LOCAL_TAG) {
+                newUriStr = PasteData::FILE_SCHEME_PREFIX + path.substr(DOCS_LOCAL_PATH_SUBSTR_START_INDEX);
+            } else {
+                newUriStr = PasteData::FILE_SCHEME_PREFIX + bundleName + path;
+            }
             item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
         }
     }
