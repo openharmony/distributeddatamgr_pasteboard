@@ -906,12 +906,21 @@ int32_t PasteBoardCopyFile::CheckCopyParam(PasteData &pasteData, std::shared_ptr
     return ERRNO_NOERR;
 }
 
-int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
+void PasteBoardCopyFile::ProgressInit(void)
 {
     uriMap_.erase(uriMap_.begin(), uriMap_.end());
+    g_recordSize = 0;
+    g_progressSize = 0;
+    g_totalSize = 0;
+}
+
+int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
+{
+    ProgressInit();
     int32_t ret = CheckCopyParam(pasteData, dataParams);
     if (ret != ERRNO_NOERR) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
+        ProgressInit();
         return ret;
     }
     progressListener_ = dataParams->listener;
@@ -924,6 +933,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
         auto callback = RegisterListener(copyInfo);
         if (callback == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CopyCallback registe failed");
+            ProgressInit();
             return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
         }
         if (pasteData.IsRemote() || IsRemoteUri(copyInfo->srcUri)) {
@@ -944,7 +954,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = PERCENTAGE;
     OnProgressNotify(proInfo);
-    uriMap_.erase(uriMap_.begin(), uriMap_.end());
+    ProgressInit();
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 } // namespace MiscServices
