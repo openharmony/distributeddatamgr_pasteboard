@@ -403,7 +403,7 @@ void PasteboardClient::ProgressSmoothToTwentyPercent(std::string &progressKey, s
     int progressValue = 0;
     std::string currentValue = "0";
     std::shared_ptr<ProgressInfo> info = std::make_shared<ProgressInfo>();
-    while (progressValue <= PASTEBOARD_PROGRESS_TWENTY_PERCENT && !remoteTask_.load()) {
+    while (progressValue < PASTEBOARD_PROGRESS_TWENTY_PERCENT && !remoteTask_.load()) {
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             return;
         }
