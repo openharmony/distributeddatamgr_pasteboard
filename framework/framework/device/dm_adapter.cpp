@@ -13,12 +13,13 @@
  * limitations under the License.
  */
 #include "device/dm_adapter.h"
-#include "pasteboard_error.h"
-#include "pasteboard_hilog.h"
 #ifdef PB_DEVICE_MANAGER_ENABLE
 #include "device_manager.h"
 #include "device_manager_callback.h"
 #endif
+#include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
+
 namespace OHOS::MiscServices {
 constexpr size_t DMAdapter::MAX_ID_LEN;
 constexpr const char *PKG_NAME = "pasteboard_service";
@@ -53,7 +54,7 @@ public:
 
     void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override
     {
-        // authForm not vaild use networkId
+        // authForm not valid use networkId
         if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
             online_(deviceInfo);
         }
@@ -181,7 +182,7 @@ const std::string DMAdapter::GetLocalNetworkId()
     DmDeviceInfo info;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceInfo(pkgName_, info);
     auto networkId = std::string(info.networkId);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ret: %{public}d, networkId:%{public}s", ret, networkId.c_str());
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ret: %{public}d, networkId:%{public}.5s", ret, networkId.c_str());
     if (ret == 0 && !networkId.empty()) {
         return networkId;
     }

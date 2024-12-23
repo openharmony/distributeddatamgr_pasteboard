@@ -15,8 +15,9 @@
 #include <cstring>
 #include <thread>
 
-#include "cJSON.h"
 #include "dev_profile.h"
+
+#include "cJSON.h"
 #include "distributed_module_config.h"
 #include "dm_adapter.h"
 #include "pasteboard_error.h"
@@ -45,12 +46,14 @@ DevProfile::SubscribeDPChangeListener::~SubscribeDPChangeListener() {}
 
 int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileAdd(const TrustDeviceProfile &profile)
 {
+    (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileAdd start.");
     return 0;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileDelete(const TrustDeviceProfile &profile)
 {
+    (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileDelete start.");
     return 0;
 }
@@ -58,18 +61,22 @@ int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileDelete(const 
 int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileUpdate(
     const TrustDeviceProfile &oldProfile, const TrustDeviceProfile &newProfile)
 {
+    (void)oldProfile;
+    (void)newProfile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileUpdate start.");
     return 0;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileAdd(const DeviceProfile &profile)
 {
+    (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileAdd start.");
     return 0;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileDelete(const DeviceProfile &profile)
 {
+    (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileDelete start.");
     return 0;
 }
@@ -77,18 +84,22 @@ int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileDelete(const Devic
 int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileUpdate(
     const DeviceProfile &oldProfile, const DeviceProfile &newProfile)
 {
+    (void)oldProfile;
+    (void)newProfile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileUpdate start.");
     return 0;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileAdd(const ServiceProfile &profile)
 {
+    (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileAdd start.");
     return 0;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileDelete(const ServiceProfile &profile)
 {
+    (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileDelete start.");
     return 0;
 }
@@ -96,18 +107,22 @@ int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileDelete(const Serv
 int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileUpdate(
     const ServiceProfile &oldProfile, const ServiceProfile &newProfile)
 {
+    (void)oldProfile;
+    (void)newProfile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileUpdate start.");
     return 0;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileAdd(const CharacteristicProfile &profile)
 {
+    (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileAdd start.");
     return 0;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileDelete(const CharacteristicProfile &profile)
 {
+    (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileDelete start.");
     return 0;
 }
@@ -163,7 +178,7 @@ void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
     profile.SetCharacteristicValue(enabledStatus);
     int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutCharacteristicProfile(profile);
     if (errNo != HANDLE_OK && errNo != DistributedDeviceProfile::DP_CACHE_EXIST) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutCharacteristicProfile failed, %{public}d", errNo);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PutCharacteristicProfile failed, %{public}d", errNo);
         return;
     }
 #else
@@ -177,7 +192,7 @@ std::pair<int32_t, std::string> DevProfile::GetEnabledStatus(const std::string &
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s", networkId.c_str());
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR), "");
     }
     auto it = enabledStatusCache_.Find(udid);
@@ -228,7 +243,6 @@ bool DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
     cJSON *version = cJSON_GetObjectItemCaseSensitive(jsonObj, VERSION_ID);
     if (version == nullptr || !cJSON_IsNumber(version) || (version->valuedouble < 0)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "version not found, profile=%{public}s", jsonStr.c_str());
-        cJSON_Delete(jsonObj);
         return false;
     }
 
@@ -249,7 +263,7 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, networkId = %{public}.5s", networkId.c_str());
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
     if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s", networkId.c_str());
         return;
     }
     std::lock_guard<std::mutex> mutexLock(callbackMutex_);

@@ -16,6 +16,7 @@
 #define OHOS_DISTRIBUTED_FRAMEWORK_COMMON_BLOCK_OBJECT_H
 #include <condition_variable>
 #include <mutex>
+
 namespace OHOS {
 template<typename T>
 class BlockObject {

@@ -15,7 +15,9 @@
 
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_CLIPS_DEFAULT_CLIPS_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_CLIPS_DEFAULT_CLIPS_H
+
 #include "clip/clip_plugin.h"
+
 namespace OHOS::MiscServices {
 class DefaultClip : public ClipPlugin {
 public:

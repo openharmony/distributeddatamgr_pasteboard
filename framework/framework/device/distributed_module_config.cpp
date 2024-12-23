@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <thread>
-
-#include "dev_profile.h"
 #include "distributed_module_config.h"
+
+#include <thread>
+#include "dev_profile.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
@@ -154,6 +154,7 @@ void DistributedModuleConfig::GetRemoteDeviceVersion(uint32_t &minVersion, uint3
 
 void DistributedModuleConfig::Online(const std::string &device)
 {
+    srand(time(nullptr));
     std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
     DevProfile::GetInstance().SubscribeProfileEvent(device);
     auto res = DevProfile::GetInstance().GetEnabledStatus(device);
@@ -164,6 +165,7 @@ void DistributedModuleConfig::Online(const std::string &device)
 
 void DistributedModuleConfig::Offline(const std::string &device)
 {
+    srand(time(nullptr));
     std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
     DevProfile::GetInstance().UnSubscribeProfileEvent(device);
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(device);

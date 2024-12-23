@@ -22,6 +22,7 @@
 
 #include "api/visibility.h"
 #include "serializable/serializable.h"
+
 namespace OHOS::MiscServices {
 class API_EXPORT ClipPlugin {
 public:

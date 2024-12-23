@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "default_clip.h"
+
 namespace OHOS::MiscServices {
 int32_t DefaultClip::SetPasteData(const GlobalEvent &event, const std::vector<uint8_t> &data)
 {
