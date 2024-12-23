@@ -370,10 +370,13 @@ int32_t PasteBoardCopyFile::CopyFile(const std::string &src, const std::string &
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "src = %{public}s, dest = %{public}s", src.c_str(), dest.c_str());
     int32_t srcFd = -1;
     std::string realDest = dest;
+    if (dest.back() != '/') {
+        realDest = dest + '/';
+    }
     if (IsDirectory(dest)) {
         std::filesystem::path filePath(copyInfo->srcUri);
         auto fileName = filePath.filename();
-        realDest = dest + fileName.string();
+        realDest = realDest + fileName.string();
     }
     std::error_code errCode;
     if (std::filesystem::exists(realDest, errCode) && errCode.value() == ERRNO_NOERR && copyInfo->option == FILE_SKIP) {
