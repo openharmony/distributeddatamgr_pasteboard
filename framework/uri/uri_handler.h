@@ -14,10 +14,7 @@
 */
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_URI_HANDLER_H
-#include <fcntl.h>
 #include <string>
-#include <sys/stat.h>
-#include <unistd.h>
 
 namespace OHOS::MiscServices {
 class UriHandler {

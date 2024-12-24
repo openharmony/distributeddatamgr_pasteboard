@@ -16,23 +16,20 @@
 #include "pasteboard_hilog.h"
 #include "remote_uri.h"
 namespace OHOS::MiscServices {
+
 PasteUriHandler::PasteUriHandler()
 {
     isPaste_ = true;
 }
+
 std::string PasteUriHandler::ToUri(int32_t fd)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "begin");
-    if (fd < 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fd not available");
-        return "";
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((fd >= 0), "",
+        PASTEBOARD_MODULE_CLIENT, "fd not available, fd:%{public}d", fd);
     std::string result;
     int ret = DistributedFS::ModuleRemoteUri::RemoteUri::ConvertUri(fd, result); // transfer fd ownership
-    if (ret != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "convert uri from fd failed: %{public}d", ret);
-        return result;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == 0, result,
+        PASTEBOARD_MODULE_CLIENT, "convert uri from fd failed: %{public}d", ret);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end, %{public}s", result.c_str());
     return result;
 }

@@ -12,14 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "paste_data_record.h"
+
 #include <sys/stat.h>
 #include <unistd.h>
-
 #include "convert_utils.h"
 #include "copy_uri_handler.h"
 #include "parcel_util.h"
 #include "pasteboard_client.h"
-#include "paste_data_record.h"
 #include "pasteboard_hilog.h"
 #include "pixel_map_parcel.h"
 
@@ -27,9 +28,7 @@ using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServices {
-namespace {
 constexpr int MAX_TEXT_LEN = 20 * 1024 * 1024;
-}
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mimeType)
 {
     record_->mimeType_ = std::move(mimeType);
@@ -50,7 +49,7 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_UDC_TEXTCONTENT,
     TAG_UDC_SYSTEMCONTENTS,
     TAG_UDC_UDMFVALUE,
-    TAG_UDC_ENTYIES,
+    TAG_UDC_ENTRIES,
     TAG_DATA_ID,
     TAG_RECORD_ID,
     TAG_DELAY_RECORD_FLAG,
@@ -125,9 +124,8 @@ void PasteDataRecord::AddUriEntry()
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewHtmlRecord(const std::string &htmlText)
 {
-    if (htmlText.length() >= MAX_TEXT_LEN) {
-        return nullptr;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((htmlText.length() < MAX_TEXT_LEN), nullptr,
+        PASTEBOARD_MODULE_CLIENT, "record length not support, length=%{public}zu", htmlText.length());
     return Builder(MIMETYPE_TEXT_HTML).SetHtmlText(std::make_shared<std::string>(htmlText)).Build();
 }
 
@@ -138,9 +136,8 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewWantRecord(std::shared_ptr<
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPlainTextRecord(const std::string &text)
 {
-    if (text.length() >= MAX_TEXT_LEN) {
-        return nullptr;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((text.length() < MAX_TEXT_LEN), nullptr,
+        PASTEBOARD_MODULE_CLIENT, "PlainText length not support, length=%{public}zu", text.length());
     return Builder(MIMETYPE_TEXT_PLAIN).SetPlainText(std::make_shared<std::string>(text)).Build();
 }
 
@@ -209,6 +206,7 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
     : mimeType_{ std::move(mimeType) }, htmlText_{ std::move(htmlText) }, want_{ std::move(want) },
       plainText_{ std::move(plainText) }, uri_{ std::move(uri) }
 {
+    InitDecodeMap();
 }
 
 PasteDataRecord::PasteDataRecord()
@@ -272,7 +270,7 @@ void PasteDataRecord::InitDecodeMap()
             ret = ret && ReadValue(buffer, systemDefinedContents_, head);}},
         {TAG_UDC_UDMFVALUE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, udmfValue_, head);}},
-        {TAG_UDC_ENTYIES, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+        {TAG_UDC_ENTRIES, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, entries_, head);}},
         {TAG_DATA_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
             ret = ret && ReadValue(buffer, dataId_, head);}},
@@ -332,7 +330,7 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
 {
     if (convertUri_.empty()) {
-        return GetOrginUri();
+        return GetOriginUri();
     }
     return std::make_shared<OHOS::Uri>(convertUri_);
 }
@@ -348,7 +346,7 @@ void PasteDataRecord::SetUri(std::shared_ptr<OHOS::Uri> uri)
     AddUriEntry();
 }
 
-std::shared_ptr<OHOS::Uri> PasteDataRecord::GetOrginUri() const
+std::shared_ptr<OHOS::Uri> PasteDataRecord::GetOriginUri() const
 {
     if (uri_) {
         return uri_;
@@ -428,7 +426,7 @@ bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_UDC_TEXTCONTENT, textContent_) && ret;
     ret = Write(buffer, TAG_UDC_SYSTEMCONTENTS, systemDefinedContents_) && ret;
     ret = Write(buffer, TAG_UDC_UDMFVALUE, udmfValue_) && ret;
-    ret = Write(buffer, TAG_UDC_ENTYIES, entries_) && ret;
+    ret = Write(buffer, TAG_UDC_ENTRIES, entries_) && ret;
     ret = Write(buffer, TAG_DATA_ID, dataId_) && ret;
     ret = Write(buffer, TAG_RECORD_ID, recordId_) && ret;
     ret = Write(buffer, TAG_DELAY_RECORD_FLAG, isDelay_) && ret;
@@ -441,6 +439,7 @@ bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
         auto it = decodeMap.find(head.tag);
         if (it == decodeMap.end()) {
             ret = ret && Skip(head.len, buffer.size());
@@ -514,6 +513,7 @@ bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
     }
     return true;
 }
+
 bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start");
@@ -527,6 +527,7 @@ bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
     }
     return true;
 }
+
 std::string PasteDataRecord::GetPassUri()
 {
     std::string tempUri;
@@ -545,7 +546,7 @@ void PasteDataRecord::ReplaceShareUri(int32_t userId)
         return;
     }
 
-    // convert uri format: /mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt
+    // convert uri format: /mnt/hmdfs/100/account/merge_view/services/pasteboard_service/.share/xxx.txt
     constexpr const char *SHARE_PATH_PREFIX = "/mnt/hmdfs/";
     auto frontPos = convertUri_.find(SHARE_PATH_PREFIX);
     auto rearPos = convertUri_.find("/account/");
@@ -609,7 +610,7 @@ void PasteDataRecord::SetUDType(int32_t type)
     this->udType_ = type;
 }
 
-std::vector<std::string> PasteDataRecord::GetValidMimeTypes(const std::vector<std::string>& mimeTypes) const
+std::vector<std::string> PasteDataRecord::GetValidMimeTypes(const std::vector<std::string> &mimeTypes) const
 {
     std::vector<std::string> res;
     auto allTypes = GetMimeTypes();
@@ -687,7 +688,7 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
             object->value_[UDMF::FILE_URI_PARAM] = uri->ToString();
         }
     } else if (mimeType_ == MIMETYPE_TEXT_WANT) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want, udmf not support");
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want, udmf not supports");
     } else if (customData_ != nullptr) {
         auto itemData = customData_->GetItemData();
         if (itemData.size() == 0) {
@@ -696,7 +697,7 @@ std::shared_ptr<EntryValue> PasteDataRecord::GetUDMFValue()
         }
         if (itemData.size() != 1) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-                "not support u8 map, mimeType:%{public}s, customData.size:%{public}zu", mimeType_.c_str(),
+                "not supports u8 map, mimeType:%{public}s, customData.size:%{public}zu", mimeType_.c_str(),
                 itemData.size());
         }
         udmfValue_ = std::make_shared<EntryValue>(itemData.begin()->second);
@@ -726,11 +727,9 @@ std::set<std::string> PasteDataRecord::GetMimeTypes() const
     return types;
 }
 
-void PasteDataRecord::AddEntryByMimeType(const std::string& mimeType, std::shared_ptr<PasteDataEntry> value)
+void PasteDataRecord::AddEntryByMimeType(const std::string &mimeType, std::shared_ptr<PasteDataEntry> value)
 {
-    if (value == nullptr) {
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(value != nullptr, PASTEBOARD_MODULE_CLIENT, "value is null");
     auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, mimeType);
     value->SetUtdId(utdId);
     AddEntry(utdId, value);
@@ -738,10 +737,7 @@ void PasteDataRecord::AddEntryByMimeType(const std::string& mimeType, std::share
 
 void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<PasteDataEntry> value)
 {
-    if (!value) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "entry is null");
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(value != nullptr, PASTEBOARD_MODULE_CLIENT, "Entry value is null");
     if (utdType != value->GetUtdId()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type is diff. utdtype:%{public}s, UtdId:%{public}s",
             utdType.c_str(), value->GetUtdId().c_str());
@@ -785,16 +781,16 @@ void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<Paste
 
 std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntryByMimeType(const std::string &mimeType)
 {
-    if (!udmfValue_) {
+    if (udmfValue_ == nullptr) {
         udmfValue_ = GetUDMFValue();
     }
     auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, mimeType);
     return GetEntry(utdId);
 }
 
-std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utdType)
+std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utdType)
 {
-    if (!udmfValue_) {
+    if (udmfValue_ == nullptr) {
         udmfValue_ = GetUDMFValue();
     }
     if (CommonUtils::Convert2UtdId(udType_, mimeType_) == utdType) {
@@ -803,7 +799,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
         }
         auto entry = std::make_shared<PasteDataEntry>(utdType, *udmfValue_);
         if (isDelay_ && !entry->HasContent(utdType)) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Begin GetRecordValueByType1");
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay record value, type=%{public}s", utdType.c_str());
             PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
         }
         if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
@@ -817,7 +813,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
         if (entry->GetUtdId() == utdType ||
             (CommonUtils::IsFileUri(utdType) && CommonUtils::IsFileUri(entry->GetUtdId()))) {
             if (isDelay_ && !entry->HasContent(utdType)) {
-                PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Begin GetRecordValueByType2");
+                PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay entry value, type=%{public}s", utdType.c_str());
                 PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
             }
             if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
@@ -832,7 +828,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string& utd
 std::vector<std::shared_ptr<PasteDataEntry>> PasteDataRecord::GetEntries() const
 {
     std::vector<std::shared_ptr<PasteDataEntry>> entries = entries_;
-    if (udmfValue_) {
+    if (udmfValue_ != nullptr) {
         entries.insert(entries.begin(),
             std::make_shared<PasteDataEntry>(CommonUtils::Convert2UtdId(udType_, mimeType_), *udmfValue_));
     }

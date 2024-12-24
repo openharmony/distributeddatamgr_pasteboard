@@ -151,7 +151,7 @@ void FuzzPastedata(const uint8_t *rawData, size_t size)
     pasteData2.SetRemote(static_cast<bool>(*rawData));
     pasteData2.SetLocalPasteFlag(static_cast<bool>(*rawData));
     pasteData2.SetDraggedDataFlag(static_cast<bool>(*rawData));
-    pasteData2.SetOrginAuthority(str);
+    pasteData2.SetOriginAuthority(str);
     pasteData2.SetBundleName(str);
     pasteData2.SetTag(str);
     pasteData2.SetTime(str);
@@ -172,8 +172,8 @@ void FuzzPastedata(const uint8_t *rawData, size_t size)
     pasteData2.SetScreenStatus(screenStatus);
     pasteData2.GetScreenStatus();
     pasteData2.GetTime();
-    pasteData2.SetOrginAuthority(str);
-    pasteData2.GetOrginAuthority();
+    pasteData2.SetOriginAuthority(str);
+    pasteData2.GetOriginAuthority();
     pasteData2.SetBundleName(str);
     pasteData2.GetBundleName();
     pasteData2.GetDeviceId();
@@ -262,7 +262,7 @@ void FuzzPastedataRecord(const uint8_t *rawData, size_t size)
     pasteDataRecord.GetMimeType();
     pasteDataRecord.GetPlainText();
     pasteDataRecord.GetPixelMap();
-    pasteDataRecord.GetOrginUri();
+    pasteDataRecord.GetOriginUri();
     pasteDataRecord.GetWant();
     pasteDataRecord.GetCustomData();
     pasteDataRecord.GetUri();

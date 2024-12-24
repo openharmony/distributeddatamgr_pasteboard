@@ -588,11 +588,11 @@ HWTEST_F(PasteDataTest, SetOrginAuthority001, TestSize.Level0)
     std::string bundleName = "com.example.myapplication";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     pasteData->SetBundleName(bundleName);
-    pasteData->SetOrginAuthority(bundleName);
+    pasteData->SetOriginAuthority(bundleName);
     std::string getBundleName = pasteData->GetBundleName();
-    std::string getOrginAuthority = pasteData->GetOrginAuthority();
+    std::string getOriginAuthority = pasteData->GetOriginAuthority();
     ASSERT_TRUE(getBundleName == bundleName);
-    ASSERT_TRUE(getOrginAuthority == bundleName);
+    ASSERT_TRUE(getOriginAuthority == bundleName);
     std::string time = "2023-08-09";
     pasteData->SetTime(time);
     std::string getTime = pasteData->GetTime();
@@ -621,7 +621,7 @@ HWTEST_F(PasteDataTest, GetConvertUri001, TestSize.Level0)
     pasteDataRecord->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
     std::shared_ptr<Uri> uri = pasteDataRecord->GetUri();
     ASSERT_TRUE(uri != nullptr);
-    std::shared_ptr<Uri> getOriginUri = pasteDataRecord->GetOrginUri();
+    std::shared_ptr<Uri> getOriginUri = pasteDataRecord->GetOriginUri();
     ASSERT_TRUE(getOriginUri != nullptr);
 }
 
@@ -846,7 +846,7 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     auto record1 = builder1.Build();
     data1.AddRecord(record1);
     std::string bundleName1 = "com.example.myapplication";
-    data1.SetOrginAuthority(bundleName1);
+    data1.SetOriginAuthority(bundleName1);
     PasteData data2;
     PasteDataRecord::Builder builder2(MIMETYPE_TEXT_URI);
     std::string uriStr2 = FILE_URI;
@@ -855,7 +855,7 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     auto record2 = builder2.Build();
     data2.AddRecord(record2);
     std::string bundleName2 = "com.example.myapplication";
-    data2.SetOrginAuthority(bundleName2);
+    data2.SetOriginAuthority(bundleName2);
     ASSERT_TRUE(data1.GetBundleName() == data2.GetBundleName());
 }
 

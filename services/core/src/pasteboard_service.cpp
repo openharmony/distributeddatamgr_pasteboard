@@ -909,7 +909,7 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
         }
         delayData.SetDelayData(false);
         delayData.SetBundleName(data.GetBundleName());
-        delayData.SetOrginAuthority(data.GetOrginAuthority());
+        delayData.SetOriginAuthority(data.GetOriginAuthority());
         delayData.SetTime(data.GetTime());
         delayData.SetTokenId(data.GetTokenId());
         CheckAppUriPermission(delayData);
@@ -1128,7 +1128,7 @@ void PasteboardService::CheckUriPermission(
 {
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
-        if (item == nullptr || (!data.IsRemote() && targetBundleName.compare(data.GetOrginAuthority()) == 0)) {
+        if (item == nullptr || (!data.IsRemote() && targetBundleName.compare(data.GetOriginAuthority()) == 0)) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "local dev & local app");
             continue;
         }
@@ -1140,11 +1140,11 @@ void PasteboardService::CheckUriPermission(
         if (item->isConvertUriFromRemote && !item->GetConvertUri().empty()) {
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "get remote disUri");
             uri = std::make_shared<OHOS::Uri>(item->GetConvertUri());
-        } else if (!item->isConvertUriFromRemote && item->GetOrginUri() != nullptr) {
-            uri = item->GetOrginUri();
+        } else if (!item->isConvertUriFromRemote && item->GetOriginUri() != nullptr) {
+            uri = item->GetOriginUri();
         }
         auto hasGrantUriPermission = item->HasGrantUriPermission();
-        if (uri == nullptr || (!IsBundleOwnUriPermission(data.GetOrginAuthority(), *uri) && !hasGrantUriPermission)) {
+        if (uri == nullptr || (!IsBundleOwnUriPermission(data.GetOriginAuthority(), *uri) && !hasGrantUriPermission)) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri is null:%{public}d, not grant permission: %{public}d.",
                 uri == nullptr, hasGrantUriPermission);
             continue;
@@ -1167,10 +1167,10 @@ void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData
         auto &permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
         for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
             auto item = pasteData->GetRecordAt(i);
-            if (item == nullptr || item->GetOrginUri() == nullptr) {
+            if (item == nullptr || item->GetOriginUri() == nullptr) {
                 continue;
             }
-            Uri &uri = *(item->GetOrginUri());
+            Uri &uri = *(item->GetOriginUri());
             for (std::set<std::string>::iterator it = bundles.begin(); it != bundles.end(); it++) {
                 auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, *it);
                 PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
@@ -1198,10 +1198,10 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
     std::vector<bool> checkResults;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
-        if (item == nullptr || item->GetOrginUri() == nullptr) {
+        if (item == nullptr || item->GetOriginUri() == nullptr) {
             continue;
         }
-        auto uri = item->GetOrginUri()->ToString();
+        auto uri = item->GetOriginUri()->ToString();
         uris.emplace_back(uri);
         indexs.emplace_back(i);
     }
@@ -1224,7 +1224,7 @@ void PasteboardService::CheckAppUriPermission(PasteData &data)
     }
     for (size_t i = 0; i < indexs.size(); i++) {
         auto item = data.GetRecordAt(indexs[i]);
-        if (item == nullptr || item->GetOrginUri() == nullptr) {
+        if (item == nullptr || item->GetOriginUri() == nullptr) {
             continue;
         }
         item->SetGrantUriPermission(checkResults[i]);
@@ -1298,7 +1298,7 @@ int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData, sptr<
     setPasteDataUId_ = IPCSkeleton::GetCallingUid();
     RemovePasteData(appInfo);
     pasteData->SetBundleName(appInfo.bundleName);
-    pasteData->SetOrginAuthority(appInfo.bundleName);
+    pasteData->SetOriginAuthority(appInfo.bundleName);
     std::string time = GetTime();
     pasteData->SetTime(time);
     pasteData->SetScreenStatus(GetCurrentScreenStatus());
@@ -2161,7 +2161,7 @@ std::pair<std::shared_ptr<PasteData>, PasteDateResult> PasteboardService::GetDis
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     pasteData->Decode(rawData);
     pasteData->ReplaceShareUri(user);
-    pasteData->SetOrginAuthority(pasteData->GetBundleName());
+    pasteData->SetOriginAuthority(pasteData->GetBundleName());
     for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
         auto item = pasteData->GetRecordAt(i);
         if (item == nullptr || item->GetConvertUri().empty()) {
@@ -2361,11 +2361,11 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
     }
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
-        if (item == nullptr || item->GetOrginUri() == nullptr) {
+        if (item == nullptr || item->GetOriginUri() == nullptr) {
             continue;
         }
-        Uri uri = *(item->GetOrginUri());
-        if (!IsBundleOwnUriPermission(data.GetOrginAuthority(), uri) && !item->HasGrantUriPermission()) {
+        Uri uri = *(item->GetOriginUri());
+        if (!IsBundleOwnUriPermission(data.GetOriginAuthority(), uri) && !item->HasGrantUriPermission()) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "orginuri=%{public}s, no permission", uri.ToString().c_str());
             continue;
         }
@@ -2385,10 +2385,10 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         }
         for (size_t i = 0; i < indexs.size(); i++) {
             auto item = data.GetRecordAt(indexs[i]);
-            if (item == nullptr || item->GetOrginUri() == nullptr) {
+            if (item == nullptr || item->GetOriginUri() == nullptr) {
                 continue;
             }
-            auto it = dfsUris.find(item->GetOrginUri()->ToString());
+            auto it = dfsUris.find(item->GetOriginUri()->ToString());
             if (it != dfsUris.end()) {
                 item->SetConvertUri(it->second.uriStr);
                 fileSize += it->second.fileSize;
