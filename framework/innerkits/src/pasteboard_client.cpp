@@ -487,7 +487,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     if (params == nullptr) {
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
-    remoteTask_.store(false);
+    ProgressSignalClient::GetInstance().Init();
     std::string progressKey;
     std::string signalKey;
     std::string keyDefaultValue = "0";
@@ -529,8 +529,8 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     }
     if (remoteTask_.load()) {
         ret = static_cast<int32_t>(PasteboardError::PROGRESS_ABNORMAL);
+        remoteTask_.store(false);
     }
-    remoteTask_.store(false);
     return ret;
 }
 
