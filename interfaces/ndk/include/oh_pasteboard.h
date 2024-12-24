@@ -318,7 +318,7 @@ int OH_Pasteboard_GetDataSource(OH_Pasteboard* pasteboard, char* source, unsigne
  * @brief Checks whether the Pasteboard has the specified type of data.
  *
  * @param pasteboard Pointer to the {@link OH_Pasteboard} instance.
- * @param type Poniter to the type of data to check.
+ * @param type Pointer to the type of data to check.
  * @return Returns a boolean value, which indicates whether the Pasteboard has the specified type of data.
  *         The value {@code true} means the Pasteboard has the specified type of data.
  *         The value {@code false} means the opposite.
@@ -364,7 +364,7 @@ OH_UdmfData* OH_Pasteboard_GetData(OH_Pasteboard* pasteboard, int* status);
 int OH_Pasteboard_SetData(OH_Pasteboard* pasteboard, OH_UdmfData* data);
 
 /**
- * @brief Clears the data in the Pastedboard.
+ * @brief Clears the data in the Pasteboard.
  *
  * @param pasteboard Pointer to the {@link OH_Pasteboard} instance.
  * @return Returns the status code of the execution. For details, see {@link PASTEBOARD_ErrCode}.

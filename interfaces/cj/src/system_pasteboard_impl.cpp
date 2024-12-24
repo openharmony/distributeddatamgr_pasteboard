@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include "system_pasteboard_impl.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
-#include "system_pasteboard_impl.h"
 
 using namespace OHOS::MiscServices;
 
@@ -50,13 +50,13 @@ int NewInstance(sptr<SystemPasteboardImpl> &instance)
 
 int32_t SystemPasteboardImpl::GetSystemPasteboardImpl(int64_t &id)
 {
-    sptr<SystemPasteboardImpl> instence = nullptr;
-    int status = NewInstance(instence);
+    sptr<SystemPasteboardImpl> instance = nullptr;
+    int32_t status = NewInstance(instance);
     if (status != 0) {
         LOGE("[SystemPasteboardImpl] CJgetSystemPasteboard create instance failed");
         return status;
     }
-    id = instence->GetID();
+    id = instance->GetID();
     return 0;
 }
 

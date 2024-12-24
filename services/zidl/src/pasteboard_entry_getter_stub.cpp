@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "ipc_skeleton.h"
 #include "pasteboard_entry_getter_stub.h"
+#include "ipc_skeleton.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"

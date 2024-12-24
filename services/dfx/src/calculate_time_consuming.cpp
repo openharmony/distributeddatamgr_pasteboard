@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include "calculate_time_consuming.h"
 #include <sys/time.h>
 
-#include "calculate_time_consuming.h"
 #include "dfx_types.h"
 #include "pasteboard_hilog.h"
 #include "reporter.h"
@@ -75,14 +75,14 @@ int CalculateTimeConsuming::CalculateData(size_t calPasteboardData) const
             return static_cast<int>(DataRange::DR_OVER_FIFTY_MB);
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "CalculateData()  end");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "CalculateData() end");
 }
 
 int CalculateTimeConsuming::CalculateTime(uint64_t time)
 {
     constexpr int FIVE_HUNDRED_MS = 500;
-    uint64_t timeCosuming = time % FIVE_HUNDRED_MS;
-    switch (timeCosuming) {
+    uint64_t timeConsuming = time % FIVE_HUNDRED_MS;
+    switch (timeConsuming) {
         case static_cast<uint64_t>(TimeLevel::PER_FIVE_HUNDRED_MS_ZERO):
             return static_cast<int>(TimeConsumingStatistic::TCS_TIME_CONSUMING_LEVEL_ONE);
         case static_cast<uint64_t>(TimeLevel::PER_FIVE_HUNDRED_MS_ONE):
@@ -113,7 +113,7 @@ uint64_t CalculateTimeConsuming::GetCurrentTimeMicros()
     constexpr int64_t SEC_TO_MILLISEC = 1000;
     constexpr int64_t MICROSEC_TO_MILLISEC = 1000;
 
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetCurrentTimeMicros()  start");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetCurrentTimeMicros() start");
     struct timeval tv = { 0, 0 };
     gettimeofday(&tv, nullptr);
     return (tv.tv_sec * SEC_TO_MILLISEC + tv.tv_usec / MICROSEC_TO_MILLISEC);

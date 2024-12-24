@@ -12,10 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "loader.h"
+
 #include <dlfcn.h>
 #include <fstream>
 
-#include "loader.h"
 #include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
 Loader::Loader() {}

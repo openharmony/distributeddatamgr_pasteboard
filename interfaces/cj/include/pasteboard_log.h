@@ -14,7 +14,6 @@
  */
 
 #ifndef PASTEBOARD_LOG_H
-
 #define PASTEBOARD_LOG_H
 
 #include "hilog/log.h"

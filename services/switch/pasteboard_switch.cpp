@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "pasteboard_switch.h"
+
 #include <memory>
 #include <string>
 
@@ -20,11 +22,10 @@
 #include "dev_profile.h"
 #include "pasteboard_event_ue.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_switch.h"
 
 namespace OHOS::MiscServices {
 using namespace UeReporter;
-const constexpr char *DISTRIBUTED_PASTEDBOARD_SWITCH = "distributed_pasteboard_switch";
+const constexpr char *DISTRIBUTED_PASTEBOARD_SWITCH = "distributed_pasteboard_switch";
 constexpr const char *SUPPORT_STATUS = "1";
 PastedSwitch::PastedSwitch()
 {
@@ -35,7 +36,7 @@ PastedSwitch::PastedSwitch()
 
 void PastedSwitch::Init()
 {
-    DataShareDelegate::GetInstance().RegisterObserver(DISTRIBUTED_PASTEDBOARD_SWITCH, switchObserver_);
+    DataShareDelegate::GetInstance().RegisterObserver(DISTRIBUTED_PASTEBOARD_SWITCH, switchObserver_);
     SetSwitch();
     ReportUeSwitchEvent();
 }
@@ -43,7 +44,7 @@ void PastedSwitch::Init()
 void PastedSwitch::SetSwitch()
 {
     std::string value;
-    DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEDBOARD_SWITCH, value);
+    DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEBOARD_SWITCH, value);
     if (value.empty()) {
         DevProfile::GetInstance().PutEnabledStatus(SUPPORT_STATUS);
         return;
@@ -54,13 +55,13 @@ void PastedSwitch::SetSwitch()
 
 void PastedSwitch::DeInit()
 {
-    DataShareDelegate::GetInstance().UnregisterObserver(DISTRIBUTED_PASTEDBOARD_SWITCH, switchObserver_);
+    DataShareDelegate::GetInstance().UnregisterObserver(DISTRIBUTED_PASTEBOARD_SWITCH, switchObserver_);
 }
 
 void PastedSwitch::ReportUeSwitchEvent()
 {
     std::string value;
-    DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEDBOARD_SWITCH, value);
+    DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEBOARD_SWITCH, value);
     UE_SWITCH(UeReporter::UE_SWITCH_STATUS, UeReporter::UE_STATUS_TYPE,
         (value == SUPPORT_STATUS) ? UeReporter::SwitchStatus::SWITCH_OPEN : UeReporter::SwitchStatus::SWITCH_CLOSE);
 }

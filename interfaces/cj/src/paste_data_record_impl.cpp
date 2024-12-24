@@ -26,9 +26,8 @@ std::recursive_mutex g_PasteDataMutex;
 
 OHOS::FFI::RuntimeType *PasteDataRecordImpl::GetClassType()
 {
-    static OHOS::FFI::RuntimeType runtimeType = OHOS::FFI::RuntimeType::Create<OHOS::FFI::FFIData>("PasteDataRecordImp"
-                                                                                                   "l");
-    return &runtimeType;
+    static OHOS::FFI::RuntimeType type = OHOS::FFI::RuntimeType::Create<OHOS::FFI::FFIData>("PasteDataRecordImp" "l");
+    return &type;
 }
 
 int64_t CreateCjPasteDataRecordObject(std::string mimeType, CJValueType value)

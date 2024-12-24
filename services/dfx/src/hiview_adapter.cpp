@@ -133,12 +133,12 @@ void HiViewAdapter::InitializeTimeConsuming(int initFlag)
     initTimeConsuming.insert(std::pair<int, int>(static_cast<int>(TimeConsumingLevel::TIME_LEVEL_TEN), 0));
     initTimeConsuming.insert(std::pair<int, int>(static_cast<int>(TimeConsumingLevel::TIME_LEVEL_ELEVEN), 0));
 
-    if (initFlag == INIT_COPY_TIME_SONSUMING) {
+    if (initFlag == INIT_COPY_TIME_CONSUMING) {
         for (int i = 0; i < DATA_LEVEL_NUMBERS; ++i) {
             copyTimeConsumingStat_.push_back(initTimeConsuming);
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "copyTimeConsumingStat_.push_back");
         }
-    } else if (initFlag == INIT_PASTE_TIME_SONSUMING) {
+    } else if (initFlag == INIT_PASTE_TIME_CONSUMING) {
         for (int i = 0; i < DATA_LEVEL_NUMBERS; ++i) {
             pasteTimeConsumingStat_.push_back(initTimeConsuming);
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pasteTimeConsumingStat_.push_back");
@@ -155,13 +155,13 @@ void HiViewAdapter::ReportTimeConsumingStatistic(const TimeConsumingStat &stat)
 {
     std::lock_guard<std::mutex> lock(timeConsumingMutex_);
     if (copyTimeConsumingStat_.empty()) {
-        InitializeTimeConsuming(INIT_COPY_TIME_SONSUMING);
+        InitializeTimeConsuming(INIT_COPY_TIME_CONSUMING);
     }
     if (pasteTimeConsumingStat_.empty()) {
-        InitializeTimeConsuming(INIT_PASTE_TIME_SONSUMING);
+        InitializeTimeConsuming(INIT_PASTE_TIME_CONSUMING);
     }
     if (remotePasteTimeConsumingStat_.empty()) {
-        InitializeTimeConsuming(INIT_REMOTE_PASTE_TIME_SONSUMING);
+        InitializeTimeConsuming(INIT_REMOTE_PASTE_TIME_CONSUMING);
     }
 
     if (stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_COPY_STATE)) {
@@ -197,7 +197,7 @@ void HiViewAdapter::CopyTimeConsumingCount(int dataLevel, int timeLevel)
         (it->second)++;
     } else {
         PASTEBOARD_HILOGD(
-            PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, tiem level:  %{public}d", timeLevel);
+            PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, time level:  %{public}d", timeLevel);
     }
 }
 
@@ -211,7 +211,7 @@ void HiViewAdapter::PasteTimeConsumingCount(int dataLevel, int timeLevel)
         (it->second)++;
     } else {
         PASTEBOARD_HILOGD(
-            PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, tiem level:  %{public}d", timeLevel);
+            PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, time level:  %{public}d", timeLevel);
     }
 }
 
@@ -225,7 +225,7 @@ void HiViewAdapter::RemotePasteTimeConsumingCount(int dataLevel, int timeLevel)
         (it->second)++;
     } else {
         PASTEBOARD_HILOGD(
-            PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, tiem level:  %{public}d", timeLevel);
+            PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, time level:  %{public}d", timeLevel);
     }
 }
 

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include "time_consuming_statistic_impl.h"
 #include "dfx_code_constant.h"
 #include "hiview_adapter.h"
-#include "time_consuming_statistic_impl.h"
 
 namespace OHOS {
 namespace MiscServices {

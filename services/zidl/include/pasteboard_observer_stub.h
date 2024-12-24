@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef PASTE_BOARD_OBERVER_STUB_H
-#define PASTE_BOARD_OBERVER_STUB_H
+#ifndef PASTE_BOARD_OBSERVER_STUB_H
+#define PASTE_BOARD_OBSERVER_STUB_H
 
 #include <map>
 
@@ -39,4 +39,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_OBERVER_STUB_H
+#endif // PASTE_BOARD_OBSERVER_STUB_H
