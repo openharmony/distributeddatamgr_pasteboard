@@ -149,6 +149,7 @@ public:
     static const std::string REMOTE_FILE_SIZE;
     std::string deviceId_;
     static const std::string REMOTE_FILE_SIZE_LONG;
+    static const std::string DOCS_LOCAL_TAG;
 
 private:
     void RefreshMimeProp();

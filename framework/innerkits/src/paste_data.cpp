@@ -62,6 +62,7 @@ const std::string PasteData::SHARE_PATH_PREFIX = "/mnt/hmdfs/";
 const std::string PasteData::SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
 const std::string PasteData::REMOTE_FILE_SIZE = "remoteFileSize";
 const std::string PasteData::REMOTE_FILE_SIZE_LONG = "remoteFileSizeLong";
+const std::string PasteData::DOCS_LOCAL_TAG = "/docs/";
 
 PasteData::PasteData()
 {
