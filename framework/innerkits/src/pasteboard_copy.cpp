@@ -69,7 +69,7 @@ constexpr int E_PERMISSION = 201;           //Just for compile
 constexpr int ERRNO_NOERR = 0;           //Just for compile
 constexpr int E_EXIST = 17;
 constexpr float FILE_PERCENTAGE = 0.8;
-constexpr int START_PERCENTAGE = 20;
+constexpr int BEGIN_PERCENTAGE = 20;
 constexpr size_t MAX_SIZE = 1024 * 1024 * 4;
 static int32_t g_recordSize = 0;
 static uint64_t g_progressSize = 0;
@@ -616,8 +616,7 @@ void PasteBoardCopyFile::OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo)
     if (proInfo->percentage > PERCENTAGE) {
         proInfo->percentage = PERCENTAGE;
     }
-    proInfo->percentage = static_cast<int32_t>(proInfo->percentage * FILE_PERCENTAGE +
-        START_PERCENTAGE);
+    proInfo->percentage = static_cast<int32_t>(proInfo->percentage * FILE_PERCENTAGE + BEGIN_PERCENTAGE);
     proInfo->percentage = std::abs(proInfo->percentage);
     proInfo->percentage = std::max(proInfo->percentage, 0);
     if (progressListener_.ProgressNotify != nullptr) {

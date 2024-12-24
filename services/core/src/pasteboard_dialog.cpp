@@ -106,7 +106,7 @@ void PasteBoardDialog::CancelToast()
 
 int32_t PasteBoardDialog::ShowProgress(const ProgressMessageInfo &message)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin, app:%{public}s", message.appName.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "showprogress begin");
     auto abilityManager = GetAbilityManagerService();
     if (abilityManager == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
@@ -116,7 +116,6 @@ int32_t PasteBoardDialog::ShowProgress(const ProgressMessageInfo &message)
     Want want;
     want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_PROGRESS_ABILITY);
     want.SetAction(PASTEBOARD_PROGRESS_ABILITY);
-    want.SetParam("appName", message.appName);
     want.SetParam("promptText", message.promptText);
     want.SetParam("remoteDeviceName", message.remoteDeviceName);
     want.SetParam("progressKey", message.progressKey);

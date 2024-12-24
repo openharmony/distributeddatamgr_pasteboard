@@ -30,7 +30,6 @@ public:
         std::string appName{ DEFAULT_LABEL };
     };
     struct ProgressMessageInfo {
-        std::string appName{ DEFAULT_LABEL };
         std::string promptText{ DEFAULT_LABEL };
         std::string remoteDeviceName{ DEFAULT_LABEL };
         std::string progressKey{ DEFAULT_LABEL };
