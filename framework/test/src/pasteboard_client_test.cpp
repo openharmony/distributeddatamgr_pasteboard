@@ -619,7 +619,7 @@ void ProgressNotifyTest(std::shared_ptr<ProgressInfo> progressInfo)
 
 /**
  * @tc.name: GetDataWithProgress003
- * @tc.desc: When the progress reaches 80, the download is canceled.
+ * @tc.desc: When the progress reaches 70, the download is canceled.
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
@@ -633,9 +633,53 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress003, TestSize.Level0)
     PasteData pasteData;
     std::shared_ptr<GetDataParams> params = std::make_shared<GetDataParams>();
     params->fileConflictOption = FILE_OVERWRITE;
-    params->progressIndicator = DEFAULT_PROGRESS_INDICATOR;
+    params->progressIndicator = NONE_PROGRESS_INDICATOR;
     params->listener.ProgressNotify = ProgressNotifyTest;
     int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::PRPGRESS_CANCEL_SUCCESS));
+}
+
+/**
+ * @tc.name: GetDataWithProgress004
+ * @tc.desc: GetDataWithProgress test.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetDataWithProgress004, TestSize.Level0)
+{
+    PasteData pasteData;
+    int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, nullptr);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(newData != nullptr);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    std::shared_ptr<GetDataParams> params = std::make_shared<GetDataParams>();
+    params->fileConflictOption = FILE_OVERWRITE;
+    params->progressIndicator = NONE_PROGRESS_INDICATOR;
+    ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: GetDataWithProgress005
+ * @tc.desc: GetDataWithProgress test.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetDataWithProgress005, TestSize.Level0)
+{
+    PasteData pasteData;
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_TRUE(newData != nullptr);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    std::shared_ptr<GetDataParams> params = std::make_shared<GetDataParams>();
+    params->fileConflictOption = FILE_OVERWRITE;
+    params->progressIndicator = DEFAULT_PROGRESS_INDICATOR;
+    int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 }
 } // namespace OHOS::MiscServices

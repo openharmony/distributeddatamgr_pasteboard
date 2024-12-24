@@ -30,11 +30,16 @@ ProgressSignalClient &ProgressSignalClient::GetInstance()
 {
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = new ProgressSignalClient();
-        }
+        instance_ = new ProgressSignalClient();
     }
     return *instance_;
+}
+
+void ProgressSignalClient::Init()
+{
+    instance_ = nullptr;
+    needCancel_.store(false);
+    remoteTask_.store(false);
 }
 
 void ProgressSignalClient::Cancel()

@@ -33,7 +33,7 @@ public:
     bool IsCanceled();
     bool CheckCancelIfNeed();
     void MarkRemoteTask();
-
+    void Init();
 private:
     ProgressSignalClient() = default;
     ~ProgressSignalClient() = default;
