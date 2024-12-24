@@ -42,7 +42,7 @@ private:
     Uri MakeUri(const std::string &key);
 
     static std::mutex mutex_;
-    static DataShareDelegate *instance_;
+    static volatile DataShareDelegate *instance_;
     static sptr<IRemoteObject> remoteObj_;
 };
 } // namespace OHOS::MiscServices

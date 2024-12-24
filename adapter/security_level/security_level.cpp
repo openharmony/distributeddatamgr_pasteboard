@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "security_level.h"
 #include <vector>
 
 #include "device/dm_adapter.h"
 #include "pasteboard_hilog.h"
-#include "security_level.h"
 
 namespace OHOS::MiscServices {
 uint32_t SecurityLevel::GetDeviceSecurityLevel()
@@ -30,13 +30,15 @@ uint32_t SecurityLevel::GetDeviceSecurityLevel()
 bool SecurityLevel::InitDEVSLQueryParams(DEVSLQueryParams *params, const std::string &udid)
 {
     if (params == nullptr || udid.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "params check failed, params is null %{public}d", params == nullptr);
         return false;
     }
     std::vector<uint8_t> vec(udid.begin(), udid.end());
     for (size_t i = 0; i < MAX_UDID_LENGTH && i < vec.size(); i++) {
         params->udid[i] = vec[i];
     }
-    params->udidLen = static_cast<uint32_t>(udid.size());
+    params->udidLen = static_cast<uint32_t>(MAX_UDID_LENGTH);
     return true;
 }
 
@@ -45,7 +47,7 @@ uint32_t SecurityLevel::GetSensitiveLevel()
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     DEVSLQueryParams query;
     if (!InitDEVSLQueryParams(&query, udid)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "init query params failed! udid:%{public}.6s", udid.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "init query params failed!");
         return DATA_SEC_LEVEL0;
     }
 
@@ -53,12 +55,12 @@ uint32_t SecurityLevel::GetSensitiveLevel()
     int32_t result = DATASL_GetHighestSecLevel(&query, &level);
     if (result != DEVSL_SUCCESS) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "get highest level failed(%{public}.6s)! level:%{public}u, error:%{public}d", udid.c_str(), level, result);
+            "get highest level failed! level:%{public}u, error:%{public}d", level, result);
         return DATA_SEC_LEVEL0;
     }
     securityLevel_ = level;
     PASTEBOARD_HILOGI(
-        PASTEBOARD_MODULE_SERVICE, "get highest level success(%{public}.6s)! level: %{public}u", udid.c_str(), level);
+        PASTEBOARD_MODULE_SERVICE, "get highest level success! level: %{public}u", level);
     return level;
 }
 } // namespace OHOS::MiscServices
