@@ -37,6 +37,8 @@ std::atomic<uint32_t> TransListener::getSequenceId_ = 0;
 ProgressListener TransListener::progressListener_;
 constexpr int ERRNO_NOERR = 0;
 constexpr int PERCENTAGE = 100;
+constexpr float FILE_PERCENTAGE = 0.8;
+constexpr int BEGIN_PERCENTAGE = 20;
 
 void TransListener::RmDir(const std::string &path)
 {
@@ -218,6 +220,12 @@ std::string MiscServices::TransListener::GetNetworkIdFromUri(const std::string &
 
 void MiscServices::TransListener::OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo)
 {
+    if (proInfo->percentage > PERCENTAGE) {
+        proInfo->percentage = PERCENTAGE;
+    }
+    proInfo->percentage = static_cast<int32_t>(proInfo->percentage * FILE_PERCENTAGE + BEGIN_PERCENTAGE);
+    proInfo->percentage = std::abs(proInfo->percentage);
+    proInfo->percentage = std::max(proInfo->percentage, 0);
     if (progressListener_.ProgressNotify != nullptr) {
         progressListener_.ProgressNotify(proInfo);
     } else {

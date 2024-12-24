@@ -587,7 +587,6 @@ void PasteboardService::ProgressMakeMessageInfo(const std::string &progressKey, 
         return;
     }
     PasteBoardDialog::ProgressMessageInfo message;
-    message.appName = GetAppLabel(tokenId);
     std::string deviceName = "";
     bool isRemote = false;
     auto result = (GetRemoteDeviceName(deviceName, isRemote) == static_cast<int32_t>(PasteboardError::E_OK));
