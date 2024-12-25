@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+#include "pasteboard_delay_getter_stub.h"
 #include "ipc_skeleton.h"
 #include "paste_uri_handler.h"
-#include "pasteboard_delay_getter_stub.h"
 #include "pasteboard_error.h"
 
 namespace OHOS {

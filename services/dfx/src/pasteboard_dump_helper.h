@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef MISCSERVICES_PASTEBOARD_DUMPE_HELPER_H
-#define MISCSERVICES_PASTEBOARD_DUMPE_HELPER_H
+#ifndef MISCSERVICES_PASTEBOARD_DUMP_HELPER_H
+#define MISCSERVICES_PASTEBOARD_DUMP_HELPER_H
 
 #include <map>
 #include <memory>
@@ -37,4 +37,4 @@ private:
 } // namespace MiscServices
 } // namespace OHOS
 
-#endif // MISCSERVICES_PASTEBOARD_DUMPE_HELPER_H
+#endif // MISCSERVICES_PASTEBOARD_DUMP_HELPER_H

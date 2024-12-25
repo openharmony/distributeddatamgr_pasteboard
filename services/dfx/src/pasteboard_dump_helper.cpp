@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
+#include "pasteboard_dump_helper.h"
+
 #include <cstdio>
 
-#include "pasteboard_dump_helper.h"
 
 namespace OHOS {
 namespace MiscServices {

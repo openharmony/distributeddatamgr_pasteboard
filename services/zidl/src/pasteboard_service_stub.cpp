@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "pasteboard_service_stub.h"
 #include "copy_uri_handler.h"
 #include "errors.h"
 #include "hiview_adapter.h"
@@ -22,7 +23,6 @@
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_proxy.h"
 #include "pasteboard_serv_ipc_interface_code.h"
-#include "pasteboard_service_stub.h"
 
 #define MAX_RAWDATA_SIZE (128 * 1024 * 1024)
 
@@ -81,16 +81,16 @@ PasteboardServiceStub::PasteboardServiceStub()
 int32_t PasteboardServiceStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    std::u16string myDescripter = PasteboardServiceStub::GetDescriptor();
-    std::u16string remoteDescripter = data.ReadInterfaceToken();
-    if (myDescripter != remoteDescripter) {
+    std::u16string myDescriptor = PasteboardServiceStub::GetDescriptor();
+    std::u16string remoteDescriptor = data.ReadInterfaceToken();
+    if (myDescriptor != remoteDescriptor) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "end##descriptor checked fail");
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    pid_t p = IPCSkeleton::GetCallingPid();
-    pid_t p1 = IPCSkeleton::GetCallingUid();
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t uid = IPCSkeleton::GetCallingUid();
     if (code != static_cast<uint32_t>(PasteboardServiceInterfaceCode::HAS_PASTE_DATA)) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u", p, p1, code);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u", pid, uid, code);
     }
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {

@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+#include "pasteboard_entry_getter_proxy.h"
 #include "message_option.h"
 #include "message_parcel.h"
-#include "pasteboard_entry_getter_proxy.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"

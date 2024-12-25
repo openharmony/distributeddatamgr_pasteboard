@@ -144,9 +144,9 @@ private:
     static inline const char *ISREMOTE = "ISREMOTE";
     static inline const char *SHAREOPTION = "SHAREOPTION";
 
-    static inline const int INIT_COPY_TIME_SONSUMING = 7;
-    static inline const int INIT_PASTE_TIME_SONSUMING = 8;
-    static inline constexpr const int INIT_REMOTE_PASTE_TIME_SONSUMING = 9;
+    static inline const int INIT_COPY_TIME_CONSUMING = 7;
+    static inline const int INIT_PASTE_TIME_CONSUMING = 8;
+    static inline constexpr const int INIT_REMOTE_PASTE_TIME_CONSUMING = 9;
 };
 } // namespace MiscServices
 } // namespace OHOS

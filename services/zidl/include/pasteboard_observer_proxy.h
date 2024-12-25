@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PASTE_BOARD_OBERVER_PROXY_H
-#define PASTE_BOARD_OBERVER_PROXY_H
+#ifndef PASTE_BOARD_OBSERVER_PROXY_H
+#define PASTE_BOARD_OBSERVER_PROXY_H
 
 #include <functional>
 
@@ -38,4 +38,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_OBERVER_PROXY_H
+#endif // PASTE_BOARD_OBSERVER_PROXY_H

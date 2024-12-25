@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include "reporter.h"
 #include "behaviour/pasteboard_behaviour_reporter_impl.h"
 #include "fault/pasteboard_fault_impl.h"
-#include "reporter.h"
 #include "statistic/time_consuming_statistic_impl.h"
 
 namespace OHOS {

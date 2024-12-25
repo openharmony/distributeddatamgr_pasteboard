@@ -15,13 +15,14 @@
 
 #define LOG_TAG "Pasteboard_Capi"
 
+#include "oh_pasteboard.h"
+
 #include <map>
 #include <memory>
 #include <string>
 #include <thread>
 
 #include "i_pasteboard_observer.h"
-#include "oh_pasteboard.h"
 #include "oh_pasteboard_err_code.h"
 #include "oh_pasteboard_observer_impl.h"
 #include "pasteboard_client.h"
@@ -154,7 +155,7 @@ int OH_Pasteboard_Unsubscribe(OH_Pasteboard *pasteboard, int type, const OH_Past
     std::lock_guard<std::mutex> lock(pasteboard->mutex);
     auto iter = pasteboard->observers_.find(observer);
     if (iter == pasteboard->observers_.end()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "couldn't find this observer");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "couldn't find this observer");
         return ERR_OK;
     }
     PasteboardClient::GetInstance()->Unsubscribe(static_cast<PasteboardObserverType>(type), iter->second);

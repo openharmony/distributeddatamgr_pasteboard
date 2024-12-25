@@ -14,6 +14,7 @@
  */
 
 #include "config.h"
+
 namespace OHOS::MiscServices {
 bool Config::Component::Marshal(Serializable::json &node) const
 {

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include "pasteboard_ffi.h"
 #include <securec.h>
 
-#include "pasteboard_ffi.h"
 #include "pixel_map_impl.h"
 #include "system_pasteboard_impl.h"
 
@@ -554,8 +554,8 @@ int32_t FfiOHOSPasteDataAddRecord(int64_t id, int64_t recordId)
     }
 
     PasteDataRecord rec;
-    auto recordIntance = FFIData::GetData<PasteDataRecordImpl>(recordId);
-    if (!recordIntance) {
+    auto recordInstance = FFIData::GetData<PasteDataRecordImpl>(recordId);
+    if (!recordInstance) {
         LOGE("[PasteData] AddRecord: instance not exist %{public}" PRId64, recordId);
         return ERR_INVALID_INSTANCE_CODE;
     }
@@ -566,7 +566,7 @@ int32_t FfiOHOSPasteDataAddRecord(int64_t id, int64_t recordId)
         return ERR_INVALID_INSTANCE_CODE;
     }
 
-    pasteData->AddRecord(recordIntance->GetRealPasteDataRecord());
+    pasteData->AddRecord(recordInstance->GetRealPasteDataRecord());
     LOGI("[PasteData] FfiOHOSPasteDataAddRecord success");
 
     return SUCCESS_CODE;

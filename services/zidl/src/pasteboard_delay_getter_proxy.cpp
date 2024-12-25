@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
+#include "pasteboard_delay_getter_proxy.h"
 #include "message_option.h"
 #include "message_parcel.h"
 #include "paste_uri_handler.h"
-#include "pasteboard_delay_getter_proxy.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
