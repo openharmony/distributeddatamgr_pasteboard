@@ -58,6 +58,7 @@ ohos_unittest("PasteboardServiceTest") {
     "image_framework:image_native",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
+    "samgr:samgr_proxy",
   ]
 
   deps = [
