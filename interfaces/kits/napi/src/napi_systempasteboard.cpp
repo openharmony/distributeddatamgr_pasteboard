@@ -614,7 +614,7 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetUnifiedDataSync failed.");
     }
-    if (!CheckRetCode(env, *value, { JSErrorCode::NO_PERMISSION })) {
+    if (value != nullptr && !CheckRetCode(env, *value, { JSErrorCode::NO_PERMISSION })) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get data sync failed, ret=%{public}d.", *value);
     }
     return instance;
@@ -955,7 +955,7 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "request timed out.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed.");
     }
-    if (!CheckRetCode(env, *value, { JSErrorCode::NO_PERMISSION })) {
+    if (value != nullptr && !CheckRetCode(env, *value, { JSErrorCode::NO_PERMISSION })) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get data sync failed, ret=%{public}d.", *value);
     }
     return instance;
