@@ -776,6 +776,16 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
             copyInfo->destUri += '/';
         }
         copyInfo->destUri += fileName.string();
+        FileUri realDest(copyInfo->destUri);
+        copyInfo->destPath = realDest.GetPath();
+        copyInfo->destPath = GetRealPath(copyInfo->destPath);
+    }
+    std::error_code errCode;
+    if (IsRemoteUri(copyInfo->srcUri) && std::filesystem::exists(copyInfo->destPath, errCode)
+        && errCode.value() == ERRNO_NOERR && dataParams->fileConflictOption == FILE_SKIP) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File has existed.");
+        uriMap_[copyInfo->index].second = true;
+        return E_EXIST;
     }
     FileUri realFileUri(realSrc);
     std::string realPath = realFileUri.GetRealPath();
@@ -935,9 +945,11 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     for (int i = 0; i < g_recordSize; i++) {
         std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
         std::string srcUri = uriMap_[i].first;
-        if (InitCopyInfo(srcUri, dataParams, copyInfo, i) != ERRNO_NOERR) {
+        if (InitCopyInfo(srcUri, dataParams, copyInfo, i) == E_EXIST) {
+            pasteData.RemoveRecordAt(i);
             continue;
         }
+        copyInfo->uriNum = g_recordSize;
         auto callback = RegisterListener(copyInfo);
         if (callback == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CopyCallback registe failed");
