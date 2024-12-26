@@ -162,6 +162,9 @@ private:
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
     void InitBundles(Loader &loader);
+    void SetInputMethodPid(pid_t callPid);
+    void ClearInputMethodPidByPid(pid_t callPid);
+    void ClearInputMethodPid(void);
     FocusedAppInfo GetFocusedAppInfo(void) const;
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
@@ -218,9 +221,14 @@ private:
     static ScreenEvent GetCurrentScreenStatus();
     std::string DumpHistory() const;
     std::string DumpData();
+    void ThawInputMethod(void);
+    bool IsNeedThaw(void);
     void NotifyObservers(std::string bundleName, PasteboardEventStatus status);
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
+    std::mutex imeMutex_;
+    pid_t imePid_ = -1;
+    bool hasImeObserver_ = false;
 
     int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         sptr<IPasteboardEntryGetter> entryGetter = nullptr) override;

@@ -28,6 +28,7 @@
 #include "eventcenter/event_center.h"
 #include "eventcenter/pasteboard_event.h"
 #include "hiview_adapter.h"
+#include "input_method_controller.h"
 #include "int_wrapper.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
@@ -47,6 +48,8 @@
 #include "pasteboard_service.h"
 #include "pasteboard_trace.h"
 #include "remote_file_share.h"
+#include "res_sched_client.h"
+#include "res_type.h"
 #include "reporter.h"
 #ifdef PB_SCREENLOCK_MGR_ENABLE
 #include "screenlock_manager.h"
@@ -76,6 +79,7 @@ constexpr const size_t MAX_URI_COUNT = 500;
 constexpr const int32_t COMMON_USERID = 0;
 const std::int32_t INIT_INTERVAL = 10000L;
 constexpr uint32_t MAX_IPC_THREAD_NUM = 32;
+constexpr const char *PASTEBOARD_SERVICE_SA_NAME = "pasteboard_service";
 constexpr const char *PASTEBOARD_SERVICE_NAME = "PasteboardService";
 constexpr const char *FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 constexpr const char *SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
@@ -1642,8 +1646,41 @@ bool PasteboardService::IsCopyable(uint32_t tokenId) const
     return true;
 }
 
+void PasteboardService::SetInputMethodPid(pid_t callPid)
+{
+    auto imc = InputMethodController::GetInstance();
+    if (imc == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InputMethodController is nullptr!");
+        return;
+    }
+    auto isImePid = imc->IsCurrentImeByPid(callPid);
+    if (isImePid) {
+        std::lock_guard lock(imeMutex_);
+        imePid_ = callPid;
+        hasImeObserver_ = true;
+    }
+}
+
+void PasteboardService::ClearInputMethodPidByPid(pid_t callPid)
+{
+    if (callPid == imePid_) {
+        std::lock_guard lock(imeMutex_);
+        imePid_ = -1;
+        hasImeObserver_ = false;
+    }
+}
+
+void PasteboardService::ClearInputMethodPid()
+{
+    std::lock_guard lock(imeMutex_);
+    imePid_ = -1;
+    hasImeObserver_ = false;
+}
+
 void PasteboardService::SubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer)
 {
+    auto callPid = IPCSkeleton::GetCallingPid();
+    SetInputMethodPid(callPid);
     bool isEventType = static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_EVENT);
     int32_t userId = isEventType ? COMMON_USERID : GetCurrentAccountId();
     if (userId == ERROR_USERID) {
@@ -1666,6 +1703,8 @@ void PasteboardService::SubscribeObserver(PasteboardObserverType type, const spt
 void PasteboardService::UnsubscribeObserver(
     PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer)
 {
+    auto callPid = IPCSkeleton::GetCallingPid();
+    ClearInputMethodPidByPid(callPid);
     bool isEventType = static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_EVENT);
     int32_t userId = isEventType ? COMMON_USERID : GetCurrentAccountId();
     if (userId == ERROR_USERID) {
@@ -1687,6 +1726,7 @@ void PasteboardService::UnsubscribeObserver(
 
 void PasteboardService::UnsubscribeAllObserver(PasteboardObserverType type)
 {
+    ClearInputMethodPid();
     bool isEventType = static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_EVENT);
     int32_t userId = isEventType ? COMMON_USERID : GetCurrentAccountId();
     if (userId == ERROR_USERID) {
@@ -1911,8 +1951,46 @@ inline bool PasteboardService::IsCallerUidValid()
     return false;
 }
 
+void PasteboardService::ThawInputMethod()
+{
+    auto type = ResourceSchedule::ResType::RES_TYPE_SA_CONTROL_APP_EVENT;
+    auto status = ResourceSchedule::ResType::SaControlAppStatus::SA_START_APP;
+    pid_t imePid = -1;
+    {
+        std::lock_guard lock(imeMutex_);
+        imePid = imePid_;
+    }
+    std::unordered_map<std::string, std::string> payload = {
+        { "saId", std::to_string(PASTEBOARD_SERVICE_ID) },
+        { "saName", PASTEBOARD_SERVICE_SA_NAME },
+        { "extensionType", std::to_string(static_cast<int32_t>(AppExecFwk::ExtensionAbilityType::INPUTMETHOD)) },
+        { "pid", std::to_string(imePid) },
+        { "isDelay", std::to_string(true) } };
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "report RSS need thaw:pid = %{public}d", imePid);
+    ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, status, payload);
+}
+
+bool PasteboardService::IsNeedThaw()
+{
+    auto imc = InputMethodController::GetInstance();
+    if (imc == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "InputMethodController is nullptr!");
+        return false;
+    }
+
+    std::shared_ptr<Property> property;
+    int32_t ret = imc->GetDefaultInputMethod(property);
+    if (ret != ErrorCode::NO_ERROR || property == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "default input method is nullptr!");
+        return false;
+    }
+    return true;
+}
 void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventStatus status)
 {
+    if (hasImeObserver_ && IsNeedThaw()) {
+        ThawInputMethod();
+    }
     std::thread thread([this, bundleName, status]() {
         std::lock_guard<std::mutex> lock(observerMutex_);
         for (auto &observers : observerLocalChangedMap_) {
