@@ -57,6 +57,7 @@
           "memmgr",
           "napi",
           "os_account",
+          "resource_schedule_service",
           "safwk",
           "samgr",
           "screenlock_mgr",
