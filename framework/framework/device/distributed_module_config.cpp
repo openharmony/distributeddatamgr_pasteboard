@@ -29,7 +29,7 @@ bool DistributedModuleConfig::IsOn()
     return status_;
 }
 
-void DistributedModuleConfig::Watch(Observer observer)
+void DistributedModuleConfig::Watch(const Observer &observer)
 {
     observer_ = std::move(observer);
 }

@@ -12,11 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "datashare_delegate.h"
 
 #include <memory>
 #include <string>
-
-#include "datashare_delegate.h"
 #include "datashare_predicates.h"
 #include "datashare_result_set.h"
 #include "datashare_values_bucket.h"
@@ -75,6 +74,10 @@ std::shared_ptr<DataShare::DataShareHelper> DataShareDelegate::CreateDataShareHe
 
 bool DataShareDelegate::ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper> helper)
 {
+    if (helper == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "helper is nullptr");
+        return false;
+    }
     if (!helper->Release()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "release helper fail");
         return false;
@@ -86,6 +89,7 @@ int32_t DataShareDelegate::GetValue(const std::string &key, std::string &value)
 {
     auto helper = CreateDataShareHelper();
     if (helper == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "helper is nullptr");
         return static_cast<int32_t>(PasteboardError::CREATE_DATASHARE_SERVICE_ERROR);
     }
     std::vector<std::string> columns = { SETTING_COLUMN_VALUE };
@@ -101,7 +105,7 @@ int32_t DataShareDelegate::GetValue(const std::string &key, std::string &value)
     int32_t count;
     resultSet->GetRowCount(count);
     if (count == 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no value, key=%{public}s, count=%{public}d", key.c_str(), count);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no value, key=%{public}s", key.c_str());
         resultSet->Close();
         return static_cast<int32_t>(PasteboardError::QUERY_SETTING_NO_DATA_ERROR);
     }
@@ -128,11 +132,12 @@ int32_t DataShareDelegate::RegisterObserver(const std::string &key, sptr<AAFwk::
     auto uri = MakeUri(key);
     auto helper = CreateDataShareHelper();
     if (helper == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "helper is nullptr");
         return ERR_NO_INIT;
     }
     helper->RegisterObserver(uri, observer);
     ReleaseDataShareHelper(helper);
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "register observer %{public}s", uri.ToString().c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "register observer %{public}s", uri.ToString().c_str());
     return ERR_OK;
 }
 
@@ -141,11 +146,12 @@ int32_t DataShareDelegate::UnregisterObserver(const std::string &key, sptr<AAFwk
     auto uri = MakeUri(key);
     auto helper = CreateDataShareHelper();
     if (helper == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "helper is nullptr");
         return ERR_NO_INIT;
     }
     helper->UnregisterObserver(uri, observer);
     ReleaseDataShareHelper(helper);
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "unregister observer %{public}s", uri.ToString().c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "unregister observer %{public}s", uri.ToString().c_str());
     return ERR_OK;
 }
 } // namespace OHOS::MiscServices

@@ -99,29 +99,18 @@ void FFRTTimer::CancelTimer(const std::string &timerId)
     mutex_.unlock();
 }
 
-void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask &task)
-{
-    mutex_.lock();
-    CancelTimerInner(timerId);
-    ++taskId_[timerId];
-    PASTEBOARD_HILOGD(
-        PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Add Task[%{public}u]", timerId.c_str(), taskId_[timerId]);
-    FFRTUtils::SubmitTask(task);
-    mutex_.unlock();
-}
-
 void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask &task, uint32_t delayMs)
 {
-    if (delayMs == 0) {
-        return SetTimer(timerId, task);
-    }
-
     mutex_.lock();
     CancelTimerInner(timerId);
     ++taskId_[timerId];
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Add Task[%{public}u] with delay = %{public}u",
         timerId.c_str(), taskId_[timerId], delayMs);
-    handleMap_[timerId] = FFRTUtils::SubmitDelayTask(task, delayMs, queue_);
+    if (delayMs == 0) {
+        FFRTUtils::SubmitTask(task);
+    } else {
+        handleMap_[timerId] = FFRTUtils::SubmitDelayTask(task, delayMs, queue_);
+    }
     mutex_.unlock();
 }
 
