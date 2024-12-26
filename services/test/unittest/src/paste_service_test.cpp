@@ -18,6 +18,7 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
+#include <iservice_registry.h>
 
 #include "access_token.h"
 #include "accesstoken_kit.h"
@@ -495,7 +496,50 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0013, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto record = newPasteData.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
     ASSERT_TRUE(*record == htmlTextOut);
+}
+
+/**
+ * @tc.name: PasteRecordTest0014
+ * @tc.desc: Create paste board html local docs uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0014, TestSize.Level0)
+{
+    std::string htmlTextIn = "<div class='item'><img data-ohos='clipboard' "
+                             "src='file:///docs/storage/Users/currentUser/VMDocs/test.png'></div>";
+    std::string htmlUriOut = "file://docs/storage/Users/currentUser/VMDocs/test.png";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlTextIn);
+    ASSERT_TRUE(data != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+
+    sptr<IPasteboardService> pasteboardServiceProxy_;
+    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    ASSERT_TRUE(samgrProxy != nullptr);
+    const int32_t pasteboardServiceId = 3701;
+    sptr<IRemoteObject> remoteObject = samgrProxy->CheckSystemAbility(pasteboardServiceId);
+    ASSERT_TRUE(remoteObject != nullptr);
+    pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
+    ASSERT_TRUE(pasteboardServiceProxy_ != nullptr);
+    
+    PasteData pasteData;
+    int32_t syncTime = 0;
+    int32_t res = pasteboardServiceProxy_->GetPasteData(pasteData, syncTime);
+    ASSERT_TRUE(res == static_cast<int32_t>(PasteboardError::E_OK));
+    std::string htmlUriConvert = "";
+    for (auto &item : pasteData.AllRecords()) {
+        if (item != nullptr) {
+            std::shared_ptr<Uri> uri = item->GetUri();
+            if (uri != nullptr) {
+                htmlUriConvert = uri->ToString();
+            }
+        }
+    }
+    ASSERT_TRUE(htmlUriConvert == htmlUriOut);
 }
 
 /**
