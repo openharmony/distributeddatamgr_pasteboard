@@ -91,6 +91,9 @@ PasteData::PasteData(const PasteData &data)
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
+    for (const auto &item : records_) {
+        item->SetRecordId(++recordId_);
+    }
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
