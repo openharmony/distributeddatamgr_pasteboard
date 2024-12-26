@@ -55,6 +55,7 @@ ohos_unittest("PasteboardServiceTest") {
     "ffrt:libffrt",
     "googletest:gtest_main",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "image_framework:image_native",
     "ipc:ipc_core",
     "os_account:os_account_innerkits",

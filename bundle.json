@@ -63,7 +63,8 @@
           "time_service",
           "udmf",
           "window_manager",
-          "ffrt"
+          "ffrt",
+          "vixl"
         ]
         },
       "build": {
