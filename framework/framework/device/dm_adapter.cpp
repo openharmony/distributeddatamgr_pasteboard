@@ -95,7 +95,10 @@ private:
 
 DMAdapter::DMAdapter() {}
 
-DMAdapter::~DMAdapter() {}
+DMAdapter::~DMAdapter()
+{
+    devices_.clear();
+}
 
 DMAdapter &DMAdapter::GetInstance()
 {

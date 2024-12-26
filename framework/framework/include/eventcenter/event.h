@@ -25,7 +25,7 @@ class Event {
 public:
     enum EventId : int32_t {
         EVT_INVALID,
-        EVT_INITED,
+        EVT_INIT,
         EVT_UPDATE,
         EVT_REMOTE_CHANGE = 0x1000,
     };

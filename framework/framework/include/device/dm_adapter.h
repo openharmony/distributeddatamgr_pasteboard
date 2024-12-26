@@ -62,6 +62,8 @@ private:
     static constexpr const char *DEVICE_INVALID_NAME = "unknown";
     DMAdapter();
     ~DMAdapter();
+    DMAdapter(const DMAdapter& other) = delete;
+    DMAdapter& operator=(const DMAdapter& other) = delete;
 
     std::string pkgName_;
     const std::string invalidDeviceUdid_{};

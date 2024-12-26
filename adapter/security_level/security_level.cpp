@@ -47,7 +47,7 @@ uint32_t SecurityLevel::GetSensitiveLevel()
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     DEVSLQueryParams query;
     if (!InitDEVSLQueryParams(&query, udid)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "init query params failed!");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "init query params failed! udid:%{public}.6s", udid.c_str());
         return DATA_SEC_LEVEL0;
     }
 
@@ -55,12 +55,12 @@ uint32_t SecurityLevel::GetSensitiveLevel()
     int32_t result = DATASL_GetHighestSecLevel(&query, &level);
     if (result != DEVSL_SUCCESS) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "get highest level failed! level:%{public}u, error:%{public}d", level, result);
+            "get highest level failed(%{public}.6s)! level:%{public}u, error:%{public}d", udid.c_str(), level, result);
         return DATA_SEC_LEVEL0;
     }
     securityLevel_ = level;
     PASTEBOARD_HILOGI(
-        PASTEBOARD_MODULE_SERVICE, "get highest level success! level: %{public}u", level);
+        PASTEBOARD_MODULE_SERVICE, "get highest level success(%{public}.6s)! level: %{public}u", udid.c_str(), level);
     return level;
 }
 } // namespace OHOS::MiscServices

@@ -19,6 +19,7 @@
 #include <string>
 
 #include "eventcenter/event.h"
+
 namespace OHOS::MiscServices {
 class API_EXPORT PasteboardEvent : public Event {
 public:

@@ -28,7 +28,7 @@ class API_EXPORT DistributedModuleConfig : protected DMAdapter::DMObserver {
 public:
     using Observer = std::function<void(bool isOn)>;
     bool IsOn();
-    void Watch(Observer observer);
+    void Watch(const Observer &observer);
     void Init();
     void DeInit();
     uint32_t GetRemoteDeviceMinVersion();

@@ -125,8 +125,7 @@ public:
     void Clear();
     void CancelAllTimer();
     void CancelTimer(const std::string &timerId);
-    void SetTimer(const std::string &timerId, FFRTTask &task);
-    void SetTimer(const std::string &timerId, FFRTTask &task, uint32_t delayMs);
+    void SetTimer(const std::string &timerId, FFRTTask &task, uint32_t delayMs = 0);
     uint32_t GetTaskId(const std::string &timerId);
 
 private:

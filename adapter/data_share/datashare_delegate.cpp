@@ -34,7 +34,7 @@ constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
 std::mutex DataShareDelegate::mutex_;
 sptr<IRemoteObject> DataShareDelegate::remoteObj_ = nullptr;
-DataShareDelegate volatile *DataShareDelegate::instance_ = nullptr;
+DataShareDelegate *DataShareDelegate::instance_ = nullptr;
 DataShareDelegate &DataShareDelegate::GetInstance()
 {
     if (instance_ == nullptr) {
@@ -45,7 +45,6 @@ DataShareDelegate &DataShareDelegate::GetInstance()
         }
     }
     return *instance_;
-    return *static_cast<volatile OHOS::MiscServices::DataShareDelegate*>(instance_);
 }
 
 void DataShareDelegate::Initialize()
