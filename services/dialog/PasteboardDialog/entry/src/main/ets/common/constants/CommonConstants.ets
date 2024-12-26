@@ -36,10 +36,14 @@ export default class CommonConstants {
   public static readonly ITEM_LIST_PADDING_TOP: number = 17;
   public static readonly ITEM_LIST_PADDING_BOTTOM: number = 18;
 
+  // Tips
+  public static readonly TIPS_TYPE:string = '119';
+  public static readonly FUN_NUM = 'SF-10044822_f101';
   // Symbol
   public static readonly SYMBOL_INFO_CIRCLE:number = 14;
   public static readonly SYMBOL_MARGIN_RIGHT:number = 4;
   // Update prompt text
   public static readonly UPDATE_PROMPT_LINE_HEIGHT:number = 16;
   public static readonly UPDATE_PROMPT_MARGIN_TOP:number = 9;
+
 }
