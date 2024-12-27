@@ -34,6 +34,8 @@ public:
     bool CheckCancelIfNeed();
     void MarkRemoteTask();
     void Init();
+    void SaveSessionName(const std::string &sessionName);
+
 private:
     ProgressSignalClient() = default;
     ~ProgressSignalClient() = default;

@@ -397,8 +397,13 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-void PasteboardClient::ProgressSmoothToTwentyPercent(std::string &progressKey, std::shared_ptr<GetDataParams> params)
+void PasteboardClient::ProgressSmoothToTwentyPercent(PasteData &pasteData, string &progressKey,
+    std::shared_ptr<GetDataParams> params)
 {
+    if (pasteData.GetRecordCount() <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no pasteData, progress no need to twenty");
+        return;
+    }
     int progressValue = 0;
     std::string currentValue = "0";
     std::shared_ptr<ProgressInfo> info = std::make_shared<ProgressInfo>();
@@ -437,7 +442,7 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
     }
     int32_t syncTime = 0;
     int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
-    ProgressSmoothToTwentyPercent(progressKey, params);
+    ProgressSmoothToTwentyPercent(pasteData, progressKey, params);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     RetainUri(pasteData);
     RebuildWebviewPasteData(pasteData);
@@ -482,6 +487,22 @@ void PasteboardClient::ProgressRadarReport(PasteData &pasteData, PasteDataFromSe
         pasteDataFromServiceInfo.currentPid);
 }
 
+int32_t PasteboardClient::ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
+    std::string progressKey)
+{
+    if (pasteData.GetRecordCount() <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no pasteData, no need progress");
+        return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
+    }
+    int32_t ret = 0;
+    if (pasteData.GetPrimaryUri() != nullptr) {
+        ret = PasteBoardCopyFile::GetInstance().CopyPasteData(pasteData, params);
+    } else {
+        ret = SetProgressWithoutFile(progressKey, params);
+    }
+    return ret;
+}
+
 int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_ptr<GetDataParams> params)
 {
     if (params == nullptr) {
@@ -519,11 +540,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
         return ret;
     }
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetDataWithProgress", HITRACE_GETPASTEDATA);
-    if (pasteData.GetPrimaryUri() != nullptr) {
-        ret = PasteBoardCopyFile::GetInstance().CopyPasteData(pasteData, params);
-    } else {
-        ret = SetProgressWithoutFile(progressKey, params);
-    }
+    ret = ProgressAfterTwentyPercent(pasteData, params, progressKey);
     if (ffrtTimer != nullptr) {
         ffrtTimer->CancelTimer(progressKey);
     }

@@ -508,12 +508,15 @@ private:
        std::shared_ptr<ProgressReportLintener> progressReport);
     int32_t PullHapSignal(std::string &signalKey, std::shared_ptr<ProgressReportLintener> progressReport);
     static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
-    static void ProgressSmoothToTwentyPercent(std::string &progressKey, std::shared_ptr<GetDataParams> params);
+    static void ProgressSmoothToTwentyPercent(PasteData &pasteData, std::string &progressKey,
+       std::shared_ptr<GetDataParams> params);
     static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
     int32_t GetPasteDataFromService(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo,
-      std::string progressKey, std::shared_ptr<GetDataParams> params);
+       std::string progressKey, std::shared_ptr<GetDataParams> params);
     static void OnProgressAbnormal(int32_t result);
     void ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo);
+    static int32_t ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
+       std::string progressKey);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;

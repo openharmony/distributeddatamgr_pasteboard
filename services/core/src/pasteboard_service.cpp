@@ -585,6 +585,10 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 
 void PasteboardService::ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey)
 {
+    if (!HasPasteData()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not pastedata, no need to show progress.");
+        return;
+    }
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsFocusedApp(tokenId)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "not focused app, no need to show progress.");
