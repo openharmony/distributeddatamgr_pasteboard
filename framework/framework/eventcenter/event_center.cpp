@@ -14,6 +14,8 @@
  */
 
 #include "eventcenter/event_center.h"
+#include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 thread_local EventCenter::AsyncQueue *EventCenter::asyncQueue_ = nullptr;
@@ -40,6 +42,7 @@ bool EventCenter::Unsubscribe(int32_t evtId)
 int32_t EventCenter::PostEvent(std::unique_ptr<Event> evt) const
 {
     if (evt == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "evt is null");
         return CODE_INVALID_ARGS;
     }
     if (asyncQueue_ == nullptr) {
@@ -54,6 +57,7 @@ void EventCenter::Dispatch(const Event &evt) const
 {
     auto observers = observers_.Find(evt.GetEventId());
     if (!observers.first) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "event not find, id=%{public}d", evt.GetEventId());
         return;
     }
 
@@ -69,6 +73,7 @@ EventCenter::Defer::Defer(std::function<void(const Event &)> handler, int32_t ev
     }
 
     if (asyncQueue_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "asyncQueue_ is null");
         return;
     }
 
@@ -79,6 +84,7 @@ EventCenter::Defer::Defer(std::function<void(const Event &)> handler, int32_t ev
 EventCenter::Defer::~Defer()
 {
     if (asyncQueue_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "asyncQueue_ is null");
         return;
     }
     --(*asyncQueue_);
@@ -130,6 +136,7 @@ void EventCenter::AsyncQueue::Post(std::unique_ptr<Event> evt)
         }
 
         if (event->Equals(*evt)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "event not equal");
             return;
         }
     }
@@ -139,11 +146,14 @@ void EventCenter::AsyncQueue::Post(std::unique_ptr<Event> evt)
 void EventCenter::AsyncQueue::AddHandler(int32_t evtId, std::function<void(const Event &)> handler)
 {
     if (evtId == Event::EVT_INVALID || handler == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "invalid param, evtId=%{public}d, handler is null=%{public}d", evtId, (handler == nullptr));
         return;
     }
 
     // The topper layer event will be effective
     if (handlers_.find(evtId) != handlers_.end()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "handler already exist, evtId=%{public}d", evtId);
         return;
     }
 

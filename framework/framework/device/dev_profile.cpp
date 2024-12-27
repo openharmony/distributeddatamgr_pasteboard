@@ -48,14 +48,14 @@ int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileAdd(const Tru
 {
     (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileAdd start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileDelete(const TrustDeviceProfile &profile)
 {
     (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileDelete start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileUpdate(
@@ -64,21 +64,21 @@ int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileUpdate(
     (void)oldProfile;
     (void)newProfile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileUpdate start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileAdd(const DeviceProfile &profile)
 {
     (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileAdd start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileDelete(const DeviceProfile &profile)
 {
     (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileDelete start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileUpdate(
@@ -87,21 +87,21 @@ int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileUpdate(
     (void)oldProfile;
     (void)newProfile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileUpdate start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileAdd(const ServiceProfile &profile)
 {
     (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileAdd start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileDelete(const ServiceProfile &profile)
 {
     (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileDelete start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileUpdate(
@@ -110,21 +110,21 @@ int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileUpdate(
     (void)oldProfile;
     (void)newProfile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileUpdate start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileAdd(const CharacteristicProfile &profile)
 {
     (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileAdd start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileDelete(const CharacteristicProfile &profile)
 {
     (void)profile;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileDelete start.");
-    return 0;
+    return HANDLE_OK;
 }
 
 int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
@@ -137,7 +137,7 @@ int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
     DevProfile::GetInstance().UpdateEnabledStatus(id,
         std::make_pair(static_cast<int32_t>(PasteboardError::E_OK), status));
     DevProfile::GetInstance().Notify(status == SUPPORT_STATUS);
-    return 0;
+    return HANDLE_OK;
 }
 #endif
 
