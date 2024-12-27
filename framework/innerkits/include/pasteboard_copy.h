@@ -92,6 +92,7 @@ struct CopyInfo {
     std::string srcPath;
     std::string destPath;
     int32_t index;
+    int32_t uriNum;
     int32_t notifyFd = -1;
     int32_t eventFd = -1;
     int exceptionCode = 0;    // notify copy thread or listener thread has exceptions.

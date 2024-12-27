@@ -39,6 +39,8 @@ constexpr int ERRNO_NOERR = 0;
 constexpr int PERCENTAGE = 100;
 constexpr float FILE_PERCENTAGE = 0.8;
 constexpr int BEGIN_PERCENTAGE = 20;
+static int32_t g_uriNum = 0;
+static int32_t g_index = 0;
 
 void TransListener::RmDir(const std::string &path)
 {
@@ -98,6 +100,8 @@ int32_t MiscServices::TransListener::CopyFileFromSoftBus(const std::string &srcU
     std::string currentId = "CopyFile_" + std::to_string(getpid()) + "_" + std::to_string(getSequenceId_);
     ++getSequenceId_;
 
+    g_uriNum = copyInfo->uriNum;
+    g_index = copyInfo->index + 1;
     sptr<TransListener> transListener = new (std::nothrow) TransListener();
     if (transListener == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "new trans listener failed");
@@ -247,7 +251,7 @@ int32_t MiscServices::TransListener::OnFileReceive(uint64_t totalBytes, uint64_t
     }
     callback_->percentage = (int32_t)(PERCENTAGE * (processedBytes / totalBytes));
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
-    proInfo->percentage = callback_->percentage;
+    proInfo->percentage = (callback_->percentage + PERCENTAGE * (g_index - 1)) / g_uriNum;
     OnProgressNotify(proInfo);
 
     return ERRNO_NOERR;
@@ -260,7 +264,7 @@ int32_t MiscServices::TransListener::OnFinished(const std::string &sessionName)
         std::lock_guard<std::mutex> lock(callbackMutex_);
         callback_->percentage = PERCENTAGE;
         std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
-        proInfo->percentage = callback_->percentage;
+        proInfo->percentage = (PERCENTAGE * g_index) / g_uriNum;
         OnProgressNotify(proInfo);
         callback_ = nullptr;
     }
