@@ -110,6 +110,8 @@ void FuzzPasteboardclient002(const uint8_t *rawData, size_t size)
     const ShareOption shareOptions = ShareOption::LocalDevice;
     PasteboardClient::GetInstance()->SetAppShareOptions(shareOptions);
     PasteboardClient::GetInstance()->Clear();
+    uint32_t changeCount = 0;
+    PasteboardClient::GetInstance()->GetChangeCount(changeCount);
 }
 
 void FuzzPasteboard(const uint8_t *rawData, size_t size)
@@ -142,6 +144,8 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
         PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
     }
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    uint32_t changeCount = 0;
+    PasteboardClient::GetInstance()->GetChangeCount(changeCount);
     std::set<Pattern> patternsToCheck = {Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(code)};
     PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
 }
@@ -208,6 +212,8 @@ void FuzzPasteData002(const uint8_t *rawData, size_t size)
 
     PasteData pasteData1 = pasteData2;
     PasteboardClient::GetInstance()->SetPasteData(pasteData2);
+    uint32_t changeCount = 0;
+    PasteboardClient::GetInstance()->GetChangeCount(changeCount);
     PasteboardClient::GetInstance()->GetMimeTypes();
     PasteboardClient::GetInstance()->HasDataType(std::string(reinterpret_cast<const char *>(rawData), size));
     PasteboardClient::GetInstance()->IsRemoteData();
@@ -230,6 +236,7 @@ void FuzzPasteData002(const uint8_t *rawData, size_t size)
     const wptr<IRemoteObject> object;
     PasteboardClient::GetInstance()->OnRemoteSaDied(object);
     PasteboardClient::GetInstance()->Clear();
+    PasteboardClient::GetInstance()->GetChangeCount(changeCount);
 }
 
 void FuzzPastedataProperty(const uint8_t *rawData, size_t size)
@@ -361,6 +368,8 @@ void FuzzPasteboardclientcreateData(const uint8_t *rawData, size_t size)
         pasteDataRecord = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<Want>(wantIn));
     }
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+    uint32_t changeCount = 0;
+    PasteboardClient::GetInstance()->GetChangeCount(changeCount);
     std::set<Pattern> patternsToCheck = {Pattern::URL, Pattern::Number, static_cast<Pattern>(code)};
     PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
 }

@@ -1169,5 +1169,67 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress001, TestSize.Leve
 
     OH_Pasteboard_Destroy(pasteboard);
 }
+
+/**
+ * @tc.name: OH_Pasteboard_GetChangeCount001
+ * @tc.desc: OH_Pasteboard_GetChangeCount test valid
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetChangeCount001, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    bool res = OH_Pasteboard_ClearData(pasteboard);
+    uint32_t changeCount = OH_Pasteboard_GetChangeCount(pasteboard);
+    EXPECT_EQ(0, changeCount);
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetChangeCount002
+ * @tc.desc: OH_Pasteboard_GetChangeCount test setData
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetChangeCount002, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    OH_UdsPlainText* plainText = OH_UdsPlainText_Create();
+    char content[] = "hello world";
+    OH_UdsPlainText_SetContent(plainText, content);
+    OH_UdmfRecord_AddPlainText(record, plainText);
+    OH_UdmfData_AddRecord(setData, record);
+    OH_Pasteboard_SetData(pasteboard, setData);
+    uint32_t changeCount = OH_Pasteboard_GetChangeCount(pasteboard);
+    EXPECT_EQ(1, changeCount);
+    
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetChangeCount002
+ * @tc.desc: OH_Pasteboard_GetChangeCount test clear data
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetChangeCount002, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    OH_UdsPlainText* plainText = OH_UdsPlainText_Create();
+    char content[] = "hello world";
+    OH_UdsPlainText_SetContent(plainText, content);
+    OH_UdmfRecord_AddPlainText(record, plainText);
+    OH_UdmfData_AddRecord(setData, record);
+    OH_Pasteboard_SetData(pasteboard, setData);
+    bool res = OH_Pasteboard_ClearData(pasteboard);
+    uint32_t changeCount = OH_Pasteboard_GetChangeCount(pasteboard);
+    EXPECT_EQ(0, changeCount);
+    
+    OH_Pasteboard_Destroy(pasteboard);
+}
 } // namespace Test
 } // namespace OHOS

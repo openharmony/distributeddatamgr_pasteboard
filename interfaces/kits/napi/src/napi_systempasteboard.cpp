@@ -850,6 +850,20 @@ napi_value SystemPasteboardNapi::GetMimeTypes(napi_env env, napi_callback_info i
     return asyncCall.Call(env, exec);
 }
 
+napi_value SystemPasteboardNapi::GetChangeCount(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetChangeCount() is called!");
+    uint32_t changeCount = 0;
+    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    if(!CheckExpression(env, ret == static_cast<int32_t>(PasteboardError::E_OK), JSErrorCode::ERR_GET_DATA_FAILED,
+        "Operation invalid, GetChangeCount() failed.")) {
+            return nullptr;
+    }
+    napi_value result = nullptr;
+    napi_create_uint32(env, changeCount, &result);
+    return result;
+}
+
 napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi HasDataType() is called!");
@@ -1267,6 +1281,7 @@ napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value e
         DECLARE_NAPI_FUNCTION("setAppShareOptions", SetAppShareOptions),
         DECLARE_NAPI_FUNCTION("removeAppShareOptions", RemoveAppShareOptions),
         DECLARE_NAPI_FUNCTION("getDataWithProgress", GetDataWithProgress),
+        DECLARE_NAPI_FUNCTION("getChangeCount", GetChangeCount),
     };
     napi_value constructor;
     napi_define_class(env, "SystemPasteboard", NAPI_AUTO_LENGTH, New, nullptr,

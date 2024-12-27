@@ -82,6 +82,56 @@ HWTEST_F(PasteboardClientTest, IsRemoteData002, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetChangeCount001
+ * @tc.desc: get changed count is 0.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetChangeCount001, TestSize.Level0)
+{
+    PasteboardClient::GetInstance()->Clear();
+    uint32_t changeCount = 0;
+    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    ASSERT_EQ(0, changeCount);
+}
+
+/**
+ * @tc.name: GetChangeCount002
+ * @tc.desc: get changed count is 1.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetChangeCount002, TestSize.Level0)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    uint32_t changeCount = 0;
+    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    ASSERT_EQ(1, changeCount);
+}
+
+/**
+ * @tc.name: GetChangeCount002
+ * @tc.desc: get changed count is 0.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetChangeCount003, TestSize.Level0)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    PasteboardClient::GetInstance()->Clear();
+    uint32_t changeCount = 0;
+    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    ASSERT_EQ(0, changeCount);
+}
+
+/**
  * @tc.name: GetMimeTypes001
  * @tc.desc: get data type is empty.
  * @tc.type: FUNC

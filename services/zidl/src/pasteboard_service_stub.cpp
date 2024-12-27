@@ -76,6 +76,8 @@ PasteboardServiceStub::PasteboardServiceStub()
         &PasteboardServiceStub::OnGetRemoteDeviceName;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PROGRESS_MAKE_MESSAGE_INFO)] =
         &PasteboardServiceStub::OnProgressMakeMessageInfo;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_CHANGE_COUNT)] =
+        &PasteboardServiceStub::OnGetChangeCount;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -364,6 +366,13 @@ int32_t PasteboardServiceStub::OnGetMimeTypes(MessageParcel &data, MessageParcel
             return ERR_INVALID_VALUE;
         }
     }
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnGetChangeCount(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t changeCount = GetChangeCount();
+    reply.WriteUint32(changeCount);
     return ERR_OK;
 }
 

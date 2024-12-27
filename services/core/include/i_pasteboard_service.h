@@ -34,6 +34,7 @@ public:
     virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
         const sptr<IPasteboardEntryGetter> entryGetter) = 0;
     virtual bool IsRemoteData() = 0;
+    virtual uint32_t GetChangeCount() = 0;
     virtual int32_t GetDataSource(std::string &bundleName) = 0;
     virtual std::vector<std::string> GetMimeTypes() = 0;
     virtual bool HasDataType(const std::string &mimeType) = 0;

@@ -225,6 +225,18 @@ std::shared_ptr<PasteData> PasteboardClient::CreateMultiTypeDelayData(std::vecto
     return pasteData;
 }
 
+int32_t PasteboardClient::GetChangeCount(uint32_t &changeCount)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetChangeCount start.")
+    auto proxyService = GetPasteboardService();
+    if(proxyService == nullptr) {
+        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
+    }
+    changeCount = proxyService->GetChangeCount();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount finished, changeCount is %{public}d", changeCount);
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
 int32_t PasteboardClient::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
 {
     auto proxyService = GetPasteboardService();

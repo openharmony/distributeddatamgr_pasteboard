@@ -163,6 +163,13 @@ int OH_Pasteboard_Unsubscribe(OH_Pasteboard *pasteboard, int type, const OH_Past
     return ERR_OK;
 }
 
+uint32_t OH_Pasteboard_GetChangeCount(OH_Pasteboard *pasteboard)
+{
+    uint32_t changeCount = 0;
+    PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    return changeCount;
+}
+
 bool OH_Pasteboard_IsRemoteData(OH_Pasteboard *pasteboard)
 {
     if (!IsPasteboardValid(pasteboard)) {
