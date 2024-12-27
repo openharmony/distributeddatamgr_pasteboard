@@ -80,6 +80,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "samgr:samgr_proxy",
     "udmf:udmf_client",
   ]
 

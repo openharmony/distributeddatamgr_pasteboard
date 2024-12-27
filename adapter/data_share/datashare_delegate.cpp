@@ -22,7 +22,10 @@
 #include "iservice_registry.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "third_party/vixl/src/utils-vixl.h"
+
+#if defined(PB_VIXL_ENABLE)
+#include "src/utils-vixl.h"
+#endif
 
 namespace OHOS::MiscServices {
 const constexpr char *SETTING_COLUMN_KEYWORD = "KEYWORD";
