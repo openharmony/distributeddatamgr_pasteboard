@@ -287,7 +287,7 @@ void PasteDataRecord::InitDecodeMap()
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
 {
-    if (htmlText_) {
+    if (htmlText_ != nullptr && mimeType_ == MIMETYPE_TEXT_HTML) {
         return htmlText_;
     }
     for (const auto &entry : entries_) {
@@ -295,7 +295,7 @@ std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
             return entry->ConvertToHtml();
         }
     }
-    return nullptr;
+    return htmlText_;
 }
 
 std::string PasteDataRecord::GetMimeType() const
@@ -305,7 +305,7 @@ std::string PasteDataRecord::GetMimeType() const
 
 std::shared_ptr<std::string> PasteDataRecord::GetPlainText() const
 {
-    if (plainText_) {
+    if (plainText_ != nullptr && mimeType_ == MIMETYPE_TEXT_PLAIN) {
         return plainText_;
     }
     for (const auto &entry : entries_) {
@@ -313,12 +313,12 @@ std::shared_ptr<std::string> PasteDataRecord::GetPlainText() const
             return entry->ConvertToPlainText();
         }
     }
-    return nullptr;
+    return plainText_;
 }
 
 std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
 {
-    if (pixelMap_) {
+    if (pixelMap_ != nullptr && mimeType_ == MIMETYPE_PIXELMAP) {
         return pixelMap_;
     }
     for (const auto &entry : entries_) {
@@ -326,7 +326,7 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
             return entry->ConvertToPixelMap();
         }
     }
-    return nullptr;
+    return pixelMap_;
 }
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
@@ -350,7 +350,7 @@ void PasteDataRecord::SetUri(std::shared_ptr<OHOS::Uri> uri)
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetOrginUri() const
 {
-    if (uri_) {
+    if (uri_ != nullptr && mimeType_ == MIMETYPE_TEXT_URI) {
         return uri_;
     }
     for (const auto &entry : entries_) {
@@ -358,12 +358,12 @@ std::shared_ptr<OHOS::Uri> PasteDataRecord::GetOrginUri() const
             return entry->ConvertToUri();
         }
     }
-    return nullptr;
+    return uri_;
 }
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
 {
-    if (want_) {
+    if (want_ != nullptr && mimeType_ == MIMETYPE_TEXT_WANT) {
         return want_;
     }
     for (const auto &entry : entries_) {
@@ -371,7 +371,7 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
             return entry->ConvertToWant();
         }
     }
-    return nullptr;
+    return want_;
 }
 
 std::shared_ptr<MineCustomData> PasteDataRecord::GetCustomData() const
