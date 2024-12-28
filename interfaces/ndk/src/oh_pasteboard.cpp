@@ -279,7 +279,12 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
         PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_GetDataWithProgress return invalid, result is %{public}d",
             ret);
-        *status = GetMappedCode(ret);
+        auto iter = errCodeMap.find(static_cast<PasteboardError>(ret));
+        if (iter != errCodeMap.end()) {
+            *status = iter->second;
+        } else {
+            *status = ERR_GET_DATA_FAILED;
+        }
         return nullptr;
     }
     OH_UdmfData *data = OH_UdmfData_Create();
