@@ -51,12 +51,6 @@ void Loader::LoadComponents()
     }
 }
 
-std::vector<std::string> Loader::LoadBundles()
-{
-    Config config = LoadConfig();
-    return config.bundles;
-}
-
 int32_t Loader::LoadUid()
 {
     Config config = LoadConfig();

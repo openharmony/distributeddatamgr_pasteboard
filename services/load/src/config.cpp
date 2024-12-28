@@ -43,7 +43,6 @@ bool Config::Marshal(Serializable::json &node) const
     SetValue(node, features, GET_NAME(features));
     SetValue(node, plugins, GET_NAME(plugins));
     SetValue(node, components, GET_NAME(components));
-    SetValue(node, bundles, GET_NAME(bundles));
     SetValue(node, uid, GET_NAME(uid));
     return true;
 }
@@ -55,7 +54,6 @@ bool Config::Unmarshal(const Serializable::json &node)
     GetValue(node, GET_NAME(features), features);
     GetValue(node, GET_NAME(plugins), plugins);
     GetValue(node, GET_NAME(components), components);
-    GetValue(node, GET_NAME(bundles), bundles);
     GetValue(node, GET_NAME(uid), uid);
     return ret;
 }

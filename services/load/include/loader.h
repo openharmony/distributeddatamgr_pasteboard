@@ -22,7 +22,6 @@ public:
     Loader();
     ~Loader();
     void LoadComponents();
-    std::vector<std::string> LoadBundles();
     int32_t LoadUid();
 
 private:
