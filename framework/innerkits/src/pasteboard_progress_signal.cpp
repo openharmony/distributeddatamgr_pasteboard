@@ -17,6 +17,7 @@
 #include <chrono>
 #include <map>
 
+#include "distributed_file_daemon_manager.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_progress_signal.h"
@@ -42,9 +43,20 @@ void ProgressSignalClient::Init()
     remoteTask_.store(false);
 }
 
+void ProgressSignalClient::SaveSessionName(const std::string &sessionName)
+{
+    sessionName_ = sessionName;
+}
+
 void ProgressSignalClient::Cancel()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressSignalClient Cancel in!");
+    if (!sessionName_.empty()) {
+        auto ret = Storage::DistributedFile::DistributedFileDaemonManager::GetInstance().CancelCopyTask(sessionName_);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CancelCopyTask, ret = %{public}d", ret);
+        sessionName_.clear();
+        return;
+    }
     needCancel_.store(true);
 }
 
