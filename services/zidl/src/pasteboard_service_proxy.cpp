@@ -103,23 +103,24 @@ int32_t PasteboardServiceProxy::GetRecordValueByType(uint32_t dataId, uint32_t r
     return res;
 }
 
-uint32_t PasteboardServiceProxy::GetChangeCount()
+int32_t PasteboardServiceProxy::GetChangeCount(uint32_t &changeCount)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-    uint32_t changeCount = 0;
-    if(!data.WriteInterfaceToken(GetDescriptor())) {
+    if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelabel");
     }
+    changeCount = 0;
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_CHANGE_COUNT, data, reply, option);
-    if(result != ERR_NONE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetChangeCount failed, error code is: ${public}d", result);
+    if (result != ERR_NONE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed: ret=%{public}d", result);
+        return result;
     }
-    if(!reply.ReadUint32(changeCount)) {
+    if (!reply.ReadUint32(changeCount)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to read changeCount!");
     }
-    return changeCount;
+    return reply.ReadInt32();
 }
 
 bool PasteboardServiceProxy::HasPasteData()

@@ -371,8 +371,14 @@ int32_t PasteboardServiceStub::OnGetMimeTypes(MessageParcel &data, MessageParcel
 
 int32_t PasteboardServiceStub::OnGetChangeCount(MessageParcel &data, MessageParcel &reply)
 {
-    uint32_t changeCount = GetChangeCount();
-    reply.WriteUint32(changeCount);
+    uint32_t changeCount = 0;
+    int32_t ret = GetChangeCount(changeCount);
+    if (!reply.WriteUint32(changeCount)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(ret)) {
+        return ERR_INVALID_VALUE;
+    }
     return ERR_OK;
 }
 

@@ -854,11 +854,7 @@ napi_value SystemPasteboardNapi::GetChangeCount(napi_env env, napi_callback_info
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetChangeCount() is called!");
     uint32_t changeCount = 0;
-    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
-    if(!CheckExpression(env, ret == static_cast<int32_t>(PasteboardError::E_OK), JSErrorCode::ERR_GET_DATA_FAILED,
-        "Operation invalid, GetChangeCount() failed.")) {
-            return nullptr;
-    }
+    PasteboardClient::GetInstance()->GetChangeCount(changeCount);
     napi_value result = nullptr;
     napi_create_uint32(env, changeCount, &result);
     return result;

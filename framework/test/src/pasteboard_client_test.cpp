@@ -49,6 +49,70 @@ void PasteboardClientTest::SetUp(void) { }
 void PasteboardClientTest::TearDown(void) { }
 
 /**
+ * @tc.name: GetChangeCount001
+ * @tc.desc: change count should not change after clear pasteboard.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetChangeCount001, TestSize.Level0)
+{
+    uint32_t changeCount = 0;
+    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PasteboardClient::GetInstance()->Clear();
+    uint32_t newCount = 0;
+    ret = PasteboardClient::GetInstance()->GetChangeCount(newCount);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    ASSERT_EQ(newCount, changeCount);
+}
+
+/**
+ * @tc.name: GetChangeCount002
+ * @tc.desc: change count should add 1 after successful SetPastedata once.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetChangeCount002, TestSize.Level0)
+{
+    uint32_t changeCount = 0;
+    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    uint32_t newCount = 0;
+    ret = PasteboardClient::GetInstance()->GetChangeCount(newCount);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    ASSERT_EQ(newCount, changeCount+1);
+}
+
+/**
+ * @tc.name: GetChangeCount003
+ * @tc.desc: change count should add 2 after successful SetPastedata twice.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetChangeCount003, TestSize.Level0)
+{
+    uint32_t changeCount = 0;
+    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    std::string htmlText = "<div class='disable'>helloWorld</div>";
+    auto newData1 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    uint32_t newCount = 0;
+    ret = PasteboardClient::GetInstance()->GetChangeCount(newCount);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    ASSERT_EQ(newCount, changeCount+2);
+}
+
+/**
  * @tc.name: IsRemoteData001
  * @tc.desc: pasteData is local data.
  * @tc.type: FUNC
@@ -79,56 +143,6 @@ HWTEST_F(PasteboardClientTest, IsRemoteData002, TestSize.Level0)
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     bool ret = PasteboardClient::GetInstance()->IsRemoteData();
     ASSERT_TRUE(ret);
-}
-
-/**
- * @tc.name: GetChangeCount001
- * @tc.desc: get changed count is 0.
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardClientTest, GetChangeCount001, TestSize.Level0)
-{
-    PasteboardClient::GetInstance()->Clear();
-    uint32_t changeCount = 0;
-    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
-    ASSERT_EQ(0, changeCount);
-}
-
-/**
- * @tc.name: GetChangeCount002
- * @tc.desc: get changed count is 1.
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardClientTest, GetChangeCount002, TestSize.Level0)
-{
-    std::string plainText = "helloWorld";
-    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    PasteboardClient::GetInstance()->SetPasteData(*newData);
-    uint32_t changeCount = 0;
-    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
-    ASSERT_EQ(1, changeCount);
-}
-
-/**
- * @tc.name: GetChangeCount002
- * @tc.desc: get changed count is 0.
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardClientTest, GetChangeCount003, TestSize.Level0)
-{
-    std::string plainText = "helloWorld";
-    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    PasteboardClient::GetInstance()->SetPasteData(*newData);
-    PasteboardClient::GetInstance()->Clear();
-    uint32_t changeCount = 0;
-    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
-    ASSERT_EQ(0, changeCount);
 }
 
 /**

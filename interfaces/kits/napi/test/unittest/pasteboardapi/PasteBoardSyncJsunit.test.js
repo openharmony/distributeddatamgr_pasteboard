@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,16 +13,8 @@
  * limitations under the License.
  */
 // @ts-nocheck
-import { describe, beforeAll, beforeEach, afterEach, afterAll, it, expect } from 'deccjsunit/index';
+import { describe, beforeAll, afterAll, it, expect } from 'deccjsunit/index';
 import pasteboard from '@ohos.pasteboard';
-import image from '@ohos.multimedia.image';
-import Want from '@ohos.app.ability.Want';
-import List from '@ohos.util.List';
-
-const myType = 'my-mime-type';
-const allTypes = [pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_HTML, pasteboard.MIMETYPE_TEXT_URI,
-  pasteboard.MIMETYPE_TEXT_WANT, pasteboard.MIMETYPE_PIXELMAP, myType
-];
 
 describe('PasteBoardJSTest', function () {
   beforeAll(async function () {
@@ -34,8 +26,8 @@ describe('PasteBoardJSTest', function () {
   });
 
   /**
-   * @tc.name      pasteboard_promise_test1
-   * @tc.desc      Adds PlainTextData
+   * @tc.name      pasteboard_Sync_getChangeCounttest1
+   * @tc.desc      changeCount should increase to 2 when setData and reset to 0 after clear pasteboard
    * @tc.type      Function
    * @tc.require   AR000H5HVI
    */
@@ -43,15 +35,19 @@ describe('PasteBoardJSTest', function () {
     const systemPasteboard = pasteboard.getSystemPasteboard();
     await systemPasteboard.clearData();
     let changeCount = systemPasteboard.getChangeCount();
-    expect(changeCount).assertEqual(0);
-    const textData1 = 'Hello World!';
-    const pasteData = pasteboard.createPlainTextData(textData1);
+    const textData = 'Hello World!';
+    const pasteData = pasteboard.createPlainTextData(textData);
     await systemPasteboard.setPasteData(pasteData);
-    changeCount = systemPasteboard.getChangeCount();
-    expect(changeCount).assertEqual(1);
+    let newCount = systemPasteboard.getChangeCount();
+    expect(newCount).assertEqual(changeCount+1);
+    const htmlText = '<html><head></head><body>Hello World!</body></html>';
+    const pasteData1 = pasteboard.createHtmlData(htmlText);
+    await systemPasteboard.setPasteData(pasteData1);
+    newCount = systemPasteboard.getChangeCount();
+    expect(newCount).assertEqual(changeCount+2);
     await systemPasteboard.clearData();
-    changeCount = systemPasteboard.getChangeCount();
-    expect(changeCount).assertEqual(0);
+    newCount = systemPasteboard.getChangeCount();
+    expect(newCount).assertEqual(changeCount+2);
   });
 
 });

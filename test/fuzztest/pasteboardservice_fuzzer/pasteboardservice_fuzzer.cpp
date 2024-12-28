@@ -145,7 +145,7 @@ public:
         return {};
     }
 
-    uint32_t GetChangeCount() override
+    int32_t GetChangeCount(uint32_t &changeCount) override
     {
         return 0;
     }
