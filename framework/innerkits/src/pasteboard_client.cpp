@@ -397,7 +397,7 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-void PasteboardClient::ProgressSmoothToTwentyPercent(PasteData &pasteData, string &progressKey,
+void PasteboardClient::ProgressSmoothToTwentyPercent(PasteData &pasteData, std::string &progressKey,
     std::shared_ptr<GetDataParams> params)
 {
     if (pasteData.GetRecordCount() <= 0) {

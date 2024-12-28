@@ -17,7 +17,7 @@
 #include <chrono>
 #include <map>
 
-#include "disteibuted_file_daemon_manager.h"
+#include "distributed_file_daemon_manager.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_progress_signal.h"
@@ -26,7 +26,6 @@ namespace OHOS {
 namespace MiscServices {
 std::mutex ProgressSignalClient::mutex_;
 ProgressSignalClient *ProgressSignalClient::instance_ = nullptr;
-std::string g_sessionName;
 
 ProgressSignalClient &ProgressSignalClient::GetInstance()
 {
@@ -46,23 +45,19 @@ void ProgressSignalClient::Init()
 
 void ProgressSignalClient::SaveSessionName(const std::string &sessionName)
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    g_sessionName = sessionName;
+    sessionName_ = sessionName;
 }
 
 void ProgressSignalClient::Cancel()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressSignalClient Cancel in!");
-    if (!g_sessionName.empty()) {
-        auto ret = Storage::DistributedFile::DistributedFileDaemonManager::GetInstance().CancelCopyTask(g_sessionName);
-        if (ret != 0) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CancelCopyTask failed, ret = %{public}d", ret);
-            return;
-        }
+    if (!sessionName_.empty()) {
+        auto ret = Storage::DistributedFile::DistributedFileDaemonManager::GetInstance().CancelCopyTask(sessionName_);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CancelCopyTask, ret = %{public}d", ret);
+        sessionName_.clear();
+        return;
     }
     needCancel_.store(true);
-    std::lock_guard<std::mutex> lock(mutex_);
-    g_sessionName.clear();
 }
 
 bool ProgressSignalClient::IsCanceled()
