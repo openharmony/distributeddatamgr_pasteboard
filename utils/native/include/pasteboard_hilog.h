@@ -116,6 +116,8 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD[PASTEBOARD_MODULE_BUTT] 
 
 #define PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(cond, ret, label, fmt, ...) \
     CHECK_AND_RETURN_RET_LOG_INNER(cond, ret, PASTEBOARD_HILOGD, label, fmt, ##__VA_ARGS__)
+#define PASTEBOARD_CHECK_AND_RETURN_RET_LOGI(cond, ret, label, fmt, ...) \
+    CHECK_AND_RETURN_RET_LOG_INNER(cond, ret, PASTEBOARD_HILOGI, label, fmt, ##__VA_ARGS__)
 #define PASTEBOARD_CHECK_AND_RETURN_RET_LOGW(cond, ret, label, fmt, ...) \
     CHECK_AND_RETURN_RET_LOG_INNER(cond, ret, PASTEBOARD_HILOGW, label, fmt, ##__VA_ARGS__)
 #define PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(cond, ret, label, fmt, ...) \

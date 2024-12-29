@@ -519,6 +519,7 @@ private:
        std::string progressKey);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
+    bool constructing_ = false;
     static std::condition_variable proxyConVar_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
     std::atomic<uint32_t> getSequenceId_ = 0;
