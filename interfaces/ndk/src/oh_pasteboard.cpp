@@ -274,6 +274,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
     };
     getDataParams->listener = listener;
     params->progressSignal.cancel = ProgressCancel;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CAPI, "GetDataWithProgress Start");
     int32_t ret = PasteboardClient::GetInstance()->GetUnifiedDataWithProgress(*unifiedData, getDataParams);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(
