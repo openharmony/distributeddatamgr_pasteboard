@@ -1289,7 +1289,7 @@ std::vector<std::string> PasteboardService::GetMimeTypes()
                 PASTEBOARD_MODULE_SERVICE, "get remote data failed, ret=%{public}d", ret);
         }
     }
-    return PasteboardUtils::GetInstance().DeduplicateVector(GetLocalMimeTypes());
+    return GetLocalMimeTypes();
 }
 
 bool PasteboardService::HasDataType(const std::string &mimeType)
@@ -1392,7 +1392,7 @@ std::vector<std::string> PasteboardService::GetLocalMimeTypes()
             tokenId, userId, ret);
         return {};
     }
-    return it.second->GetMimeTypes();
+    return it.second->GetMimeTypesWithEntry();
 }
 
 bool PasteboardService::HasLocalDataType(const std::string &mimeType)

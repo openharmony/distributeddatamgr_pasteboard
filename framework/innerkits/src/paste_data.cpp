@@ -184,6 +184,16 @@ std::vector<std::string> PasteData::GetMimeTypes()
     return mimeType;
 }
 
+std::vector<std::string> PasteData::GetMimeTypesWithEntry()
+{
+    std::set<std::string> mimeTypes;
+    for (const auto &item : records_) {
+        auto itemTypes = item->GetMimeTypes();
+        mimeTypes.insert(itemTypes.begin(), itemTypes.end());
+    }
+    return std::vector<std::string>(mimeTypes.begin(), mimeTypes.end());
+}
+
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
     for (const auto &item : records_) {

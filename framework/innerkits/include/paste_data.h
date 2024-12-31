@@ -75,6 +75,7 @@ public:
     void AddRecord(std::shared_ptr<PasteDataRecord> record);
     void AddRecord(PasteDataRecord &record);
     std::vector<std::string> GetMimeTypes();
+    std::vector<std::string> GetMimeTypesWithEntry();
     std::shared_ptr<std::string> GetPrimaryHtml();
     std::shared_ptr<OHOS::Media::PixelMap> GetPrimaryPixelMap();
     std::shared_ptr<std::string> GetPrimaryText();

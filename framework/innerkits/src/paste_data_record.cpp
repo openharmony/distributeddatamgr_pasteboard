@@ -602,6 +602,16 @@ std::set<std::string> PasteDataRecord::GetUdtTypes() const
     return types;
 }
 
+std::set<std::string> PasteDataRecord::GetMimeTypes() const
+{
+    std::set<std::string> types;
+    types.emplace(mimeType_);
+    for (auto const& entry: entries_) {
+        types.emplace(entry->GetMimeType());
+    }
+    return types;
+}
+
 void PasteDataRecord::AddEntry(const std::string& utdType, std::shared_ptr<PasteDataEntry> value)
 {
     if (!value) {

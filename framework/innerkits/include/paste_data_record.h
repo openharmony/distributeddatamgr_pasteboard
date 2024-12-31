@@ -62,6 +62,7 @@ public:
 
     bool isConvertUriFromRemote = false;
     std::string GetMimeType() const;
+    std::set<std::string> GetMimeTypes() const;
     std::shared_ptr<std::string> GetHtmlText() const;
     std::shared_ptr<std::string> GetPlainText() const;
     std::shared_ptr<OHOS::Media::PixelMap> GetPixelMap() const;

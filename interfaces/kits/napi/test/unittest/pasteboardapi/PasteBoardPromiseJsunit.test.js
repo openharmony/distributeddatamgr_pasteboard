@@ -1665,7 +1665,7 @@ describe('PasteBoardJSTest', function () {
       await systemPasteboard.setPasteData(pasteData);
   
       systemPasteboard.getMimeTypes().then((data) => {
-        expect(data.length).assertEqual(1);
+        expect(data.length).assertEqual(3);
         const expectedMimeTypes = new Set([pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_HTML, pasteboard.MIMETYPE_TEXT_URI]);
         expect(Array.from(data).every(type => expectedMimeTypes.has(type))).assertEqual(true);
         done();
