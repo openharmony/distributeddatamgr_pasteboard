@@ -224,7 +224,6 @@ struct PasteboardSwitch {
       this.isAnimatorDone = true;
     }, 20)
   }
-  }
 
   aboutToDisappear() {
     console.info(`${TAG} aboutToDisappear in`);
