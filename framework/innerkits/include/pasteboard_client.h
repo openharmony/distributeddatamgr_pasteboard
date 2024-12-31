@@ -87,12 +87,22 @@ public:
     /**
      * CreateKvRecord
      * @descrition Create Kv Record.
-    * @param std::string mimeType
-    * @param std::vector<uint8_t> arrayBuffer
+     * @param std::string mimeType
+     * @param std::vector<uint8_t> arrayBuffer
      * @return PasteDataRecord.
      */
     std::shared_ptr<PasteDataRecord> CreateKvRecord(
         const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
+
+    /**
+     * CreateMultiDelayRecord
+     * @descrition Create Multi DelayRecord.
+     * @param std::vector<std::string> mimeTypes
+     * @param std::shared_ptr<UDMF::EntryGetter> entryGetter
+     * @return PasteDataRecord.
+     */
+    std::shared_ptr<PasteDataRecord> CreateMultiDelayRecord(
+        std::vector<std::string> mimeTypes, const std::shared_ptr<UDMF::EntryGetter> entryGetter);
 
     /**
      * CreateHtmlData
@@ -135,22 +145,43 @@ public:
     std::shared_ptr<PasteData> CreateWantData(std::shared_ptr<OHOS::AAFwk::Want> want);
 
     /**
-    * CreateKvData
-    * @descrition Create Kv Paste Data.
-    * @param std::string mimeType
-    * @param std::vector<uint8_t> arrayBuffer
-    * @return PasteData.
-    */
+     * CreateKvData
+     * @descrition Create Kv Paste Data.
+     * @param std::string mimeType
+     * @param std::vector<uint8_t> arrayBuffer
+     * @return PasteData.
+     */
     std::shared_ptr<PasteData> CreateKvData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
     /**
-    * GetRecordValueByType
-    * @descrition get entry value from the pasteboard.
-    * @param dataId the dataId of the PasteData.
-    * @param recordId the recordId of the PasteRecord.
-    * @param value the value of the PasteDataEntry.
-    * @return int32_t.
-    */
+     * CreateMultiTypeData
+     * @descrition Create multi-type Data.
+     * @param std::map<std::string, EntryValue> typeValueMap
+     * @param recordMimeType record's default mimeType
+     * @return PasteData.
+     */
+    std::shared_ptr<PasteData> CreateMultiTypeData(
+        std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> typeValueMap,
+        const std::string &recordMimeType = "");
+
+    /**
+     * CreateMultiTypeDelayData
+     * @descrition Create delayed multi-type Data.
+     * @param std::vector<std::string> utdTypes
+     * @param std::shared_ptr<UDMF::EntryGetter> entryGetter
+     * @return PasteData.
+     */
+    std::shared_ptr<PasteData> CreateMultiTypeDelayData(std::vector<std::string> mimeTypes,
+        std::shared_ptr<UDMF::EntryGetter> entryGetter);
+
+    /**
+     * GetRecordValueByType
+     * @descrition get entry value from the pasteboard.
+     * @param dataId the dataId of the PasteData.
+     * @param recordId the recordId of the PasteRecord.
+     * @param value the value of the PasteDataEntry.
+     * @return int32_t.
+     */
     int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry& value);
 
     /**
@@ -211,19 +242,19 @@ public:
     int32_t GetUnifiedData(UDMF::UnifiedData &unifiedData);
 
     /**
-    * SetUdsdData
-    * @descrition set unified data with uds entries to the pasteboard.
-    * @param unifiedData the object of the PasteDate.
-    * @return int32_t.
-    */
+     * SetUdsdData
+     * @descrition set unified data with uds entries to the pasteboard.
+     * @param unifiedData the object of the PasteDate.
+     * @return int32_t.
+     */
     int32_t SetUdsdData(const UDMF::UnifiedData& unifiedData);
 
     /**
-    * GetUnifiedDataWithEntry
-    * @descrition get unified data with uds entries from the pasteboard.
-    * @param unifiedData the object of the PasteDate.
-    * @return int32_t.
-    */
+     * GetUnifiedDataWithEntry
+     * @descrition get unified data with uds entries from the pasteboard.
+     * @param unifiedData the object of the PasteDate.
+     * @return int32_t.
+     */
     int32_t GetUdsdData(UDMF::UnifiedData& unifiedData);
 
     /**
@@ -389,7 +420,8 @@ private:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void RetainUri(PasteData &pasteData);
-    static std::shared_ptr<PasteData> SplitWebviewPasteData(PasteData &pasteData);
+    static void SplitWebviewPasteData(PasteData &pasteData);
+    static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;

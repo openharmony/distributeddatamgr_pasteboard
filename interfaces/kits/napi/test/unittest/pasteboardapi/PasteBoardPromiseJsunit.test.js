@@ -16,6 +16,13 @@
 import { describe, beforeAll, beforeEach, afterEach, afterAll, it, expect } from 'deccjsunit/index';
 import pasteboard from '@ohos.pasteboard';
 import image from '@ohos.multimedia.image';
+import Want from '@ohos.app.ability.Want';
+import List from '@ohos.util.List';
+
+const myType = 'my-mime-type';
+const allTypes = [pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_HTML, pasteboard.MIMETYPE_TEXT_URI,
+  pasteboard.MIMETYPE_TEXT_WANT, pasteboard.MIMETYPE_PIXELMAP, myType
+];
 
 describe('PasteBoardJSTest', function () {
   beforeAll(async function () {
@@ -1622,6 +1629,299 @@ describe('PasteBoardJSTest', function () {
       done();
     });
   });
+
+  /**
+   * @tc.name      pasteboard_promise_test58
+   * @tc.desc      test addEntry and getData
+   * @tc.type      Function
+   * @tc.require   AR000HEECD
+   */
+  it('pasteboard_promise_test58', 0, async function (done) {
+    const htmlText = "<html><head></head><body>Hello World!</body></html>";
+    const plainData = "Hello World!";
+    const uriText = "https://www.AACCSVDSVSDV.com/";
+    const buffer58 = new ArrayBuffer(128);
+    const opt58 = {
+      size: { height: 5, width: 5 },
+      pixelFormat: 3,
+      editable: true,
+      alphaType: 1,
+      scaleMode: 1,
+    };
+    const pixelMap = await image.createPixelMap(buffer58, opt58);
+    const pasteRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_HTML, htmlText);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_TEXT_PLAIN, plainData);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_TEXT_URI, uriText);
+    pasteRecord.addEntry(pasteboard.MIMETYPE_PIXELMAP, pixelMap);
+
+    const html = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_HTML);
+    expect(html.toString()).assertEqual(htmlText.toString());
+    const plain = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_PLAIN);
+    expect(plain.toString()).assertEqual(plainData.toString());
+    const uri = await pasteRecord.getData(pasteboard.MIMETYPE_TEXT_URI);
+    expect(uri.toString()).assertEqual(uriText.toString());
+    const pixel = await pasteRecord.getData(pasteboard.MIMETYPE_PIXELMAP);
+    const PixelMapBytesNumber = pixel.getPixelBytesNumber();
+    expect(PixelMapBytesNumber).assertEqual(100);
+    const imageInfo = await pixel.getImageInfo();
+    expect(imageInfo.size.height === 5 && imageInfo.size.width === 5).assertEqual(true);
+
+    done();
+  });
+
+
+  /**
+   * @tc.name      pasteboard_promise_test59
+   * @tc.desc      Single style with createData(Record) function.
+   * @tc.type      Function
+   * @tc.require   API 14
+   */
+  it('pasteboard_promise_test59', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+
+    let inputData = 'Hello world.';
+    let outputData = await copyPasteWithRecord(pasteboard.MIMETYPE_TEXT_PLAIN, inputData, systemPasteboard);
+    expect(outputData).assertEqual(inputData);
+
+    inputData = '<p>Hello world.</p>';
+    outputData = await copyPasteWithRecord(pasteboard.MIMETYPE_TEXT_HTML, inputData, systemPasteboard);
+    expect(outputData).assertEqual(inputData);
+
+    inputData = 'file://abc/def.png';
+    outputData = await copyPasteWithRecord(pasteboard.MIMETYPE_TEXT_URI, inputData, systemPasteboard);
+    expect(outputData).assertEqual(inputData);
+
+    let inputWant = {
+      deviceId: '',
+      bundleName: 'test.bundle.name',
+      abilityName: 'test.ability,name',
+      moduleName: 'test.module.name',
+    };
+    outputData = await copyPasteWithRecord(pasteboard.MIMETYPE_TEXT_WANT, inputWant, systemPasteboard);
+    expect(outputData.bundleName).assertEqual(inputWant.bundleName);
+
+    let inputPixelMap = await buildPixelMap();
+    outputData = await copyPasteWithRecord(pasteboard.MIMETYPE_PIXELMAP, inputPixelMap, systemPasteboard);
+    expect(outputData.getImageInfoSync().size.width).assertEqual(inputPixelMap.getImageInfoSync().size.width);
+    expect(outputData.getImageInfoSync().size.height).assertEqual(inputPixelMap.getImageInfoSync().size.height);
+
+    let inputArrayBuffer = string2ArrayBuffer('Hello world.');
+    outputData = await copyPasteWithRecord('my-mime-type', inputArrayBuffer, systemPasteboard);
+    expect(outputData.toString()).assertEqual(inputArrayBuffer.toString());
+
+    await systemPasteboard.clearData();
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test60
+   * @tc.desc      Multi style with createData(Record) function.
+   * @tc.type      Function
+   * @tc.require   API 14
+   */
+  it('pasteboard_promise_test60', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+
+    let record = await initRecordData();
+    await systemPasteboard.setData(pasteboard.createData(record));
+
+    systemPasteboard.getData().then(async (outputData) => {
+      const recordCount = outputData.getRecordCount();
+      console.log('actual recordCount: ' + recordCount);
+      expect(recordCount).assertEqual(1);
+
+      const outRecord = outputData.getRecord(0);
+      const outTypes = outRecord.getValidTypes(allTypes);
+      console.log('outTypes: ' + outTypes.toString());
+
+      for (const type of outTypes) {
+        console.log('check type: ' + type);
+        const outValue = await outRecord.getData(type);
+        expect(outValue != null).assertTrue();
+        const inValue = record[type];
+        if (type === pasteboard.MIMETYPE_TEXT_WANT) {
+          console.log('actual bundleName: ' + outValue.bundleName);
+          expect(outValue.bundleName.length > 0).assertTrue();
+        } else if (type === pasteboard.MIMETYPE_PIXELMAP) {
+          expect(outValue !== null && outValue !== undefined).assertTrue();
+        } else {
+          console.log('type: ' + type + ', actual strValue: ' + outValue.toString() + ', expect strValue: ' + inValue.toString());
+          expect(outValue.toString()).assertEqual(inValue.toString());
+        }
+      }
+
+      await systemPasteboard.clearData();
+      done();
+    });
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test61
+   * @tc.desc      Multi style with addEntry function.
+   * @tc.type      Function
+   * @tc.require   API 14
+   */
+  it('pasteboard_promise_test61', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+
+    let record = await initRecordData();
+    let recordTmp = await initRecordData('temp');
+
+    let inData = pasteboard.createData(pasteboard.MIMETYPE_TEXT_HTML, 'temp value');
+
+    for (const item of Object.entries(record)) {
+      if (item[0] === pasteboard.MIMETYPE_TEXT_PLAIN) {
+        continue;
+      }
+      let inRecord = pasteboard.createRecord(pasteboard.MIMETYPE_TEXT_PLAIN, recordTmp[pasteboard.MIMETYPE_TEXT_PLAIN]);
+      inRecord.addEntry(pasteboard.MIMETYPE_TEXT_PLAIN, record[pasteboard.MIMETYPE_TEXT_PLAIN]);
+      inRecord.addEntry(item[0], recordTmp[item[0]]);
+      inRecord.addEntry(item[0], item[1]);
+      inData.replaceRecord(0, inRecord);
+      await systemPasteboard.setData(inData);
+
+      console.log('copy success');
+      const outputData = await systemPasteboard.getData();
+
+      console.log('actual recordCount: ' + outputData.getRecordCount());
+      expect(outputData.getRecordCount()).assertEqual(1);
+      const outRecord = outputData.getRecord(0);
+
+      const inTypes = [pasteboard.MIMETYPE_TEXT_PLAIN, item[0]];
+      console.log('actual validTypes: ' + outRecord.getValidTypes(inTypes).toString());
+      expect(outRecord.getValidTypes(inTypes).toString()).assertEqual(inTypes.toString());
+      console.log('actual mimeType: ' + outRecord.mimeType);
+      expect(outRecord.mimeType).assertEqual(pasteboard.MIMETYPE_TEXT_PLAIN);
+      console.log('actual plainText: ' + outRecord.plainText);
+      expect(outRecord.plainText).assertEqual(record[pasteboard.MIMETYPE_TEXT_PLAIN]);
+
+      const outValue = await outRecord.getData(item[0]);
+      if (item[0] === pasteboard.MIMETYPE_TEXT_WANT) {
+        console.log('actual bundleName: ' + outValue.bundleName);
+        expect(outValue.bundleName).assertEqual(item[1].bundleName);
+      } else if (item[0] === pasteboard.MIMETYPE_PIXELMAP) {
+        console.log('actual width: ' + outValue.getImageInfoSync().size.width);
+        expect(outValue.getImageInfoSync().size.width).assertEqual(item[1].getImageInfoSync().size.width);
+        expect(outValue.getImageInfoSync().size.height).assertEqual(item[1].getImageInfoSync().size.height);
+      } else {
+        console.log('type: ' + item[0] + ', actual strValue: ' + outValue.toString());
+        expect(outValue.toString()).assertEqual(item[1].toString());
+      }
+    }
+
+    await systemPasteboard.clearData();
+    done();
+  });
+
+  /**
+   * @tc.name      pasteboard_promise_test62
+   * @tc.desc      Paste record's getValidType function.
+   * @tc.type      Function
+   * @tc.require   API 14
+   */
+  it('pasteboard_promise_test62', 0, async function (done) {
+    const systemPasteboard = pasteboard.getSystemPasteboard();
+    await systemPasteboard.clearData();
+
+    let record = await initRecordData();
+    await systemPasteboard.setData(pasteboard.createData(record));
+
+    const outputData = await systemPasteboard.getData();
+    const recordCount = outputData.getRecordCount();
+    console.log('actual recordCount: ' + recordCount);
+    expect(recordCount).assertEqual(1);
+
+    const outRecord = outputData.getRecord(0);
+    let outTypes = outRecord.getValidTypes(allTypes);
+    console.log('actual outTypes1: ' + outTypes.toString());
+    expect(outTypes.toString()).assertEqual(allTypes.toString());
+
+    const partilyTypes = [pasteboard.MIMETYPE_TEXT_HTML, myType];
+    outTypes = outRecord.getValidTypes(partilyTypes);
+    console.log('actual outTypes2: ' + outTypes.toString());
+    expect(outTypes.toString()).assertEqual(partilyTypes.toString());
+
+    outTypes = outRecord.getValidTypes([]);
+    console.log('actual outTypes3: ' + outTypes.toString());
+    expect(outTypes.length).assertEqual(0);
+
+    await systemPasteboard.setData(pasteboard.createData({
+      'text/plain' : 'hello world',
+      'text/uri' : 'file://abc.def.png',
+    }));
+    const outRecord1 = (await systemPasteboard.getData()).getRecord(0);
+    outTypes = outRecord1.getValidTypes(allTypes);
+    console.log('actual outTypes4: ' + outTypes.toString());
+    expect(outTypes.toString()).assertEqual([pasteboard.MIMETYPE_TEXT_PLAIN, pasteboard.MIMETYPE_TEXT_URI].toString());
+
+    await systemPasteboard.clearData();
+    done();
+  });
+
+  async function copyPasteWithRecord(mimeType, value, systemPasteboard) {
+    let record = {};
+    record[mimeType] = value;
+    let data = pasteboard.createData(record);
+    await systemPasteboard.setData(data);
+
+    let outData = await systemPasteboard.getData();
+    if (outData.getRecordCount() !== 1) {
+      return '';
+    }
+    let pasteRecord = outData.getRecord(0);
+    let valieMimeType = pasteRecord.getValidTypes([mimeType]);
+    return await pasteRecord.getData(valieMimeType.pop());
+  }
+
+  async function buildPixelMap() {
+    let buffer = new ArrayBuffer(500);
+    let realSize = {height: 5, width: 100};
+    let opt = {
+      size: realSize,
+      pixelFormat: 3,
+      editable: true,
+      alphaType: 1,
+      scaleMode: 1,
+    };
+    return await image.createPixelMap(buffer, opt);
+  }
+
+  function string2ArrayBuffer(input) {
+     let arr = [];
+     for (let index = 0; index < input.length; index++) {
+       arr.push(input.charCodeAt(index));
+     }
+     let arrayBuffer = new Uint8Array(arr).buffer;
+     return arrayBuffer;
+  }
+
+  async function initRecordData(temp) {
+    const inputPlainText = 'Hello world.' + (temp ? temp : '');
+    const inputHtml = '<p>Hello world.' + (temp ? temp : '') + '</p>';
+    const inputUri = 'file://abc/def' + (temp ? temp : '') + '.png';
+    const inputWant = {
+      deviceId: '',
+      bundleName: 'test.bundle.name' + (temp ? temp : ''),
+      abilityName: 'test.ability,name' + (temp ? temp : ''),
+      moduleName: 'test.module.name' + (temp ? temp : ''),
+    };
+    const inputPixelMap = await buildPixelMap();
+    const inputArrayBuffer = string2ArrayBuffer('Hello world.' + (temp ? temp : ''));
+
+    let record = {};
+    record[pasteboard.MIMETYPE_TEXT_PLAIN] = inputPlainText;
+    record[pasteboard.MIMETYPE_TEXT_HTML] = inputHtml;
+    record[pasteboard.MIMETYPE_TEXT_URI] = inputUri;
+    record[pasteboard.MIMETYPE_TEXT_WANT] = inputWant;
+    record[pasteboard.MIMETYPE_PIXELMAP] = inputPixelMap;
+    record[myType] = inputArrayBuffer;
+
+    return record;
+  }
+
   /**
    * @tc.name      pasteboard_promise_test63
    * @tc.desc      html

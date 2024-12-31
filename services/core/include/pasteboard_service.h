@@ -306,7 +306,17 @@ private:
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
     ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
-    ConcurrentMap<uint32_t, ShareOption> globalShareOptions_;
+    enum GlobalShareOptionSource {
+        MDM = 0,
+        APP = 1,
+    };
+
+    struct GlobalShareOption {
+        GlobalShareOptionSource source;
+        ShareOption shareOption;
+    };
+
+    ConcurrentMap<uint32_t, GlobalShareOption> globalShareOptions_;
     PastedSwitch switch_;
 
     void AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
@@ -320,6 +330,7 @@ private:
     bool SubscribeKeyboardEvent();
     bool IsAllowSendData();
     void UpdateShareOption(PasteData &pasteData);
+    bool CheckMdmShareOption(PasteData &pasteData);
     void PasteboardEventSubscriber();
     void CommonEventSubscriber();
     bool IsBasicType(const std::string &mimeType);

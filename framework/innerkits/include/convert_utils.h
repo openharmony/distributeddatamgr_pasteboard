@@ -46,9 +46,10 @@ public:
     static std::vector<std::shared_ptr<PasteDataEntry>> Convert(
         const std::shared_ptr<std::map<std::string, UDMF::ValueType>>& entries);
     static std::shared_ptr<std::vector<std::pair<std::string, UDMF::ValueType>>> Convert(
-        const std::vector<std::shared_ptr<PasteDataEntry>>& entries);
+        const std::vector<std::shared_ptr<PasteDataEntry>>& entries, const std::shared_ptr<PasteDataRecord> &record);
 
-    static UDMF::ValueType Convert(const std::shared_ptr<PasteDataEntry>& entry);
+    static UDMF::ValueType Convert(const std::shared_ptr<PasteDataEntry>& entry,
+        const std::shared_ptr<PasteDataRecord> &record);
 
     static std::vector<std::string> Convert(const std::vector<std::string>& utdIds);
 

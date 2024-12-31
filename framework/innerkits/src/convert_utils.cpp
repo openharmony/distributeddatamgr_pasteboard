@@ -67,7 +67,7 @@ std::shared_ptr<UnifiedRecord> ConvertUtils::Convert(std::shared_ptr<PasteDataRe
         return nullptr;
     }
     std::shared_ptr<UnifiedRecord> udmfRecord = std::make_shared<UnifiedRecord>();
-    auto entries = Convert(record->GetEntries());
+    auto entries = Convert(record->GetEntries(), record);
     if (entries->empty()) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "entries is nullptr");
         auto udmfValue = record->GetUDMFValue();
@@ -127,11 +127,21 @@ std::vector<std::shared_ptr<PasteDataEntry>> ConvertUtils::Convert(
     return pbEntries;
 }
 
-UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& entry)
+UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& entry,
+    const std::shared_ptr<PasteDataRecord> &record)
 {
+    if (entry == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "entry is null, convert failed.");
+        return nullptr;
+    }
     auto utdId = entry->GetUtdId();
     auto value = entry->GetValue();
     if (std::holds_alternative<std::monostate>(value) || std::holds_alternative<std::shared_ptr<Object>>(value)) {
+        if (std::holds_alternative<std::shared_ptr<Object>>(value) && CommonUtils::IsFileUri(utdId) &&
+            record->GetUri() != nullptr) {
+            auto object = std::get<std::shared_ptr<Object>>(value);
+            object->value_[UDMF::FILE_URI_PARAM] = record->GetUri()->ToString();
+        }
         return value;
     }
     auto mimeType = entry->GetMimeType();
@@ -148,7 +158,9 @@ UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& ent
         }
     } else if (mimeType == MIMETYPE_TEXT_URI) {
         object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
-        if (std::holds_alternative<std::string>(value)) {
+        if (record->GetUri() != nullptr) {
+            object->value_[UDMF::FILE_URI_PARAM] = record->GetUri()->ToString();
+        } else if (std::holds_alternative<std::string>(value)) {
             object->value_[UDMF::FILE_URI_PARAM] = std::get<std::string>(value);
         }
     } else if (mimeType == MIMETYPE_PIXELMAP) {
@@ -157,7 +169,7 @@ UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& ent
             object->value_[UDMF::PIXEL_MAP] = std::get<std::shared_ptr<OHOS::Media::PixelMap>>(value);
         }
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "mimeType is want,udmf not surpport");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "mimeType is want, udmf not support");
     } else {
         return value;
     }
@@ -165,7 +177,7 @@ UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& ent
 }
 
 std::shared_ptr<std::vector<std::pair<std::string, UDMF::ValueType>>> ConvertUtils::Convert(
-    const std::vector<std::shared_ptr<PasteDataEntry>> &entries)
+    const std::vector<std::shared_ptr<PasteDataEntry>> &entries, const std::shared_ptr<PasteDataRecord> &record)
 {
     std::map<std::string, UDMF::ValueType> udmfEntryMap;
     std::vector<std::pair<std::string, UDMF::ValueType>> udmfEntries;
@@ -177,7 +189,7 @@ std::shared_ptr<std::vector<std::pair<std::string, UDMF::ValueType>>> ConvertUti
         if (udmfEntryMap.find(entry->GetUtdId()) == udmfEntryMap.end()) {
             entryUtdIds.emplace_back(entry->GetUtdId());
         }
-        udmfEntryMap.insert_or_assign(entry->GetUtdId(), Convert(entry));
+        udmfEntryMap.insert_or_assign(entry->GetUtdId(), Convert(entry, record));
     }
     for (auto const &utdId : entryUtdIds) {
         auto item = udmfEntryMap.find(utdId);

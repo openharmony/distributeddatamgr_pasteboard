@@ -12,9 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <memory>
 #include <thread>
 #include <uv.h>
 
+#include "entry_getter.h"
 #include "napi_common_want.h"
 #include "napi_data_utils.h"
 #include "pasteboard_common.h"
@@ -508,7 +510,13 @@ napi_value SystemPasteboardNapi::SetData(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
         int32_t ret = static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
         if (context->obj != nullptr) {
-            ret = PasteboardClient::GetInstance()->SetPasteData(*(context->obj));
+            std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters;
+            for (auto record : context->obj->AllRecords()) {
+                if (record != nullptr && record->GetEntryGetter() != nullptr) {
+                    entryGetters.emplace(record->GetRecordId(), record->GetEntryGetter());
+                }
+            }
+            ret = PasteboardClient::GetInstance()->SetPasteData(*(context->obj), nullptr, entryGetters);
             context->obj = nullptr;
         }
         if (ret == static_cast<int>(PasteboardError::E_OK)) {
@@ -674,14 +682,14 @@ napi_value SystemPasteboardNapi::SetAppShareOptions(napi_env env, napi_callback_
         "Parameter error. Incorrect parameter types.")) {
         return nullptr;
     }
-    if (!CheckExpression(env, shareOptions >= ShareOption::InApp && shareOptions <= ShareOption::CrossDevice,
+    auto result = PasteboardClient::GetInstance()->SetAppShareOptions(static_cast<ShareOption>(shareOptions));
+    if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR),
         JSErrorCode::INVALID_PARAMETERS, "Parameter error. Parameter verification failed.")) {
         return nullptr;
     }
-    auto result = PasteboardClient::GetInstance()->SetAppShareOptions(static_cast<ShareOption>(shareOptions));
     if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
-        JSErrorCode::NO_SYSTEM_PERMISSION,
-        "Permission verification failed. A non-system application calls a system API.")) {
+        JSErrorCode::NO_PERMISSION,
+        "Permission verification failed. A non-permission application calls a API.")) {
         return nullptr;
     }
     if (!CheckExpression(env, result != static_cast<int32_t>(PasteboardError::INVALID_OPERATION_ERROR),
@@ -695,8 +703,8 @@ napi_value SystemPasteboardNapi::RemoveAppShareOptions(napi_env env, napi_callba
 {
     auto result = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     if (CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
-        JSErrorCode::NO_SYSTEM_PERMISSION,
-        "Permission verification failed. A non-system application calls a system API.")) {
+        JSErrorCode::NO_PERMISSION,
+        "Permission verification failed. A non-permission application calls a API.")) {
         return nullptr;
     }
     return nullptr;

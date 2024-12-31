@@ -574,7 +574,21 @@ std::shared_ptr<MiscServices::PasteDataRecord> PasteDataNapi::ParseRecord(napi_e
             builder.SetCustomData(customData);
         }
     }
-    return builder.Build();
+    std::shared_ptr<PasteDataRecord> result = builder.Build();
+
+    PasteDataRecordNapi *record = nullptr;
+    napi_unwrap(env, recordNapi, reinterpret_cast<void **>(&record));
+    if (record != nullptr && record->value_->GetEntryGetter() != nullptr) {
+        result->SetEntryGetter(record->value_->GetEntryGetter());
+        result->SetDelayRecordFlag(true);
+    }
+    if (record != nullptr && !record->value_->GetEntries().empty()) {
+        for (const auto& pasteDataEntry : record->value_->GetEntries()) {
+            result->AddEntry(pasteDataEntry->GetUtdId(), pasteDataEntry);
+        }
+    }
+
+    return result;
 }
 
 void PasteDataNapi::AddRecord(napi_env env, napi_value argv, PasteDataNapi *obj)

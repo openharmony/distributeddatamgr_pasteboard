@@ -12,13 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "pasteboard_common.h"
-
 #include "napi_common_want.h"
 #include "paste_data_record.h"
+#include "pasteboard_common.h"
+
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
-#include "pixel_map_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -99,7 +98,7 @@ bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type. pattern/uint32 array expected.");
         return false;
     }
-    
+
     uint32_t len = 0;
     napi_status status = napi_get_array_length(env, in, &len);
     if (status != napi_ok || len == 0) {
@@ -212,20 +211,12 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
 {
     // 2: CreateRecord, CreateRecord and AddRecord has 2 args.
     if (!CheckExpression(env, argc >= ARGC_TYPE_SET2, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The number of arguments cannot be less than two.") ||
-        !CheckArgsType(env, argv[0], napi_string, "Parameter error. The type of mimeType must be string.")) {
+        "Parameter error. The number of arguments cannot be less than two.")) {
         return false;
     }
 
-    bool ret = GetValue(env, argv[0], mimeType);
+    bool ret = CheckArgsMimeType(env, argv[0], mimeType);
     if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
-        return false;
-    }
-    if (!CheckExpression(
-        env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
-        !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
-        "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
         return false;
     }
 
@@ -253,6 +244,215 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
             return false;
         }
     }
+    return true;
+}
+
+bool CheckArgsMimeType(napi_env env, napi_value in, std::string &mimeType)
+{
+    bool ret = CheckArgsType(env, in, napi_string, "Parameter error. The type of mimeType must be string.");
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Wrong argument type. String expected.");
+        return false;
+    }
+    ret = GetValue(env, in, mimeType);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetValue failed");
+        return false;
+    }
+    if (!CheckExpression(
+        env, mimeType != "", JSErrorCode::INVALID_PARAMETERS, "Parameter error. mimeType cannot be empty.") ||
+        !CheckExpression(env, mimeType.size() <= MIMETYPE_MAX_SIZE, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. The length of mimeType cannot be greater than 1024 bytes.")) {
+        return false;
+    }
+    return true;
+}
+
+bool CheckArgsArray(napi_env env, napi_value in, std::vector<std::string> &mimeTypes)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
+    int32_t errCode = static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS);
+    if (type != napi_object) {
+        napi_throw_error(env, std::to_string(errCode).c_str(), "Wrong argument type. Object expected.");
+        return false;
+    }
+
+    bool isArray = false;
+    NAPI_CALL_BASE(env, napi_is_array(env, in, &isArray), false);
+    if (!isArray) {
+        return false;
+    }
+
+    uint32_t length = 0;
+    NAPI_CALL_BASE(env, napi_get_array_length(env, in, &length), false);
+    napi_value element;
+    for (uint32_t i = 0; i < length; i++) {
+        NAPI_CALL_BASE(env, napi_get_element(env, in, i, &element), false);
+        std::string mimeType;
+        if (!GetValue(env, element, mimeType)) {
+            return false;
+        }
+        mimeTypes.emplace_back(mimeType);
+    }
+
+    return true;
+}
+
+bool CheckArgsFunc(napi_env env, napi_value in, napi_ref &provider)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
+    int32_t errCode = static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS);
+    if (type != napi_function) {
+        napi_throw_error(env, std::to_string(errCode).c_str(), "Wrong argument type. function expected.");
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_create_reference(env, in, 1, &provider), false);
+
+    return true;
+}
+
+bool CheckArgsVector(napi_env env, napi_value in,
+    std::shared_ptr<std::vector<std::pair<std::string, std::shared_ptr<EntryValue>>>> result)
+{
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &valueType), false);
+    if (!CheckExpression(env, valueType == napi_object, JSErrorCode::INVALID_PARAMETERS,
+        "Parameter error. When there is only one parameter, it must be a Record.")) {
+        return false;
+    }
+    
+    napi_value typeValueMap = nullptr;
+    NAPI_CALL_BASE(env, napi_get_property_names(env, in, &typeValueMap), false);
+    uint32_t length = 0;
+    NAPI_CALL_BASE(env, napi_get_array_length(env, typeValueMap, &length), false);
+
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "length = %{public}u", length);
+    for (uint32_t i = 0; i < length; i++) {
+        napi_value mimeTypeNapi = nullptr;
+        NAPI_CALL_BASE(env, napi_get_element(env, typeValueMap, i, &mimeTypeNapi), false);
+        std::string mimeType;
+        bool ret = CheckArgsMimeType(env, mimeTypeNapi, mimeType);
+        if (!ret) {
+            return false;
+        }
+        napi_value value = nullptr;
+        std::shared_ptr<EntryValue> entryValue = std::make_shared<EntryValue>();
+        NAPI_CALL_BASE(env, napi_get_property(env, in, mimeTypeNapi, &value), false);
+        if (!GetNativeValue(env, mimeType, value, *entryValue)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetNativeValue failed");
+            return false;
+        }
+        result->emplace_back(std::make_pair(mimeType, entryValue));
+    }
+    return true;
+}
+
+napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &mimeType,
+    std::shared_ptr<PasteDataEntry> value)
+{
+    if (value == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "failed to find dataEntry");
+        return napi_generic_failure;
+    }
+    if (mimeType == MIMETYPE_TEXT_URI) {
+        std::shared_ptr<Uri> uri = value->ConvertToUri();
+        if (uri == nullptr) {
+            return napi_generic_failure;
+        }
+        std::string str = uri->ToString();
+        return napi_create_string_utf8(env, str.c_str(), str.size(), result);
+    } else if (mimeType == MIMETYPE_TEXT_PLAIN) {
+        std::shared_ptr<std::string> str = value->ConvertToPlianText();
+        if (str == nullptr) {
+            return napi_generic_failure;
+        }
+        return napi_create_string_utf8(env, str->c_str(), str->size(), result);
+    } else if (mimeType == MIMETYPE_TEXT_HTML) {
+        std::shared_ptr<std::string> str = value->ConvertToHtml();
+        if (str == nullptr) {
+            return napi_generic_failure;
+        }
+        return napi_create_string_utf8(env, str->c_str(), str->size(), result);
+    } else if (mimeType == MIMETYPE_PIXELMAP) {
+        std::shared_ptr<Media::PixelMap> pixelMap = value->ConvertToPixelMap();
+        if (!CheckExpression(env, pixelMap != nullptr,
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. pixelMap get failed")) {
+            return napi_generic_failure;
+        }
+        *result = Media::PixelMapNapi::CreatePixelMap(env, pixelMap);
+        return napi_ok;
+    } else if (mimeType == MIMETYPE_TEXT_WANT) {
+        std::shared_ptr<AAFwk::Want> want = value->ConvertToWant();
+        if (!CheckExpression(env, want != nullptr,
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. want get failed")) {
+            return napi_generic_failure;
+        }
+        *result = AppExecFwk::WrapWant(env, *want);
+        return napi_ok;
+    } else {
+        std::shared_ptr<MineCustomData> customData = value->ConvertToCustomData();
+        if (customData == nullptr) {
+            return napi_generic_failure;
+        }
+        auto itemData = customData->GetItemData();
+        auto item = itemData.find(mimeType);
+        if (item == itemData.end()) {
+            return napi_generic_failure;
+        }
+        std::vector<uint8_t> dataArray = item->second;
+        void *data = nullptr;
+        size_t len = dataArray.size();
+        NAPI_CALL_BASE(env, napi_create_arraybuffer(env, len, &data, result), napi_generic_failure);
+        if (memcpy_s(data, len, reinterpret_cast<const void *>(dataArray.data()), len) != 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "memcpy_s failed");
+            return napi_generic_failure;
+        }
+        return napi_ok;
+    }
+}
+
+bool GetNativeValue(napi_env env, std::string type, napi_value valueNapi, EntryValue &value)
+{
+    bool isArrayBuffer = false;
+    NAPI_CALL_BASE(env, napi_is_arraybuffer(env, valueNapi, &isArrayBuffer), false);
+    if (isArrayBuffer) {
+        void *data = nullptr;
+        size_t dataLen = 0;
+        NAPI_CALL_BASE(env, napi_get_arraybuffer_info(env, valueNapi, &data, &dataLen), false);
+        value = std::vector<uint8_t>(reinterpret_cast<uint8_t *>(data), reinterpret_cast<uint8_t *>(data) + dataLen);
+        return true;
+    }
+
+    napi_status status;
+    napi_valuetype valueType = napi_undefined;
+    status = napi_typeof(env, valueNapi, &valueType);
+    NAPI_ASSERT_BASE(env, status == napi_ok,
+        "Parameter error: parameter value type must be ValueType", false);
+    if (valueType == napi_object) {
+        if (type == MIMETYPE_PIXELMAP) {
+            value = std::shared_ptr<OHOS::Media::PixelMap>(nullptr);
+        } else if (type == MIMETYPE_TEXT_WANT) {
+            value = std::shared_ptr<OHOS::AAFwk::Want>(nullptr);
+        } else {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Parameter error: error ValueType");
+            value = nullptr;
+        }
+    } else if (valueType == napi_string) {
+        value = std::string();
+    } else if (valueType == napi_number) {
+        value = double();
+    } else if (valueType == napi_boolean) {
+        value = bool();
+    } else if (valueType == napi_undefined) {
+        value = std::monostate();
+    } else if (valueType == napi_null) {
+        value = nullptr;
+    }
+    std::visit([&](auto &value) { status = NapiDataUtils::GetValue(env, valueNapi, value); }, value);
+    NAPI_ASSERT_BASE(env, status == napi_ok, "get unifiedRecord failed", false);
     return true;
 }
 } // namespace MiscServicesNapi
