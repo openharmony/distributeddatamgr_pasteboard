@@ -110,192 +110,179 @@ void PasteboardClientUdmfDelayTest::SetUnifiedData()
 
 void PasteboardClientUdmfDelayTest::SetTextUnifiedData()
 {
-    Text text;
+    auto text = std::make_shared<Text>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    text.SetDetails(details);
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<Text>(text);
+    text->SetDetails(details);
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(text);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetPlainTextUnifiedData()
 {
-    PlainText plainText;
+    auto plainText = std::make_shared<PlainText>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    plainText.SetDetails(details);
-    plainText.SetContent("content");
-    plainText.SetAbstract("abstract");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<PlainText>(plainText);
+    plainText->SetDetails(details);
+    plainText->SetContent("content");
+    plainText->SetAbstract("abstract");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(plainText);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetLinkUnifiedData()
 {
-    Link link;
+    auto link = std::make_shared<Link>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    link.SetDetails(details);
-    link.SetUrl("url");
-    link.SetDescription("description");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<Link>(link);
+    link->SetDetails(details);
+    link->SetUrl("url");
+    link->SetDescription("description");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(link);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetHtmlUnifiedData()
 {
-    Html html;
+    auto html = std::make_shared<Html>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    html.SetDetails(details);
-    html.SetHtmlContent("htmlContent");
-    html.SetPlainContent("plainContent");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<Html>(html);
+    html->SetDetails(details);
+    html->SetHtmlContent("htmlContent");
+    html->SetPlainContent("plainContent");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(html);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetFileUnifiedData()
 {
-    File file;
-    file.SetUri("uri");
+    auto file = std::make_shared<File>();
+    file->SetUri("uri");
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    file.SetDetails(details);
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<File>(file);
+    file->SetDetails(details);
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(file);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetImageUnifiedData()
 {
-    Image image;
+    auto image = std::make_shared<Image>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    image.SetDetails(details);
-    image.SetUri("uri");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<Image>(image);
+    image->SetDetails(details);
+    image->SetUri("uri");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(image);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetVideoUnifiedData()
 {
-    Video video;
+    auto video = std::make_shared<Video>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    video.SetDetails(details);
-    video.SetUri("uri");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<Video>(video);
+    video->SetDetails(details);
+    video->SetUri("uri");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(video);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetAudioUnifiedData()
 {
-    Audio audio;
+    auto audio = std::make_shared<Audio>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    audio.SetDetails(details);
-    audio.SetUri("uri");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<Audio>(audio);
+    audio->SetDetails(details);
+    audio->SetUri("uri");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(audio);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetFolderUnifiedData()
 {
-    Folder folder;
+    auto folder = std::make_shared<Folder>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    folder.SetDetails(details);
-    folder.SetUri("uri");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<Folder>(folder);
+    folder->SetDetails(details);
+    folder->SetUri("uri");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(folder);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetSysRecordUnifiedData()
 {
-    SystemDefinedRecord systemDefinedRecord;
+    auto systemDefinedRecord = std::make_shared<SystemDefinedRecord>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    systemDefinedRecord.SetDetails(details);
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<SystemDefinedRecord>(systemDefinedRecord);
+    systemDefinedRecord->SetDetails(details);
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(systemDefinedRecord);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetSysFormUnifiedData()
 {
-    SystemDefinedForm systemDefinedForm;
+    auto systemDefinedForm = std::make_shared<SystemDefinedForm>();
     UDDetails details;
     int32_t formId = 1;
     details.insert({ "udmf_key", "udmf_value" });
-    systemDefinedForm.SetDetails(details);
-    systemDefinedForm.SetFormId(formId);
-    systemDefinedForm.SetFormName("formName");
-    systemDefinedForm.SetModule("module");
-    systemDefinedForm.SetAbilityName("abilityName");
-    systemDefinedForm.SetBundleName("bundleName");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<SystemDefinedForm>(systemDefinedForm);
+    systemDefinedForm->SetDetails(details);
+    systemDefinedForm->SetFormId(formId);
+    systemDefinedForm->SetFormName("formName");
+    systemDefinedForm->SetModule("module");
+    systemDefinedForm->SetAbilityName("abilityName");
+    systemDefinedForm->SetBundleName("bundleName");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(systemDefinedForm);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetSysAppItemUnifiedData()
 {
-    SystemDefinedAppItem systemDefinedAppItem;
+    auto systemDefinedAppItem = std::make_shared<SystemDefinedAppItem>();
     UDDetails details;
     details.insert({ "udmf_key", "udmf_value" });
-    systemDefinedAppItem.SetDetails(details);
-    systemDefinedAppItem.SetAppId("appId");
-    systemDefinedAppItem.SetAppName("appName");
-    systemDefinedAppItem.SetAppIconId("appIconId");
-    systemDefinedAppItem.SetAppLabelId("appLabelId");
-    systemDefinedAppItem.SetBundleName("bundleName");
-    systemDefinedAppItem.SetAbilityName("abilityName");
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<SystemDefinedAppItem>(systemDefinedAppItem);
+    systemDefinedAppItem->SetDetails(details);
+    systemDefinedAppItem->SetAppId("appId");
+    systemDefinedAppItem->SetAppName("appName");
+    systemDefinedAppItem->SetAppIconId("appIconId");
+    systemDefinedAppItem->SetAppLabelId("appLabelId");
+    systemDefinedAppItem->SetBundleName("bundleName");
+    systemDefinedAppItem->SetAbilityName("abilityName");
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(systemDefinedAppItem);
     unifiedData_ = data;
     SetUnifiedData();
 }
 
 void PasteboardClientUdmfDelayTest::SetAppRecordUnifiedData()
 {
-    ApplicationDefinedRecord applicationDefinedRecord;
-    applicationDefinedRecord.SetApplicationDefinedType("applicationDefinedType");
+    auto applicationDefinedRecord = std::make_shared<ApplicationDefinedRecord>();
+    applicationDefinedRecord->SetApplicationDefinedType("applicationDefinedType");
     std::vector<uint8_t> rawData = { 1, 2, 3, 4, 5 };
-    applicationDefinedRecord.SetRawData(rawData);
-    std::shared_ptr<UnifiedRecord> record = std::make_shared<ApplicationDefinedRecord>(applicationDefinedRecord);
+    applicationDefinedRecord->SetRawData(rawData);
     UnifiedData data;
-    data.AddRecord(record);
+    data.AddRecord(applicationDefinedRecord);
     unifiedData_ = data;
     SetUnifiedData();
 }
