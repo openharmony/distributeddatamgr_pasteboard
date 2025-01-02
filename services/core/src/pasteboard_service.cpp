@@ -2558,6 +2558,13 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
         int32_t userId = data.GetCode();
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id switched: %{public}d", userId);
         PasteboardService::currentUserId = userId;
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_STOPPING) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        int32_t userId = data.GetCode();
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id is stopping: %{public}d", userId);
+        if (pasteboardService_ != nullptr) {
+            pasteboardService_->Clear();
+        }
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED) {
         std::lock_guard<std::mutex> lock(mutex_);
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screen is locked");
@@ -2608,10 +2615,11 @@ void PasteboardService::CommonEventSubscriber()
     }
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_STOPPING);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_LOCKED);
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
-    commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo);
+    commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo, this);
     EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
 }
 

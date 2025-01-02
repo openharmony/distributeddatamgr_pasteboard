@@ -18,19 +18,22 @@
 
 #include "common_event_subscriber.h"
 #include "common_event_support.h"
+#include "i_pasteboard_service.h"
 
 namespace OHOS::MiscServices {
 class PasteBoardCommonEventSubscriber : public EventFwk::CommonEventSubscriber {
 public:
-    PasteBoardCommonEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo)
-        : EventFwk::CommonEventSubscriber(subscribeInfo)
+    PasteBoardCommonEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
+        sptr<IPasteboardService> service) : EventFwk::CommonEventSubscriber(subscribeInfo)
     {
+        pasteboardService_ = service;
     }
     ~PasteBoardCommonEventSubscriber() = default;
     void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
 
 private:
     std::mutex mutex_;
+    sptr<IPasteboardService> pasteboardService_ = nullptr;
 };
 } // namespace OHOS::MiscServices
 #endif // PASTEBOARD_COMMON_EVENT_SUBSCRIBER_H
