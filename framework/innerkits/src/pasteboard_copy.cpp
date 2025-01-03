@@ -77,7 +77,6 @@ static uint64_t g_totalSize = 0;
 constexpr std::chrono::milliseconds NOTIFY_PROGRESS_DELAY(100);
 std::recursive_mutex PasteBoardCopyFile::mutex_;
 std::map<CopyInfo, std::shared_ptr<CopyCallback>> PasteBoardCopyFile::cbMap_;
-std::map<int32_t, std::pair<std::string, bool>> PasteBoardCopyFile::uriMap_;
 ProgressListener PasteBoardCopyFile::progressListener_;
 PasteBoardCopyFile *PasteBoardCopyFile::instance_ = nullptr;
 
@@ -383,7 +382,7 @@ int32_t PasteBoardCopyFile::CopyFile(const std::string &src, const std::string &
     std::error_code errCode;
     if (std::filesystem::exists(realDest, errCode) && errCode.value() == ERRNO_NOERR && copyInfo->option == FILE_SKIP) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File has existed. dest = %{public}s", realDest.c_str());
-        uriMap_[copyInfo->index].second = true;
+        copyInfo->isExist = true;
         return E_EXIST;
     }
     int32_t ret = OpenSrcFile(src, copyInfo, srcFd);
@@ -784,7 +783,7 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
     if (IsRemoteUri(copyInfo->srcUri) && std::filesystem::exists(copyInfo->destPath, errCode)
         && errCode.value() == ERRNO_NOERR && dataParams->fileConflictOption == FILE_SKIP) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File has existed.");
-        uriMap_[copyInfo->index].second = true;
+        copyInfo->isExist = true;
         return E_EXIST;
     }
     FileUri realFileUri(realSrc);
@@ -865,15 +864,15 @@ bool PasteBoardCopyFile::IsRemoteUri(const std::string &uri)
     return uri.find(NETWORK_PARA) != uri.npos;
 }
 
-void PasteBoardCopyFile::GetTotalSize(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
+void PasteBoardCopyFile::GetTotalSize(std::map<int32_t, std::string> uriMap, std::shared_ptr<GetDataParams> dataParams)
 {
     std::string srcUri;
     std::string destUri = dataParams->destUri;
     std::string srcPath;
     std::string destPath;
     bool isFile;
-    for (const auto &it : uriMap_) {
-        srcUri = it.second.first;
+    for (const auto &it : uriMap) {
+        srcUri = it.second;
         FileUri srcFileUri(srcUri);
         srcPath = srcFileUri.GetRealPath();
         srcPath = GetRealPath(srcPath);
@@ -903,6 +902,7 @@ int32_t PasteBoardCopyFile::CheckCopyParam(PasteData &pasteData, std::shared_ptr
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    std::map<int32_t, std::string> uriMap;
     for (int i = 0; i < g_recordSize; i++) {
         record = pasteData.GetRecordAt(i);
         if (record == nullptr) {
@@ -914,9 +914,9 @@ int32_t PasteBoardCopyFile::CheckCopyParam(PasteData &pasteData, std::shared_ptr
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Record has no uri");
             continue;
         }
-        uriMap_.insert({ i, { uri->ToString(), false }});
+        uriMap.insert({ i, uri->ToString() });
     }
-    GetTotalSize(pasteData, dataParams);
+    GetTotalSize(uriMap, dataParams);
     if (g_totalSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid total size");
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
@@ -926,7 +926,6 @@ int32_t PasteBoardCopyFile::CheckCopyParam(PasteData &pasteData, std::shared_ptr
 
 void PasteBoardCopyFile::ProgressInit(void)
 {
-    uriMap_.erase(uriMap_.begin(), uriMap_.end());
     g_recordSize = 0;
     g_progressSize = 0;
     g_totalSize = 0;
@@ -942,9 +941,20 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
         return ret;
     }
     progressListener_ = dataParams->listener;
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     for (int i = 0; i < g_recordSize; i++) {
+        record = pasteData.GetRecordAt(i);
+        if (record == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Record is nullptr");
+            return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+        }
+        std::shared_ptr<OHOS::Uri> uri = record->GetUri();
+        if (uri == nullptr) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Record has no uri");
+            continue;
+        }
         std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
-        std::string srcUri = uriMap_[i].first;
+        std::string srcUri = uri->ToString();
         if (InitCopyInfo(srcUri, dataParams, copyInfo, i) == E_EXIST) {
             pasteData.RemoveRecordAt(i);
             continue;
@@ -966,7 +976,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
         copyInfo->run = false;
         WaitNotifyFinished(callback);
         CopyComplete(copyInfo, callback);
-        if (uriMap_[i].second == true) {
+        if (copyInfo->isExist == true) {
             pasteData.RemoveRecordAt(i);
         }
         UnregisterListener(copyInfo);

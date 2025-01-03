@@ -96,6 +96,10 @@ int32_t MiscServices::TransListener::CopyFileFromSoftBus(const std::string &srcU
     std::shared_ptr<GetDataParams> dataParam)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyFileFromSoftBus begin.");
+    if (srcUri.empty() || srcUri.size() <= 0 || srcUri.find(NETWORK_PARA) == std::string::npos) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid srcUri.");
+        return ENOMEM;
+    }
     progressListener_ = dataParam->listener;
     std::string currentId = "CopyFile_" + std::to_string(getpid()) + "_" + std::to_string(getSequenceId_);
     ++getSequenceId_;
