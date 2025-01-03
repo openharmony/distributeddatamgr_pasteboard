@@ -15,7 +15,9 @@
 
 #include "clip/clip_plugin.h"
 #include "default_clip.h"
+#include "pasteboard_error.h"
 #include "pasteboard_event_dfx.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 std::map<std::string, ClipPlugin::Factory *> ClipPlugin::factories_;
@@ -23,6 +25,7 @@ DefaultClip g_defaultClip;
 bool ClipPlugin::RegCreator(const std::string &name, Factory *factory)
 {
     if (factory == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "factory is null, name=%{public}s", name.c_str());
         return false;
     }
     auto it = factories_.find(name);
@@ -97,33 +100,51 @@ void ClipPlugin::RegisterDelayCallback(const DelayCallback &callback)
 
 bool ClipPlugin::GlobalEvent::Marshal(Serializable::json &node) const
 {
-    bool ret = true;
-    ret = ret && SetValue(node, version, GET_NAME(version));
-    ret = ret && SetValue(node, frameNum, GET_NAME(frameNum));
-    ret = ret && SetValue(node, user, GET_NAME(user));
-    ret = ret && SetValue(node, seqId, GET_NAME(seqId));
-    ret = ret && SetValue(node, expiration, GET_NAME(expiration));
-    ret = ret && SetValue(node, status, GET_NAME(status));
-    ret = ret && SetValue(node, deviceId, GET_NAME(deviceId));
-    ret = ret && SetValue(node, account, GET_NAME(account));
-    ret = ret && SetValue(node, dataType, GET_NAME(dataType));
-    ret = ret && SetValue(node, syncTime, GET_NAME(syncTime));
-    return ret;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, version, GET_NAME(version)),
+        false, PASTEBOARD_MODULE_SERVICE, "Set version fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, frameNum, GET_NAME(frameNum)),
+        false, PASTEBOARD_MODULE_SERVICE, "Set frameNum fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, user, GET_NAME(user)),
+        false, PASTEBOARD_MODULE_SERVICE, "Set user fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, seqId, GET_NAME(seqId)),
+        false,  PASTEBOARD_MODULE_SERVICE, "Set seqId fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, expiration, GET_NAME(expiration)),
+        false,  PASTEBOARD_MODULE_SERVICE, "Set expiration fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, status, GET_NAME(status)),
+        false,  PASTEBOARD_MODULE_SERVICE, "Set status fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, deviceId, GET_NAME(deviceId)),
+        false,  PASTEBOARD_MODULE_SERVICE, "Set deviceId fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, account, GET_NAME(account)),
+        false,  PASTEBOARD_MODULE_SERVICE, "Set account fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, dataType, GET_NAME(dataType)),
+        false,  PASTEBOARD_MODULE_SERVICE, "Set dataType fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, syncTime, GET_NAME(syncTime)),
+        false,  PASTEBOARD_MODULE_SERVICE, "Set syncTime fail");
+    return true;
 }
 
 bool ClipPlugin::GlobalEvent::Unmarshal(const Serializable::json &node)
 {
-    bool ret = true;
-    ret = ret && GetValue(node, GET_NAME(version), version);
-    ret = ret && GetValue(node, GET_NAME(frameNum), frameNum);
-    ret = ret && GetValue(node, GET_NAME(user), user);
-    ret = ret && GetValue(node, GET_NAME(seqId), seqId);
-    ret = ret && GetValue(node, GET_NAME(expiration), expiration);
-    ret = ret && GetValue(node, GET_NAME(status), status);
-    ret = ret && GetValue(node, GET_NAME(deviceId), deviceId);
-    ret = ret && GetValue(node, GET_NAME(account), account);
-    ret = ret && GetValue(node, GET_NAME(dataType), dataType);
-    ret = ret && GetValue(node, GET_NAME(syncTime), syncTime);
-    return ret;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(version), version),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get version fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(frameNum), frameNum),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get frameNum fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(user), user),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get user fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(seqId), seqId),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get seqId fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(expiration), expiration),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get expiration fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(status), status),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get status fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(deviceId), deviceId),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get deviceId fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(account), account),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get account fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(dataType), dataType),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get dataType fail");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(syncTime), syncTime),
+        false,  PASTEBOARD_MODULE_SERVICE, "Get syncTime fail");
+    return true;
 }
 } // namespace OHOS::MiscServices
