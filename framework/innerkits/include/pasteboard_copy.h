@@ -102,6 +102,7 @@ struct CopyInfo {
     bool isFile = false;
     bool run = true;
     bool hasListener = false;
+    bool isExist = false;
     bool operator==(const CopyInfo &infos) const
     {
         return (srcUri == infos.srcUri && destUri == infos.destUri);
@@ -158,7 +159,7 @@ private:
     static void WaitNotifyFinished(std::shared_ptr<CopyCallback> callback);
     static void CopyComplete(std::shared_ptr<CopyInfo> infos, std::shared_ptr<CopyCallback> callback);
     static bool IsRemoteUri(const std::string &uri);
-    static void GetTotalSize(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
+    static void GetTotalSize(std::map<int32_t, std::string> uriMap, std::shared_ptr<GetDataParams> dataParams);
     static int32_t CheckCopyParam(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
     static std::string GetModeFromFlags(unsigned int flags);
     static int32_t OpenSrcFile(const std::string &srcPath, std::shared_ptr<CopyInfo> copyInfo, int32_t &srcFd);
@@ -173,7 +174,6 @@ private:
     
     static std::recursive_mutex mutex_;
     static std::map<CopyInfo, std::shared_ptr<CopyCallback>> cbMap_;
-    static std::map<int32_t, std::pair<std::string, bool>> uriMap_;
     static ProgressListener progressListener_;
     static PasteBoardCopyFile *instance_;
 };

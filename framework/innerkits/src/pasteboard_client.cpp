@@ -495,7 +495,28 @@ int32_t PasteboardClient::ProgressAfterTwentyPercent(PasteData &pasteData, std::
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     int32_t ret = 0;
-    if (pasteData.GetPrimaryUri() != nullptr) {
+    int32_t recordSize = (int32_t)pasteData.GetRecordCount();
+    bool hasUri = false;
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    if (recordSize <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid records size");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    for (int i = 0; i < recordSize; i++) {
+        record = pasteData.GetRecordAt(i);
+        if (record == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Record is nullptr");
+            return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+        }
+        std::shared_ptr<OHOS::Uri> uri = record->GetUri();
+        if (uri == nullptr) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Record has no uri");
+            continue;
+        }
+        hasUri = true;
+        break;
+    }
+    if (hasUri) {
         ret = PasteBoardCopyFile::GetInstance().CopyPasteData(pasteData, params);
     } else {
         ret = SetProgressWithoutFile(progressKey, params);
