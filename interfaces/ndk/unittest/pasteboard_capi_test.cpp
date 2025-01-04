@@ -1151,8 +1151,8 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress001, TestSize.Leve
     g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
     g_params->destUri = (char *)uri;
     g_params->destUriLen = strlen(uri);
-    g_params->fileConflictOption = SKIP;
-    g_params->progressIndicator = DEFAULI;
+    g_params->fileConflictOption = OH_PASTEBOARD_SKIP;
+    g_params->progressIndicator = OH_PASTEBOARD_NONE;
     g_params->progressListener.callback = Pasteboard_ProgressNotify;
     int status = -1;
     OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);

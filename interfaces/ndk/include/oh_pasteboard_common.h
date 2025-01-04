@@ -30,9 +30,9 @@ const std::map<PasteboardError, PASTEBOARD_ErrCode> errCodeMap = {
     { PasteboardError::PERMISSION_VERIFICATION_ERROR, ERR_PERMISSION_ERROR },
     { PasteboardError::INVALID_PARAM_ERROR, ERR_INVALID_PARAMETER },
     { PasteboardError::TASK_PROCESSING, ERR_BUSY },
-    { PasteboardError::COPY_FILE_ERROR, ERR_COPY_FILE_ERROR },
-    { PasteboardError::PROGRESS_START_ERROR, ERR_PROGRESS_START_ERROR },
-    { PasteboardError::PROGRESS_ABNORMAL, ERR_PROGRESS_ABNORMAL },
+    { PasteboardError::COPY_FILE_ERROR, OH_PASTEBOARD_COPY_FILE_ERROR },
+    { PasteboardError::PROGRESS_START_ERROR, OH_PASTEBOARD_PROGRESS_START_ERROR },
+    { PasteboardError::PROGRESS_ABNORMAL, OH_PASTEBOARD_PROGRESS_ABNORMAL },
 };
 
 class PasteboardObserverCapiImpl;
