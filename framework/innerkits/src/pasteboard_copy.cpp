@@ -185,7 +185,7 @@ int32_t PasteBoardCopyFile::SendFileCore(std::shared_ptr<MiscServices::FDGuard> 
             "remaining file size %{public}" PRIu64, size);
         return EIO;
     }
-    return ERRNO_NOERR;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 bool PasteBoardCopyFile::IsDirectory(const std::string &path)
@@ -303,7 +303,7 @@ int32_t PasteBoardCopyFile::RecurCopyDir(const std::string &srcPath, const std::
             return ret;
         }
     }
-    return ERRNO_NOERR;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteBoardCopyFile::CopySubDir(const std::string &srcPath, const std::string &destPath,
@@ -933,7 +933,7 @@ void PasteBoardCopyFile::ProgressInit(void)
 
 int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
-    int32_t ret;
+    int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
     progressListener_ = dataParams->listener;
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     for (int i = 0; i < g_recordSize; i++) {
@@ -964,7 +964,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
             ret = TransListener::CopyFileFromSoftBus(copyInfo->srcUri,
                 copyInfo->destUri, copyInfo, callback, dataParams);
         } else {
-            ExecLocal(copyInfo, callback);
+            ret = ExecLocal(copyInfo, callback);
         }
         CloseNotifyFd(copyInfo, callback);
         copyInfo->run = false;
@@ -981,6 +981,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
 int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
     ProgressInit();
+    int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
     int32_t ret = CheckCopyParam(pasteData, dataParams);
     if (ret != ERRNO_NOERR) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
@@ -991,13 +992,13 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "copy file failed, ret=%{public}d", ret);
         ProgressInit();
-        return static_cast<int32_t>(PasteboardError::COPY_FILE_ERROR);
+        ret = static_cast<int32_t>(PasteboardError::COPY_FILE_ERROR);
     }
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = PERCENTAGE;
     OnProgressNotify(proInfo);
     ProgressInit();
-    return static_cast<int32_t>(PasteboardError::E_OK);
+    return ret;
 }
 } // namespace MiscServices
 } // namespace OHOS
