@@ -982,7 +982,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
 {
     ProgressInit();
     int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
-    int32_t ret = CheckCopyParam(pasteData, dataParams);
+    ret = CheckCopyParam(pasteData, dataParams);
     if (ret != ERRNO_NOERR) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
         ProgressInit();
