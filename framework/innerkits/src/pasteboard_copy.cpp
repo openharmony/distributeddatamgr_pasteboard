@@ -185,7 +185,7 @@ int32_t PasteBoardCopyFile::SendFileCore(std::shared_ptr<MiscServices::FDGuard> 
             "remaining file size %{public}" PRIu64, size);
         return EIO;
     }
-    return static_cast<int32_t>(PasteboardError::E_OK);
+    return ERRNO_NOERR;
 }
 
 bool PasteBoardCopyFile::IsDirectory(const std::string &path)
@@ -303,7 +303,7 @@ int32_t PasteBoardCopyFile::RecurCopyDir(const std::string &srcPath, const std::
             return ret;
         }
     }
-    return static_cast<int32_t>(PasteboardError::E_OK);
+    return ERRNO_NOERR;
 }
 
 int32_t PasteBoardCopyFile::CopySubDir(const std::string &srcPath, const std::string &destPath,
@@ -921,7 +921,7 @@ int32_t PasteBoardCopyFile::CheckCopyParam(PasteData &pasteData, std::shared_ptr
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid total size");
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
-    return ERRNO_NOERR;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 void PasteBoardCopyFile::ProgressInit(void)
@@ -975,15 +975,17 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         }
         UnregisterListener(copyInfo);
     }
+    if (ret == ERRNO_NOERR) {
+        ret = static_cast<int32_t>(PasteboardError::E_OK);
+    }
     return ret;
 }
 
 int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
     ProgressInit();
-    int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
-    ret = CheckCopyParam(pasteData, dataParams);
-    if (ret != ERRNO_NOERR) {
+    int32_t ret = CheckCopyParam(pasteData, dataParams);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
         ProgressInit();
         return ret;
@@ -991,7 +993,6 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     ret = CopyFileData(pasteData, dataParams);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "copy file failed, ret=%{public}d", ret);
-        ProgressInit();
         ret = static_cast<int32_t>(PasteboardError::COPY_FILE_ERROR);
     }
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
