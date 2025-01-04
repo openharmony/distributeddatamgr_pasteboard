@@ -171,7 +171,8 @@ private:
     static void Deleter(struct NameList *arg);
     static void OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo);
     static void ProgressInit(void);
-    
+    static int32_t CopyFileData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
+
     static std::recursive_mutex mutex_;
     static std::map<CopyInfo, std::shared_ptr<CopyCallback>> cbMap_;
     static ProgressListener progressListener_;

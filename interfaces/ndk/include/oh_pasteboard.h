@@ -72,40 +72,33 @@ typedef enum Pasteboard_NotifyType {
 /**
  * @brief Enumerates the types of file confilct options when getting data from the Pastedboard.
  *
- * @since 14
+ * @since 15
  */
 typedef enum Pasteboard_FileConflictOption {
     /**
-     * @brief overwrite when destUir has file with same name.
+     * @brief Overwrite when destUir has file with same name.
      */
-    OVERWRITE = 0,
-
+    OH_PASTEBOARD_OVERWRITE = 0,
     /**
-     * @brief skip when destUir has file with same name.
+     * @brief Skip when destUir has file with same name.
      */
-    SKIP = 1,
-
-    /**
-     * @brief rename when destUir has file with same name.
-     */
-    RENAME = 2
+    OH_PASTEBOARD_SKIP = 1
 } Pasteboard_FileConflictOption;
 
 /**
  * @brief Enumerates the types of progress indicator when getting data from the Pastedboard.
  *
- * @since 14
+ * @since 15
  */
 typedef enum Pasteboard_ProgressIndicator {
     /**
      * @brief Getting data without system default progress indicator.
      */
-    NONE = 0,
-
+    OH_PASTEBOARD_NONE = 0,
     /**
      * @brief Getting data with system default progress indicator.
      */
-    DEFAULI = 1
+    OH_PASTEBOARD_DEFAULT = 1
 } Pasteboard_ProgressIndicator;
 
 /**

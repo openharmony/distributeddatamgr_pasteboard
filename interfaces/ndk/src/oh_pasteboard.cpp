@@ -265,7 +265,9 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
     }
     auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
     auto getDataParams = std::make_shared<OHOS::MiscServices::GetDataParams>();
-    getDataParams->destUri = params->destUri;
+    if (params->destUri == nullptr) {
+        getDataParams->destUri = params->destUri;
+    }
     g_listener = params->progressListener;
     getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOption;
     getDataParams->progressIndicator = (ProgressIndicator)params->progressIndicator;
@@ -284,7 +286,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
         if (iter != errCodeMap.end()) {
             *status = iter->second;
         } else {
-            *status = ERR_GET_DATA_FAILED;
+            *status = OH_PASTEBOARD_GET_DATA_FAILED;
         }
         return nullptr;
     }

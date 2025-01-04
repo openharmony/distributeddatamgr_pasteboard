@@ -931,15 +931,9 @@ void PasteBoardCopyFile::ProgressInit(void)
     g_totalSize = 0;
 }
 
-int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
+int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
-    ProgressInit();
-    int32_t ret = CheckCopyParam(pasteData, dataParams);
-    if (ret != ERRNO_NOERR) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
-        ProgressInit();
-        return ret;
-    }
+    int32_t ret;
     progressListener_ = dataParams->listener;
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     for (int i = 0; i < g_recordSize; i++) {
@@ -980,6 +974,24 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
             pasteData.RemoveRecordAt(i);
         }
         UnregisterListener(copyInfo);
+    }
+    return ret;
+}
+
+int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
+{
+    ProgressInit();
+    int32_t ret = CheckCopyParam(pasteData, dataParams);
+    if (ret != ERRNO_NOERR) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
+        ProgressInit();
+        return ret;
+    }
+    ret = CopyFileData(pasteData, dataParams);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "copy file failed, ret=%{public}d", ret);
+        ProgressInit();
+        return static_cast<int32_t>(PasteboardError::COPY_FILE_ERROR);
     }
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = PERCENTAGE;
