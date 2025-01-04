@@ -69,11 +69,21 @@ export enum FontSizeScale {
 export enum ProgressPromptText {
   PromptText_PasteBoard_Remote = 'prompttext_pasteboard_remote',
   PromptText_PasteBoard_Local = 'prompttext_pasteboard_local',
+  PromptText_Udmf_Import = 'prompttext_udmf_import',
+  PromptText_Udmf_Move = 'prompttext_udmf_move',
+  PromptText_Udmf_Copy = 'prompttext_udmf_copy',
+  PromptText_Udmf_Download = 'prompttext_udmf_download',
+  PromptText_Udmf_Format = 'prompttext_udmf_format',
 }
 
 export enum ProgressErrorPromptText {
   PromptText_PasteBoard_Remote = 'prompttext_pasteboard_error',
   PromptText_PasteBoard_Local = 'prompttext_pasteboard_error',
+  PromptText_Udmf_Import = 'prompttext_udmf_import_error',
+  PromptText_Udmf_Move = 'prompttext_udmf_move_error',
+  PromptText_Udmf_Copy = 'prompttext_udmf_copy_error',
+  PromptText_Udmf_Download = 'prompttext_udmf_download_error',
+  PromptText_Udmf_Format = 'prompttext_udmf_format_error',
 }
 
 export enum SignalKey {
