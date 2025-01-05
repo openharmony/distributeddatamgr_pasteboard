@@ -222,6 +222,14 @@ public:
         std::shared_ptr<UDMF::EntryGetter> entryGetter);
 
     /**
+     * GetChangeCount
+     * @descrition get clip changed count from the pasteboard.
+     * @param dataId the changeCount of the PasteData.
+     * @return int32_t.
+     */
+    int32_t GetChangeCount(uint32_t &changeCount);
+   
+    /**
  * GetRecordValueByType
  * @descrition get entry value from the pasteboard.
  * @param dataId the dataId of the PasteData.

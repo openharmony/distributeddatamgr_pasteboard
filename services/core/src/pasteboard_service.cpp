@@ -332,6 +332,30 @@ void PasteboardService::Clear()
     CleanDistributedData(userId);
 }
 
+int32_t PasteboardService::GetChangeCount(uint32_t &changeCount)
+{
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = GetAppInfo(tokenId);
+    changeCount = 0;
+    clipChangeCount_.ComputeIfPresent(appInfo.userId, [&changeCount](auto, auto &value) {
+        changeCount = value;
+        PASTEBOARD_HILOGI(
+            PASTEBOARD_MODULE_SERVICE, "Find changeCount succeed, changeCount is %{public}u", changeCount);
+        return true;
+    });
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardService::IncreaseChangeCount(int32_t userId)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "IncreaseChangeCount start!");
+    clipChangeCount_.Compute(userId, [](auto userId, uint32_t &changeCount) {
+        changeCount = (changeCount == UINT32_MAX) ? 0 : changeCount + 1;
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "userId=%{public}d, changeCount=%{public}u", userId, changeCount);
+        return true;
+    });
+}
+
 int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -800,6 +824,7 @@ int32_t PasteboardService::GetRemotePasteData(int32_t userId, const Event &event
             result.first->SetRemote(true);
             if (distEvt == event) {
                 clips_.InsertOrAssign(userId, result.first);
+                IncreaseChangeCount(userId);
                 auto curTime =
                     static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
                 copyTime_.InsertOrAssign(userId, curTime);
@@ -1257,8 +1282,8 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData, const sptr<IPasteb
     return SavePasteData(data, delayGetter, entryGetter);
 }
 
-int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter,
-    sptr<IPasteboardEntryGetter> entryGetter)
+int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData,
+    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -1294,11 +1319,11 @@ int32_t PasteboardService::SaveData(std::shared_ptr<PasteData> &pasteData, sptr<
     SetWebViewPasteData(*pasteData, appInfo.bundleName);
     CheckAppUriPermission(*pasteData);
     clips_.InsertOrAssign(appInfo.userId, pasteData);
+    IncreaseChangeCount(appInfo.userId);
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData->IsDelayData()),
         SET_DATA_APP, appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
     HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "curTime = %{public}" PRIu64, curTime);
     copyTime_.InsertOrAssign(appInfo.userId, curTime);
     if (!(pasteData->IsDelayData())) {
         SetDistributedData(appInfo.userId, *pasteData);

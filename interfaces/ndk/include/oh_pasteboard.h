@@ -392,6 +392,16 @@ char **OH_Pasteboard_GetMimeTypes(OH_Pasteboard *pasteboard, unsigned int *count
  */
 OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pasteboard_GetDataParams *params,
     int *status);
+
+/**
+ * @brief Obtains change times of Pasteboard data.
+ *
+ * @param pasteboard Pointer to the {@link OH_Pasteboard} instance.
+ * @return Returns the number of change times of Pasteboard data.
+ * @see OH_Pasteboard.
+ * @since 16
+ */
+uint32_t OH_Pasteboard_GetChangeCount(OH_Pasteboard *pasteboard);
 #ifdef __cplusplus
 };
 #endif

@@ -44,6 +44,7 @@ enum PasteboardServiceInterfaceCode {
     GET_MIME_TYPES = 20,
     GET_REMOTE_DEVICE_NAME = 21,
     PROGRESS_MAKE_MESSAGE_INFO = 22,
+    GET_CHANGE_COUNT = 23,
 };
 
 enum PasteboardObserverInterfaceCode {

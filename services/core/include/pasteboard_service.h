@@ -142,6 +142,7 @@ public:
     void NotifyDelayGetterDied(int32_t userId);
     void NotifyEntryGetterDied(int32_t userId);
     bool IsFocusedApp(uint32_t tokenId);
+    virtual int32_t GetChangeCount(uint32_t &changeCount) override;
 
 private:
     using Event = ClipPlugin::GlobalEvent;
@@ -271,6 +272,7 @@ private:
     bool CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
     std::shared_ptr<ClipPlugin> GetClipPlugin();
+    void IncreaseChangeCount(int32_t userId);
 
     static std::string GetTime();
     bool IsDataAged();
@@ -306,6 +308,7 @@ private:
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint16_t> sequenceId_ = 0;
     std::atomic<uint32_t> dataId_ = 0;
+    ConcurrentMap<int32_t, uint32_t> clipChangeCount_;
     static std::mutex historyMutex_;
     std::mutex bundleMutex_;
     std::mutex readBundleMutex_;

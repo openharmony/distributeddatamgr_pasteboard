@@ -50,6 +50,7 @@ const std::vector<PasteboardServiceInterfaceCode> CODE_LIST = {
     DETECT_PATTERNS,
     GET_RECORD_VALUE,
     GET_MIME_TYPES,
+    GET_CHANGE_COUNT,
 };
 
 class PasteboardServiceMock : public PasteboardServiceStub {
@@ -142,6 +143,11 @@ public:
     std::vector<std::string> GetMimeTypes() override
     {
         return {};
+    }
+
+    int32_t GetChangeCount(uint32_t &changeCount) override
+    {
+        return 0;
     }
 
     bool IsRemoteData() override

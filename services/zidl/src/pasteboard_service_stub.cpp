@@ -76,6 +76,8 @@ PasteboardServiceStub::PasteboardServiceStub()
         &PasteboardServiceStub::OnGetRemoteDeviceName;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PROGRESS_MAKE_MESSAGE_INFO)] =
         &PasteboardServiceStub::OnProgressMakeMessageInfo;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_CHANGE_COUNT)] =
+        &PasteboardServiceStub::OnGetChangeCount;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -363,6 +365,19 @@ int32_t PasteboardServiceStub::OnGetMimeTypes(MessageParcel &data, MessageParcel
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Write mime type failed.");
             return ERR_INVALID_VALUE;
         }
+    }
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnGetChangeCount(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t changeCount = 0;
+    int32_t ret = GetChangeCount(changeCount);
+    if (!reply.WriteUint32(changeCount)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(ret)) {
+        return ERR_INVALID_VALUE;
     }
     return ERR_OK;
 }

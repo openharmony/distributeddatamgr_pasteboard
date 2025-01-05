@@ -311,6 +311,7 @@ private:
     static napi_value HasData(napi_env env, napi_callback_info info);
     static napi_value IsRemoteData(napi_env env, napi_callback_info info);
     static napi_value GetDataSource(napi_env env, napi_callback_info info);
+    static napi_value GetChangeCount(napi_env env, napi_callback_info info);
     static napi_value GetMimeTypes(napi_env env, napi_callback_info info);
     static napi_value HasDataType(napi_env env, napi_callback_info info);
     static napi_value DetectPatterns(napi_env env, napi_callback_info info);

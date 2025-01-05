@@ -53,6 +53,7 @@ public:
     virtual int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override;
     virtual void ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey) override;
     virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
+    virtual int32_t GetChangeCount(uint32_t &changeCount) override;
 
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;
