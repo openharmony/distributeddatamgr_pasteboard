@@ -81,11 +81,12 @@ HWTEST_F(PasteboardClientTest, GetChangeCount002, TestSize.Level0)
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     uint32_t newCount = 0;
     ret = PasteboardClient::GetInstance()->GetChangeCount(newCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-    ASSERT_EQ(newCount, changeCount+1);
+    ASSERT_EQ(newCount, changeCount + 1);
 }
 
 /**
@@ -102,14 +103,16 @@ HWTEST_F(PasteboardClientTest, GetChangeCount003, TestSize.Level0)
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    PasteboardClient::GetInstance()->SetPasteData(*newData);
+    ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     std::string htmlText = "<div class='disable'>helloWorld</div>";
     auto newData1 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
-    PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    ret = PasteboardClient::GetInstance()->SetPasteData(*newData1);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     uint32_t newCount = 0;
     ret = PasteboardClient::GetInstance()->GetChangeCount(newCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-    ASSERT_EQ(newCount, changeCount+2);
+    ASSERT_EQ(newCount, changeCount + 2);
 }
 
 /**
