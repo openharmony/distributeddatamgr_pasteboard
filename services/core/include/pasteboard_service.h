@@ -298,6 +298,7 @@ private:
     ClipPlugin::GlobalEvent remoteEvent_;
     const std::string filePath_ = "";
     ConcurrentMap<int32_t, std::shared_ptr<PasteData>> clips_;
+    ConcurrentMap<int32_t, uint32_t> clipChangeCount_;
     ConcurrentMap<int32_t, std::pair<sptr<IPasteboardEntryGetter>, sptr<EntryGetterDeathRecipient>>> entryGetters_;
     ConcurrentMap<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
     ConcurrentMap<int32_t, uint64_t> copyTime_;
@@ -308,7 +309,6 @@ private:
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint16_t> sequenceId_ = 0;
     std::atomic<uint32_t> dataId_ = 0;
-    ConcurrentMap<int32_t, uint32_t> clipChangeCount_;
     static std::mutex historyMutex_;
     std::mutex bundleMutex_;
     std::mutex readBundleMutex_;

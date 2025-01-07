@@ -109,12 +109,12 @@ int32_t PasteboardServiceProxy::GetChangeCount(uint32_t &changeCount)
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelabel");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write token");
     }
     changeCount = 0;
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_CHANGE_COUNT, data, reply, option);
     if (result != ERR_NONE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed: ret=%{public}d", result);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Send request failed: ret=%{public}d", result);
         return result;
     }
     if (!reply.ReadUint32(changeCount)) {

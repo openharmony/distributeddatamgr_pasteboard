@@ -1205,7 +1205,7 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetChangeCount002, TestSize.Level1)
     OH_UdmfData_AddRecord(setData, record);
     OH_Pasteboard_SetData(pasteboard, setData);
     uint32_t newCount = OH_Pasteboard_GetChangeCount(pasteboard);
-    EXPECT_EQ(newCount, changeCount+1);
+    EXPECT_EQ(newCount, changeCount + 1);
     OH_Pasteboard_Destroy(pasteboard);
 }
 
@@ -1235,8 +1235,7 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetChangeCount003, TestSize.Level1)
     OH_UdmfData_AddRecord(setData, record2);
     OH_Pasteboard_SetData(pasteboard, setData);
     uint32_t newCount = OH_Pasteboard_GetChangeCount(pasteboard);
-    EXPECT_EQ(newCount, changeCount+2);
-    
+    EXPECT_EQ(newCount, changeCount + 2);
     OH_Pasteboard_Destroy(pasteboard);
 }
 } // namespace Test
