@@ -104,7 +104,7 @@ typedef enum Pasteboard_ProgressIndicator {
 /**
  * @brief Represents the Pasteboard progress information.
  *
- * @since 14
+ * @since 15
  */
 typedef struct Pasteboard_ProgressInfo {
     int progress;
@@ -114,14 +114,14 @@ typedef struct Pasteboard_ProgressInfo {
  * @brief Defines the callback function used to return the progress information when getting OH_PasteData.
  *
  * @param progressInfo The progress information notified to Application.
- * @since 14
+ * @since 15
  */
 typedef void (*Pasteboard_ProgressNotify)(Pasteboard_ProgressInfo progressInfo);
 
 /**
  * @brief Defines the callback function used to return the progress information when getting OH_PasteData.
  *
- * @since 14
+ * @since 15
  */
 typedef struct Pasteboard_ProgressListener {
     Pasteboard_ProgressNotify callback;
@@ -130,14 +130,14 @@ typedef struct Pasteboard_ProgressListener {
 /**
  * @brief Defines the cancel function used to cancel the progress when getting OH_PasteData.
  *
- * @since 14
+ * @since 15
  */
 typedef void (*Pasteboard_ProgressCancel)(void);
 
 /**
  * brief Represents the Pasteboard progress signal when getting data.
  *
- * @since 14
+ * @since 15
  */
 typedef struct Pasteboard_ProgressSignal {
     Pasteboard_ProgressCancel cancel;
@@ -152,7 +152,7 @@ typedef struct Pasteboard_ProgressSignal {
  * @param progressIndicator Indicates whether to use default system progress indacator.
  * @param progressListener Indicates progress listener when getting OH_PasteData.
  * @param progressSignal Indicates progress signal when getting PasteData with system progress indacator.
- * @since 14
+ * @since 15
  */
 typedef struct OH_Pasteboard_GetDataParams {
     char *destUri;
@@ -388,7 +388,7 @@ char **OH_Pasteboard_GetMimeTypes(OH_Pasteboard *pasteboard, unsigned int *count
  * @param status The status code of the execution. For details, see {@link PASTEBOARD_Errcode}.
  * @return Returns the pointer to the {@link OH_UdmfData} instance.
  * @see OH_Pasteboard OH_UdmfData PASTEBOARD_ErrCode.
- * @since 16
+ * @since 15
  */
 OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pasteboard_GetDataParams *params,
     int *status);

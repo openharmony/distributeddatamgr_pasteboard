@@ -272,7 +272,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
     }
     auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
     auto getDataParams = std::make_shared<OHOS::MiscServices::GetDataParams>();
-    if (params->destUri == nullptr) {
+    if (params->destUri != nullptr) {
         getDataParams->destUri = params->destUri;
     }
     g_listener = params->progressListener;
