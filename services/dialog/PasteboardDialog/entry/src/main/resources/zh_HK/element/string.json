@@ -15,6 +15,66 @@
         {
             "name":"learn_more",
             "value":"了解詳細資訊"
+        },
+        {
+            "name":"progress_cancel_btn",
+            "value":"取消"
+        },
+        {
+            "name":"prompttext_udmf_import",
+            "value":"匯入中…"
+        },
+        {
+            "name":"prompttext_udmf_copy_error",
+            "value":"無法複製，請稍後再試"
+        },
+        {
+            "name":"prompttext_udmf_format_error",
+            "value":"無法進行格式化轉換，請稍後再試"
+        },
+        {
+            "name":"prompttext_udmf_format",
+            "value":"格式化轉換中…"
+        },
+        {
+            "name":"prompttext_udmf_download",
+            "value":"下載中…"
+        },
+        {
+            "name":"prompttext_udmf_move_error",
+            "value":"無法移動，請稍後再試"
+        },
+        {
+            "name":"prompttext_pasteboard_local",
+            "value":"貼上中…"
+        },
+        {
+            "name":"prompttext_udmf_copy",
+            "value":"複製中…"
+        },
+        {
+            "name":"prompttext_udmf_import_error",
+            "value":"無法匯入，請稍後再試"
+        },
+        {
+            "name":"prompttext_udmf_download_error",
+            "value":"下載失敗，請稍後再試"
+        },
+        {
+            "name":"prompttext_pasteboard_remote",
+            "value":"自「%s」貼上…"
+        },
+        {
+            "name":"prompttext_udmf_move",
+            "value":"移動中…"
+        },
+        {
+            "name":"prompttext_pasteboard_error",
+            "value":"無法貼上，請重試"
+        },
+        {
+            "name":"progress_completed_percentage",
+            "value":"已完成 %s"
         }
     ]
 }
