@@ -256,7 +256,9 @@ void ProgressNotify(std::shared_ptr<ProgressInfo> progressInfo)
 {
     auto info = std::make_shared<Pasteboard_ProgressInfo>();
     info->progress = progressInfo->percentage;
-    g_listener.callback(*info);
+    if (g_listener.callback != nullptr) {
+        g_listener.callback(*info);
+    }
 }
 
 void ProgressCancel()
@@ -268,6 +270,9 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
     int *status)
 {
     if (!IsPasteboardValid(pasteboard) || params == nullptr || status == nullptr) {
+        if (status != nullptr) {
+            *status = ERR_INVALID_PARAMETER;
+        }
         return nullptr;
     }
     auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
