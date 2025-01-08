@@ -187,8 +187,9 @@ std::vector<std::string> PasteData::GetMimeTypes()
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
     for (const auto &item : records_) {
-        if (item->GetHtmlText() != nullptr) {
-            return item->GetHtmlText();
+        std::shared_ptr<std::string> primary = item->GetHtmlText();
+        if (primary) {
+            return primary;
         }
     }
     return nullptr;
@@ -197,8 +198,9 @@ std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 {
     for (const auto &item : records_) {
-        if (item->GetPixelMap() != nullptr) {
-            return item->GetPixelMap();
+        std::shared_ptr<PixelMap> primary = item->GetPixelMap();
+        if (primary) {
+            return primary;
         }
     }
     return nullptr;
@@ -207,8 +209,9 @@ std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 {
     for (const auto &item : records_) {
-        if (item->GetWant() != nullptr) {
-            return item->GetWant();
+        std::shared_ptr<OHOS::AAFwk::Want> primary = item->GetWant();
+        if (primary) {
+            return primary;
         }
     }
     return nullptr;
@@ -217,8 +220,9 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 std::shared_ptr<std::string> PasteData::GetPrimaryText()
 {
     for (const auto &item : records_) {
-        if (item->GetPlainText() != nullptr) {
-            return item->GetPlainText();
+        std::shared_ptr<std::string> primary = item->GetPlainText();
+        if (primary) {
+            return primary;
         }
     }
     return nullptr;
@@ -227,8 +231,9 @@ std::shared_ptr<std::string> PasteData::GetPrimaryText()
 std::shared_ptr<OHOS::Uri> PasteData::GetPrimaryUri()
 {
     for (const auto &item : records_) {
-        if (item->GetUri() != nullptr) {
-            return item->GetUri();
+        std::shared_ptr<OHOS::Uri> primary = item->GetUri();
+        if (primary) {
+            return primary;
         }
     }
     return nullptr;
@@ -236,11 +241,10 @@ std::shared_ptr<OHOS::Uri> PasteData::GetPrimaryUri()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryMimeType()
 {
-    if (!records_.empty()) {
-        return std::make_shared<std::string>(records_.front()->GetMimeType());
-    } else {
+    if (records_.empty()) {
         return nullptr;
     }
+    return std::make_shared<std::string>(records_.front()->GetMimeType());
 }
 
 std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index) const
