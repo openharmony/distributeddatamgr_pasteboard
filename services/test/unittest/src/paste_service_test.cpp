@@ -844,13 +844,12 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0012, TestSize.Level0)
     customData = firstRecord->GetCustomData();
     ASSERT_TRUE(customData != nullptr);
     auto itemData = customData->GetItemData();
-    ASSERT_TRUE(itemData.size() == 2);
+    ASSERT_EQ(itemData.size(), 1);
     auto item = itemData.find(mimeType);
     ASSERT_TRUE(item != itemData.end());
     ASSERT_TRUE(item->second == arrayBuffer);
     item = itemData.find(mimeType1);
-    ASSERT_TRUE(item != itemData.end());
-    ASSERT_TRUE(item->second == arrayBuffer1);
+    ASSERT_TRUE(item == itemData.end());
     auto primaryPlainText = newPasteData.GetPrimaryText();
     ASSERT_TRUE(primaryPlainText != nullptr);
     ASSERT_TRUE(*primaryPlainText == plainText);
