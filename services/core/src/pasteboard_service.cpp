@@ -1766,6 +1766,21 @@ void PasteboardService::AddObserver(
         observers = std::make_shared<std::set<sptr<IPasteboardChangedObserver>, classcomp>>();
         observerMap.insert(std::make_pair(userId, observers));
     }
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto callPid = IPCSkeleton::GetCallingPid();
+    observer->pid_ = callPid;
+    observer->tokenId_ = tokenId;
+    unsigned int count = 0;
+    for (auto &item : *observers) {
+        if (item->tokenId_ == tokenId) {
+            count++;
+        }
+    }
+    if (count >= MAX_OBSERVER_COUNT) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer count over limit. tokenId:%{public}u, pid:%{public}d",
+            tokenId, callPid);
+        return;
+    }
     observers->insert(observer);
     RADAR_REPORT(DFX_OBSERVER, DFX_ADD_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGI(
@@ -2648,9 +2663,30 @@ void PasteboardService::CommonEventSubscriber()
     EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
 }
 
+void PasteboardService::RemoveObserverByPid(int32_t userId, pid_t pid, ObserverMap &observerMap)
+{
+    std::lock_guard<std::mutex> lock(observerMutex_);
+    auto it = observerMap.find(userId);
+    if (it == observerMap.end()) {
+        return;
+    }
+    auto observers = it->second;
+    for (auto it = observers->begin(); it != observers->end();) {
+        if ((*it)->pid_ == pid) {
+            it = observers->erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 int32_t PasteboardService::AppExit(pid_t pid)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid %{public}d exit.", pid);
+    int32_t userId = GetCurrentAccountId();
+    RemoveObserverByPid(userId, pid, observerLocalChangedMap_);
+    RemoveObserverByPid(userId, pid, observerRemoteChangedMap_);
+    RemoveObserverByPid(COMMON_USERID, pid, observerEventMap_);
     std::vector<std::string> networkIds;
     p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
         pidMap.EraseIf([pid, this](auto &key, auto &value) {

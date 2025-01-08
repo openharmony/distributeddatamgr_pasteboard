@@ -371,10 +371,12 @@ private:
         pid_t pid_;
     };
     int32_t AppExit(pid_t pid);
+    void RemoveObserverByPid(int32_t userId, pid_t pid, ObserverMap &observerMap);
     ConcurrentMap<pid_t, sptr<PasteboardDeathRecipient>> clients_;
     static constexpr pid_t INVALID_UID = -1;
     static constexpr pid_t INVALID_PID = -1;
     static constexpr uint32_t INVALID_TOKEN = 0;
+    static constexpr uint32_t MAX_OBSERVER_COUNT = 10;
 };
 } // namespace MiscServices
 } // namespace OHOS
