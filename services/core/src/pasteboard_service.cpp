@@ -148,6 +148,7 @@ void PasteboardService::InitScreenStatus()
 void PasteboardService::OnStart()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardService OnStart.");
+    std::lock_guard<std::mutex> lock(saMutex_);
     if (state_ == ServiceRunningState::STATE_RUNNING) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
         return;
@@ -199,6 +200,7 @@ void PasteboardService::OnStart()
 void PasteboardService::OnStop()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop Started.");
+    std::lock_guard<std::mutex> lock(saMutex_);
     if (state_ != ServiceRunningState::STATE_RUNNING) {
         return;
     }
