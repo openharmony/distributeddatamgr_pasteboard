@@ -12,20 +12,22 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include "copy_uri_handler.h"
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "copy_uri_handler.h"
 #include "errors.h"
 #include "os_account_manager.h"
 #include "pasteboard_hilog.h"
 #include "remote_file_share.h"
 namespace OHOS::MiscServices {
+
 using namespace OHOS::AppFileService::ModuleRemoteFileShare;
 CopyUriHandler::CopyUriHandler()
 {
     isPaste_ = false;
 }
+
 std::string CopyUriHandler::ToUri(int32_t fd)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "begin, fd:%{public}d", fd);
@@ -39,7 +41,6 @@ std::string CopyUriHandler::ToUri(int32_t fd)
     ret = RemoteFileShare::CreateSharePath(fd, uri_, ids[0]);
     if (ret != 0 && ret != FILE_EXIST) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, " create share path failed, %{public}d ", ret);
-        return uri_;
     }
     return uri_;
 }

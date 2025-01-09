@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "pasteboard_client.h"
 #include "pasteboard_load_callback.h"
+#include "pasteboard_client.h"
 
 namespace OHOS {
 namespace MiscServices {

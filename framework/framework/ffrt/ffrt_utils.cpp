@@ -28,7 +28,7 @@ void FFRTUtils::SubmitQueueTasks(const std::vector<FFRTTask> &tasks, FFRTQueue &
     if (tasks.empty()) {
         return;
     }
-    for (auto task : tasks) {
+    for (const auto &task : tasks) {
         queue.submit(task);
     }
 }
@@ -61,7 +61,7 @@ int FFRTUtils::CancelTask(FFRTHandle &handle, FFRTQueue &queue)
     return queue.cancel(handle);
 }
 
-int FFRTUtils::CancelTask(FFRTHandle &handle, std::shared_ptr<FFRTQueue> queue)
+int FFRTUtils::CancelTask(FFRTHandle &handle, std::shared_ptr<FFRTQueue> &queue)
 {
     return queue->cancel(handle);
 }

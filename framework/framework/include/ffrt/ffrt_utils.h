@@ -114,7 +114,7 @@ public:
  * @param handle FFRT task.
  * @param queue Shared_ptr of FFRT task cancel queue.
  */
-    static int CancelTask(FFRTHandle &handle, std::shared_ptr<FFRTQueue> queue);
+    static int CancelTask(FFRTHandle &handle, std::shared_ptr<FFRTQueue> &queue);
 };
 
 class API_EXPORT FFRTTimer {

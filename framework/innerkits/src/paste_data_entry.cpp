@@ -12,9 +12,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include "paste_data_entry.h"
 
 #include "common/constant.h"
-#include "paste_data_entry.h"
 #include "pasteboard_hilog.h"
 #include "pixel_map.h"
 #include "tlv_object.h"
@@ -52,6 +52,7 @@ bool MineCustomData::Decode(const std::vector<std::uint8_t> &buffer)
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
         switch (head.tag) {
             case TAG_ITEM_DATA:
                 ret = ret && ReadValue(buffer, itemData_, head);
@@ -141,6 +142,7 @@ bool PasteDataEntry::Decode(const std::vector<std::uint8_t> &buffer)
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
         switch (head.tag) {
             case TAG_ENTRY_UTDID:
                 ret = ret && ReadValue(buffer, utdId_, head);
@@ -157,7 +159,7 @@ bool PasteDataEntry::Decode(const std::vector<std::uint8_t> &buffer)
                 ret = ret && Skip(head.len, buffer.size());
                 break;
         }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u, ret:%{public}d",
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}hu, len:%{public}u, ret:%{public}d",
             head.tag, head.len, ret);
         if (!ret) {
             return false;
@@ -180,11 +182,7 @@ bool PasteDataEntry::Unmarshalling(const std::vector<std::uint8_t> &buffer)
 
 size_t PasteDataEntry::Count()
 {
-    size_t expectedSize = 0;
-    expectedSize += TLVObject::Count(utdId_);
-    expectedSize += TLVObject::Count(mimeType_);
-    expectedSize += TLVObject::Count(value_);
-    return expectedSize;
+    return TLVObject::Count(utdId_) + TLVObject::Count(mimeType_) + TLVObject::Count(value_) ;
 }
 
 std::shared_ptr<std::string> PasteDataEntry::ConvertToPlainText() const
@@ -356,20 +354,31 @@ bool PasteDataEntry::HasContent(const std::string &utdId) const
 std::string CommonUtils::Convert(UDType uDType)
 {
     switch (uDType) {
+        // fall-through
         case UDType::PLAIN_TEXT:
+        // fall-through
         case UDType::HYPERLINK:
             return MIMETYPE_TEXT_PLAIN;
+        // fall-through
         case UDType::HTML:
             return MIMETYPE_TEXT_HTML;
+        // fall-through
         case UDType::FILE:
+        // fall-through
         case UDType::IMAGE:
+        // fall-through
         case UDType::VIDEO:
+        // fall-through
         case UDType::AUDIO:
+        // fall-through
         case UDType::FOLDER:
+        // fall-through
         case UDType::FILE_URI:
             return MIMETYPE_TEXT_URI;
+        // fall-through
         case UDType::SYSTEM_DEFINED_PIXEL_MAP:
             return MIMETYPE_PIXELMAP;
+        // fall-through
         case UDType::OPENHARMONY_WANT:
             return MIMETYPE_TEXT_WANT;
         default:

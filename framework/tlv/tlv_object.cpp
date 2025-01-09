@@ -12,25 +12,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "securec.h"
+
 #include "tlv_object.h"
+
+#include "pasteboard_hilog.h"
 #include "unified_meta.h"
 #include "want.h"
+#include "securec.h"
+
 namespace OHOS::MiscServices {
 
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::monostate value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Write monostate value failed.");
     cursor_ += sizeof(TLVHead);
     return true;
 }
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, void *value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Write value failed.");
     cursor_ += sizeof(TLVHead);
     return true;
 }
@@ -64,17 +66,14 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, uint32_t
 }
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::string &value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.size())) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead) + value.size())), false,
+        PASTEBOARD_MODULE_CLIENT, "Write string value failed.");
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     tlvHead->len = HostToNet((uint32_t)value.size());
     if (!value.empty()) {
         auto err = memcpy_s(tlvHead->value, value.size(), value.c_str(), value.size());
-        if (err != EOK) {
-            return false;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((err == EOK), false, PASTEBOARD_MODULE_CLIENT, "memcpy_s not EOK.");
     }
 
     cursor_ += sizeof(TLVHead) + value.size();
@@ -83,9 +82,8 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const st
 
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const RawMem &value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.bufferLen)) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead) + value.bufferLen)), false,
+        PASTEBOARD_MODULE_CLIENT, "Write RawMem value failed.");
     auto *tlvHead = reinterpret_cast<TLVHead *>(buffer.data() + cursor_);
     tlvHead->tag = HostToNet(type);
     cursor_ += sizeof(TLVHead);
@@ -93,9 +91,7 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Ra
     if (value.bufferLen != 0 && value.buffer != 0) {
         auto err = memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_,
             reinterpret_cast<const void *>(value.buffer), value.bufferLen);
-        if (err != EOK) {
-            return false;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((err == EOK), false, PASTEBOARD_MODULE_CLIENT, "memcpy_s not EOK.");
     }
     cursor_ += value.bufferLen;
     tlvHead->len = HostToNet((uint32_t)value.bufferLen);
@@ -118,9 +114,8 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Me
 
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Object &value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Write Object value failed.");
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
@@ -139,9 +134,8 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Ob
 bool TLVObject::Write(
     std::vector<std::uint8_t> &buffer, uint16_t type, std::map<std::string, std::vector<uint8_t>> &value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Write vector value failed.");
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
@@ -174,9 +168,8 @@ bool TLVObject::WriteVariant(std::vector<std::uint8_t> &buffer, uint16_t type, u
 template<typename... _Types>
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const std::variant<_Types...> &input)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Write variant value failed.");
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
@@ -193,9 +186,8 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const st
 template<>
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const EntryValue &input)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Write input value failed.");
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
@@ -213,13 +205,12 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const En
 
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const Details &value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Write Details value failed.");
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
-    for (auto &[key, val] : value) {
+    for (const auto &[key, val] : value) {
         if (!Write(buffer, TAG_MAP_KEY, key)) {
             return false;
         }
@@ -233,9 +224,8 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, const De
 
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObject &value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Write TLVObject value failed.");
     auto tagCursor = cursor_;
     cursor_ += sizeof(TLVHead);
     auto valueCursor = cursor_;
@@ -246,26 +236,22 @@ bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, TLVObjec
 
 bool TLVObject::Write(std::vector<std::uint8_t> &buffer, uint16_t type, std::vector<uint8_t> &value)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead) + value.size())) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead) + value.size())), false,
+        PASTEBOARD_MODULE_CLIENT, "Write vector value failed.");
     WriteHead(buffer, type, cursor_, value.size());
     cursor_ += sizeof(TLVHead);
 
     if (!value.empty()) {
         auto err = memcpy_s(buffer.data() + cursor_, buffer.size() - cursor_, value.data(), value.size());
-        if (err != EOK) {
-            return false;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((err == EOK), false, PASTEBOARD_MODULE_CLIENT, "memcpy_s not EOK.");
     }
     cursor_ += value.size();
     return true;
 }
 bool TLVObject::ReadHead(const std::vector<std::uint8_t> &buffer, TLVHead &head)
 {
-    if (!HasExpectBuffer(buffer, sizeof(TLVHead))) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, sizeof(TLVHead))), false,
+        PASTEBOARD_MODULE_CLIENT, "Read Head value failed.");
     const auto *pHead = reinterpret_cast<const TLVHead *>(buffer.data() + cursor_);
     if (!HasExpectBuffer(buffer, NetToHost(pHead->len)) &&
         !HasExpectBuffer(buffer, NetToHost(pHead->len) + sizeof(TLVHead))) {
@@ -282,6 +268,9 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::monostat
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, void *value, const TLVHead &head)
 {
+    (void)buffer;
+    (void)value;
+    (void)head;
     return true;
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, bool &value, const TLVHead &head)
@@ -315,18 +304,16 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, uint32_t &val
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::string &value, const TLVHead &head)
 {
-    if (!HasExpectBuffer(buffer, head.len)) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, head.len)), false,
+        PASTEBOARD_MODULE_CLIENT, "Read string value failed.");
     value.append(reinterpret_cast<const char *>(buffer.data() + cursor_), head.len);
     cursor_ += head.len;
     return true;
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, RawMem &rawMem, const TLVHead &head)
 {
-    if (!HasExpectBuffer(buffer, head.len)) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, head.len)), false,
+        PASTEBOARD_MODULE_CLIENT, "Read RawMem value failed.");
     rawMem.buffer = (uintptr_t)(buffer.data() + cursor_);
     rawMem.bufferLen = head.len;
     cursor_ += head.len;
@@ -339,9 +326,8 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, TLVObject &va
 }
 bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<uint8_t> &value, const TLVHead &head)
 {
-    if (!HasExpectBuffer(buffer, head.len)) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, head.len)), false,
+        PASTEBOARD_MODULE_CLIENT, "Read vector value failed.");
     std::vector<uint8_t> buff(buffer.data() + cursor_, buffer.data() + cursor_ + head.len);
     value = std::move(buff);
     cursor_ += head.len;
@@ -350,6 +336,8 @@ bool TLVObject::ReadValue(const std::vector<std::uint8_t> &buffer, std::vector<u
 bool TLVObject::ReadValue(
     const std::vector<std::uint8_t> &buffer, std::map<std::string, std::vector<uint8_t>> &value, const TLVHead &head)
 {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((HasExpectBuffer(buffer, head.len)), false,
+        PASTEBOARD_MODULE_CLIENT, "Read map value failed.");
     auto mapEnd = cursor_ + head.len;
     for (; cursor_ < mapEnd;) {
         // item key

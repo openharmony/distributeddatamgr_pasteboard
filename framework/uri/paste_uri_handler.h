@@ -15,6 +15,7 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_PASTE_URI_HANDLER_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_PASTE_URI_HANDLER_H
 #include "uri_handler.h"
+
 namespace OHOS::MiscServices {
 class PasteUriHandler : public UriHandler {
 public:

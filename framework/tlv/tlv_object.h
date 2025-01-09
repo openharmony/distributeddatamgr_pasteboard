@@ -28,6 +28,7 @@
 #include "parcel_util.h"
 #include "securec.h"
 #include "unified_meta.h"
+
 namespace OHOS::MiscServices {
 #pragma pack(1)
 struct TLVHead {
@@ -111,7 +112,7 @@ public:
         return value.Count() + sizeof(TLVHead);
     }
     template<typename T>
-    inline size_t Count(const std::shared_ptr<T> value)
+    inline size_t Count(const std::shared_ptr<T> &value)
     {
         if (value == nullptr) {
             return 0;
@@ -122,7 +123,7 @@ public:
     inline size_t Count(const std::vector<T> &value)
     {
         size_t expectSize = sizeof(TLVHead);
-        for (auto &item : value) {
+        for (const auto &item : value) {
             expectSize += Count(item);
         }
         return expectSize;
@@ -136,7 +137,7 @@ public:
     static inline size_t Count(const std::map<std::string, std::vector<uint8_t>> &value)
     {
         size_t expectSize = sizeof(TLVHead);
-        for (auto &item : value) {
+        for (const auto &item : value) {
             expectSize += Count(item.first);
             expectSize += Count(item.second);
         }
@@ -146,7 +147,7 @@ public:
     static inline size_t Count(const Details &value)
     {
         size_t expectSize = sizeof(TLVHead);
-        for (auto &item : value) {
+        for (const auto &item : value) {
             expectSize += Count(item.first);
             expectSize += Count(item.second);
         }
@@ -155,10 +156,10 @@ public:
 
     static inline size_t Count(const std::shared_ptr<AAFwk::Want> &value)
     {
-        size_t expectSize = sizeof(TLVHead);
         if (value == nullptr) {
             return 0;
         }
+        size_t expectSize = sizeof(TLVHead);
         return expectSize + Count(ParcelUtil::Parcelable2Raw(value.get()));
     }
 
@@ -173,10 +174,10 @@ public:
 
     static inline size_t Count(const std::shared_ptr<Object> &value)
     {
-        size_t expectSize = sizeof(TLVHead);
         if (value == nullptr) {
             return 0;
         }
+        size_t expectSize = sizeof(TLVHead);
         for (auto &item : value->value_) {
             expectSize += Count(item.first);
             expectSize += Count(item.second);

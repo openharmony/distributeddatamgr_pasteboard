@@ -12,16 +12,20 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+#include "uri_handler.h"
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include "paste_data.h"
 #include "pasteboard_hilog.h"
-#include "uri_handler.h"
 
 namespace OHOS::MiscServices {
 bool UriHandler::GetRealPath(const std::string &inOriPath, std::string &outRealPath)
 {
     char realPath[PATH_MAX + 1] = { 0x00 };
     if (inOriPath.size() > PATH_MAX || realpath(inOriPath.c_str(), realPath) == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get real path failed, len = %{public}zu.", inOriPath.size());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get real path failed, len = %{public}zu.", inOriPath.size());
         return false;
     }
     outRealPath = std::string(realPath);
@@ -47,6 +51,7 @@ int32_t UriHandler::ToFd(const std::string &uri, bool isClient)
 {
     std::string fileRealPath;
     if (!GetRealPath(uri, fileRealPath)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get real path failed, uri=%{private}s", uri.c_str());
         return INVALID_FD;
     }
     if (!IsFile(fileRealPath)) {

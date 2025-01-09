@@ -73,7 +73,7 @@ public:
     void AddUriRecord(const OHOS::Uri &uri);
     void AddWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
     void AddRecord(std::shared_ptr<PasteDataRecord> record);
-    void AddRecord(PasteDataRecord &record);
+    void AddRecord(const PasteDataRecord &record);
     std::vector<std::string> GetMimeTypes();
     std::shared_ptr<std::string> GetPrimaryHtml();
     std::shared_ptr<OHOS::Media::PixelMap> GetPrimaryPixelMap();
@@ -100,17 +100,17 @@ public:
 
     void SetBundleName(const std::string &bundleName);
     std::string GetBundleName() const;
-    void SetOrginAuthority(const std::string &bundleName);
-    std::string GetOrginAuthority() const;
+    void SetOriginAuthority(const std::string &bundleName);
+    std::string GetOriginAuthority() const;
     void SetRemote(bool isRemote);
     bool IsRemote();
     void SetTime(const std::string &time);
     std::string GetTime();
     void SetScreenStatus(ScreenEvent screenStatus);
     ScreenEvent GetScreenStatus();
-    void SetTag(std::string &tag);
+    void SetTag(const std::string &tag);
     std::string GetTag();
-    void SetAdditions(AAFwk::WantParams &additions);
+    void SetAdditions(const AAFwk::WantParams &additions);
     void SetAddition(const std::string &key, AAFwk::IInterface *value);
     void SetLocalOnly(bool localOnly);
     bool GetLocalOnly();
@@ -157,7 +157,7 @@ private:
 
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
-    std::string orginAuthority_;
+    std::string originAuthority_;
     bool valid_ = true;
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste

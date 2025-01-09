@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-#include <regex>
-
-#include "file_uri.h"
 #include "pasteboard_web_controller.h"
+#include <regex>
+#include "file_uri.h"
 
 namespace {
 const std::string IMG_TAG_PATTERN = "<img.*?>";
@@ -70,22 +69,27 @@ void PasteboardWebController::MergeExtraUris2Html(PasteData &data)
 
 std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(std::shared_ptr<PasteData> pasteData) noexcept
 {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteData != nullptr, nullptr, PASTEBOARD_MODULE_CLIENT, "pasteData is null");
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
     std::shared_ptr<std::string> htmlData;
     std::map<uint32_t, std::pair<std::string, std::string>, Cmp> replaceUris;
 
-    for (auto &item : pasteDataRecords) {
+    for (const auto &item : pasteDataRecords) {
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(item != nullptr, nullptr,
+                                             PASTEBOARD_MODULE_CLIENT, "item is null");
         std::shared_ptr<std::string> html = item->GetHtmlText();
-        if (html) {
+        if (html != nullptr) {
             htmlData = html;
+        } else {
+            continue;
         }
         std::shared_ptr<OHOS::Uri> uri = item->GetUri();
         std::shared_ptr<MiscServices::MineCustomData> customData = item->GetCustomData();
-        if (!uri || !customData) {
+        if (uri == nullptr || customData == nullptr) {
             continue;
         }
         std::map<std::string, std::vector<uint8_t>> customItemData = customData->GetItemData();
-        for (auto &itemData : customItemData) {
+        for (const auto &itemData : customItemData) {
             for (uint32_t i = 0; i < itemData.second.size(); i += FOUR_BYTES) {
                 uint32_t offset = static_cast<uint32_t>(itemData.second[i]) |
                                   static_cast<uint32_t>(itemData.second[i + 1] << 8) |
@@ -109,12 +113,12 @@ std::vector<std::pair<std::string, uint32_t>> PasteboardWebController::SplitHtml
 {
     std::smatch results;
     std::string pattern(IMG_TAG_PATTERN);
-    std::regex r(pattern);
+    std::regex reg(pattern);
     std::string::const_iterator iterStart = html->begin();
     std::string::const_iterator iterEnd = html->end();
     std::vector<std::pair<std::string, uint32_t>> matchVec;
 
-    while (std::regex_search(iterStart, iterEnd, results, r)) {
+    while (std::regex_search(iterStart, iterEnd, results, reg)) {
         std::string tmp = results[0];
         iterStart = results[0].second;
         uint32_t offset = static_cast<uint32_t>(results[0].first - html->begin());
@@ -131,7 +135,7 @@ std::map<std::string, std::vector<uint8_t>> PasteboardWebController::SplitHtmlWi
     std::map<std::string, std::vector<uint8_t>> res;
     std::smatch match;
     std::regex re(IMG_TAG_SRC_PATTERN);
-    for (auto &node : matchVec) {
+    for (const auto &node : matchVec) {
         std::string::const_iterator iterStart = node.first.begin();
         std::string::const_iterator iterEnd = node.first.end();
 
@@ -157,12 +161,11 @@ std::vector<std::shared_ptr<PasteDataRecord>> PasteboardWebController::BuildPast
     const std::map<std::string, std::vector<uint8_t>> &imgSrcMap, uint32_t recordId) noexcept
 {
     std::vector<std::shared_ptr<PasteDataRecord>> records;
-    for (auto &item : imgSrcMap) {
+    for (const auto &item : imgSrcMap) {
         PasteDataRecord::Builder builder(MiscServices::MIMETYPE_TEXT_URI);
         auto uri = std::make_shared<OHOS::Uri>(item.first);
         builder.SetUri(uri);
         auto customData = std::make_shared<MiscServices::MineCustomData>();
-
         customData->AddItemData(item.first, item.second);
         builder.SetCustomData(customData);
         auto record = builder.Build();
@@ -190,6 +193,7 @@ void PasteboardWebController::RemoveRecordById(PasteData &pasteData, uint32_t re
 
 void PasteboardWebController::RemoveAllRecord(std::shared_ptr<PasteData> pasteData) noexcept
 {
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteData != nullptr, PASTEBOARD_MODULE_CLIENT, "pasteData is null");
     std::size_t recordCount = pasteData->GetRecordCount();
     for (uint32_t i = 0; i < recordCount; i++) {
         if (!pasteData->RemoveRecordAt(0)) {

@@ -21,7 +21,10 @@ PasteboardObserver::PasteboardObserver()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "New Pasteboard Observer.");
 }
 
-PasteboardObserver::~PasteboardObserver() {}
+PasteboardObserver::~PasteboardObserver()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "delete Pasteboard Observer.");
+}
 
 void PasteboardObserver::OnPasteboardChanged()
 {

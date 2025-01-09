@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#include <new>
-
-#include "parcel_util.h"
 #include "paste_data.h"
+
+#include <new>
+#include "parcel_util.h"
 #include "paste_data_record.h"
+#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "type_traits"
 
@@ -78,7 +79,7 @@ PasteData::~PasteData()
 }
 
 PasteData::PasteData(const PasteData &data)
-    : orginAuthority_(data.orginAuthority_), valid_(data.valid_), isDraggedData_(data.isDraggedData_),
+    : originAuthority_(data.originAuthority_), valid_(data.valid_), isDraggedData_(data.isDraggedData_),
       isLocalPaste_(data.isLocalPaste_), isDelayData_(data.isDelayData_), pasteId_(data.pasteId_),
       isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_)
 {
@@ -106,7 +107,7 @@ PasteData &PasteData::operator=(const PasteData &data)
     if (this == &data) {
         return *this;
     }
-    this->orginAuthority_ = data.orginAuthority_;
+    this->originAuthority_ = data.originAuthority_;
     this->valid_ = data.valid_;
     this->isDraggedData_ = data.isDraggedData_;
     this->isLocalPaste_ = data.isLocalPaste_;
@@ -165,15 +166,13 @@ void PasteData::AddKvRecord(const std::string &mimeType, const std::vector<uint8
 
 void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
 {
-    if (record == nullptr) {
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(record != nullptr, PASTEBOARD_MODULE_CLIENT, "record is null");
     record->SetRecordId(++recordId_);
     records_.insert(records_.begin(), std::move(record));
     RefreshMimeProp();
 }
 
-void PasteData::AddRecord(PasteDataRecord &record)
+void PasteData::AddRecord(const PasteDataRecord &record)
 {
     this->AddRecord(std::make_shared<PasteDataRecord>(record));
     RefreshMimeProp();
@@ -314,7 +313,7 @@ bool PasteData::ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRec
 
 bool PasteData::HasMimeType(const std::string &mimeType)
 {
-    for (auto &item : records_) {
+    for (const auto &item : records_) {
         auto itemTypes = item->GetMimeTypes();
         if (itemTypes.find(mimeType) != itemTypes.end()) {
             return true;
@@ -368,14 +367,14 @@ std::string PasteData::GetBundleName() const
     return props_.bundleName;
 }
 
-void PasteData::SetOrginAuthority(const std::string &bundleName)
+void PasteData::SetOriginAuthority(const std::string &bundleName)
 {
-    orginAuthority_ = bundleName;
+    originAuthority_ = bundleName;
 }
 
-std::string PasteData::GetOrginAuthority() const
+std::string PasteData::GetOriginAuthority() const
 {
-    return orginAuthority_;
+    return originAuthority_;
 }
 
 void PasteData::SetTime(const std::string &setTime)
@@ -398,7 +397,7 @@ ScreenEvent PasteData::GetScreenStatus()
     return props_.screenStatus;
 }
 
-void PasteData::SetTag(std::string &tag)
+void PasteData::SetTag(const std::string &tag)
 {
     props_.tag = tag;
 }
@@ -408,13 +407,14 @@ std::string PasteData::GetTag()
     return props_.tag;
 }
 
-void PasteData::SetAdditions(AAFwk::WantParams &additions)
+void PasteData::SetAdditions(const AAFwk::WantParams &additions)
 {
     props_.additions = additions;
 }
 
 void PasteData::SetAddition(const std::string &key, AAFwk::IInterface *value)
 {
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(value != nullptr, PASTEBOARD_MODULE_CLIENT, "value is null");
     props_.additions.SetParam(key, value);
 }
 
@@ -504,7 +504,9 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
     for (; IsEnough();) {
         TLVHead head{};
         bool ret = ReadHead(buffer, head);
-        auto it = decodeMap_.find(head.tag);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
+
+        const auto it = decodeMap_.find(head.tag);
         if (it == decodeMap_.end()) {
             ret = ret && Skip(head.len, buffer.size());
         } else {
@@ -513,7 +515,7 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
         }
         if (!ret) {
             PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u", head.tag, head.len);
+                PASTEBOARD_MODULE_CLIENT, "decode failed,tag:%{}hu, len:%{}u", head.tag, head.len);
             return false;
         }
     }
@@ -682,6 +684,7 @@ bool PasteDataProperty::DecodeTag(const std::vector<std::uint8_t> &buffer)
 {
     TLVHead head{};
     bool ret = ReadHead(buffer, head);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
     switch (head.tag) {
         case TAG_ADDITIONS: {
             RawMem rawMem{};
