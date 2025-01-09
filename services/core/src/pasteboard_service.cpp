@@ -325,6 +325,8 @@ void PasteboardService::Clear()
     if (it.first) {
         RevokeUriPermission(it.second);
         clips_.Erase(userId);
+        delayDataId_ = 0;
+        delayTokenId_ = 0;
         auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
         std::string bundleName = GetAppBundleName(appInfo);
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
@@ -360,7 +362,7 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto callPid = IPCSkeleton::GetCallingPid();
-    if (!VerifyPermission(tokenId)) {
+    if (!(dataId == delayDataId_ && tokenId == delayTokenId_) && !VerifyPermission(tokenId)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, calling pid is %{public}d", callPid);
         return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
     }
@@ -523,6 +525,8 @@ bool PasteboardService::IsDataAged()
         if (data.first) {
             RevokeUriPermission(data.second);
             clips_.Erase(userId);
+            delayDataId_ = 0;
+            delayTokenId_ = 0;
         }
         copyTime_.Erase(userId);
         RADAR_REPORT(DFX_CLEAR_PASTEBOARD, DFX_AUTO_CLEAR, DFX_SUCCESS);
@@ -635,6 +639,9 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "data is invalid, ret is %{public}d, callPid is %{public}d, tokenId is %{public}d", ret, callPid, tokenId);
+    } else {
+        delayDataId_ = data.GetDataId();
+        delayTokenId_ = tokenId;
     }
     return ret;
 }

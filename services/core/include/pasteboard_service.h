@@ -309,6 +309,8 @@ private:
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint16_t> sequenceId_ = 0;
     std::atomic<uint32_t> dataId_ = 0;
+    std::atomic<uint32_t> delayTokenId_ = 0;
+    std::atomic<uint32_t> delayDataId_ = 0;
     static std::mutex historyMutex_;
     std::mutex bundleMutex_;
     std::mutex readBundleMutex_;
