@@ -381,11 +381,11 @@ int OH_Pasteboard_ClearData(OH_Pasteboard* pasteboard);
 char **OH_Pasteboard_GetMimeTypes(OH_Pasteboard *pasteboard, unsigned int *count);
 
 /**
- * @brief Obtains change times of Pasteboard data.
+ * @brief Gets the number of Pasteboard data changes.
  *
  * @param pasteboard Pointer to the {@link OH_Pasteboard} instance.
- * @return Returns the number of change times of Pasteboard data.
- * @see OH_Pasteboard.
+ * @return the number of Pasteboard data changes.
+ * Returns 0 means initial value or invalid value.In this case, no action is required.
  * @since 16
  */
 uint32_t OH_Pasteboard_GetChangeCount(OH_Pasteboard *pasteboard);

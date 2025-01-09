@@ -55,7 +55,8 @@ struct PasteboardSwitch {
   @State gapLength: number = 0;
   @State isShow: boolean = false;
   @State is2in1: boolean = false;
-   @State isAnimatorDone: boolean = false;
+  @State isBacked: boolean = false;
+  @State isAnimatorDone: boolean = false;
   @State portraitFunc: mediaQuery.MediaQueryResult | void | null = null;
   @State contentHeight: number = 0;
   @State imageArray: Array<ImageFrameInfo> = [];
@@ -270,8 +271,13 @@ struct PasteboardSwitch {
         isSaveIconRequired: false,
         contentMargin: this.is2in1 ? this.titleBarMarginPc : this.titleBarMarginNormal,
         onCancel: () => {
+          if (this.isBacked) {
+            console.info(`${TAG} onCancel: The back button has been clicked.`);
+            return;
+          }
           try {
             if (this.pasteboardSession && this.pasteboardSession.sendData) {
+              this.isBacked = true;
               this.pasteboardSession.sendData({ 'action': 'pop' })
             } else {
               console.error(TAG + 'pasteboardSession is undefined');

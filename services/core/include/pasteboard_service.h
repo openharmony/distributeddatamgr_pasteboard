@@ -42,6 +42,7 @@
 #include "i_pasteboard_observer.h"
 #include "input_manager.h"
 #include "iremote_object.h"
+#include "loader.h"
 #include "paste_data.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "pasteboard_dump_helper.h"
@@ -55,7 +56,10 @@ namespace OHOS {
 namespace MiscServices {
 const std::int32_t ERROR_USERID = -1;
 const std::int32_t RESULT_OK = 0;
-enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
+enum class ServiceRunningState {
+    STATE_NOT_START,
+    STATE_RUNNING
+};
 struct AppInfo {
     std::string bundleName = "com.pasteboard.default";
     int32_t tokenType = -1;
@@ -159,7 +163,7 @@ private:
     static constexpr const pid_t EDM_UID = 3057;
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
-    static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; //ms
+    static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; // ms
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
     void InitBundles(Loader &loader);
@@ -317,8 +321,13 @@ private:
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
     std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
-    std::map<std::string, int> typeMap_ = { { MIMETYPE_TEXT_PLAIN, PLAIN_INDEX }, { MIMETYPE_TEXT_HTML, HTML_INDEX },
-        { MIMETYPE_TEXT_URI, URI_INDEX }, { MIMETYPE_TEXT_WANT, WANT_INDEX }, { MIMETYPE_PIXELMAP, PIXELMAP_INDEX } };
+    std::map<std::string, int> typeMap_ = {
+        {MIMETYPE_TEXT_PLAIN, PLAIN_INDEX   },
+        { MIMETYPE_TEXT_HTML, HTML_INDEX    },
+        { MIMETYPE_TEXT_URI,  URI_INDEX     },
+        { MIMETYPE_TEXT_WANT, WANT_INDEX    },
+        { MIMETYPE_PIXELMAP,  PIXELMAP_INDEX}
+    };
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
     ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
