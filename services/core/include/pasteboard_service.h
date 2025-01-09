@@ -145,6 +145,7 @@ public:
     virtual int32_t GetChangeCount(uint32_t &changeCount) override;
 
 private:
+    std::mutex saMutex_;
     using Event = ClipPlugin::GlobalEvent;
     using ServiceListenerFunc = void (PasteboardService::*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
