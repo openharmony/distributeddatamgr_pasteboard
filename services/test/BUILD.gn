@@ -256,6 +256,7 @@ ohos_unittest("PasteboardPatternTest") {
 group("unittest") {
   testonly = true
   deps = [
+    ":PasteServInterfaceTest",
     ":PasteboardDeduplicateMemoryTest",
     ":PasteboardDialogAbnormalTest",
     ":PasteboardDialogNormalTest",
