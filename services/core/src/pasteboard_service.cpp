@@ -149,7 +149,7 @@ void PasteboardService::OnStart()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardService OnStart.");
     std::lock_guard<std::mutex> lock(saMutex_);
-    PASTEBOARD_CHECK_AND_RETURN_LOG(state_ != ServiceRunningState::STATE_RUNNING,
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(state_ != ServiceRunningState::STATE_RUNNING,
         PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
     IPCSkeleton::SetMaxWorkThreadNum(MAX_IPC_THREAD_NUM);
     InitServiceHandler();
