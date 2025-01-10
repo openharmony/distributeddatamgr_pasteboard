@@ -398,15 +398,19 @@ std::shared_ptr<MineCustomData> PasteDataRecord::GetCustomData() const
 
 std::string PasteDataRecord::ConvertToText() const
 {
-    if (this->htmlText_) {
-        return *this->htmlText_;
-    } else if (this->plainText_) {
-        return *this->plainText_;
-    } else if (this->uri_) {
-        return this->uri_->ToString();
-    } else {
-        return "";
+    auto htmlText = GetHtmlText();
+    if (htmlText != nullptr) {
+        return *htmlText;
     }
+    auto plainText = GetPlainText();
+    if (plainText != nullptr) {
+        return *plainText;
+    }
+    auto originUri = GetOriginUri();
+    if (originUri != nullptr) {
+        return originUri->ToString();
+    }
+    return "";
 }
 
 bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
