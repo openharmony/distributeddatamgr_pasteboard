@@ -525,6 +525,7 @@ private:
     void ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo);
     static int32_t ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
        std::string progressKey);
+    static int32_t CheckProgressParam(std::shared_ptr<GetDataParams> params);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     bool constructing_ = false;
@@ -532,6 +533,7 @@ private:
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
     std::atomic<uint32_t> getSequenceId_ = 0;
     static std::atomic<bool> remoteTask_;
+    static std::atomic<bool> isPasting_;
     class StaticDestoryMonitor {
     public:
         StaticDestoryMonitor() : destoryed_(false) {}

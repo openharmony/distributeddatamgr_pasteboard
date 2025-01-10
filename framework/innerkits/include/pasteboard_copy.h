@@ -91,6 +91,7 @@ struct CopyInfo {
     std::string destUri;
     std::string srcPath;
     std::string destPath;
+    std::string realDest;
     int32_t index;
     int32_t uriNum;
     int32_t notifyFd = -1;

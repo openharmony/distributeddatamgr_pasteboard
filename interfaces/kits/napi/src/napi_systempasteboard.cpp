@@ -1183,10 +1183,8 @@ void SystemPasteboardNapi::GetDataWithProgressParam(std::shared_ptr<GetDataParam
             !CheckArgsType(env, argv[0], napi_object, "Parameter error. The type of object must be function.")) {
             return napi_invalid_arg;
         }
-        if (!ParseJsGetDataWithProgress(env, argv[0], context->getDataParams)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "parse getDataWithProgress param failed!");
-            context->SetErrInfo(static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
-                "params is invalid.");
+        if (!CheckExpression(env, ParseJsGetDataWithProgress(env, argv[0], context->getDataParams),
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. parse param failed!")) {
             return napi_invalid_arg;
         }
         return napi_ok;

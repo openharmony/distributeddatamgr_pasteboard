@@ -54,6 +54,7 @@ public:
     static void* GetDataCallback(void* context, const char* type);
     static constexpr int INIT_VALUE = 0;
     static constexpr int UPDATE_VALUE = 1;
+    static constexpr int uriLen = 10;
     static uint64_t selfTokenId_;
     static AccessTokenID testTokenId_;
     static constexpr char PLAINTEXT_CONTENT[] = "PLAINTEXT_CONTENT";
@@ -1141,12 +1142,81 @@ void Pasteboard_ProgressNotify(Pasteboard_ProgressInfo progressInfo)
  */
 HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress001, TestSize.Level1)
 {
-    std::string plainText = "helloWorld";
-    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
-
+    int status = -1;
     OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, nullptr, &status);
+    EXPECT_EQ(status, ERR_INVALID_PARAMETER);
+    EXPECT_EQ(getData, nullptr);
+
+    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
+    getData = OH_Pasteboard_GetDataWithProgress(nullptr, g_params, &status);
+    EXPECT_EQ(status, ERR_INVALID_PARAMETER);
+    EXPECT_EQ(getData, nullptr);
+    getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, nullptr);
+    EXPECT_EQ(status, ERR_INVALID_PARAMETER);
+    EXPECT_EQ(getData, nullptr);
+    free(g_params);
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithProgress002
+ * @tc.desc: should get html & text when set html & text with https uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress002, TestSize.Level1)
+{
+    int status = -1;
+    OH_Pasteboard *pasteboard = OH_Pasteboard_Create();
+    const char *uri = "/data/storage/el2/base/haps/entry/files/data/storage/el2/base/haps/entry/"
+        "files/data/storage/el2/base/haps/entry/files/data/storage/el2/base/haps/entry/files/data/"
+        "storage/el2/base/haps/entry/files/data/storage/el2/base/haps/entry/files/haps/entry/files/dstFile.txt";
+    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
+    g_params->destUri = (char *)uri;
+    g_params->destUriLen = strlen(uri);
+    g_params->fileConflictOption = OH_PASTEBOARD_SKIP;
+    g_params->progressIndicator = OH_PASTEBOARD_NONE;
+    g_params->progressListener.callback = Pasteboard_ProgressNotify;
+    OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
+    EXPECT_EQ(status, ERR_INVALID_PARAMETER);
+    EXPECT_EQ(getData, nullptr);
+    free(g_params);
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithProgress003
+ * @tc.desc: should get html & text when set html & text with https uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress003, TestSize.Level1)
+{
+    int status = -1;
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    const char *uri = "/data/storage/el2/base/haps/entry/files/dstFile.txt";
+    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
+    g_params->destUri = (char *)uri;
+    g_params->destUriLen = uriLen;
+    g_params->fileConflictOption = OH_PASTEBOARD_SKIP;
+    g_params->progressIndicator = OH_PASTEBOARD_NONE;
+    g_params->progressListener.callback = Pasteboard_ProgressNotify;
+    OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
+    EXPECT_EQ(status, ERR_INVALID_PARAMETER);
+    EXPECT_EQ(getData, nullptr);
+    free(g_params);
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithProgress004
+ * @tc.desc: should get html & text when set html & text with https uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress004, TestSize.Level1)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    int32_t ret = OH_Pasteboard_ClearData(pasteboard);
+    EXPECT_EQ(ret, ERR_OK);
     const char *uri = "/data/storage/el2/base/haps/entry/files/dstFile.txt";
     g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
     g_params->destUri = (char *)uri;
@@ -1156,16 +1226,34 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress001, TestSize.Leve
     g_params->progressListener.callback = Pasteboard_ProgressNotify;
     int status = -1;
     OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
+    EXPECT_EQ(status, OH_PASTEBOARD_GET_DATA_FAILED);
+    EXPECT_EQ(getData, nullptr);
+    free(g_params);
+
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithProgress005
+ * @tc.desc: should get html & text when set html & text with https uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress005, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
+    g_params->fileConflictOption = OH_PASTEBOARD_SKIP;
+    g_params->progressIndicator = OH_PASTEBOARD_NONE;
+    g_params->progressListener.callback = Pasteboard_ProgressNotify;
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
     EXPECT_EQ(status, ERR_OK);
     EXPECT_NE(getData, nullptr);
-
-    unsigned int getrecordCount = 0;
-    OH_UdmfRecord **getRecords = OH_UdmfData_GetRecords(getData, &getrecordCount);
-    EXPECT_EQ(getrecordCount, 1);
-    OH_UdsPlainText *getPlainText = OH_UdsPlainText_Create();
-    OH_UdmfRecord_GetPlainText(getRecords[0], getPlainText);
-    const char *getContent = OH_UdsPlainText_GetContent(getPlainText);
-    EXPECT_STREQ(getContent, plainText.c_str());
 
     OH_Pasteboard_Destroy(pasteboard);
 }

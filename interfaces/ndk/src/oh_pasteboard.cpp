@@ -269,6 +269,7 @@ void ProgressCancel()
 OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pasteboard_GetDataParams *params,
     int *status)
 {
+    #define MAX_DESTURI_LEN 250
     if (!IsPasteboardValid(pasteboard) || params == nullptr || status == nullptr) {
         if (status != nullptr) {
             *status = ERR_INVALID_PARAMETER;
@@ -278,6 +279,13 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
     auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
     auto getDataParams = std::make_shared<OHOS::MiscServices::GetDataParams>();
     if (params->destUri != nullptr) {
+        if (strlen(params->destUri) > MAX_DESTURI_LEN || strlen(params->destUri) <= 0 ||
+            strlen(params->destUri) != params->destUriLen) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "destUri is invalid, destUriLen=%{public}zu",
+                strlen(params->destUri));
+            *status = ERR_INVALID_PARAMETER;
+            return nullptr;
+        }
         getDataParams->destUri = params->destUri;
     }
     g_listener = params->progressListener;

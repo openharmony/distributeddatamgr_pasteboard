@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <chrono>
 #include <memory>
+#include <cstdio>
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
@@ -172,7 +173,8 @@ int32_t PasteBoardCopyFile::SendFileCore(std::shared_ptr<MiscServices::FDGuard> 
             return errno;
         }
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
-            return ECANCELED;
+            std::remove(copyInfo->realDest.c_str());
+            break;
         }
         offset += static_cast<int64_t>(ret);
         size -= static_cast<int64_t>(ret);
@@ -379,6 +381,7 @@ int32_t PasteBoardCopyFile::CopyFile(const std::string &src, const std::string &
         auto fileName = filePath.filename();
         realDest += fileName.string();
     }
+    copyInfo->realDest = realDest;
     std::error_code errCode;
     if (std::filesystem::exists(realDest, errCode) && errCode.value() == ERRNO_NOERR && copyInfo->option == FILE_SKIP) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File has existed. dest = %{public}s", realDest.c_str());
@@ -937,6 +940,10 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
     progressListener_ = dataParams->listener;
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     for (int i = 0; i < g_recordSize; i++) {
+        if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "canceled success!");
+            break;
+        }
         record = pasteData.GetRecordAt(i);
         if (record == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Record is nullptr");
@@ -956,8 +963,6 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         copyInfo->uriNum = g_recordSize;
         auto callback = RegisterListener(copyInfo);
         if (callback == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CopyCallback registe failed");
-            ProgressInit();
             return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
         }
         if (pasteData.IsRemote() || IsRemoteUri(copyInfo->srcUri)) {

@@ -122,7 +122,7 @@ int32_t MiscServices::TransListener::CopyFileFromSoftBus(const std::string &srcU
     if (ret != ERRNO_NOERR) {
         return EIO;
     }
-    ProgressSignalClient::GetInstance().SaveSessionName(info.sessionName);
+    ProgressSignalClient::GetInstance().SetFilePathOfRemoteTask(info.sessionName, destUri);
     auto copyResult = WaitForCopyResult(transListener);
     if (copyResult == FAILED) {
         return HandleCopyFailure(transListener->copyEvent_, info, disSandboxPath, currentId);
