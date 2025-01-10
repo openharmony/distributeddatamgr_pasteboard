@@ -149,10 +149,8 @@ void PasteboardService::OnStart()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardService OnStart.");
     std::lock_guard<std::mutex> lock(saMutex_);
-    if (state_ == ServiceRunningState::STATE_RUNNING) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOG(state_ != ServiceRunningState::STATE_RUNNING,
+        PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
     IPCSkeleton::SetMaxWorkThreadNum(MAX_IPC_THREAD_NUM);
     InitServiceHandler();
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
