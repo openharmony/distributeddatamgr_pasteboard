@@ -375,7 +375,7 @@ int32_t PasteBoardCopyFile::CopyFile(const std::string &src, const std::string &
         realDest += '/';
     }
     if (IsDirectory(dest)) {
-        std::filesystem::path filePath(copyInfo->srcUri);
+        std::filesystem::path filePath(copyInfo->srcPath);
         auto fileName = filePath.filename();
         realDest += fileName.string();
     }
@@ -765,10 +765,10 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
     copyInfo->destPath = destFileUri.GetPath();
     copyInfo->srcPath = GetRealPath(copyInfo->srcPath);
     copyInfo->destPath = GetRealPath(copyInfo->destPath);
-    std::string realSrc = srcUri;
+    std::string realSrc = copyInfo->srcPath;
     if (IsRemoteUri(copyInfo->srcUri) && IsDirectory(copyInfo->destPath)) {
-        int index = copyInfo->srcUri.rfind("?", 0);
-        realSrc = copyInfo->srcUri.substr(0, index);
+        int index = copyInfo->srcPath.rfind("?", 0);
+        realSrc = copyInfo->srcPath.substr(0, index);
         std::filesystem::path filePath(realSrc);
         auto fileName = filePath.filename();
         if (copyInfo->destUri.back() != '/') {
