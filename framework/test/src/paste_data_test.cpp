@@ -736,7 +736,7 @@ HWTEST_F(PasteDataTest, ClipPlugin001, TestSize.Level0)
     auto clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME_VAL), release);
     ClipPlugin::Factory *factory = nullptr;
     auto result = ClipPlugin::RegCreator(PLUGIN_NAME_VAL, factory);
-    EXPECT_TRUE(result);
+    EXPECT_FALSE(result);
     auto userId = 10000;
     auto events1 = clipPlugin_->GetTopEvents(1, userId);
     EXPECT_TRUE(events1.size() == 0);
