@@ -703,7 +703,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress003, TestSize.Level0)
     params->progressIndicator = NONE_PROGRESS_INDICATOR;
     params->listener.ProgressNotify = ProgressNotifyTest;
     int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
-    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::PRPGRESS_CANCEL_SUCCESS));
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
 /**

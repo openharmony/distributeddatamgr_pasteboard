@@ -14,6 +14,7 @@
  */
 
 #include <algorithm>
+#include <cstdio>
 #include <chrono>
 #include <map>
 
@@ -41,11 +42,14 @@ void ProgressSignalClient::Init()
     instance_ = nullptr;
     needCancel_.store(false);
     remoteTask_.store(false);
+    sessionName_.clear();
+    filePath_.clear();
 }
 
-void ProgressSignalClient::SaveSessionName(const std::string &sessionName)
+void ProgressSignalClient::SetFilePathOfRemoteTask(const std::string &sessionName, const std::string &filePath)
 {
     sessionName_ = sessionName;
+    filePath_ = filePath;
 }
 
 void ProgressSignalClient::Cancel()
@@ -53,9 +57,13 @@ void ProgressSignalClient::Cancel()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressSignalClient Cancel in!");
     if (!sessionName_.empty()) {
         auto ret = Storage::DistributedFile::DistributedFileDaemonManager::GetInstance().CancelCopyTask(sessionName_);
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CancelCopyTask, ret = %{public}d", ret);
+        if (ret != 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CancelCopyTask, ret = %{public}d", ret);
+            return;
+        }
+        std::remove(filePath_.c_str());
         sessionName_.clear();
-        return;
+        filePath_.clear();
     }
     needCancel_.store(true);
 }
