@@ -32,7 +32,6 @@
 #include "int_wrapper.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "loader.h"
 #include "long_wrapper.h"
 #include "mem_mgr_client.h"
 #include "mem_mgr_proxy.h"
