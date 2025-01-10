@@ -1521,11 +1521,7 @@ bool PasteboardService::HasLocalDataType(const std::string &mimeType)
         return false;
     }
     std::vector<std::string> mimeTypes = it.second->GetMimeTypes();
-    auto isWebData = it.second->GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG;
     auto isExistType = std::find(mimeTypes.begin(), mimeTypes.end(), mimeType) != mimeTypes.end();
-    if (isWebData) {
-        return mimeType == MIMETYPE_TEXT_HTML && isExistType;
-    }
     return isExistType;
 }
 
