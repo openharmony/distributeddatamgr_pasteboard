@@ -117,7 +117,7 @@ void PasteboardClient::Init()
     if (proxyService == nullptr) {
         return;
     }
-    ststic std::mutex initMutex;
+    static std::mutex initMutex;
     std::lock_guard<std::mutex> lock(initMutex);
     if (clientDeathObserverPtr_ == nullptr) {
         clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
