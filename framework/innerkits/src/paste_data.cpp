@@ -182,6 +182,9 @@ std::vector<std::string> PasteData::GetMimeTypes()
 {
     std::set<std::string> mimeTypes;
     for (const auto &item : records_) {
+        if (item->GetFrom() > 0 && item->GetRecordId() != item->GetFrom()) {
+            continue;
+        }
         auto itemTypes = item->GetMimeTypes();
         mimeTypes.insert(itemTypes.begin(), itemTypes.end());
     }
