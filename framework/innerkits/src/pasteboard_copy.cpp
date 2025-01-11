@@ -174,7 +174,8 @@ int32_t PasteBoardCopyFile::SendFileCore(std::shared_ptr<MiscServices::FDGuard> 
         }
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             std::remove(copyInfo->realDest.c_str());
-            break;
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "Sendfile task canceled, remain size %{public}" PRId64, size);
+            return ERRNO_NOERR;
         }
         offset += static_cast<int64_t>(ret);
         size -= static_cast<int64_t>(ret);
