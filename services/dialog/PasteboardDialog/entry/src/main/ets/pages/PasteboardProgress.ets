@@ -26,10 +26,15 @@ import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 import { ComponentContent } from '@ohos.arkui.node';
 import window from '@ohos.window';
+import rpc from '@ohos.rpc';
 import unifiedDataChannel from '@ohos.data.unifiedDataChannel';
 import uniformDataStruct from '@ohos.data.uniformDataStruct';
 import uniformTypeDescriptor from '@ohos.data.uniformTypeDescriptor';
-import { ProgressPromptText, ProgressErrorPromptText, SignalKey } from '../common/constants/CommonConstants';
+import CommonConstants, {
+  ProgressPromptText,
+  ProgressErrorPromptText,
+  SignalValue
+} from '../common/constants/CommonConstants';
 import GlobalContext from '../PasteboardProgressAbility/GlobalContext';
 
 const TAG = 'PasteboardProgressAbility: ';
@@ -37,6 +42,7 @@ const DIALOG_MARGIN: number = getNumberByResourceId($r('sys.float.padding_level8
 const PERCENTAGE_CALCULATION: number = 100;
 const DIALOG_MAX_WIDTH: number = 400;
 const DIALOG_MAX_HEIGHT_PERCENTAGE: number = 0.9;
+const PROGRESS_SIGNAL_IPC_CODE: number = 0;
 
 function getNumberByResourceId(resourceId: number, defaultValue: number, allowZero?: boolean): number {
   try {
@@ -99,7 +105,7 @@ export struct Index {
   private contentNode: ComponentContent<Params> | undefined = undefined;
   private timer: number | null = null;
   private pollInterval: number = 50;
-  private timeoutInterval: number = 3000;
+  private timeoutInterval: number = 10000;
   private unChangeProgressTimes: number = 0;
   private isTimeoutError: boolean = false;
   private latestUpdateTime: number = 0;
@@ -226,29 +232,20 @@ export struct Index {
     }
   }
 
-  cancelTask() {
-    let options: unifiedDataChannel.Options = {
-      key: this.want.parameters['signalKey']
-    };
+  async cancelTask() {
+    const option = new rpc.MessageOption();
+    const data = new rpc.MessageSequence();
+    const reply = new rpc.MessageSequence();
     try {
-      let plainText: uniformDataStruct.PlainText = {
-        uniformDataType: 'general.plain-text',
-        textContent: this.isTimeoutError ? SignalKey.CANCEL_TIMEOUT_ERROR : SignalKey.CANCEL_PROGRESS_TASK
-      }
-      let unifiedData = new unifiedDataChannel.UnifiedData();
-      let plainTextRecord =
-        new unifiedDataChannel.UnifiedRecord(uniformTypeDescriptor.UniformDataType.PLAIN_TEXT, plainText);
-      unifiedData.addRecord(plainTextRecord);
-      unifiedDataChannel.updateData(options, unifiedData, (err) => {
-        if (err === undefined) {
-          console.info(TAG + 'Succeeded in updating data.');
-        } else {
-          console.error(TAG + `Failed to update data. code is ${err.code}, message is ${err.message}`);
-        }
-      })
-    } catch (e) {
-      const error: BusinessError = e as BusinessError;
-      console.error(TAG + `Update data throws an exception. code is ${error.code}, message is ${error.message}`);
+      const proxy = this.want.parameters['ipcCallback'].value as rpc.IRemoteObject;
+      await data.writeInterfaceToken(CommonConstants.COMP_DIALOG_CALLBACK);
+      await data.writeString(this.isTimeoutError ? SignalValue.CANCEL_TIMEOUT_ERROR : SignalValue.CANCEL_PROGRESS_TASK);
+      proxy.sendMessageRequest(PROGRESS_SIGNAL_IPC_CODE, data, reply, option);
+    } catch (err) {
+      console.error(TAG + `hap sendMessageRequest failed: ${JSON.stringify(err)}`);
+    } finally {
+      data.reclaim();
+      reply.reclaim();
     }
   }
 

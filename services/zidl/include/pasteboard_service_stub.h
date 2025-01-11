@@ -57,7 +57,7 @@ private:
     int32_t OnPasteStart(MessageParcel &data, MessageParcel &reply);
     int32_t OnPasteComplete(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetRemoteDeviceName(MessageParcel &data, MessageParcel &reply);
-    int32_t OnProgressMakeMessageInfo(MessageParcel &data, MessageParcel &reply);
+    int32_t OnShowProgress(MessageParcel &data, MessageParcel &reply);
     int32_t OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetChangeCount(MessageParcel &data, MessageParcel &reply);
 

@@ -50,6 +50,7 @@ ohos_shared_library("pasteboard_client") {
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_service_proxy.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_signal_stub.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "src/convert_utils.cpp",
     "src/paste_data.cpp",
@@ -61,6 +62,7 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
     "src/pasteboard_progress_signal.cpp",
+    "src/pasteboard_signal_callback.cpp",
     "src/pasteboard_utils.cpp",
     "src/pasteboard_web_controller.cpp",
   ]

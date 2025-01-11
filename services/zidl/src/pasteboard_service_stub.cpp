@@ -75,7 +75,7 @@ PasteboardServiceStub::PasteboardServiceStub()
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_REMOTE_DEVICE_NAME)] =
         &PasteboardServiceStub::OnGetRemoteDeviceName;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PROGRESS_MAKE_MESSAGE_INFO)] =
-        &PasteboardServiceStub::OnProgressMakeMessageInfo;
+        &PasteboardServiceStub::OnShowProgress;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_CHANGE_COUNT)] =
         &PasteboardServiceStub::OnGetChangeCount;
 }
@@ -403,11 +403,14 @@ int32_t PasteboardServiceStub::OnGetRemoteDeviceName(MessageParcel &data, Messag
     return ERR_OK;
 }
 
-int32_t PasteboardServiceStub::OnProgressMakeMessageInfo(MessageParcel &data, MessageParcel &reply)
+int32_t PasteboardServiceStub::OnShowProgress(MessageParcel &data, MessageParcel &reply)
 {
     std::string progressKey = data.ReadString();
-    std::string signalKey = data.ReadString();
-    ProgressMakeMessageInfo(progressKey, signalKey);
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    if (callback == nullptr) {
+        return ERR_INVALID_VALUE;
+    }
+    ShowProgress(progressKey, callback);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }

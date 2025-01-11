@@ -39,6 +39,7 @@
 #include "pasteboard_load_callback.h"
 #include "pasteboard_observer.h"
 #include "pasteboard_progress.h"
+#include "pasteboard_signal_callback.h"
 #include "pasteboard_utils.h"
 #include "pasteboard_web_controller.h"
 #include "string_ex.h"
@@ -67,7 +68,6 @@ std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
 sptr<IRemoteObject> clientDeathObserverPtr_;
 std::shared_ptr<FFRTTimer> ffrtTimer_;
-std::atomic<bool> isFinishProgress_(false);
 std::atomic<bool> PasteboardClient::remoteTask_(false);
 std::atomic<bool> PasteboardClient::isPasting_(false);
 
@@ -313,75 +313,9 @@ void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<ProgressInfo> p
     std::unique_lock<std::mutex> lock(instanceLock_);
     std::string progressKey = g_progressKey;
     lock.unlock();
-    if (progressInfo->percentage == PASTEBOARD_PROGRESS_FINISH_PERCENT) {
-        isFinishProgress_.store(true);
-    }
     std::string currentValue = std::to_string(progressInfo->percentage);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "pasteboard progress percent = %{public}s", currentValue.c_str());
     PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
-}
-
-int32_t PasteboardClient::HandleProgressStatus(const std::string &signalKey,
-    std::shared_ptr<ProgressReportLintener> progressReport)
-{
-    std::string defaultValue = "0";
-    int32_t progressStatusValue = 0;
-    int32_t retry = 0;
-    do {
-        std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
-        auto ret = PasteBoardProgress::GetInstance().GetValue(signalKey, defaultValue);
-        try {
-            progressStatusValue = std::stoi(defaultValue);
-        } catch (const std::invalid_argument& e) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-                "progressStatusValue invalid = %{public}s", e.what());
-            return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-        } catch (const std::out_of_range& e) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-                "progressStatusValue out of range = %{public}s", e.what());
-            return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-        }
-        if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-            retry++;
-        } else {
-            retry = 0;
-        }
-    } while (progressStatusValue == NORMAL_PASTE && retry <= PASTEBOARD_PROGRESS_RETRY_TIMES
-        && !isFinishProgress_.load());
-    if (progressStatusValue == NORMAL_PASTE) {
-        return static_cast<int32_t>(PasteboardError::E_OK);
-    }
-    if (progressStatusValue == CANCEL_PASTE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cancel paste");
-        ProgressSignalClient::GetInstance().Cancel();
-    } else if (progressStatusValue == PASTE_TIME_OUT) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress time out");
-        progressReport->OnProgressFail(static_cast<int32_t>(PasteboardError::PROGRESS_PASTE_TIME_OUT));
-    } else {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress invalid status");
-        progressReport->OnProgressFail(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
-    }
-    return static_cast<int32_t>(PasteboardError::E_OK);
-}
-
-int32_t PasteboardClient::PullHapSignal(std::string &signalKey, std::shared_ptr<ProgressReportLintener> progressReport)
-{
-    if (signalKey.empty()) {
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-    }
-    std::shared_ptr<FFRTTimer> ffrtTimer;
-    ffrtTimer = std::make_shared<FFRTTimer>("pasteboard_progress_abnormal");
-    if (ffrtTimer != nullptr) {
-        FFRTTask signalTask = [this, signalKey, progressReport] {
-            isFinishProgress_.store(false);
-            HandleProgressStatus(signalKey, progressReport);
-        };
-        ffrtTimer->SetTimer(signalKey, signalTask, 0);
-    }
-    if (ffrtTimer != nullptr) {
-        ffrtTimer->CancelTimer(signalKey);
-    }
-    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params)
@@ -402,7 +336,6 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::
             params->listener.ProgressNotify(info);
         }
     }
-    isFinishProgress_.store(true);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
@@ -555,7 +488,6 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     }
     isPasting_.store(true);
     std::string progressKey;
-    std::string signalKey;
     std::string keyDefaultValue = "0";
     std::shared_ptr<FFRTTimer> ffrtTimer;
     ffrtTimer = std::make_shared<FFRTTimer>("pasteboard_progress");
@@ -564,14 +496,10 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
         std::unique_lock<std::mutex> lock(instanceLock_);
         g_progressKey = progressKey;
         lock.unlock();
-        PasteBoardProgress::GetInstance().InsertValue(signalKey, keyDefaultValue); // 0%
         params->listener.ProgressNotify = GetProgressByProgressInfo;
-        std::shared_ptr<ProgressReportLintener> progressReport = std::make_shared<ProgressReportLintener>();
-        progressReport->OnProgressFail = OnProgressAbnormal;
-        PullHapSignal(signalKey, progressReport);
         if (ffrtTimer != nullptr) {
-            FFRTTask task = [this, progressKey, signalKey] {
-                ProgressMakeMessageInfo(progressKey, signalKey);
+            FFRTTask task = [this, progressKey] {
+                ShowProgress(progressKey);
             };
             ffrtTimer->SetTimer(progressKey, task, HAP_PULL_UP_TIME);
         }
@@ -970,13 +898,46 @@ int32_t PasteboardClient::GetRemoteDeviceName(std::string &deviceName, bool &isR
     return proxyService->GetRemoteDeviceName(deviceName, isRemote);
 }
 
-void PasteboardClient::ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey)
+int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
+{
+    int32_t progressStatusValue = 0;
+    std::shared_ptr<ProgressReportLintener> progressReport = std::make_shared<ProgressReportLintener>();
+    progressReport->OnProgressFail = OnProgressAbnormal;
+    try {
+        progressStatusValue = std::stoi(signalValue);
+    } catch (const std::invalid_argument &e) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
+            "progressStatusValue invalid = %{public}s", e.what());
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    } catch (const std::out_of_range &e) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
+            "progressStatusValue out of range = %{public}s", e.what());
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    if (progressStatusValue == NORMAL_PASTE) {
+        return static_cast<int32_t>(PasteboardError::E_OK);
+    }
+    if (progressStatusValue == CANCEL_PASTE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cancel paste");
+        ProgressSignalClient::GetInstance().Cancel();
+    } else if (progressStatusValue == PASTE_TIME_OUT) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress time out");
+        progressReport->OnProgressFail(static_cast<int32_t>(PasteboardError::PROGRESS_PASTE_TIME_OUT));
+    } else {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress invalid status");
+        progressReport->OnProgressFail(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardClient::ShowProgress(const std::string &progressKey)
 {
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         return;
     }
-    return proxyService->ProgressMakeMessageInfo(progressKey, signalKey);
+    sptr<PasteboardSignalCallback> callback = new PasteboardSignalCallback();
+    return proxyService->ShowProgress(progressKey, callback);
 }
 
 PasteboardSaDeathRecipient::PasteboardSaDeathRecipient() {}
