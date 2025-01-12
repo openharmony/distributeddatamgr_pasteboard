@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2023-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,8 +14,11 @@
  */
 
 #include "pasteboard_web_controller.h"
+
 #include <regex>
+
 #include "file_uri.h"
+#include "uri_permission_manager_client.h"
 
 namespace {
 const std::string IMG_TAG_PATTERN = "<img.*?>";
@@ -23,8 +26,11 @@ const std::string IMG_TAG_SRC_PATTERN = "src=(['\"])(.*?)\\1";
 const std::string IMG_TAG_SRC_HEAD = "src=\"";
 const std::string IMG_LOCAL_URI = "file:///";
 const std::string IMG_LOCAL_PATH = "://";
+const std::string FILE_SCHEME_PREFIX = "file://";
+
 constexpr uint32_t FOUR_BYTES = 4;
 constexpr uint32_t EIGHT_BIT = 8;
+const int32_t DOCS_LOCAL_PATH_SUBSTR_START_INDEX = 1;
 
 struct Cmp {
     bool operator()(const uint32_t &lhs, const uint32_t &rhs) const
@@ -44,23 +50,203 @@ PasteboardWebController &PasteboardWebController::GetInstance()
     return instance;
 }
 
+void PasteboardWebController::SplitWebviewPasteData(PasteData &pasteData)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "start");
+    auto hasExtraRecord = false;
+    for (const auto &record : pasteData.AllRecords()) {
+        auto htmlEntry = record->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+        if (htmlEntry == nullptr) {
+            continue;
+        }
+        std::shared_ptr<std::string> html = htmlEntry->ConvertToHtml();
+        if (html == nullptr || html->empty()) {
+            continue;
+        }
+        std::vector<std::shared_ptr<PasteDataRecord>> extraUriRecords = SplitHtml2Records(html, record->GetRecordId());
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "split uri count=%{public}zu", extraUriRecords.size());
+        if (extraUriRecords.empty()) {
+            continue;
+        }
+        hasExtraRecord = true;
+        for (const auto &item : extraUriRecords) {
+            pasteData.AddRecord(item);
+        }
+        record->SetFrom(record->GetRecordId());
+    }
+    if (hasExtraRecord) {
+        pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "end");
+}
+
+void PasteboardWebController::SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName)
+{
+    if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG) {
+        return;
+    }
+    for (auto &item : pasteData.AllRecords()) {
+        if (item->GetUri() == nullptr || item->GetFrom() == 0 || item->GetRecordId() == item->GetFrom()) {
+            continue;
+        }
+        std::shared_ptr<Uri> uri = item->GetUri();
+        std::string puri = uri->ToString();
+        if (puri.substr(0, PasteData::IMG_LOCAL_URI.size()) == PasteData::IMG_LOCAL_URI &&
+            puri.find(PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
+            std::string path = uri->GetPath();
+            std::string newUriStr = "";
+            if (path.substr(0, PasteData::DOCS_LOCAL_TAG.size()) == PasteData::DOCS_LOCAL_TAG) {
+                newUriStr = PasteData::FILE_SCHEME_PREFIX + path.substr(DOCS_LOCAL_PATH_SUBSTR_START_INDEX);
+            } else {
+                newUriStr = PasteData::FILE_SCHEME_PREFIX + bundleName + path;
+            }
+            item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(),
+                newUriStr.c_str());
+        }
+    }
+}
+
+void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
+{
+    std::vector<std::string> uris;
+    std::vector<size_t> indexs;
+    std::vector<bool> checkResults;
+    for (size_t i = 0; i < pasteData.GetRecordCount(); i++) {
+        auto item = pasteData.GetRecordAt(i);
+        if (item == nullptr || item->GetOriginUri() == nullptr) {
+            continue;
+        }
+        auto uri = item->GetOriginUri()->ToString();
+        uris.emplace_back(uri);
+        indexs.emplace_back(i);
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "uri count=%{public}zu", uris.size());
+    if (uris.empty()) {
+        return;
+    }
+    size_t offset = 0;
+    size_t length = uris.size();
+    size_t count = PasteData::MAX_URI_COUNT;
+    while (length > offset) {
+        if (length - offset < PasteData::MAX_URI_COUNT) {
+            count = length - offset;
+        }
+        auto sendValues = std::vector<std::string>(uris.begin() + offset, uris.begin() + offset + count);
+        std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(
+            sendValues, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
+        checkResults.insert(checkResults.end(), ret.begin(), ret.end());
+        offset += count;
+    }
+    for (size_t i = 0; i < indexs.size(); i++) {
+        auto item = pasteData.GetRecordAt(indexs[i]);
+        if (item == nullptr || item->GetOriginUri() == nullptr) {
+            continue;
+        }
+        item->SetGrantUriPermission(checkResults[i]);
+    }
+}
+
+void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &record)
+{
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(record->GetUri() != nullptr, PASTEBOARD_MODULE_COMMON,
+        "id=%{public}u, uri is null", record->GetRecordId());
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(record->GetFrom() != 0 && record->GetFrom() != record->GetRecordId(),
+        PASTEBOARD_MODULE_COMMON, "id=%{public}u, from=%{public}u", record->GetRecordId(), record->GetFrom());
+
+    std::shared_ptr<Uri> uri = record->GetUri();
+    std::string puri = uri->ToString();
+    std::string realUri = puri;
+    if (puri.substr(0, PasteData::FILE_SCHEME_PREFIX.size()) == PasteData::FILE_SCHEME_PREFIX) {
+        AppFileService::ModuleFileUri::FileUri fileUri(puri);
+        realUri = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(), realUri.c_str());
+    }
+    if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
+        record->SetConvertUri(realUri);
+    } else {
+        record->SetUri(std::make_shared<OHOS::Uri>(realUri));
+    }
+}
+
+void PasteboardWebController::RetainUri(PasteData &pasteData)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "start");
+    if (!pasteData.IsLocalPaste()) {
+        return;
+    }
+    // clear convert uri
+    for (size_t i = 0; i < pasteData.GetRecordCount(); ++i) {
+        auto record = pasteData.GetRecordAt(i);
+        if (record != nullptr) {
+            record->SetConvertUri("");
+        }
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "end");
+}
+
+void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData)
+{
+    if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG) {
+        return;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "rebuild start, record count=%{public}zu", pasteData.GetRecordCount());
+    auto justSplitHtml = false;
+    auto details = std::make_shared<Details>();
+    std::string textContent;
+    for (auto &item : pasteData.AllRecords()) {
+        justSplitHtml = justSplitHtml || item->GetFrom() > 0;
+        if (!item->GetTextContent().empty() && textContent.empty()) {
+            details = item->GetDetails();
+            textContent = item->GetTextContent();
+        }
+        RefreshUri(item);
+    }
+    if (justSplitHtml) {
+        MergeExtraUris2Html(pasteData);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "Rebuild webview PasteData end, merged uris into html.");
+        return;
+    }
+    if (pasteData.GetPrimaryHtml() == nullptr) {
+        return;
+    }
+
+    auto webData = std::make_shared<PasteData>(pasteData);
+    RebuildHtml(webData);
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
+    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(MIMETYPE_TEXT_HTML).
+        SetPlainText(pasteData.GetPrimaryText()).SetHtmlText(webData->GetPrimaryHtml()).Build();
+    if (details) {
+        pasteDataRecord->SetDetails(*details);
+    }
+    pasteDataRecord->SetUDType(UDMF::HTML);
+    pasteDataRecord->SetTextContent(textContent);
+    webData->AddRecord(pasteDataRecord);
+    std::size_t recordCnt = webData->GetRecordCount();
+    if (recordCnt >= 1) {
+        webData->RemoveRecordAt(recordCnt - 1);
+    }
+    pasteData = *webData;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "Rebuild end, record count=%{public}zu", pasteData.GetRecordCount());
+}
+
 std::vector<std::shared_ptr<PasteDataRecord>> PasteboardWebController::SplitHtml2Records(
     const std::shared_ptr<std::string> &html, uint32_t recordId) noexcept
 {
     std::vector<std::pair<std::string, uint32_t>> matchVec = SplitHtmlWithImgLabel(html);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "matchVec size: %{public}zu", matchVec.size());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "matchVec size: %{public}zu", matchVec.size());
     if (matchVec.empty()) {
         return {};
     }
     std::map<std::string, std::vector<uint8_t>> imgSrcMap = SplitHtmlWithImgSrcLabel(matchVec);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "imgSrcMap size: %{public}zu", imgSrcMap.size());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "imgSrcMap size: %{public}zu", imgSrcMap.size());
     return BuildPasteDataRecords(imgSrcMap, recordId);
 }
 
 void PasteboardWebController::MergeExtraUris2Html(PasteData &data)
 {
     auto recordGroups = GroupRecordWithFrom(data);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "recordGroups size: %{public}zu", recordGroups.size());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "recordGroups size: %{public}zu", recordGroups.size());
     for (auto &recordGroup : recordGroups) {
         ReplaceHtmlRecordContentByExtraUris(recordGroup.second);
     }
@@ -69,14 +255,14 @@ void PasteboardWebController::MergeExtraUris2Html(PasteData &data)
 
 std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(std::shared_ptr<PasteData> pasteData) noexcept
 {
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteData != nullptr, nullptr, PASTEBOARD_MODULE_CLIENT, "pasteData is null");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteData != nullptr, nullptr, PASTEBOARD_MODULE_COMMON, "pasteData is null");
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
     std::shared_ptr<std::string> htmlData;
     std::map<uint32_t, std::pair<std::string, std::string>, Cmp> replaceUris;
 
     for (const auto &item : pasteDataRecords) {
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(item != nullptr, nullptr,
-                                             PASTEBOARD_MODULE_CLIENT, "item is null");
+                                             PASTEBOARD_MODULE_COMMON, "item is null");
         std::shared_ptr<std::string> html = item->GetHtmlText();
         if (html != nullptr) {
             htmlData = html;
@@ -172,7 +358,7 @@ std::vector<std::shared_ptr<PasteDataRecord>> PasteboardWebController::BuildPast
         record->SetFrom(recordId);
         records.push_back(record);
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Build extra records size: %{public}zu", records.size());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "Build extra records size: %{public}zu", records.size());
     return records;
 }
 
@@ -181,11 +367,11 @@ void PasteboardWebController::RemoveRecordById(PasteData &pasteData, uint32_t re
     for (uint32_t i = 0; i < pasteData.GetRecordCount(); i++) {
         if (pasteData.GetRecordAt(i)->GetRecordId() == recordId) {
             if (pasteData.RemoveRecordAt(i)) {
-                PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT,
+                PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON,
                     "WebClipboardController RemoveRecord success, i=%{public}u", i);
                 return;
             }
-            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT,
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_COMMON,
                               "WebClipboardController RemoveRecord failed, i=%{public}u", i);
         }
     }
@@ -193,11 +379,11 @@ void PasteboardWebController::RemoveRecordById(PasteData &pasteData, uint32_t re
 
 void PasteboardWebController::RemoveAllRecord(std::shared_ptr<PasteData> pasteData) noexcept
 {
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteData != nullptr, PASTEBOARD_MODULE_CLIENT, "pasteData is null");
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteData != nullptr, PASTEBOARD_MODULE_COMMON, "pasteData is null");
     std::size_t recordCount = pasteData->GetRecordCount();
     for (uint32_t i = 0; i < recordCount; i++) {
         if (!pasteData->RemoveRecordAt(0)) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "WebClipboardController RemoveRecord failed, i=%{public}u", i);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "WebClipboardController RemoveRecord failed, i=%{public}u", i);
         }
     }
 }
@@ -240,14 +426,14 @@ void PasteboardWebController::ReplaceHtmlRecordContentByExtraUris(
         }
     }
     if (htmlData == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "htmlData is nullptr");
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_COMMON, "htmlData is nullptr");
         return;
     }
 
     for (const auto &replaceUri : replaceUris) {
         htmlData->replace(replaceUri.first, replaceUri.second.second.size(), replaceUri.second.first);
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "replace uri count: %{public}zu", replaceUris.size());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "replace uri count: %{public}zu", replaceUris.size());
     if (htmlRecord != nullptr) {
         auto htmlUtdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, MIMETYPE_TEXT_HTML);
         auto newHtmlEntry = std::make_shared<PasteDataEntry>(htmlUtdId, *htmlData);
@@ -274,13 +460,13 @@ std::map<std::uint32_t, std::vector<std::shared_ptr<PasteDataRecord>>> Pasteboar
 
 void PasteboardWebController::RemoveExtraUris(PasteData &data)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Before remove record count: %{public}zu", data.AllRecords().size());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "Before remove record count: %{public}zu", data.AllRecords().size());
     for (const auto &record : data.AllRecords()) {
         if (record->GetFrom() > 0 && record->GetMimeType() == MIMETYPE_TEXT_URI) {
             RemoveRecordById(data, record->GetRecordId());
         }
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "After remove record count: %{public}zu", data.AllRecords().size());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "After remove record count: %{public}zu", data.AllRecords().size());
 }
 } // namespace MiscServices
 } // namespace OHOS

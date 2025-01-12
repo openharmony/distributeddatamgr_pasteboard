@@ -131,6 +131,7 @@ public:
     bool IsDelayRecord() const;
     void SetDataId(uint32_t dataId);
     uint32_t GetDataId() const;
+    uint32_t GetRecordId() const;
     void SetPasteId(const std::string &pasteId);
     std::string GetPasteId() const;
     std::string GetDeviceId() const;
@@ -142,7 +143,6 @@ public:
     static std::string WEBVIEW_PASTEDATA_TAG;
     static const std::string DISTRIBUTEDFILES_TAG;
     static const std::string PATH_SHARE;
-    static const std::string FILE_SCHEME_PREFIX;
     static const std::string IMG_LOCAL_URI;
     static const std::string SHARE_PATH_PREFIX;
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
@@ -150,6 +150,7 @@ public:
     std::string deviceId_;
     static const std::string REMOTE_FILE_SIZE_LONG;
     static const std::string DOCS_LOCAL_TAG;
+    static constexpr size_t MAX_URI_COUNT = 500;
 
 private:
     void RefreshMimeProp();

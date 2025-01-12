@@ -80,6 +80,8 @@ enum class PasteboardError : int32_t {
     PROGRESS_START_ERROR,
     PROGRESS_ABNORMAL,
     PRPGRESS_CANCEL_SUCCESS,
+    GET_ENTRY_VALUE_FAILED,
+    REBUILD_HTML_FAILED,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -128,6 +130,14 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::GET_LOCAL_DATA, "GET_LOCAL_DATA"},
     {PasteboardError::INVALID_EVENT_ACCOUNT, "INVALID_EVENT_ACCOUNT"},
     {PasteboardError::INVALID_EVENT_STATUS, "INVALID_EVENT_STATUS"},
+    {PasteboardError::PROGRESS_PASTE_TIME_OUT, "PROGRESS_PASTE_TIME_OUT"},
+    {PasteboardError::PROGRESS_CANCEL_PASTE, "PROGRESS_CANCEL_PASTE"},
+    {PasteboardError::COPY_FILE_ERROR, "COPY_FILE_ERROR"},
+    {PasteboardError::PROGRESS_START_ERROR, "PROGRESS_START_ERROR"},
+    {PasteboardError::PROGRESS_ABNORMAL, "PROGRESS_ABNORMAL"},
+    {PasteboardError::PRPGRESS_CANCEL_SUCCESS, "PRPGRESS_CANCEL_SUCCESS"},
+    {PasteboardError::GET_ENTRY_VALUE_FAILED, "GET_ENTRY_VALUE_FAILED"},
+    {PasteboardError::REBUILD_HTML_FAILED, "REBUILD_HTML_FAILED"},
 };
 
 } // namespace MiscServices

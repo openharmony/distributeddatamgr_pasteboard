@@ -259,7 +259,7 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
             return ERR_INVALID_VALUE;
         }
     }
-    auto result = SavePasteData(pasteData, delayGetter, entryGetter);
+    auto result = SetPasteData(*pasteData, delayGetter, entryGetter);
     HiViewAdapter::ReportUseBehaviour(*pasteData, HiViewAdapter::COPY_STATE, result);
     if (!reply.WriteInt32(result)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write SetPasteData result");

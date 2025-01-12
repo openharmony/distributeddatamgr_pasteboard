@@ -509,8 +509,6 @@ public:
 private:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
-    static void RetainUri(PasteData &pasteData);
-    static void SplitWebviewPasteData(PasteData &pasteData);
     static void GetProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo);
     static int32_t HandleProgressStatus(const std::string &signalKey,
        std::shared_ptr<ProgressReportLintener> progressReport);
@@ -518,7 +516,6 @@ private:
     static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
     static void ProgressSmoothToTwentyPercent(PasteData &pasteData, std::string &progressKey,
        std::shared_ptr<GetDataParams> params);
-    static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
     int32_t GetPasteDataFromService(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo,
        std::string progressKey, std::shared_ptr<GetDataParams> params);
     static void OnProgressAbnormal(int32_t result);
@@ -551,7 +548,6 @@ private:
         bool destoryed_;
     };
     static StaticDestoryMonitor staticDestoryMonitor_;
-    void RebuildWebviewPasteData(PasteData &pasteData);
     void Init();
 };
 } // namespace MiscServices

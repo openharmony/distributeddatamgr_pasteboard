@@ -114,8 +114,8 @@ public:
     virtual int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value) override;
     virtual int32_t GetPasteData(PasteData &data, int32_t &syncTime) override;
     virtual bool HasPasteData() override;
-    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
-        const sptr<IPasteboardEntryGetter> entryGetter) override;
+    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+        const sptr<IPasteboardEntryGetter> entryGetter = nullptr) override;
     virtual bool IsRemoteData() override;
     virtual std::vector<std::string> GetMimeTypes() override;
     virtual bool HasDataType(const std::string &mimeType) override;
@@ -236,13 +236,10 @@ private:
     pid_t imePid_ = -1;
     bool hasImeObserver_ = false;
 
-    int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter = nullptr,
-        sptr<IPasteboardEntryGetter> entryGetter = nullptr) override;
-    int32_t SaveData(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter = nullptr,
-        sptr<IPasteboardEntryGetter> entryGetter = nullptr);
-    void HandleDelayDataAndRecord(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter,
-        sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo);
-    int32_t PreParePasteData(std::shared_ptr<PasteData> &pasteData, const AppInfo &appInfo);
+    int32_t SaveData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+        const sptr<IPasteboardEntryGetter> entryGetter = nullptr);
+    void HandleDelayDataAndRecord(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
+        const sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
     void SetPasteDataDot(PasteData &pasteData);
     std::pair<int32_t, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
@@ -259,10 +256,15 @@ private:
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
+    int32_t GrantDelayEntry(const std::string &originAuthority, const std::string &targetBundle,
+        PasteDataEntry &entry);
+    int32_t GrantDelayHtmlEntry(const std::string &originAuthority, const std::string &targetBundle,
+        PasteDataEntry &entry);
+    int32_t GrantDelayUriEntry(const std::string &originAuthority, const std::string &targetBundle,
+        PasteDataEntry &entry);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
     bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
-    void CheckAppUriPermission(PasteData &data);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void EstablishP2PLink(const std::string &networkId, const std::string &pasteId);
@@ -287,7 +289,6 @@ private:
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
-    void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DMAdapterInit();
     void NotifySaStatus();
