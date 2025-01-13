@@ -120,12 +120,8 @@
           }
         ],
         "test": [
-          "//foundation/distributeddatamgr/pasteboard/framework/test:PasteboardFrameworkTest",
-          "//foundation/distributeddatamgr/pasteboard/services/test:unittest",
-          "//foundation/distributeddatamgr/pasteboard/test/fuzztest:fuzztest",
-          "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardapi:unittest",
-          "//foundation/distributeddatamgr/pasteboard/interfaces/kits/napi/test/unittest/pasteboardperf:unittest",
-          "//foundation/distributeddatamgr/pasteboard/interfaces/ndk/unittest:unittest"
+          "//foundation/distributeddatamgr/pasteboard/test:unittest",
+          "//foundation/distributeddatamgr/pasteboard/test:fuzztest"
         ]
       },
         "hisysevent_config": [
