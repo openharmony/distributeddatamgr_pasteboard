@@ -97,13 +97,7 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_service_path}/zidl/src/pasteboard_service_stub.cpp",
     "unittest/src/pasteboard_service_test.cpp",
   ]
-  defines = [
-    "SCENE_BOARD_ENABLE",
-    "WITH_DLP",
-    "PB_DEVICE_INFO_MANAGER_ENABLE",
-    "PB_DEVICE_MANAGER_ENABLE",
-    "PB_SCREENLOCK_MGR_ENABLE",
-  ]
+  defines = []
   configs = [ ":module_private_config" ]
   cflags = [ "-fno-access-control" ]
   include_dirs = [
@@ -143,10 +137,6 @@ ohos_unittest("PasteServInterfaceTest") {
     "common_event_service:cesfwk_innerkits",
     "data_share:datashare_consumer",
     "dataclassification:data_transit_mgr",
-    "device_info_manager:distributed_device_profile_common",
-    "device_info_manager:distributed_device_profile_sdk",
-    "device_manager:devicemanagersdk",
-    "dlp_permission_service:libdlp_permission_sdk",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",
@@ -162,10 +152,8 @@ ohos_unittest("PasteServInterfaceTest") {
     "resource_schedule_service:ressched_client",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "screenlock_mgr:screenlock_client",
     "time_service:time_client",
     "udmf:udmf_client",
-    "window_manager:libwm_lite",
   ]
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
@@ -174,6 +162,38 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_tlv_path}:pasteboard_tlv",
     "${pasteboard_uri_path}:pasteboard_uri",
   ]
+  if (pasteboard_vixl_part_enabled) {
+    external_deps += [ "vixl:libvixl" ]
+    defines += [ "PB_VIXL_ENABLE" ]
+  }
+
+  if (window_manager_use_sceneboard) {
+    external_deps += [ "window_manager:libwm_lite" ]
+    defines += [ "SCENE_BOARD_ENABLE" ]
+  } else {
+    external_deps += [ "window_manager:libwm" ]
+  }
+  if (pasteboard_dlp_part_enabled) {
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+    defines += [ "WITH_DLP" ]
+  }
+  if (pasteboard_device_info_manager_part_enabled) {
+    external_deps += [
+      "device_info_manager:distributed_device_profile_common",
+      "device_info_manager:distributed_device_profile_sdk",
+    ]
+    defines += [ "PB_DEVICE_INFO_MANAGER_ENABLE" ]
+  }
+
+  if (pasteboard_device_manager_part_enabled) {
+    external_deps += [ "device_manager:devicemanagersdk" ]
+    defines += [ "PB_DEVICE_MANAGER_ENABLE" ]
+  }
+
+  if (pasteboard_screenlock_mgr_part_enabled) {
+    external_deps += [ "screenlock_mgr:screenlock_client" ]
+    defines += [ "PB_SCREENLOCK_MGR_ENABLE" ]
+  }
 }
 
 ohos_unittest("PasteboardDialogNormalTest") {
