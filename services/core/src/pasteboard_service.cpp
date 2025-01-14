@@ -360,87 +360,93 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto callPid = IPCSkeleton::GetCallingPid();
-    if (!(dataId == delayDataId_ && tokenId == delayTokenId_) && !VerifyPermission(tokenId)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "check permission failed, calling pid is %{public}d", callPid);
-        return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
-    }
-    auto appInfo = GetAppInfo(tokenId);
-    auto clip = clips_.Find(appInfo.userId);
-    auto tempTime = copyTime_.Find(appInfo.userId);
-    auto entryGetter = entryGetters_.Find(appInfo.userId);
-    if (!clip.first || !tempTime.first || !entryGetter.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "pasteboard has no data or entry getter");
-        return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
-    }
-    auto data = clip.second;
-    if (dataId != data->GetDataId()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "get record value fail, data is out time, pre dataId is %{public}d, cur dataId is %{public}d", dataId,
-            data->GetDataId());
-        return static_cast<int32_t>(PasteboardError::TIMEOUT_ERROR);
-    }
-    auto getter = entryGetter.second;
-    if (getter.first == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "entry getter is nullptr, dataId is %{public}d, recordId is %{public}d", dataId, recordId);
-        return static_cast<int32_t>(PasteboardError::OTHER_ERROR);
-    }
-    auto result = getter.first->GetRecordValueByType(recordId, value);
-    if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "get record value fail, dataId is %{public}d, recordId is %{public}d", dataId, recordId);
-        return result;
-    }
-    clips_.ComputeIfPresent(appInfo.userId, [dataId, recordId, value](auto, auto &data) {
-        if (dataId != data->GetDataId()) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "set record value fail, data is out time, pre dataId is %{public}d, cur dataId is %{public}d", dataId,
-                data->GetDataId());
-            return true;
-        }
-        auto record = data->GetRecordAt(recordId - 1);
-        if (record != nullptr) {
-            record->AddEntry(value.GetUtdId(), std::make_shared<PasteDataEntry>(value));
-        }
-        return true;
-    });
-    return GrantDelayEntry(data->GetOriginAuthority(), appInfo.bundleName, value);
-}
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((dataId == delayDataId_ && tokenId == delayTokenId_) ||
+        VerifyPermission(tokenId), static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "check permission failed, calling pid is %{public}d", callPid);
 
-int32_t PasteboardService::GrantDelayEntry(const std::string &originAuthority, const std::string &targetBundle,
-    PasteDataEntry &entry)
-{
-    std::string mimeType = entry.GetMimeType();
+    auto appInfo = GetAppInfo(tokenId);
+    auto [hasData, data] = clips_.Find(appInfo.userId);
+    auto [hasGetter, getter] = entryGetters_.Find(appInfo.userId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(hasData && data, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "data not find, userId=%{public}u", appInfo.userId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(dataId == data->GetDataId(),
+        static_cast<int32_t>(PasteboardError::INVALID_DATA_ID), PASTEBOARD_MODULE_SERVICE,
+        "dataId=%{public}u mismatch, local=%{public}u", dataId, data->GetDataId());
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(hasGetter && getter.first,
+        static_cast<int32_t>(PasteboardError::NO_DELAY_GETTER), PASTEBOARD_MODULE_SERVICE,
+        "entry getter not find, userId=%{public}u, dataId=%{public}u", appInfo.userId, dataId);
+
+    auto record = data->GetRecordById(recordId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, static_cast<int32_t>(PasteboardError::INVALID_RECORD_ID),
+        PASTEBOARD_MODULE_SERVICE, "recordId=%{public}u invalid, max=%{public}zu", recordId, data->GetRecordCount());
+
+    std::string mimeType = value.GetMimeType();
+    auto entry = record->GetEntryByMimeType(mimeType);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entry != nullptr, static_cast<int32_t>(PasteboardError::INVALID_MIMETYPE),
+        PASTEBOARD_MODULE_SERVICE, "entry is null, recordId=%{public}u, type=%{public}s", recordId, mimeType.c_str());
+
+    if (entry->HasContentByMimeType(mimeType)) {
+        value.SetValue(entry->GetValue());
+        if (mimeType != MIMETYPE_TEXT_HTML && mimeType != MIMETYPE_TEXT_URI) {
+            return static_cast<int32_t>(PasteboardError::E_OK);
+        }
+        int32_t ret = GrantUriPermission(*data, appInfo.bundleName);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
+            PASTEBOARD_MODULE_SERVICE, "grant to %{public}s failed, ret=%{public}d", appInfo.bundleName.c_str(), ret);
+        return (mimeType == MIMETYPE_TEXT_URI) ? ret : PostProcessDelayHtmlEntry(*data, value);
+    }
+
+    int32_t ret = getter.first->GetRecordValueByType(recordId, value);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
+        PASTEBOARD_MODULE_SERVICE, "get delay entry failed, type=%{public}s, ret=%{public}d", mimeType.c_str(), ret);
+
+    record->AddEntry(value.GetUtdId(), std::make_shared<PasteDataEntry>(value));
+
     if (mimeType == MIMETYPE_TEXT_HTML) {
-        return GrantDelayHtmlEntry(originAuthority, targetBundle, entry);
+        return ProcessDelayHtmlEntry(*data, appInfo.bundleName, value);
     }
     if (mimeType == MIMETYPE_TEXT_URI) {
-        return GrantDelayUriEntry(originAuthority, targetBundle, entry);
+        return GrantUriPermission(*data, appInfo.bundleName);
     }
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-int32_t PasteboardService::GrantDelayHtmlEntry(const std::string &originAuthority, const std::string &targetBundle,
+int32_t PasteboardService::ProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle,
     PasteDataEntry &entry)
 {
+    if (!PasteboardWebController::GetInstance().SplitWebviewPasteData(data)) {
+        return static_cast<int32_t>(PasteboardError::E_OK);
+    }
+
+    PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
+    PasteboardWebController::GetInstance().CheckAppUriPermission(data);
+
+    PasteData tmp;
     std::shared_ptr<std::string> html = entry.ConvertToHtml();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(html != nullptr, static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED),
-        PASTEBOARD_MODULE_SERVICE, "convert entry to html failed");
+        PASTEBOARD_MODULE_SERVICE, "convert to html failed");
 
-    PasteData tmpData;
-    tmpData.AddHtmlRecord(*html);
-    tmpData.SetOriginAuthority(originAuthority);
-    PasteboardWebController::GetInstance().SplitWebviewPasteData(tmpData);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(tmpData.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG,
-        static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED), PASTEBOARD_MODULE_SERVICE, "not split extra uri");
+    tmp.AddHtmlRecord(*html);
+    tmp.SetOriginAuthority(data.GetOriginAuthority());
+    tmp.SetTokenId(data.GetTokenId());
+    PasteboardWebController::GetInstance().SplitWebviewPasteData(tmp);
+    PasteboardWebController::GetInstance().SetWebviewPasteData(tmp, data.GetOriginAuthority());
+    PasteboardWebController::GetInstance().CheckAppUriPermission(tmp);
 
-    PasteboardWebController::GetInstance().SetWebViewPasteData(tmpData, originAuthority);
-    PasteboardWebController::GetInstance().CheckAppUriPermission(tmpData);
     int32_t ret = GrantUriPermission(tmp, targetBundle);
-    PasteboardWebController::GetInstance().RetainUri(tmpData);
-    PasteboardWebController::GetInstance().RebuildWebviewPasteData(tmpData);
-    html = tmpData.GetPrimaryHtml();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(html != nullptr, static_cast<int32_t>(PasteboardError::REBUILD_HTML_FAILED),
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
+        PASTEBOARD_MODULE_SERVICE, "grant to %{public}s failed, ret=%{public}d", targetBundle.c_str(), ret);
+
+    return PostProcessDelayHtmlEntry(tmp, entry);
+}
+
+int32_t PasteboardService::PostProcessDelayHtmlEntry(PasteData &data, PasteDataEntry &entry)
+{
+    PasteboardWebController::GetInstance().RetainUri(data);
+    PasteboardWebController::GetInstance().RebuildWebviewPasteData(data);
+
+    std::shared_ptr<std::string> html = data.GetPrimaryHtml();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(html != nullptr, static_cast<int32_t>(PasteboardError::REBUILD_HTML_FAILED),
         PASTEBOARD_MODULE_SERVICE, "rebuild html failed");
 
     auto entryValue = entry.GetValue();
@@ -448,23 +454,12 @@ int32_t PasteboardService::GrantDelayHtmlEntry(const std::string &originAuthorit
         entry.SetValue(*html);
     } else if (std::holds_alternative<std::shared_ptr<Object>>(entryValue)) {
         auto object = std::get<std::shared_ptr<Object>>(entryValue);
-        object->value_[UDMF::HTML_CONTENT] = *html;
+        auto newObject = std::make_shared<Object>();
+        newObject->value_ = object->value_;
+        newObject->value_[UDMF::HTML_CONTENT] = *html;
+        entry.SetValue(newObject);
     }
-    return ret;
-}
-
-int32_t PasteboardService::GrantDelayUriEntry(const std::string &originAuthority, const std::string &targetBundle,
-    PasteDataEntry &entry)
-{
-    std::shared_ptr<Uri> uri = entry.ConvertToUri();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(uri != nullptr, static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED),
-        PASTEBOARD_MODULE_SERVICE, "convert entry to uri failed");
-
-    PasteData tmpData;
-    tmpData.AddUriRecord(*uri);
-    tmpData.SetOriginAuthority(originAuthority);
-    PasteboardWebController::GetInstance().CheckAppUriPermission(tmpData);
-    return GrantUriPermission(tmp, targetBundle);
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 bool PasteboardService::VerifyPermission(uint32_t tokenId)
@@ -985,7 +980,7 @@ void PasteboardService::GetDelayPasteData(const AppInfo &appInfo, PasteData &dat
         delayData.SetTime(data.GetTime());
         delayData.SetTokenId(data.GetTokenId());
         PasteboardWebController::GetInstance().SplitWebviewPasteData(delayData);
-        PasteboardWebController::GetInstance().SetWebViewPasteData(delayData, data.GetOriginAuthority());
+        PasteboardWebController::GetInstance().SetWebviewPasteData(delayData, data.GetOriginAuthority());
         PasteboardWebController::GetInstance().CheckAppUriPermission(delayData);
         data = delayData;
         return false;
@@ -1033,7 +1028,7 @@ bool PasteboardService::GetDelayPasteRecord(const AppInfo &appInfo, PasteData &d
         isPadding = true;
     }
     PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
-    PasteboardWebController::GetInstance().SetWebViewPasteData(data, data.GetOriginAuthority());
+    PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     return isPadding;
 }
@@ -1177,9 +1172,9 @@ int32_t PasteboardService::GrantUriPermission(PasteData &data, const std::string
     int32_t ret = 0;
     size_t offset = 0;
     size_t length = grantUris.size();
-    size_t count = PasteData::MAX_URI_COUNT;
+    size_t count = PasteData::URI_BATCH_SIZE;
     while (length > offset) {
-        if (length - offset < PasteData::MAX_URI_COUNT) {
+        if (length - offset < PasteData::URI_BATCH_SIZE) {
             count = length - offset;
         }
         auto sendValues = std::vector<Uri>(grantUris.begin() + offset, grantUris.begin() + offset + count);
@@ -1221,7 +1216,7 @@ void PasteboardService::CheckUriPermission(
         }
         auto hasGrantUriPermission = item->HasGrantUriPermission();
         if (uri == nullptr || (!IsBundleOwnUriPermission(data.GetOriginAuthority(), *uri) && !hasGrantUriPermission)) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri is null:%{public}d, not grant permission: %{public}d.",
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri is null:%{public}d, has grant permission: %{public}d",
                 uri == nullptr, hasGrantUriPermission);
             continue;
         }
@@ -1338,7 +1333,7 @@ int32_t PasteboardService::SaveData(PasteData &pasteData,
         record->SetDataId(dataId);
     }
     UpdateShareOption(pasteData);
-    PasteboardWebController::GetInstance().SetWebViewPasteData(pasteData, appInfo.bundleName);
+    PasteboardWebController::GetInstance().SetWebviewPasteData(pasteData, appInfo.bundleName);
     PasteboardWebController::GetInstance().CheckAppUriPermission(pasteData);
     clips_.InsertOrAssign(appInfo.userId, std::make_shared<PasteData>(pasteData));
     IncreaseChangeCount(appInfo.userId);
@@ -2343,7 +2338,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
             GetFullDelayPasteData(user, data);
             event.isDelay = false;
             PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
-            PasteboardWebController::GetInstance().SetWebViewPasteData(data, data.GetOriginAuthority());
+            PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
             PasteboardWebController::GetInstance().CheckAppUriPermission(data);
         }
         GenerateDistributedUri(data);
@@ -2385,7 +2380,7 @@ std::pair<int32_t, std::vector<uint8_t>> PasteboardService::GetDistributedDelayD
         return std::make_pair(ret, rawData);
     }
     PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
-    PasteboardWebController::GetInstance().SetWebViewPasteData(data, data.GetOriginAuthority());
+    PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     GenerateDistributedUri(data);
     if (!data.Encode(rawData)) {

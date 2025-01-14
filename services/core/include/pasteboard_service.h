@@ -254,14 +254,10 @@ private:
     int64_t GetFileSize(PasteData &data);
     bool GetDelayPasteRecord(const AppInfo &appInfo, PasteData &data);
     void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
+    int32_t ProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
+    int32_t PostProcessDelayHtmlEntry(PasteData &data, PasteDataEntry &entry);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
-    int32_t GrantDelayEntry(const std::string &originAuthority, const std::string &targetBundle,
-        PasteDataEntry &entry);
-    int32_t GrantDelayHtmlEntry(const std::string &originAuthority, const std::string &targetBundle,
-        PasteDataEntry &entry);
-    int32_t GrantDelayUriEntry(const std::string &originAuthority, const std::string &targetBundle,
-        PasteDataEntry &entry);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
     bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);

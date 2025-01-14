@@ -35,8 +35,8 @@ public:
     virtual ~PasteboardWebController() = default;
 
     static PasteboardWebController &GetInstance();
-    void SplitWebviewPasteData(PasteData &pasteData);
-    void SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName);
+    bool SplitWebviewPasteData(PasteData &pasteData);
+    void SetWebviewPasteData(PasteData &pasteData, const std::string &bundleName);
     void CheckAppUriPermission(PasteData &pasteData);
     void RetainUri(PasteData &pasteData);
     void RebuildWebviewPasteData(PasteData &pasteData);

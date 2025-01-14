@@ -30,7 +30,7 @@ const std::string FILE_SCHEME_PREFIX = "file://";
 
 constexpr uint32_t FOUR_BYTES = 4;
 constexpr uint32_t EIGHT_BIT = 8;
-const int32_t DOCS_LOCAL_PATH_SUBSTR_START_INDEX = 1;
+constexpr int32_t DOCS_LOCAL_PATH_SUBSTR_START_INDEX = 1;
 
 struct Cmp {
     bool operator()(const uint32_t &lhs, const uint32_t &rhs) const
@@ -50,11 +50,14 @@ PasteboardWebController &PasteboardWebController::GetInstance()
     return instance;
 }
 
-void PasteboardWebController::SplitWebviewPasteData(PasteData &pasteData)
+bool PasteboardWebController::SplitWebviewPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "start");
     auto hasExtraRecord = false;
     for (const auto &record : pasteData.AllRecords()) {
+        if (record->GetRecordId() == record->GetFrom()) {
+            continue;
+        }
         auto htmlEntry = record->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
         if (htmlEntry == nullptr) {
             continue;
@@ -64,7 +67,8 @@ void PasteboardWebController::SplitWebviewPasteData(PasteData &pasteData)
             continue;
         }
         std::vector<std::shared_ptr<PasteDataRecord>> extraUriRecords = SplitHtml2Records(html, record->GetRecordId());
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "split uri count=%{public}zu", extraUriRecords.size());
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "split html, recordId=%{public}u, uri count=%{public}zu",
+            record->GetRecordId(), extraUriRecords.size());
         if (extraUriRecords.empty()) {
             continue;
         }
@@ -78,9 +82,10 @@ void PasteboardWebController::SplitWebviewPasteData(PasteData &pasteData)
         pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "end");
+    return hasExtraRecord;
 }
 
-void PasteboardWebController::SetWebViewPasteData(PasteData &pasteData, const std::string &bundleName)
+void PasteboardWebController::SetWebviewPasteData(PasteData &pasteData, const std::string &bundleName)
 {
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG) {
         return;
@@ -92,13 +97,13 @@ void PasteboardWebController::SetWebViewPasteData(PasteData &pasteData, const st
         std::shared_ptr<Uri> uri = item->GetUri();
         std::string puri = uri->ToString();
         if (puri.substr(0, PasteData::IMG_LOCAL_URI.size()) == PasteData::IMG_LOCAL_URI &&
-            puri.find(PasteData::FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
+            puri.find(FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
             std::string path = uri->GetPath();
             std::string newUriStr = "";
             if (path.substr(0, PasteData::DOCS_LOCAL_TAG.size()) == PasteData::DOCS_LOCAL_TAG) {
-                newUriStr = PasteData::FILE_SCHEME_PREFIX + path.substr(DOCS_LOCAL_PATH_SUBSTR_START_INDEX);
+                newUriStr = FILE_SCHEME_PREFIX + path.substr(DOCS_LOCAL_PATH_SUBSTR_START_INDEX);
             } else {
-                newUriStr = PasteData::FILE_SCHEME_PREFIX + bundleName + path;
+                newUriStr = FILE_SCHEME_PREFIX + bundleName + path;
             }
             item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(),
@@ -127,14 +132,14 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
     }
     size_t offset = 0;
     size_t length = uris.size();
-    size_t count = PasteData::MAX_URI_COUNT;
+    size_t count = PasteData::URI_BATCH_SIZE;
     while (length > offset) {
-        if (length - offset < PasteData::MAX_URI_COUNT) {
+        if (length - offset < PasteData::URI_BATCH_SIZE) {
             count = length - offset;
         }
         auto sendValues = std::vector<std::string>(uris.begin() + offset, uris.begin() + offset + count);
         std::vector<bool> ret = AAFwk::UriPermissionManagerClient::GetInstance().CheckUriAuthorization(
-            sendValues, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, data.GetTokenId());
+            sendValues, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, pasteData.GetTokenId());
         checkResults.insert(checkResults.end(), ret.begin(), ret.end());
         offset += count;
     }
@@ -157,9 +162,9 @@ void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &recor
     std::shared_ptr<Uri> uri = record->GetUri();
     std::string puri = uri->ToString();
     std::string realUri = puri;
-    if (puri.substr(0, PasteData::FILE_SCHEME_PREFIX.size()) == PasteData::FILE_SCHEME_PREFIX) {
+    if (puri.substr(0, FILE_SCHEME_PREFIX.size()) == FILE_SCHEME_PREFIX) {
         AppFileService::ModuleFileUri::FileUri fileUri(puri);
-        realUri = PasteData::FILE_SCHEME_PREFIX + fileUri.GetRealPath();
+        realUri = FILE_SCHEME_PREFIX + fileUri.GetRealPath();
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(), realUri.c_str());
     }
     if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {

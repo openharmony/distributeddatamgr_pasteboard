@@ -82,6 +82,7 @@ public:
     std::shared_ptr<std::string> GetPrimaryMimeType();
     std::shared_ptr<OHOS::AAFwk::Want> GetPrimaryWant();
     std::shared_ptr<PasteDataRecord> GetRecordAt(std::size_t index) const;
+    std::shared_ptr<PasteDataRecord> GetRecordById(uint32_t recordId) const;
     std::size_t GetRecordCount() const;
     bool RemoveRecordAt(std::size_t number);
     bool ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRecord> record);
@@ -150,7 +151,7 @@ public:
     std::string deviceId_;
     static const std::string REMOTE_FILE_SIZE_LONG;
     static const std::string DOCS_LOCAL_TAG;
-    static constexpr size_t MAX_URI_COUNT = 500;
+    static constexpr size_t URI_BATCH_SIZE = 500;
 
 private:
     void RefreshMimeProp();

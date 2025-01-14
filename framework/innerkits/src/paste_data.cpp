@@ -264,6 +264,16 @@ std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index) const
     }
 }
 
+std::shared_ptr<PasteDataRecord> PasteData::GetRecordById(uint32_t recordId) const
+{
+    for (const auto &record : records_) {
+        if (record != nullptr && record->GetRecordId() == recordId) {
+            return record;
+        }
+    }
+    return nullptr;
+}
+
 std::size_t PasteData::GetRecordCount() const
 {
     return records_.size();

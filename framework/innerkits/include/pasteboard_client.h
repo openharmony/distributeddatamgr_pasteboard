@@ -548,7 +548,6 @@ private:
         bool destoryed_;
     };
     static StaticDestoryMonitor staticDestoryMonitor_;
-    void Init();
 };
 } // namespace MiscServices
 } // namespace OHOS
