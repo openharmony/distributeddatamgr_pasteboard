@@ -432,6 +432,72 @@ HWTEST_F(PasteDataTest, ConvertToText004, TestSize.Level0)
 }
 
 /**
+ * @tc.name: ConvertToText005
+ * @tc.desc: PasteDataRecord: ConvertToText plain
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, ConvertToText005, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto record = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(record != nullptr);
+    std::string plainText = "hello";
+    auto plainUtdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, MIMETYPE_TEXT_PLAIN);
+    record->AddEntryByMimeType(MIMETYPE_TEXT_PLAIN, std::make_shared<PasteDataEntry>(plainUtdId, plainText));
+    auto text = record->ConvertToText();
+    EXPECT_EQ(text, plainText);
+}
+
+/**
+ * @tc.name: ConvertToText006
+ * @tc.desc: PasteDataRecord: ConvertToText html
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, ConvertToText006, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto record = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(record != nullptr);
+    std::string htmlText = "<div class='disabled item tip'>";
+    auto htmlUtdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, MIMETYPE_TEXT_HTML);
+    record->AddEntryByMimeType(MIMETYPE_TEXT_HTML, std::make_shared<PasteDataEntry>(htmlUtdId, htmlText));
+    auto text = record->ConvertToText();
+    EXPECT_EQ(text, htmlText);
+}
+
+/**
+ * @tc.name: ConvertToText007
+ * @tc.desc: PasteDataRecord: ConvertToText uri
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, ConvertToText007, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto record = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(record != nullptr);
+    std::string uri = "file://123.txt";
+    auto uriUtdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, MIMETYPE_TEXT_URI);
+    record->AddEntryByMimeType(MIMETYPE_TEXT_URI, std::make_shared<PasteDataEntry>(uriUtdId, uri));
+    auto text = record->ConvertToText();
+    EXPECT_EQ(text, uri);
+}
+
+/**
  * @tc.name: GetPasteDataMsg001
  * @tc.desc: PasteData: GetPrimaryMimeType is nullptr and so on
  * @tc.type: FUNC
