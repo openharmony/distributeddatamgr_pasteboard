@@ -80,6 +80,16 @@ enum class PasteboardError : int32_t {
     PROGRESS_START_ERROR,
     PROGRESS_ABNORMAL,
     PRPGRESS_CANCEL_SUCCESS,
+    GET_ENTRY_VALUE_FAILED,
+    REBUILD_HTML_FAILED,
+    INVALID_DATA_ID,
+    INVALID_RECORD_ID,
+    INVALID_MIMETYPE,
+    MALLOC_FAILED,
+    GET_SAMGR_FAILED,
+    RESOURCE_APPLY_TIMEOUT,
+    RESOURCE_APPLYING,
+    RESOURCE_APPLY_NOT_FIND,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -128,6 +138,22 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::GET_LOCAL_DATA, "GET_LOCAL_DATA"},
     {PasteboardError::INVALID_EVENT_ACCOUNT, "INVALID_EVENT_ACCOUNT"},
     {PasteboardError::INVALID_EVENT_STATUS, "INVALID_EVENT_STATUS"},
+    {PasteboardError::PROGRESS_PASTE_TIME_OUT, "PROGRESS_PASTE_TIME_OUT"},
+    {PasteboardError::PROGRESS_CANCEL_PASTE, "PROGRESS_CANCEL_PASTE"},
+    {PasteboardError::COPY_FILE_ERROR, "COPY_FILE_ERROR"},
+    {PasteboardError::PROGRESS_START_ERROR, "PROGRESS_START_ERROR"},
+    {PasteboardError::PROGRESS_ABNORMAL, "PROGRESS_ABNORMAL"},
+    {PasteboardError::PRPGRESS_CANCEL_SUCCESS, "PRPGRESS_CANCEL_SUCCESS"},
+    {PasteboardError::GET_ENTRY_VALUE_FAILED, "GET_ENTRY_VALUE_FAILED"},
+    {PasteboardError::REBUILD_HTML_FAILED, "REBUILD_HTML_FAILED"},
+    {PasteboardError::INVALID_DATA_ID, "INVALID_DATA_ID"},
+    {PasteboardError::INVALID_RECORD_ID, "INVALID_RECORD_ID"},
+    {PasteboardError::INVALID_MIMETYPE, "INVALID_MIMETYPE"},
+    {PasteboardError::MALLOC_FAILED, "MALLOC_FAILED"},
+    {PasteboardError::GET_SAMGR_FAILED, "GET_SAMGR_FAILED"},
+    {PasteboardError::RESOURCE_APPLY_TIMEOUT, "RESOURCE_APPLY_TIMEOUT"},
+    {PasteboardError::RESOURCE_APPLYING, "RESOURCE_APPLYING"},
+    {PasteboardError::RESOURCE_APPLY_NOT_FIND, "RESOURCE_APPLY_NOT_FIND"},
 };
 
 } // namespace MiscServices

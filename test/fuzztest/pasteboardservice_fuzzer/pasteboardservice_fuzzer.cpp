@@ -55,8 +55,8 @@ const std::vector<PasteboardServiceInterfaceCode> CODE_LIST = {
 
 class PasteboardServiceMock : public PasteboardServiceStub {
 public:
-    int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
-        const sptr<IPasteboardEntryGetter> entryGetter) override
+    int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+        const sptr<IPasteboardEntryGetter> entryGetter = nullptr) override
     {
         (void)pasteData;
         (void)delayGetter;
@@ -68,15 +68,6 @@ public:
     {
         (void)data;
         (void)syncTime;
-        return 0;
-    }
-
-    int32_t SavePasteData(std::shared_ptr<PasteData> &pasteData, sptr<IPasteboardDelayGetter> delayGetter = nullptr,
-        sptr<IPasteboardEntryGetter> entryGetter = nullptr) override
-    {
-        (void)pasteData;
-        (void)delayGetter;
-        (void)entryGetter;
         return 0;
     }
 

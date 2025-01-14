@@ -31,17 +31,22 @@ namespace MiscServices {
 
 class API_EXPORT PasteboardWebController : public RefBase {
 public:
-    PasteboardWebController(){};
-    ~PasteboardWebController(){};
+    PasteboardWebController() = default;
+    virtual ~PasteboardWebController() = default;
 
     static PasteboardWebController &GetInstance();
+    bool SplitWebviewPasteData(PasteData &pasteData);
+    void SetWebviewPasteData(PasteData &pasteData, const std::string &bundleName);
+    void CheckAppUriPermission(PasteData &pasteData);
+    void RetainUri(PasteData &pasteData);
+    void RebuildWebviewPasteData(PasteData &pasteData);
 
+private:
+    void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
     std::shared_ptr<std::string> RebuildHtml(std::shared_ptr<PasteData> pasteData) noexcept;
     std::vector<std::shared_ptr<PasteDataRecord>> SplitHtml2Records(const std::shared_ptr<std::string> &html,
         uint32_t recordId) noexcept;
     void MergeExtraUris2Html(PasteData &data);
-
-private:
     std::vector<std::pair<std::string, uint32_t>> SplitHtmlWithImgLabel(
         const std::shared_ptr<std::string> html) noexcept;
     std::map<std::string, std::vector<uint8_t>> SplitHtmlWithImgSrcLabel(

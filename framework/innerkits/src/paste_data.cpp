@@ -38,6 +38,7 @@ enum TAG_PASTEBOARD : uint16_t {
     TAG_PASTE_ID,
     TAG_DELAY_RECORD_FLAG,
     TAG_DATA_ID,
+    TAG_RECORD_ID,
 };
 enum TAG_PROPERTY : uint16_t {
     TAG_ADDITIONS = TAG_BUFF + 1,
@@ -57,7 +58,6 @@ std::string PasteData::sharePath = "";
 std::string PasteData::WEBVIEW_PASTEDATA_TAG = "WebviewPasteDataTag";
 const std::string PasteData::DISTRIBUTEDFILES_TAG = "distributedfiles";
 const std::string PasteData::PATH_SHARE = "/data/storage/el2/share/r/";
-const std::string PasteData::FILE_SCHEME_PREFIX = "file://";
 const std::string PasteData::IMG_LOCAL_URI = "file:///";
 const std::string PasteData::SHARE_PATH_PREFIX = "/mnt/hmdfs/";
 const std::string PasteData::SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
@@ -81,7 +81,7 @@ PasteData::~PasteData()
 PasteData::PasteData(const PasteData &data)
     : originAuthority_(data.originAuthority_), valid_(data.valid_), isDraggedData_(data.isDraggedData_),
       isLocalPaste_(data.isLocalPaste_), isDelayData_(data.isDelayData_), pasteId_(data.pasteId_),
-      isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_)
+      isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_), recordId_(data.recordId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {
@@ -121,6 +121,7 @@ PasteData &PasteData::operator=(const PasteData &data)
     for (const auto &item : data.records_) {
         this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
     }
+    this->recordId_ = data.GetRecordId();
     return *this;
 }
 
@@ -261,6 +262,16 @@ std::shared_ptr<PasteDataRecord> PasteData::GetRecordAt(std::size_t index) const
     } else {
         return nullptr;
     }
+}
+
+std::shared_ptr<PasteDataRecord> PasteData::GetRecordById(uint32_t recordId) const
+{
+    for (const auto &record : records_) {
+        if (record != nullptr && record->GetRecordId() == recordId) {
+            return record;
+        }
+    }
+    return nullptr;
 }
 
 std::size_t PasteData::GetRecordCount() const
@@ -456,6 +467,7 @@ bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
     ret = Write(buffer, TAG_PASTE_ID, pasteId_) && ret;
     ret = Write(buffer, TAG_DELAY_RECORD_FLAG, isDelayRecord_) && ret;
     ret = Write(buffer, TAG_DATA_ID, dataId_) && ret;
+    ret = Write(buffer, TAG_RECORD_ID, recordId_) && ret;
     return ret;
 }
 
@@ -498,6 +510,10 @@ void PasteData::InitDecodeMap()
             [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
                 ret = ret && ReadValue(buffer, dataId_, head);
             } },
+        { TAG_RECORD_ID,
+            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
+                ret = ret && ReadValue(buffer, recordId_, head);
+            } },
     };
 }
 
@@ -537,6 +553,7 @@ size_t PasteData::Count()
     expectSize += TLVObject::Count(pasteId_);
     expectSize += TLVObject::Count(isDelayRecord_);
     expectSize += TLVObject::Count(dataId_);
+    expectSize += TLVObject::Count(recordId_);
     return expectSize;
 }
 
@@ -578,6 +595,11 @@ void PasteData::SetDataId(uint32_t dataId)
 uint32_t PasteData::GetDataId() const
 {
     return dataId_;
+}
+
+uint32_t PasteData::GetRecordId() const
+{
+    return recordId_;
 }
 
 bool PasteData::Marshalling(Parcel &parcel) const

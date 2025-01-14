@@ -333,6 +333,11 @@ std::shared_ptr<MineCustomData> PasteDataEntry::ConvertToCustomData() const
 bool PasteDataEntry::HasContent(const std::string &utdId) const
 {
     auto mimeType = CommonUtils::Convert2MimeType(utdId);
+    return HasContentByMimeType(mimeType);
+}
+
+bool PasteDataEntry::HasContentByMimeType(const std::string &mimeType) const
+{
     if (mimeType == MIMETYPE_PIXELMAP) {
         return ConvertToPixelMap() != nullptr;
     } else if (mimeType == MIMETYPE_TEXT_HTML) {
