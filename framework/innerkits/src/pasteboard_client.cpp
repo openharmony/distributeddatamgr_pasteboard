@@ -89,7 +89,7 @@ PasteboardClient::PasteboardClient()
     ffrtTimer_ = std::make_shared<FFRTTimer>("pasteboard_service_init");
     if (ffrtTimer_ != nullptr) {
         FFRTTask signalTask = [this, serviceKey] {
-            Init();
+            auto proxyService = GetPasteboardService();
         };
         ffrtTimer_->SetTimer(serviceKey, signalTask, 0);
     }
@@ -108,27 +108,6 @@ PasteboardClient::~PasteboardClient()
     }
     if (ffrtTimer_ != nullptr) {
         ffrtTimer_->CancelTimer(g_serviceKey);
-    }
-}
-
-void PasteboardClient::Init()
-{
-    auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
-    static std::mutex initMutex;
-    std::lock_guard<std::mutex> lock(initMutex);
-    if (clientDeathObserverPtr_ == nullptr) {
-        clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
-    }
-    if (clientDeathObserverPtr_ == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "create ClientDeathObserver failed.");
-        return;
-    }
-    auto ret = proxyService->RegisterClientDeathObserver(clientDeathObserverPtr_);
-    if (ret != ERR_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed. ret is %{public}d", ret);
     }
 }
 
@@ -900,11 +879,7 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
     sptr<IRemoteObject> remoteObject = samgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
     if (remoteObject != nullptr) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Get PasteboardServiceProxy succeed.");
-        if (deathRecipient_ == nullptr) {
-            deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
-        }
-        remoteObject->AddDeathRecipient(deathRecipient_);
-        pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
+        SetPasteboardServiceProxy(remoteObject);
         return pasteboardServiceProxy_;
     }
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
@@ -922,6 +897,23 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
     return pasteboardServiceProxy_;
 }
 
+void PasteboardClient::SetPasteboardServiceProxy(const sptr<IRemoteObject> &remoteObject)
+{
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(remoteObject != nullptr, PASTEBOARD_MODULE_CLIENT, "remoteObject is null");
+    if (deathRecipient_ == nullptr) {
+        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
+    }
+    remoteObject->AddDeathRecipient(deathRecipient_);
+    pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
+    if (clientDeathObserverPtr_ == nullptr) {
+        clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
+    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(
+        clientDeathObserverPtr_ != nullptr, PASTEBOARD_MODULE_CLIENT, "clientDeathObserverPtr_ is null");
+    auto ret = pasteboardServiceProxy_->RegisterClientDeathObserver(clientDeathObserverPtr_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == ERR_OK, PASTEBOARD_MODULE_CLIENT, "RegisterClientDeathObserver failed");
+}
+
 sptr<IPasteboardService> PasteboardClient::GetPasteboardServiceProxy()
 {
     std::lock_guard<std::mutex> lock(instanceLock_);
@@ -931,13 +923,7 @@ sptr<IPasteboardService> PasteboardClient::GetPasteboardServiceProxy()
 void PasteboardClient::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
 {
     std::lock_guard<std::mutex> lock(instanceLock_);
-    if (deathRecipient_ == nullptr) {
-        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
-    }
-    if (remoteObject != nullptr) {
-        remoteObject->AddDeathRecipient(deathRecipient_);
-        pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
-    }
+    SetPasteboardServiceProxy(remoteObject);
     proxyConVar_.notify_all();
 }
 

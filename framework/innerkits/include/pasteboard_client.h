@@ -522,6 +522,7 @@ private:
     void ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo);
     static int32_t ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
        std::string progressKey);
+    void SetPasteboardServiceProxy(const sptr<IRemoteObject> &remoteObject);
     static int32_t CheckProgressParam(std::shared_ptr<GetDataParams> params);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;

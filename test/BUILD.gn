@@ -1,0 +1,51 @@
+# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
+
+group("fuzztest") {
+  testonly = true
+
+  deps = []
+  if (pasteboard_vixl_part_enabled && pasteboard_dlp_part_enabled &&
+      pasteboard_device_info_manager_part_enabled &&
+      pasteboard_device_manager_part_enabled &&
+      pasteboard_screenlock_mgr_part_enabled) {
+    deps += [
+      "fuzztest/eventcenter_fuzzer:fuzztest",
+      "fuzztest/ffrtutils_fuzzer:fuzztest",
+      "fuzztest/pasteboardclient_fuzzer:fuzztest",
+      "fuzztest/pasteboardobserver_fuzzer:fuzztest",
+      "fuzztest/pasteboardservice_fuzzer:fuzztest",
+      "fuzztest/urihandler_fuzzer:fuzztest",
+    ]
+  }
+}
+
+group("unittest") {
+  testonly = true
+  deps = []
+  if (pasteboard_vixl_part_enabled && pasteboard_dlp_part_enabled &&
+      pasteboard_device_info_manager_part_enabled &&
+      pasteboard_device_manager_part_enabled &&
+      pasteboard_screenlock_mgr_part_enabled) {
+    deps += [
+      "${pasteboard_root_path}/framework/test:PasteboardFrameworkTest",
+      "${pasteboard_root_path}/interfaces/kits/napi/test/unittest/pasteboardapi:unittest",
+      "${pasteboard_root_path}/interfaces/kits/napi/test/unittest/pasteboardperf:unittest",
+      "${pasteboard_root_path}/interfaces/ndk/unittest:unittest",
+      "${pasteboard_root_path}/services/test:unittest",
+      "${pasteboard_root_path}/test/fuzztest:fuzztest",
+    ]
+  }
+}
