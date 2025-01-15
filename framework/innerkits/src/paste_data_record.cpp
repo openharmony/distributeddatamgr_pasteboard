@@ -241,7 +241,15 @@ void PasteDataRecord::InitDecodeMap()
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
 {
-    return this->htmlText_;
+    if (htmlText_ != nullptr && mimeType_ == MIMETYPE_TEXT_HTML) {
+        return htmlText_;
+    }
+    for (const auto &entry : entries_) {
+        if (entry && entry->GetMimeType() == MIMETYPE_TEXT_HTML) {
+            return entry->ConvertToHtml();
+        }
+    }
+    return htmlText_;
 }
 
 std::string PasteDataRecord::GetMimeType() const
@@ -251,12 +259,28 @@ std::string PasteDataRecord::GetMimeType() const
 
 std::shared_ptr<std::string> PasteDataRecord::GetPlainText() const
 {
-    return this->plainText_;
+    if (plainText_ != nullptr && mimeType_ == MIMETYPE_TEXT_PLAIN) {
+        return plainText_;
+    }
+    for (const auto &entry : entries_) {
+        if (entry && entry->GetMimeType() == MIMETYPE_TEXT_PLAIN) {
+            return entry->ConvertToPlianText();
+        }
+    }
+    return plainText_;
 }
 
 std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
 {
-    return this->pixelMap_;
+    if (pixelMap_ != nullptr && mimeType_ == MIMETYPE_PIXELMAP) {
+        return pixelMap_;
+    }
+    for (const auto &entry : entries_) {
+        if (entry && entry->GetMimeType() == MIMETYPE_PIXELMAP) {
+            return entry->ConvertToPixelMap();
+        }
+    }
+    return pixelMap_;
 }
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
@@ -280,25 +304,52 @@ void PasteDataRecord::SetUri(std::shared_ptr<OHOS::Uri> uri)
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetOrginUri() const
 {
-    if (uri_) {
+    if (uri_ != nullptr && mimeType_ == MIMETYPE_TEXT_URI) {
         return uri_;
     }
-    for (auto const& entry: entries_) {
+    for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_TEXT_URI) {
             return entry->ConvertToUri();
         }
     }
-    return nullptr;
+    return uri_;
 }
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
 {
-    return this->want_;
+    if (want_ != nullptr && mimeType_ == MIMETYPE_TEXT_WANT) {
+        return want_;
+    }
+    for (const auto &entry : entries_) {
+        if (entry && entry->GetMimeType() == MIMETYPE_TEXT_WANT) {
+            return entry->ConvertToWant();
+        }
+    }
+    return want_;
 }
 
 std::shared_ptr<MineCustomData> PasteDataRecord::GetCustomData() const
 {
-    return this->customData_;
+    std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
+    if (customData_) {
+        const std::map<std::string, std::vector<uint8_t>> &itemData = customData_->GetItemData();
+        for (const auto &[key, value] : itemData) {
+            customData->AddItemData(key, value);
+        }
+    }
+    for (const auto &entry : entries_) {
+        if (entry && entry->GetMimeType() == entry->GetUtdId()) {
+            std::shared_ptr<MineCustomData> entryCustomData = entry->ConvertToCustomData();
+            if (entryCustomData == nullptr) {
+                continue;
+            }
+            const std::map<std::string, std::vector<uint8_t>> &itemData = entryCustomData->GetItemData();
+            for (const auto &[key, value] : itemData) {
+                customData->AddItemData(key, value);
+            }
+        }
+    }
+    return customData->GetItemData().empty() ? nullptr : customData;
 }
 
 std::string PasteDataRecord::ConvertToText() const

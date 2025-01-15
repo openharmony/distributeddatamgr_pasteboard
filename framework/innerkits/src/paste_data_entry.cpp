@@ -260,7 +260,7 @@ std::shared_ptr<AAFwk::Want> PasteDataEntry::ConvertToWant() const
     }
     auto entry = GetValue();
     if (!std::holds_alternative<std::shared_ptr<AAFwk::Want>>(entry)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error, no plaintext");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error, no want");
         return nullptr;
     }
     // no uds want
@@ -309,7 +309,7 @@ std::shared_ptr<MineCustomData> PasteDataEntry::ConvertToCustomData() const
         return std::make_shared<MineCustomData>(customdata);
     }
     if (!std::holds_alternative<std::shared_ptr<Object>>(entry)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error,  utdId:%{public}s", utdId_.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error, no cust data, utdId:%{public}s", utdId_.c_str());
         return nullptr;
     }
     auto object = std::get<std::shared_ptr<Object>>(entry);
