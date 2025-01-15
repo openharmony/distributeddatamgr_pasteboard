@@ -97,7 +97,10 @@ UDMF::ValueType PasteboardMultiTypeUnifiedDataDelayTest::InitPixelMapUds()
     Object object;
     object.value_[UDMF::UNIFORM_DATA_TYPE] = pixelMapUtdId_;
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = {
+        {5, 7},
+        PixelFormat::ARGB_8888, PixelFormat::ARGB_8888
+    };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     object.value_[UDMF::PIXEL_MAP] = pixelMapIn;

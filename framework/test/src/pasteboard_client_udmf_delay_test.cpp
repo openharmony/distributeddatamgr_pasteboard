@@ -306,7 +306,10 @@ void PasteboardClientUdmfDelayTest::SetWantUnifiedData()
 void PasteboardClientUdmfDelayTest::SetPixelMapUnifiedData()
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = {
+        {5, 7},
+        PixelFormat::ARGB_8888, PixelFormat::ARGB_8888
+    };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     std::shared_ptr<UnifiedRecord> record =

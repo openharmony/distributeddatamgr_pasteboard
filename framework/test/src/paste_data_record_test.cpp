@@ -115,7 +115,10 @@ void PasteDataRecordTest::AddPixelMapUdsEntry(PasteDataRecord &record)
     auto object = std::make_shared<Object>();
     object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { width_, height_ }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = {
+        {width_, height_},
+        PixelFormat::ARGB_8888, PixelFormat::ARGB_8888
+    };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     object->value_[UDMF::PIXEL_MAP] = pixelMapIn;
@@ -256,6 +259,9 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest001, TestSize.Level0)
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     AddPlainUdsEntry(*record);
     AddHtmlUdsEntry(*record);
+    std::set<std::string> mimeTypes = record->GetMimeTypes();
+    EXPECT_NE(mimeTypes.find(MIMETYPE_TEXT_PLAIN), mimeTypes.end());
+    EXPECT_NE(mimeTypes.find(MIMETYPE_TEXT_HTML), mimeTypes.end());
 }
 
 /**

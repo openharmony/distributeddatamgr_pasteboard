@@ -234,7 +234,10 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitSysteFormData()
 UDMF::UnifiedData PasteboardUnifiedDataTest::InitSystemPixelMapData()
 {
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
-    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
+    InitializationOptions opts = {
+        {5, 7},
+        PixelFormat::ARGB_8888, PixelFormat::ARGB_8888
+    };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     std::shared_ptr<UDMF::UnifiedRecord> pixelMapRecord =
@@ -790,7 +793,9 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppDefined001, TestSize.Level0)
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::APPLICATION_DEFINED_RECORD);
     auto items = record->GetCustomData()->GetItemData();
-    std::map<std::string, std::vector<uint8_t>> customData { { type, rawData_ } };
+    std::map<std::string, std::vector<uint8_t>> customData {
+        {type, rawData_}
+    };
     ASSERT_EQ(items, customData);
 }
 
