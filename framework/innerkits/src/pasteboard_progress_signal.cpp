@@ -43,27 +43,19 @@ void ProgressSignalClient::Init()
     needCancel_.store(false);
     remoteTask_.store(false);
     sessionName_.clear();
-    filePath_.clear();
 }
 
-void ProgressSignalClient::SetFilePathOfRemoteTask(const std::string &sessionName, const std::string &filePath)
+void ProgressSignalClient::SetSessionNameOfRemoteTask(const std::string &sessionName)
 {
     sessionName_ = sessionName;
-    filePath_ = filePath;
 }
 
 void ProgressSignalClient::Cancel()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressSignalClient Cancel in!");
     if (!sessionName_.empty()) {
-        auto ret = Storage::DistributedFile::DistributedFileDaemonManager::GetInstance().CancelCopyTask(sessionName_);
-        if (ret != 0) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "CancelCopyTask, ret = %{public}d", ret);
-            return;
-        }
-        std::remove(filePath_.c_str());
+        Storage::DistributedFile::DistributedFileDaemonManager::GetInstance().CancelCopyTask(sessionName_);
         sessionName_.clear();
-        filePath_.clear();
     }
     needCancel_.store(true);
 }
@@ -81,9 +73,9 @@ bool ProgressSignalClient::CheckCancelIfNeed()
     return true;
 }
 
-void ProgressSignalClient::MarkRemoteTask()
+void ProgressSignalClient::SetRemoteTaskCancel()
 {
-    remoteTask_.store(true);
+    needCancel_.store(true);
 }
 } // namespace MiscServices
 } // namespace OHOS

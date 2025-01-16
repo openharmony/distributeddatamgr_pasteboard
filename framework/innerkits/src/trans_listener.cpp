@@ -39,6 +39,7 @@ constexpr int ERRNO_NOERR = 0;
 constexpr int PERCENTAGE = 100;
 constexpr float FILE_PERCENTAGE = 0.8;
 constexpr int BEGIN_PERCENTAGE = 20;
+constexpr int CANCEL_SUCCESS = 204;
 static int32_t g_uriNum = 0;
 static int32_t g_index = 0;
 
@@ -74,7 +75,7 @@ int32_t TransListener::HandleCopyFailure(CopyEvent &copyEvent, const Storage::Di
     if (info.authority != FILE_MANAGER_AUTHORITY && info.authority != MEDIA_AUTHORITY) {
         RmDir(disSandboxPath);
     }
-    return 0;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int MiscServices::TransListener::WaitForCopyResult(TransListener* transListener)
@@ -103,7 +104,6 @@ int32_t MiscServices::TransListener::CopyFileFromSoftBus(const std::string &srcU
     progressListener_ = dataParam->listener;
     std::string currentId = "CopyFile_" + std::to_string(getpid()) + "_" + std::to_string(getSequenceId_);
     ++getSequenceId_;
-
     g_uriNum = copyInfo->uriNum;
     g_index = copyInfo->index + 1;
     sptr<TransListener> transListener = new (std::nothrow) TransListener();
@@ -112,7 +112,6 @@ int32_t MiscServices::TransListener::CopyFileFromSoftBus(const std::string &srcU
         return ENOMEM;
     }
     transListener->callback_ = callback;
-
     Storage::DistributedFile::HmdfsInfo info{};
     Uri uri(destUri);
     info.authority = uri.GetAuthority();
@@ -122,9 +121,13 @@ int32_t MiscServices::TransListener::CopyFileFromSoftBus(const std::string &srcU
     if (ret != ERRNO_NOERR) {
         return EIO;
     }
-    ProgressSignalClient::GetInstance().SetFilePathOfRemoteTask(info.sessionName, destUri);
+    ProgressSignalClient::GetInstance().SetSessionNameOfRemoteTask(info.sessionName);
     auto copyResult = WaitForCopyResult(transListener);
     if (copyResult == FAILED) {
+        if (transListener->copyEvent_.errorCode == CANCEL_SUCCESS) {
+            ProgressSignalClient::GetInstance().SetRemoteTaskCancel();
+            std::remove(copyInfo->destPath.c_str());
+        }
         return HandleCopyFailure(transListener->copyEvent_, info, disSandboxPath, currentId);
     }
     if (info.authority == FILE_MANAGER_AUTHORITY || info.authority == MEDIA_AUTHORITY) {
