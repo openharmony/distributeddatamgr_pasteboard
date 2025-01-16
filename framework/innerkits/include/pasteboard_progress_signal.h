@@ -32,9 +32,9 @@ public:
     void Cancel();
     bool IsCanceled();
     bool CheckCancelIfNeed();
-    void MarkRemoteTask();
     void Init();
-    void SetFilePathOfRemoteTask(const std::string &sessionName, const std::string &filePath);
+    void SetSessionNameOfRemoteTask(const std::string &sessionName);
+    void SetRemoteTaskCancel();
 
 private:
     ProgressSignalClient() = default;
@@ -43,7 +43,6 @@ private:
     std::atomic_bool needCancel_{ false };
     std::atomic_bool remoteTask_{ false };
     std::string sessionName_ = std::string("");
-    std::string filePath_ = std::string("");
     static std::mutex mutex_;
     static ProgressSignalClient *instance_;
 };

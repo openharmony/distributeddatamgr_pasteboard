@@ -173,7 +173,8 @@ private:
     static void OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo);
     static void ProgressInit(void);
     static int32_t CopyFileData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
-
+    static int32_t DownloadFile(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams,
+        std::shared_ptr<CopyInfo> copyInfo);
     static std::recursive_mutex mutex_;
     static std::map<CopyInfo, std::shared_ptr<CopyCallback>> cbMap_;
     static ProgressListener progressListener_;

@@ -387,7 +387,7 @@ int32_t PasteBoardCopyFile::CopyFile(const std::string &src, const std::string &
     if (std::filesystem::exists(realDest, errCode) && errCode.value() == ERRNO_NOERR && copyInfo->option == FILE_SKIP) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File has existed. dest = %{public}s", realDest.c_str());
         copyInfo->isExist = true;
-        return E_EXIST;
+        return ERRNO_NOERR;
     }
     int32_t ret = OpenSrcFile(src, copyInfo, srcFd);
     if (srcFd < 0) {
@@ -423,6 +423,9 @@ int32_t PasteBoardCopyFile::ExecCopy(std::shared_ptr<CopyInfo> copyInfo)
             copyInfo->destPath += '/';
         }
         return CopyDirFunc(copyInfo->srcPath.c_str(), copyInfo->destPath.c_str(), copyInfo);
+    }
+    if (copyInfo->isExist) {
+        return ERRNO_NOERR;
     }
     return EINVAL;
 }
@@ -770,9 +773,11 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
     copyInfo->srcPath = GetRealPath(copyInfo->srcPath);
     copyInfo->destPath = GetRealPath(copyInfo->destPath);
     std::string realSrc = copyInfo->srcPath;
-    if (IsRemoteUri(copyInfo->srcUri) && IsDirectory(copyInfo->destPath)) {
+    if (IsRemoteUri(copyInfo->srcUri)) {
         int index = copyInfo->srcPath.rfind("?", 0);
         realSrc = copyInfo->srcPath.substr(0, index);
+    }
+    if (IsDirectory(copyInfo->destPath)) {
         std::filesystem::path filePath(realSrc);
         auto fileName = filePath.filename();
         if (copyInfo->destUri.back() != '/') {
@@ -784,8 +789,8 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
         copyInfo->destPath = GetRealPath(copyInfo->destPath);
     }
     std::error_code errCode;
-    if (IsRemoteUri(copyInfo->srcUri) && std::filesystem::exists(copyInfo->destPath, errCode)
-        && errCode.value() == ERRNO_NOERR && dataParams->fileConflictOption == FILE_SKIP) {
+    if (std::filesystem::exists(copyInfo->destPath, errCode) && errCode.value() == ERRNO_NOERR &&
+        dataParams->fileConflictOption == FILE_SKIP) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File has existed.");
         copyInfo->isExist = true;
         return E_EXIST;
@@ -793,13 +798,12 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
     FileUri realFileUri(realSrc);
     std::string realPath = realFileUri.GetRealPath();
     realPath = GetRealPath(realPath);
-    if (IsRemoteUri(copyInfo->srcUri) && !IsFile(realPath)) {
+    if (!IsFile(realPath)) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Softbus not support dir to remote.");
         return ENOMEM;
     }
     copyInfo->isFile = IsMediaUri(copyInfo->srcUri) || IsFile(copyInfo->srcPath);
     copyInfo->notifyTime = std::chrono::steady_clock::now() + NOTIFY_PROGRESS_DELAY;
-    copyInfo->option = dataParams->fileConflictOption;
     return ERRNO_NOERR;
 }
 
@@ -935,17 +939,41 @@ void PasteBoardCopyFile::ProgressInit(void)
     g_totalSize = 0;
 }
 
+int32_t PasteBoardCopyFile::DownloadFile(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams,
+    std::shared_ptr<CopyInfo> copyInfo)
+{
+    auto callback = RegisterListener(copyInfo);
+    if (callback == nullptr) {
+        return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
+    }
+    int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
+    if (pasteData.IsRemote() || IsRemoteUri(copyInfo->srcUri)) {
+        ret = TransListener::CopyFileFromSoftBus(copyInfo->srcUri,
+            copyInfo->destUri, copyInfo, callback, dataParams);
+    } else {
+        ret = ExecLocal(copyInfo, callback);
+    }
+    CloseNotifyFd(copyInfo, callback);
+    copyInfo->run = false;
+    WaitNotifyFinished(callback);
+    CopyComplete(copyInfo, callback);
+    return ret;
+}
+
 int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
     int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
     progressListener_ = dataParams->listener;
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
-    for (int i = 0; i < g_recordSize; i++) {
+    int32_t index = 0;
+    int32_t recordCount = 0;
+    while (index < (int32_t)pasteData.GetRecordCount()) {
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "canceled success!");
-            break;
+            pasteData.RemoveRecordAt(index);
+            continue;
         }
-        record = pasteData.GetRecordAt(i);
+        record = pasteData.GetRecordAt(index);
         if (record == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Record is nullptr");
             return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
@@ -953,31 +981,26 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         std::shared_ptr<OHOS::Uri> uri = record->GetUri();
         if (uri == nullptr) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Record has no uri");
+            index++;
             continue;
         }
         std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
         std::string srcUri = uri->ToString();
-        if (InitCopyInfo(srcUri, dataParams, copyInfo, i) == E_EXIST) {
-            pasteData.RemoveRecordAt(i);
+        if (InitCopyInfo(srcUri, dataParams, copyInfo, recordCount) == E_EXIST) {
+            recordCount++;
+            pasteData.RemoveRecordAt(index);
             continue;
         }
+        recordCount++;
         copyInfo->uriNum = g_recordSize;
-        auto callback = RegisterListener(copyInfo);
-        if (callback == nullptr) {
-            return static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR);
-        }
-        if (pasteData.IsRemote() || IsRemoteUri(copyInfo->srcUri)) {
-            ret = TransListener::CopyFileFromSoftBus(copyInfo->srcUri,
-                copyInfo->destUri, copyInfo, callback, dataParams);
+        ret = DownloadFile(pasteData, dataParams, copyInfo);
+        if ((ret == static_cast<int32_t>(PasteboardError::E_OK) || ret == ERRNO_NOERR) && !copyInfo->isExist &&
+            !ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
+            auto sharedUri = std::make_shared<OHOS::Uri>(copyInfo->destUri);
+            record->SetUri(sharedUri);
+            index++;
         } else {
-            ret = ExecLocal(copyInfo, callback);
-        }
-        CloseNotifyFd(copyInfo, callback);
-        copyInfo->run = false;
-        WaitNotifyFinished(callback);
-        CopyComplete(copyInfo, callback);
-        if (copyInfo->isExist == true) {
-            pasteData.RemoveRecordAt(i);
+            pasteData.RemoveRecordAt(index);
         }
         UnregisterListener(copyInfo);
     }
