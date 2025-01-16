@@ -17,7 +17,7 @@ group("fuzztest") {
   testonly = true
 
   deps = []
-  if (pasteboard_vixl_part_enabled && pasteboard_dlp_part_enabled &&
+  if (pasteboard_dlp_part_enabled &&
       pasteboard_device_info_manager_part_enabled &&
       pasteboard_device_manager_part_enabled &&
       pasteboard_screenlock_mgr_part_enabled) {
@@ -35,7 +35,7 @@ group("fuzztest") {
 group("unittest") {
   testonly = true
   deps = []
-  if (pasteboard_vixl_part_enabled && pasteboard_dlp_part_enabled &&
+  if (pasteboard_dlp_part_enabled &&
       pasteboard_device_info_manager_part_enabled &&
       pasteboard_device_manager_part_enabled &&
       pasteboard_screenlock_mgr_part_enabled) {
@@ -45,7 +45,6 @@ group("unittest") {
       "${pasteboard_root_path}/interfaces/kits/napi/test/unittest/pasteboardperf:unittest",
       "${pasteboard_root_path}/interfaces/ndk/unittest:unittest",
       "${pasteboard_root_path}/services/test:unittest",
-      "${pasteboard_root_path}/test/fuzztest:fuzztest",
     ]
   }
 }
