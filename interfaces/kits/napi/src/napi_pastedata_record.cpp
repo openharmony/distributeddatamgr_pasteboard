@@ -199,8 +199,10 @@ napi_value PasteDataRecordNapi::SetNapiKvData(napi_env env, std::shared_ptr<Mine
         napi_value arrayBuffer = nullptr;
         size_t len = item.second.size();
         NAPI_CALL(env, napi_create_arraybuffer(env, len, &data, &arrayBuffer));
-        if (memcpy_s(data, len, reinterpret_cast<const void *>(item.second.data()), len) != 0) {
-            return nullptr;
+        errno_t ret = (len == 0) ? EOK : memcpy_s(data, len, reinterpret_cast<const void *>(item.second.data()), len);
+        if (ret != EOK) {
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "copy %{public}s failed, ret=%{public}d",
+                item.first.c_str(), ret);
         }
         NAPI_CALL(env, napi_set_named_property(env, jsCustomData, item.first.c_str(), arrayBuffer));
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType = %{public}s.", item.first.c_str());
