@@ -317,7 +317,7 @@ void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<ProgressInfo> p
         isFinishProgress_.store(true);
     }
     std::string currentValue = std::to_string(progressInfo->percentage);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "pasteboard progress percent = %{public}s", currentValue.c_str());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "pasteboard progress percent = %{public}s", currentValue.c_str());
     PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
 }
 

@@ -33,7 +33,6 @@ public:
     bool IsCanceled();
     bool CheckCancelIfNeed();
     void Init();
-    void SetSessionNameOfRemoteTask(const std::string &sessionName);
     void SetRemoteTaskCancel();
 
 private:
@@ -42,7 +41,6 @@ private:
     DISALLOW_COPY_AND_MOVE(ProgressSignalClient);
     std::atomic_bool needCancel_{ false };
     std::atomic_bool remoteTask_{ false };
-    std::string sessionName_ = std::string("");
     static std::mutex mutex_;
     static ProgressSignalClient *instance_;
 };
