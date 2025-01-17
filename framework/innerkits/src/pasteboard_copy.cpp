@@ -774,7 +774,7 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
     copyInfo->destPath = GetRealPath(copyInfo->destPath);
     std::string realSrc = copyInfo->srcPath;
     if (IsRemoteUri(copyInfo->srcUri)) {
-        int index = copyInfo->srcPath.rfind("?", 0);
+        uint32_t index = copyInfo->srcPath.rfind("?", 0);
         realSrc = copyInfo->srcPath.substr(0, index);
     }
     if (IsDirectory(copyInfo->destPath)) {
