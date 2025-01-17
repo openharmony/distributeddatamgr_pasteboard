@@ -21,12 +21,12 @@
 #include "uri_permission_manager_client.h"
 
 namespace {
-const std::string IMG_TAG_PATTERN = "<img.*?>";
-const std::string IMG_TAG_SRC_PATTERN = "src=(['\"])(.*?)\\1";
-const std::string IMG_TAG_SRC_HEAD = "src=\"";
-const std::string IMG_LOCAL_URI = "file:///";
-const std::string IMG_LOCAL_PATH = "://";
-const std::string FILE_SCHEME_PREFIX = "file://";
+constexpr const char *IMG_TAG_PATTERN = "<img.*?>";
+constexpr const char *IMG_TAG_SRC_PATTERN = "src=(['\"])(.*?)\\1";
+constexpr const char *IMG_TAG_SRC_HEAD = "src=\"";
+constexpr const char *IMG_LOCAL_URI = "file:///";
+constexpr const char *IMG_LOCAL_PATH = "://";
+constexpr const char *FILE_SCHEME_PREFIX = "file://";
 
 constexpr uint32_t FOUR_BYTES = 4;
 constexpr uint32_t EIGHT_BIT = 8;
@@ -96,14 +96,16 @@ void PasteboardWebController::SetWebviewPasteData(PasteData &pasteData, const st
         }
         std::shared_ptr<Uri> uri = item->GetUri();
         std::string puri = uri->ToString();
-        if (puri.substr(0, PasteData::IMG_LOCAL_URI.size()) == PasteData::IMG_LOCAL_URI &&
+        if (puri.substr(0, strlen(IMG_LOCAL_URI)) == PasteData::IMG_LOCAL_URI &&
             puri.find(FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
             std::string path = uri->GetPath();
             std::string newUriStr = "";
             if (path.substr(0, PasteData::DOCS_LOCAL_TAG.size()) == PasteData::DOCS_LOCAL_TAG) {
-                newUriStr = FILE_SCHEME_PREFIX + path.substr(DOCS_LOCAL_PATH_SUBSTR_START_INDEX);
+                newUriStr = FILE_SCHEME_PREFIX;
+                newUriStr += path.substr(DOCS_LOCAL_PATH_SUBSTR_START_INDEX);
             } else {
-                newUriStr = FILE_SCHEME_PREFIX + bundleName + path;
+                newUriStr = FILE_SCHEME_PREFIX;
+                newUriStr += bundleName + path;
             }
             item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(),
@@ -162,9 +164,10 @@ void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &recor
     std::shared_ptr<Uri> uri = record->GetUri();
     std::string puri = uri->ToString();
     std::string realUri = puri;
-    if (puri.substr(0, FILE_SCHEME_PREFIX.size()) == FILE_SCHEME_PREFIX) {
+    if (puri.substr(0, strlen(FILE_SCHEME_PREFIX)) == FILE_SCHEME_PREFIX) {
         AppFileService::ModuleFileUri::FileUri fileUri(puri);
-        realUri = FILE_SCHEME_PREFIX + fileUri.GetRealPath();
+        realUri = FILE_SCHEME_PREFIX;
+        realUri += fileUri.GetRealPath();
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(), realUri.c_str());
     }
     if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
@@ -334,12 +337,12 @@ std::map<std::string, std::vector<uint8_t>> PasteboardWebController::SplitHtmlWi
             std::string tmp = match[0];
             iterStart = match[0].second;
             uint32_t offset = static_cast<uint32_t>(match[0].first - node.first.begin());
-            tmp = tmp.substr(IMG_TAG_SRC_HEAD.size());
+            tmp = tmp.substr(strlen(IMG_TAG_SRC_HEAD));
             tmp.pop_back();
             if (!IsLocalURI(tmp)) {
                 continue;
             }
-            offset += IMG_TAG_SRC_HEAD.size() + node.second;
+            offset += strlen(IMG_TAG_SRC_HEAD) + node.second;
             for (uint32_t i = 0; i < FOUR_BYTES; i++) {
                 res[tmp].emplace_back((offset >> (EIGHT_BIT * i)) & 0xff);
             }
@@ -395,7 +398,8 @@ void PasteboardWebController::RemoveAllRecord(std::shared_ptr<PasteData> pasteDa
 
 bool PasteboardWebController::IsLocalURI(std::string &uri) noexcept
 {
-    return uri.substr(0, IMG_LOCAL_URI.size()) == IMG_LOCAL_URI || uri.find(IMG_LOCAL_PATH) == std::string::npos;
+    return uri.substr(0, strlen(IMG_LOCAL_URI)) == std::string(IMG_LOCAL_URI) ||
+        uri.find(IMG_LOCAL_PATH) == std::string::npos;
 }
 
 void PasteboardWebController::ReplaceHtmlRecordContentByExtraUris(

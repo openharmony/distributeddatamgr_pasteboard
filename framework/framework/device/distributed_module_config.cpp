@@ -21,6 +21,10 @@
 
 namespace OHOS {
 namespace MiscServices {
+    constexpr uint32_t RETRY_TIMES = 30;
+    constexpr uint32_t RETRY_INTERVAL = 1000; //milliseconds
+    constexpr uint32_t RANDOM_MAX = 500;      //milliseconds
+    constexpr uint32_t RANDOM_MIN = 5;        //milliseconds
 bool DistributedModuleConfig::IsOn()
 {
     if (GetDeviceNum() != 0) {
