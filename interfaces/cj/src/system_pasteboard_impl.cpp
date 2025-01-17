@@ -67,7 +67,7 @@ int32_t SystemPasteboardImpl::SetData(sptr<PasteDataImpl> dataImpl, std::shared_
         return PASTEBOARD_INVALID_PARAMETERS;
     }
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
-    int32_t res = PASTEBOARD_SUCCESS;
+    int32_t res = ERR_OK;
     if (ret == static_cast<int>(PasteboardError::E_OK)) {
         value_ = dataImpl;
         pasteData_ = data;
@@ -77,7 +77,7 @@ int32_t SystemPasteboardImpl::SetData(sptr<PasteDataImpl> dataImpl, std::shared_
         LOGE("[SystemPasteboardImpl] SetData ERR PROHIBIT_COPY");
     } else if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
         LOGE("[SystemPasteboardImpl] SetData ERR TASK_PROCESSING");
-        res = PASTEBOARD_IS_BEGING_PROCESSED;
+        res = PASTEBOARD_TASK_PROCESSING;
     }
 
     return res;

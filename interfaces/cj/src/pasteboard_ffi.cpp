@@ -155,7 +155,7 @@ RetDataI64 FfiOHOSCreateStringPasteDataRecord(const char *mimeType, const char *
 
 RetDataI64 FfiOHOSCreatePixelMapPasteDataRecord(const char *mimeType, int64_t pixelMapId, CPasteDataRecord *retPtr)
 {
-    LOGI("[PasteDataRecord] FfiOHOSCreateStringPasteDataRecord");
+    LOGI("[PasteDataRecord] FfiOHOSCreatePixelMapPasteDataRecord");
     RetDataI64 ret = { .code = ERR_INVALID_INSTANCE_CODE, .data = 0 };
     std::string mmType = mimeType;
     auto pixelMapImpl = FFIData::GetData<PixelMapImpl>(pixelMapId);
@@ -178,7 +178,7 @@ RetDataI64 FfiOHOSCreatePixelMapPasteDataRecord(const char *mimeType, int64_t pi
     std::shared_ptr<PasteDataRecord> record = recordInstance->GetRealPasteDataRecord();
     FillCPasteDataRecord(retPtr, record);
     ret.code = SUCCESS_CODE;
-    LOGI("[PasteDataRecord] FfiOHOSCreateStringPasteDataRecord success");
+    LOGI("[PasteDataRecord] FfiOHOSCreatePixelMapPasteDataRecord success");
 
     return ret;
 }
@@ -439,6 +439,7 @@ int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
     retPtr->mimeTypes.head = VectorToCArrString(property.mimeTypes);
     if (retPtr->mimeTypes.head == nullptr) {
         free(retPtr->tag);
+        retPtr->tag = nullptr;
         return ERR_CODE_PARAM_INVALID;
     }
     retPtr->mimeTypes.size = static_cast<int64_t>(property.mimeTypes.size());

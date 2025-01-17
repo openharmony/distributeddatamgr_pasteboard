@@ -136,17 +136,14 @@ void HiViewAdapter::InitializeTimeConsuming(int initFlag)
     if (initFlag == INIT_COPY_TIME_CONSUMING) {
         for (int i = 0; i < DATA_LEVEL_NUMBERS; ++i) {
             copyTimeConsumingStat_.push_back(initTimeConsuming);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "copyTimeConsumingStat_.push_back");
         }
     } else if (initFlag == INIT_PASTE_TIME_CONSUMING) {
         for (int i = 0; i < DATA_LEVEL_NUMBERS; ++i) {
             pasteTimeConsumingStat_.push_back(initTimeConsuming);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pasteTimeConsumingStat_.push_back");
         }
     } else {
         for (int i = 0; i < DATA_LEVEL_NUMBERS; ++i) {
             remotePasteTimeConsumingStat_.push_back(initTimeConsuming);
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "remotePasteTimeConsumingStat_.push_back");
         }
     }
 }
@@ -170,7 +167,7 @@ void HiViewAdapter::ReportTimeConsumingStatistic(const TimeConsumingStat &stat)
         if (iter != dataMap_.end()) {
             CopyTimeConsuming(stat, iter->second);
         } else {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "wrong data level");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "wrong data level");
         }
     } else if ((stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_PASTE_STATE)) ||
                (stat.pasteboardState == static_cast<int>(StatisticPasteboardState::SPS_REMOTE_PASTE_STATE))) {
@@ -179,10 +176,10 @@ void HiViewAdapter::ReportTimeConsumingStatistic(const TimeConsumingStat &stat)
         if (iter != dataMap_.end()) {
             PasteTimeConsuming(stat, iter->second);
         } else {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "wrong data level");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "wrong data level");
         }
     } else {
-        PASTEBOARD_HILOGD(
+        PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_SERVICE, "hisysevent wrong pasteboard state! errCode %{public}d", stat.pasteboardState);
     }
 }
@@ -196,7 +193,7 @@ void HiViewAdapter::CopyTimeConsumingCount(int dataLevel, int timeLevel)
     if (it != copyTimeConsumingStat_[dataLevel].end()) {
         (it->second)++;
     } else {
-        PASTEBOARD_HILOGD(
+        PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, time level:  %{public}d", timeLevel);
     }
 }
@@ -210,7 +207,7 @@ void HiViewAdapter::PasteTimeConsumingCount(int dataLevel, int timeLevel)
     if (it != pasteTimeConsumingStat_[dataLevel].end()) {
         (it->second)++;
     } else {
-        PASTEBOARD_HILOGD(
+        PASTEBOARD_HILOGE(
             PASTEBOARD_MODULE_SERVICE, "hisysevent wrong copy time level, time level:  %{public}d", timeLevel);
     }
 }
@@ -235,7 +232,7 @@ void HiViewAdapter::CopyTimeConsuming(const TimeConsumingStat &stat, int level)
     if (iter != timeMap_.end()) {
         CopyTimeConsumingCount(level, iter->second);
     } else {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "wrong time level");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "wrong time level");
     }
 }
 

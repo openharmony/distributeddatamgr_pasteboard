@@ -114,8 +114,12 @@ int32_t PasteboardServiceStub::OnClear(MessageParcel &data, MessageParcel &reply
 
 int32_t PasteboardServiceStub::OnGetRecordValueByType(MessageParcel &data, MessageParcel &reply)
 {
-    uint32_t dataId = data.ReadUint32();
-    uint32_t recordId = data.ReadUint32();
+    uint32_t dataId = 0;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.ReadUint32(dataId), ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "read uint32 failed");
+    uint32_t recordId = 0;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.ReadUint32(recordId), ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "read uint32 failed");
     PasteDataEntry entryValue;
     int32_t rawDataSize = data.ReadInt32();
     if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
@@ -225,9 +229,8 @@ std::shared_ptr<PasteData> PasteboardServiceStub::UnmarshalPasteData(MessageParc
 int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel &reply)
 {
     auto pasteData = UnmarshalPasteData(data, reply);
-    if (pasteData == nullptr) {
-        return ERR_INVALID_VALUE;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteData != nullptr, ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "Failed to Unmarshal PasteData");
     CopyUriHandler copyUriHandler;
     if (!pasteData->ReadUriFd(data, copyUriHandler)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
@@ -273,9 +276,8 @@ int32_t PasteboardServiceStub::OnSubscribeObserver(MessageParcel &data, MessageP
 {
     uint32_t type = 0;
     sptr<IPasteboardChangedObserver> callback;
-    if (!IsObserverValid(data, type, callback)) {
-        return ERR_INVALID_VALUE;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(IsObserverValid(data, type, callback), ERR_INVALID_VALUE,
+        PASTEBOARD_MODULE_SERVICE, "Observer invalid");
 
     SubscribeObserver(static_cast<PasteboardObserverType>(type), callback);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
@@ -285,9 +287,8 @@ int32_t PasteboardServiceStub::OnUnsubscribeObserver(MessageParcel &data, Messag
 {
     uint32_t type = 0;
     sptr<IPasteboardChangedObserver> callback;
-    if (!IsObserverValid(data, type, callback)) {
-        return ERR_INVALID_VALUE;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(IsObserverValid(data, type, callback), ERR_INVALID_VALUE,
+        PASTEBOARD_MODULE_SERVICE, "Observer invalid");
     UnsubscribeObserver(static_cast<PasteboardObserverType>(type), callback);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
@@ -313,22 +314,17 @@ bool PasteboardServiceStub::IsObserverValid(
         return false;
     }
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
-    if (obj == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "obj nullptr");
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(obj != nullptr, false, PASTEBOARD_MODULE_SERVICE, "obj nullptr");
     callback = iface_cast<IPasteboardChangedObserver>(obj);
-    if (callback == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "callback nullptr");
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(callback != nullptr, false, PASTEBOARD_MODULE_SERVICE, "callback nullptr");
     return true;
 }
 
 int32_t PasteboardServiceStub::OnIsRemoteData(MessageParcel &data, MessageParcel &reply)
 {
     auto result = IsRemoteData();
-    reply.WriteBool(result);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(reply.WriteBool(result), ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "Failed to write result");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }
@@ -416,7 +412,8 @@ int32_t PasteboardServiceStub::OnHasDataType(MessageParcel &data, MessageParcel 
 {
     std::string mimeType = data.ReadString();
     auto ret = HasDataType(mimeType);
-    reply.WriteBool(ret);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(reply.WriteBool(ret), ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "Failed to write ret");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "end.");
     return ERR_OK;
 }
@@ -563,6 +560,8 @@ PasteboardServiceStub::~PasteboardServiceStub()
 int32_t PasteboardServiceStub::OnPasteStart(MessageParcel &data, MessageParcel &reply)
 {
     std::string pasteId = data.ReadString();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteId != "", ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "Failed to read string");
     PasteStart(pasteId);
     return ERR_OK;
 }
@@ -571,6 +570,10 @@ int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParce
 {
     std::string deviceId = data.ReadString();
     std::string pasteId = data.ReadString();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(deviceId != "", ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "Failed to read string");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteId != "", ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "Failed to read string");
     PasteComplete(deviceId, pasteId);
     return ERR_OK;
 }
@@ -579,12 +582,14 @@ int32_t PasteboardServiceStub::OnRegisterClientDeathObserver(MessageParcel &data
 {
     sptr<IRemoteObject> pasteboardClientDeathObserverProxy = data.ReadRemoteObject();
     if (pasteboardClientDeathObserverProxy == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read remote object failed");
         return ERR_INVALID_VALUE;
     }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteboardClientDeathObserverProxy != nullptr, ERR_INVALID_VALUE,
+        PASTEBOARD_MODULE_SERVICE, "Read remote object failed");
     int32_t status = RegisterClientDeathObserver(std::move(pasteboardClientDeathObserverProxy));
-    if (!reply.WriteInt32(static_cast<int32_t>(status))) {
-        return ERR_INVALID_VALUE;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(reply.WriteInt32(static_cast<int32_t>(status)), ERR_INVALID_VALUE,
+        PASTEBOARD_MODULE_SERVICE, "Write status failed");
     return ERR_OK;
 }
 } // namespace MiscServices

@@ -28,6 +28,8 @@ OHOS::FFI::RuntimeType *PasteDataImpl::GetClassType()
 int64_t CreateCjPasteDataObject(std::string mimeType, CJValueType value)
 {
     auto pasteDataImpl = FFI::FFIData::Create<PasteDataImpl>(mimeType, value);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteDataImpl != nullptr, ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
+        "create cj paste data failed");
     return pasteDataImpl->GetID();
 }
 
@@ -41,7 +43,7 @@ PasteDataImpl::PasteDataImpl(std::shared_ptr<MiscServices::PasteData> pasteData)
     value_ = pasteData;
 }
 
-PasteDataImpl::PasteDataImpl(std::string mimeType, CJValueType value)
+PasteDataImpl::PasteDataImpl(std::string mimeType, const CJValueType &value)
 {
     if (mimeType == "text/html") {
         CreateHtmlData(mimeType, value);
@@ -65,22 +67,22 @@ std::shared_ptr<MiscServices::PasteData> PasteDataImpl::GetRealPasteData()
     return value_;
 }
 
-void PasteDataImpl::CreateHtmlData(std::string mimeType, CJValueType value)
+void PasteDataImpl::CreateHtmlData(std::string mimeType, const CJValueType &value)
 {
     value_ = PasteboardClient::GetInstance()->CreateHtmlData(value.stringValue);
 }
 
-void PasteDataImpl::CreatePlainTextData(std::string mimeType, CJValueType value)
+void PasteDataImpl::CreatePlainTextData(std::string mimeType, const CJValueType &value)
 {
     value_ = PasteboardClient::GetInstance()->CreatePlainTextData(value.stringValue);
 }
 
-void PasteDataImpl::CreateUriData(std::string mimeType, CJValueType value)
+void PasteDataImpl::CreateUriData(std::string mimeType, const CJValueType &value)
 {
     value_ = PasteboardClient::GetInstance()->CreateUriData(OHOS::Uri(value.stringValue));
 }
 
-void PasteDataImpl::CreatePixelMapData(std::string mimeType, CJValueType value)
+void PasteDataImpl::CreatePixelMapData(std::string mimeType, const CJValueType &value)
 {
     value_ = PasteboardClient::GetInstance()->CreatePixelMapData(value.pixelMap);
 }
