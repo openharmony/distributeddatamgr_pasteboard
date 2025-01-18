@@ -217,6 +217,11 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
 void PasteBoardCopyFile::HandleProgress(int32_t index, const std::string &srcUri, const std::string &destUri,
     uint64_t processSize, uint64_t totalSize)
 {
+    if (index < 1) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "invalid index: %{public}d", index);
+        return;
+    }
+
     if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Cancel copy.");
         std::thread([&]() {
@@ -230,7 +235,7 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const std::string &srcUri
     auto totalKBytes = totalSize / FILE_TO_KILO_BYTE;
     auto processedKBytes = processSize / FILE_TO_KILO_BYTE;
     int32_t percentage = (int32_t)((PERCENTAGE * processedKBytes) / totalKBytes);
-    int32_t totalProgress = (index * PERCENTAGE + percentage) / g_recordSize;
+    int32_t totalProgress = ((index - 1) * PERCENTAGE + percentage) / g_recordSize;
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = totalProgress;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "process record index:%{public}d/%{public}d, progress=%{public}d",
