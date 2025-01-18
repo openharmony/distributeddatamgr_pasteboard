@@ -42,21 +42,11 @@ void ProgressSignalClient::Init()
     instance_ = nullptr;
     needCancel_.store(false);
     remoteTask_.store(false);
-    sessionName_.clear();
-}
-
-void ProgressSignalClient::SetSessionNameOfRemoteTask(const std::string &sessionName)
-{
-    sessionName_ = sessionName;
 }
 
 void ProgressSignalClient::Cancel()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressSignalClient Cancel in!");
-    if (!sessionName_.empty()) {
-        Storage::DistributedFile::DistributedFileDaemonManager::GetInstance().CancelCopyTask(sessionName_);
-        sessionName_.clear();
-    }
     needCancel_.store(true);
 }
 
