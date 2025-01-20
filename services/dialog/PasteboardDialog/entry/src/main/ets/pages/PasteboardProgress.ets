@@ -102,6 +102,7 @@ export struct Index {
   private timeoutInterval: number = 3000;
   private unChangeProgressTimes: number = 0;
   private isTimeoutError: boolean = false;
+  private latestUpdateTime: number = 0;
 
   aboutToAppear(): void {
     const promptTextPre: string = this.want.parameters['promptText'];
@@ -157,7 +158,8 @@ export struct Index {
         let record = records[0].getValue() as uniformDataStruct.PlainText;
         console.info(TAG + `Succeeded in querying data. record.textContent = ${record.textContent}`);
         const currentNum = Number(record.textContent) || 0;
-        if ((this.params as Params).currentNum === currentNum) {
+        const updateTime = Number(record.abstract) || 0;
+        if ((this.params as Params).currentNum === currentNum && this.latestUpdateTime == updateTime) {
           this.unChangeProgressTimes++;
         } else {
           this.unChangeProgressTimes = 0;
@@ -165,6 +167,7 @@ export struct Index {
         if (this.unChangeProgressTimes > this.timeoutInterval / this.pollInterval) {
           this.handleTimeoutError();
         } else {
+          this.latestUpdateTime = updateTime;
           (this.params as Params).currentNum = currentNum;
           this.contentNode?.update(this.params);
           if (currentNum < PERCENTAGE_CALCULATION) {
