@@ -29,6 +29,13 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 constexpr int MAX_TEXT_LEN = 20 * 1024 * 1024;
+
+static inline bool IsPasteboardService()
+{
+    constexpr uid_t PASTEBOARD_SERVICE_UID = 3816;
+    return PASTEBOARD_SERVICE_UID == getuid();
+}
+
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mimeType)
 {
     record_->mimeType_ = std::move(mimeType);
@@ -802,7 +809,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
             return nullptr;
         }
         auto entry = std::make_shared<PasteDataEntry>(utdType, *udmfValue_);
-        if (isDelay_ && !entry->HasContent(utdType)) {
+        if (isDelay_ && !entry->HasContent(utdType) && !IsPasteboardService()) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay record value, type=%{public}s", utdType.c_str());
             PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
         }
@@ -816,7 +823,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
     for (auto const &entry : entries_) {
         if (entry->GetUtdId() == utdType ||
             (CommonUtils::IsFileUri(utdType) && CommonUtils::IsFileUri(entry->GetUtdId()))) {
-            if (isDelay_ && !entry->HasContent(utdType)) {
+            if (isDelay_ && !entry->HasContent(utdType) && !IsPasteboardService()) {
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay entry value, type=%{public}s", utdType.c_str());
                 PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
             }
