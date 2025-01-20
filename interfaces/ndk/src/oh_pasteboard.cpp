@@ -279,8 +279,8 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
     auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
     auto getDataParams = std::make_shared<OHOS::MiscServices::GetDataParams>();
     if (params->destUri != nullptr) {
-        if ((uint32_t)strlen(params->destUri) > MAX_DESTURI_LEN || (uint32_t)strlen(params->destUri) <= 0 ||
-            (uint32_t)strlen(params->destUri) != params->destUriLen) {
+        if (strlen(params->destUri) > MAX_DESTURI_LEN || strlen(params->destUri) <= 0 ||
+            strlen(params->destUri) != params->destUriLen) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "destUri is invalid, destUriLen=%{public}zu",
                 strlen(params->destUri));
             *status = ERR_INVALID_PARAMETER;
