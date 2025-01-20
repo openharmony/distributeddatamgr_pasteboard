@@ -44,6 +44,7 @@ config("pasteboard_service_config") {
     "-fdata-sections",
     "-ffunction-sections",
     "-fvisibility=hidden",
+    "-O2",
   ]
 }
 
@@ -122,7 +123,6 @@ ohos_shared_library("pasteboard_service") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
-    "hitrace:libhitracechain",
     "imf:inputmethod_client",
     "input:libmmi-client",
     "ipc:ipc_single",

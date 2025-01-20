@@ -39,9 +39,16 @@ ohos_static_library("pasteboard_uri") {
     "paste_uri_handler.cpp",
     "uri_handler.cpp",
   ]
-  cflags = [ "-Wno-multichar" ]
+  cflags = [
+    "-Wno-multichar",
+    "-fvisibility=hidden",
+    "-O2",
+  ]
 
-  cflags_cc = [ "-fvisibility=hidden" ]
+  cflags_cc = [
+    "-fvisibility=hidden",
+    "-O2",
+  ]
 
   configs = [ ":module_public_config" ]
 

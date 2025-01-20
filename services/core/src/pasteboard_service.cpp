@@ -76,7 +76,7 @@ using namespace UeReporter;
 namespace {
 constexpr const int GET_WRONG_SIZE = 0;
 constexpr const int32_t COMMON_USERID = 0;
-const std::int32_t INIT_INTERVAL = 10000L;
+constexpr int32_t INIT_INTERVAL = 10000L;
 constexpr uint32_t MAX_IPC_THREAD_NUM = 32;
 constexpr const char *PASTEBOARD_SERVICE_SA_NAME = "pasteboard_service";
 constexpr const char *PASTEBOARD_SERVICE_NAME = "PasteboardService";
@@ -87,10 +87,12 @@ constexpr const char *TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.dat
 constexpr const char *MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION =
     "ohos.permission.MANAGE_PASTEBOARD_APP_SHARE_OPTION";
 
-const std::int32_t INVAILD_VERSION = -1;
-const std::int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
-const std::int32_t CTRLV_EVENT_SIZE = 2;
-const std::int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
+constexpr int32_t INVAILD_VERSION = -1;
+constexpr int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
+constexpr int32_t CTRLV_EVENT_SIZE = 2;
+constexpr int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
+static constexpr const pid_t TESE_SERVER_UID = 3500;
+static constexpr uint32_t EVENT_TIME_OUT = 2000;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace

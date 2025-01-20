@@ -54,8 +54,8 @@
 
 namespace OHOS {
 namespace MiscServices {
-const std::int32_t ERROR_USERID = -1;
-const std::int32_t RESULT_OK = 0;
+constexpr int32_t ERROR_USERID = -1;
+constexpr int32_t RESULT_OK = 0;
 enum class ServiceRunningState {
     STATE_NOT_START,
     STATE_RUNNING
@@ -98,7 +98,6 @@ public:
     void Clear();
 
 private:
-    static constexpr uint32_t EVENT_TIME_OUT = 2000;
     mutable int32_t windowPid_;
     mutable uint64_t actionTime_;
     mutable std::shared_mutex inputEventMutex_;
@@ -365,7 +364,6 @@ private:
     int32_t uid_ = -1;
     RemoteDataTaskManager taskMgr_;
     pid_t setPasteDataUId_ = 0;
-    static constexpr const pid_t TESE_SERVER_UID = 3500;
     std::mutex eventMutex_;
     SecurityLevel securityLevel_;
     class PasteboardDeathRecipient final : public IRemoteObject::DeathRecipient {

@@ -35,9 +35,15 @@ ohos_static_library("pasteboard_tlv") {
     "parcel_util.cpp",
     "tlv_object.cpp",
   ]
-  cflags = [ "-Wno-multichar" ]
-
-  cflags_cc = [ "-fvisibility=hidden" ]
+  cflags = [
+    "-Wno-multichar",
+    "-fvisibility=hidden",
+    "-O2",
+  ]
+  cflags_cc = [
+    "-fvisibility=hidden",
+    "-O2",
+  ]
 
   configs = [ ":module_public_config" ]
 

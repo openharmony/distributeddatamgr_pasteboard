@@ -50,8 +50,11 @@ ohos_shared_library("pasteboard_framework") {
     "ffrt/ffrt_utils.cpp",
     "serializable/serializable.cpp",
   ]
-  cflags = [ "-Wno-multichar" ]
-
+  cflags = [
+    "-fvisibility=hidden",
+    "-Wno-multichar",
+    "-O2",
+  ]
   cflags_cc = [
     "-fvisibility=hidden",
     "-fstack-protector",
