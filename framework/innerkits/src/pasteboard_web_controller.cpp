@@ -402,6 +402,24 @@ bool PasteboardWebController::IsLocalURI(std::string &uri) noexcept
         uri.find(IMG_LOCAL_PATH) == std::string::npos;
 }
 
+void PasteboardWebController::UpdataHtmlRecord(
+    std::shared_ptr<PasteDataRecord> &htmlRecord, std::shared_ptr<std::string> &htmlData)
+{
+    auto entry = htmlRecord->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+    auto entryValue = entry->GetValue();
+    if (std::holds_alternative<std::string>(entryValue)) {
+        entry->SetValue(*htmlData);
+    } else if (std::holds_alternative<std::shared_ptr<Object>>(entryValue)) {
+        auto object = std::get<std::shared_ptr<Object>>(entryValue);
+        auto newObject = std::make_shared<Object>();
+        newObject->value_ = object->value_;
+        newObject->value_[UDMF::HTML_CONTENT] = *htmlData;
+        entry->SetValue(newObject);
+    }
+    htmlRecord->AddEntryByMimeType(MIMETYPE_TEXT_HTML, entry);
+    htmlRecord->SetFrom(0);
+}
+
 void PasteboardWebController::ReplaceHtmlRecordContentByExtraUris(
     std::vector<std::shared_ptr<PasteDataRecord>> &records)
 {
@@ -444,19 +462,7 @@ void PasteboardWebController::ReplaceHtmlRecordContentByExtraUris(
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "replace uri count: %{public}zu", replaceUris.size());
     if (htmlRecord != nullptr) {
-        auto entry = htmlRecord->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
-        auto entryValue = entry->GetValue();
-        if (std::holds_alternative<std::string>(entryValue)) {
-            entry->SetValue(*htmlData);
-        } else if (std::holds_alternative<std::shared_ptr<Object>>(entryValue)) {
-            auto object = std::get<std::shared_ptr<Object>>(entryValue);
-            auto newObject = std::make_shared<Object>();
-            newObject->value_ = object->value_;
-            newObject->value_[UDMF::HTML_CONTENT] = *htmlData;
-            entry->SetValue(newObject);
-        }
-        htmlRecord->AddEntryByMimeType(MIMETYPE_TEXT_HTML, entry);
-        htmlRecord->SetFrom(0);
+        UpdataHtmlRecord(htmlRecord, htmlData);
     }
 }
 
