@@ -402,7 +402,7 @@ bool PasteboardWebController::IsLocalURI(std::string &uri) noexcept
         uri.find(IMG_LOCAL_PATH) == std::string::npos;
 }
 
-void PasteboardWebController::UpdataHtmlRecord(
+void PasteboardWebController::UpdateHtmlRecord(
     std::shared_ptr<PasteDataRecord> &htmlRecord, std::shared_ptr<std::string> &htmlData)
 {
     auto entry = htmlRecord->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
