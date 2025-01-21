@@ -90,6 +90,7 @@ enum class PasteboardError : int32_t {
     RESOURCE_APPLY_TIMEOUT,
     RESOURCE_APPLYING,
     RESOURCE_APPLY_NOT_FIND,
+    CHECK_DESCRIPTOR_ERROR,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -154,6 +155,7 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::RESOURCE_APPLY_TIMEOUT, "RESOURCE_APPLY_TIMEOUT"},
     {PasteboardError::RESOURCE_APPLYING, "RESOURCE_APPLYING"},
     {PasteboardError::RESOURCE_APPLY_NOT_FIND, "RESOURCE_APPLY_NOT_FIND"},
+    {PasteboardError::CHECK_DESCRIPTOR_ERROR, "CHECK_DESCRIPTOR_ERROR"},
 };
 
 } // namespace MiscServices

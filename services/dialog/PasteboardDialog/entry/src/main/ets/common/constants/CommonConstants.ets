@@ -52,6 +52,8 @@ export default class CommonConstants {
   // Update prompt text
   public static readonly UPDATE_PROMPT_LINE_HEIGHT:number = 16;
   public static readonly UPDATE_PROMPT_MARGIN_TOP:number = 9;
+  // IPC callback descriptor
+  public static readonly COMP_DIALOG_CALLBACK:string = 'ohos.miscservices.dialog.callback';
 }
 
 export enum FontSizeScale {
@@ -86,7 +88,7 @@ export enum ProgressErrorPromptText {
   PromptText_Udmf_Format = 'prompttext_udmf_format_error',
 }
 
-export enum SignalKey {
+export enum SignalValue {
   CANCEL_PROGRESS_TASK = '1',
   CANCEL_TIMEOUT_ERROR = '2',
 }

@@ -50,7 +50,7 @@ public:
     virtual void PasteStart(const std::string &pasteId) = 0;
     virtual void PasteComplete(const std::string &deviceId, const std::string &pasteId) = 0;
     virtual int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) = 0;
-    virtual void ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey) = 0;
+    virtual void ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) = 0;
     virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) = 0;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.miscservices.pasteboard.IPasteboardService");
 };

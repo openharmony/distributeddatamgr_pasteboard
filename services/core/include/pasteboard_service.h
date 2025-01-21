@@ -135,7 +135,7 @@ public:
     virtual void PasteStart(const std::string &pasteId) override;
     virtual void PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
     virtual int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override;
-    virtual void ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey) override;
+    virtual void ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override;
     virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;

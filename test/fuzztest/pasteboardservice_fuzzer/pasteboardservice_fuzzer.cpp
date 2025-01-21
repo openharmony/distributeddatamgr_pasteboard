@@ -191,10 +191,10 @@ public:
         return 0;
     }
 
-    void ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey) override
+    void ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override
     {
         (void)progressKey;
-        (void)signalKey;
+        (void)observer;
     }
 };
 

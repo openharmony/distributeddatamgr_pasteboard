@@ -644,7 +644,8 @@ int32_t PasteboardServiceProxy::GetRemoteDeviceName(std::string &deviceName, boo
     return reply.ReadInt32();
 }
  
-void PasteboardServiceProxy::ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey)
+void PasteboardServiceProxy::ShowProgress(
+    const std::string &progressKey, const sptr<IRemoteObject> &observer)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     MessageParcel data;
@@ -658,8 +659,8 @@ void PasteboardServiceProxy::ProgressMakeMessageInfo(const std::string &progress
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
         return;
     }
-    if (!data.WriteString(signalKey)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write pasteId");
+    if (!data.WriteRemoteObject(observer)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write observer");
         return;
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PROGRESS_MAKE_MESSAGE_INFO,

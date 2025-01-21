@@ -641,7 +641,7 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "isLocalPaste = %{public}d.", pasteData.IsLocalPaste());
 }
 
-void PasteboardService::ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey)
+void PasteboardService::ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer)
 {
     if (!HasPasteData()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not pastedata, no need to show progress.");
@@ -665,11 +665,11 @@ void PasteboardService::ProgressMakeMessageInfo(const std::string &progressKey, 
     }
     message.isRemote = isRemote;
     message.progressKey = progressKey;
-    message.signalKey = signalKey;
-    
+
     FocusedAppInfo appInfo = GetFocusedAppInfo();
     message.windowId = appInfo.windowId;
     message.callerToken = appInfo.abilityToken;
+    message.clientCallback = observer;
     PasteBoardDialog::GetInstance().ShowProgress(message);
 }
 

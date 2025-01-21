@@ -498,21 +498,17 @@ public:
     int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote);
 
     /**
-     * ProgressMakeMessageInfo
-     * @descrition Make progress message information and pull up hap.
-     * @param std::string progressKey - the progressKey.
-     * @param std::string signalKey - the signalKey.
-     * @returns void
+     * HandleSignalValue
+     * @descrition Handle hap signal value.
+     * @param std::string signalValue - the value of hap ipc proxy.
+     * @returns int32_t
      */
-    void ProgressMakeMessageInfo(const std::string &progressKey, const std::string &signalKey);
+    int32_t HandleSignalValue(const std::string &signalValue);
 
 private:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void GetProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo);
-    static int32_t HandleProgressStatus(const std::string &signalKey,
-       std::shared_ptr<ProgressReportLintener> progressReport);
-    int32_t PullHapSignal(std::string &signalKey, std::shared_ptr<ProgressReportLintener> progressReport);
     static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
     static void ProgressSmoothToTwentyPercent(PasteData &pasteData, std::string &progressKey,
        std::shared_ptr<GetDataParams> params);
@@ -524,6 +520,7 @@ private:
        std::string progressKey);
     void SetPasteboardServiceProxy(const sptr<IRemoteObject> &remoteObject);
     static int32_t CheckProgressParam(std::shared_ptr<GetDataParams> params);
+    void ShowProgress(const std::string &progressKey);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     bool constructing_ = false;
