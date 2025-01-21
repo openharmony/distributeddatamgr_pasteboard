@@ -444,9 +444,18 @@ void PasteboardWebController::ReplaceHtmlRecordContentByExtraUris(
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "replace uri count: %{public}zu", replaceUris.size());
     if (htmlRecord != nullptr) {
-        auto htmlUtdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, MIMETYPE_TEXT_HTML);
-        auto newHtmlEntry = std::make_shared<PasteDataEntry>(htmlUtdId, *htmlData);
-        htmlRecord->AddEntryByMimeType(MIMETYPE_TEXT_HTML, newHtmlEntry);
+        auto entry = htmlRecord->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+        auto entryValue = entry->GetValue();
+        if (std::holds_alternative<std::string>(entryValue)) {
+            entry->SetValue(*htmlData);
+        } else if (std::holds_alternative<std::shared_ptr<Object>>(entryValue)) {
+            auto object = std::get<std::shared_ptr<Object>>(entryValue);
+            auto newObject = std::make_shared<Object>();
+            newObject->value_ = object->value_;
+            newObject->value_[UDMF::HTML_CONTENT] = *htmlData;
+            entry->SetValue(newObject);
+        }
+        htmlRecord->AddEntryByMimeType(MIMETYPE_TEXT_HTML, entry);
         htmlRecord->SetFrom(0);
     }
 }
