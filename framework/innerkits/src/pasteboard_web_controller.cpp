@@ -462,7 +462,7 @@ void PasteboardWebController::ReplaceHtmlRecordContentByExtraUris(
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "replace uri count: %{public}zu", replaceUris.size());
     if (htmlRecord != nullptr) {
-        UpdataHtmlRecord(htmlRecord, htmlData);
+        UpdateHtmlRecord(htmlRecord, htmlData);
     }
 }
 
