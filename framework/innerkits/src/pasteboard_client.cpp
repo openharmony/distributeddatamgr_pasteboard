@@ -51,7 +51,6 @@ namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
 std::string g_progressKey;
-std::string g_serviceKey = "pasteboardService";
 constexpr int32_t LOADSA_TIMEOUT_MS = 4000;
 constexpr int32_t PASTEBOARD_PROGRESS_UPDATE_PERCENT = 5;
 constexpr int32_t UPDATE_PERCENT_WITHOUT_FILE = 10;
@@ -67,7 +66,6 @@ PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
 sptr<IRemoteObject> clientDeathObserverPtr_;
-std::shared_ptr<FFRTTimer> ffrtTimer_;
 std::atomic<bool> PasteboardClient::remoteTask_(false);
 std::atomic<bool> PasteboardClient::isPasting_(false);
 
@@ -83,15 +81,9 @@ bool operator==(const RadarReportIdentity &lhs, const RadarReportIdentity &rhs)
 
 PasteboardClient::PasteboardClient()
 {
-    std::unique_lock<std::mutex> lock(instanceLock_);
-    std::string serviceKey = g_serviceKey;
-    lock.unlock();
-    ffrtTimer_ = std::make_shared<FFRTTimer>("pasteboard_service_init");
-    if (ffrtTimer_ != nullptr) {
-        FFRTTask signalTask = [this, serviceKey] {
-            auto proxyService = GetPasteboardService();
-        };
-        ffrtTimer_->SetTimer(serviceKey, signalTask, 0);
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "proxyService is null");
     }
 }
 
@@ -105,9 +97,6 @@ PasteboardClient::~PasteboardClient()
                 remoteObject->RemoveDeathRecipient(deathRecipient_);
             }
         }
-    }
-    if (ffrtTimer_ != nullptr) {
-        ffrtTimer_->CancelTimer(g_serviceKey);
     }
 }
 
