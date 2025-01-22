@@ -581,10 +581,6 @@ int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParce
 int32_t PasteboardServiceStub::OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> pasteboardClientDeathObserverProxy = data.ReadRemoteObject();
-    if (pasteboardClientDeathObserverProxy == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read remote object failed");
-        return ERR_INVALID_VALUE;
-    }
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteboardClientDeathObserverProxy != nullptr, ERR_INVALID_VALUE,
         PASTEBOARD_MODULE_SERVICE, "Read remote object failed");
     int32_t status = RegisterClientDeathObserver(std::move(pasteboardClientDeathObserverProxy));
