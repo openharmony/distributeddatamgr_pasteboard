@@ -534,7 +534,7 @@ bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
         }
         if (!ret) {
             PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_CLIENT, "decode failed,tag:%{}hu, len:%{}u", head.tag, head.len);
+                PASTEBOARD_MODULE_CLIENT, "decode failed,tag:%{public}hu, len:%{public}u", head.tag, head.len);
             return false;
         }
     }
