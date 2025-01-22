@@ -33,7 +33,7 @@ constexpr int MAX_TEXT_LEN = 20 * 1024 * 1024;
 static inline bool IsPasteboardService()
 {
     constexpr uid_t PASTEBOARD_SERVICE_UID = 3816;
-    return PASTEBOARD_SERVICE_UID == getuid();
+    return getuid() == PASTEBOARD_SERVICE_UID;
 }
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mimeType)

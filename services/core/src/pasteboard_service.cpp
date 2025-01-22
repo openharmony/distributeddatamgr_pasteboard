@@ -382,12 +382,13 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, static_cast<int32_t>(PasteboardError::INVALID_RECORD_ID),
         PASTEBOARD_MODULE_SERVICE, "recordId=%{public}u invalid, max=%{public}zu", recordId, data->GetRecordCount());
 
-    std::string mimeType = value.GetMimeType();
-    auto entry = record->GetEntryByMimeType(mimeType);
+    std::string utdId = value.GetUtdId();
+    auto entry = record->GetEntry(utdId);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entry != nullptr, static_cast<int32_t>(PasteboardError::INVALID_MIMETYPE),
-        PASTEBOARD_MODULE_SERVICE, "entry is null, recordId=%{public}u, type=%{public}s", recordId, mimeType.c_str());
+        PASTEBOARD_MODULE_SERVICE, "entry is null, recordId=%{public}u, type=%{public}s", recordId, utdId.c_str());
 
-    if (entry->HasContentByMimeType(mimeType)) {
+    std::string mimeType = value.GetMimeType();
+    if (entry->HasContent(utdId)) {
         value.SetValue(entry->GetValue());
         if (mimeType != MIMETYPE_TEXT_HTML && mimeType != MIMETYPE_TEXT_URI) {
             return static_cast<int32_t>(PasteboardError::E_OK);
@@ -402,7 +403,7 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
         PASTEBOARD_MODULE_SERVICE, "get delay entry failed, type=%{public}s, ret=%{public}d", mimeType.c_str(), ret);
 
-    record->AddEntry(value.GetUtdId(), std::make_shared<PasteDataEntry>(value));
+    record->AddEntry(utdId, std::make_shared<PasteDataEntry>(value));
 
     if (mimeType == MIMETYPE_TEXT_HTML) {
         return ProcessDelayHtmlEntry(*data, appInfo.bundleName, value);
@@ -1354,8 +1355,8 @@ int32_t PasteboardService::SaveData(PasteData &pasteData,
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-void PasteboardService::HandleDelayDataAndRecord(PasteData &pasteData, sptr<IPasteboardDelayGetter> delayGetter,
-    sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo)
+void PasteboardService::HandleDelayDataAndRecord(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
+    const sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo)
 {
     if (pasteData.IsDelayData() && delayGetter != nullptr) {
         sptr<DelayGetterDeathRecipient> deathRecipient = new (std::nothrow)
@@ -1572,7 +1573,7 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
 }
 
 int32_t PasteboardService::SetPasteData(PasteData &pasteData,
-    sptr<IPasteboardDelayGetter> delayGetter, sptr<IPasteboardEntryGetter> entryGetter)
+    const sptr<IPasteboardDelayGetter> delayGetter, const sptr<IPasteboardEntryGetter> entryGetter)
 {
     PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
     auto ret = SaveData(pasteData, delayGetter, entryGetter);
