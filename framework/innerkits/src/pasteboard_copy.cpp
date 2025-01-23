@@ -33,7 +33,6 @@ constexpr int ERRNO_NOERR = 0;
 constexpr int E_EXIST = 17;
 constexpr float FILE_PERCENTAGE = 0.8;
 constexpr int BEGIN_PERCENTAGE = 20;
-constexpr int FILE_TO_KILO_BYTE = 1024;
 constexpr int DFS_CANCEL_SUCCESS = 204;
 
 static int32_t g_recordSize = 0;
@@ -217,8 +216,13 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
 void PasteBoardCopyFile::HandleProgress(int32_t index, const std::string &srcUri, const std::string &destUri,
     uint64_t processSize, uint64_t totalSize)
 {
-    if (index < 1) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "invalid index: %{public}d", index);
+    if (index < 1 || totalSize == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid parameter");
+        return;
+    }
+
+    if (g_recordSize == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no record");
         return;
     }
 
@@ -232,9 +236,8 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const std::string &srcUri
         }).detach();
         return;
     }
-    auto totalKBytes = totalSize / FILE_TO_KILO_BYTE;
-    auto processedKBytes = processSize / FILE_TO_KILO_BYTE;
-    int32_t percentage = (int32_t)((PERCENTAGE * processedKBytes) / totalKBytes);
+
+    int32_t percentage = (int32_t)((PERCENTAGE * processSize) / totalSize);
     int32_t totalProgress = ((index - 1) * PERCENTAGE + percentage) / g_recordSize;
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = totalProgress;
