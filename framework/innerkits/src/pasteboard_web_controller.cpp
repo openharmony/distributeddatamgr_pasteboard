@@ -274,8 +274,6 @@ std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(std::shared_pt
         std::shared_ptr<std::string> html = item->GetHtmlText();
         if (html != nullptr) {
             htmlData = html;
-        } else {
-            continue;
         }
         std::shared_ptr<OHOS::Uri> uri = item->GetUri();
         std::shared_ptr<MiscServices::MineCustomData> customData = item->GetCustomData();
