@@ -542,7 +542,7 @@ struct PasteboardSwitch {
           let foldStatusValue = foldStatus.valueOf();
           console.info(`${TAG} checkFoldBackButton: foldStatusValue is ${foldStatusValue}`);
           this.refreshFoldStatus(foldStatusValue);
-      })
+        })
           let data: display.FoldStatus = display.getFoldStatus();
           this.refreshFoldStatus(data);
       }
