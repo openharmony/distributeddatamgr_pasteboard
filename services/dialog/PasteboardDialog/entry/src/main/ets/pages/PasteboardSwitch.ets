@@ -192,8 +192,14 @@ struct PasteboardSwitch {
   aboutToAppear() {
     console.log(TAG + 'aboutToAppear in');
     // Switch State Initialization
-    let value = settings.getValueSync(context, 'distributed_pasteboard_switch', switchState.open,
-      settings.domainName.USER_SECURITY);
+    let value: string = '';
+    try {
+      value = settings.getValueSync(context, 'distributed_pasteboard_switch', switchState.open,
+        settings.domainName.USER_SECURITY);
+    } catch (error) {
+      console.error(`Failed to get setting value:`, error);
+      return;
+    }
     this.isSwitchOn = value != switchState.close ? true : false;
     console.log(TAG + '<aboutToAppear> this.isSwitchOn : ' + this.isSwitchOn + '; value: ' + value);
 
@@ -201,8 +207,14 @@ struct PasteboardSwitch {
     console.log(TAG + 'AppStorage.get<boolean>(isSwitchOn) : ' + AppStorage.get<boolean>('isSwitchOn'));
 
     if (this.isSwitchOn) {
-      let status: boolean = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open,
-        settings.domainName.USER_SECURITY);
+      let status: boolean = false;
+      try {
+        status = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open,
+          settings.domainName.USER_SECURITY);
+      } catch (error) {
+        console.error(`Failed to get setting value:`, error);
+        return;
+      }
       console.log(TAG + 'set value success :' + status + '; set:distributed_pasteboard_switch is 1');
     }
 
@@ -360,15 +372,24 @@ struct PasteboardSwitch {
                 this.isSwitchOn = isOn;
                 AppStorage.setAndLink('isSwitchOn', isOn);
                 if (isOn) {
-                  let status: boolean =
-                    settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open,
+                  let status: boolean = false;
+                  try {
+                    status = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open,
                       settings.domainName.USER_SECURITY);
+                  } catch (error) {
+                    console.error(`Failed to get setting value:`, error);
+                    return;
+                  }
                   console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is on');
                 } else {
-                  let status: boolean =
-                    settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close,
+                  let status: boolean = false;
+                  try {
+                    status = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close,
                       settings.domainName.USER_SECURITY);
-                  console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is close');
+                  } catch (error) {
+                    console.error(`Failed to get setting value:`, error);
+                    return;
+                  }
                 }
               })
           }
@@ -515,8 +536,8 @@ struct PasteboardSwitch {
 
   private checkFoldBackButton(): void {
     console.info(`${TAG} checkFoldBackButton in`);
-    if (display.isFoldable()) {
-      try {
+    try {
+      if (display.isFoldable()) {
         display.on('foldStatusChange', (foldStatus: display.FoldStatus) => {
           let foldStatusValue = foldStatus.valueOf();
           console.info(`${TAG} checkFoldBackButton: foldStatusValue is ${foldStatusValue}`);
@@ -524,9 +545,9 @@ struct PasteboardSwitch {
         })
         let data: display.FoldStatus = display.getFoldStatus();
         this.refreshFoldStatus(data);
-      } catch (err) {
-        console.error(`${TAG} Register failed. exception: ${err.message}`);
       }
+    } catch (err) {
+      console.error(`${TAG} Register failed. exception: ${err.message}`);
     }
   }
 }
