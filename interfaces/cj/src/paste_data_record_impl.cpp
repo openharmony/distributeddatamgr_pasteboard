@@ -33,7 +33,7 @@ OHOS::FFI::RuntimeType *PasteDataRecordImpl::GetClassType()
 int64_t CreateCjPasteDataRecordObject(std::string mimeType, CJValueType value)
 {
     auto pasteDataRecordImpl = FFI::FFIData::Create<PasteDataRecordImpl>(mimeType, value);
-    if (!pasteDataRecordImpl) {
+    if (pasteDataRecordImpl != nullptr) {
         return 0;
     }
     std::shared_ptr<MiscServices::PasteDataRecord> realValue = pasteDataRecordImpl->GetRealPasteDataRecord();

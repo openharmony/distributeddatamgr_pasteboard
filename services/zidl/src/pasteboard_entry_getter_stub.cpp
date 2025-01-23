@@ -44,7 +44,7 @@ int PasteboardEntryGetterStub::OnRemoteRequest(
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (remoteDescriptor != localDescriptor) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remote descriptor is not equal to local descriptor");
-        return -1;
+        return ERR_INVALID_VALUE;
     }
     auto itFunc = memberFuncMap_.find(code);
     if (itFunc != memberFuncMap_.end()) {

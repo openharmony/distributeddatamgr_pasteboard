@@ -23,16 +23,18 @@
 
 namespace OHOS {
 namespace MiscServices {
-uint64_t CalculateTimeConsuming::lastTime_ = 0;
-void CalculateTimeConsuming::SetBeginTime()
-{
-    lastTime_ = GetCurrentTimeMicros();
-}
+uint64_t CalculateTimeConsuming::lastTime_;
 CalculateTimeConsuming::CalculateTimeConsuming(const size_t calPasteboardData, const int calPasteboardState)
     : pasteboardState_(calPasteboardState)
 {
     pasteboardData_ = CalculateData(calPasteboardData);
+    lastTime_ = 0;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "CalculateTimeConsuming()");
+}
+
+void CalculateTimeConsuming::SetBeginTime()
+{
+    lastTime_ = GetCurrentTimeMicros();
 }
 
 CalculateTimeConsuming::~CalculateTimeConsuming()

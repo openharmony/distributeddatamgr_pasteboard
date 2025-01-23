@@ -29,7 +29,7 @@ class PasteDataImpl : public OHOS::FFI::FFIData {
 public:
     PasteDataImpl();
     explicit PasteDataImpl(std::shared_ptr<MiscServices::PasteData> pasteData);
-    PasteDataImpl(std::string mimeType, CJValueType value);
+    PasteDataImpl(std::string mimeType, const CJValueType &value);
     std::shared_ptr<MiscServices::PasteData> GetRealPasteData();
     OHOS::FFI::RuntimeType *GetRuntimeType() override
     {
@@ -40,10 +40,10 @@ private:
     friend class OHOS::FFI::RuntimeType;
     friend class OHOS::FFI::TypeBase;
     static OHOS::FFI::RuntimeType *GetClassType();
-    void CreateHtmlData(std::string mimeType, CJValueType value);
-    void CreatePlainTextData(std::string mimeType, CJValueType value);
-    void CreateUriData(std::string mimeType, CJValueType value);
-    void CreatePixelMapData(std::string mimeType, CJValueType value);
+    void CreateHtmlData(std::string mimeType, const CJValueType &value);
+    void CreatePlainTextData(std::string mimeType, const CJValueType &value);
+    void CreateUriData(std::string mimeType, const CJValueType &value);
+    void CreatePixelMapData(std::string mimeType, const CJValueType &value);
     void CreateWantData(std::string mimeType, CJValueType value);
 
     std::shared_ptr<MiscServices::PasteData> value_ = nullptr;
