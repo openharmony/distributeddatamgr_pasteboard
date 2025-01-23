@@ -210,7 +210,7 @@ struct PasteboardSwitch {
       let status: boolean = false;
       try {
         status = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open,
-        settings.domainName.USER_SECURITY);
+          settings.domainName.USER_SECURITY);
       } catch (error) {
         console.error(`Failed to get setting value:`, error);
         return;
@@ -372,7 +372,7 @@ struct PasteboardSwitch {
                 this.isSwitchOn = isOn;
                 AppStorage.setAndLink('isSwitchOn', isOn);
                 if (isOn) {
-                  let status: boolean;
+                  let status: boolean = false;
                   try {
                     status = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.open,
                       settings.domainName.USER_SECURITY);
@@ -382,7 +382,7 @@ struct PasteboardSwitch {
                   }
                   console.log(TAG + 'is set success :' + status + '; set:distributed_pasteboard_switch is on');
                 } else {
-                  let status: boolean;
+                  let status: boolean = false;
                   try {
                     status = settings.setValueSync(context, 'distributed_pasteboard_switch', switchState.close,
                       settings.domainName.USER_SECURITY);
@@ -536,18 +536,18 @@ struct PasteboardSwitch {
 
   private checkFoldBackButton(): void {
     console.info(`${TAG} checkFoldBackButton in`);
-  try {
-    if (display.isFoldable()) {
+    try {
+      if (display.isFoldable()) {
         display.on('foldStatusChange', (foldStatus: display.FoldStatus) => {
-        let foldStatusValue = foldStatus.valueOf();
-        console.info(`${TAG} checkFoldBackButton: foldStatusValue is ${foldStatusValue}`);
-        this.refreshFoldStatus(foldStatusValue);
+          let foldStatusValue = foldStatus.valueOf();
+          console.info(`${TAG} checkFoldBackButton: foldStatusValue is ${foldStatusValue}`);
+          this.refreshFoldStatus(foldStatusValue);
       })
-        let data: display.FoldStatus = display.getFoldStatus();
-        this.refreshFoldStatus(data);
+          let data: display.FoldStatus = display.getFoldStatus();
+          this.refreshFoldStatus(data);
+      }
+    } catch (err) {
+      console.error(`${TAG} Register failed. exception: ${err.message}`);
     }
-  } catch (err) {
-    console.error(`${TAG} Register failed. exception: ${err.message}`);
-  }
   }
 }
