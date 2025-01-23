@@ -74,8 +74,7 @@ using namespace Storage::DistributedFile;
 using namespace RadarReporter;
 using namespace UeReporter;
 namespace {
-constexpr const int GET_WRONG_SIZE = 0;
-constexpr const int32_t COMMON_USERID = 0;
+constexpr int32_t COMMON_USERID = 0;
 constexpr int32_t INIT_INTERVAL = 10000L;
 constexpr uint32_t MAX_IPC_THREAD_NUM = 32;
 constexpr const char *PASTEBOARD_SERVICE_SA_NAME = "pasteboard_service";
@@ -91,8 +90,8 @@ constexpr int32_t INVAILD_VERSION = -1;
 constexpr int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 constexpr int32_t CTRLV_EVENT_SIZE = 2;
 constexpr int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
-static constexpr const pid_t TESE_SERVER_UID = 3500;
-static constexpr uint32_t EVENT_TIME_OUT = 2000;
+constexpr pid_t TESE_SERVER_UID = 3500;
+constexpr uint32_t EVENT_TIME_OUT = 2000;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -2028,7 +2027,7 @@ size_t PasteboardService::GetDataSize(PasteData &data) const
         size_t textSize = text.size();
         return textSize;
     }
-    return GET_WRONG_SIZE;
+    return 0; // get wrong size
 }
 
 bool PasteboardService::SetPasteboardHistory(HistoryInfo &info)
