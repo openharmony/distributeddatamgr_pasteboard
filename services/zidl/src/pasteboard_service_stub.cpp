@@ -560,8 +560,6 @@ PasteboardServiceStub::~PasteboardServiceStub()
 int32_t PasteboardServiceStub::OnPasteStart(MessageParcel &data, MessageParcel &reply)
 {
     std::string pasteId = data.ReadString();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteId != "", ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
-        "Failed to read string");
     PasteStart(pasteId);
     return ERR_OK;
 }
@@ -570,10 +568,6 @@ int32_t PasteboardServiceStub::OnPasteComplete(MessageParcel &data, MessageParce
 {
     std::string deviceId = data.ReadString();
     std::string pasteId = data.ReadString();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(deviceId != "", ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
-        "Failed to read string");
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteId != "", ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
-        "Failed to read string");
     PasteComplete(deviceId, pasteId);
     return ERR_OK;
 }
