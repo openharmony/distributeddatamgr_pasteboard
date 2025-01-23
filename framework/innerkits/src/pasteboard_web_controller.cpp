@@ -405,7 +405,15 @@ bool PasteboardWebController::IsLocalURI(std::string &uri) noexcept
 void PasteboardWebController::UpdateHtmlRecord(
     std::shared_ptr<PasteDataRecord> &htmlRecord, std::shared_ptr<std::string> &htmlData)
 {
+    if (htmlRecord == nullptr || htmlData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "htmlRecord or htmlData is null");
+        return;
+    }
     auto entry = htmlRecord->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+    if (entry == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "entry is null");
+        return;
+    }
     auto entryValue = entry->GetValue();
     if (std::holds_alternative<std::string>(entryValue)) {
         entry->SetValue(*htmlData);
