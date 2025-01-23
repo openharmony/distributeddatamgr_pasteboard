@@ -543,8 +543,8 @@ struct PasteboardSwitch {
           console.info(`${TAG} checkFoldBackButton: foldStatusValue is ${foldStatusValue}`);
           this.refreshFoldStatus(foldStatusValue);
         })
-          let data: display.FoldStatus = display.getFoldStatus();
-          this.refreshFoldStatus(data);
+        let data: display.FoldStatus = display.getFoldStatus();
+        this.refreshFoldStatus(data);
       }
     } catch (err) {
       console.error(`${TAG} Register failed. exception: ${err.message}`);
