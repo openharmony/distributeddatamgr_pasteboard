@@ -27,6 +27,7 @@ struct CopyInfo {
     std::string destUri;
     std::string srcPath;
     std::string destPath;
+    std::string remoteDeviceName;
     bool isExist = false;
     bool operator==(const CopyInfo &infos) const
     {
@@ -58,8 +59,7 @@ private:
         std::shared_ptr<CopyInfo> copyInfo, int32_t index);
     static void OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo);
     static int32_t CopyFileData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
-    static void HandleProgress(int32_t index, const std::string &srcUri, const std::string &destUri,
-        uint64_t processSize, uint64_t totalSize);
+    static void HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize);
     static ProgressListener progressListener_;
 };
 } // namespace MiscServices

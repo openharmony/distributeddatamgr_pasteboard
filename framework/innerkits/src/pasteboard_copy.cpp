@@ -121,6 +121,7 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
 {
     copyInfo->srcUri = srcUri;
     copyInfo->destUri = dataParams->destUri;
+    copyInfo->remoteDeviceName = dataParams->remoteDeviceName;
     FileUri srcFileUri(copyInfo->srcUri);
     copyInfo->srcPath = srcFileUri.GetRealPath();
     FileUri destFileUri(copyInfo->destUri);
@@ -177,7 +178,6 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         }
         record = pasteData.GetRecordAt(index);
         if (record == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Record is nullptr");
             return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
         }
         std::shared_ptr<OHOS::Uri> uri = record->GetUri();
@@ -194,10 +194,10 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
             continue;
         }
         recordCount++;
-
+        CopyInfo info = *copyInfo;
         using ProcessCallBack = std::function<void(uint64_t processSize, uint64_t totalSize)>;
         ProcessCallBack listener = [&](uint64_t processSize, uint64_t totalSize) {
-            HandleProgress(recordProcessedIndex, srcUri, copyInfo->destUri, processSize, totalSize);
+            HandleProgress(recordProcessedIndex, info, processSize, totalSize);
         };
         ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Copy(srcUri, copyInfo->destUri, listener);
         if ((ret == static_cast<int32_t>(PasteboardError::E_OK) || ret == ERRNO_NOERR) && !copyInfo->isExist &&
@@ -213,8 +213,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
     return (ret == ERRNO_NOERR || ret == DFS_CANCEL_SUCCESS) ? static_cast<int32_t>(PasteboardError::E_OK) : ret;
 }
 
-void PasteBoardCopyFile::HandleProgress(int32_t index, const std::string &srcUri, const std::string &destUri,
-    uint64_t processSize, uint64_t totalSize)
+void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize)
 {
     if (index < 1 || totalSize == 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid parameter");
@@ -229,7 +228,7 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const std::string &srcUri
     if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Cancel copy.");
         std::thread([&]() {
-            auto ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Cancel(srcUri, destUri);
+            auto ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Cancel(info.srcUri, info.destUri);
             if (ret != ERRNO_NOERR) {
                 PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Cancel failed. errno=%{public}d", ret);
             }
@@ -240,6 +239,7 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const std::string &srcUri
     int32_t percentage = (int32_t)((PERCENTAGE * processSize) / totalSize);
     int32_t totalProgress = ((index - 1) * PERCENTAGE + percentage) / g_recordSize;
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
+    proInfo->remoteDeviceName = info.remoteDeviceName;
     proInfo->percentage = totalProgress;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "process record index:%{public}d/%{public}d, progress=%{public}d",
         index, g_recordSize, totalProgress);
@@ -262,6 +262,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     }
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = PERCENTAGE;
+    proInfo->remoteDeviceName = dataParams->remoteDeviceName;
     OnProgressNotify(proInfo);
     g_recordSize = 0;
     return ret;
