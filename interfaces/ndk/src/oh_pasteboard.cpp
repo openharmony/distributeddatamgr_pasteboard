@@ -34,7 +34,7 @@
 
 using namespace OHOS::MiscServices;
 
-static struct Pasteboard_ProgressListener g_listener = {0};
+static OH_Pasteboard_ProgressListener g_callback = {0};
 
 static bool IsPasteboardValid(OH_Pasteboard *pasteboard)
 {
@@ -252,22 +252,101 @@ OH_UdmfData *OH_Pasteboard_GetData(OH_Pasteboard *pasteboard, int *status)
     return data;
 }
 
-void ProgressNotify(std::shared_ptr<ProgressInfo> progressInfo)
+Pasteboard_GetDataParams *OH_Pasteboard_GetDataParams_Create(void)
 {
-    auto info = std::make_shared<Pasteboard_ProgressInfo>();
-    info->progress = progressInfo->percentage;
-    if (g_listener.callback != nullptr) {
-        g_listener.callback(*info);
+    Pasteboard_GetDataParams *params =  new (std::nothrow) Pasteboard_GetDataParams();
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "new Pasteboard_GetDataParams failed!");
+        return nullptr;
+    }
+    return params;
+}
+
+void OH_Pasteboard_GetDataParams_Destroy(Pasteboard_GetDataParams* params)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    delete params;
+}
+
+void OH_Pasteboard_GetDataParams_SetProgressIndicator(Pasteboard_GetDataParams* params,
+    Pasteboard_ProgressIndicator progressIndicator)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    params->progressIndicator = progressIndicator;
+}
+
+void OH_Pasteboard_GetDataParams_SetDestUri(Pasteboard_GetDataParams* params, const char* destUri, uint32_t destUriLen)
+{
+    if (params == nullptr || destUri == nullptr || destUriLen == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    params->destUri = (char *)destUri;
+    params->destUriLen = destUriLen;
+}
+
+void OH_Pasteboard_GetDataParams_SetFileConflictOption(Pasteboard_GetDataParams* params,
+    Pasteboard_FileConflictOption option)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    params->fileConflictOption = option;
+}
+
+void OH_Pasteboard_GetDataParams_SetProgressListener(Pasteboard_GetDataParams* params,
+    const OH_Pasteboard_ProgressListener listener)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    params->progressListener = listener;
+}
+
+int OH_Pasteboard_ProgressInfo_GetProgress(Pasteboard_ProgressInfo* progressInfo)
+{
+    if (progressInfo == nullptr) {
+        return ERR_INVALID_PARAMETER;
+    }
+    return progressInfo->progress;
+}
+
+void OH_Pasteboard_ProgressInfo_GetRemoteDeviceName(Pasteboard_ProgressInfo* progressInfo, char* deviceName,
+    uint32_t deviceNameLen)
+{
+    if (progressInfo == nullptr || deviceName == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    deviceName = (char *)progressInfo->deviceName.c_str();
+    deviceNameLen = (uint32_t)progressInfo->deviceName.size();
+}
+
+void ProgressNotify(std::shared_ptr<ProgressInfo> info)
+{
+    Pasteboard_ProgressInfo* progressInfo = new (std::nothrow) Pasteboard_ProgressInfo();
+    progressInfo->progress = info->percentage;
+    progressInfo->deviceName = info->remoteDeviceName;
+    if (g_callback != nullptr) {
+        g_callback(progressInfo);
     }
 }
 
-void ProgressCancel()
+void OH_Pasteboard_ProgressCancel(Pasteboard_GetDataParams* params)
 {
     ProgressSignalClient::GetInstance().Cancel();
 }
 
-OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pasteboard_GetDataParams *params,
-    int *status)
+OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteboard_GetDataParams* params,
+    int* status)
 {
     #define MAX_DESTURI_LEN 250
     if (!IsPasteboardValid(pasteboard) || params == nullptr || status == nullptr) {
@@ -287,14 +366,13 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
         }
         getDataParams->destUri = params->destUri;
     }
-    g_listener = params->progressListener;
+    g_callback = params->progressListener;
     getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOption;
     getDataParams->progressIndicator = (ProgressIndicator)params->progressIndicator;
     struct ProgressListener listener = {
         .ProgressNotify = ProgressNotify,
     };
     getDataParams->listener = listener;
-    params->progressSignal.cancel = ProgressCancel;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CAPI, "GetDataWithProgress Start");
     int32_t ret = PasteboardClient::GetInstance()->GetUnifiedDataWithProgress(*unifiedData, getDataParams);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
@@ -305,7 +383,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard *pasteboard, OH_Pas
         if (iter != errCodeMap.end()) {
             *status = iter->second;
         } else {
-            *status = OH_PASTEBOARD_GET_DATA_FAILED;
+            *status = ERR_PASTEBOARD_GET_DATA_FAILED;
         }
         return nullptr;
     }

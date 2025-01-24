@@ -30,9 +30,9 @@ const std::map<PasteboardError, PASTEBOARD_ErrCode> errCodeMap = {
     { PasteboardError::PERMISSION_VERIFICATION_ERROR, ERR_PERMISSION_ERROR },
     { PasteboardError::INVALID_PARAM_ERROR, ERR_INVALID_PARAMETER },
     { PasteboardError::TASK_PROCESSING, ERR_BUSY },
-    { PasteboardError::COPY_FILE_ERROR, OH_PASTEBOARD_COPY_FILE_ERROR },
-    { PasteboardError::PROGRESS_START_ERROR, OH_PASTEBOARD_PROGRESS_START_ERROR },
-    { PasteboardError::PROGRESS_ABNORMAL, OH_PASTEBOARD_PROGRESS_ABNORMAL },
+    { PasteboardError::COPY_FILE_ERROR, ERR_PASTEBOARD_COPY_FILE_ERROR },
+    { PasteboardError::PROGRESS_START_ERROR, ERR_PASTEBOARD_PROGRESS_START_ERROR },
+    { PasteboardError::PROGRESS_ABNORMAL, ERR_PASTEBOARD_PROGRESS_ABNORMAL },
 };
 
 class PasteboardObserverCapiImpl;
@@ -50,6 +50,19 @@ struct OH_Pasteboard {
     std::map<const OH_PasteboardObserver *, OHOS::sptr<OHOS::MiscServices::PasteboardObserverCapiImpl>> observers_;
     std::vector<std::string> mimeTypes_;
     char **mimeTypesPtr = nullptr;
+};
+
+struct Pasteboard_ProgressInfo {
+    int progress;
+    std::string deviceName;
+};
+
+struct Pasteboard_GetDataParams {
+    char *destUri;
+    uint32_t destUriLen;
+    Pasteboard_FileConflictOption fileConflictOption;
+    Pasteboard_ProgressIndicator progressIndicator;
+    OH_Pasteboard_ProgressListener progressListener;
 };
 
 /** @} */

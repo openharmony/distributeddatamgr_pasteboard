@@ -65,7 +65,7 @@ public:
 uint64_t PasteboardCapiTest::selfTokenId_ = 0;
 AccessTokenID PasteboardCapiTest::testTokenId_ = 0;
 int PasteboardCapiTest::callbackValue = 0;
-static OH_Pasteboard_GetDataParams *g_params = nullptr;
+static Pasteboard_GetDataParams *g_params = nullptr;
 
 void PasteboardCapiTest::SetUpTestCase(void)
 {
@@ -1125,14 +1125,10 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithMultiAttributes002, TestSi
     uData = nullptr;
 }
 
-void Pasteboard_ProgressNotify(Pasteboard_ProgressInfo progressInfo)
+void OH_Pasteboard_ProgressListener(Pasteboard_ProgressInfo *progressInfo)
 {
-    printf("percentage = %d\n", progressInfo.progress);
-    if (g_params != nullptr && g_params->progressSignal.cancel != nullptr) {
-        g_params->progressSignal.cancel();
-        free(g_params);
-        g_params = nullptr;
-    }
+    int percentage = OH_Pasteboard_ProgressInfo_GetProgress(progressInfo);
+    printf("percentage = %d\n", percentage);
 }
 
 /**
@@ -1148,15 +1144,16 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress001, TestSize.Leve
     EXPECT_EQ(status, ERR_INVALID_PARAMETER);
     EXPECT_EQ(getData, nullptr);
 
-    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    EXPECT_NE(g_params, nullptr);
     getData = OH_Pasteboard_GetDataWithProgress(nullptr, g_params, &status);
     EXPECT_EQ(status, ERR_INVALID_PARAMETER);
     EXPECT_EQ(getData, nullptr);
     getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, nullptr);
     EXPECT_EQ(status, ERR_INVALID_PARAMETER);
     EXPECT_EQ(getData, nullptr);
-    free(g_params);
     OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
 }
 
 /**
@@ -1168,20 +1165,20 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress002, TestSize.Leve
 {
     int status = -1;
     OH_Pasteboard *pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    EXPECT_NE(g_params, nullptr);
     const char *uri = "/data/storage/el2/base/haps/entry/files/data/storage/el2/base/haps/entry/"
         "files/data/storage/el2/base/haps/entry/files/data/storage/el2/base/haps/entry/files/data/"
         "storage/el2/base/haps/entry/files/data/storage/el2/base/haps/entry/files/haps/entry/files/dstFile.txt";
-    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
-    g_params->destUri = (char *)uri;
-    g_params->destUriLen = strlen(uri);
-    g_params->fileConflictOption = OH_PASTEBOARD_SKIP;
-    g_params->progressIndicator = OH_PASTEBOARD_NONE;
-    g_params->progressListener.callback = Pasteboard_ProgressNotify;
+    OH_Pasteboard_GetDataParams_SetProgressIndicator(g_params, PASTEBOARD_NONE);
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, strlen(uri));
+    OH_Pasteboard_GetDataParams_SetFileConflictOption(g_params, PASTEBOARD_SKIP);
+    OH_Pasteboard_GetDataParams_SetProgressListener(g_params, OH_Pasteboard_ProgressListener);
     OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
     EXPECT_EQ(status, ERR_INVALID_PARAMETER);
     EXPECT_EQ(getData, nullptr);
-    free(g_params);
     OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
 }
 
 /**
@@ -1193,18 +1190,18 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress003, TestSize.Leve
 {
     int status = -1;
     OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    EXPECT_NE(g_params, nullptr);
     const char *uri = "/data/storage/el2/base/haps/entry/files/dstFile.txt";
-    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
-    g_params->destUri = (char *)uri;
-    g_params->destUriLen = uriLen;
-    g_params->fileConflictOption = OH_PASTEBOARD_SKIP;
-    g_params->progressIndicator = OH_PASTEBOARD_NONE;
-    g_params->progressListener.callback = Pasteboard_ProgressNotify;
+    OH_Pasteboard_GetDataParams_SetProgressIndicator(g_params, PASTEBOARD_NONE);
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, uriLen);
+    OH_Pasteboard_GetDataParams_SetFileConflictOption(g_params, PASTEBOARD_SKIP);
+    OH_Pasteboard_GetDataParams_SetProgressListener(g_params, OH_Pasteboard_ProgressListener);
     OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
     EXPECT_EQ(status, ERR_INVALID_PARAMETER);
     EXPECT_EQ(getData, nullptr);
-    free(g_params);
     OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
 }
 
 /**
@@ -1217,20 +1214,19 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress004, TestSize.Leve
     OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
     int32_t ret = OH_Pasteboard_ClearData(pasteboard);
     EXPECT_EQ(ret, ERR_OK);
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    EXPECT_NE(g_params, nullptr);
     const char *uri = "/data/storage/el2/base/haps/entry/files/dstFile.txt";
-    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
-    g_params->destUri = (char *)uri;
-    g_params->destUriLen = strlen(uri);
-    g_params->fileConflictOption = OH_PASTEBOARD_SKIP;
-    g_params->progressIndicator = OH_PASTEBOARD_NONE;
-    g_params->progressListener.callback = Pasteboard_ProgressNotify;
+    OH_Pasteboard_GetDataParams_SetProgressIndicator(g_params, PASTEBOARD_NONE);
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, strlen(uri));
+    OH_Pasteboard_GetDataParams_SetFileConflictOption(g_params, PASTEBOARD_SKIP);
+    OH_Pasteboard_GetDataParams_SetProgressListener(g_params, OH_Pasteboard_ProgressListener);
     int status = -1;
     OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
-    EXPECT_EQ(status, OH_PASTEBOARD_GET_DATA_FAILED);
+    EXPECT_EQ(status, ERR_PASTEBOARD_GET_DATA_FAILED);
     EXPECT_EQ(getData, nullptr);
-    free(g_params);
-
     OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
 }
 
 /**
@@ -1246,16 +1242,52 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress005, TestSize.Leve
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 
     OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
-    g_params = (OH_Pasteboard_GetDataParams *)calloc(sizeof(OH_Pasteboard_GetDataParams), 1);
-    g_params->fileConflictOption = OH_PASTEBOARD_SKIP;
-    g_params->progressIndicator = OH_PASTEBOARD_NONE;
-    g_params->progressListener.callback = Pasteboard_ProgressNotify;
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    EXPECT_NE(g_params, nullptr);
+    OH_Pasteboard_GetDataParams_SetProgressIndicator(g_params, PASTEBOARD_NONE);
+    OH_Pasteboard_GetDataParams_SetFileConflictOption(g_params, PASTEBOARD_OVERWRITE);
+    OH_Pasteboard_GetDataParams_SetProgressListener(g_params, OH_Pasteboard_ProgressListener);
     int status = -1;
     OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
     EXPECT_EQ(status, ERR_OK);
     EXPECT_NE(getData, nullptr);
-
     OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+void Pasteboard_ProgressListener(Pasteboard_ProgressInfo *progressInfo)
+{
+    int percentage = OH_Pasteboard_ProgressInfo_GetProgress(progressInfo);
+    printf("percentage = %d\n", percentage);
+    if (g_params != nullptr) {
+        OH_Pasteboard_ProgressCancel(g_params);
+    }
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithProgress006
+ * @tc.desc: should get html & text when set html & text with https uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress006, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    EXPECT_NE(g_params, nullptr);
+    OH_Pasteboard_GetDataParams_SetProgressIndicator(g_params, PASTEBOARD_NONE);
+    OH_Pasteboard_GetDataParams_SetFileConflictOption(g_params, PASTEBOARD_OVERWRITE);
+    OH_Pasteboard_GetDataParams_SetProgressListener(g_params, Pasteboard_ProgressListener);
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
+    EXPECT_EQ(status, ERR_OK);
+    EXPECT_NE(getData, nullptr);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
 }
 
 /**

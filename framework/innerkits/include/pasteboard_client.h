@@ -71,6 +71,7 @@ struct ProgressReportLintener {
 
 struct ProgressInfo {
     int percentage;
+    std::string remoteDeviceName;
 };
 
 struct ProgressListener {
@@ -79,6 +80,7 @@ struct ProgressListener {
 
 struct GetDataParams {
     std::string destUri;
+    std::string remoteDeviceName;
     enum FileConflictOption fileConflictOption;
     enum ProgressIndicator progressIndicator;
     struct ProgressListener listener;
