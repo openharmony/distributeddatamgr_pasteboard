@@ -1134,18 +1134,11 @@ void PasteboardService::PasteComplete(const std::string &deviceId, const std::st
 int32_t PasteboardService::GetRemoteDeviceName(std::string &deviceName, bool &isRemote)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "enter");
-    PasteData data;
-    int32_t syncTime = 0;
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto appInfo = GetAppInfo(tokenId);
     auto event = GetValidDistributeEvent(appInfo.userId);
-    if (!event.first || GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
-        GetLocalData(appInfo, data);
-    } else {
-        GetRemoteData(appInfo.userId, event.second, data, syncTime);
-    }
     DmDeviceInfo remoteDevice;
-    if (data.IsRemote()) {
+    if (!event.second.deviceId.empty()) {
         auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(event.second.deviceId, remoteDevice);
         if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");

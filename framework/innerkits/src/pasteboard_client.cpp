@@ -484,7 +484,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     std::string keyDefaultValue = "0";
     std::shared_ptr<FFRTTimer> ffrtTimer;
     ffrtTimer = std::make_shared<FFRTTimer>("pasteboard_progress");
-    if (params->progressIndicator == DEFAULT_PROGRESS_INDICATOR) {
+    if (params->progressIndicator != NONE_PROGRESS_INDICATOR) {
         PasteBoardProgress::GetInstance().InsertValue(progressKey, keyDefaultValue); // 0%
         std::unique_lock<std::mutex> lock(instanceLock_);
         g_progressKey = progressKey;
@@ -930,7 +930,7 @@ void PasteboardClient::ShowProgress(const std::string &progressKey)
         return;
     }
     sptr<PasteboardSignalCallback> callback = new PasteboardSignalCallback();
-    return proxyService->ShowProgress(progressKey, callback);
+    proxyService->ShowProgress(progressKey, callback);
 }
 
 PasteboardSaDeathRecipient::PasteboardSaDeathRecipient() {}
