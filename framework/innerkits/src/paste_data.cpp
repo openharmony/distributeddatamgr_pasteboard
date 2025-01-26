@@ -170,7 +170,7 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
     PASTEBOARD_CHECK_AND_RETURN_LOGE(record != nullptr, PASTEBOARD_MODULE_CLIENT, "record is null");
     record->SetRecordId(++recordId_);
     props_.mimeTypes.emplace_back(record->GetMimeType());
-    records_.insert(records_.begin(), std::move(record));
+    records_.emplace_back(std::move(record));
 }
 
 void PasteData::AddRecord(const PasteDataRecord &record)
@@ -448,7 +448,7 @@ void PasteData::RefreshMimeProp()
         if (record == nullptr) {
             continue;
         }
-        mimeTypes.insert(mimeTypes.end(), record->GetMimeType());
+        mimeTypes.emplace_back(record->GetMimeType());
     }
     props_.mimeTypes = mimeTypes;
 }
@@ -787,7 +787,7 @@ bool PasteData::WriteUriFd(MessageParcel &parcel, UriHandler &uriHandler, bool i
             continue;
         }
         if (record->NeedFd(uriHandler)) {
-            uriIndexList.push_back(i);
+            uriIndexList.emplace_back(i);
         }
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write fd vector size:%{public}zu", uriIndexList.size());
