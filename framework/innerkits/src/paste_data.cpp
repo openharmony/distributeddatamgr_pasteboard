@@ -169,14 +169,13 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
 {
     PASTEBOARD_CHECK_AND_RETURN_LOGE(record != nullptr, PASTEBOARD_MODULE_CLIENT, "record is null");
     record->SetRecordId(++recordId_);
+    props_.mimeTypes.emplace_back(record->GetMimeType());
     records_.insert(records_.begin(), std::move(record));
-    RefreshMimeProp();
 }
 
 void PasteData::AddRecord(const PasteDataRecord &record)
 {
     this->AddRecord(std::make_shared<PasteDataRecord>(record));
-    RefreshMimeProp();
 }
 
 std::vector<std::string> PasteData::GetMimeTypes()
