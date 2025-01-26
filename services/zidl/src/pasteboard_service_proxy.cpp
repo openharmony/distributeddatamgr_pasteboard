@@ -640,6 +640,7 @@ int32_t PasteboardServiceProxy::GetRemoteDeviceName(std::string &deviceName, boo
         return result;
     }
     deviceName = reply.ReadString();
+    isRemote = reply.ReadBool();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return reply.ReadInt32();
 }
