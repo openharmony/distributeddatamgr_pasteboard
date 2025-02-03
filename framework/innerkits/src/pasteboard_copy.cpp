@@ -166,10 +166,9 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
     int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
     progressListener_ = dataParams->listener;
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
-    int32_t index = 0;
     int32_t recordCount = 0;
     int32_t recordProcessedIndex = 0;
-    while (index < (int32_t)pasteData.GetRecordCount()) {
+    for (size_t index = 0; index < pasteData.GetRecordCount();) {
         recordProcessedIndex++;
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "canceled success!");
@@ -204,6 +203,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
             !ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             auto sharedUri = std::make_shared<OHOS::Uri>(copyInfo->destUri);
             record->SetUri(sharedUri);
+            record->SetConvertUri("");
             index++;
         } else {
             pasteData.RemoveRecordAt(index);

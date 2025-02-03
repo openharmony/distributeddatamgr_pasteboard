@@ -378,7 +378,6 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
     ProgressSmoothToTwentyPercent(pasteData, progressKey, params);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     PasteboardWebController::GetInstance().RetainUri(pasteData);
-    PasteboardWebController::GetInstance().RebuildWebviewPasteData(pasteData);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         if (pasteData.deviceId_.empty()) {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
@@ -509,6 +508,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     }
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetDataWithProgress", HITRACE_GETPASTEDATA);
     ret = ProgressAfterTwentyPercent(pasteData, params, progressKey);
+    PasteboardWebController::GetInstance().RebuildWebviewPasteData(pasteData);
     if (ffrtTimer != nullptr) {
         ffrtTimer->CancelTimer(progressKey);
     }
