@@ -69,7 +69,6 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
-    "app_file_service:remote_file_share_native",
     "cJSON:cjson",
     "c_utils:utils",
     "ffrt:libffrt",
@@ -87,7 +86,6 @@ ohos_unittest("PasteboardFrameworkTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "//foundation/distributeddatamgr/pasteboard/framework/uri:pasteboard_uri",
   ]
 
   defines = []

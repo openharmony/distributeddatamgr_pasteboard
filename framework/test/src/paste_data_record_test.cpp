@@ -15,7 +15,6 @@
 
 #include <gtest/gtest.h>
 
-#include "copy_uri_handler.h"
 #include "paste_data_record.h"
 #include "tlv_object.h"
 #include "unified_meta.h"
@@ -516,24 +515,6 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest004, TestSize.Level0)
 }
 
 /**
- * @tc.name: WriteFdTest001
- * @tc.desc: ReadFd & WriteFd
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataRecordTest, WriteFdTest001, TestSize.Level0)
-{
-    PasteDataRecord record;
-    MessageParcel parcel;
-    CopyUriHandler uriHandler;
-    bool isClient = false;
-
-    parcel.WriteFileDescriptor(1);
-    record.ReadFd(parcel, uriHandler);
-    bool ret = record.WriteFd(parcel, uriHandler, isClient);
-    EXPECT_TRUE(ret);
-}
-
-/**
  * @tc.name: SetTextContentTest001
  * @tc.desc: SetTextContent & GetTextContent
  * @tc.type: FUNC
@@ -560,25 +541,6 @@ HWTEST_F(PasteDataRecordTest, GetValidMimeTypesTest001, TestSize.Level0)
     std::vector<std::string> mimeTypes = { MIMETYPE_TEXT_WANT, MIMETYPE_TEXT_URI };
     std::vector<std::string> validTypes = record.GetValidMimeTypes(mimeTypes);
     EXPECT_NE(validTypes.size(), 0);
-}
-
-/**
- * @tc.name: ReplaceShareUriTest001
- * @tc.desc: SetConvertUri & GetConvertUri & GetPassUri ReplaceShareUri
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataRecordTest, ReplaceShareUriTest001, TestSize.Level0)
-{
-    PasteDataRecord record;
-    std::string convertUri = "1";
-    record.SetConvertUri(convertUri);
-    record.ReplaceShareUri(0);
-
-    std::string replaceUri = record.GetConvertUri();
-    EXPECT_EQ(replaceUri, convertUri);
-
-    std::string passUri = record.GetPassUri();
-    EXPECT_EQ(passUri, convertUri);
 }
 
 /**

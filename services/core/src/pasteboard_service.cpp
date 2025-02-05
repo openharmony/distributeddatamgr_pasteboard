@@ -2239,7 +2239,6 @@ std::pair<std::shared_ptr<PasteData>, PasteDateResult> PasteboardService::GetDis
     currentEvent_ = std::move(event);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     pasteData->Decode(rawData);
-    pasteData->ReplaceShareUri(user);
     pasteData->SetOriginAuthority(pasteData->GetBundleName());
     for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
         auto item = pasteData->GetRecordAt(i);

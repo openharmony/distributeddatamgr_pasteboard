@@ -15,9 +15,7 @@
 
 #include "pasteboard_service_proxy.h"
 
-#include "copy_uri_handler.h"
 #include "iremote_broker.h"
-#include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
@@ -175,11 +173,6 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw data");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    CopyUriHandler copyHandler;
-    if (!pasteData.WriteUriFd(data, copyHandler)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
-        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
-    }
     if (pasteData.IsDelayData() && !data.WriteRemoteObject(delayGetter->AsObject())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed to write delay getter");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
@@ -231,11 +224,6 @@ __attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteDat
     bool ret = pasteData.Decode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
-        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
-    }
-    PasteUriHandler pasteHandler;
-    if (!pasteData.ReadUriFd(reply, pasteHandler)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write record uri fd");
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     syncTime = reply.ReadInt32();

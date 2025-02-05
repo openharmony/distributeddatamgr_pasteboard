@@ -14,9 +14,9 @@
 */
 
 #include "pasteboard_delay_getter_proxy.h"
+
 #include "message_option.h"
 #include "message_parcel.h"
-#include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
@@ -61,12 +61,6 @@ void PasteboardDelayGetterProxy::GetPasteData(const std::string &type, PasteData
     bool ret = data.Decode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to decode paste data");
-        return;
-    }
-    PasteUriHandler pasteHandler;
-    if (!data.ReadUriFd(reply, pasteHandler)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed to write record uri fd");
-        return;
     }
 }
 

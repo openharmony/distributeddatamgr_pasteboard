@@ -14,11 +14,10 @@
  */
 
 #include "pasteboard_service_stub.h"
-#include "copy_uri_handler.h"
+
 #include "errors.h"
 #include "hiview_adapter.h"
 #include "paste_data.h"
-#include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_proxy.h"
@@ -181,11 +180,6 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write raw data");
         return ERR_INVALID_VALUE;
     }
-    PasteUriHandler pasteUriHandler;
-    if (!pasteData.WriteUriFd(reply, pasteUriHandler, false)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to write uri fd");
-        return ERR_INVALID_VALUE;
-    }
     if (!reply.WriteInt32(syncTime)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to GetPasteData syncTime");
         return ERR_INVALID_VALUE;
@@ -231,11 +225,6 @@ int32_t PasteboardServiceStub::OnSetPasteData(MessageParcel &data, MessageParcel
     auto pasteData = UnmarshalPasteData(data, reply);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pasteData != nullptr, ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE,
         "Failed to Unmarshal PasteData");
-    CopyUriHandler copyUriHandler;
-    if (!pasteData->ReadUriFd(data, copyUriHandler)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to read uri fd");
-        return ERR_INVALID_VALUE;
-    }
     sptr<IPasteboardDelayGetter> delayGetter = nullptr;
     if (pasteData->IsDelayData()) {
         sptr<IRemoteObject> obj = data.ReadRemoteObject();
