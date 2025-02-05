@@ -28,21 +28,11 @@
 #include "tlv_object.h"
 #include "unified_meta.h"
 #include "uri.h"
-#include "uri_handler.h"
 #include "want.h"
+
 namespace OHOS {
 namespace MiscServices {
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
-class FileDescriptor {
-public:
-    FileDescriptor() = default;
-    ~FileDescriptor();
-    void SetFd(int32_t fd);
-    int32_t GetFd() const;
-
-private:
-    int32_t fd_ = -1;
-};
 
 class API_EXPORT PasteDataRecord : public TLVObject {
 public:
@@ -84,10 +74,6 @@ public:
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;
-    bool WriteFd(MessageParcel &parcel, UriHandler &uriHandler, bool isClient);
-    bool ReadFd(MessageParcel &parcel, UriHandler &uriHandler);
-    bool NeedFd(const UriHandler &uriHandler);
-    void ReplaceShareUri(int32_t userId);
     void SetConvertUri(const std::string &value);
     std::string GetConvertUri() const;
     void SetGrantUriPermission(bool hasPermission);
@@ -157,7 +143,6 @@ private:
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
     bool hasGrantUriPermission_ = false;
-    std::shared_ptr<FileDescriptor> fd_;
     using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
     std::map<uint16_t, Func> decodeMap;
     void InitDecodeMap();

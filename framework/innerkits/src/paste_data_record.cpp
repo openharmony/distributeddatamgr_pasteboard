@@ -18,7 +18,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "convert_utils.h"
-#include "copy_uri_handler.h"
 #include "parcel_util.h"
 #include "pasteboard_client.h"
 #include "pasteboard_hilog.h"
@@ -218,7 +217,6 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
 
 PasteDataRecord::PasteDataRecord()
 {
-    fd_ = std::make_shared<FileDescriptor>();
     InitDecodeMap();
 }
 
@@ -230,7 +228,7 @@ PasteDataRecord::~PasteDataRecord()
 PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
     : mimeType_(record.mimeType_), htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_),
       uri_(record.uri_), convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
-      hasGrantUriPermission_(record.hasGrantUriPermission_), fd_(record.fd_), udType_(record.udType_),
+      hasGrantUriPermission_(record.hasGrantUriPermission_), udType_(record.udType_),
       details_(record.details_), textContent_(record.textContent_),
       systemDefinedContents_(record.systemDefinedContents_), udmfValue_(record.udmfValue_), entries_(record.entries_),
       dataId_(record.dataId_), recordId_(record.recordId_), isDelay_(record.isDelay_),
@@ -493,52 +491,6 @@ size_t PasteDataRecord::Count()
     return expectedSize;
 }
 
-bool PasteDataRecord::WriteFd(MessageParcel &parcel, UriHandler &uriHandler, bool isClient)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "isClient: %{public}d", isClient);
-    if (fd_->GetFd() >= 0) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "write fd_, fd_ is %{public}d", fd_->GetFd());
-        return parcel.WriteFileDescriptor(fd_->GetFd());
-    }
-    std::string tempUri = GetPassUri();
-    if (tempUri.empty()) {
-        return false;
-    }
-    int32_t fd = uriHandler.ToFd(tempUri, isClient);
-    bool ret = parcel.WriteFileDescriptor(fd);
-    uriHandler.ReleaseFd(fd);
-
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ret is %{public}d", ret);
-    return ret;
-}
-
-bool PasteDataRecord::ReadFd(MessageParcel &parcel, UriHandler &uriHandler)
-{
-    int32_t fd = parcel.ReadFileDescriptor();
-    if (fd >= 0) {
-        convertUri_ = uriHandler.ToUri(fd);
-    }
-    if (!uriHandler.IsPaste()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Set fd, fd is %{public}d", fd);
-        fd_->SetFd(fd);
-    }
-    return true;
-}
-
-bool PasteDataRecord::NeedFd(const UriHandler &uriHandler)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start");
-    std::string tempUri = GetPassUri();
-    if (tempUri.empty()) {
-        return false;
-    }
-    if (!uriHandler.IsFile(tempUri) && fd_->GetFd() < 0) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "invalid file uri, fd:%{public}d", fd_->GetFd());
-        return false;
-    }
-    return true;
-}
-
 std::string PasteDataRecord::GetPassUri()
 {
     std::string tempUri;
@@ -551,32 +503,21 @@ std::string PasteDataRecord::GetPassUri()
     return tempUri;
 }
 
-void PasteDataRecord::ReplaceShareUri(int32_t userId)
-{
-    if (convertUri_.empty()) {
-        return;
-    }
-
-    // convert uri format: /mnt/hmdfs/100/account/merge_view/services/pasteboard_service/.share/xxx.txt
-    constexpr const char *SHARE_PATH_PREFIX = "/mnt/hmdfs/";
-    auto frontPos = convertUri_.find(SHARE_PATH_PREFIX);
-    auto rearPos = convertUri_.find("/account/");
-    if (frontPos == 0 && rearPos != std::string::npos) {
-        convertUri_ = SHARE_PATH_PREFIX + std::to_string(userId) + convertUri_.substr(rearPos);
-    }
-}
 void PasteDataRecord::SetConvertUri(const std::string &value)
 {
     convertUri_ = value;
 }
+
 std::string PasteDataRecord::GetConvertUri() const
 {
     return convertUri_;
 }
+
 void PasteDataRecord::SetGrantUriPermission(bool hasPermission)
 {
     hasGrantUriPermission_ = hasPermission;
 }
+
 bool PasteDataRecord::HasGrantUriPermission()
 {
     return hasGrantUriPermission_;
@@ -611,6 +552,7 @@ std::shared_ptr<Details> PasteDataRecord::GetSystemDefinedContent() const
 {
     return this->systemDefinedContents_;
 }
+
 int32_t PasteDataRecord::GetUDType() const
 {
     return this->udType_;
@@ -894,22 +836,6 @@ uint32_t PasteDataRecord::GetFrom() const
 std::shared_ptr<UDMF::EntryGetter> PasteDataRecord::GetEntryGetter()
 {
     return entryGetter_;
-}
-
-FileDescriptor::~FileDescriptor()
-{
-    if (fd_ >= 0) {
-        close(fd_);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "close fd_: %{public}d", fd_);
-    }
-}
-void FileDescriptor::SetFd(int32_t fd)
-{
-    fd_ = fd;
-}
-int32_t FileDescriptor::GetFd() const
-{
-    return fd_;
 }
 } // namespace MiscServices
 } // namespace OHOS

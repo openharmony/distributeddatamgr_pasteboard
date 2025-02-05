@@ -169,7 +169,6 @@ void FuzzPastedata(const uint8_t *rawData, size_t size)
     pasteData2.GetLocalOnly();
     pasteData2.IsDraggedData();
     pasteData2.GetDeviceId();
-    pasteData2.ReplaceShareUri(1);
     pasteData2.SetLocalOnly(false);
     AAFwk::WantParams additions;
     pasteData2.SetAdditions(additions);
@@ -282,7 +281,6 @@ void FuzzPastedataRecord(const uint8_t *rawData, size_t size)
     pasteDataRecord.Encode(buffer);
     pasteDataRecord.Decode(buffer);
     pasteDataRecord.Count();
-    pasteDataRecord.ReplaceShareUri(1);
     pasteDataRecord.SetConvertUri(str),
     pasteDataRecord.GetConvertUri();
     pasteDataRecord.SetGrantUriPermission(false);

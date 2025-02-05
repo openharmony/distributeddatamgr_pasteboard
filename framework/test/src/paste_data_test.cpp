@@ -12,18 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <cstdio>
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include "clip/clip_plugin.h"
 #include "clip_factory.h"
 #include "common/block_object.h"
-#include "copy_uri_handler.h"
 #include "int_wrapper.h"
-#include "paste_uri_handler.h"
 #include "pasteboard_client.h"
-#include "remote_file_share.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -51,184 +48,6 @@ void PasteDataTest::TearDown(void) { }
 ClipFactory::ClipFactory()
 {
     ClipPlugin::RegCreator("distributed_clip", this);
-}
-
-class UriHandlerMock : public UriHandler {
-public:
-    UriHandlerMock() = default;
-    virtual ~UriHandlerMock() = default;
-
-    MOCK_METHOD1(ToUri, std::string(int32_t fd));
-    MOCK_METHOD2(ToFd, int32_t(const std::string &uri, bool isClient));
-    MOCK_CONST_METHOD1(IsFile, bool(const std::string &uri));
-};
-
-/**
- * @tc.name: ReplaceShareUri001
- * @tc.desc: replace user id in share path
- * @tc.type: FUNC
- * @tc.require:AR000H5I1D
- * @tc.author: baoyayong
- */
-HWTEST_F(PasteDataTest, ReplaceShareUri001, TestSize.Level0)
-{
-    PasteData data;
-    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = "/data/storage/100/haps/caches/xxx.txt";
-    auto uri = std::make_shared<OHOS::Uri>(uriStr);
-    builder.SetUri(uri);
-    auto record = builder.Build();
-
-    // mock
-    UriHandlerMock mock;
-    std::string mockUri = "/mnt/hmdfs/100/account/merge_view/services/psteboard_service/.share/xxx.txt";
-    EXPECT_CALL(mock, ToUri(_)).WillRepeatedly(Return(mockUri));
-    EXPECT_CALL(mock, ToFd(_, _)).WillRepeatedly(Return(2));
-    EXPECT_CALL(mock, IsFile(_)).WillRepeatedly(Return(true));
-
-    data.AddRecord(record);
-    MessageParcel parcel;
-    data.WriteUriFd(parcel, mock);
-    bool result = data.ReadUriFd(parcel, mock);
-    EXPECT_TRUE(result);
-    EXPECT_EQ(mockUri, data.GetPrimaryUri()->ToString());
-    data.ReplaceShareUri(200);
-    std::string mockUri2 = "/mnt/hmdfs/200/account/merge_view/services/psteboard_service/.share/xxx.txt";
-    EXPECT_EQ(mockUri2, data.GetPrimaryUri()->ToString());
-}
-
-/**
- * @tc.name: IsFileTest001
- * @tc.desc: is file
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataTest, IsFileTest001, TestSize.Level0)
-{
-    const CopyUriHandler cpyUriHandler;
-    std::string uri = "";
-    bool result = cpyUriHandler.IsFile(uri);
-    EXPECT_FALSE(result);
-
-    std::string path = "/data/local/tmp/pasteboardtest/";
-    std::string fileName = "uttest.txt";
-    uri = path + fileName;
-    int res = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-    if (res == 0) {
-        FILE *file = fopen(uri.c_str(), "w+");
-        if (file) {
-            result = cpyUriHandler.IsFile(uri);
-            EXPECT_TRUE(result);
-            fclose(file);
-        }
-
-        uri = path;
-        result = cpyUriHandler.IsFile(uri);
-        EXPECT_FALSE(result);
-        (void)remove(path.c_str());
-    }
-}
-
-/**
- * @tc.name: ToFdTest001
- * @tc.desc: uri convert to fd
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataTest, ToFdTest001, TestSize.Level0)
-{
-    CopyUriHandler cpyUriHandler;
-    std::string path = "/data/local/tmp/pasteboardTest/";
-    int32_t result = cpyUriHandler.ToFd(path, true);
-    EXPECT_TRUE(result == INVALID_FD);
-
-    PasteData::sharePath = "";
-    int res = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-    if (res == 0) {
-        result = cpyUriHandler.ToFd(path, true);
-        EXPECT_TRUE(result == INVALID_FD);
-
-        std::string fileName = "unittest.txt";
-        std::string uri = path + fileName;
-        FILE *file = fopen(uri.c_str(), "w+");
-        if (file) {
-            GTEST_LOG_(INFO) << "File creation succeed!";
-            result = cpyUriHandler.ToFd(uri, false);
-            EXPECT_TRUE(result == INVALID_FD);
-
-            result = cpyUriHandler.ToFd(uri, true);
-            EXPECT_TRUE(result >= 0);
-            cpyUriHandler.ReleaseFd(result);
-            fclose(file);
-        }
-        (void)remove(path.c_str());
-    } else {
-        EXPECT_TRUE(result == INVALID_FD);
-    }
-}
-
-/**
- * @tc.name: uriConvertTest001
- * @tc.desc: uri convert(in same app)
- * @tc.type: FUNC
- * @tc.require:AR000H5I1D
- * @tc.author: chenyu
- */
-HWTEST_F(PasteDataTest, uriConvertTest001, TestSize.Level0)
-{
-    PasteData data;
-    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
-    std::string uriStr = FILE_URI;
-    auto uri = std::make_shared<OHOS::Uri>(uriStr);
-    builder.SetUri(uri);
-    auto record = builder.Build();
-    data.AddRecord(record);
-
-    MessageParcel parcel;
-    CopyUriHandler copyHandler;
-    data.WriteUriFd(parcel, copyHandler);
-    bool result = data.ReadUriFd(parcel, copyHandler);
-    EXPECT_TRUE(result);
-    auto distributedUri = data.GetPrimaryUri()->ToString();
-    EXPECT_FALSE(uriStr == distributedUri);
-
-    MessageParcel parcel1;
-    PasteUriHandler pasteHandler;
-    int32_t fd = 5;
-    pasteHandler.ToUri(fd);
-
-    data.SetLocalPasteFlag(true);
-    data.WriteUriFd(parcel1, pasteHandler);
-    result = data.ReadUriFd(parcel1, pasteHandler);
-    EXPECT_TRUE(result);
-    ASSERT_TRUE(data.GetPrimaryUri() != nullptr);
-    auto convertedUri = data.GetPrimaryUri()->ToString();
-    EXPECT_EQ(distributedUri, convertedUri);
-    EXPECT_FALSE(uriStr == convertedUri);
-}
-
-/**
- * @tc.name: uriConvertTest002
- * @tc.desc: uri convert(in same app)
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataTest, uriConvertTest002, TestSize.Level0)
-{
-    PasteUriHandler pasteHandler;
-    int32_t fd = -100;
-    std::string convertUri = pasteHandler.ToUri(fd);
-    EXPECT_TRUE(convertUri == "");
-}
-
-/**
- * @tc.name: uriConvertTest003
- * @tc.desc: uri convert(in same app)
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataTest, uriConvertTest003, TestSize.Level0)
-{
-    CopyUriHandler copyHandler;
-    int32_t fd = -100;
-    std::string convertUri = copyHandler.ToUri(fd);
-    EXPECT_TRUE(convertUri == "");
 }
 
 /**
@@ -293,36 +112,6 @@ HWTEST_F(PasteDataTest, Marshalling001, TestSize.Level0)
     std::shared_ptr<OHOS::Uri> uri2 = data2->GetPrimaryUri();
     std::string uriStr2 = uri2->ToString();
     EXPECT_TRUE(uriStr == uriStr2);
-}
-
-/**
- * @tc.name: GetRealPathFailed001
- * @tc.desc: GetRealPath Failed(realpath(inOriPath.c_str(), realPath) == nullptr)
- * @tc.type: FUNC
- * @tc.require: issuesI5Y6PO
- * @tc.author: chenyu
- */
-HWTEST_F(PasteDataTest, GetRealPathFailed001, TestSize.Level0)
-{
-    std::string uriStr = "/data/storage/100/haps/caches/xxx.txt";
-    PasteUriHandler pasteHandler;
-    auto ret = pasteHandler.ToFd(uriStr, true);
-    EXPECT_EQ(ret, INVALID_FD);
-}
-
-/**
- * @tc.name: GetRealPathFailed002
- * @tc.desc: GetRealPath Failed(inOriPath.size() > PATH_MAX)
- * @tc.type: FUNC
- * @tc.require: issuesI5Y6PO
- * @tc.author: chenyu
- */
-HWTEST_F(PasteDataTest, GetRealPathFailed002, TestSize.Level0)
-{
-    std::string uriStr(PATH_MAX + 2, '*');
-    PasteUriHandler pasteHandler;
-    auto ret = pasteHandler.ToFd(uriStr, true);
-    EXPECT_EQ(ret, INVALID_FD);
 }
 
 /**
@@ -724,9 +513,6 @@ HWTEST_F(PasteDataTest, GetConvertUri002, TestSize.Level0)
     pasteDataRecord->SetConvertUri(convertUri_);
     std::string result = pasteDataRecord->GetConvertUri();
     ASSERT_TRUE(result == convertUri_);
-    pasteDataRecord->ReplaceShareUri(200);
-    std::string result2 = pasteDataRecord->GetConvertUri();
-    ASSERT_TRUE(result2 == convertUri_);
 }
 
 /**

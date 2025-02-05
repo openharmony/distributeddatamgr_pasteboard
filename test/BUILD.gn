@@ -27,7 +27,6 @@ group("fuzztest") {
       "fuzztest/pasteboardclient_fuzzer:fuzztest",
       "fuzztest/pasteboardobserver_fuzzer:fuzztest",
       "fuzztest/pasteboardservice_fuzzer:fuzztest",
-      "fuzztest/urihandler_fuzzer:fuzztest",
     ]
   }
 }

@@ -14,8 +14,8 @@
 */
 
 #include "pasteboard_delay_getter_stub.h"
+
 #include "ipc_skeleton.h"
-#include "paste_uri_handler.h"
 #include "pasteboard_error.h"
 
 namespace OHOS {
@@ -60,11 +60,6 @@ int32_t PasteboardDelayGetterStub::OnGetPasteData(MessageParcel &data, MessagePa
     }
     if (!reply.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail  write raw data");
-        return ERR_INVALID_VALUE;
-    }
-    PasteUriHandler pasteUriHandler;
-    if (!pasteData.WriteUriFd(reply, pasteUriHandler, false)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail  write uri fd");
         return ERR_INVALID_VALUE;
     }
     return ERR_OK;

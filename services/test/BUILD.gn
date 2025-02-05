@@ -28,7 +28,6 @@ config("module_private_config") {
     "include",
     "unittest/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
-    "//foundation/distributeddatamgr/pasteboard/framework/uri",
   ]
 }
 
@@ -160,7 +159,6 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_tlv_path}:pasteboard_tlv",
-    "${pasteboard_uri_path}:pasteboard_uri",
   ]
   if (pasteboard_vixl_part_enabled) {
     external_deps += [ "vixl:libvixl" ]
