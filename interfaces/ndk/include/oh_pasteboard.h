@@ -424,18 +424,6 @@ void OH_Pasteboard_GetDataParams_SetProgressListener(Pasteboard_GetDataParams* p
 int OH_Pasteboard_ProgressInfo_GetProgress(Pasteboard_ProgressInfo* progressInfo);
 
 /**
- * @brief Get the remote device name from the {@link Pasteboard_ProgressInfo}.
- *
- * @param progressInfo Represents a pointer to an instance of {@link Pasteboard_ProgressInfo}.
- * @param deviceName Pointer to remote device name.
- * @param deviceNameLen Indicates the length of remote device name.
- * @see Pasteboard_ProgressInfo
- * @since 15
- */
-void OH_Pasteboard_ProgressInfo_GetRemoteDeviceName(Pasteboard_ProgressInfo* progressInfo, char* deviceName,
-    uint32_t deviceNameLen);
-
-/**
  * @brief Defines the cancel function used to cancel the progress when getting PasteData.
  *
  * @param params Pointer to indicates the {@link Pasteboard_GetDataParams}.

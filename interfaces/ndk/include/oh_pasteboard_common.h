@@ -54,7 +54,6 @@ struct OH_Pasteboard {
 
 struct Pasteboard_ProgressInfo {
     int progress;
-    std::string deviceName;
 };
 
 struct Pasteboard_GetDataParams {

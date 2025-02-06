@@ -1048,7 +1048,6 @@ void SystemPasteboardNapi::ProgressNotify(std::shared_ptr<ProgressInfo> progress
 
     MiscServices::ProgressInfo *progress = new ProgressInfo();
     progress->percentage = progressInfo->percentage;
-    progress->remoteDeviceName = progressInfo->remoteDeviceName;
     status = napi_call_threadsafe_function(listenerFn->tsFunction, static_cast<void *>(progress), napi_tsfn_blocking);
     if (status != napi_ok) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "call progressNotify failed!");
@@ -1075,13 +1074,9 @@ void SystemPasteboardNapi::CallJsProgressNotify(napi_env env, napi_value jsFunct
 
     napi_value percentage;
     NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, info->percentage, &percentage));
-    napi_value remoteDeviceName = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, info->remoteDeviceName.c_str(), DEVICE_NAME_LEN,
-        &remoteDeviceName));
     napi_value progressInfo = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &progressInfo));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, progressInfo, "progress", percentage));
-    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, progressInfo, "remoteDeviceName", remoteDeviceName));
 
     napi_value argv[AGR_COUNT] = { progressInfo };
     NAPI_CALL_RETURN_VOID(env, napi_call_function(env, NULL, jsFunction, AGR_COUNT, argv, NULL));

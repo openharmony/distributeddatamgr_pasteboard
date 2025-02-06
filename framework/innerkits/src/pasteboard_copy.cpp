@@ -121,7 +121,6 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
 {
     copyInfo->srcUri = srcUri;
     copyInfo->destUri = dataParams->destUri;
-    copyInfo->remoteDeviceName = dataParams->remoteDeviceName;
     FileUri srcFileUri(copyInfo->srcUri);
     copyInfo->srcPath = srcFileUri.GetRealPath();
     FileUri destFileUri(copyInfo->destUri);
@@ -239,7 +238,6 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t 
     int32_t percentage = (int32_t)((PERCENTAGE * processSize) / totalSize);
     int32_t totalProgress = ((index - 1) * PERCENTAGE + percentage) / g_recordSize;
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
-    proInfo->remoteDeviceName = info.remoteDeviceName;
     proInfo->percentage = totalProgress;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "process record index:%{public}d/%{public}d, progress=%{public}d",
         index, g_recordSize, totalProgress);
@@ -262,7 +260,6 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     }
     std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
     proInfo->percentage = PERCENTAGE;
-    proInfo->remoteDeviceName = dataParams->remoteDeviceName;
     OnProgressNotify(proInfo);
     g_recordSize = 0;
     return ret;

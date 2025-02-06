@@ -312,7 +312,6 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::
     int progressValue = PASTEBOARD_PROGRESS_TWENTY_PERCENT;
     std::string currentValue = std::to_string(PASTEBOARD_PROGRESS_TWENTY_PERCENT);
     std::shared_ptr<ProgressInfo> info = std::make_shared<ProgressInfo>();
-    info->remoteDeviceName = params->remoteDeviceName;
     while (progressValue < PASTEBOARD_PROGRESS_FINISH_PERCENT && !remoteTask_.load()) {
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "progress cancel success!");
@@ -339,7 +338,6 @@ void PasteboardClient::ProgressSmoothToTwentyPercent(PasteData &pasteData, std::
     int progressValue = 0;
     std::string currentValue = "0";
     std::shared_ptr<ProgressInfo> info = std::make_shared<ProgressInfo>();
-    info->remoteDeviceName = params->remoteDeviceName;
     while (progressValue < PASTEBOARD_PROGRESS_TWENTY_PERCENT && !remoteTask_.load()) {
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             return;
@@ -476,8 +474,6 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         return ret;
     }
-    bool isRemote = false;
-    (void)GetRemoteDeviceName(params->remoteDeviceName, isRemote);
     isPasting_.store(true);
     std::string progressKey;
     std::string keyDefaultValue = "0";
