@@ -67,4 +67,16 @@ HWTEST_F(PasteboardDialogAbnormalBranchTest, CancelToastAbnormalTest, TestSize.L
     PasteBoardDialog::GetInstance().CancelToast();
     EXPECT_TRUE(true);
 }
+
+/**
+ * @tc.name: ShowProgressAbnormalTest
+ * @tc.desc: Show Progress test abnormal branch.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardDialogAbnormalBranchTest, ShowProgressAbnormalTest, TestSize.Level0)
+{
+    PasteBoardDialog::ProgressMessageInfo message;
+    int32_t ret = PasteBoardDialog::GetInstance().ShowProgress(message);
+    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+}
 } // namespace OHOS::MiscServices
