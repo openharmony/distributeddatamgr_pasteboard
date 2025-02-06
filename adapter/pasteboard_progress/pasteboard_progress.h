@@ -27,7 +27,6 @@ namespace OHOS::MiscServices {
 class PasteBoardProgress {
 public:
     static PasteBoardProgress &GetInstance();
-    int32_t GetValue(const std::string &key, std::string &value);
     int32_t InsertValue(std::string &key, std::string &value);
     int32_t UpdateValue(std::string &key, std::string value);
 

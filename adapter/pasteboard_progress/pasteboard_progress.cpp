@@ -97,32 +97,4 @@ int32_t PasteBoardProgress::UpdateValue(std::string &key, std::string value)
     UdmfClient::GetInstance().UpdateData(queryOption, data);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
-
-int32_t PasteBoardProgress::GetValue(const std::string &key, std::string &value)
-{
-    QueryOption option = { .key = key };
-    std::vector<UnifiedData> data;
-    UdmfClient::GetInstance().GetBatchData(option, data);
-    if (data.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "data is empty");
-        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
-    }
-    if (data[0].GetRecords().empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getrecords is empty");
-        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
-    }
-    auto outputRecord = data[0].GetRecordAt(0);
-    if (outputRecord == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "outputRecord is nullptr");
-        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
-    }
-    auto plainText = outputRecord->GetValue();
-    auto object = std::get<std::shared_ptr<Object>>(plainText);
-    if (object == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "object is nullptr");
-        return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
-    }
-    object->GetValue(UDMF::CONTENT, value);
-    return static_cast<int32_t>(PasteboardError::E_OK);
-}
 } // namespace OHOS::MiscServices
