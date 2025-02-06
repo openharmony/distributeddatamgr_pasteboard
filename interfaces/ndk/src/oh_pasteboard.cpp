@@ -319,22 +319,10 @@ int OH_Pasteboard_ProgressInfo_GetProgress(Pasteboard_ProgressInfo* progressInfo
     return progressInfo->progress;
 }
 
-void OH_Pasteboard_ProgressInfo_GetRemoteDeviceName(Pasteboard_ProgressInfo* progressInfo, char* deviceName,
-    uint32_t deviceNameLen)
-{
-    if (progressInfo == nullptr || deviceName == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
-        return;
-    }
-    deviceName = (char *)progressInfo->deviceName.c_str();
-    deviceNameLen = (uint32_t)progressInfo->deviceName.size();
-}
-
 void ProgressNotify(std::shared_ptr<ProgressInfo> info)
 {
     Pasteboard_ProgressInfo* progressInfo = new (std::nothrow) Pasteboard_ProgressInfo();
     progressInfo->progress = info->percentage;
-    progressInfo->deviceName = info->remoteDeviceName;
     if (g_callback != nullptr) {
         g_callback(progressInfo);
     }

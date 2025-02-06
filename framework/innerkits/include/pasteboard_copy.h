@@ -27,7 +27,6 @@ struct CopyInfo {
     std::string destUri;
     std::string srcPath;
     std::string destPath;
-    std::string remoteDeviceName;
     bool isExist = false;
     bool operator==(const CopyInfo &infos) const
     {
