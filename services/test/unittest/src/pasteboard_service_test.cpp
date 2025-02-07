@@ -44,7 +44,7 @@ void PasteboardServiceTest::TearDown(void) { }
  */
 HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest001, TestSize.Level0)
 {
-    auto tempPasteboard = new PasteboardService();
+    auto tempPasteboard = std::make_shared<PasteboardService>();
     int32_t userId = 10;
     tempPasteboard->clipChangeCount_.Compute(userId, [](auto, uint32_t &changeCount) {
         changeCount = UINT32_MAX;
@@ -62,7 +62,6 @@ HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest001, TestSize.Level0)
         testCount = it.second;
     }
     ASSERT_EQ(testCount, 0);
-    delete tempPasteboard;
 }
 
 /**
@@ -72,7 +71,7 @@ HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest002, TestSize.Level0)
 {
-    auto tempPasteboard = new PasteboardService();
+    auto tempPasteboard = std::make_shared<PasteboardService>();
     uint32_t testCount = 0;
     tempPasteboard->GetChangeCount(testCount);
     ASSERT_EQ(testCount, 0);
@@ -84,6 +83,5 @@ HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest002, TestSize.Level0)
     tempPasteboard->currentUserId = 100;
     tempPasteboard->GetChangeCount(testCount);
     ASSERT_EQ(testCount, 0);
-    delete tempPasteboard;
 }
 } // namespace OHOS::MiscServices

@@ -31,7 +31,7 @@ class API_EXPORT DevProfile {
 public:
     using Observer = std::function<void(bool isEnable)>;
     static DevProfile &GetInstance();
-    std::pair<int32_t, std::string> GetEnabledStatus(const std::string &networkId);
+    int32_t GetEnabledStatus(const std::string &networkId, std::string &enabledStatus);
     void OnReady();
     void PutEnabledStatus(const std::string &enabledStatus);
     bool GetRemoteDeviceVersion(const std::string &networkId, uint32_t &deviceVersion);
@@ -39,7 +39,7 @@ public:
     void UnSubscribeProfileEvent(const std::string &networkId);
     void UnsubscribeAllProfileEvents();
     void Watch(Observer observer);
-    void UpdateEnabledStatus(const std::string &udid, std::pair<int32_t, std::string> res);
+    void UpdateEnabledStatus(const std::string &udid, const std::string &res);
     void EraseEnabledStatus(const std::string &udid);
     static constexpr const uint32_t FIRST_VERSION = 4;
 
@@ -75,7 +75,7 @@ private:
     Observer observer_ = nullptr;
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::map<std::string, DistributedDeviceProfile::SubscribeInfo> subscribeInfoCache_;
-    ConcurrentMap<std::string, std::pair<int32_t, std::string>> enabledStatusCache_;
+    ConcurrentMap<std::string, std::string> enabledStatusCache_;
 #endif // PB_DEVICE_INFO_MANAGER_ENABLE
 };
 } // namespace MiscServices

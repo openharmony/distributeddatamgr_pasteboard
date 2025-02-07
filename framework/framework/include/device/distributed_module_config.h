@@ -40,7 +40,7 @@ protected:
     void OnReady(const std::string &device) override;
 
 private:
-    void GetRemoteDeviceVersion(uint32_t &minVersion, uint32_t &maxVersion);
+    std::pair<uint32_t, uint32_t> GetRemoteDeviceVersion();
     int32_t GetEnabledStatus();
     void Notify();
     void GetRetryTask();
