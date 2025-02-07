@@ -1218,6 +1218,7 @@ napi_value SystemPasteboardNapi::GetDataWithProgress(napi_env env, napi_callback
                 context->status = napi_ok;
             }
         }
+        listenerMap_.erase("progressNotify");
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress End");
     };
     // 0: the AsyncCall at the first position;
