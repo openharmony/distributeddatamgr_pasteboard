@@ -874,22 +874,9 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue!");
         return nullptr;
     }
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
-    std::thread thread([block, mimeType]() {
-        auto ret = PasteboardClient::GetInstance()->HasDataType(mimeType);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ret = %{public}d", ret);
-        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
-        block->SetValue(value);
-    });
-    thread.detach();
-    auto value = block->GetValue();
-    if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT, "Request timed out.")) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, HasDataType failed.");
-        return nullptr;
-    }
+    bool ret = PasteboardClient::GetInstance()->HasDataType(mimeType);
     napi_value result = nullptr;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "value = %{public}d", *value);
-    napi_get_boolean(env, *value, &result);
+    napi_get_boolean(env, ret, &result);
     return result;
 }
 

@@ -220,7 +220,7 @@ char **OH_Pasteboard_GetMimeTypes(OH_Pasteboard *pasteboard, unsigned int *count
 bool OH_Pasteboard_HasType(OH_Pasteboard *pasteboard, const char *type)
 {
     if (!IsPasteboardValid(pasteboard) || type == nullptr) {
-        return ERR_INVALID_PARAMETER;
+        return false;
     }
     return PasteboardClient::GetInstance()->HasDataType(std::string(type));
 }
@@ -228,7 +228,7 @@ bool OH_Pasteboard_HasType(OH_Pasteboard *pasteboard, const char *type)
 bool OH_Pasteboard_HasData(OH_Pasteboard *pasteboard)
 {
     if (!IsPasteboardValid(pasteboard)) {
-        return ERR_INVALID_PARAMETER;
+        return false;
     }
     return PasteboardClient::GetInstance()->HasPasteData();
 }
