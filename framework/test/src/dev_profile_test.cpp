@@ -48,11 +48,49 @@ HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
-    std::string bondleName = "com.dev.profile";
-    DevProfile::GetInstance().GetRemoteDeviceVersion(bondleName, versionId);
+    std::string bundleName = "com.dev.profile";
+    DevProfile::GetInstance().GetRemoteDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: GetEnabledStatusTest001
+ * @tc.desc: GetEnabledStatus should not return E_OK when query invalid networkId
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, GetEnabledStatusTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    std::string enabledStatus = "";
+    std::string networkId = "test.dev.profile";
+    int32_t ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
+    EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::E_OK));
+#else
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
+#endif
+}
+
+/**
+ * @tc.name: GetEnabledStatusTest002
+ * @tc.desc: GetEnabledStatus should not return NO_TRUST_DEVICE_ERROR when query valid networkId
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, GetEnabledStatusTest002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    std::string enabledStatus = "";
+    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    int32_t ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
+    EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
+#else
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
 #endif
 }
 
@@ -66,8 +104,8 @@ HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
 HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    std::string bondleName = "com.pro.proEvent";
-    DevProfile::GetInstance().SubscribeProfileEvent(bondleName);
+    std::string bundleName = "com.pro.proEvent";
+    DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
