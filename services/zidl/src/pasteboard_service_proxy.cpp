@@ -375,16 +375,16 @@ bool PasteboardServiceProxy::HasDataType(const std::string &mimeType)
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write parcelable");
-        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+        return false;
     }
     if (!data.WriteString(mimeType)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write string");
-        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+        return false;
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::HAS_DATA_TYPE, data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);
-        return result;
+        return false;
     }
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
