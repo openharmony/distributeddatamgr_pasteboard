@@ -66,16 +66,21 @@ bool PasteBoardCopyFile::IsFile(const std::string &path)
     return (buf.st_mode & S_IFMT) == S_IFREG;
 }
 
-void PasteBoardCopyFile::OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo)
+void PasteBoardCopyFile::OnProgressNotify(std::shared_ptr<GetDataParams> params)
 {
-    if (proInfo->percentage > PERCENTAGE) {
-        proInfo->percentage = PERCENTAGE;
+    if (params->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params->info is null!");
+        return;
     }
-    proInfo->percentage = static_cast<int32_t>(proInfo->percentage * FILE_PERCENTAGE + BEGIN_PERCENTAGE);
-    proInfo->percentage = std::abs(proInfo->percentage);
-    proInfo->percentage = std::max(proInfo->percentage, 0);
+
+    if (params->info->percentage > PERCENTAGE) {
+        params->info->percentage = PERCENTAGE;
+    }
+    params->info->percentage = static_cast<int32_t>(params->info->percentage * FILE_PERCENTAGE + BEGIN_PERCENTAGE);
+    params->info->percentage = std::abs(params->info->percentage);
+    params->info->percentage = std::max(params->info->percentage, 0);
     if (progressListener_.ProgressNotify != nullptr) {
-        progressListener_.ProgressNotify(proInfo);
+        progressListener_.ProgressNotify(params);
     } else {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "ProgressNotify is nullptr.");
     }
@@ -195,7 +200,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         CopyInfo info = *copyInfo;
         using ProcessCallBack = std::function<void(uint64_t processSize, uint64_t totalSize)>;
         ProcessCallBack listener = [&](uint64_t processSize, uint64_t totalSize) {
-            HandleProgress(recordProcessedIndex, info, processSize, totalSize);
+            HandleProgress(recordProcessedIndex, info, processSize, totalSize, dataParams);
         };
         ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Copy(srcUri, copyInfo->destUri, listener);
         if ((ret == static_cast<int32_t>(PasteboardError::E_OK) || ret == ERRNO_NOERR) && !copyInfo->isExist &&
@@ -212,8 +217,19 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
     return (ret == ERRNO_NOERR || ret == DFS_CANCEL_SUCCESS) ? static_cast<int32_t>(PasteboardError::E_OK) : ret;
 }
 
-void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize)
+void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize,
+    std::shared_ptr<GetDataParams> dataParams)
 {
+    if (dataParams == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "dataParams is nullptr.");
+        return;
+    }
+
+    if (dataParams->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "dataParams->info is nullptr.");
+        return;
+    }
+
     if (index < 1 || totalSize == 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid parameter");
         return;
@@ -237,11 +253,11 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t 
 
     int32_t percentage = (int32_t)((PERCENTAGE * processSize) / totalSize);
     int32_t totalProgress = ((index - 1) * PERCENTAGE + percentage) / g_recordSize;
-    std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
-    proInfo->percentage = totalProgress;
+    dataParams->info->percentage = totalProgress;
+
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "process record index:%{public}d/%{public}d, progress=%{public}d",
         index, g_recordSize, totalProgress);
-    OnProgressNotify(proInfo);
+    OnProgressNotify(dataParams);
 }
 
 int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
@@ -258,9 +274,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "copy file failed, ret=%{public}d", ret);
         ret = static_cast<int32_t>(PasteboardError::COPY_FILE_ERROR);
     }
-    std::shared_ptr<ProgressInfo> proInfo = std::make_shared<ProgressInfo>();
-    proInfo->percentage = PERCENTAGE;
-    OnProgressNotify(proInfo);
+    OnProgressNotify(dataParams);
     g_recordSize = 0;
     return ret;
 }

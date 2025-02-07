@@ -336,7 +336,7 @@ private:
     static napi_value SetAppShareOptions(napi_env env, napi_callback_info info);
     static napi_value RemoveAppShareOptions(napi_env env, napi_callback_info info);
 
-    static void ProgressNotify(std::shared_ptr<MiscServices::ProgressInfo> progressInfo);
+    static void ProgressNotify(std::shared_ptr<MiscServices::GetDataParams> params);
     static void CallJsProgressNotify(napi_env env, napi_value jsFunction, void *context, void *data);
     static bool ParseJsGetDataWithProgress(napi_env env, napi_value in,
         std::shared_ptr<MiscServices::GetDataParams> &getDataParam);

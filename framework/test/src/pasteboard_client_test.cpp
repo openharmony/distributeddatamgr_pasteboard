@@ -628,9 +628,9 @@ HWTEST_F(PasteboardClientTest, CreateMultiTypeDelayData001, TestSize.Level0)
     PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, nullptr);
 }
 
-void ProgressNotify(std::shared_ptr<ProgressInfo> progressInfo)
+void ProgressNotify(std::shared_ptr<GetDataParams> params)
 {
-    printf("percentage=%d\n", progressInfo->percentage);
+    printf("percentage=%d\n", params->info->percentage);
 }
 
 /**
@@ -676,10 +676,10 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress002, TestSize.Level0)
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
-void ProgressNotifyTest(std::shared_ptr<ProgressInfo> progressInfo)
+void ProgressNotifyTest(std::shared_ptr<GetDataParams> params)
 {
-    printf("percentage=%d\n", progressInfo->percentage);
-    if (progressInfo->percentage == PERCENTAGE) {
+    printf("percentage=%d\n", params->info->percentage);
+    if (params->info->percentage == PERCENTAGE) {
         ProgressSignalClient::GetInstance().Cancel();
     }
 }

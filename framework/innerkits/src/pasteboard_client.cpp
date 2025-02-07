@@ -294,15 +294,21 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     return ret;
 }
 
-void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo)
+void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params)
 {
-    if (progressInfo == nullptr) {
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params is null!");
+        return;
+    }
+
+    if (params->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params->info is null!");
         return;
     }
     std::unique_lock<std::mutex> lock(instanceLock_);
     std::string progressKey = g_progressKey;
     lock.unlock();
-    std::string currentValue = std::to_string(progressInfo->percentage);
+    std::string currentValue = std::to_string(params->info->percentage);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "pasteboard progress percent = %{public}s", currentValue.c_str());
     PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
 }
@@ -311,7 +317,6 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::
 {
     int progressValue = PASTEBOARD_PROGRESS_TWENTY_PERCENT;
     std::string currentValue = std::to_string(PASTEBOARD_PROGRESS_TWENTY_PERCENT);
-    std::shared_ptr<ProgressInfo> info = std::make_shared<ProgressInfo>();
     while (progressValue < PASTEBOARD_PROGRESS_FINISH_PERCENT && !remoteTask_.load()) {
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "progress cancel success!");
@@ -320,9 +325,11 @@ int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_WITHOUT_FILE));
         progressValue += UPDATE_PERCENT_WITHOUT_FILE;
         currentValue = std::to_string(progressValue);
-        info->percentage = progressValue;
+        if (params->info != nullptr) {
+            params->info->percentage = progressValue;
+        }
         if (params->listener.ProgressNotify != nullptr) {
-            params->listener.ProgressNotify(info);
+            params->listener.ProgressNotify(params);
         }
     }
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -337,7 +344,6 @@ void PasteboardClient::ProgressSmoothToTwentyPercent(PasteData &pasteData, std::
     }
     int progressValue = 0;
     std::string currentValue = "0";
-    std::shared_ptr<ProgressInfo> info = std::make_shared<ProgressInfo>();
     while (progressValue < PASTEBOARD_PROGRESS_TWENTY_PERCENT && !remoteTask_.load()) {
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             return;
@@ -345,9 +351,11 @@ void PasteboardClient::ProgressSmoothToTwentyPercent(PasteData &pasteData, std::
         std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
         progressValue += PASTEBOARD_PROGRESS_UPDATE_PERCENT;
         currentValue = std::to_string(progressValue);
-        info->percentage = progressValue;
+        if (params->info != nullptr) {
+            params->info->percentage = progressValue;
+        }
         if (params->listener.ProgressNotify != nullptr) {
-            params->listener.ProgressNotify(info);
+            params->listener.ProgressNotify(params);
         }
     }
 }
