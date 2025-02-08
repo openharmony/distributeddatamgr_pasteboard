@@ -117,4 +117,33 @@ HWTEST_F(ClipPluginTest, PublishServiceStateTest, TestSize.Level0)
     int32_t result = clipPlugin.PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
     ASSERT_EQ(0, result);
 }
+
+/**
+ * @tc.name: RegCreatorTest001
+ * @tc.desc: RegCreator.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(ClipPluginTest, RegCreatorTestTest001, TestSize.Level0)
+{
+    std::string name = "testFactory";
+    ClipPlugin::Factory *factory = nullptr;
+    bool result = ClipPlugin::RegCreator(name, factory);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: DestroyPluginTest001
+ * @tc.desc: DestroyPlugin.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(ClipPluginTest, DestroyPluginTest001, TestSize.Level0)
+{
+    std::string name = "testPlugin";
+    ClipPlugin *plugin = nullptr;
+    EXPECT_FALSE(ClipPlugin::DestroyPlugin(name, plugin));
+}
 } // namespace OHOS::MiscServices
