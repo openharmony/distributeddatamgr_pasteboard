@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 #include "napi_common_want.h"
+#include "napi_pasteboard_common.h"
 #include "paste_data_record.h"
-#include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 

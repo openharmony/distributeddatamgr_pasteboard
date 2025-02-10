@@ -14,7 +14,7 @@
  */
 
 #include <memory>
-#include "pasteboard_common.h"
+#include "napi_pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "pasteboard_napi.h"
