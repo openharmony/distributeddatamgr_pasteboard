@@ -319,12 +319,14 @@ int OH_Pasteboard_ProgressInfo_GetProgress(Pasteboard_ProgressInfo* progressInfo
     return progressInfo->progress;
 }
 
-void ProgressNotify(std::shared_ptr<ProgressInfo> info)
+void ProgressNotify(std::shared_ptr<GetDataParams> params)
 {
-    Pasteboard_ProgressInfo* progressInfo = new (std::nothrow) Pasteboard_ProgressInfo();
-    progressInfo->progress = info->percentage;
+    if (params == nullptr || params->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "Error: params or params->info is nullptr in ProgressNotify.");
+        return;
+    }
     if (g_callback != nullptr) {
-        g_callback(progressInfo);
+        g_callback((Pasteboard_ProgressInfo *)params->info);
     }
 }
 
@@ -347,7 +349,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
     auto getDataParams = std::make_shared<OHOS::MiscServices::GetDataParams>();
     if (params->destUri != nullptr) {
         size_t destLen = strlen(params->destUri);
-        if (destLen > MAX_DESTURI_LEN || destLen == 0 || static_cast<int32_t>(destLen) != params->destUriLen) {
+        if (destLen > MAX_DESTURI_LEN || destLen == 0 || destLen != static_cast<size_t>(params->destUriLen)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "destUri is invalid, destUriLen=%{public}zu", destLen);
             *status = ERR_INVALID_PARAMETER;
             return nullptr;
@@ -357,6 +359,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
     g_callback = params->progressListener;
     getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOption;
     getDataParams->progressIndicator = (ProgressIndicator)params->progressIndicator;
+    getDataParams->info = (ProgressInfo *)&params->info;
     struct ProgressListener listener = {
         .ProgressNotify = ProgressNotify,
     };

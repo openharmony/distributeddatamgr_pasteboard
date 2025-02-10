@@ -1013,8 +1013,17 @@ napi_value SystemPasteboardNapi::HasDataSync(napi_env env, napi_callback_info in
     return result;
 }
 
-void SystemPasteboardNapi::ProgressNotify(std::shared_ptr<ProgressInfo> progressInfo)
+void SystemPasteboardNapi::ProgressNotify(std::shared_ptr<GetDataParams> params)
 {
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "params is null!");
+        return;
+    }
+
+    if (params->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "params->info is null!");
+        return;
+    }
     std::shared_ptr<ProgressListenerFn> listenerFn = nullptr;
     std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
     auto it = listenerMap_.find("progressNotify");
@@ -1033,9 +1042,10 @@ void SystemPasteboardNapi::ProgressNotify(std::shared_ptr<ProgressInfo> progress
         return;
     }
 
-    MiscServices::ProgressInfo *progress = new ProgressInfo();
-    progress->percentage = progressInfo->percentage;
-    status = napi_call_threadsafe_function(listenerFn->tsFunction, static_cast<void *>(progress), napi_tsfn_blocking);
+    MiscServices::ProgressInfo progress = {
+        .percentage = params->info->percentage,
+    };
+    status = napi_call_threadsafe_function(listenerFn->tsFunction, static_cast<void *>(&progress), napi_tsfn_blocking);
     if (status != napi_ok) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "call progressNotify failed!");
         return;
@@ -1059,8 +1069,7 @@ void SystemPasteboardNapi::CallJsProgressNotify(napi_env env, napi_value jsFunct
         return;
     }
 
-    napi_value percentage;
-    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, info->percentage, &percentage));
+    napi_value percentage = nullptr;
     napi_value progressInfo = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &progressInfo));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, progressInfo, "progress", percentage));

@@ -56,9 +56,11 @@ private:
     static int32_t CheckCopyParam(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
     static int32_t InitCopyInfo(const std::string srcUri, std::shared_ptr<GetDataParams> dataParams,
         std::shared_ptr<CopyInfo> copyInfo, int32_t index);
-    static void OnProgressNotify(std::shared_ptr<ProgressInfo> proInfo);
+    static void OnProgressNotify(std::shared_ptr<GetDataParams> params);
     static int32_t CopyFileData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
-    static void HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize);
+
+    static void HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize,
+        std::shared_ptr<GetDataParams> dataParams);
     static ProgressListener progressListener_;
 };
 } // namespace MiscServices

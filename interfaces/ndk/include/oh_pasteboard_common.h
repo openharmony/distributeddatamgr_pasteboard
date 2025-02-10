@@ -62,6 +62,7 @@ struct Pasteboard_GetDataParams {
     Pasteboard_FileConflictOption fileConflictOption;
     Pasteboard_ProgressIndicator progressIndicator;
     OH_Pasteboard_ProgressListener progressListener;
+    Pasteboard_ProgressInfo info;
 };
 
 /** @} */

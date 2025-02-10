@@ -73,8 +73,9 @@ struct ProgressInfo {
     int percentage;
 };
 
+struct GetDataParams;
 struct ProgressListener {
-    void (*ProgressNotify)(std::shared_ptr<ProgressInfo> progressInfo);
+    void (*ProgressNotify)(std::shared_ptr<GetDataParams> params);
 };
 
 struct GetDataParams {
@@ -83,6 +84,7 @@ struct GetDataParams {
     enum ProgressIndicator progressIndicator;
     struct ProgressListener listener;
     std::shared_ptr<ProgressSignalClient> progressSignal;
+    ProgressInfo *info;
 };
 
 class API_EXPORT PasteboardClient : public DelayedSingleton<PasteboardClient> {
@@ -228,7 +230,7 @@ public:
      * @return int32_t.
      */
     int32_t GetChangeCount(uint32_t &changeCount);
-   
+
     /**
      * GetRecordValueByType
      * @descrition get entry value from the pasteboard.
@@ -508,7 +510,7 @@ public:
 private:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
-    static void GetProgressByProgressInfo(std::shared_ptr<ProgressInfo> progressInfo);
+    static void GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params);
     static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
     static void ProgressSmoothToTwentyPercent(PasteData &pasteData, std::string &progressKey,
        std::shared_ptr<GetDataParams> params);
