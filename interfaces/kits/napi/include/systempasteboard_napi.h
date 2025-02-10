@@ -22,6 +22,8 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "pasteboard_delay_getter.h"
+#include "pasteboard_error.h"
+#include "pasteboard_js_err.h"
 #include "pasteboard_observer.h"
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
@@ -251,6 +253,40 @@ struct DetectPatternsContextInfo : public AsyncCall::Context {
     }
 };
 
+struct GetDataParamsContextInfo : public AsyncCall::Context {
+    std::shared_ptr<MiscServices::PasteData> pasteData;
+    std::shared_ptr<MiscServices::GetDataParams> getDataParams;
+    napi_status status = napi_generic_failure;
+    GetDataParamsContextInfo() : Context(nullptr, nullptr){};
+
+    napi_status operator()(napi_env env, size_t argc, napi_value *argv, napi_value self) override
+    {
+        NAPI_ASSERT_BASE(env, self != nullptr, "self is nullptr", napi_invalid_arg);
+        return Context::operator()(env, argc, argv, self);
+    }
+    napi_status operator()(napi_env env, napi_value *result) override
+    {
+        if (status != napi_ok) {
+            return status;
+        }
+        return Context::operator()(env, result);
+    }
+};
+
+typedef struct {
+    napi_threadsafe_function tsFunction;
+    napi_value jsCallback;
+} ProgressListenerFn;
+
+const std::map<MiscServices::PasteboardError, MiscServices::JSErrorCode> ErrorCodeMap = {
+    {MiscServices::PasteboardError::TASK_PROCESSING, MiscServices::JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING},
+    {MiscServices::PasteboardError::COPY_FILE_ERROR, MiscServices::JSErrorCode::ERR_COPY_FILE_ERROR},
+    {MiscServices::PasteboardError::PROGRESS_START_ERROR, MiscServices::JSErrorCode::ERR_PROGRESS_START_ERROR},
+    {MiscServices::PasteboardError::PROGRESS_ABNORMAL, MiscServices::JSErrorCode::ERR_PROGRESS_ABNORMAL},
+    {MiscServices::PasteboardError::PERMISSION_VERIFICATION_ERROR, MiscServices::JSErrorCode::NO_PERMISSION},
+    {MiscServices::PasteboardError::INVALID_PARAM_ERROR, MiscServices::JSErrorCode::INVALID_PARAMETERS},
+};
+
 class SystemPasteboardNapi {
 public:
     static napi_value SystemPasteboardInit(napi_env env, napi_value exports);
@@ -298,12 +334,26 @@ private:
     static napi_value SetAppShareOptions(napi_env env, napi_callback_info info);
     static napi_value RemoveAppShareOptions(napi_env env, napi_callback_info info);
 
+    static void ProgressNotify(std::shared_ptr<MiscServices::GetDataParams> params);
+    static void CallJsProgressNotify(napi_env env, napi_value jsFunction, void *context, void *data);
+    static bool ParseJsGetDataWithProgress(napi_env env, napi_value in,
+        std::shared_ptr<MiscServices::GetDataParams> &getDataParam);
+    static bool AddProgressListener(napi_env env, std::shared_ptr<MiscServices::GetDataParams> getDataParam,
+        const std::shared_ptr<ProgressListenerFn> listenerFn);
+    static bool CreateThreadSafeFunc(napi_env env, const std::shared_ptr<ProgressListenerFn> listenerFn);
+    static void GetDataWithProgressParam(std::shared_ptr<GetDataParamsContextInfo> &context);
+    static napi_value GetDataWithProgress(napi_env env, napi_callback_info info);
+    static bool CheckParamsType(napi_env env, napi_value in, napi_valuetype expectedType);
+
     static std::mutex delayMutex_;
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
     static thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
     static std::shared_ptr<PasteboardDelayGetterInstance> delayGetter_;
+
+    static std::recursive_mutex listenerMutex_;
+    static std::map<std::string, std::shared_ptr<ProgressListenerFn>> listenerMap_;
 };
 } // namespace MiscServicesNapi
 } // namespace OHOS

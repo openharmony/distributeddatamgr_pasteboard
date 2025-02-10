@@ -80,6 +80,11 @@ struct PasteDateResult {
     int32_t syncTime = 0;
     int32_t errorCode = 0;
 };
+
+struct FocusedAppInfo {
+    int32_t windowId = 0;
+    sptr<IRemoteObject> abilityToken = nullptr;
+};
 class InputEventCallback : public MMI::IInputEventConsumer {
 public:
     void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
@@ -125,6 +130,8 @@ public:
     virtual void OnStop() override;
     virtual void PasteStart(const std::string &pasteId) override;
     virtual void PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
+    virtual int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override;
+    virtual void ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override;
     virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
     static int32_t currentUserId;
     static ScreenEvent currentScreenStatus;
@@ -153,6 +160,7 @@ private:
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; //ms
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
+    FocusedAppInfo GetFocusedAppInfo(void) const;
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
         explicit DelayGetterDeathRecipient(int32_t userId, PasteboardService &service);

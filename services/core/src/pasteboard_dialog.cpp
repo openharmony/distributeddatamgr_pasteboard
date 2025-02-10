@@ -106,6 +106,38 @@ void PasteBoardDialog::CancelToast()
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "disconnect toast ability:%{public}d", result);
 }
 
+int32_t PasteBoardDialog::ShowProgress(const ProgressMessageInfo &message)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "showprogress begin");
+    auto abilityManager = GetAbilityManagerService();
+    if (abilityManager == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
+        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
+    }
+ 
+    Want want;
+    want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_PROGRESS_ABILITY);
+    want.SetAction(PASTEBOARD_PROGRESS_ABILITY);
+    want.SetParam("promptText", message.promptText);
+    want.SetParam("remoteDeviceName", message.remoteDeviceName);
+    want.SetParam("progressKey", message.progressKey);
+    want.SetParam("isRemote", message.isRemote);
+    want.SetParam("windowId", message.windowId);
+    if (message.clientCallback != nullptr) {
+        want.SetParam("ipcCallback", message.clientCallback);
+    }
+    if (message.callerToken != nullptr) {
+        want.SetParam("tokenKey", message.callerToken);
+    }
+    int32_t result = IN_PROCESS_CALL(abilityManager->StartAbility(want));
+    if (result != 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard progress failed, result:%{public}d", result);
+        return static_cast<int32_t>(PasteboardError::PROGRESS_START_ERROR);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "start pasteboard progress success.");
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
 sptr<IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "begin");

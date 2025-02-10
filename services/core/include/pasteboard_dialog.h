@@ -29,7 +29,16 @@ public:
     struct ToastMessageInfo {
         std::string appName{ DEFAULT_LABEL };
     };
-    static constexpr uint32_t POPUP_INTERVAL = 1000;  // milliseconds
+    struct ProgressMessageInfo {
+        std::string promptText{ DEFAULT_LABEL };
+        std::string remoteDeviceName{ DEFAULT_LABEL };
+        std::string progressKey{ DEFAULT_LABEL };
+        bool isRemote { false };
+        int32_t windowId { 0 };
+        sptr<IRemoteObject> callerToken { nullptr };
+        sptr<IRemoteObject> clientCallback { nullptr };
+    };
+    static constexpr uint32_t POPUP_INTERVAL = 1000;      // milliseconds
     static constexpr uint32_t MAX_LIFE_TIME = 300 * 1000; // milliseconds
     static constexpr uint32_t SHOW_TOAST_TIME = 3000; // milliseconds
     static constexpr const char *DEFAULT_LABEL = "unknown";
@@ -37,12 +46,14 @@ public:
     static PasteBoardDialog &GetInstance();
     int32_t ShowToast(const ToastMessageInfo &message);
     void CancelToast();
+    int32_t ShowProgress(const ProgressMessageInfo &message);
 
 private:
     static sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerService();
 
     static constexpr const char *PASTEBOARD_DIALOG_APP = "com.ohos.pasteboarddialog";
     static constexpr const char *PASTEBOARD_TOAST_ABILITY = "ToastExtensionAbility";
+    static constexpr const char *PASTEBOARD_PROGRESS_ABILITY = "PasteboardProgressAbility";
 
     std::mutex connectionLock_;
     sptr<DialogConnection> connection_;

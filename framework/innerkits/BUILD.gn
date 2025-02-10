@@ -19,6 +19,7 @@ config("pasteboard_client_config") {
   visibility += [ "//foundation/distributeddatamgr/pasteboard/test/fuzztest/pasteboardclient_fuzzer/*" ]
   include_dirs = [
     "include",
+    "${pasteboard_root_path}/adapter/pasteboard_progress",
     "${pasteboard_service_path}/core/include",
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
@@ -39,6 +40,7 @@ ohos_shared_library("pasteboard_client") {
     debug = false
   }
   sources = [
+    "${pasteboard_root_path}/adapter/pasteboard_progress/pasteboard_progress.cpp",
     "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
     "${pasteboard_service_path}/zidl/src/ipasteboard_client_death_observer.cpp",
@@ -48,14 +50,19 @@ ohos_shared_library("pasteboard_client") {
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_service_proxy.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_signal_stub.cpp",
+    "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "src/convert_utils.cpp",
     "src/paste_data.cpp",
     "src/paste_data_entry.cpp",
     "src/paste_data_record.cpp",
     "src/pasteboard_client.cpp",
+    "src/pasteboard_copy.cpp",
     "src/pasteboard_entry_getter.cpp",
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
+    "src/pasteboard_progress_signal.cpp",
+    "src/pasteboard_signal_callback.cpp",
     "src/pasteboard_utils.cpp",
     "src/pasteboard_web_controller.cpp",
   ]
@@ -69,6 +76,7 @@ ohos_shared_library("pasteboard_client") {
 
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
     "${pasteboard_root_path}/framework/uri:pasteboard_uri",
   ]
@@ -76,13 +84,26 @@ ohos_shared_library("pasteboard_client") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:uri_permission_mgr",
     "ability_runtime:wantagent_innerkits",
+    "access_token:libtokenid_sdk",
     "app_file_service:fileuri_native",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "data_share:datashare_common",
+    "data_share:datashare_consumer",
+    "dfs_service:distributed_file_daemon_kit_inner",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "image_framework:image_native",
     "ipc:ipc_core",
+    "ipc:ipc_single",
+    "libuv:uv",
+    "libxml2:libxml2",
     "samgr:samgr_proxy",
     "time_service:time_client",
   ]
@@ -91,6 +112,7 @@ ohos_shared_library("pasteboard_client") {
     "udmf:udmf_client",
   ]
   subsystem_name = "distributeddatamgr"
+  use_exceptions = true
   innerapi_tags = [ "platformsdk" ]
   part_name = "pasteboard"
 }

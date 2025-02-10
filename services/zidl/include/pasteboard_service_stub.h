@@ -58,6 +58,8 @@ private:
     bool IsObserverValid(MessageParcel &data, uint32_t &type, sptr<IPasteboardChangedObserver> &callback);
     int32_t OnPasteStart(MessageParcel &data, MessageParcel &reply);
     int32_t OnPasteComplete(MessageParcel &data, MessageParcel &reply);
+    int32_t OnGetRemoteDeviceName(MessageParcel &data, MessageParcel &reply);
+    int32_t OnShowProgress(MessageParcel &data, MessageParcel &reply);
     int32_t OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply);
 
     std::shared_ptr<PasteData> UnmarshalPasteData(MessageParcel &data, MessageParcel &reply);

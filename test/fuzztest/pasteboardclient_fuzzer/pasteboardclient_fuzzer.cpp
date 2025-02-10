@@ -88,6 +88,8 @@ void FuzzPasteboardclient002(const uint8_t *rawData, size_t size)
 {
     PasteData pasteData3;
     PasteboardClient::GetInstance()->GetPasteData(pasteData3);
+    std::shared_ptr<GetDataParams> params;
+    PasteboardClient::GetInstance()->GetDataWithProgress(pasteData3, params);
     UDMF::UnifiedData unifiedData;
     PasteboardClient::GetInstance()->GetUnifiedData(unifiedData);
     PasteboardClient::GetInstance()->HasPasteData();
@@ -211,6 +213,8 @@ void FuzzPasteData002(const uint8_t *rawData, size_t size)
     PasteboardClient::GetInstance()->IsRemoteData();
     std::string bundlename = pasteData2.GetBundleName();
     PasteboardClient::GetInstance()->GetPasteData(pasteData2);
+    std::shared_ptr<GetDataParams> params = std::make_shared<GetDataParams>();
+    PasteboardClient::GetInstance()->GetDataWithProgress(pasteData2, params);
     PasteboardClient::GetInstance()->GetDataSource(bundlename);
 
     std::string shareoption1;

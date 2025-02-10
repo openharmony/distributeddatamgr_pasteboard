@@ -24,6 +24,8 @@
 #include "paste_data_record.h"
 #include "pasteboard_delay_getter.h"
 #include "pasteboard_observer.h"
+#include "pasteboard_progress_signal.h"
+#include "refbase.h"
 #include "unified_data.h"
 #include "want.h"
 
@@ -38,6 +40,52 @@ public:
 private:
     DISALLOW_COPY_AND_MOVE(PasteboardSaDeathRecipient);
 };
+
+enum ProgressStatus {
+    NORMAL_PASTE = 0,
+    CANCEL_PASTE = 1,
+    PASTE_TIME_OUT = 2,
+};
+
+enum FileConflictOption {
+    FILE_OVERWRITE = 0,
+    FILE_SKIP = 1,
+    FILE_RENAME = 2
+};
+
+enum ProgressIndicator {
+    NONE_PROGRESS_INDICATOR = 0,
+    DEFAULT_PROGRESS_INDICATOR = 1
+};
+
+struct PasteDataFromServiceInfo {
+    pid_t pid;
+    std::string currentPid;
+    std::string currentId;
+};
+
+struct ProgressReportLintener {
+    void (*OnProgressFail)(int32_t result);
+};
+
+struct ProgressInfo {
+    int percentage;
+};
+
+struct GetDataParams;
+struct ProgressListener {
+    void (*ProgressNotify)(std::shared_ptr<GetDataParams> params);
+};
+
+struct GetDataParams {
+    std::string destUri;
+    enum FileConflictOption fileConflictOption;
+    enum ProgressIndicator progressIndicator;
+    struct ProgressListener listener;
+    std::shared_ptr<ProgressSignalClient> progressSignal;
+    ProgressInfo *info;
+};
+
 class API_EXPORT PasteboardClient : public DelayedSingleton<PasteboardClient> {
     DECLARE_DELAYED_SINGLETON(PasteboardClient);
 
@@ -416,17 +464,65 @@ public:
      */
     void PasteComplete(const std::string &deviceId, const std::string &pasteId);
 
+    /**
+     * GetDataWithProgress
+     * @descrition Get pastedata from the system pasteboard with system progress indicator.
+     * @param pasteData the object of the PasteData.
+     * @param params - Indicates the {@link GetDataParams}.
+     * @returns int32_t
+     */
+    int32_t GetDataWithProgress(PasteData &pasteData, std::shared_ptr<GetDataParams> params);
+
+    /**
+     * GetUnifiedDataWithProgress
+     * @descrition Get pastedata from the system pasteboard with system progress indicator.
+     * @param unifiedData - the object of the PasteData.
+     * @param params - Indicates the {@link GetDataParams}.
+     * @returns int32_t
+     */
+    int32_t GetUnifiedDataWithProgress(UDMF::UnifiedData &unifiedData, std::shared_ptr<GetDataParams> params);
+
+    /**
+     * GetRemoteDeviceName
+     * @descrition Obtain the remote device name.
+     * @param std::string deviceName - the device name of the remote device.
+     * @returns int32_t
+     */
+    int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote);
+
+    /**
+     * HandleSignalValue
+     * @descrition Handle hap signal value.
+     * @param std::string signalValue - the value of hap ipc proxy.
+     * @returns int32_t
+     */
+    int32_t HandleSignalValue(const std::string &signalValue);
+
 private:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void RetainUri(PasteData &pasteData);
     static void SplitWebviewPasteData(PasteData &pasteData);
     static void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
+    static void GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params);
+    static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
+    static void ProgressSmoothToTwentyPercent(PasteData &pasteData, std::string &progressKey,
+       std::shared_ptr<GetDataParams> params);
+    int32_t GetPasteDataFromService(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo,
+       std::string progressKey, std::shared_ptr<GetDataParams> params);
+    static void OnProgressAbnormal(int32_t result);
+    void ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo);
+    static int32_t ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
+       std::string progressKey);
+    static int32_t CheckProgressParam(std::shared_ptr<GetDataParams> params);
+    void ShowProgress(const std::string &progressKey);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::mutex instanceLock_;
     static std::condition_variable proxyConVar_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
     std::atomic<uint32_t> getSequenceId_ = 0;
+    static std::atomic<bool> remoteTask_;
+    static std::atomic<bool> isPasting_;
     class StaticDestoryMonitor {
         public:
             StaticDestoryMonitor() : destoryed_(false) {}
