@@ -15,7 +15,7 @@
 #include <cstddef>
 
 #include "napi_common_want.h"
-#include "pasteboard_common.h"
+#include "napi_pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "pastedata_napi.h"

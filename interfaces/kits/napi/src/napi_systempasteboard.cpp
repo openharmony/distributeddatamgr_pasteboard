@@ -19,7 +19,7 @@
 #include "entry_getter.h"
 #include "napi_common_want.h"
 #include "napi_data_utils.h"
-#include "pasteboard_common.h"
+#include "napi_pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "systempasteboard_napi.h"

@@ -18,10 +18,10 @@
 #include "entry_getter.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "napi_pasteboard_common.h"
 #include "paste_data.h"
 #include "paste_data_record.h"
 #include "pasteboard_client.h"
-#include "pasteboard_common.h"
 #include "pixel_map_napi.h"
 #include "uri.h"
 
