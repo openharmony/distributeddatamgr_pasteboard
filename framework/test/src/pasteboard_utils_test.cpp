@@ -1250,4 +1250,20 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest007, TestSize.Level0)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertShareOptionTest007 end");
 }
 
+/**
+ * @tc.name: DeduplicateVectorTest
+ * @tc.desc: Remove duplicate value from string vector
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardUtilsTest, DeduplicateVectorTest, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DeduplicateVectorTest start");
+    const std::vector<std::string> vec1 = {"a", "b", "c", "a", "b", "c"};
+    const std::vector<std::string> vec2 = {"a", "b", "c"};
+    std::vector<std::string> result = PasteboardUtils::GetInstance().DeduplicateVector(vec1);
+    EXPECT_EQ(std::equal(result.begin(), result.end(), vec2.begin()), true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DeduplicateVectorTest end");
+}
+
 } // namespace OHOS::MiscServices
