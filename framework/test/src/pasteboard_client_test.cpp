@@ -630,6 +630,16 @@ HWTEST_F(PasteboardClientTest, CreateMultiTypeDelayData001, TestSize.Level0)
 
 void ProgressNotify(std::shared_ptr<GetDataParams> params)
 {
+    if (params == nullptr) {
+        printf("Error: params is nullptr\n");
+        return;
+    }
+
+    if (params->info == nullptr) {
+        printf("Error: params->info is nullptr\n");
+        return;
+    }
+
     printf("percentage=%d\n", params->info->percentage);
 }
 
@@ -678,6 +688,16 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress002, TestSize.Level0)
 
 void ProgressNotifyTest(std::shared_ptr<GetDataParams> params)
 {
+    if (params == nullptr) {
+        printf("Error: params is nullptr\n");
+        return;
+    }
+
+    if (params->info == nullptr) {
+        printf("Error: params->info is nullptr\n");
+        return;
+    }
+
     printf("percentage=%d\n", params->info->percentage);
     if (params->info->percentage == PERCENTAGE) {
         ProgressSignalClient::GetInstance().Cancel();
