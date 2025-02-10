@@ -68,6 +68,11 @@ bool PasteBoardCopyFile::IsFile(const std::string &path)
 
 void PasteBoardCopyFile::OnProgressNotify(std::shared_ptr<GetDataParams> params)
 {
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params is null!");
+        return;
+    }
+
     if (params->info == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params->info is null!");
         return;
