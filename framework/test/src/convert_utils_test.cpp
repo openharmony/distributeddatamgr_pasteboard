@@ -685,4 +685,137 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest008, TestSize.Level0)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConvertPropertyTest008 end");
 }
 
+/**
+ * @tc.name: ConvertPlainTextTest
+ * @tc.desc: Test convert function when UNIFROM_DATA_TYPE is PLAIN_TEXT
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(ConvertUtilsTest, ConvertPlainTextTest, TestSize.Level0)
+{
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>(utdId, text_);
+    ASSERT_NE(entry, nullptr);
+    record->AddEntry(utdId, entry);
+    ASSERT_NE(record, nullptr);
+    UDMF::ValueType result = ConvertUtils::Convert(entry, record);
+    auto object = std::get_if<std::shared_ptr<Object>>(&result);
+    ASSERT_NE(object, nullptr);
+    auto objectValue = (*object)->value_;
+    if (std::holds_alternative<std::string>(objectValue[UDMF::UNIFORM_DATA_TYPE])) {
+        auto& typeValue = std::get<std::string>(objectValue[UDMF::UNIFORM_DATA_TYPE]);
+        ASSERT_NE(&typeValue, nullptr);
+        ASSERT_EQ(typeValue, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT));
+    }
+    if (std::holds_alternative<std::string>(objectValue[UDMF::CONTENT])) {
+        auto& value = std::get<std::string>(objectValue[UDMF::CONTENT]);
+        ASSERT_NE(&value, nullptr);
+        ASSERT_EQ(value, text_);
+    }
+}
+
+/**
+ * @tc.name: ConvertHtmlTest
+ * @tc.desc: Test convert function when UNIFROM_DATA_TYPE is HTML
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(ConvertUtilsTest, ConvertHtmlTest, TestSize.Level0)
+{
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>(utdId, html_);
+    ASSERT_NE(entry, nullptr);
+    record->AddEntry(utdId, entry);
+    ASSERT_NE(record, nullptr);
+    UDMF::ValueType result = ConvertUtils::Convert(entry, record);
+    auto object = std::get_if<std::shared_ptr<Object>>(&result);
+    ASSERT_NE(object, nullptr);
+    auto objectValue = (*object)->value_;
+    if (std::holds_alternative<std::string>(objectValue[UDMF::UNIFORM_DATA_TYPE])) {
+        auto& typeValue = std::get<std::string>(objectValue[UDMF::UNIFORM_DATA_TYPE]);
+        ASSERT_NE(&typeValue, nullptr);
+        ASSERT_EQ(typeValue, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML));
+    }
+    if (std::holds_alternative<std::string>(objectValue[UDMF::CONTENT])) {
+        auto& value = std::get<std::string>(objectValue[UDMF::CONTENT]);
+        ASSERT_NE(&value, nullptr);
+        ASSERT_EQ(value, html_);
+    }
+}
+
+/**
+ * @tc.name: ConvertFileUriTest
+ * @tc.desc: Test convert function when UNIFROM_DATA_TYPE is FILE_URI
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(ConvertUtilsTest, ConvertFileUriTest, TestSize.Level0)
+{
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>(utdId, uri_);
+    ASSERT_NE(entry, nullptr);
+    record->AddEntry(utdId, entry);
+    ASSERT_NE(record, nullptr);
+    UDMF::ValueType result = ConvertUtils::Convert(entry, record);
+    auto object = std::get_if<std::shared_ptr<Object>>(&result);
+    ASSERT_NE(object, nullptr);
+    auto objectValue = (*object)->value_;
+    if (std::holds_alternative<std::string>(objectValue[UDMF::UNIFORM_DATA_TYPE])) {
+        auto& typeValue = std::get<std::string>(objectValue[UDMF::UNIFORM_DATA_TYPE]);
+        ASSERT_NE(&typeValue, nullptr);
+        ASSERT_EQ(typeValue, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI));
+    }
+    if (std::holds_alternative<std::string>(objectValue[UDMF::CONTENT])) {
+        auto& value = std::get<std::string>(objectValue[UDMF::CONTENT]);
+        ASSERT_NE(&value, nullptr);
+        ASSERT_EQ(value, uri_);
+    }
+}
+
+/**
+ * @tc.name: ConvertPixelMapTest
+ * @tc.desc: Test convert function when UNIFROM_DATA_TYPE is SYSTEM_DEFINED_PIXEL_MAP
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(ConvertUtilsTest, ConvertPixelMapTest, TestSize.Level0)
+{
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = {
+        {5, 7},
+        PixelFormat::ARGB_8888, PixelFormat::ARGB_8888
+    };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>(utdId, pixelMapIn);
+    ASSERT_NE(entry, nullptr);
+    record->AddEntry(utdId, entry);
+    ASSERT_NE(record, nullptr);
+    UDMF::ValueType result = ConvertUtils::Convert(entry, record);
+    auto object = std::get_if<std::shared_ptr<Object>>(&result);
+    ASSERT_NE(object, nullptr);
+    auto objectValue = (*object)->value_;
+    if (std::holds_alternative<std::string>(objectValue[UDMF::UNIFORM_DATA_TYPE])) {
+        auto& typeValue = std::get<std::string>(objectValue[UDMF::UNIFORM_DATA_TYPE]);
+        ASSERT_NE(&typeValue, nullptr);
+        ASSERT_EQ(typeValue, UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP));
+    }
+    if (std::holds_alternative<std::string>(objectValue[UDMF::CONTENT])) {
+        auto& value = std::get<std::string>(objectValue[UDMF::CONTENT]);
+        ASSERT_NE(&value, nullptr);
+    }
+
+    auto inPixelMap = record->GetPixelMap();
+    ASSERT_NE(inPixelMap, nullptr);
+    ImageInfo imageInfo = {};
+    inPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == 7);
+    ASSERT_TRUE(imageInfo.size.width == 5);
+    ASSERT_TRUE(imageInfo.pixelFormat == PixelFormat::ARGB_8888);
+}
 } // namespace OHOS::MiscServices
