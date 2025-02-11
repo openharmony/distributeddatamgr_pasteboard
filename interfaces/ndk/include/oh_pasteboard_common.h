@@ -59,7 +59,7 @@ struct Pasteboard_ProgressInfo {
 struct Pasteboard_GetDataParams {
     char *destUri;
     uint32_t destUriLen;
-    Pasteboard_FileConflictOption fileConflictOption;
+    Pasteboard_FileConflictOptions fileConflictOptions;
     Pasteboard_ProgressIndicator progressIndicator;
     OH_Pasteboard_ProgressListener progressListener;
     Pasteboard_ProgressInfo info;

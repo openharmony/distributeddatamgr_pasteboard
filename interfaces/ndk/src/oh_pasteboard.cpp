@@ -291,14 +291,14 @@ void OH_Pasteboard_GetDataParams_SetDestUri(Pasteboard_GetDataParams* params, co
     params->destUriLen = destUriLen;
 }
 
-void OH_Pasteboard_GetDataParams_SetFileConflictOption(Pasteboard_GetDataParams* params,
-    Pasteboard_FileConflictOption option)
+void OH_Pasteboard_GetDataParams_SetFileConflictOptions(Pasteboard_GetDataParams* params,
+    Pasteboard_FileConflictOptions option)
 {
     if (params == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
         return;
     }
-    params->fileConflictOption = option;
+    params->fileConflictOptions = option;
 }
 
 void OH_Pasteboard_GetDataParams_SetProgressListener(Pasteboard_GetDataParams* params,
@@ -357,7 +357,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
         getDataParams->destUri = params->destUri;
     }
     g_callback = params->progressListener;
-    getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOption;
+    getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOptions;
     getDataParams->progressIndicator = (ProgressIndicator)params->progressIndicator;
     getDataParams->info = (ProgressInfo *)&params->info;
     struct ProgressListener listener = {
