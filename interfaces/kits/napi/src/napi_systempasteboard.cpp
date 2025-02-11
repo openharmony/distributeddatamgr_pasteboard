@@ -1150,7 +1150,7 @@ bool SystemPasteboardNapi::ParseJsGetDataWithProgress(napi_env env, napi_value i
         free(uri);
     }
     napi_value fileConflictOption;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, in, "fileConflictOption", &fileConflictOption), false);
+    NAPI_CALL_BASE(env, napi_get_named_property(env, in, "fileConflictOptions", &fileConflictOption), false);
     getDataParam->fileConflictOption = FILE_OVERWRITE;
     if (CheckParamsType(env, fileConflictOption, napi_number)) {
         NAPI_CALL_BASE(env, napi_get_value_int32(env, fileConflictOption,
