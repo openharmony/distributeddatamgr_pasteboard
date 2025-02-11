@@ -17,7 +17,7 @@
 #include <uv.h>
 
 #include "napi_data_utils.h"
-#include "pasteboard_common.h"
+#include "napi_pasteboard_common.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"

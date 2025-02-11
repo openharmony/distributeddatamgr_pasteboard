@@ -19,6 +19,7 @@
 #include <new>
 #include "parcel_util.h"
 #include "paste_data_record.h"
+#include "pasteboard_common.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "type_traits"
@@ -169,8 +170,19 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
 {
     PASTEBOARD_CHECK_AND_RETURN_LOGE(record != nullptr, PASTEBOARD_MODULE_CLIENT, "record is null");
     record->SetRecordId(++recordId_);
-    props_.mimeTypes.emplace_back(record->GetMimeType());
-    records_.emplace_back(std::move(record));
+
+    static constexpr int32_t SUPPORT_POSITIVE_ORDER_API_VERSION = 15;
+    if (apiTargetVersion_ <= 0) {
+        apiTargetVersion_ = PasteBoardCommon::GetApiTargetVersionForSelf();
+    }
+
+    if (PasteBoardCommon::IsPasteboardService() || apiTargetVersion_ >= SUPPORT_POSITIVE_ORDER_API_VERSION) {
+        props_.mimeTypes.emplace_back(record->GetMimeType());
+        records_.emplace_back(std::move(record));
+    } else {
+        props_.mimeTypes.insert(props_.mimeTypes.begin(), record->GetMimeType());
+        records_.insert(records_.begin(), std::move(record));
+    }
 }
 
 void PasteData::AddRecord(const PasteDataRecord &record)

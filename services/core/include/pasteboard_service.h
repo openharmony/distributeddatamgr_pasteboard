@@ -162,6 +162,7 @@ private:
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; // ms
+    static constexpr uint32_t SET_DISTRIBUTED_DATA_INTERVAL = 40 * 1000; // 40 seconds
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
     bool SetPasteboardHistory(HistoryInfo &info);
@@ -235,6 +236,14 @@ private:
     pid_t imePid_ = -1;
     bool hasImeObserver_ = false;
 
+    struct DistributedMemory {
+        std::mutex mutex;
+        bool isRunning = false;
+        std::shared_ptr<PasteData> data;
+        Event event;
+    };
+    DistributedMemory setDistributedMemory_;
+
     int32_t SaveData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         const sptr<IPasteboardEntryGetter> entryGetter = nullptr);
     void HandleDelayDataAndRecord(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
@@ -271,6 +280,8 @@ private:
     std::pair<int32_t, std::vector<uint8_t>> GetDistributedDelayData(const Event &evt);
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
     bool SetDistributedData(int32_t user, PasteData &data);
+    bool SetCurrentDistributedData();
+    bool SetCurrentData(Event event, PasteData &data);
     void CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
     std::shared_ptr<ClipPlugin> GetClipPlugin();

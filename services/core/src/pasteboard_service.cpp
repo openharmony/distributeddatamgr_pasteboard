@@ -2322,13 +2322,6 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     }
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!networkId.empty(), false, PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
-    auto clipPlugin = GetClipPlugin();
-    if (clipPlugin == nullptr) {
-        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_SUCCESS);
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clip plugin is null, dataId:%{public}u", data.GetDataId());
-        return false;
-    }
-    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
     Event event;
     event.user = user;
     event.seqId = ++sequenceId_;
@@ -2344,29 +2337,90 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     currentEvent_ = event;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}u, seqId:%{public}hu, isDelay:%{public}d,"
         "expiration:%{public}" PRIu64, event.dataId, event.seqId, event.isDelay, event.expiration);
-    std::thread thread([this, clipPlugin, event, user, data]() mutable {
-        bool needFull = data.IsDelayRecord() && moduleConfig_.GetRemoteDeviceMinVersion() == DevProfile::FIRST_VERSION;
-        if (needFull) {
-            GetFullDelayPasteData(user, data);
-            event.isDelay = false;
-            PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
-            PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
-            PasteboardWebController::GetInstance().CheckAppUriPermission(data);
+    {
+        std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
+        setDistributedMemory_.event = event;
+        setDistributedMemory_.data = std::make_shared<PasteData>(data);
+        if (setDistributedMemory_.isRunning) {
+            return true;
         }
-        GenerateDistributedUri(data);
-        std::vector<uint8_t> rawData;
-        if (!data.Encode(rawData)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
-            return;
+        setDistributedMemory_.isRunning = true;
+    }
+    return SetCurrentDistributedData();
+}
+
+bool PasteboardService::SetCurrentDistributedData()
+{
+    Event event;
+    PasteData data;
+    {
+        std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
+        if (setDistributedMemory_.data == nullptr) {
+            setDistributedMemory_.isRunning = false;
+            return false;
         }
-        if (data.IsDelayRecord() && !needFull) {
-            clipPlugin->RegisterDelayCallback(std::bind(&PasteboardService::GetDistributedDelayData, this,
-                std::placeholders::_1));
+        data = *setDistributedMemory_.data;
+        event = setDistributedMemory_.event;
+    }
+    std::thread thread([this, event, data]() mutable {
+        while (true) {
+            auto block = std::make_shared<BlockObject<bool>>(SET_DISTRIBUTED_DATA_INTERVAL, false);
+            std::thread thread([this, event, data, block]() mutable {
+                auto result = SetCurrentData(event, data);
+                block->SetValue(true);
+            });
+            thread.detach();
+            bool ret = block->GetValue();
+            if (!ret) {
+                PASTEBOARD_HILOGE(
+                    PASTEBOARD_MODULE_SERVICE, "set distributed data timeout, dataId:%{public}u, seqId:%{public}hu",
+                    event.dataId, event.seqId);
+            }
+            {
+                std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
+                if (event.seqId == setDistributedMemory_.event.seqId || setDistributedMemory_.data == nullptr) {
+                    setDistributedMemory_.data = nullptr;
+                    setDistributedMemory_.isRunning = false;
+                    break;
+                }
+                data = *setDistributedMemory_.data;
+                event = setDistributedMemory_.event;
+            }
         }
-        clipPlugin->SetPasteData(event, rawData);
     });
     thread.detach();
+    return true;
+}
+
+bool PasteboardService::SetCurrentData(Event event, PasteData &data)
+{
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_SUCCESS);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clip plugin is null, dataId:%{public}u", data.GetDataId());
+        return false;
+    }
+    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
+    bool needFull = data.IsDelayRecord() && moduleConfig_.GetRemoteDeviceMinVersion() == DevProfile::FIRST_VERSION;
+    if (needFull) {
+        GetFullDelayPasteData(event.user, data);
+        event.isDelay = false;
+        PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+        PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
+        PasteboardWebController::GetInstance().CheckAppUriPermission(data);
+    }
+    GenerateDistributedUri(data);
+    std::vector<uint8_t> rawData;
+    if (!data.Encode(rawData)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+            "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
+        return false;
+    }
+    if (data.IsDelayRecord() && !needFull) {
+        clipPlugin->RegisterDelayCallback(std::bind(&PasteboardService::GetDistributedDelayData, this,
+            std::placeholders::_1));
+    }
+    clipPlugin->SetPasteData(event, rawData);
     return true;
 }
 
