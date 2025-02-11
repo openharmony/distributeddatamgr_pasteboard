@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "pasteboard_common.h"
 #include "napi_common_want.h"
 #include "paste_data_record.h"
-#include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 
@@ -41,9 +41,9 @@ void SetCallback(const napi_env &env, const napi_ref &callbackIn, const napi_val
         return;
     }
     napi_value callback = nullptr;
-    napi_value resultout = nullptr;
+    napi_value resultOut = nullptr;
     napi_get_reference_value(env, callbackIn, &callback);
-    napi_call_function(env, nullptr, callback, ARGC_TYPE_SET2, results, &resultout);
+    napi_call_function(env, nullptr, callback, ARGC_TYPE_SET2, results, &resultOut);
 }
 
 napi_value NapiGetNull(napi_env env)
@@ -108,7 +108,7 @@ bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
 
     for (uint32_t i = 0; i < len; i++) {
         napi_value element;
-        napi_status status = napi_get_element(env, in, i, &element);
+        status = napi_get_element(env, in, i, &element);
         if (status != napi_ok) {
             PASTEBOARD_HILOGE(
                 PASTEBOARD_MODULE_JS_NAPI, "napi_get_element%{public}d err status = %{public}d", i, status);
@@ -120,8 +120,8 @@ bool GetValue(napi_env env, napi_value in, std::set<MiscServices::Pattern> &out)
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_get_value_uint32 err status = %{public}d", status);
             return false;
         }
-        if (pattern >= static_cast<uint32_t>(Pattern::PatternCount)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Unsurportted pattern value: %{public}d", pattern);
+        if (pattern >= static_cast<uint32_t>(Pattern::COUNT)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Unsupported pattern value: %{public}d", pattern);
             return false;
         }
         out.insert(static_cast<Pattern>(pattern));
@@ -434,7 +434,7 @@ napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &mim
     }
 }
 
-bool GetNativeValue(napi_env env, std::string type, napi_value valueNapi, EntryValue &value)
+bool GetNativeValue(napi_env env, const std::string &type, napi_value valueNapi, EntryValue &value)
 {
     bool isArrayBuffer = false;
     NAPI_CALL_BASE(env, napi_is_arraybuffer(env, valueNapi, &isArrayBuffer), false);

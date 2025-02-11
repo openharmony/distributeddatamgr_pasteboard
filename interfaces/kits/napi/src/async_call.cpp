@@ -22,9 +22,10 @@ namespace OHOS::MiscServicesNapi {
 AsyncCall::AsyncCall(napi_env env, napi_callback_info info, std::shared_ptr<Context> context, size_t pos) : env_(env)
 {
     context_ = new AsyncContext();
-    size_t argc = 6;
+    constexpr uint32_t NAPI_GET_CB_INFO_ARGC = 6;
+    size_t argc = NAPI_GET_CB_INFO_ARGC;
     napi_value self = nullptr;
-    napi_value argv[6] = { nullptr };
+    napi_value argv[NAPI_GET_CB_INFO_ARGC] = { nullptr };
     NAPI_CALL_RETURN_VOID(env, napi_get_cb_info(env, info, &argc, argv, &self, nullptr));
     pos = ((pos == ASYNC_DEFAULT_POS) ? (argc - 1) : pos);
     if (pos >= 0 && pos < argc) {
@@ -36,6 +37,7 @@ AsyncCall::AsyncCall(napi_env env, napi_callback_info info, std::shared_ptr<Cont
     }
     napi_status status = (*context)(env, argc, argv, self);
     if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "context exec error: %{public}d", status);
         return;
     }
     context_->ctx = std::move(context);
@@ -49,12 +51,13 @@ AsyncCall::~AsyncCall()
     }
 
     DeleteContext(env_, context_);
+    context_ = nullptr;
 }
 
 napi_value AsyncCall::Call(napi_env env, Context::ExecAction exec)
 {
     if (context_ == nullptr) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "context_ is null");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "context_ is null");
         return nullptr;
     }
     if (context_->ctx == nullptr) {
@@ -83,7 +86,7 @@ napi_value AsyncCall::Call(napi_env env, Context::ExecAction exec)
 napi_value AsyncCall::SyncCall(napi_env env, AsyncCall::Context::ExecAction exec)
 {
     if ((context_ == nullptr) || (context_->ctx == nullptr)) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "context_ or context_->ctx is null");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "context_ or context_->ctx is null");
         return nullptr;
     }
     context_->ctx->exec_ = std::move(exec);

@@ -23,7 +23,7 @@
 #include "paste_data.h"
 
 namespace OHOS::MiscServices {
-enum class Pattern : uint32_t { URL = 0, Number, EmailAddress, PatternCount };
+enum class Pattern : uint32_t { URL = 0, NUMBER, EMAIL_ADDRESS, COUNT };
 class PatternDetection {
 public:
     static const std::set<Pattern> Detect(

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H
-#define PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H
+#ifndef PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DIALOG_H
+#define PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DIALOG_H
 #include <functional>
 #include <mutex>
 #include <string>
@@ -59,4 +59,4 @@ private:
     sptr<DialogConnection> connection_;
 };
 } // namespace OHOS::MiscServices
-#endif // PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DAILOG_H
+#endif // PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DIALOG_H

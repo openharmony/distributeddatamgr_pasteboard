@@ -31,9 +31,9 @@ public:
         using InputAction = std::function<napi_status(napi_env, size_t, napi_value *, napi_value)>;
         using OutputAction = std::function<napi_status(napi_env, napi_value *)>;
         using ExecAction = std::function<void(Context *)>;
-        Context(){};
+        Context() = default;
         Context(InputAction input, OutputAction output) : input_(std::move(input)), output_(std::move(output)){};
-        virtual ~Context(){};
+        virtual ~Context() = default;
         void SetAction(InputAction input, OutputAction output = nullptr)
         {
             input_ = input;
@@ -116,4 +116,3 @@ private:
 } // namespace OHOS::MiscServicesNapi
 
 #endif // PASTEBOARD_ASYNC_CALL_H
-       // namespace OHOS

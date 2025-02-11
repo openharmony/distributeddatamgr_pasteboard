@@ -81,7 +81,7 @@ napi_status NapiDataUtils::SetValue(napi_env env, const int64_t &in, napi_value 
 napi_status NapiDataUtils::GetValue(napi_env env, napi_value in, float &out)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "napi_value -> float");
-    double tmp;
+    double tmp = 0;
     napi_status status = napi_get_value_double(env, in, &tmp);
     out = tmp;
     return status;
@@ -472,10 +472,12 @@ bool NapiDataUtils::IsTypeForNapiValue(napi_env env, napi_value param, napi_valu
     napi_valuetype valueType = napi_undefined;
 
     if (param == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "param is null");
         return false;
     }
 
     if (napi_typeof(env, param, &valueType) != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "get value type failed");
         return false;
     }
 
@@ -498,7 +500,7 @@ bool NapiDataUtils::IsNull(napi_env env, napi_value value)
 }
 
 napi_value NapiDataUtils::DefineClass(napi_env env, const std::string &name,
-    const napi_property_descriptor *properties, size_t count, napi_callback newcb)
+    const napi_property_descriptor *properties, size_t count, napi_callback newCb)
 {
     // base64("data.udmf") as rootPropName, i.e. global.<root>
     const std::string rootPropName = "ZGF0YS51ZG1m";
@@ -529,7 +531,7 @@ napi_value NapiDataUtils::DefineClass(napi_env env, const std::string &name,
     }
 
     NAPI_CALL_BASE(env,
-        napi_define_class(env, name.c_str(), name.size(), newcb, nullptr, count, properties, &constructor),
+        napi_define_class(env, name.c_str(), name.size(), newCb, nullptr, count, properties, &constructor),
         nullptr);
     NAPI_ASSERT(env, constructor != nullptr, "napi_define_class failed!");
 

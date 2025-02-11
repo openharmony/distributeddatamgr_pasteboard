@@ -137,14 +137,12 @@ public:
     virtual int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override;
     virtual void ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override;
     virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
-    static int32_t currentUserId;
+    static int32_t currentUserId_;
     static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
-    bool SetPasteboardHistory(HistoryInfo &info);
     int Dump(int fd, const std::vector<std::u16string> &args) override;
     void NotifyDelayGetterDied(int32_t userId);
     void NotifyEntryGetterDied(int32_t userId);
-    bool IsFocusedApp(uint32_t tokenId);
     virtual int32_t GetChangeCount(uint32_t &changeCount) override;
 
 private:
@@ -166,6 +164,8 @@ private:
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; // ms
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
+    bool SetPasteboardHistory(HistoryInfo &info);
+    bool IsFocusedApp(uint32_t tokenId);
     void InitBundles(Loader &loader);
     void SetInputMethodPid(pid_t callPid);
     void ClearInputMethodPidByPid(pid_t callPid);
@@ -228,7 +228,7 @@ private:
     std::string DumpData();
     void ThawInputMethod(void);
     bool IsNeedThaw(void);
-    void NotifyObservers(std::string bundleName, PasteboardEventStatus status);
+    void NotifyObservers(const std::string &bundleName, PasteboardEventStatus status);
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
     std::mutex imeMutex_;
@@ -271,7 +271,7 @@ private:
     std::pair<int32_t, std::vector<uint8_t>> GetDistributedDelayData(const Event &evt);
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
     bool SetDistributedData(int32_t user, PasteData &data);
-    bool CleanDistributedData(int32_t user);
+    void CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
     std::shared_ptr<ClipPlugin> GetClipPlugin();
     void IncreaseChangeCount(int32_t userId);
@@ -297,7 +297,6 @@ private:
     ObserverMap observerEventMap_;
     ClipPlugin::GlobalEvent currentEvent_;
     ClipPlugin::GlobalEvent remoteEvent_;
-    const std::string filePath_ = "";
     ConcurrentMap<int32_t, std::shared_ptr<PasteData>> clips_;
     ConcurrentMap<int32_t, uint32_t> clipChangeCount_;
     ConcurrentMap<int32_t, std::pair<sptr<IPasteboardEntryGetter>, sptr<EntryGetterDeathRecipient>>> entryGetters_;
@@ -319,7 +318,7 @@ private:
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
-    std::map<int32_t, ServiceListenerFunc> ServiceListenerFunc_;
+    std::map<int32_t, ServiceListenerFunc> ServiceListenerFuncs_;
     std::map<std::string, int> typeMap_ = {
         {MIMETYPE_TEXT_PLAIN, PLAIN_INDEX   },
         { MIMETYPE_TEXT_HTML, HTML_INDEX    },
@@ -364,6 +363,7 @@ private:
     int32_t uid_ = -1;
     RemoteDataTaskManager taskMgr_;
     pid_t setPasteDataUId_ = 0;
+    static constexpr const pid_t TEST_SERVER_UID = 3500;
     std::mutex eventMutex_;
     SecurityLevel securityLevel_;
     class PasteboardDeathRecipient final : public IRemoteObject::DeathRecipient {

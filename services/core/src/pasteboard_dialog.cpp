@@ -78,6 +78,7 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
     connection_ = new DialogConnection(nullptr);
     int32_t result = IN_PROCESS_CALL(
         abilityManager->ConnectAbility(want, iface_cast<AAFwk::IAbilityConnection>(connection_), nullptr));
+    connection_.clear();
     if (result != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast failed, result:%{public}d", result);
         return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
@@ -146,7 +147,7 @@ sptr<IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
     }
 
     sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    if (!remoteObject) {
+    if (remoteObject == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to get ability manager service");
         return nullptr;
     }

@@ -75,12 +75,12 @@ HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest002, TestSize.Level0)
     uint32_t testCount = 0;
     tempPasteboard->GetChangeCount(testCount);
     ASSERT_EQ(testCount, 0);
-    tempPasteboard->currentUserId = 10;
+    tempPasteboard->currentUserId_ = 10;
     auto userId = tempPasteboard->GetCurrentAccountId();
     tempPasteboard->IncreaseChangeCount(userId);
     tempPasteboard->GetChangeCount(testCount);
     ASSERT_EQ(testCount, 1);
-    tempPasteboard->currentUserId = 100;
+    tempPasteboard->currentUserId_ = 100;
     tempPasteboard->GetChangeCount(testCount);
     ASSERT_EQ(testCount, 0);
 }

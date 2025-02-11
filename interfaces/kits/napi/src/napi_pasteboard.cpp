@@ -26,8 +26,8 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServicesNapi {
 constexpr size_t MAX_ARGS = 6;
-const size_t ARGC_TYPE_SET1 = 1;
-const size_t ARGC_TYPE_SET2 = 2;
+constexpr size_t ARGC_TYPE_SET1 = 1;
+constexpr size_t ARGC_TYPE_SET2 = 2;
 napi_value PasteboardNapi::CreateHtmlRecord(napi_env env, napi_value in)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "CreateHtmlRecord is called!");
@@ -113,7 +113,12 @@ PasteDataNapi *PasteboardNapi::CreateDataCommon(napi_env env, napi_value in, std
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_unwrap exec error: %{public}d", status);
+        return nullptr;
+    }
+    if (obj == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "obj is null!");
         return nullptr;
     }
     return obj;
@@ -126,6 +131,7 @@ napi_value PasteboardNapi::CreateHtmlData(napi_env env, napi_value in)
     napi_value instance = nullptr;
     PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
     if (obj == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "obj is null!");
         return nullptr;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateHtmlData(str);
@@ -140,6 +146,7 @@ napi_value PasteboardNapi::CreatePlainTextData(napi_env env, napi_value in)
     napi_value instance = nullptr;
     PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
     if (obj == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "obj is null!");
         return nullptr;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreatePlainTextData(str);
@@ -154,6 +161,7 @@ napi_value PasteboardNapi::CreateUriData(napi_env env, napi_value in)
     napi_value instance = nullptr;
     PasteDataNapi *obj = CreateDataCommon(env, in, str, instance);
     if (obj == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "obj is null!");
         return nullptr;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateUriData(OHOS::Uri(str));
@@ -196,6 +204,7 @@ napi_value PasteboardNapi::CreateWantData(napi_env env, napi_value in)
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed!");
         return nullptr;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<AAFwk::Want>(want));
@@ -212,6 +221,7 @@ napi_value PasteboardNapi::CreateMultiTypeData(napi_env env,
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed!");
         return nullptr;
     }
     if (typeValueVector == nullptr || typeValueVector->empty()) {
@@ -237,6 +247,7 @@ napi_value PasteboardNapi::CreateMultiTypeDelayData(napi_env env, std::vector<st
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed!");
         return nullptr;
     }
     obj->value_ = PasteboardClient::GetInstance()->CreateMultiTypeDelayData(mimeTypes, entryGetter);
@@ -303,10 +314,10 @@ napi_value PasteboardNapi::JScreatePattern(napi_env env, napi_callback_info info
     napi_value jsURL = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::URL));
     NAPI_CALL(env, napi_set_named_property(env, jsPattern, "URL", jsURL));
 
-    napi_value jsNumber = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::Number));
+    napi_value jsNumber = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::NUMBER));
     NAPI_CALL(env, napi_set_named_property(env, jsPattern, "NUMBER", jsNumber));
 
-    napi_value jsEmailAddress = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::EmailAddress));
+    napi_value jsEmailAddress = CreateNapiNumber(env, static_cast<uint32_t>(Pattern::EMAIL_ADDRESS));
     NAPI_CALL(env, napi_set_named_property(env, jsPattern, "EMAIL_ADDRESS", jsEmailAddress));
 
     return jsPattern;
@@ -392,6 +403,7 @@ napi_value PasteboardNapi::JSCreateRecord(napi_env env, napi_callback_info info)
         std::vector<std::string> mimeTypes;
         if (!CheckArgsArray(env, argv[0], mimeTypes) ||
             !CheckArgsFunc(env, argv[1], provider)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "CheckArgsArray or CheckArgsFunc failed!");
             return nullptr;
         }
         napi_value instance = nullptr;
@@ -516,6 +528,7 @@ napi_value PasteboardNapi::JSCreateData(napi_env env, napi_callback_info info)
         return CreateMultiTypeDelayData(env, mimeTypes, entryGetter->GetStub());
     }
     if (!CheckArgs(env, argv, argc, mimeType)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "CheckArgs failed!");
         return nullptr;
     }
     auto it = createDataMap_.find(mimeType);
