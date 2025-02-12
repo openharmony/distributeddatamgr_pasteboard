@@ -91,7 +91,6 @@ constexpr int32_t INVALID_VERSION = -1;
 constexpr int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 constexpr int32_t CTRLV_EVENT_SIZE = 2;
 constexpr int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
-constexpr pid_t TESE_SERVER_UID = 3500;
 constexpr uint32_t EVENT_TIME_OUT = 2000;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
@@ -931,7 +930,7 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     auto it = clips_.Find(appInfo.userId);
     auto tempTime = copyTime_.Find(appInfo.userId);
     if (!it.first || !tempTime.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no data.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no data userId is %{public}d.", userId);
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     auto ret = IsDataVaild(*(it.second), appInfo.tokenId);
@@ -953,7 +952,7 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     data.SetBundleName(appInfo.bundleName);
     auto result = copyTime_.Find(appInfo.userId);
     if (!result.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId not found");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId not found userId is %{public}d", userId);
         return static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR);
     }
     auto curTime = result.second;
@@ -1238,11 +1237,11 @@ void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData
         bundles = std::move(readBundles_);
     }
     if (pasteData == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "pasteData is null");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pasteData is null");
         return;
     }
     if (bundles.empty()) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "bundles empty");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "bundles empty");
         return;
     }
     std::thread thread([pasteData, bundles]() {
@@ -1797,7 +1796,7 @@ void PasteboardService::RemoveSingleObserver(
     std::lock_guard<std::mutex> lock(observerMutex_);
     auto it = observerMap.find(userId);
     if (it == observerMap.end()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id not found");
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id not found userId is %{public}d", userId);
         return;
     }
     auto observers = it->second;
