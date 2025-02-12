@@ -24,8 +24,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-namespace PasteBoardCommon {
-sptr<AppExecFwk::IBundleMgr> GetAppBundleManager(void)
+sptr<AppExecFwk::IBundleMgr> PasteBoardCommon::GetAppBundleManager(void)
 {
     auto sysAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sysAbilityMgr == nullptr) {
@@ -40,8 +39,11 @@ sptr<AppExecFwk::IBundleMgr> GetAppBundleManager(void)
     return iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
 }
 
-int32_t GetApiTargetVersionForSelf(void)
+int32_t PasteBoardCommon::GetApiTargetVersionForSelf(void)
 {
+    if (apiTargetVersion_ > 0) {
+        return apiTargetVersion_;
+    }
     static constexpr int32_t API_VERSION_MOD = 1000;
     sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = GetAppBundleManager();
     if (bundleMgrProxy == nullptr) {
@@ -56,10 +58,10 @@ int32_t GetApiTargetVersionForSelf(void)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "GetBundleInfoForSelf: bundleName get failed %{public}d.", ret);
         return 0;
     }
-    auto targetApiVersion = bundleInfo.applicationInfo.apiTargetVersion % API_VERSION_MOD;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "Got target API version %{public}d.", targetApiVersion);
+    int32_t targetApiVersion = bundleInfo.applicationInfo.apiTargetVersion % API_VERSION_MOD;
+    apiTargetVersion_ = targetApiVersion;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "Got target API version %{public}d.", targetApiVersion);
     return targetApiVersion;
 }
-} // namespace PasteBoardCommon
 } // namespace MiscServices
 } // namespace OHOS
