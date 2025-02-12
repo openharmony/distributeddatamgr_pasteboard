@@ -241,6 +241,7 @@ bool DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
     cJSON *version = cJSON_GetObjectItemCaseSensitive(jsonObj, VERSION_ID);
     if (version == nullptr || !cJSON_IsNumber(version) || (version->valuedouble < 0)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "version not found, profile=%{public}s", jsonStr.c_str());
+        cJSON_Delete(jsonObj);
         return false;
     }
 
