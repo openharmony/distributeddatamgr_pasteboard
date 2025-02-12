@@ -17,18 +17,26 @@
 #define PASTEBOARD_COMMON_H
 
 #include "bundle_mgr_proxy.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace MiscServices {
-namespace PasteBoardCommon {
-static inline bool IsPasteboardService()
-{
-    constexpr uid_t PASTEBOARD_SERVICE_UID = 3816;
-    return getuid() == PASTEBOARD_SERVICE_UID;
-}
-sptr<AppExecFwk::IBundleMgr> GetAppBundleManager(void);
-int32_t GetApiTargetVersionForSelf(void);
-} // namespace PasteBoardCommon
+class PasteBoardCommon : public Singleton<PasteBoardCommon> {
+public:
+    PasteBoardCommon() = default;
+    ~PasteBoardCommon() = default;
+
+    static inline bool IsPasteboardService()
+    {
+        constexpr uid_t PASTEBOARD_SERVICE_UID = 3816;
+        return getuid() == PASTEBOARD_SERVICE_UID;
+    }
+    sptr<AppExecFwk::IBundleMgr> GetAppBundleManager(void);
+    int32_t GetApiTargetVersionForSelf(void);
+
+private:
+    int32_t apiTargetVersion_ = 0;
+};
 } // namespace MiscServices
 } // namespace OHOS
 #endif // PASTEBOARD_COMMON_H

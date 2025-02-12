@@ -173,7 +173,7 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
 
     static constexpr int32_t SUPPORT_POSITIVE_ORDER_API_VERSION = 15;
     if (apiTargetVersion_ <= 0) {
-        apiTargetVersion_ = PasteBoardCommon::GetApiTargetVersionForSelf();
+        apiTargetVersion_ = PasteBoardCommon::GetInstance().GetApiTargetVersionForSelf();
     }
 
     if (PasteBoardCommon::IsPasteboardService() || apiTargetVersion_ >= SUPPORT_POSITIVE_ORDER_API_VERSION) {
