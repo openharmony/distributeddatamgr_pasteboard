@@ -84,4 +84,16 @@ HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest002, TestSize.Level0)
     tempPasteboard->GetChangeCount(testCount);
     ASSERT_EQ(testCount, 0);
 }
+
+/**
+ * @tc.name: IsBoardcastProhibitedTest
+ * @tc.desc: IsBoardcastProhibited Check CallingUID exists in the trustlist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsBoardcastProhibitedTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    ASSERT_NE(tempPasteboard, nullptr);
+    ASSERT_EQ(tempPasteboard->IsBoardcastProhibited(), false);
+}
 } // namespace OHOS::MiscServices
