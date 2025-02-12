@@ -150,9 +150,11 @@ export struct Index {
     };
     try {
       unifiedDataChannel.queryData(options, (err, data) => {
-        if (err) {
+        if (err || !data[0]?.getRecords()?.length) {
           this.unChangeProgressTimes++;
-          console.error(TAG + `Failed to query data. code is ${err.code}, message is ${err.message}`);
+          if (err) {
+            console.error(TAG + `Failed to query data. code is ${err.code}, message is ${err.message}`);
+          }
           if (this.unChangeProgressTimes > this.timeoutInterval / this.pollInterval) {
             this.handleTimeoutError();
           } else {
@@ -504,6 +506,7 @@ struct PasteboardProgress {
   showProgress(layoutWeight: number | undefined) {
     Progress({ value: this.currentPercentageNum, type: ProgressType.Linear })
       .attributeModifier(this.progressModifier)
+      .color($r('sys.color.comp_background_emphasize'))
       .height(24)
       .value(this.currentPercentageNum)
       .style({ enableSmoothEffect: true })
