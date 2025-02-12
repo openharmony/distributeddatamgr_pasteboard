@@ -374,7 +374,7 @@ private:
     int32_t uid_ = -1;
     RemoteDataTaskManager taskMgr_;
     pid_t setPasteDataUId_ = 0;
-    static constexpr const pid_t TEST_SERVER_UID = 3500;
+    static constexpr pid_t TEST_SERVER_UID = 3500;
     std::mutex eventMutex_;
     SecurityLevel securityLevel_;
     class PasteboardDeathRecipient final : public IRemoteObject::DeathRecipient {
