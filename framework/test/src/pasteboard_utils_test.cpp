@@ -1251,12 +1251,12 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest007, TestSize.Level0)
 }
 
 /**
- * @tc.name: DeduplicateVectorTest001
+ * @tc.name: DeduplicateVectorTest
  * @tc.desc: Remove duplicate value from string vector
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(PasteboardUtilsTest, DeduplicateVectorTest001, TestSize.Level0)
+HWTEST_F(PasteboardUtilsTest, DeduplicateVectorTest, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DeduplicateVectorTest start");
     const std::vector<std::string> vec1(3, "test");
