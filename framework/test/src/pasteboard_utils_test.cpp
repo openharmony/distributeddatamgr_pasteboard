@@ -1259,10 +1259,14 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest007, TestSize.Level0)
 HWTEST_F(PasteboardUtilsTest, DeduplicateVectorTest, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DeduplicateVectorTest start");
-    const std::vector<std::string> vec1 = {"a", "b", "c", "a", "b", "c"};
-    const std::vector<std::string> vec2 = {"a", "b", "c"};
+    const std::vector<std::string> vec1(3, "test");
+    const std::vector<std::string> vec2(1, "test");
     std::vector<std::string> result = PasteboardUtils::GetInstance().DeduplicateVector(vec1);
     EXPECT_EQ(std::equal(result.begin(), result.end(), vec2.begin()), true);
+    const std::vector<std::string> vec3 = {"a", "b", "c", "a", "b", "c"};
+    std::vector<std::string> vec4 = {"a", "b", "c"};
+    result = PasteboardUtils::GetInstance().DeduplicateVector(vec3);
+    EXPECT_EQ(result.size(), vec4.size());
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DeduplicateVectorTest end");
 }
 
