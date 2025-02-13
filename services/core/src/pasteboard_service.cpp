@@ -2306,6 +2306,12 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     if (!IsAllowSendData() || IsAllowDistributed()) {
         return false;
     }
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_ONLINE_DEVICE, DFX_SUCCESS);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clip plugin is null, dataId:%{public}u", data.GetDataId());
+        return false;
+    }
     ShareOption shareOpt = data.GetShareOption();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(shareOpt != InApp, false, PASTEBOARD_MODULE_SERVICE,
         "data share option is in app, dataId:%{public}u", data.GetDataId());
@@ -2330,54 +2336,54 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     currentEvent_ = event;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}u, seqId:%{public}hu, isDelay:%{public}d,"
         "expiration:%{public}" PRIu64, event.dataId, event.seqId, event.isDelay, event.expiration);
-    {
-        std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
-        setDistributedMemory_.event = event;
-        setDistributedMemory_.data = std::make_shared<PasteData>(data);
-        if (setDistributedMemory_.isRunning) {
-            return true;
-        }
-        setDistributedMemory_.isRunning = true;
-    }
-    return SetCurrentDistributedData();
+    return SetCurrentDistributedData(data, event);
 }
 
-bool PasteboardService::SetCurrentDistributedData()
+bool PasteboardService::SetCurrentDistributedData(PasteData &data, Event event)
 {
-    Event event;
-    PasteData data;
-    {
-        std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
-        if (setDistributedMemory_.data == nullptr) {
-            setDistributedMemory_.isRunning = false;
-            return false;
+    std::thread thread([this, data, event]() mutable {
+        {
+            std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
+            setDistributedMemory_.event = event;
+            setDistributedMemory_.data = std::make_shared<PasteData>(data);
+            if (setDistributedMemory_.isRunning) {
+                return;
+            }
+            setDistributedMemory_.isRunning = true;
         }
-        data = *setDistributedMemory_.data;
-        event = setDistributedMemory_.event;
-    }
-    std::thread thread([this, event, data]() mutable {
+        bool isNeedCheck = false;
         while (true) {
             auto block = std::make_shared<BlockObject<bool>>(SET_DISTRIBUTED_DATA_INTERVAL, false);
-            std::thread thread([this, event, data, block]() mutable {
-                auto result = SetCurrentData(event, data);
-                block->SetValue(true);
-            });
-            thread.detach();
-            bool ret = block->GetValue();
-            if (!ret) {
-                PASTEBOARD_HILOGE(
-                    PASTEBOARD_MODULE_SERVICE, "set distributed data timeout, dataId:%{public}u, seqId:%{public}hu",
-                    event.dataId, event.seqId);
-            }
             {
                 std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
-                if (event.seqId == setDistributedMemory_.event.seqId || setDistributedMemory_.data == nullptr) {
+                if ((event.seqId == setDistributedMemory_.event.seqId && isNeedCheck) ||
+                    setDistributedMemory_.data == nullptr) {
                     setDistributedMemory_.data = nullptr;
                     setDistributedMemory_.isRunning = false;
                     break;
                 }
-                data = *setDistributedMemory_.data;
-                event = setDistributedMemory_.event;
+                if (!isNeedCheck) {
+                    isNeedCheck = true;
+                }
+                std::thread thread([this, &event, &block]() mutable {
+                    PasteData data;
+                    {
+                        std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
+                        if (setDistributedMemory_.data == nullptr) {
+                            block->SetValue(true);
+                            return;
+                        }
+                        event = setDistributedMemory_.event;
+                        data = *setDistributedMemory_.data;
+                    }
+                    auto result = SetCurrentData(event, data);
+                    block->SetValue(true);
+                });
+                thread.detach();
+            }
+            bool ret = block->GetValue();
+            if (!ret) {
+                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SetCurrentData timeout,seqId:%{public}hu", event.seqId);
             }
         }
     });
