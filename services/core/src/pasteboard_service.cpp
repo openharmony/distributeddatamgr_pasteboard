@@ -2291,7 +2291,7 @@ uint8_t PasteboardService::GenerateDataType(PasteData &data)
     return value;
 }
 
-bool PasteboardService::IsBoardcastProhibited()
+bool PasteboardService::IsAllowDistributed()
 {
     pid_t uid = IPCSkeleton::GetCallingUid();
     if (uid == DEVICE_COLLABORATION_UID) {
@@ -2303,7 +2303,7 @@ bool PasteboardService::IsBoardcastProhibited()
 
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
-    if (!IsAllowSendData() || IsBoardcastProhibited()) {
+    if (!IsAllowSendData() || IsAllowDistributed()) {
         return false;
     }
     ShareOption shareOpt = data.GetShareOption();
