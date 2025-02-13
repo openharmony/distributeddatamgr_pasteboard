@@ -87,7 +87,7 @@ HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest002, TestSize.Level0)
 
 /**
  * @tc.name: IsAllowDistributedTest
- * @tc.desc: IsAllowDistributed Check CallingUID exists in the trustlist.
+ * @tc.desc: IsAllowDistributed Check CallingUID contral collaboration.
  * @tc.type: FUNC
  */
 HWTEST_F(PasteboardServiceTest, IsAllowDistributedTest, TestSize.Level0)
