@@ -84,4 +84,16 @@ HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest002, TestSize.Level0)
     tempPasteboard->GetChangeCount(testCount);
     ASSERT_EQ(testCount, 0);
 }
+
+/**
+ * @tc.name: IsAllowDistributedTest
+ * @tc.desc: IsAllowDistributed Check CallingUID contral collaboration.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsAllowDistributedTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    ASSERT_NE(tempPasteboard, nullptr);
+    ASSERT_EQ(tempPasteboard->IsAllowDistributed(), false);
+}
 } // namespace OHOS::MiscServices

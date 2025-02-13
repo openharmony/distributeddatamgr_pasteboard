@@ -279,6 +279,7 @@ private:
     std::pair<std::shared_ptr<PasteData>, PasteDateResult> GetDistributedData(const Event &event, int32_t user);
     std::pair<int32_t, std::vector<uint8_t>> GetDistributedDelayData(const Event &evt);
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
+    bool IsAllowDistributed();
     bool SetDistributedData(int32_t user, PasteData &data);
     bool SetCurrentDistributedData();
     bool SetCurrentData(Event event, PasteData &data);

@@ -92,6 +92,7 @@ constexpr int32_t CTRLV_EVENT_SIZE = 2;
 constexpr int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
 constexpr pid_t TESE_SERVER_UID = 3500;
 constexpr uint32_t EVENT_TIME_OUT = 2000;
+constexpr int32_t DEVICE_COLLABORATION_UID = 5521;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -2290,9 +2291,19 @@ uint8_t PasteboardService::GenerateDataType(PasteData &data)
     return value;
 }
 
+bool PasteboardService::IsAllowDistributed()
+{
+    pid_t uid = IPCSkeleton::GetCallingUid();
+    if (uid == DEVICE_COLLABORATION_UID) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uid from device collaboration");
+        return true;
+    }
+    return false;
+}
+
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
-    if (!IsAllowSendData()) {
+    if (!IsAllowSendData() || IsAllowDistributed()) {
         return false;
     }
     ShareOption shareOpt = data.GetShareOption();
