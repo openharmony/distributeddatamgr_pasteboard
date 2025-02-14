@@ -219,7 +219,10 @@ private:
             return l->AsObject() < r->AsObject();
         }
     };
-    using ObserverMap = std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
+    using ObserverMap = std::map<std::pair<int32_t, pid_t>,
+        std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
+    uint32_t GetObserversSize(int32_t userId, pid_t pid, ObserverMap &observerMap);
+    uint32_t GetAllObserversSize(int32_t userId, pid_t pid);
     void AddSysAbilityListener();
     int32_t Init();
     void InitScreenStatus();
