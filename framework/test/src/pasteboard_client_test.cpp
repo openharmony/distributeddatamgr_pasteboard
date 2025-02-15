@@ -772,7 +772,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress005, TestSize.Level0)
 
 /**
  * @tc.name: HandleSignalValue001
- * @tc.desc: HandleSignalValue001 test.
+ * @tc.desc: HandleSignalValue001 Test.
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
@@ -787,7 +787,7 @@ HWTEST_F(PasteboardClientTest, HandleSignalValue001, TestSize.Level0)
 
 /**
  * @tc.name: HandleSignalValue002
- * @tc.desc: HandleSignalValue002 test.
+ * @tc.desc: HandleSignalValue002 Test.
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
