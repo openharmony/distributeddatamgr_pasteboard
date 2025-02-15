@@ -1046,10 +1046,9 @@ void SystemPasteboardNapi::ProgressNotify(std::shared_ptr<GetDataParams> params)
         return;
     }
 
-    MiscServices::ProgressInfo progress = {
-        .percentage = params->info->percentage,
-    };
-    status = napi_call_threadsafe_function(listenerFn->tsFunction, static_cast<void *>(&progress), napi_tsfn_blocking);
+    MiscServices::ProgressInfo *progress = new ProgressInfo();
+    progress->percentage = params->info->percentage;
+    status = napi_call_threadsafe_function(listenerFn->tsFunction, static_cast<void *>(progress), napi_tsfn_blocking);
     if (status != napi_ok) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "call progressNotify failed!");
         return;
@@ -1073,7 +1072,13 @@ void SystemPasteboardNapi::CallJsProgressNotify(napi_env env, napi_value jsFunct
         return;
     }
 
-    napi_value percentage = nullptr;
+    int progress = info->percentage;
+    delete info;
+    info = nullptr;
+
+    napi_value percentage;
+    NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, progress, &percentage));
+
     napi_value progressInfo = nullptr;
     NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &progressInfo));
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, progressInfo, "progress", percentage));
@@ -1217,6 +1222,7 @@ napi_value SystemPasteboardNapi::GetDataWithProgress(napi_env env, napi_callback
     GetDataWithProgressParam(context);
 
     auto exec = [context](AsyncCall::Context *ctx) {
+        context->getDataParams->info = new (std::nothrow)ProgressInfo();
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(*context->pasteData,
             context->getDataParams);
@@ -1232,6 +1238,10 @@ napi_value SystemPasteboardNapi::GetDataWithProgress(napi_env env, napi_callback
             }
         }
         listenerMap_.erase("progressNotify");
+        if (context->getDataParams->info != nullptr) {
+            delete context->getDataParams->info;
+            context->getDataParams->info = nullptr;
+        }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress End");
     };
     // 0: the AsyncCall at the first position;
