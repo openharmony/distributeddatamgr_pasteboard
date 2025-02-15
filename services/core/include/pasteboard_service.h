@@ -229,7 +229,7 @@ private:
     std::string DumpData();
     void ThawInputMethod(void);
     bool IsNeedThaw(void);
-    void NotifyObservers(const std::string &bundleName, PasteboardEventStatus status);
+    void NotifyObservers(std::string bundleName, PasteboardEventStatus status);
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
     std::mutex imeMutex_;
