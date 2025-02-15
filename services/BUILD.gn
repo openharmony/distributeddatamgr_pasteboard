@@ -51,6 +51,7 @@ config("pasteboard_service_config") {
 ohos_shared_library("pasteboard_service") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    integer_overflow = true
     ubsan = true
     boundary_sanitize = true
     cfi = true

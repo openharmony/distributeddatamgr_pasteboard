@@ -25,6 +25,7 @@ config("module_public_config") {
 ohos_static_library("pasteboard_tlv") {
   branch_protector_ret = "pac_ret"
   sanitize = {
+    integer_overflow = true
     ubsan = true
     boundary_sanitize = true
     cfi = true
@@ -41,6 +42,7 @@ ohos_static_library("pasteboard_tlv") {
     "-O2",
   ]
   cflags_cc = [
+    "-fstack-protector",
     "-fvisibility=hidden",
     "-O2",
   ]
