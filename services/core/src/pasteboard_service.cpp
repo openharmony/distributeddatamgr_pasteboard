@@ -930,7 +930,7 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     auto it = clips_.Find(appInfo.userId);
     auto tempTime = copyTime_.Find(appInfo.userId);
     if (!it.first || !tempTime.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no data userId is %{public}d.", userId);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no data userId is %{public}d.", appInfo.userId);
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     auto ret = IsDataVaild(*(it.second), appInfo.tokenId);
@@ -952,7 +952,7 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     data.SetBundleName(appInfo.bundleName);
     auto result = copyTime_.Find(appInfo.userId);
     if (!result.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId not found userId is %{public}d", userId);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId not found userId is %{public}d", appInfo.userId);
         return static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR);
     }
     auto curTime = result.second;
