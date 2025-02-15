@@ -43,7 +43,7 @@ enum PasteboardServiceInterfaceCode {
     GET_RECORD_VALUE = 19,
     GET_MIME_TYPES = 20,
     GET_REMOTE_DEVICE_NAME = 21,
-    PROGRESS_MAKE_MESSAGE_INFO = 22,
+    SHOW_PROGRESS = 22,
     GET_CHANGE_COUNT = 23,
 };
 

@@ -50,6 +50,8 @@ const std::vector<PasteboardServiceInterfaceCode> CODE_LIST = {
     DETECT_PATTERNS,
     GET_RECORD_VALUE,
     GET_MIME_TYPES,
+    GET_REMOTE_DEVICE_NAME,
+    SHOW_PROGRESS,
     GET_CHANGE_COUNT,
 };
 
