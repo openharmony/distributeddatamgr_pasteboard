@@ -652,7 +652,7 @@ void PasteboardServiceProxy::ShowProgress(
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write observer");
         return;
     }
-    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::PROGRESS_MAKE_MESSAGE_INFO,
+    int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::SHOW_PROGRESS,
         data, reply, option);
     if (result != ERR_NONE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is: %{public}d", result);

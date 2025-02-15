@@ -73,7 +73,7 @@ PasteboardServiceStub::PasteboardServiceStub()
         &PasteboardServiceStub::OnGetMimeTypes;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_REMOTE_DEVICE_NAME)] =
         &PasteboardServiceStub::OnGetRemoteDeviceName;
-    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::PROGRESS_MAKE_MESSAGE_INFO)] =
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SHOW_PROGRESS)] =
         &PasteboardServiceStub::OnShowProgress;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_CHANGE_COUNT)] =
         &PasteboardServiceStub::OnGetChangeCount;
