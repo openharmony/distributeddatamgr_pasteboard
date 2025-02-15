@@ -2005,7 +2005,7 @@ bool PasteboardService::IsNeedThaw()
     }
     return true;
 }
-void PasteboardService::NotifyObservers(const std::string &bundleName, PasteboardEventStatus status)
+void PasteboardService::NotifyObservers(std::string bundleName, PasteboardEventStatus status)
 {
     if (hasImeObserver_ && IsNeedThaw()) {
         ThawInputMethod();
