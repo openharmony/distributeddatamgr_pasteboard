@@ -786,8 +786,8 @@ HWTEST_F(PasteboardClientTest, HandleSignalValue001, TestSize.Level0)
 }
 
 /**
- * @tc.name: HandleSignalValue001
- * @tc.desc: HandleSignalValue001 test.
+ * @tc.name: HandleSignalValue002
+ * @tc.desc: HandleSignalValue002 test.
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
