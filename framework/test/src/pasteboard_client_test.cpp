@@ -780,9 +780,9 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress005, TestSize.Level0)
 HWTEST_F(PasteboardClientTest, HandleSignalValue001, TestSize.Level0)
 {
     PasteboardClient pasteboardClient;
-    std::string HandleSignalValue = "0";
+    std::string signalValue = "0";
     int32_t result = pasteboardClient.HandleSignalValue(signalValue);
-    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));  
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
 /**
@@ -795,8 +795,8 @@ HWTEST_F(PasteboardClientTest, HandleSignalValue001, TestSize.Level0)
 HWTEST_F(PasteboardClientTest, HandleSignalValue002, TestSize.Level0)
 {
     PasteboardClient pasteboardClient;
-    std::string HandleSignalValue = "invalid";
+    std::string signalValue = "invalid";
     int32_t result = pasteboardClient.HandleSignalValue(signalValue);
-    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));  
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
 }
 } // namespace OHOS::MiscServices
