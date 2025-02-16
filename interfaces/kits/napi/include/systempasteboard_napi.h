@@ -319,7 +319,7 @@ private:
     static napi_value GetDataSync(napi_env env, napi_callback_info info);
     static napi_value SetDataSync(napi_env env, napi_callback_info info);
     static napi_value HasDataSync(napi_env env, napi_callback_info info);
-    static bool CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc);
+    static bool CheckArgsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc);
     static void SetObserver(napi_ref ref, std::shared_ptr<PasteboardObserverInstance> observer);
     static std::shared_ptr<PasteboardObserverInstance> GetObserver(napi_env env, napi_value observer);
     static void GetDataCommon(std::shared_ptr<GetContextInfo> &context);

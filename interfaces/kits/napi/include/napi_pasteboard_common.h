@@ -52,7 +52,7 @@ bool UnifiedContextSetErr(const std::shared_ptr<GetUnifiedContextInfo> context, 
     const std::vector<MiscServices::JSErrorCode> &focusErrCodes, std::string defaultMsg = "");
 napi_status ConvertEntryValue(napi_env env, napi_value *result, std::string &udtType,
     std::shared_ptr<MiscServices::PasteDataEntry> value);
-bool GetNativeValue(napi_env env, std::string type, napi_value valueNapi, MiscServices::EntryValue &value);
+bool GetNativeValue(napi_env env, const std::string &type, napi_value valueNapi, MiscServices::EntryValue &value);
 } // namespace MiscServicesNapi
 } // namespace OHOS
 #endif

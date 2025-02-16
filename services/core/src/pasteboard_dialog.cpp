@@ -146,7 +146,7 @@ sptr<IAbilityManager> PasteBoardDialog::GetAbilityManagerService()
     }
 
     sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    if (!remoteObject) {
+    if (remoteObject == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to get ability manager service");
         return nullptr;
     }

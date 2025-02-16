@@ -245,7 +245,7 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
     }
 }
 
-bool SystemPasteboardNapi::CheckAgrsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc)
+bool SystemPasteboardNapi::CheckArgsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc)
 {
     if (!CheckExpression(
         env, checkArgsCount, JSErrorCode::INVALID_PARAMETERS, "Parameter error. The number of arguments is wrong.") ||
@@ -274,7 +274,7 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     // on(type: 'update', callback: () => void) has 2 args
-    if (!CheckAgrsOfOnAndOff(env, argc >= 2, argv, argc) ||
+    if (!CheckArgsOfOnAndOff(env, argc >= 2, argv, argc) ||
         !CheckArgsType(env, argv[1], napi_function, "Parameter error. The type of callback must be function.")) {
         return nullptr;
     }
@@ -305,7 +305,7 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
     void *data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     // off(type: 'update', callback?: () => void) has at least 1 arg
-    if (!CheckAgrsOfOnAndOff(env, argc >= 1, argv, argc)) {
+    if (!CheckArgsOfOnAndOff(env, argc >= 1, argv, argc)) {
         return nullptr;
     }
 

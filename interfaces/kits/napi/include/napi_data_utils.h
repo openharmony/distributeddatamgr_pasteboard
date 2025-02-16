@@ -32,10 +32,10 @@
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
+#include "pixel_map_napi.h"
 #include "unified_meta.h"
 #include "type_descriptor.h"
 #include "type_descriptor_napi.h"
-#include "pixel_map_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
@@ -108,7 +108,7 @@ public:
     static bool IsNull(napi_env env, napi_value value);
     /* napi_define_class wrapper */
     static napi_value DefineClass(napi_env env, const std::string &name, const napi_property_descriptor *properties,
-        size_t count, napi_callback newcb);
+        size_t count, napi_callback newCb);
 
 private:
     enum {

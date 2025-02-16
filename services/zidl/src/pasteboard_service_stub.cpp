@@ -418,7 +418,7 @@ int32_t PasteboardServiceStub::OnDetectPatterns(MessageParcel &data, MessageParc
         return ERR_INVALID_VALUE;
     }
     size_t readAbleSize = data.GetReadableBytes();
-    if (size > readAbleSize || size > static_cast<uint32_t>(Pattern::PatternCount)) {
+    if (size > readAbleSize || size > static_cast<uint32_t>(Pattern::COUNT)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Read oversize failed.");
         return ERR_INVALID_VALUE;
     }

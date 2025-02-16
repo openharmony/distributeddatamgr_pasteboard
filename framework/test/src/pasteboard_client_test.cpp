@@ -453,9 +453,9 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
     std::vector<std::string> plainTextVec { plainText, plainText + plainText0, plainText + plainText1,
         plainText + plainText2, plainText + plainText0 + plainText1, plainText0 + plainText2 + plainText,
         plainText1 + plainText + plainText2, plainText0 + plainText1 + plainText + plainText2 };
-    std::vector<Patterns> patternsVec { {}, { Pattern::URL }, { Pattern::Number }, { Pattern::EmailAddress },
-        { Pattern::URL, Pattern::Number }, { Pattern::URL, Pattern::EmailAddress },
-        { Pattern::Number, Pattern::EmailAddress }, { Pattern::URL, Pattern::Number, Pattern::EmailAddress } };
+    std::vector<Patterns> patternsVec { {}, { Pattern::URL }, { Pattern::NUMBER }, { Pattern::EMAIL_ADDRESS },
+        { Pattern::URL, Pattern::NUMBER }, { Pattern::URL, Pattern::EMAIL_ADDRESS },
+        { Pattern::NUMBER, Pattern::EMAIL_ADDRESS }, { Pattern::URL, Pattern::NUMBER, Pattern::EMAIL_ADDRESS } };
     std::vector<std::vector<int>> patternsRightIndexVec { { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 0, 1, 1, 0, 1 },
         { 0, 0, 2, 0, 2, 0, 2, 2 }, { 0, 0, 0, 3, 0, 3, 3, 3 }, { 0, 1, 2, 0, 4, 1, 2, 4 }, { 0, 1, 0, 3, 1, 5, 3, 5 },
         { 0, 0, 2, 3, 2, 3, 6, 6 }, { 0, 1, 2, 3, 4, 5, 6, 7 } };
@@ -485,7 +485,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
                             "个人网站https://ex24t33tamp65hhle.com</a>。</p></body></html>";
     auto newData1 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    Patterns patternsToCheck1 { Pattern::URL, Pattern::EmailAddress };
+    Patterns patternsToCheck1 { Pattern::URL, Pattern::EMAIL_ADDRESS };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck1);
     Patterns expected1 { Pattern::URL };
     ASSERT_EQ(ret1, expected1);
@@ -497,9 +497,9 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
                             "阿婆吗weqkqo@exaetmple.com</a>。？？？？打法</p></body></html>";
     auto newData2 = PasteboardClient::GetInstance()->CreateHtmlData(htmlText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
-    Patterns patternsToCheck2 { Pattern::URL, Pattern::EmailAddress, Pattern::Number };
+    Patterns patternsToCheck2 { Pattern::URL, Pattern::EMAIL_ADDRESS, Pattern::NUMBER };
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck2);
-    Patterns expected2 { Pattern::URL, Pattern::EmailAddress };
+    Patterns expected2 { Pattern::URL, Pattern::EMAIL_ADDRESS };
     ASSERT_EQ(ret2, expected2);
 }
 
@@ -520,7 +520,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
                              "~b0043fg3423tddj~";
     auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    Patterns patternsToCheck { Pattern::Number, Pattern::URL, Pattern::EmailAddress, static_cast<Pattern>(1023) };
+    Patterns patternsToCheck { Pattern::NUMBER, Pattern::URL, Pattern::EMAIL_ADDRESS, static_cast<Pattern>(1023) };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
     Patterns expected1 {};
     ASSERT_EQ(ret1, expected1);
@@ -558,7 +558,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
                              "~b0043fg3423tddj~";
     auto newData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText1);
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
-    std::set<Pattern> patternsToCheck { Pattern::Number, Pattern::URL, Pattern::EmailAddress,
+    std::set<Pattern> patternsToCheck { Pattern::NUMBER, Pattern::URL, Pattern::EMAIL_ADDRESS,
         static_cast<Pattern>(0xffffffff), static_cast<Pattern>(0xffffff1a) };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
     std::set<Pattern> expected1 {};
