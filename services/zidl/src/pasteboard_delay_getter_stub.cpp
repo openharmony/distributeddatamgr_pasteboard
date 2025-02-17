@@ -16,7 +16,7 @@
 #include "pasteboard_delay_getter_stub.h"
 
 #include "ipc_skeleton.h"
-#include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {

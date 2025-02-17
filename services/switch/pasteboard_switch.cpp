@@ -15,9 +15,6 @@
 
 #include "pasteboard_switch.h"
 
-#include <memory>
-#include <string>
-
 #include "datashare_delegate.h"
 #include "dev_profile.h"
 #include "pasteboard_event_ue.h"

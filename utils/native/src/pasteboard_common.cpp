@@ -15,10 +15,8 @@
 
 #include "pasteboard_common.h"
 
-#include <if_system_ability_manager.h>
 #include <iservice_registry.h>
 #include <system_ability_definition.h>
-#include <unistd.h>
 
 #include "pasteboard_hilog.h"
 

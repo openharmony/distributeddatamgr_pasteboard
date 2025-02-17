@@ -15,8 +15,6 @@
 
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_EVENTCENTER_EVENT_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_EVENTCENTER_EVENT_H
-#include <cstdint>
-#include <functional>
 #include <memory>
 
 #include "api/visibility.h"

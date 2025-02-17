@@ -15,17 +15,9 @@
 #ifndef N_NAPI_PASTEBOARD_COMMON_H
 #define N_NAPI_PASTEBOARD_COMMON_H
 
-#include <string>
-
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "napi_common_want.h"
 #include "paste_data_record.h"
 #include "pasteboard_js_err.h"
-#include "pasteboard_pattern.h"
-#include "pixel_map_napi.h"
 #include "systempasteboard_napi.h"
-#include "tlv_object.h"
 #include "napi_data_utils.h"
 namespace OHOS {
 namespace MiscServicesNapi {

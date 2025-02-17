@@ -15,12 +15,8 @@
 
 #ifndef PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DIALOG_H
 #define PASTEBOARD_INTERFACES_KITS_NAPI_SRC_PASTE_BOARD_DIALOG_H
-#include <functional>
-#include <mutex>
-#include <string>
 
 #include "ability_manager_interface.h"
-#include "refbase.h"
 
 namespace OHOS::MiscServices {
 class DialogConnection;

@@ -16,7 +16,6 @@
 #ifndef OHOS_PASTEBOARD_DELAY_GETTER_PROXY_H
 #define OHOS_PASTEBOARD_DELAY_GETTER_PROXY_H
 
-#include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "i_pasteboard_delay_getter.h"
 

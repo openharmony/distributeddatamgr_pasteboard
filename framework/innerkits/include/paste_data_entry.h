@@ -17,8 +17,6 @@
 #define PASTE_BOARD_ENTRY_H
 
 #include "tlv_object.h"
-#include "unified_meta.h"
-#include "uri.h"
 namespace OHOS {
 namespace MiscServices {
 class API_EXPORT MineCustomData : public TLVObject {

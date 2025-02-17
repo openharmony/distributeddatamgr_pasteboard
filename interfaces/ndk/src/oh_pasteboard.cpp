@@ -15,21 +15,9 @@
 
 #define LOG_TAG "Pasteboard_Capi"
 
-#include "oh_pasteboard.h"
-
-#include <map>
-#include <memory>
-#include <string>
-#include <thread>
-
-#include "i_pasteboard_observer.h"
-#include "oh_pasteboard_err_code.h"
 #include "oh_pasteboard_observer_impl.h"
 #include "pasteboard_client.h"
-#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_progress_signal.h"
-#include "udmf.h"
 #include "udmf_capi_common.h"
 
 using namespace OHOS::MiscServices;

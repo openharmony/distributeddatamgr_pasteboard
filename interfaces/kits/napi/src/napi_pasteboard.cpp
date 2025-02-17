@@ -13,13 +13,9 @@
  * limitations under the License.
  */
 
-#include <memory>
 #include "napi_pasteboard_common.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_js_err.h"
 #include "pasteboard_napi.h"
-#include "systempasteboard_napi.h"
-#include "uri.h"
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
 

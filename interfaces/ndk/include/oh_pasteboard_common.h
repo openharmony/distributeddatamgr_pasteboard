@@ -14,8 +14,6 @@
  */
 #ifndef OH_PASTEBOARD_COMMON_H
 #define OH_PASTEBOARD_COMMON_H
-#include <cstdint>
-#include <map>
 
 #include "oh_pasteboard.h"
 #include "oh_pasteboard_err_code.h"

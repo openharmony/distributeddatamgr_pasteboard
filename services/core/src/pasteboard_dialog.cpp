@@ -16,7 +16,6 @@
 #include <thread>
 
 #include "ability_connect_callback_stub.h"
-#include "ability_manager_proxy.h"
 #include "in_process_call_wrapper.h"
 #include "iservice_registry.h"
 #include "pasteboard_dialog.h"
@@ -112,7 +111,7 @@ int32_t PasteBoardDialog::ShowProgress(const ProgressMessageInfo &message)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get ability manager failed");
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
- 
+
     Want want;
     want.SetElementName(PASTEBOARD_DIALOG_APP, PASTEBOARD_PROGRESS_ABILITY);
     want.SetAction(PASTEBOARD_PROGRESS_ABILITY);

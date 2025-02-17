@@ -16,8 +16,6 @@
 
 #include "common/constant.h"
 #include "pasteboard_hilog.h"
-#include "pixel_map.h"
-#include "tlv_object.h"
 namespace OHOS {
 namespace MiscServices {
 

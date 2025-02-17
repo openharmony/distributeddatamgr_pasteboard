@@ -15,9 +15,6 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_FFRT_UTILS_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_FFRT_UTILS_H
 
-#include <functional>
-#include <vector>
-
 #include "api/visibility.h"
 #include "ffrt_inner.h"
 

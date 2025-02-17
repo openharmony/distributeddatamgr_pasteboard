@@ -14,11 +14,6 @@
  */
 #include "datashare_delegate.h"
 
-#include <memory>
-#include <string>
-#include "datashare_predicates.h"
-#include "datashare_result_set.h"
-#include "datashare_values_bucket.h"
 #include "iservice_registry.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"

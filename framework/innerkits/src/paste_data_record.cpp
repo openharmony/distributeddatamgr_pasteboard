@@ -13,16 +13,9 @@
  * limitations under the License.
  */
 
-#include "paste_data_record.h"
-
-#include <sys/stat.h>
-#include <unistd.h>
-#include "convert_utils.h"
-#include "parcel_util.h"
 #include "pasteboard_client.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
-#include "pixel_map_parcel.h"
 
 using namespace OHOS::Media;
 

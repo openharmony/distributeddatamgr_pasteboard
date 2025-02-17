@@ -14,47 +14,35 @@
  */
 #include "pasteboard_service.h"
 
-#include <bitset>
-#include <unistd.h>
-
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
 #include "common_event_manager.h"
 #include "dev_profile.h"
-#include "device/dm_adapter.h"
-#include "dfx_code_constant.h"
-#include "dfx_types.h"
 #include "distributed_file_daemon_manager.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #include "dlp_permission.h"
 #endif // WITH_DLP
-#include "eventcenter/event_center.h"
 #include "eventcenter/pasteboard_event.h"
 #include "hiview_adapter.h"
 #include "input_method_controller.h"
 #include "int_wrapper.h"
-#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "long_wrapper.h"
 #include "mem_mgr_client.h"
-#include "mem_mgr_proxy.h"
-#include "native_token_info.h"
 #include "os_account_manager.h"
 #include "parameters.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_event_ue.h"
-#include "pasteboard_progress.h"
-#include "pasteboard_progress_signal.h"
 #include "pasteboard_trace.h"
 #include "pasteboard_web_controller.h"
 #include "remote_file_share.h"
 #include "res_sched_client.h"
-#include "res_type.h"
 #include "reporter.h"
 #ifdef PB_SCREENLOCK_MGR_ENABLE
 #include "screenlock_manager.h"

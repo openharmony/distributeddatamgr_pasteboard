@@ -16,7 +16,6 @@
 #ifndef OHOS_DISTRIBUTED_SERIALIZABLE_SERIALIZABLE_H
 #define OHOS_DISTRIBUTED_SERIALIZABLE_SERIALIZABLE_H
 #include <string>
-#include <vector>
 
 #include "api/visibility.h"
 #ifndef JSON_NOEXCEPTION

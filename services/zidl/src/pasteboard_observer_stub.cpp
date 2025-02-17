@@ -15,8 +15,7 @@
 
 #include "pasteboard_observer_stub.h"
 
-#include "i_pasteboard_observer.h"
-#include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
 
 using namespace OHOS::Security::PasteboardServ;

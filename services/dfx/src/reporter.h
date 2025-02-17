@@ -17,7 +17,6 @@
 #define MISCSERVICES_PASTEBOARD_REPORTER_H
 
 #include "behaviour_reporter.h"
-#include "dfx_types.h"
 #include "fault_reporter.h"
 #include "statistic_reporter.h"
 

@@ -16,7 +16,6 @@
 #ifndef I_PASTEBOARD_CLIENT_DEATH_OBSERVER_H
 #define I_PASTEBOARD_CLIENT_DEATH_OBSERVER_H
 
-#include "iremote_broker.h"
 #include "iremote_proxy.h"
 #include "iremote_stub.h"
 #include "api/visibility.h"

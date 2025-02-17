@@ -16,12 +16,7 @@
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_ADAPTER_PASTEBOARD_PROGRESS_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_ADAPTER_PASTEBOARD_PROGRESS_H
 
-#include <cstdint>
-#include <memory>
-#include <shared_mutex>
-
 #include "iremote_object.h"
-#include "nocopyable.h"
 
 namespace OHOS::MiscServices {
 class PasteBoardProgress {

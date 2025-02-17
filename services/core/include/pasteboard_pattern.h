@@ -16,9 +16,7 @@
 #ifndef PASTE_BOARD_PATTERN_H
 #define PASTE_BOARD_PATTERN_H
 
-#include <map>
 #include <regex>
-#include <set>
 
 #include "paste_data.h"
 

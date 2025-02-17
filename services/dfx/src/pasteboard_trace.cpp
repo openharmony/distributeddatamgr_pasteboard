@@ -17,9 +17,6 @@
 
 #include "pasteboard_trace.h"
 
-#include <atomic>
-#include <cstdint>
-
 #include "hitrace_meter.h"
 #include "pasteboard_hilog.h"
 

@@ -16,10 +16,6 @@
 #ifndef OHOS_PASTE_BOARD_LOAD_CALLBACK_H
 #define OHOS_PASTE_BOARD_LOAD_CALLBACK_H
 
-#include <cstdint>
-#include <string>
-
-#include "refbase.h"
 #include "system_ability_load_callback_stub.h"
 
 namespace OHOS {

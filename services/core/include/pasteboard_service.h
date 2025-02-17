@@ -16,34 +16,16 @@
 #ifndef PASTE_BOARD_SERVICE_H
 #define PASTE_BOARD_SERVICE_H
 
-#include <atomic>
-#include <condition_variable>
-#include <ctime>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <set>
-#include <shared_mutex>
-#include <stack>
-#include <sys/time.h>
 #include <system_ability_definition.h>
-#include <thread>
 
-#include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
 #include "common/block_object.h"
-#include "common/concurrent_map.h"
 #include "distributed_module_config.h"
-#include "event_handler.h"
 #include "eventcenter/event_center.h"
 #include "ffrt_utils.h"
-#include "i_pasteboard_delay_getter.h"
-#include "i_pasteboard_observer.h"
 #include "input_manager.h"
-#include "iremote_object.h"
 #include "loader.h"
-#include "paste_data.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"

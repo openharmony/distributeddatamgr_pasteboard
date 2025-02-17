@@ -14,9 +14,8 @@
  */
 
 #include "pasteboard_ffi.h"
-#include <securec.h>
-
-#include "pixel_map_impl.h"
+#include "pasteboard_hilog.h"
+#include "pasteboard_log.h"
 #include "system_pasteboard_impl.h"
 
 using namespace OHOS::FFI;

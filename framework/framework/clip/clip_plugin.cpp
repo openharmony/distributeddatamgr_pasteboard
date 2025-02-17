@@ -13,9 +13,7 @@
  * limitations under the License.
  */
 
-#include "clip/clip_plugin.h"
 #include "default_clip.h"
-#include "pasteboard_error.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_hilog.h"
 

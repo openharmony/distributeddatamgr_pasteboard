@@ -13,13 +13,7 @@
  * limitations under the License.
  */
 
-#include <algorithm>
-#include <cstdio>
-#include <chrono>
-#include <map>
-
 #include "distributed_file_daemon_manager.h"
-#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_progress_signal.h"
 

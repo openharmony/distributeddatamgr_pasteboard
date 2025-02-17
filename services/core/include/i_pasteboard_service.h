@@ -19,8 +19,6 @@
 #include "i_pasteboard_delay_getter.h"
 #include "i_pasteboard_entry_getter.h"
 #include "i_pasteboard_observer.h"
-#include "iremote_broker.h"
-#include "paste_data.h"
 #include "pasteboard_pattern.h"
 
 namespace OHOS {

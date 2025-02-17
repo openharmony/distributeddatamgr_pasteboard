@@ -12,12 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "pasteboard_common.h"
-#include "napi_common_want.h"
 #include "napi_pasteboard_common.h"
-#include "paste_data_record.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_js_err.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {

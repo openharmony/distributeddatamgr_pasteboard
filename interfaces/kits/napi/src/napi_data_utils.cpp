@@ -13,8 +13,7 @@
  * limitations under the License.
  */
 #include "napi_data_utils.h"
-
-#include "napi_queue.h"
+#include "pasteboard_hilog.h"
 
 using namespace OHOS::MiscServices;
 namespace OHOS {
