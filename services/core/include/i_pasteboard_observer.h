@@ -33,8 +33,6 @@ public:
     virtual void OnPasteboardEvent(std::string bundleName, int32_t status) = 0;
     virtual ~IPasteboardChangedObserver() = default;
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.miscservices.pasteboard.IPasteboardChangedObserver");
-    pid_t pid_ = 0;
-    uint32_t tokenId_ = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS
