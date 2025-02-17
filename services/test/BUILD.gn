@@ -62,6 +62,7 @@ ohos_unittest("PasteboardServiceTest") {
   ]
 
   deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     "//third_party/googletest:gtest_main",

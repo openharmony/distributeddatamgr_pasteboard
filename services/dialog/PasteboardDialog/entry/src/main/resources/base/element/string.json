@@ -43,6 +43,74 @@
         {
             "name":"learn_more",
             "value":"Learn more"
+        },
+        {
+            "name":"PasteboardProgressAbility_desc",
+            "value":"Pasteboard progress dilog"
+        },
+        {
+            "name":"PasteboardProgressAbility_label",
+            "value":"Pasteboard progress"
+        },
+        {
+            "name":"prompttext_pasteboard_remote",
+            "value":"Pasting from \"%s\"¡­"
+        },
+        {
+            "name":"prompttext_pasteboard_local",
+            "value":"Pasting¡­"
+        },
+        {
+            "name":"prompttext_pasteboard_error",
+            "value":"Unable to paste. Please try again."
+        },
+        {
+            "name":"progress_completed_percentage",
+            "value":"%s completed"
+        },
+        {
+            "name":"progress_cancel_btn",
+            "value":"Cancel"
+        },
+        {
+            "name":"prompttext_udmf_import",
+            "value":"Importing¡­"
+        },
+        {
+            "name":"prompttext_udmf_move",
+            "value":"Moving¡­"
+        },
+        {
+            "name":"prompttext_udmf_copy",
+            "value":"Copying¡­"
+        },
+        {
+            "name":"prompttext_udmf_download",
+            "value":"Downloading¡­"
+        },
+        {
+            "name":"prompttext_udmf_format",
+            "value":"Converting format¡­"
+        },
+        {
+            "name":"prompttext_udmf_import_error",
+            "value":"Import failed. Try again later."
+        },
+        {
+            "name":"prompttext_udmf_move_error",
+            "value":"Move failed. Try again later."
+        },
+        {
+            "name":"prompttext_udmf_copy_error",
+            "value":"Copy failed. Try again later."
+        },
+        {
+            "name":"prompttext_udmf_download_error",
+            "value":"Unable to download. Try again later."
+        },
+        {
+            "name":"prompttext_udmf_format_error",
+            "value":"Format conversion failed. Try again later."
         }
     ]
 }

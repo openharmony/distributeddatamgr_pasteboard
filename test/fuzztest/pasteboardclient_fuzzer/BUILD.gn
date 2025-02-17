@@ -40,6 +40,7 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
   sources = [ "pasteboardclient_fuzzer.cpp" ]
 
   deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core:appexecfwk_core",
   ]
@@ -49,6 +50,7 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
     "ability_base:zuri",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "image_framework:image_native",
     "ipc:ipc_core",

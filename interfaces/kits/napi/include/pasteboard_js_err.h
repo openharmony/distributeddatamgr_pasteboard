@@ -29,6 +29,10 @@ enum class JSErrorCode : int32_t {
     COPY_FORBIDDEN,
     REQUEST_TIME_OUT,
     SETTINGS_ALREADY_EXIST,
+    ERR_COPY_FILE_ERROR,
+    ERR_PROGRESS_START_ERROR,
+    ERR_PROGRESS_ABNORMAL,
+    ERR_GET_DATA_FAILED
 };
 } // namespace OHOS::MiscServices
 

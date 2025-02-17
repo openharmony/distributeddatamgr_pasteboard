@@ -39,6 +39,9 @@ constexpr size_t MAX_ARGS = 6;
 constexpr size_t SYNC_TIMEOUT = 3500;
 constexpr size_t DELAY_TIMEOUT = 2;
 const std::string STRING_UPDATE = "update";
+std::recursive_mutex SystemPasteboardNapi::listenerMutex_;
+std::map<std::string, std::shared_ptr<ProgressListenerFn>> SystemPasteboardNapi::listenerMap_;
+
 PasteboardObserverInstance::PasteboardObserverInstance(const napi_env &env, const napi_ref &ref) : env_(env), ref_(ref)
 {
     stub_ = new (std::nothrow) PasteboardObserverInstance::PasteboardObserverImpl();
@@ -1014,6 +1017,228 @@ napi_value SystemPasteboardNapi::HasDataSync(napi_env env, napi_callback_info in
     return result;
 }
 
+void SystemPasteboardNapi::ProgressNotify(std::shared_ptr<GetDataParams> params)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "params is null!");
+        return;
+    }
+
+    if (params->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "params->info is null!");
+        return;
+    }
+    std::shared_ptr<ProgressListenerFn> listenerFn = nullptr;
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
+    auto it = listenerMap_.find("progressNotify");
+    if (it != listenerMap_.end()) {
+        listenerFn = it->second;
+    }
+
+    if (listenerFn == nullptr || listenerFn->tsFunction == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "thread safe function is nullptr!");
+        return;
+    }
+
+    napi_status status = napi_acquire_threadsafe_function(listenerFn->tsFunction);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "acquire progressNotify failed!");
+        return;
+    }
+
+    MiscServices::ProgressInfo progress = {
+        .percentage = params->info->percentage,
+    };
+    status = napi_call_threadsafe_function(listenerFn->tsFunction, static_cast<void *>(&progress), napi_tsfn_blocking);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "call progressNotify failed!");
+        return;
+    }
+
+    status = napi_release_threadsafe_function(listenerFn->tsFunction, napi_tsfn_release);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "release progressNotify failed!");
+        return;
+    }
+}
+
+void SystemPasteboardNapi::CallJsProgressNotify(napi_env env, napi_value jsFunction, void *context, void *data)
+{
+    #define AGR_COUNT 1
+    #define DEVICE_NAME_LEN 512
+    (void)context;
+    ProgressInfo *info = (ProgressInfo *)data;
+    if (info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "progressInfo is nullptr!");
+        return;
+    }
+
+    napi_value percentage = nullptr;
+    napi_value progressInfo = nullptr;
+    NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &progressInfo));
+    NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, progressInfo, "progress", percentage));
+
+    napi_value argv[AGR_COUNT] = { progressInfo };
+    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, NULL, jsFunction, AGR_COUNT, argv, NULL));
+}
+
+bool SystemPasteboardNapi::CreateThreadSafeFunc(napi_env env, const std::shared_ptr<ProgressListenerFn> listenerFn)
+{
+    #define MAX_LINTENER_LEN 20
+    napi_value name = nullptr;
+    if (listenerFn->jsCallback == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "jsCallback is null!");
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_create_string_utf8(env, "progressNotify", MAX_LINTENER_LEN, &name), false);
+    napi_status status = napi_create_threadsafe_function(env, listenerFn->jsCallback, NULL, name, 0, 1, NULL,
+        NULL, NULL, CallJsProgressNotify, &listenerFn->tsFunction);
+    if (status != napi_ok) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "create threadsafe failed!");
+        return false;
+    }
+    return true;
+}
+
+bool SystemPasteboardNapi::AddProgressListener(napi_env env, std::shared_ptr<MiscServices::GetDataParams> getDataParam,
+    const std::shared_ptr<ProgressListenerFn> listenerFn)
+{
+    std::lock_guard<std::recursive_mutex> lock(listenerMutex_);
+    auto it = listenerMap_.find("progressNotify");
+    if (it == listenerMap_.end()) {
+        listenerMap_.insert({ "progressNotify", listenerFn });
+    }
+
+    if (!CreateThreadSafeFunc(env, listenerFn)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "CreateThreadSafeFunc failed!");
+        listenerMap_.erase("progressNotify");
+        return false;
+    }
+
+    getDataParam->listener.ProgressNotify = ProgressNotify;
+    return true;
+}
+
+bool SystemPasteboardNapi::CheckParamsType(napi_env env, napi_value in, napi_valuetype expectedType)
+{
+    napi_valuetype type = napi_undefined;
+    NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
+    if (type != expectedType) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid parametrs!");
+        return false;
+    }
+    return true;
+}
+
+bool SystemPasteboardNapi::ParseJsGetDataWithProgress(napi_env env, napi_value in,
+    std::shared_ptr<MiscServices::GetDataParams> &getDataParam)
+{
+    #define MAX_DESTURI_LEN 250
+    napi_value destUri = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, in, "destUri", &destUri), false);
+    if (CheckParamsType(env, destUri, napi_string)) {
+        size_t destUriLen = 0;
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, destUri, nullptr, 0, &destUriLen), false);
+        if (destUriLen <= 0 || destUriLen > MAX_DESTURI_LEN) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "destUriLen check failed!");
+            return false;
+        }
+        char *uri = (char *)malloc(destUriLen + 1);
+        if (uri == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "malloc failed, uri is nullptr.");
+            return false;
+        }
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, destUri, uri, destUriLen + 1, &destUriLen), false);
+        getDataParam->destUri = uri;
+        free(uri);
+    }
+    napi_value fileConflictOption;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, in, "fileConflictOptions", &fileConflictOption), false);
+    getDataParam->fileConflictOption = FILE_OVERWRITE;
+    if (CheckParamsType(env, fileConflictOption, napi_number)) {
+        NAPI_CALL_BASE(env, napi_get_value_int32(env, fileConflictOption,
+            reinterpret_cast<int *>(&getDataParam->fileConflictOption)), false);
+    }
+    napi_value progressIndicator;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, in, "progressIndicator", &progressIndicator), false);
+    NAPI_CALL_BASE(env, napi_get_value_int32(env, progressIndicator,
+        reinterpret_cast<int *>(&getDataParam->progressIndicator)), false);
+
+    std::shared_ptr<ProgressListenerFn> listenerFn = std::make_shared<ProgressListenerFn>();
+    NAPI_CALL_BASE(env, napi_get_named_property(env, in, "progressListener", &listenerFn->jsCallback), false);
+    if (CheckParamsType(env, listenerFn->jsCallback, napi_function)) {
+        if (!AddProgressListener(env, getDataParam, listenerFn)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "add listener failed!");
+            return false;
+        }
+    }
+    return true;
+}
+
+void SystemPasteboardNapi::GetDataWithProgressParam(std::shared_ptr<GetDataParamsContextInfo> &context)
+{
+    auto input = [context](napi_env env, size_t argc, napi_value *argv, napi_value self) -> napi_status {
+        // 1: GetPasteData has 0 or 1 args
+        if (argc > 0 &&
+            !CheckArgsType(env, argv[0], napi_object, "Parameter error. The type of object must be function.")) {
+            return napi_invalid_arg;
+        }
+        if (!CheckExpression(env, ParseJsGetDataWithProgress(env, argv[0], context->getDataParams),
+            JSErrorCode::INVALID_PARAMETERS, "Parameter error. parse param failed!")) {
+            return napi_invalid_arg;
+        }
+        return napi_ok;
+    };
+
+    auto output = [context](napi_env env, napi_value *result) -> napi_status {
+        napi_value instance = nullptr;
+        PasteDataNapi::NewInstance(env, instance);
+        PasteDataNapi *obj = nullptr;
+        napi_status ret = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
+        if ((ret == napi_ok) || (obj != nullptr)) {
+            obj->value_ = context->pasteData;
+        } else {
+            return napi_generic_failure;
+        }
+        *result = instance;
+        return napi_ok;
+    };
+    context->SetAction(std::move(input), std::move(output));
+}
+
+napi_value SystemPasteboardNapi::GetDataWithProgress(napi_env env, napi_callback_info info)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress is called!");
+
+    auto context = std::make_shared<GetDataParamsContextInfo>();
+    context->pasteData = std::make_shared<PasteData>();
+    context->getDataParams = std::make_shared<GetDataParams>();
+    GetDataWithProgressParam(context);
+
+    auto exec = [context](AsyncCall::Context *ctx) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress Begin");
+        int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(*context->pasteData,
+            context->getDataParams);
+        auto it = ErrorCodeMap.find(PasteboardError(ret));
+        if (it != ErrorCodeMap.end()) {
+            context->SetErrInfo(static_cast<int32_t>(it->second), "getDataWithProgress is failed!");
+        } else {
+            if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+                context->SetErrInfo(static_cast<int32_t>(JSErrorCode::ERR_GET_DATA_FAILED),
+                    "getDataWithProgress is failed!");
+            } else {
+                context->status = napi_ok;
+            }
+        }
+        listenerMap_.erase("progressNotify");
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress End");
+    };
+    // 0: the AsyncCall at the first position;
+    AsyncCall asyncCall(env, info, context, 0);
+    return asyncCall.Call(env, exec);
+}
+
 napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value exports)
 {
     napi_status status = napi_ok;
@@ -1043,7 +1268,7 @@ napi_value SystemPasteboardNapi::SystemPasteboardInit(napi_env env, napi_value e
         DECLARE_NAPI_FUNCTION("getUnifiedDataSync", GetUnifiedDataSync),
         DECLARE_NAPI_FUNCTION("setAppShareOptions", SetAppShareOptions),
         DECLARE_NAPI_FUNCTION("removeAppShareOptions", RemoveAppShareOptions),
-
+        DECLARE_NAPI_FUNCTION("getDataWithProgress", GetDataWithProgress),
     };
     napi_value constructor;
     napi_define_class(env, "SystemPasteboard", NAPI_AUTO_LENGTH, New, nullptr,

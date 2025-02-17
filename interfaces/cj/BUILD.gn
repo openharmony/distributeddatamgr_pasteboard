@@ -48,12 +48,16 @@ ohos_shared_library("cj_pasteboard_ffi") {
   }
 
   if (product_name != "ohos-sdk") {
-    deps = [ "${pasteboard_innerkits_path}:pasteboard_client" ]
+    deps = [
+      "${pasteboard_framework_path}:pasteboard_framework",
+      "${pasteboard_root_path}/framework/innerkits:pasteboard_client",
+    ]
     external_deps = [
       "ability_base:want",
       "ability_base:zuri",
       "ability_runtime:napi_common",
       "c_utils:utils",
+      "ffrt:libffrt",
       "hilog:libhilog",
       "image_framework:cj_image_ffi",
       "image_framework:image_native",

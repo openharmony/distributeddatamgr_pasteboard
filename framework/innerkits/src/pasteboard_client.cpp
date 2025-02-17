@@ -19,11 +19,17 @@
 #include <algorithm>
 #include <chrono>
 #include <memory>
+#include <thread>
+
 #include "convert_utils.h"
+#include "ffrt_utils.h"
 #include "file_uri.h"
-#include "hiview_adapter.h"
 #include "hitrace_meter.h"
+#include "hiview_adapter.h"
+#include "in_process_call_wrapper.h"
+#include "ipasteboard_client_death_observer.h"
 #include "pasteboard_client.h"
+#include "pasteboard_copy.h"
 #include "pasteboard_deduplicate_memory.h"
 #include "pasteboard_delay_getter_client.h"
 #include "pasteboard_entry_getter_client.h"
@@ -31,23 +37,36 @@
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_load_callback.h"
 #include "pasteboard_observer.h"
+#include "pasteboard_progress.h"
+#include "pasteboard_signal_callback.h"
+#include "pasteboard_utils.h"
+#include "pasteboard_web_controller.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#include "pasteboard_web_controller.h"
-#include "pasteboard_utils.h"
-#include "ipasteboard_client_death_observer.h"
+#include "udmf_client.h"
 using namespace OHOS::Media;
 
 namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
+std::string g_progressKey;
 constexpr int32_t LOADSA_TIMEOUT_MS = 10000;
+constexpr int32_t PASTEBOARD_PROGRESS_UPDATE_PERCENT = 5;
+constexpr int32_t UPDATE_PERCENT_WITHOUT_FILE = 10;
+constexpr int32_t PASTEBOARD_PROGRESS_TWENTY_PERCENT = 20;
+constexpr int32_t PASTEBOARD_PROGRESS_FINISH_PERCENT = 100;
+constexpr int32_t PASTEBOARD_PROGRESS_SLEEP_TIME = 100; // ms
+constexpr int32_t SLEEP_TIME_WITHOUT_FILE = 50; // ms
+constexpr int32_t PASTEBOARD_PROGRESS_RETRY_TIMES = 10;
 constexpr int64_t REPORT_DUPLICATE_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+static constexpr int32_t HAP_PULL_UP_TIME = 500; // ms
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
 std::condition_variable PasteboardClient::proxyConVar_;
 sptr<IRemoteObject> clientDeathObserverPtr_;
+std::atomic<bool> PasteboardClient::remoteTask_(false);
+std::atomic<bool> PasteboardClient::isPasting_(false);
 
 struct RadarReportIdentity {
     pid_t pid;
@@ -277,7 +296,248 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     return ret;
 }
 
-int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData& unifiedData)
+void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params is null!");
+        return;
+    }
+
+    if (params->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params->info is null!");
+        return;
+    }
+    std::unique_lock<std::mutex> lock(instanceLock_);
+    std::string progressKey = g_progressKey;
+    lock.unlock();
+    std::string currentValue = std::to_string(params->info->percentage);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "pasteboard progress percent = %{public}s", currentValue.c_str());
+    PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
+}
+
+int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params)
+{
+    int progressValue = PASTEBOARD_PROGRESS_TWENTY_PERCENT;
+    std::string currentValue = std::to_string(PASTEBOARD_PROGRESS_TWENTY_PERCENT);
+    while (progressValue < PASTEBOARD_PROGRESS_FINISH_PERCENT && !remoteTask_.load()) {
+        if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "progress cancel success!");
+            return static_cast<int32_t>(PasteboardError::E_OK);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_WITHOUT_FILE));
+        progressValue += UPDATE_PERCENT_WITHOUT_FILE;
+        currentValue = std::to_string(progressValue);
+        if (params->info != nullptr) {
+            params->info->percentage = progressValue;
+        }
+        if (params->listener.ProgressNotify != nullptr) {
+            params->listener.ProgressNotify(params);
+        }
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardClient::ProgressSmoothToTwentyPercent(PasteData &pasteData, std::string &progressKey,
+    std::shared_ptr<GetDataParams> params)
+{
+    if (pasteData.GetRecordCount() <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no pasteData, progress no need to twenty");
+        return;
+    }
+    int progressValue = 0;
+    std::string currentValue = "0";
+    while (progressValue < PASTEBOARD_PROGRESS_TWENTY_PERCENT && !remoteTask_.load()) {
+        if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
+            return;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
+        progressValue += PASTEBOARD_PROGRESS_UPDATE_PERCENT;
+        currentValue = std::to_string(progressValue);
+        if (params->info != nullptr) {
+            params->info->percentage = progressValue;
+        }
+        if (params->listener.ProgressNotify != nullptr) {
+            params->listener.ProgressNotify(params);
+        }
+    }
+}
+
+void PasteboardClient::OnProgressAbnormal(int32_t result)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "The progress is reported abnormal.");
+    remoteTask_.store(true);
+}
+
+int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
+    PasteDataFromServiceInfo &pasteDataFromServiceInfo, std::string progressKey, std::shared_ptr<GetDataParams> params)
+{
+    static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER,
+            RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE, RadarReporter::DFX_END,
+            RadarReporter::CONCURRENT_ID, pasteDataFromServiceInfo.currentId,
+            RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentId, RadarReporter::ERROR_CODE,
+            static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
+    }
+    int32_t syncTime = 0;
+    int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
+    ProgressSmoothToTwentyPercent(pasteData, progressKey, params);
+    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    RetainUri(pasteData);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        if (pasteData.deviceId_.empty()) {
+            RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
+                RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID,
+                pasteDataFromServiceInfo.currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
+                RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid);
+        } else {
+            RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
+                RadarReporter::CONCURRENT_ID, pasteDataFromServiceInfo.currentId,
+                RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME,
+                pasteDataFromServiceInfo.currentId);
+        }
+    } else if (ret != static_cast<int32_t>(PasteboardError::TASK_PROCESSING) &&
+               !reportMemory.IsDuplicate({.pid = pasteDataFromServiceInfo.pid, .errorCode = ret})) {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID,
+            pasteDataFromServiceInfo.currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
+            RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid, RadarReporter::ERROR_CODE, ret);
+    } else {
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_CANCELLED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID,
+            pasteDataFromServiceInfo.currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
+            RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid, RadarReporter::ERROR_CODE, ret);
+    }
+    return ret;
+}
+
+void PasteboardClient::ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo)
+{
+    pasteDataFromServiceInfo.pid = getpid();
+    pasteDataFromServiceInfo.currentPid = std::to_string(pasteDataFromServiceInfo.pid);
+    uint32_t tmpSequenceId = getSequenceId_++;
+    pasteDataFromServiceInfo.currentId = "GetDataWithProgress_" + pasteDataFromServiceInfo.currentPid
+        + "_" + std::to_string(tmpSequenceId);
+    pasteData.SetPasteId(pasteDataFromServiceInfo.currentId);
+    RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID,
+        pasteDataFromServiceInfo.currentId, RadarReporter::PACKAGE_NAME,
+        pasteDataFromServiceInfo.currentPid);
+}
+
+int32_t PasteboardClient::ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
+    std::string progressKey)
+{
+    if (pasteData.GetRecordCount() <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no pasteData, no need progress");
+        return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
+    }
+    int32_t ret = 0;
+    int32_t recordSize = (int32_t)pasteData.GetRecordCount();
+    bool hasUri = false;
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    if (recordSize <= 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid records size");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    for (int i = 0; i < recordSize; i++) {
+        record = pasteData.GetRecordAt(i);
+        if (record == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Record is nullptr");
+            return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+        }
+        std::shared_ptr<OHOS::Uri> uri = record->GetUri();
+        if (uri == nullptr) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Record has no uri");
+            continue;
+        }
+        hasUri = true;
+        break;
+    }
+    if (hasUri) {
+        ret = PasteBoardCopyFile::GetInstance().CopyPasteData(pasteData, params);
+    } else {
+        ret = SetProgressWithoutFile(progressKey, params);
+    }
+    return ret;
+}
+
+int32_t PasteboardClient::CheckProgressParam(std::shared_ptr<GetDataParams> params)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid param!");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    if (isPasting_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "task copying!");
+        return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
+    }
+    ProgressSignalClient::GetInstance().Init();
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_ptr<GetDataParams> params)
+{
+    int32_t ret = CheckProgressParam(params);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        return ret;
+    }
+    isPasting_.store(true);
+    std::string progressKey;
+    std::string keyDefaultValue = "0";
+    std::shared_ptr<FFRTTimer> ffrtTimer;
+    ffrtTimer = std::make_shared<FFRTTimer>("pasteboard_progress");
+    if (params->progressIndicator != NONE_PROGRESS_INDICATOR) {
+        PasteBoardProgress::GetInstance().InsertValue(progressKey, keyDefaultValue); // 0%
+        std::unique_lock<std::mutex> lock(instanceLock_);
+        g_progressKey = progressKey;
+        lock.unlock();
+        params->listener.ProgressNotify = GetProgressByProgressInfo;
+        if (ffrtTimer != nullptr) {
+            FFRTTask task = [this, progressKey] {
+                ShowProgress(progressKey);
+            };
+            ffrtTimer->SetTimer(progressKey, task, HAP_PULL_UP_TIME);
+        }
+    }
+    PasteDataFromServiceInfo pasteDataFromServiceInfo;
+    ProgressRadarReport(pasteData, pasteDataFromServiceInfo);
+    StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetDataWithProgress", HITRACE_GETPASTEDATA);
+    ret = GetPasteDataFromService(pasteData, pasteDataFromServiceInfo, progressKey, params);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetPasteDataFromService is failed: ret=%{public}d.", ret);
+        remoteTask_.store(false);
+        isPasting_.store(false);
+        return ret;
+    }
+    FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetDataWithProgress", HITRACE_GETPASTEDATA);
+    ret = ProgressAfterTwentyPercent(pasteData, params, progressKey);
+    RebuildWebviewPasteData(pasteData);
+    if (ffrtTimer != nullptr) {
+        ffrtTimer->CancelTimer(progressKey);
+    }
+    if (remoteTask_.load()) {
+        ret = static_cast<int32_t>(PasteboardError::PROGRESS_ABNORMAL);
+        remoteTask_.store(false);
+    }
+    isPasting_.store(false);
+    return ret;
+}
+
+int32_t PasteboardClient::GetUnifiedDataWithProgress(UDMF::UnifiedData &unifiedData,
+    std::shared_ptr<GetDataParams> params)
+{
+    StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUdsdData", HITRACE_GETPASTEDATA);
+    PasteData pasteData;
+    int32_t ret = GetDataWithProgress(pasteData, params);
+    unifiedData = *(ConvertUtils::Convert(pasteData));
+    FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUdsdData", HITRACE_GETPASTEDATA);
+    return ret;
+}
+
+int32_t PasteboardClient::GetUnifiedData(UDMF::UnifiedData &unifiedData)
 {
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetUnifiedData", HITRACE_GETPASTEDATA);
     PasteData pasteData;
@@ -735,9 +995,58 @@ void PasteboardClient::PasteComplete(const std::string &deviceId, const std::str
     proxyService->PasteComplete(deviceId, pasteId);
 }
 
-PasteboardSaDeathRecipient::PasteboardSaDeathRecipient()
+int32_t PasteboardClient::GetRemoteDeviceName(std::string &deviceName, bool &isRemote)
 {
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
+    }
+    return proxyService->GetRemoteDeviceName(deviceName, isRemote);
 }
+
+int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
+{
+    int32_t progressStatusValue = 0;
+    std::shared_ptr<ProgressReportLintener> progressReport = std::make_shared<ProgressReportLintener>();
+    progressReport->OnProgressFail = OnProgressAbnormal;
+    try {
+        progressStatusValue = std::stoi(signalValue);
+    } catch (const std::invalid_argument &e) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
+            "progressStatusValue invalid = %{public}s", e.what());
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    } catch (const std::out_of_range &e) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
+            "progressStatusValue out of range = %{public}s", e.what());
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    if (progressStatusValue == NORMAL_PASTE) {
+        return static_cast<int32_t>(PasteboardError::E_OK);
+    }
+    if (progressStatusValue == CANCEL_PASTE) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cancel paste");
+        ProgressSignalClient::GetInstance().Cancel();
+    } else if (progressStatusValue == PASTE_TIME_OUT) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress time out");
+        progressReport->OnProgressFail(static_cast<int32_t>(PasteboardError::PROGRESS_PASTE_TIME_OUT));
+    } else {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress invalid status");
+        progressReport->OnProgressFail(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardClient::ShowProgress(const std::string &progressKey)
+{
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return;
+    }
+    sptr<PasteboardSignalCallback> callback = new PasteboardSignalCallback();
+    proxyService->ShowProgress(progressKey, callback);
+}
+
+PasteboardSaDeathRecipient::PasteboardSaDeathRecipient() {}
 
 void PasteboardSaDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {

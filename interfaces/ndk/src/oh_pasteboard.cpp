@@ -24,12 +24,15 @@
 #include "oh_pasteboard_err_code.h"
 #include "oh_pasteboard_observer_impl.h"
 #include "pasteboard_client.h"
-#include "pasteboard_hilog.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
+#include "pasteboard_progress_signal.h"
 #include "udmf_capi_common.h"
 #include "i_pasteboard_observer.h"
 
 using namespace OHOS::MiscServices;
+static OH_Pasteboard_ProgressListener g_callback = {0};
+
 static bool IsPasteboardValid(OH_Pasteboard* pasteboard)
 {
     return pasteboard != nullptr && pasteboard->cid == PASTEBOARD_STRUCT_ID;
@@ -235,6 +238,138 @@ OH_UdmfData* OH_Pasteboard_GetData(OH_Pasteboard* pasteboard, int* status)
         return nullptr;
     }
     OH_UdmfData* data = OH_UdmfData_Create();
+    data->unifiedData_ = std::move(unifiedData);
+    *status = ERR_OK;
+    return data;
+}
+
+Pasteboard_GetDataParams *OH_Pasteboard_GetDataParams_Create(void)
+{
+    Pasteboard_GetDataParams *params =  new (std::nothrow) Pasteboard_GetDataParams();
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "new Pasteboard_GetDataParams failed!");
+        return nullptr;
+    }
+    return params;
+}
+
+void OH_Pasteboard_GetDataParams_Destroy(Pasteboard_GetDataParams* params)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    delete params;
+}
+
+void OH_Pasteboard_GetDataParams_SetProgressIndicator(Pasteboard_GetDataParams* params,
+    Pasteboard_ProgressIndicator progressIndicator)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    params->progressIndicator = progressIndicator;
+}
+
+void OH_Pasteboard_GetDataParams_SetDestUri(Pasteboard_GetDataParams* params, const char* destUri, uint32_t destUriLen)
+{
+    if (params == nullptr || destUri == nullptr || destUriLen == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    params->destUri = (char *)destUri;
+    params->destUriLen = destUriLen;
+}
+
+void OH_Pasteboard_GetDataParams_SetFileConflictOptions(Pasteboard_GetDataParams* params,
+    Pasteboard_FileConflictOptions option)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    params->fileConflictOptions = option;
+}
+
+void OH_Pasteboard_GetDataParams_SetProgressListener(Pasteboard_GetDataParams* params,
+    const OH_Pasteboard_ProgressListener listener)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
+        return;
+    }
+    params->progressListener = listener;
+}
+
+int OH_Pasteboard_ProgressInfo_GetProgress(Pasteboard_ProgressInfo* progressInfo)
+{
+    if (progressInfo == nullptr) {
+        return ERR_INVALID_PARAMETER;
+    }
+    return progressInfo->progress;
+}
+
+void ProgressNotify(std::shared_ptr<GetDataParams> params)
+{
+    if (params == nullptr || params->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "Error: params or params->info is nullptr in ProgressNotify.");
+        return;
+    }
+    if (g_callback != nullptr) {
+        g_callback((Pasteboard_ProgressInfo *)params->info);
+    }
+}
+
+void OH_Pasteboard_ProgressCancel(Pasteboard_GetDataParams* params)
+{
+    ProgressSignalClient::GetInstance().Cancel();
+}
+
+OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteboard_GetDataParams* params,
+    int* status)
+{
+    #define MAX_DESTURI_LEN 250
+    if (!IsPasteboardValid(pasteboard) || params == nullptr || status == nullptr) {
+        if (status != nullptr) {
+            *status = ERR_INVALID_PARAMETER;
+        }
+        return nullptr;
+    }
+    auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
+    auto getDataParams = std::make_shared<OHOS::MiscServices::GetDataParams>();
+    if (params->destUri != nullptr) {
+        size_t destLen = strlen(params->destUri);
+        if (destLen > MAX_DESTURI_LEN || destLen == 0 || destLen != static_cast<size_t>(params->destUriLen)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "destUri is invalid, destUriLen=%{public}zu", destLen);
+            *status = ERR_INVALID_PARAMETER;
+            return nullptr;
+        }
+        getDataParams->destUri = params->destUri;
+    }
+    g_callback = params->progressListener;
+    getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOptions;
+    getDataParams->progressIndicator = (ProgressIndicator)params->progressIndicator;
+    getDataParams->info = (ProgressInfo *)&params->info;
+    struct ProgressListener listener = {
+        .ProgressNotify = ProgressNotify,
+    };
+    getDataParams->listener = listener;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CAPI, "GetDataWithProgress Start");
+    int32_t ret = PasteboardClient::GetInstance()->GetUnifiedDataWithProgress(*unifiedData, getDataParams);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(
+            PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_GetDataWithProgress return invalid, result is %{public}d",
+            ret);
+        auto iter = errCodeMap.find(static_cast<PasteboardError>(ret));
+        if (iter != errCodeMap.end()) {
+            *status = iter->second;
+        } else {
+            *status = ERR_PASTEBOARD_GET_DATA_FAILED;
+        }
+        return nullptr;
+    }
+    OH_UdmfData *data = OH_UdmfData_Create();
     data->unifiedData_ = std::move(unifiedData);
     *status = ERR_OK;
     return data;

@@ -15,6 +15,66 @@
         {
             "name":"learn_more",
             "value":"تەپسىلات"
+        },
+        {
+            "name":"progress_cancel_btn",
+            "value":"بىكار قىلىش"
+        },
+        {
+            "name":"prompttext_udmf_import",
+            "value":"كىرگۈزۈۋاتىدۇ..."
+        },
+        {
+            "name":"prompttext_udmf_copy_error",
+            "value":"كۆچۈرۈلمىدى، كېيىنرەك قايتا سىناڭ."
+        },
+        {
+            "name":"prompttext_udmf_format_error",
+            "value":"فورمات ئايلانمىدى، كېيىنرەك قايتا سىناڭ."
+        },
+        {
+            "name":"prompttext_udmf_format",
+            "value":"فورمات ئايلاندۇرۇۋاتىدۇ..."
+        },
+        {
+            "name":"prompttext_udmf_download",
+            "value":"چۈشۈۋاتىدۇ..."
+        },
+        {
+            "name":"prompttext_udmf_move_error",
+            "value":"يۆتكەلمىدى، كېيىنرەك قايتا سىناڭ."
+        },
+        {
+            "name":"prompttext_pasteboard_local",
+            "value":"چاپلاۋاتىدۇ..."
+        },
+        {
+            "name":"prompttext_udmf_copy",
+            "value":"كۆچۈرۈۋاتىدۇ..."
+        },
+        {
+            "name":"prompttext_udmf_import_error",
+            "value":"كىرگۈزگىلى بولمىدى، كېيىنرەك قايتا سىناڭ."
+        },
+        {
+            "name":"prompttext_udmf_download_error",
+            "value":"چۈشمىدى، كېيىنرەك قايتا سىناڭ."
+        },
+        {
+            "name":"prompttext_pasteboard_remote",
+            "value":"مەنبە: %s"
+        },
+        {
+            "name":"prompttext_udmf_move",
+            "value":"يۆتكەۋاتىدۇ…"
+        },
+        {
+            "name":"prompttext_pasteboard_error",
+            "value":"چاپلانمىدى، قايتا سىناڭ."
+        },
+        {
+            "name":"progress_completed_percentage",
+            "value":"%s تاماملاندى"
         }
     ]
 }

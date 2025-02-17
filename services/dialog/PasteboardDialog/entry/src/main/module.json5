@@ -57,6 +57,15 @@
         "label": "$string:PasteboardSwitchAbility_label",
         "type": "sys/commonUI",
         "exported": true
+      },
+      {
+        "name": "PasteboardProgressAbility",
+        "srcEntry": "./ets/PasteboardProgressAbility/PasteboardProgressAbility.ets",
+        "description": "$string:PasteboardProgressAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:PasteboardProgressAbility_label",
+        "visible": true,
+        "type": "service"
       }
     ],
     "metadata": [
