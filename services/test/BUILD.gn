@@ -260,9 +260,11 @@ ohos_unittest("PasteboardPatternTest") {
   ]
   configs = [ ":module_private_config" ]
   external_deps = [
+    "c_utils:utols",
     "ffrt:libffrt",
     "googletest:gtest_main",
     "hilog:libhilog",
+    "ipc:ipc_core",
     "libxml2:libxml2",
   ]
   deps = [
