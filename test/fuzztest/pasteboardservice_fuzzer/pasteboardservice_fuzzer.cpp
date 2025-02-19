@@ -53,6 +53,8 @@ const std::vector<PasteboardServiceInterfaceCode> CODE_LIST = {
     GET_REMOTE_DEVICE_NAME,
     SHOW_PROGRESS,
     GET_CHANGE_COUNT,
+    SUBSCRIBE_ENTITY_OBSERVER,
+    UNSUBSCRIBE_ENTITY_OBSERVER,
 };
 
 class PasteboardServiceMock : public PasteboardServiceStub {
@@ -140,6 +142,24 @@ public:
 
     int32_t GetChangeCount(uint32_t &changeCount) override
     {
+        return 0;
+    }
+
+    int32_t SubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) override
+    {
+        (void)entityType;
+        (void)expectedDataLength;
+        (void)observer;
+        return 0;
+    }
+
+    int32_t UnsubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength,  const sptr<IEntityRecognitionObserver> &observer) override
+    {
+        (void)entityType;
+        (void)expectedDataLength;
+        (void)observer;
         return 0;
     }
 

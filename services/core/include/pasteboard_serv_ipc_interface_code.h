@@ -45,11 +45,17 @@ enum PasteboardServiceInterfaceCode {
     GET_REMOTE_DEVICE_NAME = 21,
     SHOW_PROGRESS = 22,
     GET_CHANGE_COUNT = 23,
+    SUBSCRIBE_ENTITY_OBSERVER = 24,
+    UNSUBSCRIBE_ENTITY_OBSERVER = 25,
 };
 
 enum PasteboardObserverInterfaceCode {
     ON_PASTE_BOARD_CHANGE = 0,
     ON_PASTE_BOARD_EVENT = 1,
+};
+
+enum EntityObserverInterfaceCode {
+    ON_RECOGNITION_EVENT = 0
 };
 
 enum PasteboardEntryGetterInterfaceCode {

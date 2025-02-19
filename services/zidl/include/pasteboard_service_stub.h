@@ -60,6 +60,8 @@ private:
     int32_t OnShowProgress(MessageParcel &data, MessageParcel &reply);
     int32_t OnRegisterClientDeathObserver(MessageParcel &data, MessageParcel &reply);
     int32_t OnGetChangeCount(MessageParcel &data, MessageParcel &reply);
+    int32_t OnSubscribeEntityObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUnsubscribeEntityObserver(MessageParcel &data, MessageParcel &reply);
 
     std::shared_ptr<PasteData> UnmarshalPasteData(MessageParcel &data, MessageParcel &reply);
     

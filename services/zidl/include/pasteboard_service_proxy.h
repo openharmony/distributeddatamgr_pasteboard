@@ -36,6 +36,10 @@ public:
         const sptr<IPasteboardEntryGetter> entryGetter) override;
     virtual bool IsRemoteData() override;
     virtual int32_t GetDataSource(std::string &bundleName) override;
+    virtual int32_t SubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) override;
+    virtual int32_t UnsubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) override;
     virtual std::vector<std::string> GetMimeTypes() override;
     virtual bool HasDataType(const std::string &mimeType) override;
     virtual void SubscribeObserver(PasteboardObserverType type,
@@ -57,8 +61,7 @@ public:
 
 private:
     static inline BrokerDelegator<PasteboardServiceProxy> delegator_;
-    void ProcessObserver(uint32_t code, PasteboardObserverType type,
-        const sptr<IPasteboardChangedObserver> &observer);
+    void ProcessObserver(uint32_t code, PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer);
     static constexpr int32_t MAX_GET_GLOBAL_SHARE_OPTION_SIZE = 2000;
 };
 } // namespace MiscServices

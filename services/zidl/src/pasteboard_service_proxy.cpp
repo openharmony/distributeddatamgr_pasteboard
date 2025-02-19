@@ -121,6 +121,62 @@ int32_t PasteboardServiceProxy::GetChangeCount(uint32_t &changeCount)
     return reply.ReadInt32();
 }
 
+int32_t PasteboardServiceProxy::SubscribeEntityObserver(
+    EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.WriteInterfaceToken(GetDescriptor()),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "write descriptor failed!");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.WriteUint32(static_cast<uint32_t>(entityType)),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "write entityType failed!");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.WriteUint32(expectedDataLength),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "write expectedDataLength failed!");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.WriteRemoteObject(observer->AsObject()),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "write observer failed!");
+    int32_t result =
+        Remote()->SendRequest(PasteboardServiceInterfaceCode::SUBSCRIBE_ENTITY_OBSERVER, data, reply, option);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        result == ERR_NONE, result, PASTEBOARD_MODULE_SERVICE, "failed, error code is:%{public}d", result);
+    int32_t ret = 0;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(reply.ReadInt32(ret),
+        static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE, "read reply failed!");
+    return ret;
+}
+
+int32_t PasteboardServiceProxy::UnsubscribeEntityObserver(
+    EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.WriteInterfaceToken(GetDescriptor()),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "write descriptor failed!");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.WriteUint32(static_cast<uint32_t>(entityType)),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "write entityType failed!");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.WriteUint32(expectedDataLength),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "write expectedDataLength failed!");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data.WriteRemoteObject(observer->AsObject()),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "write observer failed!");
+    int32_t result =
+        Remote()->SendRequest(PasteboardServiceInterfaceCode::UNSUBSCRIBE_ENTITY_OBSERVER, data, reply, option);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        result == ERR_NONE, result, PASTEBOARD_MODULE_SERVICE, "failed, error code is:%{public}d", result);
+    int32_t ret = 0;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(reply.ReadInt32(ret),
+        static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE, "read reply failed!");
+    return ret;
+}
+
 bool PasteboardServiceProxy::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");

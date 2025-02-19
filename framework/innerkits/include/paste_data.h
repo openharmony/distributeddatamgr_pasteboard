@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -170,6 +170,12 @@ private:
     using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
     std::map<uint16_t, Func> decodeMap_;
     void InitDecodeMap();
+};
+
+class IPasteDataProcessor {
+public:
+    virtual ~IPasteDataProcessor() = default;
+    virtual int32_t Process(const std::string &data, std::string &result) = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS

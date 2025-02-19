@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,34 +16,17 @@
 #ifndef PASTE_BOARD_SERVICE_H
 #define PASTE_BOARD_SERVICE_H
 
-#include <atomic>
-#include <condition_variable>
-#include <ctime>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <set>
-#include <shared_mutex>
-#include <stack>
-#include <sys/time.h>
 #include <system_ability_definition.h>
-#include <thread>
 
-#include "bundle_mgr_interface.h"
 #include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
 #include "common/block_object.h"
-#include "common/concurrent_map.h"
 #include "distributed_module_config.h"
-#include "event_handler.h"
 #include "eventcenter/event_center.h"
 #include "ffrt_utils.h"
-#include "i_pasteboard_delay_getter.h"
-#include "i_pasteboard_observer.h"
+#include "i_entity_recognition_observer.h"
 #include "input_manager.h"
-#include "iremote_object.h"
 #include "loader.h"
-#include "paste_data.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
@@ -120,6 +103,10 @@ public:
     virtual bool HasDataType(const std::string &mimeType) override;
     virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
+    virtual int32_t SubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) override;
+    virtual int32_t UnsubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) override;
     virtual void SubscribeObserver(
         PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
     virtual void UnsubscribeObserver(
@@ -149,6 +136,7 @@ private:
     std::mutex saMutex_;
     using Event = ClipPlugin::GlobalEvent;
     using ServiceListenerFunc = void (PasteboardService::*)();
+    using GetProcessorFunc = IPasteDataProcessor& (*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
         WINDOW_MANAGER_SERVICE_ID, MEMORY_MANAGER_SA_ID };
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
@@ -219,6 +207,15 @@ private:
             return l->AsObject() < r->AsObject();
         }
     };
+    struct EntityObserverInfo {
+        EntityType entityType;
+        uint32_t expectedDataLength;
+        uint32_t tokenId;
+        sptr<IEntityRecognitionObserver> observer;
+        EntityObserverInfo(EntityType entityType_, uint32_t expectedDataLength_, uint32_t tokenId_,
+            sptr<IEntityRecognitionObserver> observer_) : entityType(entityType_),
+            expectedDataLength(expectedDataLength_), tokenId(tokenId_), observer(observer_) { }
+    };
     using ObserverMap = std::map<std::pair<int32_t, pid_t>,
         std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
     uint32_t GetObserversSize(int32_t userId, pid_t pid, ObserverMap &observerMap);
@@ -232,6 +229,12 @@ private:
     std::string DumpData();
     void ThawInputMethod(void);
     bool IsNeedThaw(void);
+    int32_t ExtractEntity(const std::string &entity, std::string &location);
+    std::string GetAllEntryPlainText(
+        uint32_t dataId, uint32_t recordId, std::vector<std::shared_ptr<PasteDataEntry>> &entries);
+    std::string GetAllPrimaryText(const PasteData &pasteData);
+    void NotifyEntityObservers(std::string &entity, EntityType entityType, uint32_t dataLength);
+    void UnsubscribeAllEntityObserver();
     void NotifyObservers(std::string bundleName, PasteboardEventStatus status);
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
@@ -298,6 +301,7 @@ private:
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
+    void RecognizePasteData(PasteData &pasteData);
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DMAdapterInit();
@@ -314,6 +318,7 @@ private:
     ClipPlugin::GlobalEvent remoteEvent_;
     ConcurrentMap<int32_t, std::shared_ptr<PasteData>> clips_;
     ConcurrentMap<int32_t, uint32_t> clipChangeCount_;
+    ConcurrentMap<pid_t, std::vector<EntityObserverInfo>> entityObserverMap_;
     ConcurrentMap<int32_t, std::pair<sptr<IPasteboardEntryGetter>, sptr<EntryGetterDeathRecipient>>> entryGetters_;
     ConcurrentMap<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
     ConcurrentMap<int32_t, uint64_t> copyTime_;
