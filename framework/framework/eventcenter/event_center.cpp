@@ -14,7 +14,6 @@
  */
 
 #include "eventcenter/event_center.h"
-#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {

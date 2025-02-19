@@ -16,8 +16,6 @@
 #ifndef PASTE_BOARD_OBSERVER_STUB_H
 #define PASTE_BOARD_OBSERVER_STUB_H
 
-#include <map>
-
 #include "i_pasteboard_service.h"
 #include "ipc_skeleton.h"
 #include "iremote_stub.h"

@@ -16,7 +16,6 @@
 #ifndef PASTEBOARD_ENTRY_GETTER_PROXY_H
 #define PASTEBOARD_ENTRY_GETTER_PROXY_H
 
-#include "iremote_object.h"
 #include "iremote_proxy.h"
 #include "i_pasteboard_entry_getter.h"
 

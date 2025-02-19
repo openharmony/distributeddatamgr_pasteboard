@@ -16,13 +16,8 @@
 
 #include "paste_data.h"
 
-#include <new>
-#include "parcel_util.h"
-#include "paste_data_record.h"
 #include "pasteboard_common.h"
-#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "type_traits"
 
 using namespace std::chrono;
 using namespace OHOS::Media;

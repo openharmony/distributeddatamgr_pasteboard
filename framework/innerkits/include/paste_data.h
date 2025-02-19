@@ -15,20 +15,7 @@
 #ifndef PASTE_BOARD_DATA_H
 #define PASTE_BOARD_DATA_H
 
-#include <chrono>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "parcel.h"
 #include "paste_data_record.h"
-#include "pasteboard_hilog.h"
-#include "tlv_object.h"
-#include "uri.h"
-#include "want.h"
-#include "want_params.h"
 
 namespace OHOS {
 namespace MiscServices {

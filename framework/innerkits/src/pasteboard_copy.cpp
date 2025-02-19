@@ -15,12 +15,8 @@
 
 #include "pasteboard_copy.h"
 
-#include <filesystem>
 #include "copy/file_copy_manager.h"
-#include "copy/file_size_utils.h"
 #include "file_uri.h"
-#include "paste_data.h"
-#include "paste_data_record.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 

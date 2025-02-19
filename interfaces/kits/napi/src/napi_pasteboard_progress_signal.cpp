@@ -12,18 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <memory>
-#include <thread>
-#include <uv.h>
 
-#include "napi_data_utils.h"
 #include "napi_pasteboard_common.h"
-#include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_js_err.h"
 #include "pasteboard_progress_signal_napi.h"
-#include "pasteboard_progress_signal.h"
-#include "systempasteboard_napi.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;

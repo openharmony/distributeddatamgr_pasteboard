@@ -17,9 +17,6 @@
 
 #include <map>
 
-#include "errors.h"
-#include "pasteboard_hilog.h"
-
 namespace OHOS {
 namespace MiscServices {
 constexpr int DIST_DATA_MGR_SYS_ID = 0xd;

@@ -16,15 +16,7 @@
 #ifndef WEB_CLIPBORD_CONTROLLER_H
 #define WEB_CLIPBORD_CONTROLLER_H
 
-#include <map>
-#include <memory>
-#include <mutex>
-#include <string>
-#include <vector>
-
 #include "paste_data.h"
-#include "paste_data_record.h"
-#include "refbase.h"
 
 namespace OHOS {
 namespace MiscServices {

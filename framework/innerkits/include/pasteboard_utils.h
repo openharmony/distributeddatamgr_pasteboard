@@ -16,9 +16,7 @@
 #define PASTE_BOARD_UTILS_H
 
 #include "paste_data.h"
-#include "paste_data_record.h"
 #include "unified_data.h"
-#include "unified_record.h"
 namespace OHOS {
 namespace MiscServices {
 class API_EXPORT PasteboardUtils {

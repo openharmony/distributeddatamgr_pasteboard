@@ -16,19 +16,9 @@
 #ifndef PASTE_BOARD_RECORD_H
 #define PASTE_BOARD_RECORD_H
 
-#include <memory>
-#include <string>
-
 #include "common/constant.h"
 #include "entry_getter.h"
-#include "message_parcel.h"
 #include "paste_data_entry.h"
-#include "pixel_map.h"
-#include "string_ex.h"
-#include "tlv_object.h"
-#include "unified_meta.h"
-#include "uri.h"
-#include "want.h"
 
 namespace OHOS {
 namespace MiscServices {

@@ -16,8 +16,6 @@
 #ifndef MISCSERVICES_PASTEBOARD_DFX_TYPES_H
 #define MISCSERVICES_PASTEBOARD_DFX_TYPES_H
 
-#include <map>
-#include <memory>
 #include <string>
 
 namespace OHOS {

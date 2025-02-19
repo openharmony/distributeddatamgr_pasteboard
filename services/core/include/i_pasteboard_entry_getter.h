@@ -16,7 +16,6 @@
 #ifndef I_PASTEBOARD_ENTRY_GETTER_H
 #define I_PASTEBOARD_ENTRY_GETTER_H
 
-#include "iremote_broker.h"
 #include "paste_data_entry.h"
 
 namespace OHOS {

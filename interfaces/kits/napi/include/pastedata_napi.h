@@ -15,13 +15,8 @@
 #ifndef N_NAPI_PASTEDATA_H
 #define N_NAPI_PASTEDATA_H
 
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "paste_data.h"
-#include "paste_data_record.h"
 #include "pasteboard_client.h"
 #include "pixel_map_napi.h"
-#include "uri.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {

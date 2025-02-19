@@ -17,9 +17,6 @@
 
 #include "hiview_adapter.h"
 
-#include <algorithm>
-#include <unistd.h>
-#include <pthread.h>
 #include <thread>
 
 #include "def.h"

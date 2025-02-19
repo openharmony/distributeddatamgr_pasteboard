@@ -16,19 +16,10 @@
 #ifndef PASTE_BOARD_CLIENT_H
 #define PASTE_BOARD_CLIENT_H
 
-#include <condition_variable>
-#include <functional>
 #include <singleton.h>
 
-#include "i_pasteboard_service.h"
-#include "paste_data.h"
-#include "paste_data_record.h"
-#include "pasteboard_delay_getter.h"
 #include "pasteboard_observer.h"
 #include "pasteboard_progress_signal.h"
-#include "refbase.h"
-#include "unified_data.h"
-#include "want.h"
 
 namespace OHOS {
 namespace MiscServices {

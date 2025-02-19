@@ -14,7 +14,6 @@
  */
 
 #include "pasteboard_client.h"
-#include "pasteboard_error.h"
 #include "pasteboard_signal_callback.h"
 
 namespace OHOS {

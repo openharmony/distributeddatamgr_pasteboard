@@ -19,6 +19,7 @@
 
 #include "convert_utils.h"
 #include "paste_data_entry.h"
+#include "pasteboard_hilog.h"
 #include "tlv_object.h"
 #include "unified_meta.h"
 

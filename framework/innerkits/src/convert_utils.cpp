@@ -14,7 +14,6 @@
 */
 #include "convert_utils.h"
 #include "pasteboard_hilog.h"
-#include "unified_meta.h"
 namespace OHOS {
 namespace MiscServices {
 using UnifiedRecord = UDMF::UnifiedRecord;

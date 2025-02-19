@@ -16,9 +16,6 @@
 #ifndef PASTE_BOARD_SERVICE_STUB_H
 #define PASTE_BOARD_SERVICE_STUB_H
 
-#include <cstdint>
-#include <map>
-
 #include "ipc_skeleton.h"
 #include "iremote_stub.h"
 #include "i_pasteboard_service.h"

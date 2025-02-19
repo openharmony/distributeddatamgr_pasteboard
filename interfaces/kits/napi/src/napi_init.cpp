@@ -12,11 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "napi_init.h"
 #include "pasteboard_napi.h"
-#include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
-#include "systempasteboard_napi.h"
 #include "pasteboard_progress_signal_napi.h"
 
 namespace OHOS {

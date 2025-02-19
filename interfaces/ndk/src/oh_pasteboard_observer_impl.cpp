@@ -16,7 +16,6 @@
 #define LOG_TAG "Pasteboard_Observer_Impl"
 
 #include "oh_pasteboard_observer_impl.h"
-#include "oh_pasteboard_common.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {

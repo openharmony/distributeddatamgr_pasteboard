@@ -40,7 +40,6 @@
 #define OH_PASTEBOARD_H
 
 #include <inttypes.h>
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {

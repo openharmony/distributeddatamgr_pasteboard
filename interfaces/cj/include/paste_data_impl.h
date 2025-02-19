@@ -16,12 +16,8 @@
 #ifndef PASTE_DATA_IMPL_H
 #define PASTE_DATA_IMPL_H
 
-#include "ffi_remote_data.h"
-#include "paste_data.h"
 #include "paste_data_record_impl.h"
-#include "pasteboard_client.h"
 #include "pasteboard_error.h"
-#include "pasteboard_log.h"
 
 namespace OHOS {
 namespace MiscServicesCj {

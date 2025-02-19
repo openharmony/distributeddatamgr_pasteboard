@@ -16,9 +16,6 @@
 #include "tlv_object.h"
 
 #include "pasteboard_hilog.h"
-#include "unified_meta.h"
-#include "want.h"
-#include "securec.h"
 
 namespace OHOS::MiscServices {
 

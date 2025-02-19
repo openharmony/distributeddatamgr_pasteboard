@@ -13,15 +13,11 @@
  * limitations under the License.
  */
 
-#include <memory>
-#include <string>
-
 #include "pasteboard_progress.h"
 #include "iservice_registry.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_time.h"
-#include "paste_data_entry.h"
 #include "udmf_client.h"
 
 using namespace OHOS::UDMF;

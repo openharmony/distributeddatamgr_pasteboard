@@ -15,10 +15,7 @@
 #ifndef OH_PASTEBOARD_OBSERVER_IMPL_H
 #define OH_PASTEBOARD_OBSERVER_IMPL_H
 
-#include <memory>
-
 #include "oh_pasteboard_common.h"
-#include "pasteboard_observer.h"
 
 struct OH_PasteboardObserver {
     const int64_t cid = SUBSCRIBER_STRUCT_ID;

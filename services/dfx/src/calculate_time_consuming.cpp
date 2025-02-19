@@ -16,10 +16,8 @@
 #include "calculate_time_consuming.h"
 #include <sys/time.h>
 
-#include "dfx_types.h"
 #include "pasteboard_hilog.h"
 #include "reporter.h"
-#include "statistic_reporter.h"
 
 namespace OHOS {
 namespace MiscServices {

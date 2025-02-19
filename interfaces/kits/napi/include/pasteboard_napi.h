@@ -15,10 +15,6 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_PASTEBOARD_NAPI_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_PASTEBOARD_NAPI_H
 
-#include <unordered_map>
-
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
 #include "pastedata_napi.h"
 namespace OHOS {
 namespace MiscServicesNapi {

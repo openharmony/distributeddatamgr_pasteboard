@@ -19,6 +19,7 @@
 
 #include "file_uri.h"
 #include "uri_permission_manager_client.h"
+#include "pasteboard_hilog.h"
 
 namespace {
 constexpr const char *IMG_TAG_PATTERN = "<img.*?>";
