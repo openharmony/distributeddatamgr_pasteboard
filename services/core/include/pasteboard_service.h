@@ -266,7 +266,7 @@ private:
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
     bool IsAllowDistributed();
     bool SetDistributedData(int32_t user, PasteData &data);
-    bool SetCurrentDistributedData();
+    bool SetCurrentDistributedData(PasteData &data, Event event);
     bool SetCurrentData(Event event, PasteData &data);
     void CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
