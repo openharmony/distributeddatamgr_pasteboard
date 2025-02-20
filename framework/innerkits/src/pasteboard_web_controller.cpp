@@ -146,6 +146,10 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
         checkResults.insert(checkResults.end(), ret.begin(), ret.end());
         offset += count;
     }
+    if (checkResults.size() != indexs.size()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "check uri authorization fail");
+        return;
+    }
     for (size_t i = 0; i < indexs.size(); i++) {
         auto item = pasteData.GetRecordAt(indexs[i]);
         if (item == nullptr || item->GetOriginUri() == nullptr) {
