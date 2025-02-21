@@ -91,9 +91,20 @@ void ClipPlugin::Clear(int32_t user)
     (void)user;
 }
 
-void ClipPlugin::RegisterDelayCallback(const DelayCallback &callback)
+void ClipPlugin::RegisterDelayCallback(const DelayDataCallback &dataCallback, const DelayEntryCallback &entryCallback)
 {
-    (void)callback;
+    (void)dataCallback;
+    (void)entryCallback;
+}
+
+int32_t ClipPlugin::GetPasteDataEntry(const GlobalEvent &event, uint32_t recordId, const std::string &utdId,
+    std::vector<uint8_t> &rawData)
+{
+    (void)event;
+    (void)recordId;
+    (void)utdId;
+    (void)rawData;
+    return 0;
 }
 
 bool ClipPlugin::GlobalEvent::Marshal(Serializable::json &node) const

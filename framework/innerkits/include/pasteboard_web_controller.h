@@ -31,10 +31,10 @@ public:
     void SetWebviewPasteData(PasteData &pasteData, const std::string &bundleName);
     void CheckAppUriPermission(PasteData &pasteData);
     void RetainUri(PasteData &pasteData);
-    void RebuildWebviewPasteData(PasteData &pasteData);
+    void RebuildWebviewPasteData(PasteData &pasteData, const std::string &targetBundle = "");
 
 private:
-    void RefreshUri(std::shared_ptr<PasteDataRecord> &record);
+    void RefreshUri(std::shared_ptr<PasteDataRecord> &record, const std::string &targetBundle);
     std::shared_ptr<std::string> RebuildHtml(std::shared_ptr<PasteData> pasteData) noexcept;
     std::vector<std::shared_ptr<PasteDataRecord>> SplitHtml2Records(const std::shared_ptr<std::string> &html,
         uint32_t recordId) noexcept;

@@ -16,6 +16,8 @@
 
 #include "paste_data.h"
 
+#include "int_wrapper.h"
+#include "long_wrapper.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 
@@ -57,9 +59,9 @@ const std::string PasteData::PATH_SHARE = "/data/storage/el2/share/r/";
 const std::string PasteData::IMG_LOCAL_URI = "file:///";
 const std::string PasteData::SHARE_PATH_PREFIX = "/mnt/hmdfs/";
 const std::string PasteData::SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
-const std::string PasteData::REMOTE_FILE_SIZE = "remoteFileSize";
-const std::string PasteData::REMOTE_FILE_SIZE_LONG = "remoteFileSizeLong";
 const std::string PasteData::DOCS_LOCAL_TAG = "/docs/";
+const char *REMOTE_FILE_SIZE = "remoteFileSize";
+const char *REMOTE_FILE_SIZE_LONG = "remoteFileSizeLong";
 
 PasteData::PasteData()
 {
@@ -436,6 +438,26 @@ void PasteData::SetAddition(const std::string &key, AAFwk::IInterface *value)
 {
     PASTEBOARD_CHECK_AND_RETURN_LOGE(value != nullptr, PASTEBOARD_MODULE_CLIENT, "value is null");
     props_.additions.SetParam(key, value);
+}
+
+void PasteData::SetFileSize(int64_t fileSize)
+{
+    int32_t fileIntSize = (fileSize > INT_MAX) ? INT_MAX : static_cast<int32_t>(fileSize);
+    SetAddition(REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileIntSize));
+    SetAddition(REMOTE_FILE_SIZE_LONG, AAFwk::Long::Box(fileSize));
+}
+
+int64_t PasteData::GetFileSize() const
+{
+    int64_t fileSize = 0L;
+    auto value = props_.additions.GetParam(REMOTE_FILE_SIZE_LONG);
+    AAFwk::ILong *ao = AAFwk::ILong::Query(value);
+    if (ao != nullptr) {
+        fileSize = AAFwk::Long::Unbox(ao);
+    } else {
+        fileSize = props_.additions.GetIntParam(REMOTE_FILE_SIZE, -1);
+    }
+    return fileSize;
 }
 
 void PasteData::SetLocalOnly(bool localOnly)
