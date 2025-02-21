@@ -47,6 +47,9 @@ export default class PasteboardProgressAbility extends ServiceExtensionAbility {
     try {
       console.info(TAG + 'PasteboardProgressAbility onRequest, startId is' + startId);
       console.info(TAG + 'want: ' + JSON.stringify(want));
+      if (!this.checkWantParamsValid(want)) {
+        return;
+      }
       let displayClass = display.getDefaultDisplaySync();
       let navigationBarRect: IRect = {
         left: 0,
@@ -72,6 +75,17 @@ export default class PasteboardProgressAbility extends ServiceExtensionAbility {
 
   onDestroy(): void {
     console.info(TAG + 'PasteboardProgressAbility onDestroy.')
+  }
+
+  private checkWantParamsValid(want: Want): boolean {
+    let validParam = true;
+    const requiredParams = ['windowId', 'progressKey', 'tokenKey', 'promptText', 'ipcCallback'];
+    const missingParams = requiredParams.filter(param =>!(Reflect.has((want.parameters || {}), param)));
+    if (missingParams.length) {
+      validParam = false;
+      console.error(TAG + `params missing valid: ${missingParams.join(', ')}`);
+    }
+    return validParam;
   }
 
   private async createWindow(name: string, rect: IRect, want: Want): Promise<void> {
@@ -116,7 +130,7 @@ export default class PasteboardProgressAbility extends ServiceExtensionAbility {
       GlobalContext.getInstance().dialogSet.add(progressKey);
       console.info(TAG + `dialogSet add, size is ${GlobalContext.getInstance().dialogSet.size}`);
     } catch (err) {
-      console.error(TAG + `window create failed! err: ${JSON.stringify(err)}`);
+      console.error(TAG + `window create failed! code is ${err.code}, message is ${err.message}`);
     } finally {
       createWindowStatus = 'created';
     }
