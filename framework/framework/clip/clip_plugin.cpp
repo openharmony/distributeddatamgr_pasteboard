@@ -149,5 +149,6 @@ bool ClipPlugin::GlobalEvent::Unmarshal(const Serializable::json &node)
 bool ClipPlugin::ChangeKvStoreAtSwitchUser(int32_t userId)
 {
     (void)userId;
+    return true;
 }
 } // namespace OHOS::MiscServices
