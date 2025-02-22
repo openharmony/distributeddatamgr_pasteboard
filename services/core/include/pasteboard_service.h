@@ -26,6 +26,7 @@
 #include "ffrt_utils.h"
 #include "input_manager.h"
 #include "loader.h"
+#include "pasteboard_account_state_subscriber.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
@@ -321,6 +322,7 @@ private:
     ConcurrentMap<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
+    std::shared_ptr<PasteBoardAccountStateSubscriber> accountStateSubscriber_ = nullptr;
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
@@ -373,6 +375,7 @@ private:
     bool CheckMdmShareOption(PasteData &pasteData);
     void PasteboardEventSubscriber();
     void CommonEventSubscriber();
+    void AccountStateSubscriber();
     bool IsBasicType(const std::string &mimeType);
     std::function<void(const OHOS::MiscServices::Event &)> RemotePasteboardChange();
     std::shared_ptr<InputEventCallback> inputEventCallback_;
