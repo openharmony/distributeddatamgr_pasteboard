@@ -35,7 +35,9 @@
 #include "pasteboard_utils.h"
 #include "pasteboard_web_controller.h"
 #include "system_ability_definition.h"
+#include "nlohmann/json.hpp"
 using namespace OHOS::Media;
+using json = nlohmann::json;
 
 namespace OHOS {
 namespace MiscServices {
@@ -49,6 +51,8 @@ constexpr int32_t PASTEBOARD_PROGRESS_SLEEP_TIME = 100; // ms
 constexpr int32_t SLEEP_TIME_WITHOUT_FILE = 50; // ms
 constexpr int32_t PASTEBOARD_PROGRESS_RETRY_TIMES = 10;
 constexpr int64_t REPORT_DUPLICATE_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+constexpr uint32_t JSON_INDENT = 4;
+constexpr uint32_t RECORD_DISPLAY_UPPERBOUND = 3;
 static constexpr int32_t HAP_PULL_UP_TIME = 500; // ms
 static constexpr int32_t HAP_MIN_SHOW_TIME = 300; // ms
 std::mutex PasteboardClient::instanceLock_;
@@ -259,20 +263,23 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     uint32_t tmpSequenceId = getSequenceId_++;
     std::string currentId = "GetPasteData_" + currentPid + "_" + std::to_string(tmpSequenceId);
     pasteData.SetPasteId(currentId);
+    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
         RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
-        RadarReporter::PACKAGE_NAME, currentPid);
+        RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
             RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::ERROR_CODE,
-            static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+            static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR), RadarReporter::PASTEDATA_SUMMARY,
+            pasteDataInfoSummary);
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     int32_t syncTime = 0;
     int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
+    pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     PasteboardWebController::GetInstance().RetainUri(pasteData);
     PasteboardWebController::GetInstance().RebuildWebviewPasteData(pasteData);
@@ -281,22 +288,25 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
         if (pasteData.deviceId_.empty()) {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
                 RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-                RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME, currentPid);
+                RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::DIS_SYNC_TIME, syncTime,
+                RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
         } else {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
-                RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
-                RadarReporter::PACKAGE_NAME, currentPid);
+                RadarReporter::CONCURRENT_ID, currentId, RadarReporter::PACKAGE_NAME, currentPid,
+                RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PASTEDATA_SUMMARY,
+                pasteDataInfoSummary);
         }
     } else if (ret != static_cast<int32_t>(PasteboardError::TASK_PROCESSING) &&
                !reportMemory.IsDuplicate({.pid = pid, .errorCode = ret})) {
-        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE,
-            RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId, RadarReporter::DIS_SYNC_TIME,
-            syncTime, RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::ERROR_CODE, ret);
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
+            RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::DIS_SYNC_TIME, syncTime,
+            RadarReporter::ERROR_CODE, ret, RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
     } else {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_CANCELLED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME, currentPid,
-            RadarReporter::ERROR_CODE, ret);
+            RadarReporter::PACKAGE_NAME, currentPid, RadarReporter::DIS_SYNC_TIME, syncTime,
+            RadarReporter::ERROR_CODE, ret, RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "leave, ret=%{public}d", ret);
     return ret;
@@ -393,16 +403,18 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
 {
     static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
     auto proxyService = GetPasteboardService();
+    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     if (proxyService == nullptr) {
-        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER,
-            RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE, RadarReporter::DFX_END,
-            RadarReporter::CONCURRENT_ID, pasteDataFromServiceInfo.currentId,
-            RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentId, RadarReporter::ERROR_CODE,
-            static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID,
+            pasteDataFromServiceInfo.currentId, RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid,
+            RadarReporter::ERROR_CODE, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+            RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     int32_t syncTime = 0;
     int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
+    pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     ProgressSmoothToTwentyPercent(pasteData, progressKey, params);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     PasteboardWebController::GetInstance().RetainUri(pasteData);
@@ -410,25 +422,27 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
         if (pasteData.deviceId_.empty()) {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
                 RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID,
-                pasteDataFromServiceInfo.currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
-                RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid);
+                pasteDataFromServiceInfo.currentId, RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid,
+                RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PASTEDATA_SUMMARY,
+                pasteDataInfoSummary);
         } else {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
-                RadarReporter::CONCURRENT_ID, pasteDataFromServiceInfo.currentId,
-                RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::PACKAGE_NAME,
-                pasteDataFromServiceInfo.currentId);
+                RadarReporter::CONCURRENT_ID, pasteDataFromServiceInfo.currentId, RadarReporter::PACKAGE_NAME,
+                pasteDataFromServiceInfo.currentPid, RadarReporter::DIS_SYNC_TIME, syncTime,
+                RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
         }
     } else if (ret != static_cast<int32_t>(PasteboardError::TASK_PROCESSING) &&
                !reportMemory.IsDuplicate({.pid = pasteDataFromServiceInfo.pid, .errorCode = ret})) {
-        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID,
-            pasteDataFromServiceInfo.currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
-            RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid, RadarReporter::ERROR_CODE, ret);
+        RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED, RadarReporter::BIZ_STATE,
+            RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, pasteDataFromServiceInfo.currentId,
+            RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid, RadarReporter::DIS_SYNC_TIME, syncTime,
+            RadarReporter::ERROR_CODE, ret, RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
     } else {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_CANCELLED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID,
-            pasteDataFromServiceInfo.currentId, RadarReporter::DIS_SYNC_TIME, syncTime,
-            RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid, RadarReporter::ERROR_CODE, ret);
+            pasteDataFromServiceInfo.currentId, RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid,
+            RadarReporter::DIS_SYNC_TIME, syncTime, RadarReporter::ERROR_CODE, ret, RadarReporter::PASTEDATA_SUMMARY,
+            pasteDataInfoSummary);
     }
     return ret;
 }
@@ -442,9 +456,9 @@ void PasteboardClient::ProgressRadarReport(PasteData &pasteData, PasteDataFromSe
         + "_" + std::to_string(tmpSequenceId);
     pasteData.SetPasteId(pasteDataFromServiceInfo.currentId);
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID,
-        pasteDataFromServiceInfo.currentId, RadarReporter::PACKAGE_NAME,
-        pasteDataFromServiceInfo.currentPid);
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN,
+        RadarReporter::CONCURRENT_ID, pasteDataFromServiceInfo.currentId,
+        RadarReporter::PACKAGE_NAME, pasteDataFromServiceInfo.currentPid);
 }
 
 int32_t PasteboardClient::ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
@@ -573,13 +587,16 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "enter");
+    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN,
+        RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_SERVER, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::ERROR_CODE,
-            static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END,
+            RadarReporter::ERROR_CODE, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+            RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     sptr<PasteboardDelayGetterClient> delayGetterAgent;
@@ -594,12 +611,16 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     }
 
     auto ret = proxyService->SetPasteData(pasteData, delayGetterAgent, entryGetterAgent);
+    pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END);
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END,
+            RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
     } else {
-        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::ERROR_CODE, ret);
+        RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_FAILED,
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END,
+            RadarReporter::ERROR_CODE, ret,
+            RadarReporter::PASTEDATA_SUMMARY, pasteDataInfoSummary);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "leave, ret=%{public}d", ret);
     return ret;
@@ -844,6 +865,41 @@ void PasteboardClient::ShowProgress(const std::string &progressKey)
     PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     sptr<PasteboardSignalCallback> callback = new PasteboardSignalCallback();
     proxyService->ShowProgress(progressKey, callback);
+}
+
+std::string PasteboardClient::GetPasteDataInfoSummary(const PasteData &pasteData)
+{
+    // Deal with pasteData info
+    json RadarReportInfoInJson = {
+        {"CopyBundle", pasteData.GetOriginAuthority().empty() ? "/" : pasteData.GetOriginAuthority()},
+        {"PasteBundle", pasteData.GetBundleName().empty() ? "/" : pasteData.GetBundleName()},
+        {"PasteDataSize", pasteData.CountTLV()},
+        {"RecordCount", pasteData.GetRecordCount()},
+        {"IsRemote", pasteData.IsRemote()},
+        {"IsDelayData", pasteData.IsDelayData()},
+        {"IsDelayRecord", pasteData.IsDelayRecord()}
+    };
+
+    // Deal with Records info
+    RadarReportInfoInJson["recordList"] = json::array();
+    for (size_t i = 0; i < pasteData.GetRecordCount(); ++i) {
+        // set a record display upperbound
+        if (i >= RECORD_DISPLAY_UPPERBOUND) {
+            break;
+        }
+        auto record = pasteData.GetRecordAt(i);
+        if (record == nullptr) {
+            break;
+        }
+        json recordInfo = {
+            {"PrimaryType", record->GetMimeType()},
+            {"MimeTypes", record->GetMimeTypes()}
+        };
+        RadarReportInfoInJson["recordList"].emplace_back(recordInfo);
+    }
+
+    // To string and return
+    return RadarReportInfoInJson.dump(JSON_INDENT);
 }
 
 } // namespace MiscServices

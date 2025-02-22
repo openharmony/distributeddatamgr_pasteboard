@@ -90,7 +90,7 @@ public:
     void SetOriginAuthority(const std::string &bundleName);
     std::string GetOriginAuthority() const;
     void SetRemote(bool isRemote);
-    bool IsRemote();
+    bool IsRemote() const;
     void SetTime(const std::string &time);
     std::string GetTime();
     void SetScreenStatus(ScreenEvent screenStatus);

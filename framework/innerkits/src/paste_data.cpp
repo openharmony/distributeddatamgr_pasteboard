@@ -370,7 +370,7 @@ void PasteData::SetRemote(bool isRemote)
     props_.isRemote = isRemote;
 }
 
-bool PasteData::IsRemote()
+bool PasteData::IsRemote() const
 {
     return props_.isRemote;
 }
