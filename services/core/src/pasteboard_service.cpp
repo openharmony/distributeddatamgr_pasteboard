@@ -173,6 +173,7 @@ void PasteboardService::OnStart()
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyHistory);
     PasteboardDumpHelper::GetInstance().RegisterCommand(copyData);
     CommonEventSubscriber();
+    AccountStateSubscriber();
     PasteboardEventSubscriber();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     EventCenter::GetInstance().Subscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE, RemotePasteboardChange());
@@ -2925,6 +2926,19 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
     }
 }
 
+void PasteBoardAccountStateSubscriber::OnStateChanged(const AccountSA::OsAccountStateData &data)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "state: %{public}d, fromId: %{public}d, toId: %{public}d,"
+        "callback is nullptr: %{public}d", data.state, data.fromId, data.toId, data.callback == nullptr);
+    if (data.state == AccountSA::OsAccountState::STOPPING && pasteboardService_ != nullptr) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        pasteboardService_->Clear();
+    }
+    if (data.callback != nullptr) {
+        data.callback->OnComplete();
+    }
+}
+
 bool PasteboardService::SubscribeKeyboardEvent()
 {
     std::lock_guard<std::mutex> lock(eventMutex_);
@@ -2970,6 +2984,20 @@ void PasteboardService::CommonEventSubscriber()
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
     commonEventSubscriber_ = std::make_shared<PasteBoardCommonEventSubscriber>(subscribeInfo, this);
     EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
+}
+
+void PasteboardService::AccountStateSubscriber()
+{
+    if (accountStateSubscriber_ != nullptr) {
+        return;
+    }
+    std::set<AccountSA::OsAccountState> states = { AccountSA::OsAccountState::STOPPING,
+        AccountSA::OsAccountState::CREATED, AccountSA::OsAccountState::SWITCHING,
+        AccountSA::OsAccountState::SWITCHED, AccountSA::OsAccountState::UNLOCKED,
+        AccountSA::OsAccountState::STOPPED, AccountSA::OsAccountState::REMOVED };
+    AccountSA::OsAccountSubscribeInfo subscribeInfo(states, true);
+    accountStateSubscriber_ = std::make_shared<PasteBoardAccountStateSubscriber>(subscribeInfo, this);
+    AccountSA::OsAccountManager::SubscribeOsAccount(accountStateSubscriber_);
 }
 
 void PasteboardService::RemoveObserverByPid(int32_t userId, pid_t pid, ObserverMap &observerMap)
