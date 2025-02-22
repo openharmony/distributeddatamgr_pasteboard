@@ -2885,6 +2885,17 @@ sptr<AppExecFwk::IBundleMgr> PasteboardService::GetAppBundleManager()
     return OHOS::iface_cast<AppExecFwk::IBundleMgr>(remoteObject);
 }
 
+void PasteboardService::ChangeKvStoreAtSwitchUser(int32_t userId)
+{
+    PasteboardService::currentUserId_ = userId;
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
+        return;
+    }
+    clipPlugin->ChangeKvStoreAtSwitchUser(userId);
+}
+
 void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
     auto want = data.GetWant();
@@ -2893,7 +2904,9 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
         std::lock_guard<std::mutex> lock(mutex_);
         int32_t userId = data.GetCode();
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id switched: %{public}d", userId);
-        PasteboardService::currentUserId_ = userId;
+        if (pasteboardService_ != nullptr) {
+            pasteboardService_->ChangeKvStoreAtSwitchUser(userId);
+        }
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_STOPPING) {
         std::lock_guard<std::mutex> lock(mutex_);
         int32_t userId = data.GetCode();

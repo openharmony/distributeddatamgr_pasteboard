@@ -156,4 +156,10 @@ bool ClipPlugin::GlobalEvent::Unmarshal(const Serializable::json &node)
         false,  PASTEBOARD_MODULE_SERVICE, "Get syncTime fail");
     return true;
 }
+
+bool ClipPlugin::ChangeKvStoreAtSwitchUser(int32_t userId)
+{
+    (void)userId;
+    return true;
+}
 } // namespace OHOS::MiscServices

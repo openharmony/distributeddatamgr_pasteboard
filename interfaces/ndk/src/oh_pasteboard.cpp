@@ -23,6 +23,7 @@
 using namespace OHOS::MiscServices;
 
 static OH_Pasteboard_ProgressListener g_callback = {0};
+#define MAX_DESTURI_LEN 250
 
 static bool IsPasteboardValid(OH_Pasteboard *pasteboard)
 {
@@ -247,6 +248,12 @@ Pasteboard_GetDataParams *OH_Pasteboard_GetDataParams_Create(void)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "new Pasteboard_GetDataParams failed!");
         return nullptr;
     }
+
+    params->destUri = (char *)malloc(MAX_DESTURI_LEN);
+    if (params->destUri == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "malloc failed!");
+        return nullptr;
+    }
     return params;
 }
 
@@ -256,6 +263,7 @@ void OH_Pasteboard_GetDataParams_Destroy(Pasteboard_GetDataParams* params)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
         return;
     }
+    free(params->destUri);
     delete params;
 }
 
@@ -271,11 +279,15 @@ void OH_Pasteboard_GetDataParams_SetProgressIndicator(Pasteboard_GetDataParams* 
 
 void OH_Pasteboard_GetDataParams_SetDestUri(Pasteboard_GetDataParams* params, const char* destUri, uint32_t destUriLen)
 {
-    if (params == nullptr || destUri == nullptr || destUriLen == 0) {
+    if (params == nullptr || params->destUri == nullptr || destUri == nullptr || destUriLen == 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
         return;
     }
-    params->destUri = (char *)destUri;
+
+    if (strcpy_s(params->destUri, MAX_DESTURI_LEN, destUri) != EOK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "copy destUri failed!");
+        return;
+    }
     params->destUriLen = destUriLen;
 }
 
@@ -326,7 +338,6 @@ void OH_Pasteboard_ProgressCancel(Pasteboard_GetDataParams* params)
 OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteboard_GetDataParams* params,
     int* status)
 {
-    #define MAX_DESTURI_LEN 250
     if (!IsPasteboardValid(pasteboard) || params == nullptr || status == nullptr) {
         if (status != nullptr) {
             *status = ERR_INVALID_PARAMETER;

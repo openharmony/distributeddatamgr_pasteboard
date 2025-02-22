@@ -126,6 +126,7 @@ public:
     void NotifyDelayGetterDied(int32_t userId);
     void NotifyEntryGetterDied(int32_t userId);
     virtual int32_t GetChangeCount(uint32_t &changeCount) override;
+    void ChangeKvStoreAtSwitchUser(int32_t userId);
 
 private:
     std::mutex saMutex_;
