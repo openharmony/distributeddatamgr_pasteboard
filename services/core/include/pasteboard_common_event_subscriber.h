@@ -21,10 +21,11 @@
 #include "i_pasteboard_service.h"
 
 namespace OHOS::MiscServices {
+class PasteboardService;
 class PasteBoardCommonEventSubscriber : public EventFwk::CommonEventSubscriber {
 public:
     PasteBoardCommonEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
-        sptr<IPasteboardService> service) : EventFwk::CommonEventSubscriber(subscribeInfo)
+        sptr<PasteboardService> service) : EventFwk::CommonEventSubscriber(subscribeInfo)
     {
         pasteboardService_ = service;
     }
@@ -33,7 +34,7 @@ public:
 
 private:
     std::mutex mutex_;
-    sptr<IPasteboardService> pasteboardService_ = nullptr;
+    sptr<PasteboardService> pasteboardService_ = nullptr;
 };
 } // namespace OHOS::MiscServices
 #endif // PASTEBOARD_COMMON_EVENT_SUBSCRIBER_H

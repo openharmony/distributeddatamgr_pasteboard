@@ -68,6 +68,7 @@ public:
     virtual int32_t PublishServiceState(const std::string &networkId, ServiceStatus status);
     virtual void Clear(int32_t user);
     virtual void RegisterDelayCallback(const DelayCallback &callback);
+    virtual bool ChangeKvStoreAtSwitchUser(int32_t userId);
 
 private:
     static std::map<std::string, Factory *> factories_;
