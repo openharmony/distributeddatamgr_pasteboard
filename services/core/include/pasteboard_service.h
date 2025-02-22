@@ -245,11 +245,10 @@ private:
     int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
     int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
-    int64_t GetFileSize(PasteData &data);
-    bool GetDelayPasteRecord(const AppInfo &appInfo, PasteData &data);
-    void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
+    int32_t GetDelayPasteRecord(int32_t userId, PasteData &data);
+    void GetDelayPasteData(int32_t userId, PasteData &data);
     int32_t ProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
-    int32_t PostProcessDelayHtmlEntry(PasteData &data, PasteDataEntry &entry);
+    int32_t PostProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
@@ -263,7 +262,18 @@ private:
     bool HasDistributedDataType(const std::string &mimeType);
 
     std::pair<std::shared_ptr<PasteData>, PasteDateResult> GetDistributedData(const Event &event, int32_t user);
-    std::pair<int32_t, std::vector<uint8_t>> GetDistributedDelayData(const Event &evt);
+    int32_t GetDistributedDelayData(const Event &evt, uint8_t version, std::vector<uint8_t> &rawData);
+    int32_t GetDistributedDelayEntry(const Event &evt, uint32_t recordId, const std::string &utdId,
+        std::vector<uint8_t> &rawData);
+    int32_t ProcessDistributedDelayUri(int32_t userId, PasteData &data, PasteDataEntry &entry,
+        std::vector<uint8_t> &rawData);
+    int32_t ProcessDistributedDelayHtml(PasteData &data, PasteDataEntry &entry, std::vector<uint8_t> &rawData);
+    int32_t ProcessDistributedDelayEntry(PasteDataEntry &entry, std::vector<uint8_t> &rawData);
+    int32_t GetRemoteEntryValue(const AppInfo &appInfo, PasteData &data, PasteDataRecord &record,
+        PasteDataEntry &entry);
+    int32_t ProcessRemoteDelayHtml(const std::string &remoteDeviceId, const std::string &bundleName,
+        const std::vector<uint8_t> &rawData, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
+    int32_t GetLocalEntryValue(int32_t userId, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
     bool IsAllowDistributed();
     bool SetDistributedData(int32_t user, PasteData &data);

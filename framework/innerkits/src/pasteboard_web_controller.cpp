@@ -18,6 +18,7 @@
 #include <regex>
 
 #include "file_uri.h"
+#include "pasteboard_common.h"
 #include "uri_permission_manager_client.h"
 #include "pasteboard_hilog.h"
 
@@ -159,7 +160,7 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
     }
 }
 
-void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &record)
+void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &record, const std::string &targetBundle)
 {
     PASTEBOARD_CHECK_AND_RETURN_LOGD(record->GetUri() != nullptr, PASTEBOARD_MODULE_COMMON,
         "id=%{public}u, uri is null", record->GetRecordId());
@@ -171,8 +172,10 @@ void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &recor
     std::string realUri = puri;
     if (puri.substr(0, strlen(FILE_SCHEME_PREFIX)) == FILE_SCHEME_PREFIX) {
         AppFileService::ModuleFileUri::FileUri fileUri(puri);
+        std::string realPath = PasteBoardCommon::IsPasteboardService() ? fileUri.GetRealPathBySA(targetBundle) :
+            fileUri.GetRealPath();
         realUri = FILE_SCHEME_PREFIX;
-        realUri += fileUri.GetRealPath();
+        realUri += realPath;
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(), realUri.c_str());
     }
     if (realUri.find(PasteData::DISTRIBUTEDFILES_TAG) != std::string::npos) {
@@ -198,7 +201,7 @@ void PasteboardWebController::RetainUri(PasteData &pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "end");
 }
 
-void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData)
+void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData, const std::string &targetBundle)
 {
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG) {
         return;
@@ -213,7 +216,7 @@ void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData)
             details = item->GetDetails();
             textContent = item->GetTextContent();
         }
-        RefreshUri(item);
+        RefreshUri(item, targetBundle);
     }
     if (justSplitHtml) {
         MergeExtraUris2Html(pasteData);
