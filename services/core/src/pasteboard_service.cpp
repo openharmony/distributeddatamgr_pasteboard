@@ -2932,6 +2932,7 @@ bool PasteboardService::SubscribeKeyboardEvent()
         return true;
     }
     inputEventCallback_ = std::make_shared<InputEventCallback>();
+    inputEventCallback_->InitBlock();
     int32_t monitorId = MMI::InputManager::GetInstance()->AddMonitor(
         std::static_pointer_cast<MMI::IInputEventConsumer>(inputEventCallback_), MMI::HANDLE_EVENT_TYPE_KEY);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add monitor ret is: %{public}d", monitorId);
@@ -3055,12 +3056,13 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) c
     }
     if (((keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_LEFT) ||
             (keyItems[0].GetKeyCode() == MMI::KeyEvent::KEYCODE_CTRL_RIGHT)) &&
-        keyItems[1].GetKeyCode() == MMI::KeyEvent::KEYCODE_V) {
+        keyItems[1].GetKeyCode() == MMI::KeyEvent::KEYCODE_V && block_ != nullptr) {
         int32_t windowId = keyEvent->GetTargetWindowId();
         std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
         windowPid_ = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
         actionTime_ =
             static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+        block_->SetValue(true);
     }
 }
 
@@ -3072,7 +3074,14 @@ bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, bool isFocused)
 {
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    return (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime - actionTime_ < EVENT_TIME_OUT;
+    auto ret = (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime - actionTime_ < EVENT_TIME_OUT;
+    if (!ret && block_ != nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "windowPid is: %{public}d, callingPid is: %{public}d,"
+            "curTime is: %{public}llu, actionTime is: %{public}llu, isFocused is: %{public}d", windowPid_, callingPid,
+            curTime, actionTime_, isFocused);
+        ret = block_->GetValue();
+    }
+    return ret;
 }
 
 void InputEventCallback::Clear()
@@ -3080,6 +3089,9 @@ void InputEventCallback::Clear()
     std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
     actionTime_ = 0;
     windowPid_ = 0;
+    if (block_ != nullptr) {
+        block_->SetValue(false);
+    }
 }
 } // namespace MiscServices
 } // namespace OHOS
