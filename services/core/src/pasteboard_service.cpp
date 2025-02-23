@@ -461,7 +461,13 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
         return false;
     }
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
+    if (isReadGrant) {
+        return true;
+    }
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
+    if (isSecureGrant) {
+        return true;
+    }
     AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         "isReadGrant is %{public}d, isSecureGrant is %{public}d,", isReadGrant, isSecureGrant);
@@ -3100,14 +3106,16 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent)
 
 bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, bool isFocused)
 {
+    if (block_ != nullptr) {
+        block_->GetValue();
+    }
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     auto ret = (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime - actionTime_ < EVENT_TIME_OUT;
-    if (!ret && block_ != nullptr) {
+    if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "windowPid is: %{public}d, callingPid is: %{public}d,"
             "curTime is: %{public}llu, actionTime is: %{public}llu, isFocused is: %{public}d", windowPid_, callingPid,
             curTime, actionTime_, isFocused);
-        ret = block_->GetValue();
     }
     return ret;
 }
