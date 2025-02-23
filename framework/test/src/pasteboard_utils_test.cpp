@@ -23,6 +23,7 @@
 #include "link.h"
 #include "pasteboard_utils.h"
 #include "plain_text.h"
+#include "pasteboard_hilog.h"
 #include "system_defined_appitem.h"
 #include "system_defined_form.h"
 #include "system_defined_pixelmap.h"

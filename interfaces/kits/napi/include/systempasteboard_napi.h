@@ -15,22 +15,12 @@
 #ifndef N_NAPI_PASTE_H
 #define N_NAPI_PASTE_H
 
-#include <atomic>
-
 #include "async_call.h"
 #include "common/block_object.h"
-#include "napi/native_api.h"
-#include "napi/native_node_api.h"
-#include "pasteboard_delay_getter.h"
 #include "pasteboard_error.h"
-#include "pasteboard_js_err.h"
-#include "pasteboard_observer.h"
 #include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
-#include "pixel_map_napi.h"
-#include "unified_data.h"
 #include "unified_data_napi.h"
-#include "uri.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {

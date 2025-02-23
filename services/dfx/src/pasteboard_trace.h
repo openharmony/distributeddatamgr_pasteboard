@@ -16,7 +16,6 @@
 #ifndef MISCSERVICES_PASTEBOARD_TRACE_H
 #define MISCSERVICES_PASTEBOARD_TRACE_H
 
-#include <atomic>
 #include <string>
 
 namespace OHOS {

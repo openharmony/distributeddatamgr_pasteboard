@@ -15,6 +15,7 @@
 
 #include "pasteboard_load_callback.h"
 #include "pasteboard_client.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {

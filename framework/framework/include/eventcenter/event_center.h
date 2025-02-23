@@ -16,10 +16,8 @@
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_EVENTCENTER_EVENT_CENTER_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICES_FRAMEWORK_EVENTCENTER_EVENT_CENTER_H
 #include <list>
-#include <memory>
 #include <queue>
 
-#include "api/visibility.h"
 #include "common/concurrent_map.h"
 #include "eventcenter/event.h"
 

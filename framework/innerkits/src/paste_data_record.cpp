@@ -13,16 +13,9 @@
  * limitations under the License.
  */
 
-#include "paste_data_record.h"
-
-#include <sys/stat.h>
-#include <unistd.h>
-#include "convert_utils.h"
-#include "parcel_util.h"
 #include "pasteboard_client.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
-#include "pixel_map_parcel.h"
 
 using namespace OHOS::Media;
 
@@ -747,7 +740,8 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
         }
         auto entry = std::make_shared<PasteDataEntry>(utdType, *udmfValue_);
         if (isDelay_ && !entry->HasContent(utdType) && !PasteBoardCommon::IsPasteboardService()) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay record value, type=%{public}s", utdType.c_str());
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay record value, dataId=%{public}u, "
+                "recordId=%{public}u, type=%{public}s", dataId_, recordId_, utdType.c_str());
             PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
         }
         if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
@@ -761,7 +755,8 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
         if (entry->GetUtdId() == utdType ||
             (CommonUtils::IsFileUri(utdType) && CommonUtils::IsFileUri(entry->GetUtdId()))) {
             if (isDelay_ && !entry->HasContent(utdType) && !PasteBoardCommon::IsPasteboardService()) {
-                PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay entry value, type=%{public}s", utdType.c_str());
+                PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay entry value, dataId=%{public}u, "
+                    "recordId=%{public}u, type=%{public}s", dataId_, recordId_, utdType.c_str());
                 PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
             }
             if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {

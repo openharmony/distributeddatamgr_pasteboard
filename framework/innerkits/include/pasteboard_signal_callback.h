@@ -16,8 +16,8 @@
 #ifndef OHOS_PASTE_SIGNAL_CALLBACK_H
 #define OHOS_PASTE_SIGNAL_CALLBACK_H
 
-#include "pasteboard_error.h"
 #include "pasteboard_signal_stub.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {

@@ -16,7 +16,6 @@
 #ifndef PASTE_BOARD_SERVICE_PROXY_H
 #define PASTE_BOARD_SERVICE_PROXY_H
 
-#include "i_pasteboard_observer.h"
 #include "i_pasteboard_service.h"
 #include "iremote_proxy.h"
 

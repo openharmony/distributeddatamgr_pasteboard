@@ -14,8 +14,8 @@
  */
 
 #include "system_pasteboard_impl.h"
-#include "pasteboard_client.h"
-#include "pasteboard_error.h"
+#include "pasteboard_log.h"
+#include "pasteboard_hilog.h"
 
 using namespace OHOS::MiscServices;
 

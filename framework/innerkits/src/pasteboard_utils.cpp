@@ -21,13 +21,11 @@
 #include "html.h"
 #include "image.h"
 #include "link.h"
-#include "paste_data_record.h"
-#include "pixel_map.h"
 #include "plain_text.h"
+#include "pasteboard_hilog.h"
 #include "system_defined_appitem.h"
 #include "system_defined_form.h"
 #include "system_defined_pixelmap.h"
-#include "unified_record.h"
 #include "video.h"
 
 namespace OHOS {

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "pasteboard_observer.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {

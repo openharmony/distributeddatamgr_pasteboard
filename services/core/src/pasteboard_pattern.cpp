@@ -14,10 +14,9 @@
  */
 
 #include <libxml/HTMLparser.h>
-#include <libxml/tree.h>
-#include <unordered_map>
 
 #include "pasteboard_pattern.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 std::map<uint32_t, std::string> PatternDetection::patterns_{

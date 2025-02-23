@@ -15,20 +15,7 @@
 #ifndef PASTE_BOARD_DATA_H
 #define PASTE_BOARD_DATA_H
 
-#include <chrono>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "parcel.h"
 #include "paste_data_record.h"
-#include "pasteboard_hilog.h"
-#include "tlv_object.h"
-#include "uri.h"
-#include "want.h"
-#include "want_params.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -115,6 +102,8 @@ public:
     void SetAddition(const std::string &key, AAFwk::IInterface *value);
     void SetLocalOnly(bool localOnly);
     bool GetLocalOnly();
+    void SetFileSize(int64_t fileSize);
+    int64_t GetFileSize() const;
 
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
@@ -144,9 +133,7 @@ public:
     static const std::string IMG_LOCAL_URI;
     static const std::string SHARE_PATH_PREFIX;
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
-    static const std::string REMOTE_FILE_SIZE;
     std::string deviceId_;
-    static const std::string REMOTE_FILE_SIZE_LONG;
     static const std::string DOCS_LOCAL_TAG;
     static constexpr size_t URI_BATCH_SIZE = 500;
 

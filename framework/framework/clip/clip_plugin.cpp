@@ -13,9 +13,7 @@
  * limitations under the License.
  */
 
-#include "clip/clip_plugin.h"
 #include "default_clip.h"
-#include "pasteboard_error.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_hilog.h"
 
@@ -93,9 +91,20 @@ void ClipPlugin::Clear(int32_t user)
     (void)user;
 }
 
-void ClipPlugin::RegisterDelayCallback(const DelayCallback &callback)
+void ClipPlugin::RegisterDelayCallback(const DelayDataCallback &dataCallback, const DelayEntryCallback &entryCallback)
 {
-    (void)callback;
+    (void)dataCallback;
+    (void)entryCallback;
+}
+
+int32_t ClipPlugin::GetPasteDataEntry(const GlobalEvent &event, uint32_t recordId, const std::string &utdId,
+    std::vector<uint8_t> &rawData)
+{
+    (void)event;
+    (void)recordId;
+    (void)utdId;
+    (void)rawData;
+    return 0;
 }
 
 bool ClipPlugin::GlobalEvent::Marshal(Serializable::json &node) const
@@ -145,6 +154,12 @@ bool ClipPlugin::GlobalEvent::Unmarshal(const Serializable::json &node)
         false,  PASTEBOARD_MODULE_SERVICE, "Get dataType fail");
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(GetValue(node, GET_NAME(syncTime), syncTime),
         false,  PASTEBOARD_MODULE_SERVICE, "Get syncTime fail");
+    return true;
+}
+
+bool ClipPlugin::ChangeKvStoreAtSwitchUser(int32_t userId)
+{
+    (void)userId;
     return true;
 }
 } // namespace OHOS::MiscServices

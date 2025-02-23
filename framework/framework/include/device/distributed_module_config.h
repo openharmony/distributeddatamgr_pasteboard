@@ -16,10 +16,6 @@
 #ifndef PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
 #define PASTE_BOARD_DISTRIBUTE_MODULE_CONFIG_H
 
-#include <atomic>
-#include <functional>
-
-#include "api/visibility.h"
 #include "device/dm_adapter.h"
 
 namespace OHOS {

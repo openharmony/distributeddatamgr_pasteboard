@@ -16,7 +16,6 @@
 #ifndef PASTE_BOARD_COPY_H
 #define PASTE_BOARD_COPY_H
 
-#include "paste_data.h"
 #include "pasteboard_client.h"
 
 namespace OHOS {

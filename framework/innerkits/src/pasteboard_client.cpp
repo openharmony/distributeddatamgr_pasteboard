@@ -13,38 +13,26 @@
  * limitations under the License.
  */
 
-#include <chrono>
-#include <if_system_ability_manager.h>
-#include <ipc_skeleton.h>
 #include <iservice_registry.h>
-#include <algorithm>
-#include <chrono>
-#include <memory>
 #include <thread>
 
 #include "convert_utils.h"
 #include "ffrt_utils.h"
-#include "file_uri.h"
 #include "hitrace_meter.h"
-#include "hiview_adapter.h"
-#include "in_process_call_wrapper.h"
 #include "ipasteboard_client_death_observer.h"
-#include "pasteboard_client.h"
 #include "pasteboard_copy.h"
 #include "pasteboard_deduplicate_memory.h"
 #include "pasteboard_delay_getter_client.h"
 #include "pasteboard_entry_getter_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_dfx.h"
+#include "pasteboard_hilog.h"
 #include "pasteboard_load_callback.h"
-#include "pasteboard_observer.h"
 #include "pasteboard_progress.h"
 #include "pasteboard_signal_callback.h"
 #include "pasteboard_utils.h"
 #include "pasteboard_web_controller.h"
-#include "string_ex.h"
 #include "system_ability_definition.h"
-#include "udmf_client.h"
 using namespace OHOS::Media;
 
 namespace OHOS {

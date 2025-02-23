@@ -15,9 +15,6 @@
 
 #include "pasteboard_dump_helper.h"
 
-#include <cstdio>
-
-
 namespace OHOS {
 namespace MiscServices {
 bool PasteboardDumpHelper::Dump(int fd, const std::vector<std::string> &args) const

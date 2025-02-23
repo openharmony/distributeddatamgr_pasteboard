@@ -12,14 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstddef>
 
-#include "napi_common_want.h"
 #include "napi_pasteboard_common.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_js_err.h"
-#include "pastedata_napi.h"
-#include "pastedata_record_napi.h"
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
 

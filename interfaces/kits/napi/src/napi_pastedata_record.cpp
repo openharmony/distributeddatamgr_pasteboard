@@ -12,20 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <memory>
-#include <vector>
-#include "async_call.h"
-#include "js_native_api.h"
-#include "js_native_api_types.h"
-#include "napi_common_want.h"
-#include "napi_pasteboard_common.h"
-#include "paste_data_record.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_js_err.h"
-#include "pastedata_napi.h"
 #include "pastedata_record_napi.h"
-#include "tlv_object.h"
-#include "unified_meta.h"
 
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;

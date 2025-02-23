@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,28 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef PASTEBOARD_COMMON_EVENT_SUBSCRIBER_H
-#define PASTEBOARD_COMMON_EVENT_SUBSCRIBER_H
+#ifndef PASTEBOARD_ACCOUNT_STATE_SUBSCRIBER_H
+#define PASTEBOARD_ACCOUNT_STATE_SUBSCRIBER_H
 
-#include "common_event_subscriber.h"
-#include "common_event_support.h"
+#include "os_account_manager.h"
+#include "os_account_subscribe_info.h"
+#include "os_account_subscriber.h"
 #include "i_pasteboard_service.h"
 
 namespace OHOS::MiscServices {
 class PasteboardService;
-class PasteBoardCommonEventSubscriber : public EventFwk::CommonEventSubscriber {
+class PasteBoardAccountStateSubscriber final : public AccountSA::OsAccountSubscriber {
 public:
-    PasteBoardCommonEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo,
-        sptr<PasteboardService> service) : EventFwk::CommonEventSubscriber(subscribeInfo)
+    PasteBoardAccountStateSubscriber(const AccountSA::OsAccountSubscribeInfo &subscribeInfo,
+        sptr<PasteboardService> service) : AccountSA::OsAccountSubscriber(subscribeInfo)
     {
         pasteboardService_ = service;
     }
-    ~PasteBoardCommonEventSubscriber() = default;
-    void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
+    ~PasteBoardAccountStateSubscriber() = default;
+    void OnStateChanged(const AccountSA::OsAccountStateData &data) override;
 
 private:
     std::mutex mutex_;
     sptr<PasteboardService> pasteboardService_ = nullptr;
 };
 } // namespace OHOS::MiscServices
-#endif // PASTEBOARD_COMMON_EVENT_SUBSCRIBER_H
+#endif // PASTEBOARD_ACCOUNT_STATE_SUBSCRIBER_H

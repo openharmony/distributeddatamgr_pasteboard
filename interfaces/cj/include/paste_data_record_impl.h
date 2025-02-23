@@ -16,11 +16,7 @@
 #ifndef PASTE_DATA_RECORD_IMPL_H
 #define PASTE_DATA_RECORD_IMPL_H
 
-#include "ffi_remote_data.h"
-#include "paste_data.h"
 #include "pasteboard_client.h"
-#include "pasteboard_log.h"
-#include "pixel_map.h"
 #include "pixel_map_impl.h"
 
 namespace OHOS {

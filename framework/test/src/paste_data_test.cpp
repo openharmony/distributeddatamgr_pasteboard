@@ -420,8 +420,8 @@ HWTEST_F(PasteDataTest, SetAddition001, TestSize.Level0)
 {
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    size_t fileSize = 0;
-    pasteData->SetAddition(PasteData::REMOTE_FILE_SIZE, AAFwk::Integer::Box(fileSize));
+    int64_t fileSize = 0L;
+    pasteData->SetFileSize(fileSize);
     AAFwk::WantParams additions;
     pasteData->SetAdditions(additions);
     ASSERT_TRUE(pasteData != nullptr);

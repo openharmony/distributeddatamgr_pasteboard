@@ -16,7 +16,6 @@
 #ifndef PASTEBOARD_ENDIAN_CONVERTER_H
 #define PASTEBOARD_ENDIAN_CONVERTER_H
 
-#include <cstdint>
 #include <endian.h>
 
 namespace OHOS::MiscServices {

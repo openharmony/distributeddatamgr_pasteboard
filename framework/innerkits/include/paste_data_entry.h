@@ -17,8 +17,6 @@
 #define PASTE_BOARD_ENTRY_H
 
 #include "tlv_object.h"
-#include "unified_meta.h"
-#include "uri.h"
 namespace OHOS {
 namespace MiscServices {
 class API_EXPORT MineCustomData : public TLVObject {
@@ -56,6 +54,8 @@ public:
     std::string GetUtdId() const;
     void SetMimeType(const std::string &mimeType);
     std::string GetMimeType() const;
+    void SetFileSize(int64_t fileSize);
+    int64_t GetFileSize() const;
     bool Encode(std::vector<std::uint8_t> &buffer) override;
     bool Decode(const std::vector<std::uint8_t> &buffer) override;
     size_t Count() override;

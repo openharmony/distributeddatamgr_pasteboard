@@ -16,12 +16,6 @@
 #ifndef PASTEBOARD_PROGRESS_SIGNAL_H
 #define PASTEBOARD_PROGRESS_SIGNAL_H
 
-#include <condition_variable>
-#include <memory>
-#include <functional>
-#include <singleton.h>
-#include <string>
-#include <unistd.h>
 #include "visibility.h"
 
 namespace OHOS {

@@ -16,7 +16,6 @@
 #ifndef SYSTEM_PASTEBOARD_IMPL_H
 #define SYSTEM_PASTEBOARD_IMPL_H
 
-#include "ffi_remote_data.h"
 #include "paste_data_impl.h"
 
 namespace OHOS {

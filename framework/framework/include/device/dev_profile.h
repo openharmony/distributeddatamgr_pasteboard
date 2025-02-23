@@ -16,8 +16,6 @@
 #ifndef PASTE_BOARD_DEV_PROFILE_H
 #define PASTE_BOARD_DEV_PROFILE_H
 
-#include <functional>
-
 #include "api/visibility.h"
 #include "common/concurrent_map.h"
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE

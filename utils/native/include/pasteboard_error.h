@@ -17,9 +17,6 @@
 
 #include <map>
 
-#include "errors.h"
-#include "pasteboard_hilog.h"
-
 namespace OHOS {
 namespace MiscServices {
 constexpr int DIST_DATA_MGR_SYS_ID = 0xd;
@@ -91,6 +88,7 @@ enum class PasteboardError : int32_t {
     RESOURCE_APPLYING,
     RESOURCE_APPLY_NOT_FIND,
     CHECK_DESCRIPTOR_ERROR,
+    GET_SAME_REMOTE_DATA,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -156,6 +154,7 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::RESOURCE_APPLYING, "RESOURCE_APPLYING"},
     {PasteboardError::RESOURCE_APPLY_NOT_FIND, "RESOURCE_APPLY_NOT_FIND"},
     {PasteboardError::CHECK_DESCRIPTOR_ERROR, "CHECK_DESCRIPTOR_ERROR"},
+    {PasteboardError::GET_SAME_REMOTE_DATA, "GET_SAME_REMOTE_DATA"},
 };
 
 } // namespace MiscServices

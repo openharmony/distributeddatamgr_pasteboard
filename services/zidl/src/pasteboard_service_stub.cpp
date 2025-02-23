@@ -15,12 +15,9 @@
 
 #include "pasteboard_service_stub.h"
 
-#include "errors.h"
 #include "hiview_adapter.h"
-#include "paste_data.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_observer_proxy.h"
 #include "pasteboard_serv_ipc_interface_code.h"
 
 #define MAX_RAWDATA_SIZE (128 * 1024 * 1024)

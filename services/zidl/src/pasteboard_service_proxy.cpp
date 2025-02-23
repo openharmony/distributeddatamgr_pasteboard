@@ -15,7 +15,6 @@
 
 #include "pasteboard_service_proxy.h"
 
-#include "iremote_broker.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
@@ -688,7 +687,7 @@ int32_t PasteboardServiceProxy::GetRemoteDeviceName(std::string &deviceName, boo
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
     return reply.ReadInt32();
 }
- 
+
 void PasteboardServiceProxy::ShowProgress(
     const std::string &progressKey, const sptr<IRemoteObject> &observer)
 {

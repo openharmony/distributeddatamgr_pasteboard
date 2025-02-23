@@ -15,6 +15,7 @@
 
 #include "ipc_skeleton.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 #include "pasteboard_signal_stub.h"
 
 namespace OHOS {

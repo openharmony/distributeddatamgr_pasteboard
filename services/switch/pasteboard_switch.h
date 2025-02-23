@@ -16,11 +16,6 @@
 #ifndef OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICE_PASTEBOARD_SWITCH_H
 #define OHOS_DISTRIBUTED_DATA_PASTEBOARD_SERVICE_PASTEBOARD_SWITCH_H
 
-#include <cstdint>
-#include <functional>
-#include <memory>
-#include <shared_mutex>
-
 #include "data_ability_observer_stub.h"
 
 namespace OHOS::MiscServices {

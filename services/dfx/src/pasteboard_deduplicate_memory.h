@@ -16,8 +16,6 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_DEDUPLICATE_MEMORY_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_DEDUPLICATE_MEMORY_H
 
-#include <cstdint>
-
 #include "pasteboard_linked_list.h"
 
 namespace OHOS {

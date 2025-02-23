@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "paste_data_impl.h"
+#include "pasteboard_hilog.h"
 
 using namespace OHOS::MiscServices;
 

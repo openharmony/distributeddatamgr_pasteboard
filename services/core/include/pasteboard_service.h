@@ -27,6 +27,7 @@
 #include "i_entity_recognition_observer.h"
 #include "input_manager.h"
 #include "loader.h"
+#include "pasteboard_account_state_subscriber.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "pasteboard_dump_helper.h"
 #include "pasteboard_service_stub.h"
@@ -79,11 +80,20 @@ public:
     void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
     bool IsCtrlVProcess(uint32_t callingPid, bool isFocused);
     void Clear();
+    void InitBlock()
+    {
+        if (block_ != nullptr) {
+            return;
+        }
+        block_ = std::make_shared<BlockObject<bool>>(WAIT_TIME_OUT, false);
+    }
 
 private:
+    static constexpr uint32_t WAIT_TIME_OUT = 100;
     mutable int32_t windowPid_;
     mutable uint64_t actionTime_;
     mutable std::shared_mutex inputEventMutex_;
+    mutable std::shared_ptr<BlockObject<bool>> block_ = nullptr;
 };
 
 class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
@@ -131,6 +141,7 @@ public:
     void NotifyDelayGetterDied(int32_t userId);
     void NotifyEntryGetterDied(int32_t userId);
     virtual int32_t GetChangeCount(uint32_t &changeCount) override;
+    void ChangeKvStoreAtSwitchUser(int32_t userId);
 
 private:
     std::mutex saMutex_;
@@ -265,11 +276,10 @@ private:
     int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
     int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
-    int64_t GetFileSize(PasteData &data);
-    bool GetDelayPasteRecord(const AppInfo &appInfo, PasteData &data);
-    void GetDelayPasteData(const AppInfo &appInfo, PasteData &data);
+    int32_t GetDelayPasteRecord(int32_t userId, PasteData &data);
+    void GetDelayPasteData(int32_t userId, PasteData &data);
     int32_t ProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
-    int32_t PostProcessDelayHtmlEntry(PasteData &data, PasteDataEntry &entry);
+    int32_t PostProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
     void CheckUriPermission(PasteData &data, std::vector<Uri> &grantUris, const std::string &targetBundleName);
     int32_t GrantUriPermission(PasteData &data, const std::string &targetBundleName);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
@@ -283,11 +293,22 @@ private:
     bool HasDistributedDataType(const std::string &mimeType);
 
     std::pair<std::shared_ptr<PasteData>, PasteDateResult> GetDistributedData(const Event &event, int32_t user);
-    std::pair<int32_t, std::vector<uint8_t>> GetDistributedDelayData(const Event &evt);
+    int32_t GetDistributedDelayData(const Event &evt, uint8_t version, std::vector<uint8_t> &rawData);
+    int32_t GetDistributedDelayEntry(const Event &evt, uint32_t recordId, const std::string &utdId,
+        std::vector<uint8_t> &rawData);
+    int32_t ProcessDistributedDelayUri(int32_t userId, PasteData &data, PasteDataEntry &entry,
+        std::vector<uint8_t> &rawData);
+    int32_t ProcessDistributedDelayHtml(PasteData &data, PasteDataEntry &entry, std::vector<uint8_t> &rawData);
+    int32_t ProcessDistributedDelayEntry(PasteDataEntry &entry, std::vector<uint8_t> &rawData);
+    int32_t GetRemoteEntryValue(const AppInfo &appInfo, PasteData &data, PasteDataRecord &record,
+        PasteDataEntry &entry);
+    int32_t ProcessRemoteDelayHtml(const std::string &remoteDeviceId, const std::string &bundleName,
+        const std::vector<uint8_t> &rawData, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
+    int32_t GetLocalEntryValue(int32_t userId, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
     bool IsAllowDistributed();
     bool SetDistributedData(int32_t user, PasteData &data);
-    bool SetCurrentDistributedData();
+    bool SetCurrentDistributedData(PasteData &data, Event event);
     bool SetCurrentData(Event event, PasteData &data);
     void CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
@@ -324,6 +345,7 @@ private:
     ConcurrentMap<int32_t, uint64_t> copyTime_;
     std::set<std::string> readBundles_;
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
+    std::shared_ptr<PasteBoardAccountStateSubscriber> accountStateSubscriber_ = nullptr;
 
     std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
@@ -376,6 +398,7 @@ private:
     bool CheckMdmShareOption(PasteData &pasteData);
     void PasteboardEventSubscriber();
     void CommonEventSubscriber();
+    void AccountStateSubscriber();
     bool IsBasicType(const std::string &mimeType);
     std::function<void(const OHOS::MiscServices::Event &)> RemotePasteboardChange();
     std::shared_ptr<InputEventCallback> inputEventCallback_;

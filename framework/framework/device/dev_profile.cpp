@@ -12,13 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstring>
-#include <thread>
 
 #include "dev_profile.h"
 
 #include "cJSON.h"
-#include "distributed_module_config.h"
 #include "dm_adapter.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_ue.h"

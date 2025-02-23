@@ -16,10 +16,10 @@
 
 #include "common/constant.h"
 #include "pasteboard_hilog.h"
-#include "pixel_map.h"
-#include "tlv_object.h"
 namespace OHOS {
 namespace MiscServices {
+
+const char *PASTE_FILE_SIZE = "pasteFileSize";
 
 enum TAG_CUSTOMDATA : uint16_t {
     TAG_ITEM_DATA = TAG_BUFF + 1,
@@ -354,6 +354,32 @@ bool PasteDataEntry::HasContentByMimeType(const std::string &mimeType) const
     } else {
         return ConvertToCustomData() != nullptr;
     }
+}
+
+void PasteDataEntry::SetFileSize(int64_t fileSize)
+{
+    auto entry = GetValue();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(std::holds_alternative<std::shared_ptr<Object>>(entry), PASTEBOARD_MODULE_COMMON,
+        "entry not contain object");
+
+    auto object = std::get<std::shared_ptr<Object>>(entry);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(object != nullptr, PASTEBOARD_MODULE_COMMON, "entry object is null");
+
+    object->value_[PASTE_FILE_SIZE] = fileSize;
+}
+
+int64_t PasteDataEntry::GetFileSize() const
+{
+    auto entry = GetValue();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(std::holds_alternative<std::shared_ptr<Object>>(entry), 0,
+        PASTEBOARD_MODULE_COMMON, "entry not contain object");
+
+    auto object = std::get<std::shared_ptr<Object>>(entry);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(object != nullptr, 0, PASTEBOARD_MODULE_COMMON, "entry object is null");
+
+    int64_t fileSize = 0L;
+    object->GetValue(PASTE_FILE_SIZE, fileSize);
+    return fileSize;
 }
 
 std::string CommonUtils::Convert(UDType uDType)
