@@ -360,7 +360,7 @@ void PasteboardService::IncreaseChangeCount(int32_t userId)
 
 void PasteboardService::NotifyEntityObservers(std::string &entity, EntityType entityType, uint32_t dataLength)
 {
-    entityObserverMap_.ForEach([&entity, entityType, dataLength](auto, auto &value) {
+    entityObserverMap_.ForEach([this, &entity, entityType, dataLength](auto, auto &value) {
         for (auto entityObserver : value) {
             if (entityType == entityObserver.entityType && dataLength <= entityObserver.expectedDataLength &&
                 VerifyPermission(entityObserver.tokenId)) {
