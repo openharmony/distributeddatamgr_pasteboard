@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 
 #include <singleton.h>
 
+#include "entity_recognition_observer.h"
 #include "pasteboard_observer.h"
 #include "pasteboard_progress_signal.h"
 
@@ -221,6 +222,28 @@ public:
      * @return int32_t.
      */
     int32_t GetChangeCount(uint32_t &changeCount);
+
+    /**
+     * SubscribeEntityObserver
+     * @description Subscribe the EntityRecognitionObserver.
+     * @param entityType the type of recognized PasteData.
+     * @param expectedDataLength the length of PasteData expected to observer.
+     * @param observer callback observer when recognized PasteData.
+     * @return int32_t.
+     */
+    int32_t SubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<EntityRecognitionObserver> &observer);
+
+    /**
+     * SubscribeEntityObserver
+     * @description Subscribe the EntityRecognitionObserver.
+     * @param entityType the type of recognized PasteData.
+     * @param expectedDataLength the length of PasteData expected to observer.
+     * @param observer callback observer when recognized PasteData.
+     * @return int32_t.
+     */
+    int32_t UnsubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<EntityRecognitionObserver> &observer);
 
     /**
      * GetRecordValueByType

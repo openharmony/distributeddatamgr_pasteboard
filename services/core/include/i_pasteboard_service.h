@@ -16,6 +16,7 @@
 #ifndef PASTE_BOARD_SERVICE_INTERFACE_H
 #define PASTE_BOARD_SERVICE_INTERFACE_H
 
+#include "i_entity_recognition_observer.h"
 #include "i_pasteboard_delay_getter.h"
 #include "i_pasteboard_entry_getter.h"
 #include "i_pasteboard_observer.h"
@@ -34,6 +35,10 @@ public:
     virtual bool IsRemoteData() = 0;
     virtual int32_t GetChangeCount(uint32_t &changeCount) = 0;
     virtual int32_t GetDataSource(std::string &bundleName) = 0;
+    virtual int32_t SubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) = 0;
+    virtual int32_t UnsubscribeEntityObserver(
+        EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) = 0;
     virtual std::vector<std::string> GetMimeTypes() = 0;
     virtual bool HasDataType(const std::string &mimeType) = 0;
     virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) = 0;

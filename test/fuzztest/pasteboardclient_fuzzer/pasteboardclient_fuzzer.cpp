@@ -18,6 +18,7 @@
 #include <map>
 
 #include "pasteboard_client.h"
+#include "entity_recognition_observer.h"
 #include "pasteboard_observer.h"
 #include "paste_data.h"
 #include "paste_data_record.h"
@@ -31,6 +32,7 @@ constexpr size_t THRESHOLD = 5;
 constexpr size_t OFFSET = 4;
 constexpr size_t RANDNUM_ZERO = 0;
 constexpr size_t LENGTH = 46;
+constexpr uint32_t MAX_RECOGNITION_LENGTH = 1000;
 
 uint32_t ConvertToUint32(const uint8_t *ptr)
 {
@@ -99,9 +101,12 @@ void FuzzPasteboardclient002(const uint8_t *rawData, size_t size)
     PasteboardObserverType type = PasteboardObserverType::OBSERVER_LOCAL;
     sptr<PasteboardObserver> callback = new PasteboardObserver();
     PasteboardClient::GetInstance()->Subscribe(type, callback);
+    sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
+    PasteboardClient::GetInstance()->SubscribeEntityObserver(EntityType::ADDRESS, MAX_RECOGNITION_LENGTH, observer);
     PasteboardClient::GetInstance()->AddPasteboardChangedObserver(callback);
     PasteboardClient::GetInstance()->AddPasteboardEventObserver(callback);
     PasteboardClient::GetInstance()->Unsubscribe(type, callback);
+    PasteboardClient::GetInstance()->UnsubscribeEntityObserver(EntityType::ADDRESS, MAX_RECOGNITION_LENGTH, observer);
     PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(callback);
     PasteboardClient::GetInstance()->RemovePasteboardEventObserver(callback);
     const std::vector<uint32_t> tokenIds = {1, 2, 3};

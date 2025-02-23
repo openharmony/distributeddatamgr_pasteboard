@@ -14,6 +14,8 @@
  */
 #include "pasteboard_service.h"
 
+#include <dlfcn.h>
+
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "account_manager.h"
@@ -66,6 +68,8 @@ constexpr int32_t INIT_INTERVAL = 10000L;
 constexpr uint32_t MAX_IPC_THREAD_NUM = 32;
 constexpr const char *PASTEBOARD_SERVICE_SA_NAME = "pasteboard_service";
 constexpr const char *PASTEBOARD_SERVICE_NAME = "PasteboardService";
+constexpr const char *NLU_SO_PATH = "libai_nlu_innerapi.z.so";
+constexpr const char *GET_PASTE_DATA_PROCESSOR = "GetPasteDataProcessor";
 constexpr const char *FAIL_TO_GET_TIME_STAMP = "FAIL_TO_GET_TIME_STAMP";
 constexpr const char *SECURE_PASTE_PERMISSION = "ohos.permission.SECURE_PASTE";
 constexpr const char *READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBOARD";
@@ -78,6 +82,7 @@ constexpr int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
 constexpr int32_t CTRLV_EVENT_SIZE = 2;
 constexpr int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
 constexpr uint32_t EVENT_TIME_OUT = 2000;
+constexpr uint32_t MAX_RECOGNITION_LENGTH = 1000;
 constexpr int32_t DEVICE_COLLABORATION_UID = 5521;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
@@ -103,6 +108,7 @@ PasteboardService::PasteboardService()
 PasteboardService::~PasteboardService()
 {
     clients_.Clear();
+    UnsubscribeAllEntityObserver();
 }
 
 int32_t PasteboardService::Init()
@@ -350,6 +356,185 @@ void PasteboardService::IncreaseChangeCount(int32_t userId)
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "userId=%{public}d, changeCount=%{public}u", userId, changeCount);
         return true;
     });
+}
+
+void PasteboardService::NotifyEntityObservers(std::string &entity, EntityType entityType, uint32_t dataLength)
+{
+    entityObserverMap_.ForEach([this, &entity, entityType, dataLength](auto, auto &value) {
+        for (auto entityObserver : value) {
+            if (entityType == entityObserver.entityType && dataLength <= entityObserver.expectedDataLength &&
+                VerifyPermission(entityObserver.tokenId)) {
+                entityObserver.observer->OnRecognitionEvent(entityType, entity);
+            }
+        }
+        return false;
+    });
+}
+
+std::string PasteboardService::GetAllEntryPlainText(
+    uint32_t dataId, uint32_t recordId, std::vector<std::shared_ptr<PasteDataEntry>> &entries)
+{
+    std::string primaryText = "";
+    for (auto &entry : entries) {
+        if (primaryText.size() > MAX_RECOGNITION_LENGTH) {
+            break;
+        }
+        int32_t result = static_cast<int32_t>(PasteboardError::E_OK);
+        if (entry->GetMimeType() == MIMETYPE_TEXT_PLAIN && !entry->HasContentByMimeType(MIMETYPE_TEXT_PLAIN)) {
+            result = GetRecordValueByType(dataId, recordId, *entry);
+        }
+        if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
+            continue;
+        }
+        std::shared_ptr<std::string> plainTextPtr = entry->ConvertToPlainText();
+        if (plainTextPtr != nullptr) {
+            primaryText += *plainTextPtr;
+        }
+    }
+    return primaryText;
+}
+
+std::string PasteboardService::GetAllPrimaryText(const PasteData &pasteData)
+{
+    std::string primaryText = "";
+    std::vector<std::shared_ptr<PasteDataRecord>> records = pasteData.AllRecords();
+    for (const auto &record : records) {
+        if (primaryText.size() > MAX_RECOGNITION_LENGTH) {
+            break;
+        }
+        std::shared_ptr<std::string> plainTextPtr = record->GetPlainText();
+        if (plainTextPtr != nullptr) {
+            primaryText += *plainTextPtr;
+            continue;
+        }
+        auto dataId = pasteData.GetDataId();
+        auto recordId = record->GetRecordId();
+        std::vector<std::shared_ptr<PasteDataEntry>> entries = record->GetEntries();
+        primaryText += GetAllEntryPlainText(dataId, recordId, entries);
+    }
+    return primaryText;
+}
+
+int32_t PasteboardService::ExtractEntity(const std::string &entity, std::string &location)
+{
+    nlohmann::json entityJson = nlohmann::json::parse(entity);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!entityJson.is_discarded(),
+        static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "parse entity to json failed");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entityJson.contains("code") && entityJson["code"].is_number(),
+        static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "entity find code failed");
+    int code = entityJson["code"].get<int>();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        code == 0, static_cast<int32_t>(code), PASTEBOARD_MODULE_SERVICE, "failed to get entity");
+    if (entityJson.contains("entity") && entityJson["entity"].contains("location") &&
+        entityJson["entity"]["location"].is_object()) {
+        nlohmann::json locationJson = entityJson["entity"]["location"].get<nlohmann::json>();
+        location = locationJson.dump();
+        return static_cast<int32_t>(PasteboardError::E_OK);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteData did not contain entity");
+    return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
+}
+void PasteboardService::RecognizePasteData(PasteData &pasteData)
+{
+    std::thread thread([this, &pasteData]() {
+        auto handle = dlopen(NLU_SO_PATH, RTLD_NOW);
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(handle != nullptr, PASTEBOARD_MODULE_SERVICE, "Can not get AIEngine handle");
+        GetProcessorFunc GetProcessor = reinterpret_cast<GetProcessorFunc>(dlsym(handle, GET_PASTE_DATA_PROCESSOR));
+        if (GetProcessor == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Can not get ProcessorFunc");
+            dlclose(handle);
+            return;
+        }
+        IPasteDataProcessor &processor = GetProcessor();
+        std::string primaryText = GetAllPrimaryText(pasteData);
+        if (primaryText.size() == 0) {
+            dlclose(handle);
+            return;
+        }
+        if (primaryText.size() > MAX_RECOGNITION_LENGTH) {
+            primaryText.resize(MAX_RECOGNITION_LENGTH);
+        }
+        std::string entity = "";
+        int32_t result = processor.Process(primaryText, entity);
+        if (result != ERR_OK) {
+            dlclose(handle);
+            return;
+        }
+        std::string location = "";
+        int32_t ret = ExtractEntity(entity, location);
+        if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+            dlclose(handle);
+            return;
+        }
+        NotifyEntityObservers(location, EntityType::ADDRESS, static_cast<uint32_t>(primaryText.size()));
+        dlclose(handle);
+    });
+    thread.detach();
+}
+
+int32_t PasteboardService::SubscribeEntityObserver(
+    EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer)
+{
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(expectedDataLength <= MAX_RECOGNITION_LENGTH,
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "expected data length exceeds limitation");
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(VerifyPermission(tokenId),
+        static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "check permission failed");
+    auto callingPid = IPCSkeleton::GetCallingPid();
+    bool result = entityObserverMap_.ComputeIfPresent(
+        callingPid, [entityType, expectedDataLength, tokenId, &observer](auto, auto &observerList) {
+            auto it = std::find_if(observerList.begin(), observerList.end(),
+                [entityType, expectedDataLength](const EntityObserverInfo &observer) {
+                    return observer.entityType == entityType && observer.expectedDataLength == expectedDataLength;
+                });
+            if (it != observerList.end()) {
+                it->tokenId = tokenId;
+                it->observer = observer;
+                return true;
+            }
+            observerList.emplace_back(entityType, expectedDataLength, tokenId, observer);
+            return true;
+        });
+    if (!result) {
+        std::vector<EntityObserverInfo> observerList;
+        observerList.emplace_back(entityType, expectedDataLength, tokenId, observer);
+        entityObserverMap_.Emplace(callingPid, observerList);
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+int32_t PasteboardService::UnsubscribeEntityObserver(
+    EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer)
+{
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(expectedDataLength <= MAX_RECOGNITION_LENGTH,
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "expected data length exceeds limitation");
+    auto callingPid = IPCSkeleton::GetCallingPid();
+    auto result =
+        entityObserverMap_.ComputeIfPresent(callingPid, [entityType, expectedDataLength](auto, auto &observerList) {
+            auto it = std::find_if(observerList.begin(), observerList.end(),
+                [entityType, expectedDataLength](const EntityObserverInfo &observer) {
+                    return observer.entityType == entityType && observer.expectedDataLength == expectedDataLength;
+                });
+            if (it != observerList.end()) {
+                observerList.erase(it);
+                return true;
+            }
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
+                "Failed to unsubscribe, observer not found, type is %{public}u, length is %{public}u.",
+                static_cast<uint32_t>(entityType), expectedDataLength);
+            return true;
+        });
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardService::UnsubscribeAllEntityObserver()
+{
+    entityObserverMap_.Clear();
 }
 
 int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)

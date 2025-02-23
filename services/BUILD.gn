@@ -78,6 +78,7 @@ ohos_shared_library("pasteboard_service") {
     "load/src/config.cpp",
     "load/src/loader.cpp",
     "switch/pasteboard_switch.cpp",
+    "zidl/src/entity_recognition_observer_proxy.cpp",
     "zidl/src/ipasteboard_client_death_observer.cpp",
     "zidl/src/pasteboard_delay_getter_proxy.cpp",
     "zidl/src/pasteboard_entry_getter_proxy.cpp",

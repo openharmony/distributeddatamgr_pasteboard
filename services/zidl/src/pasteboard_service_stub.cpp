@@ -74,6 +74,10 @@ PasteboardServiceStub::PasteboardServiceStub()
         &PasteboardServiceStub::OnShowProgress;
     memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::GET_CHANGE_COUNT)] =
         &PasteboardServiceStub::OnGetChangeCount;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::SUBSCRIBE_ENTITY_OBSERVER)] =
+        &PasteboardServiceStub::OnSubscribeEntityObserver;
+    memberFuncMap_[static_cast<uint32_t>(PasteboardServiceInterfaceCode::UNSUBSCRIBE_ENTITY_OBSERVER)] =
+        &PasteboardServiceStub::OnUnsubscribeEntityObserver;
 }
 
 int32_t PasteboardServiceStub::OnRemoteRequest(
@@ -361,6 +365,48 @@ int32_t PasteboardServiceStub::OnGetChangeCount(MessageParcel &data, MessageParc
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
     }
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnSubscribeEntityObserver(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t type = 0;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        data.ReadUint32(type), ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE, "Failed to read data");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(type < static_cast<uint32_t>(EntityType::MAX), ERR_INVALID_VALUE,
+        PASTEBOARD_MODULE_SERVICE, "Failed to read data");
+    EntityType entityType = static_cast<EntityType>(type);
+    uint32_t expectedDataLength = 0;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        data.ReadUint32(expectedDataLength), ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE, "Failed to read data");
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    sptr<IEntityRecognitionObserver> observer = iface_cast<IEntityRecognitionObserver>(callback);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        observer != nullptr, ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE, "Failed to read data");
+    int32_t ret = SubscribeEntityObserver(entityType, expectedDataLength, observer);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(reply.WriteInt32(ret),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE, "Write result failed");
+    return ERR_OK;
+}
+
+int32_t PasteboardServiceStub::OnUnsubscribeEntityObserver(MessageParcel &data, MessageParcel &reply)
+{
+    uint32_t type = 0;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        data.ReadUint32(type), ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE, "Failed to read data");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(type < static_cast<uint32_t>(EntityType::MAX), ERR_INVALID_VALUE,
+        PASTEBOARD_MODULE_SERVICE, "Failed to read data");
+    EntityType entityType = static_cast<EntityType>(type);
+    uint32_t expectedDataLength = 0;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        data.ReadUint32(expectedDataLength), ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE, "Failed to read data");
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    sptr<IEntityRecognitionObserver> observer = iface_cast<IEntityRecognitionObserver>(callback);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        observer != nullptr, ERR_INVALID_VALUE, PASTEBOARD_MODULE_SERVICE, "Failed to read data");
+    int32_t ret = UnsubscribeEntityObserver(entityType, expectedDataLength, observer);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(reply.WriteInt32(ret),
+        static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), PASTEBOARD_MODULE_SERVICE, "Write result failed");
     return ERR_OK;
 }
 

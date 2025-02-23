@@ -209,6 +209,38 @@ int32_t PasteboardClient::GetChangeCount(uint32_t &changeCount)
     return proxyService->GetChangeCount(changeCount);
 }
 
+int32_t PasteboardClient::SubscribeEntityObserver(
+    EntityType entityType, uint32_t expectedDataLength, const sptr<EntityRecognitionObserver> &observer)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT,
+        "SubscribeEntityObserver start, type is %{public}u, length is %{public}u.", static_cast<uint32_t>(entityType),
+        expectedDataLength);
+    if (observer == nullptr) {
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
+    }
+    return proxyService->SubscribeEntityObserver(entityType, expectedDataLength, observer);
+}
+
+int32_t PasteboardClient::UnsubscribeEntityObserver(
+    EntityType entityType, uint32_t expectedDataLength, const sptr<EntityRecognitionObserver> &observer)
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT,
+        "UnsubscribeEntityObserver start, type is %{public}u, length is %{public}u.", static_cast<uint32_t>(entityType),
+        expectedDataLength);
+    if (observer == nullptr) {
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    auto proxyService = GetPasteboardService();
+    if (proxyService == nullptr) {
+        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
+    }
+    return proxyService->UnsubscribeEntityObserver(entityType, expectedDataLength, observer);
+}
+
 int32_t PasteboardClient::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
 {
     auto proxyService = GetPasteboardService();
