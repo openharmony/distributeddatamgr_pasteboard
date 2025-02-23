@@ -148,7 +148,7 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
         offset += count;
     }
     if (checkResults.size() != indexs.size()) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "check uri authorization fail");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "check uri authorization fail");
         return;
     }
     for (size_t i = 0; i < indexs.size(); i++) {
