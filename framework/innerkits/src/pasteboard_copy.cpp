@@ -279,6 +279,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "copy file failed, ret=%{public}d", ret);
         ret = static_cast<int32_t>(PasteboardError::COPY_FILE_ERROR);
     }
+    dataParams->info->percentage = PERCENTAGE;
     OnProgressNotify(dataParams);
     g_recordSize = 0;
     return ret;
