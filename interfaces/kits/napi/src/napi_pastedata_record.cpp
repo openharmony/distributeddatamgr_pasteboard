@@ -34,6 +34,8 @@ PasteDataRecordNapi::~PasteDataRecordNapi() {}
 bool PasteDataRecordNapi::NewInstanceByRecord(
     napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record)
 {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, static_cast<int32_t>(PasteboardError::PARAM_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "invalid parameter record");
     NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
@@ -111,10 +113,8 @@ bool PasteDataRecordNapi::NewUriRecordInstance(napi_env env, const std::string &
 bool PasteDataRecordNapi::NewWantRecordInstance(
     napi_env env, const std::shared_ptr<OHOS::AAFwk::Want> want, napi_value &instance)
 {
-    if (!want) {
-        return false;
-    }
-
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(want != nullptr, static_cast<int32_t>(PasteboardError::PARAM_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "invalid parameter record");
     NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
@@ -142,7 +142,7 @@ bool PasteDataRecordNapi::NewKvRecordInstance(
     return true;
 }
 
-bool PasteDataRecordNapi::NewEntryGetterRecordInstance(const std::vector<std::string> mimeTypes,
+bool PasteDataRecordNapi::NewEntryGetterRecordInstance(const std::vector<std::string> &mimeTypes,
     std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter, napi_value &instance)
 {
     if (entryGetter == nullptr) {
@@ -165,6 +165,7 @@ void PasteDataRecordNapi::SetNamedPropertyByStr(
     napi_env env, napi_value &instance, const char *propName, const char *propValue)
 {
     if (propName == nullptr || propValue == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid parameter");
         return;
     }
     napi_value prop = nullptr;
@@ -175,14 +176,13 @@ void PasteDataRecordNapi::SetNamedPropertyByStr(
 
 napi_value PasteDataRecordNapi::SetNapiKvData(napi_env env, std::shared_ptr<MineCustomData> customData)
 {
-    if (customData == nullptr) {
-        return nullptr;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(customData != nullptr, nullptr,
+        PASTEBOARD_MODULE_CLIENT, "invalid parameter");
     napi_value jsCustomData = nullptr;
     napi_create_object(env, &jsCustomData);
     auto itemData = customData->GetItemData();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "size = %{public}d.", static_cast<uint32_t>(itemData.size()));
-    for (auto &item : itemData) {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "size = %{public}u.", static_cast<uint32_t>(itemData.size()));
+    for (const auto &item : itemData) {
         void *data = nullptr;
         napi_value arrayBuffer = nullptr;
         size_t len = item.second.size();
@@ -209,7 +209,7 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
     uint32_t mimeTypesNum = 0;
     NAPI_CALL(env, napi_get_array_length(env, mimeTypes, &mimeTypesNum));
 
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "mimeTypesNum = %{public}u", mimeTypesNum);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "mimeTypesNum = %{public}u", mimeTypesNum);
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     for (uint32_t i = 0; i < mimeTypesNum; i++) {
         napi_value mimeTypeNapi = nullptr;
@@ -218,6 +218,7 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
         std::string mimeType;
         bool ret = GetValue(env, mimeTypeNapi, mimeType);
         if (!ret || (mimeType.size() > MIMETYPE_MAX_SIZE) || mimeType == "") {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "mimeType size or mimeType invalid");
             return nullptr;
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "mimeType = %{public}s,", mimeType.c_str());
@@ -236,6 +237,7 @@ std::shared_ptr<MineCustomData> PasteDataRecordNapi::GetNativeKvData(napi_env en
 void PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
 {
     if (value_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid parameter");
         return;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "mimeType = %{public}s.", value_->GetMimeType().c_str());
@@ -300,7 +302,7 @@ napi_value PasteDataRecordNapi::ConvertToText(napi_env env, napi_callback_info i
         }
         PasteDataRecordNapi *obj = nullptr;
         napi_status status = napi_unwrap(env, self, reinterpret_cast<void **>(&obj));
-        if (status == napi_ok || obj != nullptr) {
+        if (status == napi_ok && obj != nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "unwrap failed");
             exeContext->obj = obj;
         }
@@ -333,8 +335,8 @@ napi_value PasteDataRecordNapi::ConvertToTextV9(napi_env env, napi_callback_info
 napi_value PasteDataRecordNapi::ToPlainText(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_NAPI, "ToPlainText is called!");
-    size_t argc = 1;
-    napi_value argv[1] = { 0 };
+    size_t argc = ARGC_TYPE_SET1;
+    napi_value argv[ARGC_TYPE_SET1] = {0};
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
@@ -342,7 +344,7 @@ napi_value PasteDataRecordNapi::ToPlainText(napi_env env, napi_callback_info inf
 
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    if ((status != napi_ok) || (obj == nullptr) || (obj->value_ == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get ToPlainText object failed");
         return nullptr;
     }
@@ -367,11 +369,10 @@ napi_value PasteDataRecordNapi::AddEntry(napi_env env, napi_callback_info info)
 
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    if ((status != napi_ok) || (obj == nullptr) || (obj->value_ == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get AddEntry object failed");
         return nullptr;
     }
-    
     EntryValue entryValue;
     if (!GetNativeValue(env, mimeType, argv[1], entryValue)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetNativeValue failed");
@@ -401,7 +402,7 @@ napi_value PasteDataRecordNapi::GetValidTypes(napi_env env, napi_callback_info i
 
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
-    if ((status != napi_ok) || (obj == nullptr)) {
+    if ((status != napi_ok) || (obj == nullptr) || (obj->value_ == nullptr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get GetValidType object failed");
         return nullptr;
     }
@@ -501,7 +502,7 @@ void PasteDataRecordNapi::Destructor(napi_env env, void *nativeObject, void *fin
 napi_value PasteDataRecordNapi::New(napi_env env, napi_callback_info info)
 {
     size_t argc = ARGC_TYPE_SET1;
-    napi_value argv[1] = { 0 };
+    napi_value argv[ARGC_TYPE_SET1] = {0};
     napi_value thisVar = nullptr;
     napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr);
 
@@ -546,6 +547,7 @@ PastedataRecordEntryGetterInstance::~PastedataRecordEntryGetterInstance()
 void UvWorkGetRecordByEntryGetter(uv_work_t *work, int status)
 {
     if (UV_ECANCELED == status || work == nullptr || work->data == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid parameter");
         return;
     }
     PasteboardEntryGetterWorker *entryGetterWork = reinterpret_cast<PasteboardEntryGetterWorker *>(work->data);

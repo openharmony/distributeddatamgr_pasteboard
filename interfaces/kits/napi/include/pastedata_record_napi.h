@@ -83,7 +83,7 @@ public:
     static bool NewKvRecordInstance(
         napi_env env, const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer, napi_value &instance);
     static bool NewEntryGetterRecordInstance(
-        const std::vector<std::string> mimeTypes,
+        const std::vector<std::string> &mimeTypes,
         std::shared_ptr<PastedataRecordEntryGetterInstance> entryGetter,
         napi_value &instance);
     static napi_value CreatKvData(napi_env env, std::shared_ptr<MiscServices::MineCustomData> customData);
