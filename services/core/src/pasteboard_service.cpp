@@ -360,7 +360,10 @@ void PasteboardService::IncreaseChangeCount(int32_t userId)
 
 void PasteboardService::NotifyEntityObservers(std::string &entity, EntityType entityType, uint32_t dataLength)
 {
-    entityObserverMap_.ForEach([this, &entity, entityType, dataLength](auto, auto &value) {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "entityType=%{public}u, dataLength=%{public}u",
+        static_cast<uint32_t>(entityType), dataLength);
+    entityObserverMap_.ForEach([this, &entity, entityType, dataLength](const auto &key, auto &value) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pid=%{public}u, listSize=%{public}zu", key, value.size());
         for (auto entityObserver : value) {
             if (entityType == entityObserver.entityType && dataLength <= entityObserver.expectedDataLength &&
                 VerifyPermission(entityObserver.tokenId)) {
@@ -371,13 +374,12 @@ void PasteboardService::NotifyEntityObservers(std::string &entity, EntityType en
     });
 }
 
-std::string PasteboardService::GetAllEntryPlainText(
-    uint32_t dataId, uint32_t recordId, std::vector<std::shared_ptr<PasteDataEntry>> &entries)
+int32_t PasteboardService::GetAllEntryPlainText(uint32_t dataId, uint32_t recordId,
+    std::vector<std::shared_ptr<PasteDataEntry>> &entries, std::string &primaryText)
 {
-    std::string primaryText = "";
     for (auto &entry : entries) {
         if (primaryText.size() > MAX_RECOGNITION_LENGTH) {
-            break;
+            return static_cast<int32_t>(PasteboardError::EXCEEDING_LIMIT_EXCEPTION);
         }
         int32_t result = static_cast<int32_t>(PasteboardError::E_OK);
         if (entry->GetMimeType() == MIMETYPE_TEXT_PLAIN && !entry->HasContentByMimeType(MIMETYPE_TEXT_PLAIN)) {
@@ -391,26 +393,35 @@ std::string PasteboardService::GetAllEntryPlainText(
             primaryText += *plainTextPtr;
         }
     }
-    return primaryText;
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainText finished");
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 std::string PasteboardService::GetAllPrimaryText(const PasteData &pasteData)
 {
     std::string primaryText = "";
     std::vector<std::shared_ptr<PasteDataRecord>> records = pasteData.AllRecords();
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "size of records=%{public}zu", records.size());
     for (const auto &record : records) {
         if (primaryText.size() > MAX_RECOGNITION_LENGTH) {
+            primaryText = "";
             break;
         }
         std::shared_ptr<std::string> plainTextPtr = record->GetPlainText();
         if (plainTextPtr != nullptr) {
             primaryText += *plainTextPtr;
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "primaryText in record");
             continue;
         }
         auto dataId = pasteData.GetDataId();
         auto recordId = record->GetRecordId();
         std::vector<std::shared_ptr<PasteDataEntry>> entries = record->GetEntries();
-        primaryText += GetAllEntryPlainText(dataId, recordId, entries);
+        int32_t result = GetAllEntryPlainText(dataId, recordId, entries, primaryText);
+        if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "primaryText exceeded size, result=%{public}d", result);
+            primaryText = "";
+            break;
+        }
     }
     return primaryText;
 }
@@ -428,17 +439,23 @@ int32_t PasteboardService::ExtractEntity(const std::string &entity, std::string 
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
         code == 0, static_cast<int32_t>(code), PASTEBOARD_MODULE_SERVICE, "failed to get entity");
     if (entityJson.contains("entity") && entityJson["entity"].contains("location") &&
-        entityJson["entity"]["location"].is_object()) {
+        entityJson["entity"]["location"].is_array()) {
         nlohmann::json locationJson = entityJson["entity"]["location"].get<nlohmann::json>();
         location = locationJson.dump();
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "location dump finished, location=%{private}s", location.c_str());
         return static_cast<int32_t>(PasteboardError::E_OK);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteData did not contain entity");
     return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
 }
+
 void PasteboardService::RecognizePasteData(PasteData &pasteData)
 {
-    std::thread thread([this, &pasteData]() {
+    std::string primaryText = GetAllPrimaryText(pasteData);
+    if (primaryText.empty()) {
+        return;
+    }
+    std::thread thread([this, primaryText]() {
         auto handle = dlopen(NLU_SO_PATH, RTLD_NOW);
         PASTEBOARD_CHECK_AND_RETURN_LOGE(handle != nullptr, PASTEBOARD_MODULE_SERVICE, "Can not get AIEngine handle");
         GetProcessorFunc GetProcessor = reinterpret_cast<GetProcessorFunc>(dlsym(handle, GET_PASTE_DATA_PROCESSOR));
@@ -448,23 +465,17 @@ void PasteboardService::RecognizePasteData(PasteData &pasteData)
             return;
         }
         IPasteDataProcessor &processor = GetProcessor();
-        std::string primaryText = GetAllPrimaryText(pasteData);
-        if (primaryText.size() == 0) {
-            dlclose(handle);
-            return;
-        }
-        if (primaryText.size() > MAX_RECOGNITION_LENGTH) {
-            primaryText.resize(MAX_RECOGNITION_LENGTH);
-        }
         std::string entity = "";
         int32_t result = processor.Process(primaryText, entity);
         if (result != ERR_OK) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "AI Process failed, result=%{public}d", result);
             dlclose(handle);
             return;
         }
         std::string location = "";
         int32_t ret = ExtractEntity(entity, location);
         if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ExtractEntity failed, ret=%{public}d", ret);
             dlclose(handle);
             return;
         }
@@ -477,6 +488,8 @@ void PasteboardService::RecognizePasteData(PasteData &pasteData)
 int32_t PasteboardService::SubscribeEntityObserver(
     EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
+        "start, type=%{public}u, len=%{public}u", static_cast<uint32_t>(entityType), expectedDataLength);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(expectedDataLength <= MAX_RECOGNITION_LENGTH,
         static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
         "expected data length exceeds limitation");
@@ -504,6 +517,7 @@ int32_t PasteboardService::SubscribeEntityObserver(
         observerList.emplace_back(entityType, expectedDataLength, tokenId, observer);
         entityObserverMap_.Emplace(callingPid, observerList);
     }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "subscribe entityObserver finished");
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
@@ -1737,6 +1751,9 @@ int32_t PasteboardService::SetPasteData(PasteData &pasteData,
 {
     PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
     auto ret = SaveData(pasteData, delayGetter, entryGetter);
+    if (entityObserverMap_.Size() != 0 && pasteData.HasMimeType(MIMETYPE_TEXT_PLAIN)) {
+        RecognizePasteData(pasteData);
+    }
     ReportUeCopyEvent(pasteData, ret);
     return ret;
 }
