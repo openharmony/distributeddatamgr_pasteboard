@@ -115,7 +115,9 @@ void PasteboardObserverInstance::OnPasteboardChanged()
     work->data = (void *)pasteboardDataWorker;
 
     int ret = uv_queue_work(
-        loop, work, [](uv_work_t *work) {}, UvQueueWorkOnPasteboardChanged);
+        loop, work, [](uv_work_t *work) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "OnPasteboardChanged callback");
+        }, UvQueueWorkOnPasteboardChanged);
     if (ret != 0) {
         delete pasteboardDataWorker;
         pasteboardDataWorker = nullptr;
@@ -227,7 +229,9 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
     bool noNeedClean = false;
     {
         std::unique_lock<std::mutex> lock(pasteboardDelayWorker->mutex);
-        int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, UvQueueWorkGetDelayPasteData);
+        int ret = uv_queue_work(loop, work, [](uv_work_t *work) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData callback");
+        }, UvQueueWorkGetDelayPasteData);
         if (ret != 0) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "uv_queue_work ret is not 0");
             ReleasePasteboardResource(pasteboardDelayWorker, work);
