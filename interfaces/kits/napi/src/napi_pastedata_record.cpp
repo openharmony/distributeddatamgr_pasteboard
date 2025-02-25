@@ -600,15 +600,11 @@ UDMF::ValueType PastedataRecordEntryGetterInstance::GetValueByType(const std::st
 {
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(env_, &loop);
-    if (loop == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "loop instance is nullptr");
-        return std::monostate{};
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(loop != nullptr, std::monostate{},
+        PASTEBOARD_MODULE_JS_NAPI, "loop instance is nullptr");
     uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "work is null");
-        return std::monostate{};
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(work != nullptr, std::monostate{},
+        PASTEBOARD_MODULE_JS_NAPI, "work is null");
     PasteboardEntryGetterWorker *entryGetterWork = new (std::nothrow) PasteboardEntryGetterWorker();
     if (entryGetterWork == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "PasteboardEntryGetterWorker is null");
@@ -622,7 +618,9 @@ UDMF::ValueType PastedataRecordEntryGetterInstance::GetValueByType(const std::st
     bool noNeedClean = false;
     {
         std::unique_lock<std::mutex> lock(entryGetterWork->mutex);
-        int ret = uv_queue_work(loop, work, [](uv_work_t *work) {}, UvWorkGetRecordByEntryGetter);
+        int ret = uv_queue_work(loop, work, [](uv_work_t *work) {
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetValueByType callback");
+        }, UvWorkGetRecordByEntryGetter);
         if (ret != 0) {
             delete entryGetterWork;
             entryGetterWork = nullptr;
