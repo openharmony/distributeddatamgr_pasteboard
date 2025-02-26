@@ -317,7 +317,7 @@ void ProgressNotify(std::shared_ptr<GetDataParams> params)
         return;
     }
     if (g_callback != nullptr) {
-        g_callback((Pasteboard_ProgressInfo *)params->info);
+        g_callback(reinterpret_cast<Pasteboard_ProgressInfo *>(params->info));
     }
 }
 
@@ -350,7 +350,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
     g_callback = params->progressListener;
     getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOptions;
     getDataParams->progressIndicator = (ProgressIndicator)params->progressIndicator;
-    getDataParams->info = (ProgressInfo *)&params->info;
+    getDataParams->info = reinterpret_cast<ProgressInfo *>(&params->info);
     struct ProgressListener listener = {
         .ProgressNotify = ProgressNotify,
     };
