@@ -80,20 +80,14 @@ public:
     void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
     bool IsCtrlVProcess(uint32_t callingPid, bool isFocused);
     void Clear();
-    void InitBlock()
-    {
-        if (block_ != nullptr) {
-            return;
-        }
-        block_ = std::make_shared<BlockObject<bool>>(WAIT_TIME_OUT, false);
-    }
 
 private:
     static constexpr uint32_t WAIT_TIME_OUT = 100;
     mutable int32_t windowPid_;
     mutable uint64_t actionTime_;
     mutable std::shared_mutex inputEventMutex_;
-    mutable std::shared_ptr<BlockObject<bool>> block_ = nullptr;
+    mutable std::shared_mutex blockMapMutex_;
+    mutable std::map<uint32_t, std::shared_ptr<BlockObject<bool>>> blockMap_;
 };
 
 class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
