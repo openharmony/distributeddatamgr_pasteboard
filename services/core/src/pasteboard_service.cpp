@@ -3018,6 +3018,16 @@ void PasteboardService::CleanDistributedData(int32_t user)
     clipPlugin->Clear(user);
 }
 
+void PasteboardService::CloseDistributedStore(int32_t user, bool isNeedClear)
+{
+    auto clipPlugin = GetClipPlugin();
+    if (clipPlugin == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
+        return;
+    }
+    clipPlugin->Close(user, isNeedClear);
+}
+
 void PasteboardService::OnConfigChange(bool isOn)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConfigChange isOn: %{public}d.", isOn);
@@ -3123,7 +3133,7 @@ void PasteBoardAccountStateSubscriber::OnStateChanged(const AccountSA::OsAccount
         "callback is nullptr: %{public}d", data.state, data.fromId, data.toId, data.callback == nullptr);
     if (data.state == AccountSA::OsAccountState::STOPPING && pasteboardService_ != nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
-        pasteboardService_->Clear();
+        pasteboardService_->CloseDistributedStore(data.fromId, true);
     }
     if (data.callback != nullptr) {
         data.callback->OnComplete();
