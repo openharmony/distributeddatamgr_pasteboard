@@ -91,6 +91,13 @@ void ClipPlugin::Clear(int32_t user)
     (void)user;
 }
 
+int32_t ClipPlugin::Close(int32_t user, bool isNeedClear)
+{
+    (void)user;
+    (void)isNeedClear;
+    return 0;
+}
+
 void ClipPlugin::RegisterDelayCallback(const DelayDataCallback &dataCallback, const DelayEntryCallback &entryCallback)
 {
     (void)dataCallback;

@@ -67,6 +67,7 @@ public:
     virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN);
     virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN, int32_t user);
     virtual void Clear();
+    virtual int32_t Close(int32_t user, bool isNeedClear);
     virtual int32_t PublishServiceState(const std::string &networkId, ServiceStatus status);
     virtual void Clear(int32_t user);
     virtual void RegisterDelayCallback(const DelayDataCallback &dataCallback, const DelayEntryCallback &entryCallback);
