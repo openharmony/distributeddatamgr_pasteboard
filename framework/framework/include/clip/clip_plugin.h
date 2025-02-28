@@ -73,7 +73,7 @@ public:
     virtual void RegisterDelayCallback(const DelayDataCallback &dataCallback, const DelayEntryCallback &entryCallback);
     virtual int32_t GetPasteDataEntry(const GlobalEvent &event, uint32_t recordId, const std::string &utdId,
         std::vector<uint8_t> &rawData);
-    virtual bool ChangeKvStoreAtSwitchUser(int32_t userId);
+    virtual void ChangeStoreStatus(int32_t userId);
 
 private:
     static std::map<std::string, Factory *> factories_;
