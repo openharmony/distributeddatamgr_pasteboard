@@ -164,7 +164,7 @@ bool ClipPlugin::GlobalEvent::Unmarshal(const Serializable::json &node)
     return true;
 }
 
-bool ClipPlugin::ChangeKvStoreAtSwitchUser(int32_t userId)
+bool ClipPlugin::ChangeStoreStatus(int32_t userId)
 {
     (void)userId;
     return true;
