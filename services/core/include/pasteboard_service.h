@@ -236,8 +236,8 @@ private:
     void ThawInputMethod(void);
     bool IsNeedThaw(void);
     int32_t ExtractEntity(const std::string &entity, std::string &location);
-    std::string GetAllEntryPlainText(
-        uint32_t dataId, uint32_t recordId, std::vector<std::shared_ptr<PasteDataEntry>> &entries);
+    int32_t GetAllEntryPlainText(uint32_t dataId, uint32_t recordId,
+        std::vector<std::shared_ptr<PasteDataEntry>> &entries, std::string &primaryText);
     std::string GetAllPrimaryText(const PasteData &pasteData);
     void NotifyEntityObservers(std::string &entity, EntityType entityType, uint32_t dataLength);
     void UnsubscribeAllEntityObserver();

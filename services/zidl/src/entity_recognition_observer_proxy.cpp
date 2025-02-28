@@ -30,6 +30,8 @@ EntityRecognitionObserverProxy::EntityRecognitionObserverProxy(const sptr<IRemot
 
 void EntityRecognitionObserverProxy::OnRecognitionEvent(EntityType entityType, std::string &entity)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
+        "callback, type=%{public}u, entity=%{private}s", static_cast<uint32_t>(entityType), entity.c_str());
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -38,7 +40,7 @@ void EntityRecognitionObserverProxy::OnRecognitionEvent(EntityType entityType, s
     PASTEBOARD_CHECK_AND_RETURN_LOGE(data.WriteString(entity), PASTEBOARD_MODULE_SERVICE, "Write entity failed");
     uint32_t type = static_cast<uint32_t>(entityType);
     PASTEBOARD_CHECK_AND_RETURN_LOGE(data.WriteUint32(type), PASTEBOARD_MODULE_SERVICE, "Write type failed");
-    int ret =
+    int32_t ret =
         Remote()->SendRequest(static_cast<int>(EntityObserverInterfaceCode::ON_RECOGNITION_EVENT), data, reply, option);
     PASTEBOARD_CHECK_AND_RETURN_LOGE(
         ret == ERR_OK, PASTEBOARD_MODULE_SERVICE, "SendRequest is failed, error code: %{public}d", ret);
