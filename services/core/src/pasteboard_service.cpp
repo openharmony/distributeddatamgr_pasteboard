@@ -3236,6 +3236,7 @@ int32_t PasteboardService::AppExit(pid_t pid)
     RemoveObserverByPid(userId, pid, observerLocalChangedMap_);
     RemoveObserverByPid(userId, pid, observerRemoteChangedMap_);
     RemoveObserverByPid(COMMON_USERID, pid, observerEventMap_);
+    entityObserverMap_.Erase(pid);
     std::vector<std::string> networkIds;
     p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
         pidMap.EraseIf([pid, this](const auto &key, const auto &value) {
