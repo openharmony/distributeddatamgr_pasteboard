@@ -34,7 +34,7 @@ PasteDataRecordNapi::~PasteDataRecordNapi() {}
 bool PasteDataRecordNapi::NewInstanceByRecord(
     napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record)
 {
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, static_cast<int32_t>(PasteboardError::PARAM_ERROR),
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, false,
         PASTEBOARD_MODULE_CLIENT, "invalid parameter record");
     NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
@@ -113,8 +113,8 @@ bool PasteDataRecordNapi::NewUriRecordInstance(napi_env env, const std::string &
 bool PasteDataRecordNapi::NewWantRecordInstance(
     napi_env env, const std::shared_ptr<OHOS::AAFwk::Want> want, napi_value &instance)
 {
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(want != nullptr, static_cast<int32_t>(PasteboardError::PARAM_ERROR),
-        PASTEBOARD_MODULE_CLIENT, "invalid parameter record");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(want != nullptr, false,
+        PASTEBOARD_MODULE_CLIENT, "invalid parameter want");
     NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
@@ -181,7 +181,7 @@ napi_value PasteDataRecordNapi::SetNapiKvData(napi_env env, std::shared_ptr<Mine
     napi_value jsCustomData = nullptr;
     napi_create_object(env, &jsCustomData);
     auto itemData = customData->GetItemData();
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "size = %{public}u.", static_cast<uint32_t>(itemData.size()));
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "size = %{public}zu.", itemData.size());
     for (const auto &item : itemData) {
         void *data = nullptr;
         napi_value arrayBuffer = nullptr;
