@@ -280,7 +280,7 @@ napi_value PasteDataNapi::HasMimeType(napi_env env, napi_callback_info info)
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, thisVar, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr) || (obj->value_ == nullptr)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get AddHtmlRecord object failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get HasMimeType object failed");
         return nullptr;
     }
 
@@ -324,7 +324,7 @@ napi_value PasteDataNapi::RemoveRecordAt(napi_env env, napi_callback_info info)
     uint32_t index = 0;
     PasteDataNapi *obj = RemoveAndGetRecordCommon(env, info, index);
     if (obj == nullptr || obj->value_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "RemoveAndGetRecordCommon Parameter obj invalid");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "RemoveAndGetRecordCommon return value obj invalid");
         return nullptr;
     }
     bool ret = obj->value_->RemoveRecordAt(index);
@@ -568,13 +568,17 @@ std::shared_ptr<MiscServices::PasteDataRecord> PasteDataNapi::ParseRecord(napi_e
         }
     }
     std::shared_ptr<PasteDataRecord> result = builder.Build();
+    if (result == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "ParseRecord result is nullptr");
+        return nullptr;
+    }
 
     PasteDataRecordNapi *record = nullptr;
     napi_unwrap(env, recordNapi, reinterpret_cast<void **>(&record));
-    if (result == nullptr || record == nullptr || record->value_ == nullptr ||
+    if (record == nullptr || record->value_ == nullptr ||
         record->value_->GetEntryGetter() == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "ParseRecord result or record invalid");
-        return nullptr;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "ParseRecord record invalid");
+        return result;
     }
     result->SetEntryGetter(record->value_->GetEntryGetter());
     result->SetDelayRecordFlag(true);
@@ -775,7 +779,7 @@ bool PasteDataNapi::SetNapiProperty(napi_env env, const PasteDataProperty &prope
     // mimeTypes: Array<string>
     napi_status status = napi_create_array(env, &arr);
     if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_create_array error status =%{public}d", status);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "napi_create_array error status = %{public}d", status);
         return false;
     }
     for (const auto &vec : property.mimeTypes) {

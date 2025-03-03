@@ -190,17 +190,17 @@ void UvQueueWorkGetDelayPasteData(uv_work_t *work, int status)
     work = nullptr;
 }
 
-static void ReleasePasteboardResource(PasteboardDelayWorker *pasteboardDelayWorker, uv_work_t *work)
+static void ReleasePasteboardResource(PasteboardDelayWorker **pasteboardDelayWorker, uv_work_t **work)
 {
-    if (pasteboardDelayWorker == nullptr || work == nullptr) {
+    if (pasteboardDelayWorker == nullptr || work == nullptr ||
+        *pasteboardDelayWorker == nullptr || *work == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid parameter");
         return;
     }
-    delete pasteboardDelayWorker;
-    pasteboardDelayWorker = nullptr;
-    delete work;
-    work = nullptr;
-    return;
+    delete *pasteboardDelayWorker;
+    *pasteboardDelayWorker = nullptr;
+    delete *work;
+    *work = nullptr;
 }
 
 void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF::UnifiedData &data)
@@ -234,7 +234,7 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
         }, UvQueueWorkGetDelayPasteData);
         if (ret != 0) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "uv_queue_work ret is not 0");
-            ReleasePasteboardResource(pasteboardDelayWorker, work);
+            ReleasePasteboardResource(&pasteboardDelayWorker, &work);
             return;
         }
         if (pasteboardDelayWorker->cv.wait_for(lock, std::chrono::seconds(DELAY_TIMEOUT),
@@ -248,7 +248,7 @@ void PasteboardDelayGetterInstance::GetUnifiedData(const std::string &type, UDMF
         }
     }
     if (!noNeedClean) {
-        ReleasePasteboardResource(pasteboardDelayWorker, work);
+        ReleasePasteboardResource(&pasteboardDelayWorker, &work);
     }
 }
 
@@ -462,6 +462,9 @@ napi_value SystemPasteboardNapi::GetData(napi_env env, napi_callback_info info)
     auto exec = [context](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
+        if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
+            ret = static_cast<int32_t>(JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING);
+        }
         if (ret == static_cast<int32_t>(JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING)) {
             context->SetErrInfo(ret, "Another getData is being processed");
         } else {
@@ -783,7 +786,7 @@ void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo>&
         napi_status status = UDMF::UnifiedDataNapi::NewInstance(env, unifiedData, instance);
         if (status != napi_ok) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "NewInstance failed");
-            return napi_invalid_arg;
+            return status;
         }
 
         UDMF::UnifiedDataNapi* obj = nullptr;
