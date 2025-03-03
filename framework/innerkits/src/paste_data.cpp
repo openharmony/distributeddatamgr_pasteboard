@@ -168,7 +168,7 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
     PASTEBOARD_CHECK_AND_RETURN_LOGE(record != nullptr, PASTEBOARD_MODULE_CLIENT, "record is null");
     record->SetRecordId(++recordId_);
 
-    static constexpr int32_t SUPPORT_POSITIVE_ORDER_API_VERSION = 16;
+    static constexpr int32_t SUPPORT_POSITIVE_ORDER_API_VERSION = 18;
     if (apiTargetVersion_ <= 0) {
         apiTargetVersion_ = PasteBoardCommon::GetInstance().GetApiTargetVersionForSelf();
     }
