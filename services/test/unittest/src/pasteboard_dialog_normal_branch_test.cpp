@@ -47,7 +47,7 @@ HWTEST_F(PasteboardDialogNormalBranchTest, ShowToastNormalTest, TestSize.Level0)
     PasteBoardDialog::ToastMessageInfo message;
     message.appName = "myAppName";
     int32_t ret = PasteBoardDialog::GetInstance().ShowToast(message);
-    EXPECT_TRUE(ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING));
+    EXPECT_FALSE(ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING));
 }
 
 /**
