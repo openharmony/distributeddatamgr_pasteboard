@@ -155,7 +155,6 @@ void PasteboardService::OnStart()
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     Loader loader;
     loader.LoadComponents();
-    bundles_ = loader.LoadBundles();
     uid_ = loader.LoadUid();
     moduleConfig_.Init();
     auto ret = DATASL_OnStart();
@@ -382,22 +381,6 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-bool PasteboardService::IsDefaultIME(const AppInfo &appInfo)
-{
-    if (appInfo.tokenType != ATokenTypeEnum::TOKEN_HAP) {
-        return true;
-    }
-    if (bundles_.empty()) {
-        return true;
-    }
-    auto it = find(bundles_.begin(), bundles_.end(), appInfo.bundleName);
-    if (it != bundles_.end()) {
-        return true;
-    }
-
-    return false;
-}
-
 bool PasteboardService::VerifyPermission(uint32_t tokenId)
 {
     auto version = GetSdkVersion(tokenId);
@@ -410,16 +393,14 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
     AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
-    auto isPrivilegeApp = IsDefaultIME(GetAppInfo(tokenId));
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
-        "isReadGrant is %{public}d, isSecureGrant is %{public}d, isPrivilegeApp is %{public}d", isReadGrant,
-        isSecureGrant, isPrivilegeApp);
+        "isReadGrant is %{public}d, isSecureGrant is %{public}d", isReadGrant, isSecureGrant);
     bool isCtrlVAction = false;
     if (inputEventCallback_ != nullptr) {
         isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid, IsFocusedApp(tokenId));
         inputEventCallback_->Clear();
     }
-    auto isGrant = isReadGrant || isSecureGrant || isPrivilegeApp || isCtrlVAction;
+    auto isGrant = isReadGrant || isSecureGrant || isCtrlVAction;
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permisssion, callPid is %{public}d, version is %{public}d",
             callPid, version);
