@@ -152,7 +152,6 @@ private:
     bool isDelayRecord_ = false;
     uint32_t dataId_ = 0;
     uint32_t recordId_ = 0;
-    int32_t apiTargetVersion_ = 0;
 
     using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
     std::map<uint16_t, Func> decodeMap_;
