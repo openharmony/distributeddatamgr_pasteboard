@@ -312,6 +312,34 @@ napi_value PasteboardNapi::JScreatePattern(napi_env env, napi_callback_info info
     return jsPattern;
 }
 
+napi_value PasteboardNapi::JScreateFileConflictOptions(napi_env env, napi_callback_info info)
+{
+    napi_value jsFileConflictOptions = nullptr;
+    napi_create_object(env, &jsFileConflictOptions);
+
+    napi_value jsOVERWRITE = CreateNapiNumber(env, static_cast<uint32_t>(FileConflictOption::FILE_OVERWRITE));
+    NAPI_CALL(env, napi_set_named_property(env, jsFileConflictOptions, "OVERWRITE", jsOVERWRITE));
+
+    napi_value jsSKIP = CreateNapiNumber(env, static_cast<uint32_t>(FileConflictOption::FILE_SKIP));
+    NAPI_CALL(env, napi_set_named_property(env, jsFileConflictOptions, "SKIP", jsSKIP));
+
+    return jsFileConflictOptions;
+}
+
+napi_value PasteboardNapi::JScreateProgressIndicator(napi_env env, napi_callback_info info)
+{
+    napi_value jsProgressIndicator = nullptr;
+    napi_create_object(env, &jsProgressIndicator);
+
+    napi_value jsNONE = CreateNapiNumber(env, static_cast<uint32_t>(ProgressIndicator::NONE_PROGRESS_INDICATOR));
+    NAPI_CALL(env, napi_set_named_property(env, jsProgressIndicator, "NONE", jsNONE));
+
+    napi_value jsDEFAULT = CreateNapiNumber(env, static_cast<uint32_t>(ProgressIndicator::DEFAULT_PROGRESS_INDICATOR));
+    NAPI_CALL(env, napi_set_named_property(env, jsProgressIndicator, "DEFAULT", jsDEFAULT));
+
+    return jsProgressIndicator;
+}
+
 napi_value PasteboardNapi::JScreatePlainTextRecord(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "JScreatePlainTextRecord is called!");
@@ -567,6 +595,8 @@ napi_value PasteboardNapi::PasteBoardInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getSystemPasteboard", JSgetSystemPasteboard),
         DECLARE_NAPI_GETTER("ShareOption", JScreateShareOption),
         DECLARE_NAPI_GETTER("Pattern", JScreatePattern),
+        DECLARE_NAPI_GETTER("FileConflictOptions", JScreateFileConflictOptions),
+        DECLARE_NAPI_GETTER("ProgressIndicator", JScreateProgressIndicator),
         DECLARE_NAPI_PROPERTY("MAX_RECORD_NUM", CreateNapiNumber(env, PasteData::MAX_RECORD_NUM)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_PIXELMAP", CreateNapiString(env, MIMETYPE_PIXELMAP)),
         DECLARE_NAPI_PROPERTY("MIMETYPE_TEXT_HTML", CreateNapiString(env, MIMETYPE_TEXT_HTML)),
