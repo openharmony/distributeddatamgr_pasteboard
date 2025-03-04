@@ -89,7 +89,6 @@ bool SerializableTest::IsSame(Config &oldConfig, Config &newConfig)
     isSame = oldConfig.features == newConfig.features && isSame;
     isSame = oldConfig.plugins == newConfig.plugins && isSame;
     isSame = IsSame(oldConfig.components, newConfig.components) && isSame;
-    isSame = oldConfig.bundles == newConfig.bundles && isSame;
     return isSame;
 }
 
