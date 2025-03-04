@@ -32,6 +32,8 @@
 
 using namespace OHOS::MiscServices;
 static OH_Pasteboard_ProgressListener g_callback = {0};
+#define MAX_PATH_LEN 1024
+#define MAX_DESTURI_LEN 250
 
 static bool IsPasteboardValid(OH_Pasteboard* pasteboard)
 {
@@ -250,6 +252,14 @@ Pasteboard_GetDataParams *OH_Pasteboard_GetDataParams_Create(void)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "new Pasteboard_GetDataParams failed!");
         return nullptr;
     }
+
+    params->destUri = new (std::nothrow) char[MAX_PATH_LEN] {0};
+    if (params->destUri == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "malloc failed!");
+        delete params;
+        params = nullptr;
+        return nullptr;
+    }
     return params;
 }
 
@@ -259,7 +269,12 @@ void OH_Pasteboard_GetDataParams_Destroy(Pasteboard_GetDataParams* params)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
         return;
     }
+    if (params->destUri != nullptr) {
+        delete[] params->destUri;
+        params->destUri = nullptr;
+    }
     delete params;
+    params = nullptr;
 }
 
 void OH_Pasteboard_GetDataParams_SetProgressIndicator(Pasteboard_GetDataParams* params,
@@ -274,12 +289,17 @@ void OH_Pasteboard_GetDataParams_SetProgressIndicator(Pasteboard_GetDataParams* 
 
 void OH_Pasteboard_GetDataParams_SetDestUri(Pasteboard_GetDataParams* params, const char* destUri, uint32_t destUriLen)
 {
-    if (params == nullptr || destUri == nullptr || destUriLen == 0) {
+    if (params == nullptr || params->destUri == nullptr || destUri == nullptr || destUriLen == 0 ||
+        destUriLen >= MAX_PATH_LEN) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid params!");
         return;
     }
-    params->destUri = (char *)destUri;
+
     params->destUriLen = destUriLen;
+    if (strcpy_s(params->destUri, MAX_PATH_LEN, destUri) != EOK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "copy destUri failed!");
+        return;
+    }
 }
 
 void OH_Pasteboard_GetDataParams_SetFileConflictOptions(Pasteboard_GetDataParams* params,
@@ -329,7 +349,6 @@ void OH_Pasteboard_ProgressCancel(Pasteboard_GetDataParams* params)
 OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteboard_GetDataParams* params,
     int* status)
 {
-    #define MAX_DESTURI_LEN 250
     if (!IsPasteboardValid(pasteboard) || params == nullptr || status == nullptr) {
         if (status != nullptr) {
             *status = ERR_INVALID_PARAMETER;
@@ -338,9 +357,10 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
     }
     auto unifiedData = std::make_shared<OHOS::UDMF::UnifiedData>();
     auto getDataParams = std::make_shared<OHOS::MiscServices::GetDataParams>();
-    if (params->destUri != nullptr) {
-        size_t destLen = strlen(params->destUri);
-        if (destLen > MAX_DESTURI_LEN || destLen == 0 || destLen != static_cast<size_t>(params->destUriLen)) {
+    size_t destLen = (params->destUri == nullptr) ? 0 : strlen(params->destUri);
+    if (destLen != 0) {
+        if (destLen > MAX_DESTURI_LEN || params->destUriLen == 0 || params->destUriLen > MAX_DESTURI_LEN ||
+            destLen != static_cast<size_t>(params->destUriLen)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "destUri is invalid, destUriLen=%{public}zu", destLen);
             *status = ERR_INVALID_PARAMETER;
             return nullptr;
