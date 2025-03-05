@@ -575,14 +575,13 @@ std::shared_ptr<MiscServices::PasteDataRecord> PasteDataNapi::ParseRecord(napi_e
 
     PasteDataRecordNapi *record = nullptr;
     napi_unwrap(env, recordNapi, reinterpret_cast<void **>(&record));
-    if (record == nullptr || record->value_ == nullptr ||
-        record->value_->GetEntryGetter() == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "ParseRecord record invalid");
-        return result;
+    if (record != nullptr && record->value_ != nullptr &&
+        record->value_->GetEntryGetter() != nullptr) {
+        result->SetEntryGetter(record->value_->GetEntryGetter());
+        result->SetDelayRecordFlag(true);
     }
-    result->SetEntryGetter(record->value_->GetEntryGetter());
-    result->SetDelayRecordFlag(true);
-    if (!record->value_->GetEntries().empty()) {
+
+    if (record != nullptr && record->value_ != nullptr && !record->value_->GetEntries().empty()) {
         for (const auto& pasteDataEntry : record->value_->GetEntries()) {
             result->AddEntry(pasteDataEntry->GetUtdId(), pasteDataEntry);
         }
