@@ -86,14 +86,14 @@ HWTEST_F(PasteboardServiceTest, IncreaseChangeCountTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: IsAllowDistributedTest
- * @tc.desc: IsAllowDistributed Check CallingUID contral collaboration.
+ * @tc.name: IsDisallowDistributedTest
+ * @tc.desc: IsDisallowDistributed Check CallingUID contral collaboration.
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardServiceTest, IsAllowDistributedTest, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, IsDisallowDistributedTest, TestSize.Level0)
 {
     auto tempPasteboard = std::make_shared<PasteboardService>();
     ASSERT_NE(tempPasteboard, nullptr);
-    ASSERT_EQ(tempPasteboard->IsAllowDistributed(), false);
+    ASSERT_EQ(tempPasteboard->IsDisallowDistributed(), false);
 }
 } // namespace OHOS::MiscServices

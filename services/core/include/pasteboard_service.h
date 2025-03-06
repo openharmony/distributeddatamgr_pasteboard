@@ -301,7 +301,7 @@ private:
         const std::vector<uint8_t> &rawData, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
     int32_t GetLocalEntryValue(int32_t userId, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
-    bool IsAllowDistributed();
+    bool IsDisallowDistributed();
     bool SetDistributedData(int32_t user, PasteData &data);
     bool SetCurrentDistributedData(PasteData &data, Event event);
     bool SetCurrentData(Event event, PasteData &data);
