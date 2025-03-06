@@ -2484,7 +2484,7 @@ uint8_t PasteboardService::GenerateDataType(PasteData &data)
     return value;
 }
 
-bool PasteboardService::IsAllowDistributed()
+bool PasteboardService::IsDisallowDistributed()
 {
     pid_t uid = IPCSkeleton::GetCallingUid();
     if (uid == DEVICE_COLLABORATION_UID) {
@@ -2496,7 +2496,7 @@ bool PasteboardService::IsAllowDistributed()
 
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
-    if (!IsAllowSendData() || IsAllowDistributed()) {
+    if (!IsAllowSendData() || IsDisallowDistributed()) {
         return false;
     }
     auto clipPlugin = GetClipPlugin();
