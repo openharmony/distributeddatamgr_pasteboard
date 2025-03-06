@@ -21,7 +21,7 @@ var sumGetUnifiedDataTime = 0;
 var plainTextData = new UDC.UnifiedData();
 var date = new Date();
 
-const BASE_CONUT = 100;
+const BASE_CONUT = 20;
 
 describe('PasteBoardDelayPerfJSTest', function () {
     beforeAll(async function () {
