@@ -499,42 +499,39 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
     PasteData::ShareOptionToString(pastData.GetShareOption(), shareOption);
     auto isLocalPaste = pastData.IsLocalPaste();
     auto isRemote = pastData.IsRemote();
-    std::thread thread([bundleName, primaryMimeType, shareOption, isLocalPaste, isRemote, stateStr, result]() {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
-        auto iter = PasteboardErrorMap.find(PasteboardError(result));
-        const char *appRet;
-        if (iter != PasteboardErrorMap.end()) {
-            appRet = iter->second;
-        } else {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Match error result: %{public}d.", result);
-            appRet = "MATCH ERROR";
-        }
-        HiSysEventParam params[] = {
-            {.name = {"PASTEBOARD_STATE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)stateStr.c_str()},
-                .arraySize = 0, },
-            {.name = {"BOOTTIME"}, .t = HISYSEVENT_INT64,
-                .v = { .i64 = TimeServiceClient::GetInstance()->GetBootTimeMs()}, .arraySize = 0, },
-            {.name = {"WALLTIME"}, .t = HISYSEVENT_INT64,
-                .v = { .i64 = TimeServiceClient::GetInstance()->GetWallTimeMs()}, .arraySize = 0, },
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start.");
+    auto iter = PasteboardErrorMap.find(PasteboardError(result));
+    const char *appRet;
+    if (iter != PasteboardErrorMap.end()) {
+        appRet = iter->second;
+    } else {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Match error result: %{public}d.", result);
+        appRet = "MATCH ERROR";
+    }
+    HiSysEventParam params[] = {
+        {.name = {"PASTEBOARD_STATE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)stateStr.c_str()},
+            .arraySize = 0, },
+        {.name = {"BOOTTIME"}, .t = HISYSEVENT_INT64,
+            .v = { .i64 = TimeServiceClient::GetInstance()->GetBootTimeMs()}, .arraySize = 0, },
+        {.name = {"WALLTIME"}, .t = HISYSEVENT_INT64,
+            .v = { .i64 = TimeServiceClient::GetInstance()->GetWallTimeMs()}, .arraySize = 0, },
 
-            {.name = {"RESULT"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appRet}, .arraySize = 0, },
-            {.name = {"OPERATE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0},
-            {.name = {"PRI_MIME_TYPE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)primaryMimeType.c_str()},
-                .arraySize = 0, },
-            {.name = {"ISLOCALPASTE"}, .t = HISYSEVENT_BOOL, .v = { .b = isLocalPaste}, .arraySize = 0, },
-            {.name = {"ISREMOTE"}, .t = HISYSEVENT_BOOL, .v = { .b = isRemote}, .arraySize = 0, },
-            {.name = {"SHAREOPTION"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)shareOption.c_str()},
-                .arraySize = 0, },
-        };
-        size_t len = sizeof(params) / sizeof(params[0]);
-        int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::USE_BEHAVIOUR).c_str(),
-            HISYSEVENT_BEHAVIOR, params, len);
-        if (ret != HiviewDFX::SUCCESS) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
-        }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
-    });
-    thread.detach();
+        {.name = {"RESULT"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appRet}, .arraySize = 0, },
+        {.name = {"OPERATE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0},
+        {.name = {"PRI_MIME_TYPE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)primaryMimeType.c_str()},
+            .arraySize = 0, },
+        {.name = {"ISLOCALPASTE"}, .t = HISYSEVENT_BOOL, .v = { .b = isLocalPaste}, .arraySize = 0, },
+        {.name = {"ISREMOTE"}, .t = HISYSEVENT_BOOL, .v = { .b = isRemote}, .arraySize = 0, },
+        {.name = {"SHAREOPTION"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)shareOption.c_str()},
+            .arraySize = 0, },
+    };
+    size_t len = sizeof(params) / sizeof(params[0]);
+    int ret = OH_HiSysEvent_Write(PASTEBOARD_DOMAIN, CoverEventID(DfxCodeConstant::USE_BEHAVIOUR).c_str(),
+        HISYSEVENT_BEHAVIOR, params, len);
+    if (ret != HiviewDFX::SUCCESS) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "hisysevent write failed! ret %{public}d.", ret);
+    }
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "end.");
 }
 
 std::string HiViewAdapter::CoverEventID(int dfxCode)
