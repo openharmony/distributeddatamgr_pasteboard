@@ -60,10 +60,8 @@ std::vector<std::shared_ptr<PasteDataRecord>> ConvertUtils::Convert(
 
 std::shared_ptr<UnifiedRecord> ConvertUtils::Convert(std::shared_ptr<PasteDataRecord> record)
 {
-    if (record == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "paste record is nullptr");
-        return nullptr;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr, PASTEBOARD_MODULE_CLIENT,
+        "paste record is nullptr");
     std::shared_ptr<UnifiedRecord> udmfRecord = std::make_shared<UnifiedRecord>();
     auto entries = Convert(record->GetEntries(), record);
     if (entries->empty()) {
@@ -86,10 +84,8 @@ std::shared_ptr<UnifiedRecord> ConvertUtils::Convert(std::shared_ptr<PasteDataRe
 
 std::shared_ptr<PasteDataRecord> ConvertUtils::Convert(std::shared_ptr<UnifiedRecord> record)
 {
-    if (record == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "udmfRecord is nullptr");
-        return nullptr;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr, PASTEBOARD_MODULE_CLIENT,
+        "udmfRecord is nullptr");
     std::shared_ptr<PasteDataRecord> pbRecord = std::make_shared<PasteDataRecord>();
     auto utdId = record->GetUtdId();
     pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, record->GetOriginValue()));
@@ -115,10 +111,8 @@ std::vector<std::shared_ptr<PasteDataEntry>> ConvertUtils::Convert(
     const std::shared_ptr<std::map<std::string, UDMF::ValueType>> &entries)
 {
     std::vector<std::shared_ptr<PasteDataEntry>> pbEntries;
-    if (entries == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "pbEntries is empty");
-        return pbEntries;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entries != nullptr, pbEntries, PASTEBOARD_MODULE_CLIENT,
+        "pbEntries is empty");
     for (auto const &[utdId, value] : *entries) {
         pbEntries.emplace_back(std::make_shared<PasteDataEntry>(utdId, value));
     }
@@ -128,10 +122,8 @@ std::vector<std::shared_ptr<PasteDataEntry>> ConvertUtils::Convert(
 UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& entry,
     std::shared_ptr<PasteDataRecord> record)
 {
-    if (entry == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "entry is null, convert failed.");
-        return nullptr;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entry != nullptr, nullptr, PASTEBOARD_MODULE_CLIENT,
+        "entry is null, convert failed.");
     auto utdId = entry->GetUtdId();
     auto value = entry->GetValue();
     if (std::holds_alternative<std::monostate>(value) || std::holds_alternative<std::shared_ptr<Object>>(value)) {
