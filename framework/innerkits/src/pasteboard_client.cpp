@@ -30,6 +30,7 @@
 #include "pasteboard_load_callback.h"
 #include "pasteboard_progress.h"
 #include "pasteboard_signal_callback.h"
+#include "pasteboard_time.h"
 #include "pasteboard_utils.h"
 #include "pasteboard_web_controller.h"
 #include "system_ability_definition.h"
@@ -49,6 +50,7 @@ constexpr int32_t SLEEP_TIME_WITHOUT_FILE = 50; // ms
 constexpr int32_t PASTEBOARD_PROGRESS_RETRY_TIMES = 10;
 constexpr int64_t REPORT_DUPLICATE_TIMEOUT = 2 * 60 * 1000; // 2 minutes
 static constexpr int32_t HAP_PULL_UP_TIME = 500; // ms
+static constexpr int32_t HAP_MIN_SHOW_TIME = 300; // ms
 sptr<IPasteboardService> PasteboardClient::pasteboardServiceProxy_;
 PasteboardClient::StaticDestoryMonitor PasteboardClient::staticDestoryMonitor_;
 std::mutex PasteboardClient::instanceLock_;
@@ -56,6 +58,7 @@ std::condition_variable PasteboardClient::proxyConVar_;
 sptr<IRemoteObject> clientDeathObserverPtr_;
 std::atomic<bool> PasteboardClient::remoteTask_(false);
 std::atomic<bool> PasteboardClient::isPasting_(false);
+std::atomic<uint64_t> PasteboardClient::progressStartTime_;
 
 struct RadarReportIdentity {
     pid_t pid;
@@ -336,21 +339,22 @@ void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<GetDataParams> 
 int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params)
 {
     int progressValue = PASTEBOARD_PROGRESS_TWENTY_PERCENT;
-    std::string currentValue = std::to_string(PASTEBOARD_PROGRESS_TWENTY_PERCENT);
     while (progressValue < PASTEBOARD_PROGRESS_FINISH_PERCENT && !remoteTask_.load()) {
+        uint64_t currentTimeMicros = PasteBoardTime::GetCurrentTimeMicros();
+        if (currentTimeMicros >= progressStartTime_) {
+            uint64_t duration = currentTimeMicros - progressStartTime_;
+            if (duration >= (HAP_PULL_UP_TIME + HAP_MIN_SHOW_TIME) || duration < HAP_PULL_UP_TIME) {
+                UpdateProgress(params, PASTEBOARD_PROGRESS_FINISH_PERCENT);
+                break;
+            }
+        }
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "progress cancel success!");
             return static_cast<int32_t>(PasteboardError::E_OK);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_WITHOUT_FILE));
         progressValue += UPDATE_PERCENT_WITHOUT_FILE;
-        currentValue = std::to_string(progressValue);
-        if (params->info != nullptr) {
-            params->info->percentage = progressValue;
-        }
-        if (params->listener.ProgressNotify != nullptr) {
-            params->listener.ProgressNotify(params);
-        }
+        UpdateProgress(params, progressValue);
     }
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
@@ -363,20 +367,37 @@ void PasteboardClient::ProgressSmoothToTwentyPercent(PasteData &pasteData, std::
         return;
     }
     int progressValue = 0;
-    std::string currentValue = "0";
+    bool hasUri = (pasteData.GetPrimaryUri() != nullptr);
     while (progressValue < PASTEBOARD_PROGRESS_TWENTY_PERCENT && !remoteTask_.load()) {
+        uint64_t currentTimeMicros = PasteBoardTime::GetCurrentTimeMicros();
+        if (currentTimeMicros >= progressStartTime_) {
+            uint64_t duration = currentTimeMicros - progressStartTime_;
+            if (duration >= (HAP_PULL_UP_TIME + HAP_MIN_SHOW_TIME) || duration < HAP_PULL_UP_TIME) {
+                UpdateProgress(
+                    params, hasUri ? PASTEBOARD_PROGRESS_TWENTY_PERCENT : PASTEBOARD_PROGRESS_FINISH_PERCENT);
+                break;
+            }
+        }
         if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
             return;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(PASTEBOARD_PROGRESS_SLEEP_TIME));
         progressValue += PASTEBOARD_PROGRESS_UPDATE_PERCENT;
-        currentValue = std::to_string(progressValue);
-        if (params->info != nullptr) {
-            params->info->percentage = progressValue;
-        }
-        if (params->listener.ProgressNotify != nullptr) {
-            params->listener.ProgressNotify(params);
-        }
+        UpdateProgress(params, progressValue);
+    }
+}
+
+void PasteboardClient::UpdateProgress(std::shared_ptr<GetDataParams> params, int progressValue)
+{
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params is null!");
+        return;
+    }
+    if (params->info != nullptr) {
+        params->info->percentage = progressValue;
+    }
+    if (params->listener.ProgressNotify != nullptr) {
+        params->listener.ProgressNotify(params);
     }
 }
 
@@ -453,27 +474,7 @@ int32_t PasteboardClient::ProgressAfterTwentyPercent(PasteData &pasteData, std::
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     int32_t ret = 0;
-    int32_t recordSize = (int32_t)pasteData.GetRecordCount();
-    bool hasUri = false;
-    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
-    if (recordSize <= 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid records size");
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-    }
-    for (int i = 0; i < recordSize; i++) {
-        record = pasteData.GetRecordAt(i);
-        if (record == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Record is nullptr");
-            return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-        }
-        std::shared_ptr<OHOS::Uri> uri = record->GetUri();
-        if (uri == nullptr) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Record has no uri");
-            continue;
-        }
-        hasUri = true;
-        break;
-    }
+    bool hasUri = (pasteData.GetPrimaryUri() != nullptr);
     if (hasUri) {
         ret = PasteBoardCopyFile::GetInstance().CopyPasteData(pasteData, params);
     } else {
@@ -502,6 +503,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         return ret;
     }
+    progressStartTime_ = PasteBoardTime::GetCurrentTimeMicros();
     isPasting_.store(true);
     std::string progressKey;
     std::string keyDefaultValue = "0";
