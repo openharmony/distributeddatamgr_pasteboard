@@ -1043,7 +1043,7 @@ HWTEST_F(PasteboardClientTest, UnsubscribeEntityObserverTest004, TestSize.Level0
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::NO_DATA_ERROR), result);
 }
 
 /**
@@ -1060,6 +1060,6 @@ HWTEST_F(PasteboardClientTest, UnsubscribeEntityObserverTest005, TestSize.Level0
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::NO_DATA_ERROR), result);
 }
 } // namespace OHOS::MiscServices

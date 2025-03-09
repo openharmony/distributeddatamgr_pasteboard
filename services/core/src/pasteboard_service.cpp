@@ -528,19 +528,21 @@ int32_t PasteboardService::UnsubscribeEntityObserver(
         static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
         "expected data length exceeds limitation");
     auto callingPid = IPCSkeleton::GetCallingPid();
-    auto result =
-        entityObserverMap_.ComputeIfPresent(callingPid, [entityType, expectedDataLength](auto, auto &observerList) {
+    auto result = entityObserverMap_.ComputeIfPresent(
+        callingPid, [entityType, expectedDataLength](auto, auto &observerList) {
             auto it = std::find_if(observerList.begin(), observerList.end(),
                 [entityType, expectedDataLength](const EntityObserverInfo &observer) {
                     return observer.entityType == entityType && observer.expectedDataLength == expectedDataLength;
                 });
             if (it != observerList.end()) {
                 observerList.erase(it);
-                return true;
             }
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
                 "Failed to unsubscribe, observer not found, type is %{public}u, length is %{public}u.",
                 static_cast<uint32_t>(entityType), expectedDataLength);
+            if (observerList.empty()) {
+                return false;
+            }
             return true;
         });
     return static_cast<int32_t>(PasteboardError::E_OK);
