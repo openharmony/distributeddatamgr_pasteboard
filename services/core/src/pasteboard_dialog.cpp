@@ -81,7 +81,7 @@ int32_t PasteBoardDialog::ShowToast(const ToastMessageInfo &message)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast failed, result:%{public}d", result);
         return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast success.");
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start pasteboard toast success");
     std::thread thread([this]() mutable {
         std::this_thread::sleep_for(std::chrono::milliseconds(SHOW_TOAST_TIME));
         CancelToast();
