@@ -218,8 +218,9 @@ int32_t PasteboardClient::SubscribeEntityObserver(
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT,
         "SubscribeEntityObserver start, type is %{public}u, length is %{public}u.", static_cast<uint32_t>(entityType),
         expectedDataLength);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(observer != nullptr,
-        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_CLIENT, "observer is nullptr");
+    if (observer == nullptr) {
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
@@ -233,8 +234,9 @@ int32_t PasteboardClient::UnsubscribeEntityObserver(
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT,
         "UnsubscribeEntityObserver start, type is %{public}u, length is %{public}u.", static_cast<uint32_t>(entityType),
         expectedDataLength);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(observer != nullptr,
-        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_CLIENT, "observer is nullptr");
+    if (observer == nullptr) {
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
@@ -316,7 +318,10 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params)
 {
     PASTEBOARD_CHECK_AND_RETURN_LOGE(params != nullptr, PASTEBOARD_MODULE_CLIENT, "params is null!");
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(params->info != nullptr, PASTEBOARD_MODULE_CLIENT, "params->info is null!");
+    if (params->info == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params->info is null!");
+        return;
+    }
     std::unique_lock<std::mutex> lock(instanceLock_);
     std::string progressKey = g_progressKey;
     lock.unlock();
@@ -474,10 +479,14 @@ int32_t PasteboardClient::ProgressAfterTwentyPercent(PasteData &pasteData, std::
 
 int32_t PasteboardClient::CheckProgressParam(std::shared_ptr<GetDataParams> params)
 {
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(params != nullptr,
-        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_CLIENT, "Invalid param!");
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!isPasting_,
-        static_cast<int32_t>(PasteboardError::TASK_PROCESSING), PASTEBOARD_MODULE_CLIENT, "task copying!");
+    if (params == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid param!");
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
+    if (isPasting_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "task copying!");
+        return static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
+    }
     ProgressSignalClient::GetInstance().Init();
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
@@ -628,7 +637,10 @@ int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
 void PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(callback != nullptr, PASTEBOARD_MODULE_CLIENT, "input nullptr.");
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
+        return;
+    }
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     proxyService->SubscribeObserver(type, callback);
@@ -760,8 +772,10 @@ bool PasteboardClient::HasDataType(const std::string &mimeType)
 
 std::set<Pattern> PasteboardClient::DetectPatterns(const std::set<Pattern> &patternsToCheck)
 {
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(PatternDetection::IsValid(patternsToCheck), {},
-        PASTEBOARD_MODULE_CLIENT, "Invalid number in Pattern set!");
+    if (!PatternDetection::IsValid(patternsToCheck)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid number in Pattern set!");
+        return {};
+    }
 
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, {},
