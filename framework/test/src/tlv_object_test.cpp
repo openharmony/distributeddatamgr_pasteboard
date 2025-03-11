@@ -15,9 +15,9 @@
 
 #include <gtest/gtest.h>
 
+#include "long_wrapper.h"
 #include "pasteboard_client.h"
 #include "pasteboard_hilog.h"
-#include "tlv_object.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -71,12 +71,12 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
     }
 
     std::vector<uint8_t> buffer;
-    auto ret = pasteData1.Encode(buffer);
+    auto ret = pasteData1.Marshalling(buffer);
     ASSERT_TRUE(ret);
-    ASSERT_EQ(buffer.size(), pasteData1.Count());
+    ASSERT_EQ(buffer.size(), pasteData1.CountTLV());
 
     PasteData pasteData2;
-    ret = pasteData2.Decode(buffer);
+    ret = pasteData2.Unmarshalling(buffer);
     EXPECT_TRUE(ret);
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1.GetRecordCount());
 
@@ -106,12 +106,12 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest002, TestSize.Level0)
     auto pasteData1 = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
 
     std::vector<uint8_t> buffer;
-    auto ret = pasteData1->Encode(buffer);
+    auto ret = pasteData1->Marshalling(buffer);
     ASSERT_TRUE(ret);
-    ASSERT_EQ(buffer.size(), pasteData1->Count());
+    ASSERT_EQ(buffer.size(), pasteData1->CountTLV());
 
     PasteData pasteData2;
-    ret = pasteData2.Decode(buffer);
+    ret = pasteData2.Unmarshalling(buffer);
     EXPECT_TRUE(ret);
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1->GetRecordCount());
 
@@ -141,12 +141,12 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest003, TestSize.Level0)
     pasteData1->AddRecord(pasteDataRecord);
 
     std::vector<uint8_t> buffer;
-    auto ret = pasteData1->Encode(buffer);
+    auto ret = pasteData1->Marshalling(buffer);
     ASSERT_TRUE(ret);
-    ASSERT_EQ(buffer.size(), pasteData1->Count());
+    ASSERT_EQ(buffer.size(), pasteData1->CountTLV());
 
     PasteData pasteData2;
-    ret = pasteData2.Decode(buffer);
+    ret = pasteData2.Unmarshalling(buffer);
     EXPECT_TRUE(ret);
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1->GetRecordCount());
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1->GetRecordCount());
@@ -158,5 +158,137 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest003, TestSize.Level0)
     auto custom1 = record1->GetCustomData();
     ASSERT_TRUE(custom1 != nullptr && custom2 != nullptr);
     EXPECT_EQ(custom2->GetItemData().size(), custom1->GetItemData().size());
+}
+
+/**
+ * @tc.name: TestPasteDataProperty
+ * @tc.desc: PasteDataProperty
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVObjectTest, TestPasteDataProperty, TestSize.Level0)
+{
+    PasteDataProperty obj1;
+    obj1.mimeTypes = {
+        MIMETYPE_PIXELMAP, MIMETYPE_TEXT_HTML, MIMETYPE_TEXT_PLAIN, MIMETYPE_TEXT_URI, MIMETYPE_TEXT_WANT,
+    };
+    obj1.additions.SetParam("key", AAFwk::Long::Box(1));
+    obj1.tag = "tag";
+    obj1.timestamp = 1;
+    obj1.localOnly = true;
+    obj1.shareOption = ShareOption::CrossDevice;
+    obj1.tokenId = 1;
+    obj1.isRemote = true;
+    obj1.bundleName = "bundleName";
+    obj1.setTime = "setTime";
+    obj1.screenStatus = ScreenEvent::ScreenUnlocked;
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Marshalling(buffer);
+    ASSERT_TRUE(ret);
+
+    PasteDataProperty obj2;
+    ret = obj2.Unmarshalling(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_TRUE(obj1.additions == obj2.additions);
+    EXPECT_EQ(obj1.mimeTypes, obj2.mimeTypes);
+    EXPECT_EQ(obj1.tag, obj2.tag);
+    EXPECT_EQ(obj1.timestamp, obj2.timestamp);
+    EXPECT_EQ(obj1.localOnly, obj2.localOnly);
+    EXPECT_EQ(obj1.shareOption, obj2.shareOption);
+    EXPECT_EQ(obj1.tokenId, obj2.tokenId);
+    EXPECT_EQ(obj1.isRemote, obj2.isRemote);
+    EXPECT_EQ(obj1.bundleName, obj2.bundleName);
+    EXPECT_EQ(obj1.setTime, obj2.setTime);
+    EXPECT_EQ(obj1.screenStatus, obj2.screenStatus);
+}
+
+/**
+ * @tc.name: TestMineCustomData
+ * @tc.desc: MineCustomData
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVObjectTest, TestMineCustomData, TestSize.Level0)
+{
+    MineCustomData obj1;
+    obj1.AddItemData("key", {1, 1, 1, 1});
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Marshalling(buffer);
+    ASSERT_TRUE(ret);
+
+    MineCustomData obj2;
+    ret = obj2.Unmarshalling(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1.GetItemData(), obj2.GetItemData());
+}
+
+/**
+ * @tc.name: TestPasteDataEntry
+ * @tc.desc: PasteDataEntry
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVObjectTest, TestPasteDataEntry, TestSize.Level0)
+{
+    PasteDataEntry obj1;
+    obj1.SetUtdId("utdId");
+    obj1.SetMimeType("mimeType");
+    auto udmfObject = std::make_shared<Object>();
+    udmfObject->value_["key"] = "value";
+    obj1.SetValue(udmfObject);
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Marshalling(buffer);
+    ASSERT_TRUE(ret);
+
+    PasteDataEntry obj2;
+    ret = obj2.Unmarshalling(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1.GetUtdId(), obj2.GetUtdId());
+    EXPECT_EQ(obj1.GetMimeType(), obj2.GetMimeType());
+
+    auto entryValue = obj2.GetValue();
+    ASSERT_TRUE(std::holds_alternative<std::shared_ptr<Object>>(entryValue));
+    auto udmfObject2 = std::get<std::shared_ptr<Object>>(entryValue);
+    ASSERT_NE(udmfObject2, nullptr);
+    EXPECT_EQ(udmfObject->value_, udmfObject2->value_);
+}
+
+/**
+ * @tc.name: TestPasteDataRecord
+ * @tc.desc: PasteDataRecord
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVObjectTest, TestPasteDataRecord, TestSize.Level0)
+{
+    PasteDataRecord obj1;
+    auto udmfObject = std::make_shared<Object>();
+    std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    udmfObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    udmfObject->value_[UDMF::CONTENT] = "content";
+    auto entry1 = std::make_shared<PasteDataEntry>();
+    entry1->SetValue(udmfObject);
+    entry1->SetUtdId(utdId);
+    entry1->SetMimeType(MIMETYPE_TEXT_PLAIN);
+    obj1.AddEntry(utdId, entry1);
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Marshalling(buffer);
+    ASSERT_TRUE(ret);
+
+    PasteDataRecord obj2;
+    ret = obj2.Unmarshalling(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1.GetMimeType(), obj2.GetMimeType());
+    auto entry2 = obj2.GetEntry(utdId);
+    ASSERT_NE(entry2, nullptr);
+    auto entryValue = entry2->GetValue();
+    ASSERT_TRUE(std::holds_alternative<std::shared_ptr<Object>>(entryValue));
+    auto udmfObject2 = std::get<std::shared_ptr<Object>>(entryValue);
+    ASSERT_NE(udmfObject2, nullptr);
+    EXPECT_EQ(udmfObject->value_, udmfObject2->value_);
 }
 } // namespace OHOS::MiscServices

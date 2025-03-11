@@ -33,8 +33,9 @@ ohos_static_library("pasteboard_tlv") {
     debug = false
   }
   sources = [
-    "parcel_util.cpp",
-    "tlv_object.cpp",
+    "tlv_readable.cpp",
+    "tlv_utils.cpp",
+    "tlv_writeable.cpp",
   ]
   cflags = [
     "-Wno-multichar",

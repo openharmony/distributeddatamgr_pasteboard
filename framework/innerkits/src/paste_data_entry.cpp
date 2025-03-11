@@ -42,35 +42,34 @@ void MineCustomData::AddItemData(const std::string &mimeType, const std::vector<
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "itemData_.size = %{public}zu", itemData_.size());
 }
 
-bool MineCustomData::Encode(std::vector<std::uint8_t> &buffer)
+bool MineCustomData::EncodeTLV(WriteOnlyBuffer &buffer)
 {
-    return Write(buffer, TAG_ITEM_DATA, itemData_);
+    return buffer.Write(TAG_ITEM_DATA, itemData_);
 }
 
-bool MineCustomData::Decode(const std::vector<std::uint8_t> &buffer)
+bool MineCustomData::DecodeTLV(ReadOnlyBuffer &buffer)
 {
-    for (; IsEnough();) {
+    for (; buffer.IsEnough();) {
         TLVHead head{};
-        bool ret = ReadHead(buffer, head);
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
+        bool ret = buffer.ReadHead(head);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "read head failed");
         switch (head.tag) {
             case TAG_ITEM_DATA:
-                ret = ret && ReadValue(buffer, itemData_, head);
+                ret = buffer.ReadValue(itemData_, head);
                 break;
             default:
-                ret = ret && Skip(head.len, buffer.size());
+                ret = buffer.Skip(head.len);
                 break;
         }
-        if (!ret) {
-            return false;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON,
+            "read value failed, tag=%{public}hu, len=%{public}u", head.tag, head.len);
     }
     return true;
 }
 
-size_t MineCustomData::Count()
+size_t MineCustomData::CountTLV()
 {
-    return TLVObject::Count(itemData_);
+    return TLVCountable::Count(itemData_);
 }
 
 PasteDataEntry::PasteDataEntry(const PasteDataEntry &entry)
@@ -129,60 +128,43 @@ void PasteDataEntry::SetValue(const EntryValue &value)
     value_ = value;
 }
 
-bool PasteDataEntry::Encode(std::vector<std::uint8_t> &buffer)
+bool PasteDataEntry::EncodeTLV(WriteOnlyBuffer &buffer)
 {
-    bool ret = Write(buffer, TAG_ENTRY_UTDID, utdId_);
-    ret = ret && Write(buffer, TAG_ENTRY_MIMETYPE, mimeType_);
-    ret = ret && Write(buffer, TAG_ENTRY_VALUE, value_);
+    bool ret = buffer.Write(TAG_ENTRY_UTDID, utdId_);
+    ret = ret && buffer.Write(TAG_ENTRY_MIMETYPE, mimeType_);
+    ret = ret && buffer.Write(TAG_ENTRY_VALUE, value_);
     return ret;
 }
 
-bool PasteDataEntry::Decode(const std::vector<std::uint8_t> &buffer)
+bool PasteDataEntry::DecodeTLV(ReadOnlyBuffer &buffer)
 {
-    for (; IsEnough();) {
+    for (; buffer.IsEnough();) {
         TLVHead head{};
-        bool ret = ReadHead(buffer, head);
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
+        bool ret = buffer.ReadHead(head);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "read head failed");
         switch (head.tag) {
             case TAG_ENTRY_UTDID:
-                ret = ret && ReadValue(buffer, utdId_, head);
+                ret = buffer.ReadValue(utdId_, head);
                 break;
-            case TAG_ENTRY_MIMETYPE: {
-                ret = ret && ReadValue(buffer, mimeType_, head);
+            case TAG_ENTRY_MIMETYPE:
+                ret = buffer.ReadValue(mimeType_, head);
                 break;
-            }
-            case TAG_ENTRY_VALUE: {
-                ret = ret && ReadValue(buffer, value_, head);
+            case TAG_ENTRY_VALUE:
+                ret = buffer.ReadValue(value_, head);
                 break;
-            }
             default:
-                ret = ret && Skip(head.len, buffer.size());
+                ret = buffer.Skip(head.len);
                 break;
         }
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}hu, len:%{public}u, ret:%{public}d",
-            head.tag, head.len, ret);
-        if (!ret) {
-            return false;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON,
+            "read value failed, tag=%{public}hu, len=%{public}u", head.tag, head.len);
     }
     return true;
 }
 
-bool PasteDataEntry::Marshalling(std::vector<std::uint8_t> &buffer)
+size_t PasteDataEntry::CountTLV()
 {
-    Init(buffer);
-    return Encode(buffer);
-}
-
-bool PasteDataEntry::Unmarshalling(const std::vector<std::uint8_t> &buffer)
-{
-    total_ = buffer.size();
-    return Decode(buffer);
-}
-
-size_t PasteDataEntry::Count()
-{
-    return TLVObject::Count(utdId_) + TLVObject::Count(mimeType_) + TLVObject::Count(value_) ;
+    return TLVCountable::Count(utdId_) + TLVCountable::Count(mimeType_) + TLVCountable::Count(value_);
 }
 
 std::shared_ptr<std::string> PasteDataEntry::ConvertToPlainText() const

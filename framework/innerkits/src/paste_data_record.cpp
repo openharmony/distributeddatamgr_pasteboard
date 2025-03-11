@@ -229,50 +229,44 @@ PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
 void PasteDataRecord::InitDecodeMap()
 {
     decodeMap = {
-        {TAG_MIMETYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, mimeType_, head);}},
-        {TAG_HTMLTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, htmlText_, head);}},
-        {TAG_WANT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            RawMem rawMem{};
-            ret = ret && ReadValue(buffer, rawMem, head);
-            want_ = ParcelUtil::Raw2Parcelable<AAFwk::Want>(rawMem);}},
-        {TAG_PLAINTEXT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, plainText_, head); }},
-        {TAG_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            RawMem rawMem{};
-            ret = ret && ReadValue(buffer, rawMem, head);
-            uri_ = ParcelUtil::Raw2Parcelable<OHOS::Uri>(rawMem);}},
-        {TAG_CONVERT_URI, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, convertUri_, head);}},
-        {TAG_PIXELMAP, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            std::vector<std::uint8_t> value;
-            ret = ret && ReadValue(buffer, value, head);
-            pixelMap_ = Vector2PixelMap(value);}},
-        {TAG_CUSTOM_DATA, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, customData_, head);}},
-        {TAG_URI_PERMISSION, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, hasGrantUriPermission_, head);}},
-        {TAG_UDC_UDTYPE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, udType_, head);}},
-        {TAG_UDC_DETAILS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, details_, head);}},
-        {TAG_UDC_TEXTCONTENT, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, textContent_, head);}},
-        {TAG_UDC_SYSTEMCONTENTS, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, systemDefinedContents_, head);}},
-        {TAG_UDC_UDMFVALUE, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, udmfValue_, head);}},
-        {TAG_UDC_ENTRIES, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, entries_, head);}},
-        {TAG_DATA_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, dataId_, head);}},
-        {TAG_RECORD_ID, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, recordId_, head);}},
-        {TAG_DELAY_RECORD_FLAG, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, isDelay_, head);}},
-        {TAG_FROM, [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-            ret = ret && ReadValue(buffer, from_, head);}},
+        {TAG_MIMETYPE,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(mimeType_, head); }},
+        {TAG_HTMLTEXT,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(htmlText_, head); }},
+        {TAG_WANT,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(want_, head); }},
+        {TAG_PLAINTEXT,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(plainText_, head); }},
+        {TAG_URI,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(uri_, head); }},
+        {TAG_CONVERT_URI,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(convertUri_, head); }},
+        {TAG_PIXELMAP,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(pixelMap_, head); }},
+        {TAG_CUSTOM_DATA,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(customData_, head);}},
+        {TAG_URI_PERMISSION,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(hasGrantUriPermission_, head); }},
+        {TAG_UDC_UDTYPE,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(udType_, head); }},
+        {TAG_UDC_DETAILS,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(details_, head); }},
+        {TAG_UDC_TEXTCONTENT,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(textContent_, head); }},
+        {TAG_UDC_SYSTEMCONTENTS,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(systemDefinedContents_, head); }},
+        {TAG_UDC_UDMFVALUE,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(udmfValue_, head); }},
+        {TAG_UDC_ENTRIES,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(entries_, head); }},
+        {TAG_DATA_ID,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(dataId_, head); }},
+        {TAG_RECORD_ID,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(recordId_, head); }},
+        {TAG_DELAY_RECORD_FLAG,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isDelay_, head); }},
+        {TAG_FROM,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(from_, head); }},
     };
 }
 
@@ -406,76 +400,71 @@ std::string PasteDataRecord::ConvertToText() const
     return "";
 }
 
-bool PasteDataRecord::Encode(std::vector<std::uint8_t> &buffer)
+bool PasteDataRecord::EncodeTLV(WriteOnlyBuffer &buffer)
 {
-    bool ret = Write(buffer, TAG_MIMETYPE, mimeType_);
-    ret = Write(buffer, TAG_HTMLTEXT, htmlText_) && ret;
-    ret = Write(buffer, TAG_WANT, ParcelUtil::Parcelable2Raw(want_.get())) && ret;
-    ret = Write(buffer, TAG_PLAINTEXT, plainText_) && ret;
-    ret = Write(buffer, TAG_URI, ParcelUtil::Parcelable2Raw(uri_.get())) && ret;
-    ret = Write(buffer, TAG_CONVERT_URI, convertUri_) && ret;
-    auto pixelVector = PixelMap2Vector(pixelMap_);
-    ret = Write(buffer, TAG_PIXELMAP, pixelVector) && ret;
-    ret = Write(buffer, TAG_CUSTOM_DATA, customData_) && ret;
-    ret = Write(buffer, TAG_URI_PERMISSION, hasGrantUriPermission_) && ret;
-    ret = Write(buffer, TAG_UDC_UDTYPE, udType_) && ret;
-    ret = Write(buffer, TAG_UDC_DETAILS, details_) && ret;
-    ret = Write(buffer, TAG_UDC_TEXTCONTENT, textContent_) && ret;
-    ret = Write(buffer, TAG_UDC_SYSTEMCONTENTS, systemDefinedContents_) && ret;
-    ret = Write(buffer, TAG_UDC_UDMFVALUE, udmfValue_) && ret;
-    ret = Write(buffer, TAG_UDC_ENTRIES, entries_) && ret;
-    ret = Write(buffer, TAG_DATA_ID, dataId_) && ret;
-    ret = Write(buffer, TAG_RECORD_ID, recordId_) && ret;
-    ret = Write(buffer, TAG_DELAY_RECORD_FLAG, isDelay_) && ret;
-    ret = Write(buffer, TAG_FROM, from_) && ret;
+    bool ret = buffer.Write(TAG_MIMETYPE, mimeType_);
+    ret = ret && buffer.Write(TAG_HTMLTEXT, htmlText_);
+    ret = ret && buffer.Write(TAG_WANT, TLVUtils::Parcelable2Raw(want_.get()));
+    ret = ret && buffer.Write(TAG_PLAINTEXT, plainText_);
+    ret = ret && buffer.Write(TAG_URI, TLVUtils::Parcelable2Raw(uri_.get()));
+    ret = ret && buffer.Write(TAG_CONVERT_URI, convertUri_);
+    ret = ret && buffer.Write(TAG_PIXELMAP, pixelMap_);
+    ret = ret && buffer.Write(TAG_CUSTOM_DATA, customData_);
+    ret = ret && buffer.Write(TAG_URI_PERMISSION, hasGrantUriPermission_);
+    ret = ret && buffer.Write(TAG_UDC_UDTYPE, udType_);
+    ret = ret && buffer.Write(TAG_UDC_DETAILS, details_);
+    ret = ret && buffer.Write(TAG_UDC_TEXTCONTENT, textContent_);
+    ret = ret && buffer.Write(TAG_UDC_SYSTEMCONTENTS, systemDefinedContents_);
+    ret = ret && buffer.Write(TAG_UDC_UDMFVALUE, udmfValue_);
+    ret = ret && buffer.Write(TAG_UDC_ENTRIES, entries_);
+    ret = ret && buffer.Write(TAG_DATA_ID, dataId_);
+    ret = ret && buffer.Write(TAG_RECORD_ID, recordId_);
+    ret = ret && buffer.Write(TAG_DELAY_RECORD_FLAG, isDelay_);
+    ret = ret && buffer.Write(TAG_FROM, from_);
     return ret;
 }
 
-bool PasteDataRecord::Decode(const std::vector<std::uint8_t> &buffer)
+bool PasteDataRecord::DecodeTLV(ReadOnlyBuffer &buffer)
 {
-    for (; IsEnough();) {
+    for (; buffer.IsEnough();) {
         TLVHead head{};
-        bool ret = ReadHead(buffer, head);
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
+        bool ret = buffer.ReadHead(head);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "read head failed");
+
         auto it = decodeMap.find(head.tag);
         if (it == decodeMap.end()) {
-            ret = ret && Skip(head.len, buffer.size());
+            ret = buffer.Skip(head.len);
         } else {
-            auto func = it->second;
-            func(ret, buffer, head);
+            ret = it->second(buffer, head);
         }
-        if (!ret) {
-            PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_CLIENT, "read value,tag:%{public}u, len:%{public}u", head.tag, head.len);
-            return false;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON,
+            "read value failed, tag=%{public}hu, len=%{public}u", head.tag, head.len);
     }
     return true;
 }
 
-size_t PasteDataRecord::Count()
+size_t PasteDataRecord::CountTLV()
 {
     size_t expectedSize = 0;
-    expectedSize += TLVObject::Count(mimeType_);
-    expectedSize += TLVObject::Count(htmlText_);
-    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(want_.get()));
-    expectedSize += TLVObject::Count(plainText_);
-    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(uri_.get()));
-    expectedSize += TLVObject::Count(convertUri_);
-    auto pixelVector = PixelMap2Vector(pixelMap_);
-    expectedSize += TLVObject::Count(pixelVector);
-    expectedSize += TLVObject::Count(customData_);
-    expectedSize += TLVObject::Count(hasGrantUriPermission_);
-    expectedSize += TLVObject::Count(udType_);
-    expectedSize += TLVObject::Count(details_);
-    expectedSize += TLVObject::Count(textContent_);
-    expectedSize += TLVObject::Count(systemDefinedContents_);
-    expectedSize += TLVObject::Count(udmfValue_);
-    expectedSize += TLVObject::Count(entries_);
-    expectedSize += TLVObject::Count(dataId_);
-    expectedSize += TLVObject::Count(recordId_);
-    expectedSize += TLVObject::Count(isDelay_);
-    expectedSize += TLVObject::Count(from_);
+    expectedSize += TLVCountable::Count(mimeType_);
+    expectedSize += TLVCountable::Count(htmlText_);
+    expectedSize += TLVCountable::Count(TLVUtils::Parcelable2Raw(want_.get()));
+    expectedSize += TLVCountable::Count(plainText_);
+    expectedSize += TLVCountable::Count(TLVUtils::Parcelable2Raw(uri_.get()));
+    expectedSize += TLVCountable::Count(convertUri_);
+    expectedSize += TLVCountable::Count(pixelMap_);
+    expectedSize += TLVCountable::Count(customData_);
+    expectedSize += TLVCountable::Count(hasGrantUriPermission_);
+    expectedSize += TLVCountable::Count(udType_);
+    expectedSize += TLVCountable::Count(details_);
+    expectedSize += TLVCountable::Count(textContent_);
+    expectedSize += TLVCountable::Count(systemDefinedContents_);
+    expectedSize += TLVCountable::Count(udmfValue_);
+    expectedSize += TLVCountable::Count(entries_);
+    expectedSize += TLVCountable::Count(dataId_);
+    expectedSize += TLVCountable::Count(recordId_);
+    expectedSize += TLVCountable::Count(isDelay_);
+    expectedSize += TLVCountable::Count(from_);
     return expectedSize;
 }
 

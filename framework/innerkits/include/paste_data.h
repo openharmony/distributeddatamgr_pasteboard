@@ -21,7 +21,7 @@ namespace OHOS {
 namespace MiscServices {
 enum ShareOption : int32_t { InApp = 0, LocalDevice, CrossDevice };
 enum ScreenEvent : int32_t { Default = 0, ScreenLocked, ScreenUnlocked };
-struct API_EXPORT PasteDataProperty : public TLVObject {
+struct API_EXPORT PasteDataProperty : public TLVWriteable, public TLVReadable {
     PasteDataProperty() = default;
     ~PasteDataProperty();
     explicit PasteDataProperty(const PasteDataProperty &property);
@@ -38,13 +38,12 @@ struct API_EXPORT PasteDataProperty : public TLVObject {
     std::string setTime;
     ScreenEvent screenStatus = ScreenEvent::Default;
 
-    bool Encode(std::vector<std::uint8_t> &buffer) override;
-    bool Decode(const std::vector<std::uint8_t> &buffer) override;
-    bool DecodeTag(const std::vector<std::uint8_t> &buffer);
-    size_t Count() override;
+    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool DecodeTLV(ReadOnlyBuffer &buffer) override;
+    size_t CountTLV() override;
 };
 
-class API_EXPORT PasteData : public TLVObject, public Parcelable {
+class API_EXPORT PasteData : public TLVWriteable, public TLVReadable {
 public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();
@@ -105,9 +104,9 @@ public:
     void SetFileSize(int64_t fileSize);
     int64_t GetFileSize() const;
 
-    bool Encode(std::vector<std::uint8_t> &buffer) override;
-    bool Decode(const std::vector<std::uint8_t> &buffer) override;
-    size_t Count() override;
+    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool DecodeTLV(ReadOnlyBuffer &buffer) override;
+    size_t CountTLV() override;
 
     bool IsValid() const;
     void SetInvalid();
@@ -124,8 +123,6 @@ public:
     std::string GetDeviceId() const;
 
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
-    bool Marshalling(Parcel &parcel) const override;
-    static PasteData *Unmarshalling(Parcel &parcel);
     static std::string sharePath;
     static std::string WEBVIEW_PASTEDATA_TAG;
     static const std::string DISTRIBUTEDFILES_TAG;
@@ -139,7 +136,6 @@ public:
 
 private:
     void RefreshMimeProp();
-    bool ReadFromParcel(Parcel &parcel);
 
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
@@ -153,8 +149,8 @@ private:
     uint32_t dataId_ = 0;
     uint32_t recordId_ = 0;
 
-    using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
-    std::map<uint16_t, Func> decodeMap_;
+    using DecodeFunc = std::function<bool(ReadOnlyBuffer &buffer, TLVHead &head)>;
+    std::map<uint16_t, DecodeFunc> decodeMap_;
     void InitDecodeMap();
 };
 
