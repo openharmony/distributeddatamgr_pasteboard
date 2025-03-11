@@ -530,6 +530,8 @@ private:
        std::shared_ptr<GetDataParams> params);
     int32_t GetPasteDataFromService(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo,
        std::string progressKey, std::shared_ptr<GetDataParams> params);
+    static void UpdateProgress(std::shared_ptr<GetDataParams> params, int progressValue);
+    static std::atomic<uint64_t> progressStartTime_;
     static void OnProgressAbnormal(int32_t result);
     void ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo);
     static int32_t ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
