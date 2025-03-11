@@ -534,12 +534,13 @@ int32_t PasteboardService::UnsubscribeEntityObserver(
                 [entityType, expectedDataLength](const EntityObserverInfo &observer) {
                     return observer.entityType == entityType && observer.expectedDataLength == expectedDataLength;
                 });
-            if (it != observerList.end()) {
-                observerList.erase(it);
+            if (it == observerList.end()) {
+                PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
+                    "Failed to unsubscribe, observer not found, type is %{public}u, length is %{public}u.",
+                    static_cast<uint32_t>(entityType), expectedDataLength);
+                return true;
             }
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
-                "Failed to unsubscribe, observer not found, type is %{public}u, length is %{public}u.",
-                static_cast<uint32_t>(entityType), expectedDataLength);
+            observerList.erase(it);
             if (observerList.empty()) {
                 return false;
             }
