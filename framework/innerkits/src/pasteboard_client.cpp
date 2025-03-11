@@ -222,9 +222,9 @@ int32_t PasteboardClient::SubscribeEntityObserver(
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->SubscribeEntityObserver(entityType, expectedDataLength, observer);
 }
 
@@ -238,18 +238,18 @@ int32_t PasteboardClient::UnsubscribeEntityObserver(
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->UnsubscribeEntityObserver(entityType, expectedDataLength, observer);
 }
 
 int32_t PasteboardClient::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->GetRecordValueByType(dataId, recordId, value);
 }
 
@@ -257,9 +257,7 @@ void PasteboardClient::Clear()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Clear start.");
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     proxyService->Clear();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "Clear end.");
     return;
@@ -319,11 +317,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 
 void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params)
 {
-    if (params == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params is null!");
-        return;
-    }
-
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(params != nullptr, PASTEBOARD_MODULE_CLIENT, "params is null!");
     if (params->info == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "params->info is null!");
         return;
@@ -581,9 +575,8 @@ bool PasteboardClient::HasPasteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "HasPasteData start.");
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false,
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->HasPasteData();
 }
 
@@ -649,9 +642,7 @@ void PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObs
         return;
     }
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     proxyService->SubscribeObserver(type, callback);
 }
 
@@ -669,9 +660,7 @@ void PasteboardClient::Unsubscribe(PasteboardObserverType type, sptr<PasteboardO
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     if (callback == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
         proxyService->UnsubscribeAllObserver(type);
@@ -695,45 +684,44 @@ void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> ca
 int32_t PasteboardClient::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->SetGlobalShareOption(globalShareOptions);
 }
 
 int32_t PasteboardClient::RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->RemoveGlobalShareOption(tokenIds);
 }
 
 std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(const std::vector<uint32_t> &tokenIds)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return {};
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, {},
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->GetGlobalShareOption(tokenIds);
 }
 
 int32_t PasteboardClient::SetAppShareOptions(const ShareOption &shareOptions)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->SetAppShareOptions(shareOptions);
 }
 
 int32_t PasteboardClient::RemoveAppShareOptions()
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->RemoveAppShareOptions();
 }
 
@@ -741,9 +729,8 @@ bool PasteboardClient::IsRemoteData()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "IsRemoteData start.");
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false,
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     auto ret = proxyService->IsRemoteData();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "IsRemoteData end.");
     return ret;
@@ -753,9 +740,9 @@ int32_t PasteboardClient::GetDataSource(std::string &bundleName)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataSource start.");
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     int32_t ret = proxyService->GetDataSource(bundleName);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataSource end.");
     return ret;
@@ -765,9 +752,8 @@ std::vector<std::string> PasteboardClient::GetMimeTypes()
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes start.");
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return {};
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, {},
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->GetMimeTypes();
 }
 
@@ -775,13 +761,9 @@ bool PasteboardClient::HasDataType(const std::string &mimeType)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "HasDataType start.");
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return false;
-    }
-    if (mimeType.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "parameter is invalid");
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false,
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!mimeType.empty(), false, PASTEBOARD_MODULE_CLIENT, "parameter is invalid");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "type is %{public}s", mimeType.c_str());
     bool ret = proxyService->HasDataType(mimeType);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "HasDataType end.");
@@ -796,9 +778,8 @@ std::set<Pattern> PasteboardClient::DetectPatterns(const std::set<Pattern> &patt
     }
 
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return {};
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, {},
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->DetectPatterns(patternsToCheck);
 }
 
@@ -893,27 +874,23 @@ void PasteboardClient::PasteStart(const std::string &pasteId)
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_DISTRIBUTED_FILE_START,
         RadarReporter::DFX_SUCCESS, RadarReporter::CONCURRENT_ID, pasteId);
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     proxyService->PasteStart(pasteId);
 }
 
 void PasteboardClient::PasteComplete(const std::string &deviceId, const std::string &pasteId)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     proxyService->PasteComplete(deviceId, pasteId);
 }
 
 int32_t PasteboardClient::GetRemoteDeviceName(std::string &deviceName, bool &isRemote)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     return proxyService->GetRemoteDeviceName(deviceName, isRemote);
 }
 
@@ -952,9 +929,7 @@ int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
 void PasteboardClient::ShowProgress(const std::string &progressKey)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     sptr<PasteboardSignalCallback> callback = new PasteboardSignalCallback();
     proxyService->ShowProgress(progressKey, callback);
 }
