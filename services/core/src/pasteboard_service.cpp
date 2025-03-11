@@ -455,7 +455,8 @@ void PasteboardService::RecognizePasteData(PasteData &pasteData)
     if (primaryText.empty()) {
         return;
     }
-    std::thread thread([this, primaryText]() {
+    FFRTTask task = [this, primaryText]() {
+        pthread_setname_np(pthread_self(), "PasteDataRecognize");
         auto handle = dlopen(NLU_SO_PATH, RTLD_NOW);
         PASTEBOARD_CHECK_AND_RETURN_LOGE(handle != nullptr, PASTEBOARD_MODULE_SERVICE, "Can not get AIEngine handle");
         GetProcessorFunc GetProcessor = reinterpret_cast<GetProcessorFunc>(dlsym(handle, GET_PASTE_DATA_PROCESSOR));
@@ -481,8 +482,8 @@ void PasteboardService::RecognizePasteData(PasteData &pasteData)
         }
         NotifyEntityObservers(location, EntityType::ADDRESS, static_cast<uint32_t>(primaryText.size()));
         dlclose(handle);
-    });
-    thread.detach();
+    };
+    FFRTUtils::SubmitTask(task);
 }
 
 int32_t PasteboardService::SubscribeEntityObserver(
