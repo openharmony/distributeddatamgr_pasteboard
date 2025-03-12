@@ -875,4 +875,31 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType005, TestSize.Level0)
     EXPECT_EQ(converted->GetWidth(), pixelMap->GetWidth());
     EXPECT_EQ(converted->GetHeight(), pixelMap->GetHeight());
 }
+
+/**
+ * @tc.name: GetPassUriTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataRecordTest, GetPassUriTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+    record.convertUri_ = "convertUri";
+    EXPECT_EQ(record.GetPassUri(), "convertUri");
+}
+
+/**
+ * @tc.name: GetPassUriTest002
+ * @tc.desc:
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataRecordTest, GetPassUriTest002, TestSize.Level0)
+{
+    PasteDataRecord record;
+    EXPECT_EQ(record.GetPassUri(), "");
+}
 } // namespace OHOS::MiscServices
