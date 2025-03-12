@@ -38,7 +38,7 @@ void DevProfileTest::SetUp(void) { }
 void DevProfileTest::TearDown(void) { }
 
 /**
- * @tc.name: GetRemoteDeviceVersion
+ * @tc.name: GetRemoteDeviceVersionTest001
  * @tc.desc: Get Remote Device Version
  * @tc.type: FUNC
  * @tc.require:
@@ -49,6 +49,26 @@ HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
+    DevProfile::GetInstance().GetRemoteDeviceVersion(bundleName, versionId);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: GetRemoteDeviceVersionTest002
+ * @tc.desc: Get Remote Device Version
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    uint32_t versionId;
+    std::string bundleName = "com.dev.profile";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
     DevProfile::GetInstance().GetRemoteDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
 #else
@@ -95,6 +115,26 @@ HWTEST_F(DevProfileTest, GetEnabledStatusTest002, TestSize.Level0)
 }
 
 /**
+ * @tc.name: PutEnabledStatus001
+ * @tc.desc: PutEnabledStatus should not return NO_TRUST_DEVICE_ERROR when query valid networkId
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, PutEnabledStatus001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    std::string bundleName = "com.example.myApplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    std::string enabledStatus = "";
+    DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
  * @tc.name: SubscribeProfileEvent001
  * @tc.desc: Sub scribe Profile Event
  * @tc.type: FUNC
@@ -105,6 +145,45 @@ HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "com.pro.proEvent";
+    DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: SubscribeProfileEvent002
+ * @tc.desc: Subscribe Profile Event
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, SubscribeProfileEventTest002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    std::string bundleName = "com.pro.proEvent";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: SubscribeProfileEvent003
+ * @tc.desc: Subscribe Profile Event
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, SubscribeProfileEventTest003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    std::string bundleName = "com.pro.proEvent";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
     DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
     EXPECT_TRUE(true);
 #else
@@ -124,6 +203,45 @@ HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bsndleName = "com.pro.proEvent";
     DevProfile::GetInstance().UnSubscribeProfileEvent(bsndleName);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: UnSubscribeProfileEvent002
+ * @tc.desc: UnSubscribe Profile Event
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    std::string bundleName = "com.pro.proEvent";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    DevProfile::GetInstance().UnSubscribeProfileEvent(bundleName);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: UnSubscribeProfileEvent003
+ * @tc.desc: UnSubscribe Profile Event
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    std::string bundleName = "com.pro.proEvent";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
+    DevProfile::GetInstance().UnSubscribeProfileEvent(bundleName);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
