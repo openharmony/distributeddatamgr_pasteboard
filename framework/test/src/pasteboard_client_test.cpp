@@ -1062,4 +1062,18 @@ HWTEST_F(PasteboardClientTest, UnsubscribeEntityObserverTest005, TestSize.Level0
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
 }
+
+/**
+ * @tc.name: UpdateProgressTest001
+ * @tc.desc: UpdateProgressTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, UpdateProgressTest001, TestSize.Level0)
+{
+    PasteboardClient client;
+    client.UpdateProgress(nullptr, 50);
+    EXPECT_TRUE(true);
+}
 } // namespace OHOS::MiscServices

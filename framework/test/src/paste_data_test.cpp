@@ -928,4 +928,86 @@ HWTEST_F(PasteDataTest, GetDeviceId, TestSize.Level0)
     data.GetDeviceId();
     ASSERT_TRUE(true);
 }
+
+/**
+ * @tc.name: GetRecordByIdTest001
+ * @tc.desc: GetRecordByIdTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, GetRecordByIdTest001, TestSize.Level0)
+{
+    //Arrange
+    PasteData pasteData;
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    record->SetRecordId(1);
+    pasteData.AddRecord(record);
+
+    //Act
+    std::shared_ptr<PasteDataRecord> result = pasteData.GetRecordById(1);
+
+    //Assert
+    EXPECT_EQ(result, record);
+}
+
+/**
+ * @tc.name: GetRecordByIdTest002
+ * @tc.desc: GetRecordByIdTest002
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, GetRecordByIdTest002, TestSize.Level0)
+{
+    //Arrange
+    PasteData pasteData;
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    record->SetRecordId(1);
+    pasteData.AddRecord(record);
+
+    //Act
+    std::shared_ptr<PasteDataRecord> result = pasteData.GetRecordById(2);
+
+    //Assert
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.name: GetRecordByIdTest003
+ * @tc.desc: GetRecordByIdTest003
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, GetRecordByIdTest003, TestSize.Level0)
+{
+    //Arrange
+    PasteData pasteData;
+
+    //Act
+    std::shared_ptr<PasteDataRecord> result = pasteData.GetRecordById(1);
+
+    //Assert
+    EXPECT_EQ(result, nullptr);
+}
+
+/**
+ * @tc.name: ReplaceRecordAtTest001
+ * @tc.desc: ReplaceRecordAtTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, ReplaceRecordAtTest001, TestSize.Level0)
+{
+    //Arrange
+    PasteData pasteData;
+
+    //Act
+    std::shared_ptr<PasteDataRecord> record = nullptr;
+
+    //Assert
+    EXPECT_FALSE(pasteData.ReplaceRecordAt(0, record));
+}
 } // namespace OHOS::MiscServices
