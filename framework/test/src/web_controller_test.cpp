@@ -346,3 +346,62 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_010, TestSize.Level1)
     ASSERT_NE(newHtmlStr, nullptr);
     EXPECT_STREQ(newHtmlStr->c_str(), execptHtml);
 }
+
+/**
+ * @tc.name: UpdateHtmlRecordTest_001.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, UpdateHtmlRecordTest_001, TestSize.Level1)
+{
+    std::shared_ptr<PasteDataRecord> htmlRecord = nullptr;
+    auto htmlData = std::make_shared<std::string>("<html>Test</html>");
+    auto ret = PasteboardWebController::GetInstance();
+    EXPECT_NO_THROW(ret.UpdateHtmlRecord(htmlRecord, htmlData));
+}
+
+/**
+ * @tc.name: UpdateHtmlRecordTest_002.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, UpdateHtmlRecordTest_002, TestSize.Level1)
+{
+    auto htmlRecord = std::shared_ptr<PasteDataRecord>();
+    std::shared_ptr<std::string> htmlData = nullptr;
+
+    auto ret = PasteboardWebController::GetInstance();
+    EXPECT_NO_THROW(ret.UpdateHtmlRecord(htmlRecord, htmlData));
+}
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_001.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_001, TestSize.Level1)
+{
+    PasteData pasteData;
+    bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: CheckAppUriPermissionTest_001.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_001, TestSize.Level1)
+{
+    PasteData pasteData;
+    auto result = PasteboardWebController::GetInstance();
+    EXPECT_NO_THROW(result.CheckAppUriPermission(pasteData));
+}
