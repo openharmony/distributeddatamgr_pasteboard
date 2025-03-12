@@ -2438,7 +2438,7 @@ std::pair<std::shared_ptr<PasteData>, PasteDateResult> PasteboardService::GetDis
 
     currentEvent_ = std::move(event);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-    pasteData->Decode(rawData);
+    pasteData->Unmarshalling(rawData);
     pasteData->SetOriginAuthority(pasteData->GetBundleName());
     for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
         auto item = pasteData->GetRecordAt(i);
@@ -2609,7 +2609,7 @@ bool PasteboardService::SetCurrentData(Event event, PasteData &data)
     }
     GenerateDistributedUri(data);
     std::vector<uint8_t> rawData;
-    if (!data.Encode(rawData)) {
+    if (!data.Marshalling(rawData)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
         return false;
@@ -2724,7 +2724,7 @@ int32_t PasteboardService::ProcessDistributedDelayHtml(PasteData &data, PasteDat
         GenerateDistributedUri(tmp);
     }
 
-    bool encodeSucc = tmp.Encode(rawData);
+    bool encodeSucc = tmp.Marshalling(rawData);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode html failed");
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -2764,7 +2764,7 @@ int32_t PasteboardService::GetDistributedDelayData(const Event &evt, uint8_t ver
     PasteboardWebController::GetInstance().CheckAppUriPermission(*data);
     GenerateDistributedUri(*data);
 
-    bool encodeSucc = data->Encode(rawData);
+    bool encodeSucc = data->Marshalling(rawData);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode data failed, dataId:%{public}u, seqId:%{public}hu", evt.dataId, evt.seqId);
 
@@ -2866,7 +2866,7 @@ int32_t PasteboardService::ProcessRemoteDelayHtml(const std::string &remoteDevic
     const std::vector<uint8_t> &rawData, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry)
 {
     PasteData tmpData;
-    tmpData.Decode(rawData);
+    tmpData.Unmarshalling(rawData);
     auto htmlRecord = tmpData.GetRecordById(1);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(htmlRecord != nullptr,
         static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED), PASTEBOARD_MODULE_SERVICE, "record is null");

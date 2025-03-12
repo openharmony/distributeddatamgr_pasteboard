@@ -24,7 +24,7 @@ namespace OHOS {
 namespace MiscServices {
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
 
-class API_EXPORT PasteDataRecord : public TLVObject {
+class API_EXPORT PasteDataRecord : public TLVWriteable, public TLVReadable {
 public:
     PasteDataRecord();
     ~PasteDataRecord();
@@ -32,6 +32,10 @@ public:
     PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
         std::shared_ptr<OHOS::AAFwk::Want> want, std::shared_ptr<std::string> plainText,
         std::shared_ptr<OHOS::Uri> uri);
+
+    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool DecodeTLV(ReadOnlyBuffer &buffer) override;
+    size_t CountTLV() override;
 
     static std::shared_ptr<PasteDataRecord> NewHtmlRecord(const std::string &htmlText);
     static std::shared_ptr<PasteDataRecord> NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
@@ -60,10 +64,6 @@ public:
     std::shared_ptr<MineCustomData> GetCustomData() const;
 
     std::string ConvertToText() const;
-
-    bool Encode(std::vector<std::uint8_t> &buffer) override;
-    bool Decode(const std::vector<std::uint8_t> &buffer) override;
-    size_t Count() override;
     void SetConvertUri(const std::string &value);
     std::string GetConvertUri() const;
     void SetGrantUriPermission(bool hasPermission);
@@ -133,8 +133,8 @@ private:
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
     bool hasGrantUriPermission_ = false;
-    using Func = std::function<void(bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head)>;
-    std::map<uint16_t, Func> decodeMap;
+    using DecodeFunc = std::function<bool(ReadOnlyBuffer &buffer, TLVHead &head)>;
+    std::map<uint16_t, DecodeFunc> decodeMap;
     void InitDecodeMap();
 
     int32_t udType_ = UDMF::UD_BUTT;

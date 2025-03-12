@@ -16,7 +16,6 @@
 #include <gtest/gtest.h>
 
 #include "paste_data_record.h"
-#include "tlv_object.h"
 #include "unified_meta.h"
 
 namespace OHOS::MiscServices {

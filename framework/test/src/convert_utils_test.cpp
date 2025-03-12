@@ -20,7 +20,6 @@
 #include "convert_utils.h"
 #include "paste_data_entry.h"
 #include "pasteboard_hilog.h"
-#include "tlv_object.h"
 #include "unified_meta.h"
 
 namespace OHOS::MiscServices {
@@ -83,10 +82,9 @@ void ConvertUtilsTest::TearDown(void) { }
 PasteData ConvertUtilsTest::TlvData(const std::shared_ptr<PasteData> &data)
 {
     std::vector<std::uint8_t> buffer;
-    data->Init(buffer);
-    data->Encode(buffer);
+    data->Marshalling(buffer);
     PasteData decodePasteData;
-    decodePasteData.Decode(buffer);
+    decodePasteData.Unmarshalling(buffer);
     return decodePasteData;
 }
 

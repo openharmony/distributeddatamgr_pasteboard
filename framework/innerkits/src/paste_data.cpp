@@ -74,6 +74,7 @@ PasteData::PasteData()
 PasteData::~PasteData()
 {
     records_.clear();
+    decodeMap_.clear();
 }
 
 PasteData::PasteData(const PasteData &data)
@@ -477,106 +478,80 @@ void PasteData::RefreshMimeProp()
     props_.mimeTypes = mimeTypes;
 }
 
-bool PasteData::Encode(std::vector<std::uint8_t> &buffer)
+bool PasteData::EncodeTLV(WriteOnlyBuffer &buffer)
 {
-    Init(buffer);
-
-    bool ret = Write(buffer, TAG_PROPS, props_);
-    ret = Write(buffer, TAG_RECORDS, records_) && ret;
-    ret = Write(buffer, TAG_DRAGGED_DATA_FLAG, isDraggedData_) && ret;
-    ret = Write(buffer, TAG_LOCAL_PASTE_FLAG, isLocalPaste_) && ret;
-    ret = Write(buffer, TAG_DELAY_DATA_FLAG, isDelayData_) && ret;
-    ret = Write(buffer, TAG_DEVICE_ID, deviceId_) && ret;
-    ret = Write(buffer, TAG_PASTE_ID, pasteId_) && ret;
-    ret = Write(buffer, TAG_DELAY_RECORD_FLAG, isDelayRecord_) && ret;
-    ret = Write(buffer, TAG_DATA_ID, dataId_) && ret;
-    ret = Write(buffer, TAG_RECORD_ID, recordId_) && ret;
+    bool ret = buffer.Write(TAG_PROPS, props_);
+    ret = ret && buffer.Write(TAG_RECORDS, records_);
+    ret = ret && buffer.Write(TAG_DRAGGED_DATA_FLAG, isDraggedData_);
+    ret = ret && buffer.Write(TAG_LOCAL_PASTE_FLAG, isLocalPaste_);
+    ret = ret && buffer.Write(TAG_DELAY_DATA_FLAG, isDelayData_);
+    ret = ret && buffer.Write(TAG_DEVICE_ID, deviceId_);
+    ret = ret && buffer.Write(TAG_PASTE_ID, pasteId_);
+    ret = ret && buffer.Write(TAG_DELAY_RECORD_FLAG, isDelayRecord_);
+    ret = ret && buffer.Write(TAG_DATA_ID, dataId_);
+    ret = ret && buffer.Write(TAG_RECORD_ID, recordId_);
     return ret;
 }
 
 void PasteData::InitDecodeMap()
 {
     decodeMap_ = {
-        { TAG_PROPS,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, props_, head);
-            } },
-        { TAG_RECORDS,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, records_, head);
-            } },
-        { TAG_DRAGGED_DATA_FLAG,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, isDraggedData_, head);
-            } },
-        { TAG_LOCAL_PASTE_FLAG,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, isLocalPaste_, head);
-            } },
-        { TAG_DELAY_DATA_FLAG,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, isDelayData_, head);
-            } },
-        { TAG_DEVICE_ID,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, deviceId_, head);
-            } },
-        { TAG_PASTE_ID,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, pasteId_, head);
-            } },
-        { TAG_DELAY_RECORD_FLAG,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, isDelayRecord_, head);
-            } },
-        { TAG_DATA_ID,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, dataId_, head);
-            } },
-        { TAG_RECORD_ID,
-            [&](bool &ret, const std::vector<std::uint8_t> &buffer, TLVHead &head) -> void {
-                ret = ret && ReadValue(buffer, recordId_, head);
-            } },
+        {TAG_PROPS,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(props_, head); }},
+        {TAG_RECORDS,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(records_, head); }},
+        {TAG_DRAGGED_DATA_FLAG,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isDraggedData_, head); }},
+        {TAG_LOCAL_PASTE_FLAG,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isLocalPaste_, head); }},
+        {TAG_DELAY_DATA_FLAG,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isDelayData_, head); }},
+        {TAG_DEVICE_ID,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(deviceId_, head); }},
+        {TAG_PASTE_ID,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(pasteId_, head); }},
+        {TAG_DELAY_RECORD_FLAG,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isDelayRecord_, head); }},
+        {TAG_DATA_ID,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(dataId_, head); }},
+        {TAG_RECORD_ID,
+            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(recordId_, head); }},
     };
 }
 
-bool PasteData::Decode(const std::vector<std::uint8_t> &buffer)
+bool PasteData::DecodeTLV(ReadOnlyBuffer &buffer)
 {
-    total_ = buffer.size();
-    for (; IsEnough();) {
+    for (; buffer.IsEnough();) {
         TLVHead head{};
-        bool ret = ReadHead(buffer, head);
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
+        bool ret = buffer.ReadHead(head);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "read head failed");
 
         const auto it = decodeMap_.find(head.tag);
         if (it == decodeMap_.end()) {
-            ret = ret && Skip(head.len, buffer.size());
+            ret = buffer.Skip(head.len);
         } else {
-            auto func = it->second;
-            func(ret, buffer, head);
+            ret = it->second(buffer, head);
         }
-        if (!ret) {
-            PASTEBOARD_HILOGE(
-                PASTEBOARD_MODULE_CLIENT, "decode failed,tag:%{public}hu, len:%{public}u", head.tag, head.len);
-            return false;
-        }
+
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON,
+            "read value failed, tag=%{public}hu, len=%{public}u", head.tag, head.len);
     }
     return true;
 }
 
-size_t PasteData::Count()
+size_t PasteData::CountTLV()
 {
     size_t expectSize = 0;
-    expectSize += props_.Count() + sizeof(TLVHead);
-    expectSize += TLVObject::Count(records_);
-    expectSize += TLVObject::Count(isDraggedData_);
-    expectSize += TLVObject::Count(isLocalPaste_);
-    expectSize += TLVObject::Count(isDelayData_);
-    expectSize += TLVObject::Count(deviceId_);
-    expectSize += TLVObject::Count(pasteId_);
-    expectSize += TLVObject::Count(isDelayRecord_);
-    expectSize += TLVObject::Count(dataId_);
-    expectSize += TLVObject::Count(recordId_);
+    expectSize += TLVCountable::Count(props_);
+    expectSize += TLVCountable::Count(records_);
+    expectSize += TLVCountable::Count(isDraggedData_);
+    expectSize += TLVCountable::Count(isLocalPaste_);
+    expectSize += TLVCountable::Count(isDelayData_);
+    expectSize += TLVCountable::Count(deviceId_);
+    expectSize += TLVCountable::Count(pasteId_);
+    expectSize += TLVCountable::Count(isDelayRecord_);
+    expectSize += TLVCountable::Count(dataId_);
+    expectSize += TLVCountable::Count(recordId_);
     return expectSize;
 }
 
@@ -625,48 +600,6 @@ uint32_t PasteData::GetRecordId() const
     return recordId_;
 }
 
-bool PasteData::Marshalling(Parcel &parcel) const
-{
-    std::vector<uint8_t> pasteDataTlv(0);
-    if (!const_cast<PasteData *>(this)->Encode(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Encode failed");
-        return false;
-    }
-    if (!parcel.WriteUInt8Vector(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteUInt8Vector failed");
-        return false;
-    }
-    return true;
-}
-
-PasteData *PasteData::Unmarshalling(Parcel &parcel)
-{
-    PasteData *pasteData = new (std::nothrow) PasteData();
-    if (pasteData != nullptr && !pasteData->ReadFromParcel(parcel)) {
-        delete pasteData;
-        pasteData = nullptr;
-    }
-    return pasteData;
-}
-
-bool PasteData::ReadFromParcel(Parcel &parcel)
-{
-    std::vector<uint8_t> pasteDataTlv(0);
-    if (!parcel.ReadUInt8Vector(&pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadUInt8Vector failed");
-        return false;
-    }
-    if (pasteDataTlv.size() == 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "ReadFromParcel size = 0");
-        return false;
-    }
-    if (!Decode(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Decode failed");
-        return false;
-    }
-    return true;
-}
-
 PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)
     : tag(property.tag), timestamp(property.timestamp), localOnly(property.localOnly),
       shareOption(property.shareOption), tokenId(property.tokenId), isRemote(property.isRemote),
@@ -702,98 +635,76 @@ PasteDataProperty &PasteDataProperty::operator=(const PasteDataProperty &propert
     return *this;
 }
 
-bool PasteDataProperty::Encode(std::vector<std::uint8_t> &buffer)
+bool PasteDataProperty::EncodeTLV(WriteOnlyBuffer &buffer)
 {
-    bool ret = Write(buffer, TAG_ADDITIONS, ParcelUtil::Parcelable2Raw(&additions));
-    ret = Write(buffer, TAG_MIMETYPES, mimeTypes) && ret;
-    ret = Write(buffer, TAG_TAG, tag) && ret;
-    ret = Write(buffer, TAG_LOCAL_ONLY, localOnly) && ret;
-    ret = Write(buffer, TAG_TIMESTAMP, timestamp) && ret;
-    ret = Write(buffer, TAG_SHAREOPTION, (int32_t &)shareOption) && ret;
-    ret = Write(buffer, TAG_TOKENID, tokenId) && ret;
-    ret = Write(buffer, TAG_ISREMOTE, isRemote) && ret;
-    ret = Write(buffer, TAG_BUNDLENAME, bundleName) && ret;
-    ret = Write(buffer, TAG_SETTIME, setTime) && ret;
-    ret = Write(buffer, TAG_SCREENSTATUS, (int32_t &)screenStatus) && ret;
+    bool ret = buffer.Write(TAG_ADDITIONS, TLVUtils::Parcelable2Raw(&additions));
+    ret = ret && buffer.Write(TAG_MIMETYPES, mimeTypes);
+    ret = ret && buffer.Write(TAG_TAG, tag);
+    ret = ret && buffer.Write(TAG_LOCAL_ONLY, localOnly);
+    ret = ret && buffer.Write(TAG_TIMESTAMP, timestamp);
+    ret = ret && buffer.Write(TAG_SHAREOPTION, static_cast<int32_t>(shareOption));
+    ret = ret && buffer.Write(TAG_TOKENID, tokenId);
+    ret = ret && buffer.Write(TAG_ISREMOTE, isRemote);
+    ret = ret && buffer.Write(TAG_BUNDLENAME, bundleName);
+    ret = ret && buffer.Write(TAG_SETTIME, setTime);
+    ret = ret && buffer.Write(TAG_SCREENSTATUS, static_cast<int32_t>(screenStatus));
     return ret;
 }
 
-bool PasteDataProperty::Decode(const std::vector<std::uint8_t> &buffer)
+bool PasteDataProperty::DecodeTLV(ReadOnlyBuffer &buffer)
 {
-    for (; IsEnough();) {
-        if (!DecodeTag(buffer)) {
-            return false;
+    for (; buffer.IsEnough();) {
+        TLVHead head{};
+        bool ret = buffer.ReadHead(head);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "read head failed");
+        if (head.tag == TAG_ADDITIONS) {
+            RawMem rawMem{};
+            ret = buffer.ReadValue(rawMem, head);
+            auto buff = TLVUtils::Raw2Parcelable<AAFwk::WantParams>(rawMem);
+            additions = (buff != nullptr) ? *buff : additions;
+        } else if (head.tag == TAG_MIMETYPES) {
+            ret = buffer.ReadValue(mimeTypes, head);
+        } else if (head.tag == TAG_TAG) {
+            ret = buffer.ReadValue(tag, head);
+        } else if (head.tag == TAG_LOCAL_ONLY) {
+            ret = buffer.ReadValue(localOnly, head);
+        } else if (head.tag == TAG_TIMESTAMP) {
+            ret = buffer.ReadValue(timestamp, head);
+        } else if (head.tag == TAG_SHAREOPTION) {
+            ret = buffer.ReadValue((int32_t &)shareOption, head);
+        } else if (head.tag == TAG_TOKENID) {
+            ret = buffer.ReadValue(tokenId, head);
+        } else if (head.tag == TAG_ISREMOTE) {
+            ret = buffer.ReadValue(isRemote, head);
+        } else if (head.tag == TAG_BUNDLENAME) {
+            ret = buffer.ReadValue(bundleName, head);
+        } else if (head.tag == TAG_SETTIME) {
+            ret = buffer.ReadValue(setTime, head);
+        } else if (head.tag == TAG_SCREENSTATUS) {
+            ret = buffer.ReadValue((int32_t &)screenStatus, head);
+        } else {
+            ret = buffer.Skip(head.len);
         }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON,
+            "read value failed, tag=%{public}hu, len=%{public}u", head.tag, head.len);
     }
     return true;
 }
 
-bool PasteDataProperty::DecodeTag(const std::vector<std::uint8_t> &buffer)
-{
-    TLVHead head{};
-    bool ret = ReadHead(buffer, head);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "Read head failed");
-    switch (head.tag) {
-        case TAG_ADDITIONS: {
-            RawMem rawMem{};
-            ret = ret && ReadValue(buffer, rawMem, head);
-            auto buff = ParcelUtil::Raw2Parcelable<AAFwk::WantParams>(rawMem);
-            if (buff != nullptr) {
-                additions = *buff;
-            }
-            break;
-        }
-        case TAG_MIMETYPES:
-            ret = ret && ReadValue(buffer, mimeTypes, head);
-            break;
-        case TAG_TAG:
-            ret = ret && ReadValue(buffer, tag, head);
-            break;
-        case TAG_LOCAL_ONLY:
-            ret = ret && ReadValue(buffer, localOnly, head);
-            break;
-        case TAG_TIMESTAMP:
-            ret = ret && ReadValue(buffer, timestamp, head);
-            break;
-        case TAG_SHAREOPTION:
-            ret = ret && ReadValue(buffer, (int32_t &)shareOption, head);
-            break;
-        case TAG_TOKENID:
-            ret = ret && ReadValue(buffer, tokenId, head);
-            break;
-        case TAG_ISREMOTE:
-            ret = ret && ReadValue(buffer, isRemote, head);
-            break;
-        case TAG_BUNDLENAME:
-            ret = ret && ReadValue(buffer, bundleName, head);
-            break;
-        case TAG_SETTIME:
-            ret = ret && ReadValue(buffer, setTime, head);
-            break;
-        case TAG_SCREENSTATUS:
-            ret = ret && ReadValue(buffer, (int32_t &)screenStatus, head);
-            break;
-        default:
-            ret = ret && Skip(head.len, buffer.size());
-            break;
-    }
-    return ret;
-}
-
-size_t PasteDataProperty::Count()
+size_t PasteDataProperty::CountTLV()
 {
     size_t expectedSize = 0;
-    expectedSize += TLVObject::Count(ParcelUtil::Parcelable2Raw(&additions));
-    expectedSize += TLVObject::Count(mimeTypes);
-    expectedSize += TLVObject::Count(tag);
-    expectedSize += TLVObject::Count(localOnly);
-    expectedSize += TLVObject::Count(timestamp);
-    expectedSize += TLVObject::Count(shareOption);
-    expectedSize += TLVObject::Count(tokenId);
-    expectedSize += TLVObject::Count(isRemote);
-    expectedSize += TLVObject::Count(bundleName);
-    expectedSize += TLVObject::Count(setTime);
-    expectedSize += TLVObject::Count(screenStatus);
+    expectedSize += TLVCountable::Count(TLVUtils::Parcelable2Raw(&additions));
+    expectedSize += TLVCountable::Count(mimeTypes);
+    expectedSize += TLVCountable::Count(tag);
+    expectedSize += TLVCountable::Count(localOnly);
+    expectedSize += TLVCountable::Count(timestamp);
+    expectedSize += TLVCountable::Count(shareOption);
+    expectedSize += TLVCountable::Count(tokenId);
+    expectedSize += TLVCountable::Count(isRemote);
+    expectedSize += TLVCountable::Count(bundleName);
+    expectedSize += TLVCountable::Count(setTime);
+    expectedSize += TLVCountable::Count(screenStatus);
     return expectedSize;
 }
 

@@ -16,23 +16,26 @@
 #ifndef PASTE_BOARD_ENTRY_H
 #define PASTE_BOARD_ENTRY_H
 
-#include "tlv_object.h"
+#include "tlv_readable.h"
+#include "tlv_writeable.h"
+
 namespace OHOS {
 namespace MiscServices {
-class API_EXPORT MineCustomData : public TLVObject {
+class API_EXPORT MineCustomData : public TLVWriteable, public TLVReadable {
 public:
     MineCustomData() = default;
     std::map<std::string, std::vector<uint8_t>> GetItemData();
     void AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
-    bool Encode(std::vector<std::uint8_t> &buffer) override;
-    bool Decode(const std::vector<std::uint8_t> &buffer) override;
-    size_t Count() override;
+
+    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool DecodeTLV(ReadOnlyBuffer &buffer) override;
+    size_t CountTLV() override;
 
 private:
     std::map<std::string, std::vector<uint8_t>> itemData_;
 };
 
-class API_EXPORT PasteDataEntry : public TLVObject {
+class API_EXPORT PasteDataEntry : public TLVWriteable, public TLVReadable {
 public:
     using UDType = UDMF::UDType;
     PasteDataEntry() = default;
@@ -56,14 +59,12 @@ public:
     std::string GetMimeType() const;
     void SetFileSize(int64_t fileSize);
     int64_t GetFileSize() const;
-    bool Encode(std::vector<std::uint8_t> &buffer) override;
-    bool Decode(const std::vector<std::uint8_t> &buffer) override;
-    size_t Count() override;
     bool HasContent(const std::string &utdId) const;
     bool HasContentByMimeType(const std::string &mimeType) const;
 
-    bool Marshalling(std::vector<std::uint8_t> &buffer);
-    bool Unmarshalling(const std::vector<std::uint8_t> &buffer);
+    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool DecodeTLV(ReadOnlyBuffer &buffer) override;
+    size_t CountTLV() override;
 
 private:
     std::string utdId_;

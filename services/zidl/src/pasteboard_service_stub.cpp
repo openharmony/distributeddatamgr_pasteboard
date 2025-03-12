@@ -168,7 +168,7 @@ int32_t PasteboardServiceStub::OnGetPasteData(MessageParcel &data, MessageParcel
     auto result = GetPasteData(pasteData, syncTime);
     HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::PASTE_STATE, result);
     std::vector<uint8_t> pasteDataTlv(0);
-    bool ret = pasteData.Encode(pasteDataTlv);
+    bool ret = pasteData.Marshalling(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode pastedata in TLV");
         return ERR_INVALID_VALUE;
@@ -213,7 +213,7 @@ std::shared_ptr<PasteData> PasteboardServiceStub::UnmarshalPasteData(MessageParc
     }
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
     auto pasteData = std::make_shared<PasteData>();
-    bool ret = pasteData->Decode(pasteDataTlv);
+    bool ret = pasteData->Unmarshalling(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
         return nullptr;

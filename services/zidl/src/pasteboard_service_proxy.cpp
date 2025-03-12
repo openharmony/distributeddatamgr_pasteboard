@@ -215,7 +215,7 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
         pasteData.SetDelayRecord(false);
     }
     std::vector<uint8_t> pasteDataTlv(0);
-    bool ret = pasteData.Encode(pasteDataTlv);
+    bool ret = pasteData.Marshalling(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to encode pastedata in TLV");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
@@ -276,7 +276,7 @@ __attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteDat
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
-    bool ret = pasteData.Decode(pasteDataTlv);
+    bool ret = pasteData.Unmarshalling(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);

@@ -54,7 +54,7 @@ void PasteboardDelayGetterProxy::GetPasteData(const std::string &type, PasteData
         return;
     }
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
-    bool ret = data.Decode(pasteDataTlv);
+    bool ret = data.Unmarshalling(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to decode paste data");
     }

@@ -103,13 +103,14 @@ HWTEST_F(PasteDataTest, Marshalling001, TestSize.Level0)
     data1.AddRecord(*record);
     auto count = data1.GetRecordCount();
     EXPECT_TRUE(count == 1);
-    Parcel parcel;
-    data1.Marshalling(parcel);
+    std::vector<uint8_t> tlvData;
+    data1.Marshalling(tlvData);
 
-    auto data2 = PasteData::Unmarshalling(parcel);
-    auto count2 = data2->GetRecordCount();
+    PasteData data2;
+    data2.Unmarshalling(tlvData);
+    auto count2 = data2.GetRecordCount();
     EXPECT_TRUE(count == count2);
-    std::shared_ptr<OHOS::Uri> uri2 = data2->GetPrimaryUri();
+    std::shared_ptr<OHOS::Uri> uri2 = data2.GetPrimaryUri();
     std::string uriStr2 = uri2->ToString();
     EXPECT_TRUE(uriStr == uriStr2);
 }
