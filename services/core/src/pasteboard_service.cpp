@@ -147,7 +147,6 @@ void PasteboardService::OnStart()
     InitServiceHandler();
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     Loader loader;
-    loader.LoadComponents();
     uid_ = loader.LoadUid();
     moduleConfig_.Init();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", DATASL_OnStart());
@@ -3028,6 +3027,8 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     if (!isOn || clipPlugin_ != nullptr) {
         return clipPlugin_;
     }
+    Loader loader;
+    loader.LoadComponents();
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
@@ -3075,6 +3076,8 @@ void PasteboardService::OnConfigChange(bool isOn)
         return;
     }
     SubscribeKeyboardEvent();
+    Loader loader;
+    loader.LoadComponents();
     auto release = [this](ClipPlugin *plugin) {
         std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);

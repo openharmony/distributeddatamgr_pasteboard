@@ -19,6 +19,9 @@
 
 #include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
+    
+std::unordered_map<std::string, void *> Loader::handleMap {};
+
 Loader::Loader() {}
 
 Loader::~Loader() {}
@@ -30,7 +33,9 @@ void Loader::LoadComponents()
         if (component.lib.empty()) {
             continue;
         }
-
+        if (Loader::ComponentIsExist(component.lib)) {
+            continue;
+        }
         // no need to close the component, so we don't keep the handles
         auto handle = dlopen(component.lib.c_str(), RTLD_LAZY);
         if (handle == nullptr) {
@@ -38,6 +43,7 @@ void Loader::LoadComponents()
                 PASTEBOARD_MODULE_SERVICE, "dlopen(%{public}s) failed(%{public}d)!", component.lib.c_str(), errno);
             continue;
         }
+        Loader::handleMap.insert(std::pair(component.lib, handle));
 
         if (component.constructor.empty()) {
             continue;
@@ -69,5 +75,10 @@ Config Loader::LoadConfig()
     }
     config.Unmarshall(context);
     return config;
+}
+
+bool Loader::ComponentIsExist(const std::string &lib)
+{
+    return Loader::handleMap.find(lib) != Loader::handleMap.end();
 }
 } // namespace OHOS::MiscServices
