@@ -1075,6 +1075,8 @@ void SystemPasteboardNapi::ProgressNotify(std::shared_ptr<GetDataParams> params)
     progress->percentage = params->info->percentage;
     status = napi_call_threadsafe_function(listenerFn->tsFunction, static_cast<void *>(progress), napi_tsfn_blocking);
     if (status != napi_ok) {
+        delete progress;
+        progress = nullptr;
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "call progressNotify failed!");
         return;
     }
