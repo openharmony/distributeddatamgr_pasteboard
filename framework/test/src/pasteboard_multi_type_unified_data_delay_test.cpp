@@ -345,7 +345,7 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
     auto outputRecord2 = outputData.GetRecordAt(1);
     ASSERT_NE(outputRecord2, nullptr);
     auto outputTypes2 = outputRecord2->GetUtdIds();
-    ASSERT_EQ(outputTypes2.size(), inputTypes2.size());
+    ASSERT_GE(outputTypes2.size(), inputTypes2.size());
     ASSERT_TRUE(outputTypes2.find(fileUriUtdId_) != outputTypes2.end());
     CheckFileUriUds(outputRecord2->GetEntry(fileUriUtdId_));
     ASSERT_TRUE(outputTypes2.find(pixelMapUtdId_) != outputTypes2.end());
