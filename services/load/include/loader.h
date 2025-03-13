@@ -23,6 +23,8 @@ public:
     ~Loader();
     void LoadComponents();
     int32_t LoadUid();
+    static bool ComponentIsExist(const std::string &);
+    static std::unordered_map<std::string, void *> handleMap;
 
 private:
     using Constructor = void (*)(const char *);
