@@ -19,6 +19,7 @@
 #include "ipasteboard_client_death_observer.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_load_callback.h"
 #include "pasteboard_service_loader.h"
 #include "system_ability_definition.h"
 
@@ -42,15 +43,18 @@ PasteboardServiceLoader::PasteboardServiceLoader()
 
 PasteboardServiceLoader::~PasteboardServiceLoader()
 {
-    if (!staticDestroyMonitor_.IsDestoryed()) {
-        auto pasteboardServiceProxy = GetPasteboardServiceProxy();
-        if (pasteboardServiceProxy != nullptr) {
-            auto remoteObject = pasteboardServiceProxy->AsObject();
-            if (remoteObject != nullptr) {
-                remoteObject->RemoveDeathRecipient(deathRecipient_);
-            }
-        }
+    if (staticDestroyMonitor_.IsDestoryed()) {
+        return;
     }
+    auto pasteboardServiceProxy = GetPasteboardServiceProxy();
+    if (pasteboardServiceProxy == nullptr) {
+        return;
+    }
+    auto remoteObject = pasteboardServiceProxy->AsObject();
+    if (remoteObject == nullptr) {
+        return;
+    }
+    remoteObject->RemoveDeathRecipient(deathRecipient_);
 }
 
 PasteboardServiceLoader &PasteboardServiceLoader::GetInstance()
@@ -86,18 +90,18 @@ sptr<IPasteboardService> PasteboardServiceLoader::GetPasteboardService()
         SetPasteboardServiceProxy(remoteObject);
         return pasteboardServiceProxy_;
     }
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
     sptr<PasteboardLoadCallback> loadCallback = new PasteboardLoadCallback();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGI(loadCallback != nullptr, nullptr, PASTEBOARD_MODULE_CLIENT, "loadCb is null");
     int32_t ret = samgrProxy->LoadSystemAbility(PASTEBOARD_SERVICE_ID, loadCallback);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGI(ret == ERR_OK, nullptr, PASTEBOARD_MODULE_CLIENT, "Failed to load SA");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == ERR_OK, nullptr, PASTEBOARD_MODULE_CLIENT, "Failed to load SA");
     constructing_ = true;
     auto waitStatus = proxyConVar_.wait_for(lock, std::chrono::milliseconds(LOADSA_TIMEOUT_MS), [this]() {
         return pasteboardServiceProxy_ != nullptr;
     });
     constructing_ = false;
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGI(waitStatus, nullptr, PASTEBOARD_MODULE_CLIENT, "Load SA timeout");
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(waitStatus, nullptr, PASTEBOARD_MODULE_CLIENT, "Load SA timeout");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Getting PasteboardServiceProxy succeeded.");
     return pasteboardServiceProxy_;
 }
 
@@ -109,19 +113,32 @@ sptr<IPasteboardService> PasteboardServiceLoader::GetPasteboardServiceProxy()
 
 void PasteboardServiceLoader::SetPasteboardServiceProxy(const sptr<IRemoteObject> &remoteObject)
 {
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(remoteObject != nullptr, PASTEBOARD_MODULE_CLIENT, "remoteObject is null");
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(remoteObject != nullptr, PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
     if (deathRecipient_ == nullptr) {
         deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new PasteboardSaDeathRecipient());
     }
-    remoteObject->AddDeathRecipient(deathRecipient_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(
+        deathRecipient_ != nullptr, PASTEBOARD_MODULE_CLIENT, "deathRecipient_ is null.");
+    if (!remoteObject->AddDeathRecipient(deathRecipient_)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "AddDeathRecipient failed.");
+        deathRecipient_ = nullptr;
+        return;
+    }
     pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
     if (clientDeathObserverPtr_ == nullptr) {
         clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
     }
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(
-        clientDeathObserverPtr_ != nullptr, PASTEBOARD_MODULE_CLIENT, "clientDeathObserverPtr_ is null");
+    if (clientDeathObserverPtr_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "clientDeathObserverPtr_ is null.");
+        deathRecipient_ = nullptr;
+        return;
+    }
     auto ret = pasteboardServiceProxy_->RegisterClientDeathObserver(clientDeathObserverPtr_);
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == ERR_OK, PASTEBOARD_MODULE_CLIENT, "RegisterClientDeathObserver failed");
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "RegisterClientDeathObserver failed.");
+        deathRecipient_ = nullptr;
+        clientDeathObserverPtr_ = nullptr;
+    }
 }
 
 int32_t PasteboardServiceLoader::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)

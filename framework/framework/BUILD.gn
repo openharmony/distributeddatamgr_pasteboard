@@ -25,7 +25,6 @@ config("module_public_config") {
     "include",
     "include/device",
     "include/ffrt",
-    "${pasteboard_root_path}/adapter/pasteboard_progress",
     "${pasteboard_root_path}/framework/tlv",
     "${pasteboard_innerkits_path}/include",
     "${pasteboard_service_path}/core/include",

@@ -16,10 +16,7 @@
 #ifndef PASTE_BOARD_SERVICE_LOADER_H
 #define PASTE_BOARD_SERVICE_LOADER_H
 
-#include <singleton.h>
-
 #include "i_pasteboard_service.h"
-#include "pasteboard_load_callback.h"
 #include "paste_data_entry.h"
 #include "refbase.h"
 #include "visibility.h"
@@ -77,4 +74,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif
+#endif // PASTE_BOARD_SERVICE_LOADER_H
