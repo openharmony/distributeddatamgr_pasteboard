@@ -19,7 +19,7 @@
 
 namespace OHOS::MiscServices {
 
-bool TLVWriteable::Marshalling(std::vector<uint8_t> &buffer)
+bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
 {
     size_t len = CountTLV();
     WriteOnlyBuffer buff(len);
@@ -36,7 +36,7 @@ bool WriteOnlyBuffer::Write(uint16_t type, std::monostate value)
     return true;
 }
 
-bool WriteOnlyBuffer::Write(uint16_t type, void *value)
+bool WriteOnlyBuffer::Write(uint16_t type, const void *value)
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(HasExpectBuffer(sizeof(TLVHead)), false,
         PASTEBOARD_MODULE_COMMON, "write void* failed, type=%{public}hu", type);
@@ -151,7 +151,7 @@ bool WriteOnlyBuffer::Write(uint16_t type, const Object &value)
     return ret;
 }
 
-bool WriteOnlyBuffer::Write(uint16_t type, std::map<std::string, std::vector<uint8_t>> &value)
+bool WriteOnlyBuffer::Write(uint16_t type, const std::map<std::string, std::vector<uint8_t>> &value)
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(HasExpectBuffer(sizeof(TLVHead)), false,
         PASTEBOARD_MODULE_COMMON, "write vector failed, type=%{public}hu", type);
@@ -246,7 +246,7 @@ bool WriteOnlyBuffer::Write(uint16_t type, const Details &value)
     return ret;
 }
 
-bool WriteOnlyBuffer::Write(uint16_t type, TLVWriteable &value)
+bool WriteOnlyBuffer::Write(uint16_t type, const TLVWriteable &value)
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(HasExpectBuffer(sizeof(TLVHead)), false,
         PASTEBOARD_MODULE_COMMON, "write TLVWriteable failed, type=%{public}hu", type);
@@ -260,7 +260,7 @@ bool WriteOnlyBuffer::Write(uint16_t type, TLVWriteable &value)
     return ret;
 }
 
-bool WriteOnlyBuffer::Write(uint16_t type, std::vector<uint8_t> &value)
+bool WriteOnlyBuffer::Write(uint16_t type, const std::vector<uint8_t> &value)
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(HasExpectBuffer(sizeof(TLVHead) + value.size()), false,
         PASTEBOARD_MODULE_COMMON, "write uint8 vector failed, type=%{public}hu", type);

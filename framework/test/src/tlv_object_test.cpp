@@ -71,12 +71,12 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
     }
 
     std::vector<uint8_t> buffer;
-    auto ret = pasteData1.Marshalling(buffer);
+    auto ret = pasteData1.Encode(buffer);
     ASSERT_TRUE(ret);
     ASSERT_EQ(buffer.size(), pasteData1.CountTLV());
 
     PasteData pasteData2;
-    ret = pasteData2.Unmarshalling(buffer);
+    ret = pasteData2.Decode(buffer);
     EXPECT_TRUE(ret);
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1.GetRecordCount());
 
@@ -106,12 +106,12 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest002, TestSize.Level0)
     auto pasteData1 = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<Want>(wantIn));
 
     std::vector<uint8_t> buffer;
-    auto ret = pasteData1->Marshalling(buffer);
+    auto ret = pasteData1->Encode(buffer);
     ASSERT_TRUE(ret);
     ASSERT_EQ(buffer.size(), pasteData1->CountTLV());
 
     PasteData pasteData2;
-    ret = pasteData2.Unmarshalling(buffer);
+    ret = pasteData2.Decode(buffer);
     EXPECT_TRUE(ret);
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1->GetRecordCount());
 
@@ -141,12 +141,12 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest003, TestSize.Level0)
     pasteData1->AddRecord(pasteDataRecord);
 
     std::vector<uint8_t> buffer;
-    auto ret = pasteData1->Marshalling(buffer);
+    auto ret = pasteData1->Encode(buffer);
     ASSERT_TRUE(ret);
     ASSERT_EQ(buffer.size(), pasteData1->CountTLV());
 
     PasteData pasteData2;
-    ret = pasteData2.Unmarshalling(buffer);
+    ret = pasteData2.Decode(buffer);
     EXPECT_TRUE(ret);
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1->GetRecordCount());
     EXPECT_EQ(pasteData2.GetRecordCount(), pasteData1->GetRecordCount());
@@ -183,11 +183,11 @@ HWTEST_F(TLVObjectTest, TestPasteDataProperty, TestSize.Level0)
     obj1.screenStatus = ScreenEvent::ScreenUnlocked;
 
     std::vector<uint8_t> buffer;
-    bool ret = obj1.Marshalling(buffer);
+    bool ret = obj1.Encode(buffer);
     ASSERT_TRUE(ret);
 
     PasteDataProperty obj2;
-    ret = obj2.Unmarshalling(buffer);
+    ret = obj2.Decode(buffer);
     ASSERT_TRUE(ret);
 
     EXPECT_TRUE(obj1.additions == obj2.additions);
@@ -214,11 +214,11 @@ HWTEST_F(TLVObjectTest, TestMineCustomData, TestSize.Level0)
     obj1.AddItemData("key", {1, 1, 1, 1});
 
     std::vector<uint8_t> buffer;
-    bool ret = obj1.Marshalling(buffer);
+    bool ret = obj1.Encode(buffer);
     ASSERT_TRUE(ret);
 
     MineCustomData obj2;
-    ret = obj2.Unmarshalling(buffer);
+    ret = obj2.Decode(buffer);
     ASSERT_TRUE(ret);
 
     EXPECT_EQ(obj1.GetItemData(), obj2.GetItemData());
@@ -239,11 +239,11 @@ HWTEST_F(TLVObjectTest, TestPasteDataEntry, TestSize.Level0)
     obj1.SetValue(udmfObject);
 
     std::vector<uint8_t> buffer;
-    bool ret = obj1.Marshalling(buffer);
+    bool ret = obj1.Encode(buffer);
     ASSERT_TRUE(ret);
 
     PasteDataEntry obj2;
-    ret = obj2.Unmarshalling(buffer);
+    ret = obj2.Decode(buffer);
     ASSERT_TRUE(ret);
 
     EXPECT_EQ(obj1.GetUtdId(), obj2.GetUtdId());
@@ -275,11 +275,11 @@ HWTEST_F(TLVObjectTest, TestPasteDataRecord, TestSize.Level0)
     obj1.AddEntry(utdId, entry1);
 
     std::vector<uint8_t> buffer;
-    bool ret = obj1.Marshalling(buffer);
+    bool ret = obj1.Encode(buffer);
     ASSERT_TRUE(ret);
 
     PasteDataRecord obj2;
-    ret = obj2.Unmarshalling(buffer);
+    ret = obj2.Decode(buffer);
     ASSERT_TRUE(ret);
 
     EXPECT_EQ(obj1.GetMimeType(), obj2.GetMimeType());

@@ -62,10 +62,10 @@ void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
     }
     pasteData->AddRecord(pasteDataRecord);
     std::vector<uint8_t> buffer;
-    pasteData->Marshalling(buffer);
+    pasteData->Encode(buffer);
 
     PasteData pasteData2;
-    pasteData2.Unmarshalling(buffer);
+    pasteData2.Decode(buffer);
     pasteData2.HasMimeType(std::string(reinterpret_cast<const char *>(rawData), size));
     pasteData2.RemoveRecordAt(code);
     pasteData2.ReplaceRecordAt(code, pasteDataRecord);
@@ -233,7 +233,7 @@ void FuzzPasteData002(const uint8_t *rawData, size_t size)
     PasteData::ShareOptionToString(ShareOption::LocalDevice, shareoption1);
     PasteData::ShareOptionToString(ShareOption::CrossDevice, shareoption1);
     std::vector<std::uint8_t> buffer = {rawData, rawData + size};
-    pasteData2.Unmarshalling(buffer);
+    pasteData2.Decode(buffer);
     pasteData2.SetInvalid();
     sptr<IRemoteObject> remoteObject = nullptr;
     PasteboardServiceLoader::GetInstance().LoadSystemAbilitySuccess(remoteObject);
@@ -252,7 +252,7 @@ void FuzzPastedataProperty(const uint8_t *rawData, size_t size)
     PasteDataProperty property2(property1);
 
     std::vector<std::uint8_t> buffer = {rawData, rawData + size};
-    property1.Unmarshalling(buffer);
+    property1.Decode(buffer);
 }
 
 void FuzzPastedataRecord(const uint8_t *rawData, size_t size)
@@ -283,8 +283,8 @@ void FuzzPastedataRecord(const uint8_t *rawData, size_t size)
     pasteDataRecord.GetUri();
     pasteDataRecord.ClearPixelMap();
     pasteDataRecord.ConvertToText();
-    pasteDataRecord.Marshalling(buffer);
-    pasteDataRecord.Unmarshalling(buffer);
+    pasteDataRecord.Encode(buffer);
+    pasteDataRecord.Decode(buffer);
     pasteDataRecord.CountTLV();
     pasteDataRecord.SetConvertUri(str),
     pasteDataRecord.GetConvertUri();
@@ -339,8 +339,8 @@ void FuzzMinecustomData(const uint8_t *rawData, size_t size)
     MineCustomData customData;
 
     std::vector<std::uint8_t> buffer = {rawData, rawData + size};
-    customData.Marshalling(buffer);
-    customData.Unmarshalling(buffer);
+    customData.Encode(buffer);
+    customData.Decode(buffer);
     customData.CountTLV();
     customData.GetItemData();
     customData.AddItemData(mimeType, arrayBuffer);

@@ -400,7 +400,7 @@ std::string PasteDataRecord::ConvertToText() const
     return "";
 }
 
-bool PasteDataRecord::EncodeTLV(WriteOnlyBuffer &buffer)
+bool PasteDataRecord::EncodeTLV(WriteOnlyBuffer &buffer) const
 {
     bool ret = buffer.Write(TAG_MIMETYPE, mimeType_);
     ret = ret && buffer.Write(TAG_HTMLTEXT, htmlText_);
@@ -443,7 +443,7 @@ bool PasteDataRecord::DecodeTLV(ReadOnlyBuffer &buffer)
     return true;
 }
 
-size_t PasteDataRecord::CountTLV()
+size_t PasteDataRecord::CountTLV() const
 {
     size_t expectedSize = 0;
     expectedSize += TLVCountable::Count(mimeType_);

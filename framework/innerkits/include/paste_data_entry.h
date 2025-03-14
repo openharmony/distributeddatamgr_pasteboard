@@ -27,9 +27,9 @@ public:
     std::map<std::string, std::vector<uint8_t>> GetItemData();
     void AddItemData(const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer);
 
-    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool EncodeTLV(WriteOnlyBuffer &buffer) const override;
     bool DecodeTLV(ReadOnlyBuffer &buffer) override;
-    size_t CountTLV() override;
+    size_t CountTLV() const override;
 
 private:
     std::map<std::string, std::vector<uint8_t>> itemData_;
@@ -62,9 +62,9 @@ public:
     bool HasContent(const std::string &utdId) const;
     bool HasContentByMimeType(const std::string &mimeType) const;
 
-    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool EncodeTLV(WriteOnlyBuffer &buffer) const override;
     bool DecodeTLV(ReadOnlyBuffer &buffer) override;
-    size_t CountTLV() override;
+    size_t CountTLV() const override;
 
 private:
     std::string utdId_;

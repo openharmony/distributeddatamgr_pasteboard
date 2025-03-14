@@ -478,7 +478,7 @@ void PasteData::RefreshMimeProp()
     props_.mimeTypes = mimeTypes;
 }
 
-bool PasteData::EncodeTLV(WriteOnlyBuffer &buffer)
+bool PasteData::EncodeTLV(WriteOnlyBuffer &buffer) const
 {
     bool ret = buffer.Write(TAG_PROPS, props_);
     ret = ret && buffer.Write(TAG_RECORDS, records_);
@@ -539,7 +539,7 @@ bool PasteData::DecodeTLV(ReadOnlyBuffer &buffer)
     return true;
 }
 
-size_t PasteData::CountTLV()
+size_t PasteData::CountTLV() const
 {
     size_t expectSize = 0;
     expectSize += TLVCountable::Count(props_);
@@ -553,6 +553,33 @@ size_t PasteData::CountTLV()
     expectSize += TLVCountable::Count(dataId_);
     expectSize += TLVCountable::Count(recordId_);
     return expectSize;
+}
+
+bool PasteData::Marshalling(Parcel &parcel) const
+{
+    std::vector<uint8_t> pasteDataTlv(0);
+    bool ret = Encode(pasteDataTlv);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "encode failed");
+
+    ret = parcel.WriteUInt8Vector(pasteDataTlv);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "write vector failed");
+    return true;
+}
+
+PasteData *PasteData::Unmarshalling(Parcel &parcel)
+{
+    std::vector<uint8_t> pasteDataTlv(0);
+    bool ret = parcel.ReadUInt8Vector(&pasteDataTlv);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, nullptr, PASTEBOARD_MODULE_COMMON, "read vector failed");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!pasteDataTlv.empty(), nullptr, PASTEBOARD_MODULE_COMMON, "vector empty");
+
+    PasteData *pasteData = new (std::nothrow) PasteData();
+    if (!pasteData->Decode(pasteDataTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "decode failed");
+        delete pasteData;
+        pasteData = nullptr;
+    }
+    return pasteData;
 }
 
 bool PasteData::IsValid() const
@@ -635,7 +662,7 @@ PasteDataProperty &PasteDataProperty::operator=(const PasteDataProperty &propert
     return *this;
 }
 
-bool PasteDataProperty::EncodeTLV(WriteOnlyBuffer &buffer)
+bool PasteDataProperty::EncodeTLV(WriteOnlyBuffer &buffer) const
 {
     bool ret = buffer.Write(TAG_ADDITIONS, TLVUtils::Parcelable2Raw(&additions));
     ret = ret && buffer.Write(TAG_MIMETYPES, mimeTypes);
@@ -691,7 +718,7 @@ bool PasteDataProperty::DecodeTLV(ReadOnlyBuffer &buffer)
     return true;
 }
 
-size_t PasteDataProperty::CountTLV()
+size_t PasteDataProperty::CountTLV() const
 {
     size_t expectedSize = 0;
     expectedSize += TLVCountable::Count(TLVUtils::Parcelable2Raw(&additions));
