@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 
-module_output_path = "distributeddatamgr/pasteboard"
+module_output_path = "pasteboard/pasteboard"
 
 ohos_js_unittest("PasteBoardPerfJSTest") {
   module_out_path = module_output_path
