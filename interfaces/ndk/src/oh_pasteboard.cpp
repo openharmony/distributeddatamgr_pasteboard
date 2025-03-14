@@ -225,6 +225,7 @@ bool OH_Pasteboard_HasData(OH_Pasteboard *pasteboard)
 
 OH_UdmfData *OH_Pasteboard_GetData(OH_Pasteboard *pasteboard, int *status)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "enter");
     if (!IsPasteboardValid(pasteboard) || status == nullptr) {
         return nullptr;
     }
@@ -239,6 +240,7 @@ OH_UdmfData *OH_Pasteboard_GetData(OH_Pasteboard *pasteboard, int *status)
     OH_UdmfData *data = OH_UdmfData_Create();
     data->unifiedData_ = std::move(unifiedData);
     *status = ERR_OK;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "leave");
     return data;
 }
 
@@ -394,6 +396,7 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
 
 int OH_Pasteboard_SetData(OH_Pasteboard *pasteboard, OH_UdmfData *data)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "enter");
     if (!IsPasteboardValid(pasteboard) || data == nullptr) {
         return ERR_INVALID_PARAMETER;
     }
@@ -403,6 +406,7 @@ int OH_Pasteboard_SetData(OH_Pasteboard *pasteboard, OH_UdmfData *data)
             PASTEBOARD_MODULE_CAPI, "client OH_Pasteboard_SetData return invalid, result is %{public}d", ret);
         return GetMappedCode(ret);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "leave");
     return ERR_OK;
 }
 
