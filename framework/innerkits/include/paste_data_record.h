@@ -33,9 +33,9 @@ public:
         std::shared_ptr<OHOS::AAFwk::Want> want, std::shared_ptr<std::string> plainText,
         std::shared_ptr<OHOS::Uri> uri);
 
-    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool EncodeTLV(WriteOnlyBuffer &buffer) const override;
     bool DecodeTLV(ReadOnlyBuffer &buffer) override;
-    size_t CountTLV() override;
+    size_t CountTLV() const override;
 
     static std::shared_ptr<PasteDataRecord> NewHtmlRecord(const std::string &htmlText);
     static std::shared_ptr<PasteDataRecord> NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);

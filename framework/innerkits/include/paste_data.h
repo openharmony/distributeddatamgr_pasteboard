@@ -38,12 +38,12 @@ struct API_EXPORT PasteDataProperty : public TLVWriteable, public TLVReadable {
     std::string setTime;
     ScreenEvent screenStatus = ScreenEvent::Default;
 
-    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool EncodeTLV(WriteOnlyBuffer &buffer) const override;
     bool DecodeTLV(ReadOnlyBuffer &buffer) override;
-    size_t CountTLV() override;
+    size_t CountTLV() const override;
 };
 
-class API_EXPORT PasteData : public TLVWriteable, public TLVReadable {
+class API_EXPORT PasteData : public TLVWriteable, public TLVReadable, public Parcelable {
 public:
     static constexpr const std::uint32_t MAX_RECORD_NUM = 512;
     PasteData();
@@ -104,9 +104,11 @@ public:
     void SetFileSize(int64_t fileSize);
     int64_t GetFileSize() const;
 
-    bool EncodeTLV(WriteOnlyBuffer &buffer) override;
+    bool Marshalling(Parcel &parcel) const override;
+    static PasteData *Unmarshalling(Parcel &parcel);
+    bool EncodeTLV(WriteOnlyBuffer &buffer) const override;
     bool DecodeTLV(ReadOnlyBuffer &buffer) override;
-    size_t CountTLV() override;
+    size_t CountTLV() const override;
 
     bool IsValid() const;
     void SetInvalid();

@@ -42,7 +42,7 @@ void MineCustomData::AddItemData(const std::string &mimeType, const std::vector<
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "itemData_.size = %{public}zu", itemData_.size());
 }
 
-bool MineCustomData::EncodeTLV(WriteOnlyBuffer &buffer)
+bool MineCustomData::EncodeTLV(WriteOnlyBuffer &buffer) const
 {
     return buffer.Write(TAG_ITEM_DATA, itemData_);
 }
@@ -67,7 +67,7 @@ bool MineCustomData::DecodeTLV(ReadOnlyBuffer &buffer)
     return true;
 }
 
-size_t MineCustomData::CountTLV()
+size_t MineCustomData::CountTLV() const
 {
     return TLVCountable::Count(itemData_);
 }
@@ -128,7 +128,7 @@ void PasteDataEntry::SetValue(const EntryValue &value)
     value_ = value;
 }
 
-bool PasteDataEntry::EncodeTLV(WriteOnlyBuffer &buffer)
+bool PasteDataEntry::EncodeTLV(WriteOnlyBuffer &buffer) const
 {
     bool ret = buffer.Write(TAG_ENTRY_UTDID, utdId_);
     ret = ret && buffer.Write(TAG_ENTRY_MIMETYPE, mimeType_);
@@ -162,7 +162,7 @@ bool PasteDataEntry::DecodeTLV(ReadOnlyBuffer &buffer)
     return true;
 }
 
-size_t PasteDataEntry::CountTLV()
+size_t PasteDataEntry::CountTLV() const
 {
     return TLVCountable::Count(utdId_) + TLVCountable::Count(mimeType_) + TLVCountable::Count(value_);
 }

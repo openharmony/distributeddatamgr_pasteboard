@@ -27,9 +27,9 @@ class TLVWriteable : public TLVCountable {
 public:
     virtual ~TLVWriteable() = default;
 
-    virtual bool EncodeTLV(WriteOnlyBuffer &buffer) = 0;
+    virtual bool EncodeTLV(WriteOnlyBuffer &buffer) const = 0;
 
-    API_EXPORT bool Marshalling(std::vector<uint8_t> &buffer);
+    API_EXPORT bool Encode(std::vector<uint8_t> &buffer) const;
 };
 
 class WriteOnlyBuffer : public TLVBuffer {
@@ -39,7 +39,7 @@ public:
     }
 
     template<typename T>
-    bool Write(uint16_t type, std::vector<T> &value)
+    bool Write(uint16_t type, const std::vector<T> &value)
     {
         if (!HasExpectBuffer(sizeof(TLVHead))) {
             return false;
@@ -53,7 +53,7 @@ public:
     }
 
     template<typename T>
-    bool Write(uint16_t type, std::shared_ptr<T> &value)
+    bool Write(uint16_t type, const std::shared_ptr<T> &value)
     {
         if (value == nullptr) {
             return true;
@@ -62,7 +62,7 @@ public:
     }
 
     bool Write(uint16_t type, std::monostate value);
-    bool Write(uint16_t type, void *value);
+    bool Write(uint16_t type, const void *value);
     bool Write(uint16_t type, bool value);
     bool Write(uint16_t type, double value);
     bool Write(uint16_t type, int8_t value);
@@ -75,9 +75,9 @@ public:
     bool Write(uint16_t type, const AAFwk::Want &value);
     bool Write(uint16_t type, const Media::PixelMap &value);
     bool Write(uint16_t type, const RawMem &value);
-    bool Write(uint16_t type, TLVWriteable &value);
-    bool Write(uint16_t type, std::vector<uint8_t> &value);
-    bool Write(uint16_t type, std::map<std::string, std::vector<uint8_t>> &value);
+    bool Write(uint16_t type, const TLVWriteable &value);
+    bool Write(uint16_t type, const std::vector<uint8_t> &value);
+    bool Write(uint16_t type, const std::map<std::string, std::vector<uint8_t>> &value);
     bool Write(uint16_t type, const Details &value);
 
     template<typename _InTp>
@@ -119,11 +119,11 @@ private:
     }
 
     template<typename T>
-    bool WriteValue(std::vector<T> &value)
+    bool WriteValue(const std::vector<T> &value)
     {
         // items iterator
         bool ret = true;
-        for (T &item : value) {
+        for (const T &item : value) {
             // V:item value
             ret = ret && Write(TAG_VECTOR_ITEM, item);
         }

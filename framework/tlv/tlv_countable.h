@@ -23,7 +23,7 @@ namespace OHOS::MiscServices {
 
 class TLVCountable {
 public:
-    virtual size_t CountTLV() = 0;
+    virtual size_t CountTLV() const = 0;
 
     static inline size_t Count(bool value)
     {
@@ -70,7 +70,7 @@ public:
         return value.bufferLen + sizeof(TLVHead);
     }
 
-    static inline size_t Count(TLVCountable &value)
+    static inline size_t Count(const TLVCountable &value)
     {
         return value.CountTLV() + sizeof(TLVHead);
     }
@@ -130,7 +130,7 @@ public:
         return expectSize + Count(TLVUtils::Parcelable2Raw(value.get()));
     }
 
-    static inline size_t Count(std::shared_ptr<Media::PixelMap> value)
+    static inline size_t Count(const std::shared_ptr<Media::PixelMap> value)
     {
         if (value == nullptr) {
             return 0;

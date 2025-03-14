@@ -30,7 +30,7 @@ public:
 
     virtual bool DecodeTLV(ReadOnlyBuffer &buffer) = 0;
 
-    API_EXPORT bool Unmarshalling(const std::vector<uint8_t> &buffer);
+    API_EXPORT bool Decode(const std::vector<uint8_t> &buffer);
 };
 
 class ReadOnlyBuffer : public TLVBuffer {

@@ -49,7 +49,7 @@ int32_t PasteboardDelayGetterStub::OnGetPasteData(MessageParcel &data, MessagePa
     std::string dataType = data.ReadString();
     GetPasteData(dataType, pasteData);
     std::vector<uint8_t> pasteDataTlv(0);
-    bool ret = pasteData.Marshalling(pasteDataTlv);
+    bool ret = pasteData.Encode(pasteDataTlv);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail encode paste data");
         return ERR_INVALID_VALUE;

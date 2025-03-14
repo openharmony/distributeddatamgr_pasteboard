@@ -349,9 +349,9 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
     entry.SetValue(text_);
 
     std::vector<std::uint8_t> buffer;
-    entry.Marshalling(buffer);
+    entry.Encode(buffer);
     PasteDataEntry decodePasteEntry;
-    auto ret = decodePasteEntry.Unmarshalling(buffer);
+    auto ret = decodePasteEntry.Decode(buffer);
 
     ASSERT_EQ(ret, true);
     ASSERT_EQ(decodePasteEntry.GetUtdId(), utdId);
@@ -374,9 +374,9 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest002, TestSize.Level0)
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     auto entry = InitPlainTextEntry();
     std::vector<std::uint8_t> buffer;
-    entry.Marshalling(buffer);
+    entry.Encode(buffer);
     PasteDataEntry decodePasteEntry;
-    auto ret = decodePasteEntry.Unmarshalling(buffer);
+    auto ret = decodePasteEntry.Decode(buffer);
     ASSERT_EQ(ret, true);
     ASSERT_EQ(decodePasteEntry.GetUtdId(), utdId);
     ASSERT_EQ(decodePasteEntry.GetMimeType(), MIMETYPE_TEXT_PLAIN);
@@ -395,9 +395,9 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest003, TestSize.Level0)
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
     auto entry = InitPixelMapEntry();
     std::vector<std::uint8_t> buffer;
-    entry.Marshalling(buffer);
+    entry.Encode(buffer);
     PasteDataEntry decodePasteEntry;
-    auto ret = decodePasteEntry.Unmarshalling(buffer);
+    auto ret = decodePasteEntry.Decode(buffer);
     ASSERT_EQ(ret, true);
     ASSERT_EQ(decodePasteEntry.GetUtdId(), utdId);
     ASSERT_EQ(decodePasteEntry.GetMimeType(), MIMETYPE_PIXELMAP);

@@ -39,7 +39,7 @@ int32_t PasteboardEntryGetterProxy::MakeRequest(uint32_t recordId, PasteDataEntr
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     std::vector<uint8_t> sendEntryTLV(0);
-    if (!value.Marshalling(sendEntryTLV)) {
+    if (!value.Encode(sendEntryTLV)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "marshall entry value failed");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
@@ -82,7 +82,7 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
     }
     std::vector<uint8_t> recvEntryTlv(rawData, rawData + rawDataSize);
     PasteDataEntry entryValue;
-    if (!entryValue.Unmarshalling(recvEntryTlv)) {
+    if (!entryValue.Decode(recvEntryTlv)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "unmarshall entry value failed");
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }

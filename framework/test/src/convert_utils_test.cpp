@@ -82,9 +82,9 @@ void ConvertUtilsTest::TearDown(void) { }
 PasteData ConvertUtilsTest::TlvData(const std::shared_ptr<PasteData> &data)
 {
     std::vector<std::uint8_t> buffer;
-    data->Marshalling(buffer);
+    data->Encode(buffer);
     PasteData decodePasteData;
-    decodePasteData.Unmarshalling(buffer);
+    decodePasteData.Decode(buffer);
     return decodePasteData;
 }
 

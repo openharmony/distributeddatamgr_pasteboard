@@ -19,7 +19,7 @@
 
 namespace OHOS::MiscServices {
 
-bool TLVReadable::Unmarshalling(const std::vector<std::uint8_t> &buffer)
+bool TLVReadable::Decode(const std::vector<std::uint8_t> &buffer)
 {
     ReadOnlyBuffer buff(buffer);
     return DecodeTLV(buff);
