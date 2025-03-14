@@ -200,17 +200,15 @@ PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::stri
     : mimeType_{ std::move(mimeType) }, htmlText_{ std::move(htmlText) }, want_{ std::move(want) },
       plainText_{ std::move(plainText) }, uri_{ std::move(uri) }
 {
-    InitDecodeMap();
 }
 
 PasteDataRecord::PasteDataRecord()
 {
-    InitDecodeMap();
 }
 
 PasteDataRecord::~PasteDataRecord()
 {
-    decodeMap.clear();
+    std::vector<std::shared_ptr<PasteDataEntry>>().swap(entries_);
 }
 
 PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
@@ -223,51 +221,6 @@ PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
       entryGetter_(record.entryGetter_), from_(record.from_)
 {
     this->isConvertUriFromRemote = record.isConvertUriFromRemote;
-    InitDecodeMap();
-}
-
-void PasteDataRecord::InitDecodeMap()
-{
-    decodeMap = {
-        {TAG_MIMETYPE,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(mimeType_, head); }},
-        {TAG_HTMLTEXT,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(htmlText_, head); }},
-        {TAG_WANT,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(want_, head); }},
-        {TAG_PLAINTEXT,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(plainText_, head); }},
-        {TAG_URI,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(uri_, head); }},
-        {TAG_CONVERT_URI,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(convertUri_, head); }},
-        {TAG_PIXELMAP,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(pixelMap_, head); }},
-        {TAG_CUSTOM_DATA,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(customData_, head);}},
-        {TAG_URI_PERMISSION,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(hasGrantUriPermission_, head); }},
-        {TAG_UDC_UDTYPE,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(udType_, head); }},
-        {TAG_UDC_DETAILS,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(details_, head); }},
-        {TAG_UDC_TEXTCONTENT,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(textContent_, head); }},
-        {TAG_UDC_SYSTEMCONTENTS,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(systemDefinedContents_, head); }},
-        {TAG_UDC_UDMFVALUE,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(udmfValue_, head); }},
-        {TAG_UDC_ENTRIES,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(entries_, head); }},
-        {TAG_DATA_ID,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(dataId_, head); }},
-        {TAG_RECORD_ID,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(recordId_, head); }},
-        {TAG_DELAY_RECORD_FLAG,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isDelay_, head); }},
-        {TAG_FROM,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(from_, head); }},
-    };
 }
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
@@ -424,19 +377,67 @@ bool PasteDataRecord::EncodeTLV(WriteOnlyBuffer &buffer)
     return ret;
 }
 
+bool PasteDataRecord::DecodeItem1(uint16_t tag, ReadOnlyBuffer &buffer, TLVHead &head)
+{
+    switch (tag) {
+        case TAG_MIMETYPE:
+            return buffer.ReadValue(mimeType_, head);
+        case TAG_HTMLTEXT:
+            return buffer.ReadValue(htmlText_, head);
+        case TAG_WANT:
+            return buffer.ReadValue(want_, head);
+        case TAG_PLAINTEXT:
+            return buffer.ReadValue(plainText_, head);
+        case TAG_URI:
+            return buffer.ReadValue(uri_, head);
+        case TAG_CONVERT_URI:
+            return buffer.ReadValue(convertUri_, head);
+        case TAG_PIXELMAP:
+            return buffer.ReadValue(pixelMap_, head);
+        case TAG_CUSTOM_DATA:
+            return buffer.ReadValue(customData_, head);
+        case TAG_URI_PERMISSION:
+            return buffer.ReadValue(hasGrantUriPermission_, head);
+        default:
+            return DecodeItem2(tag, buffer, head);
+    }
+}
+
+bool PasteDataRecord::DecodeItem2(uint16_t tag, ReadOnlyBuffer &buffer, TLVHead &head)
+{
+    switch (tag) {
+        case TAG_UDC_UDTYPE:
+            return buffer.ReadValue(udType_, head);
+        case TAG_UDC_DETAILS:
+            return buffer.ReadValue(details_, head);
+        case TAG_UDC_TEXTCONTENT:
+            return buffer.ReadValue(textContent_, head);
+        case TAG_UDC_SYSTEMCONTENTS:
+            return buffer.ReadValue(systemDefinedContents_, head);
+        case TAG_UDC_UDMFVALUE:
+            return buffer.ReadValue(udmfValue_, head);
+        case TAG_UDC_ENTRIES:
+            return buffer.ReadValue(entries_, head);
+        case TAG_DATA_ID:
+            return buffer.ReadValue(dataId_, head);
+        case TAG_RECORD_ID:
+            return buffer.ReadValue(recordId_, head);
+        case TAG_DELAY_RECORD_FLAG:
+            return buffer.ReadValue(isDelay_, head);
+        case TAG_FROM:
+            return buffer.ReadValue(from_, head);
+        default:
+            return buffer.Skip(head.len);
+    }
+}
+
 bool PasteDataRecord::DecodeTLV(ReadOnlyBuffer &buffer)
 {
     for (; buffer.IsEnough();) {
         TLVHead head{};
         bool ret = buffer.ReadHead(head);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "read head failed");
-
-        auto it = decodeMap.find(head.tag);
-        if (it == decodeMap.end()) {
-            ret = buffer.Skip(head.len);
-        } else {
-            ret = it->second(buffer, head);
-        }
+        ret = DecodeItem1(head.tag, buffer, head);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON,
             "read value failed, tag=%{public}hu, len=%{public}u", head.tag, head.len);
     }

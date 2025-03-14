@@ -148,10 +148,6 @@ private:
     bool isDelayRecord_ = false;
     uint32_t dataId_ = 0;
     uint32_t recordId_ = 0;
-
-    using DecodeFunc = std::function<bool(ReadOnlyBuffer &buffer, TLVHead &head)>;
-    std::map<uint16_t, DecodeFunc> decodeMap_;
-    void InitDecodeMap();
 };
 
 class IPasteDataProcessor {

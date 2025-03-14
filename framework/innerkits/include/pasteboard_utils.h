@@ -32,9 +32,6 @@ public:
     std::vector<std::string> DeduplicateVector(const std::vector<std::string> &vec);
 
 private:
-    using Convert2URecord = std::function<std::shared_ptr<UnifiedRecord>(std::shared_ptr<PasteDataRecord>)>;
-    using Convert2PRecord = std::function<std::shared_ptr<PasteDataRecord>(std::shared_ptr<UnifiedRecord>)>;
-
     PasteboardUtils();
 
     std::vector<std::shared_ptr<PasteDataRecord>> Convert(const std::vector<std::shared_ptr<UnifiedRecord>>& records);
@@ -43,8 +40,6 @@ private:
     static std::vector<std::string> Convert(const std::vector<std::string>& utdIds);
     static std::string Convert(UDType uDType);
     static UDType Convert(int32_t uDType, const std::string& mimeType);
-
-    void InitDecodeMap();
 
     static std::shared_ptr<UnifiedRecord> PasteRecord2Text(std::shared_ptr<PasteDataRecord> record);
     static std::shared_ptr<UnifiedRecord> PasteRecord2PlaintText(std::shared_ptr<PasteDataRecord> record);
@@ -79,10 +74,11 @@ private:
     static std::shared_ptr<PasteDataRecord> SystemDefined2PasteRecord(std::shared_ptr<UnifiedRecord> record);
     static std::shared_ptr<PasteDataRecord> AppDefined2PasteRecord(std::shared_ptr<UnifiedRecord> record);
 
-    std::map<int32_t, Convert2URecord> convert2URecordMap_;
-    std::map<int32_t, Convert2PRecord> convert2PRecordMap_;
     static ShareOption UdmfOptions2PbOption(ShareOptions udmfOptions);
     static ShareOptions PbOption2UdmfOptions(ShareOption pbOption);
+
+    std::shared_ptr<UnifiedRecord> ConvertToUnifiedRecord(const std::shared_ptr<PasteDataRecord> &record);
+    std::shared_ptr<PasteDataRecord> ConvertToPasteDataRecord(const std::shared_ptr<UnifiedRecord> &record);
 };
 } // namespace MiscServices
 } // namespace OHOS
