@@ -118,6 +118,7 @@ void PasteboardWebController::SetWebviewPasteData(PasteData &pasteData, const st
 
 void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "enter");
     std::vector<std::string> uris;
     std::vector<size_t> indexs;
     std::vector<bool> checkResults;
@@ -130,13 +131,13 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
         uris.emplace_back(uri);
         indexs.emplace_back(i);
     }
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "uri count=%{public}zu", uris.size());
     if (uris.empty()) {
         return;
     }
     size_t offset = 0;
     size_t length = uris.size();
     size_t count = PasteData::URI_BATCH_SIZE;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "loop for CheckUriAuthorization, uri count=%{public}zu", uris.size());
     while (length > offset) {
         if (length - offset < PasteData::URI_BATCH_SIZE) {
             count = length - offset;
@@ -151,6 +152,7 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "check uri authorization fail");
         return;
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "loop for SetGrantUriPermission");
     for (size_t i = 0; i < indexs.size(); i++) {
         auto item = pasteData.GetRecordAt(indexs[i]);
         if (item == nullptr || item->GetOriginUri() == nullptr) {
@@ -158,6 +160,7 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
         }
         item->SetGrantUriPermission(checkResults[i]);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "leave");
 }
 
 void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &record, const std::string &targetBundle)

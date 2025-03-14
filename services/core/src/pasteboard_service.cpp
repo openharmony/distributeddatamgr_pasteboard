@@ -314,6 +314,7 @@ void PasteboardService::InitServiceHandler()
 
 void PasteboardService::Clear()
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "enter, clips_.Size=%{public}zu", clips_.Size());
     auto userId = GetCurrentAccountId();
     if (userId == ERROR_USERID) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
@@ -331,6 +332,7 @@ void PasteboardService::Clear()
         NotifyObservers(bundleName, PasteboardEventStatus::PASTEBOARD_CLEAR);
     }
     CleanDistributedData(userId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "leave, clips_.Size=%{public}zu", clips_.Size());
 }
 
 int32_t PasteboardService::GetChangeCount(uint32_t &changeCount)
@@ -1366,11 +1368,13 @@ int32_t PasteboardService::GrantUriPermission(const std::vector<Uri> &grantUris,
             readBundles_.insert(targetBundleName);
         }
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "leave, ret=%{public}d", ret);
     return ret == 0 ? static_cast<int32_t>(PasteboardError::E_OK) : ret;
 }
 
 std::vector<Uri> PasteboardService::CheckUriPermission(PasteData &data, const std::string &targetBundleName)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "enter");
     std::vector<Uri> grantUris;
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
@@ -1397,6 +1401,7 @@ std::vector<Uri> PasteboardService::CheckUriPermission(PasteData &data, const st
         }
         grantUris.emplace_back(*uri);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "leave, grant:%{public}zu", grantUris.size());
     return grantUris;
 }
 
