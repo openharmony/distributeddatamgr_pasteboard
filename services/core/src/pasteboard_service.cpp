@@ -1393,10 +1393,14 @@ std::vector<Uri> PasteboardService::CheckUriPermission(PasteData &data, const st
         } else if (!item->isConvertUriFromRemote && item->GetOriginUri() != nullptr) {
             uri = item->GetOriginUri();
         }
+        if (uri == nullptr) {
+            continue;
+        }
         auto hasGrantUriPermission = item->HasGrantUriPermission();
-        if (uri == nullptr || (!IsBundleOwnUriPermission(data.GetOriginAuthority(), *uri) && !hasGrantUriPermission)) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri is null:%{public}d, has grant permission: %{public}d",
-                uri == nullptr, hasGrantUriPermission);
+        const std::string &bundleName = data.GetOriginAuthority();
+        if (!IsBundleOwnUriPermission(bundleName, *uri) && !hasGrantUriPermission) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri:%{private}s, bundleName:%{public}s, has grant:%{public}d",
+                uri->ToString().c_str(), bundleName.c_str(), hasGrantUriPermission);
             continue;
         }
         grantUris.emplace_back(*uri);
@@ -1439,13 +1443,7 @@ void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData
 
 bool PasteboardService::IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri)
 {
-    auto authority = uri.GetAuthority();
-    if (bundleName.compare(authority) != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "grant error, uri:%{public}s, orgin:%{public}s",
-            authority.c_str(), bundleName.c_str());
-        return false;
-    }
-    return true;
+    return (bundleName.compare(uri.GetAuthority()) == 0);
 }
 
 void PasteboardService::ShowHintToast(uint32_t tokenId, uint32_t pid)
@@ -2975,34 +2973,32 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
     std::vector<std::string> uris;
     std::vector<size_t> indexes;
     auto userId = GetCurrentAccountId();
-    if (userId == ERROR_USERID) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(userId != ERROR_USERID, PASTEBOARD_MODULE_SERVICE, "invalid userId");
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
-        if (item == nullptr || item->GetOriginUri() == nullptr) {
+        if (item == nullptr) {
             continue;
         }
-        Uri uri = *(item->GetOriginUri());
-        if (!IsBundleOwnUriPermission(data.GetOriginAuthority(), uri) && !item->HasGrantUriPermission()) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "orginuri=%{public}s, no permission", uri.ToString().c_str());
+        const auto &uri = item->GetOriginUri();
+        if (uri == nullptr) {
             continue;
         }
-        uris.emplace_back(uri.ToString());
+        auto hasGrantUriPermission = item->HasGrantUriPermission();
+        const std::string &bundleName = data.GetOriginAuthority();
+        if (!IsBundleOwnUriPermission(bundleName, *uri) && !hasGrantUriPermission) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "uri:%{private}s, bundleName:%{public}s, has grant:%{public}d",
+                uri->ToString().c_str(), bundleName.c_str(), hasGrantUriPermission);
+            continue;
+        }
+        uris.emplace_back(uri->ToString());
         indexes.emplace_back(i);
     }
     size_t fileSize = 0;
     std::unordered_map<std::string, HmdfsUriInfo> dfsUris;
     if (!uris.empty()) {
         int ret = RemoteFileShare::GetDfsUrisFromLocal(uris, userId, dfsUris);
-        if (ret != 0 || dfsUris.empty()) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "Get remoteUri failed, ret = %{public}d, userId: %{public}d,"
-                "uri size:%{public}zu.",
-                ret, userId, uris.size());
-            return;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_LOGE((ret == 0 && !dfsUris.empty()), PASTEBOARD_MODULE_SERVICE,
+            "Get remoteUri failed, ret:%{public}d, userId:%{public}d, uri size:%{public}zu.", ret, userId, uris.size());
         for (size_t i = 0; i < indexes.size(); i++) {
             auto item = data.GetRecordAt(indexes[i]);
             if (item == nullptr || item->GetOriginUri() == nullptr) {

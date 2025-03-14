@@ -277,7 +277,6 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     PasteboardWebController::GetInstance().RetainUri(pasteData);
     PasteboardWebController::GetInstance().RebuildWebviewPasteData(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetPasteData end.");
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         if (pasteData.deviceId_.empty()) {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
