@@ -13,7 +13,7 @@
 import("//build/test.gni")
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
-module_output_path = "distributeddatamgr/pasteboard"
+module_output_path = "pasteboard/pasteboard"
 
 ###############################################################################
 config("module_private_config") {
