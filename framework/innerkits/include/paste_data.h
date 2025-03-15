@@ -134,7 +134,7 @@ public:
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
     std::string deviceId_;
     static const std::string DOCS_LOCAL_TAG;
-    static constexpr size_t URI_BATCH_SIZE = 500;
+    static constexpr size_t URI_BATCH_SIZE = 10000;
 
 private:
     void RefreshMimeProp();
