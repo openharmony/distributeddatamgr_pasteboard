@@ -33,7 +33,7 @@ public:
 
     static inline std::shared_ptr<DistributedDeviceProfile::DistributedDeviceProfileClientMock>
         distributedDeviceProfileClientMock_ =
-            std::shared_ptr<DistributedDeviceProfile::DistributedDeviceProfileClientMock>();
+            std::make_shared<DistributedDeviceProfile::DistributedDeviceProfileClientMock>();
 };
 
 } // namespace MiscServices
