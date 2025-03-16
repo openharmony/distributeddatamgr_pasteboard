@@ -14,11 +14,11 @@
 */
 
 #include "pasteboard_entry_getter_proxy.h"
+
+#include "message_parcel_warp.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
-
-#define MAX_RAWDATA_SIZE (128 * 1024 * 1024)
 
 namespace OHOS {
 namespace MiscServices {
@@ -43,12 +43,14 @@ int32_t PasteboardEntryGetterProxy::MakeRequest(uint32_t recordId, PasteDataEntr
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "marshall entry value failed");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    if (!request.WriteInt32(sendEntryTLV.size())) {
+    if (!request.WriteInt64(sendEntryTLV.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write entry tlv raw data size failed");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    if (!request.WriteRawData(sendEntryTLV.data(), sendEntryTLV.size())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write entry tlv raw data failed");
+    MessageParcelWarp messageRequest;
+    size_t tlvSize = sendEntryTLV.size();
+    if (!messageRequest.WriteRawData(request, sendEntryTLV.data(), tlvSize)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "write entry tlv raw data failed size:%{public}zu", tlvSize);
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -70,16 +72,16 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
         return result;
     }
     res = reply.ReadInt32();
-    int32_t rawDataSize = reply.ReadInt32();
-    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
+    int64_t rawDataSize = reply.ReadInt64();
+    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::MAX_RAWDATA_SIZE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "read entry tlv raw data size failed");
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
-    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(reply.ReadRawData(rawDataSize));
-    if (rawData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "read entry tlv raw data failed");
-        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
-    }
+    MessageParcelWarp messageReply;
+    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(reply, rawDataSize));
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawData != nullptr,
+        static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "read entry tlv raw data failed, size=%{public}" PRId64, rawDataSize);
     std::vector<uint8_t> recvEntryTlv(rawData, rawData + rawDataSize);
     PasteDataEntry entryValue;
     if (!entryValue.Decode(recvEntryTlv)) {

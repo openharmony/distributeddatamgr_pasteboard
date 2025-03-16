@@ -124,7 +124,7 @@ HWTEST_F(PasteDataTest, Marshalling001, TestSize.Level0)
  */
 HWTEST_F(PasteDataTest, MaxLength001, TestSize.Level0)
 {
-    int maxLength = 20 * 1024 * 1024;
+    int maxLength = 170 * 1024 * 1024 + 1;
     std::string res = "hello";
     std::string temp = "world";
     for (int i = 0; i < maxLength; i++) {
@@ -144,7 +144,7 @@ HWTEST_F(PasteDataTest, MaxLength001, TestSize.Level0)
  */
 HWTEST_F(PasteDataTest, MaxLength002, TestSize.Level0)
 {
-    int maxLength = 20 * 1024 * 1024;
+    int maxLength = 170 * 1024 * 1024 + 1;
     std::string plainText = "hello";
     std::string temp = "world";
     for (int i = 0; i < maxLength; i++) {

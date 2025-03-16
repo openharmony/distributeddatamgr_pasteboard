@@ -15,11 +15,10 @@
 
 #include "pasteboard_service_proxy.h"
 
+#include "message_parcel_warp.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
-
-#define MAX_RAWDATA_SIZE (128 * 1024 * 1024)
 
 using namespace OHOS::Security::PasteboardServ;
 namespace OHOS {
@@ -66,30 +65,29 @@ int32_t PasteboardServiceProxy::GetRecordValueByType(uint32_t dataId, uint32_t r
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail encode entry value");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    if (!data.WriteInt32(sendTLV.size())) {
+    if (!data.WriteInt64(sendTLV.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail write data size");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    if (!data.WriteRawData(sendTLV.data(), sendTLV.size())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail write raw data");
+    MessageParcelWarp messageData;
+    size_t tlvSize = sendTLV.size();
+    if (!messageData.WriteRawData(data, sendTLV.data(), tlvSize)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail write raw data size:%{public}zu", tlvSize);
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     int32_t result = Remote()->SendRequest(PasteboardServiceInterfaceCode::GET_RECORD_VALUE, data, reply, option);
-    if (result != ERR_NONE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "failed, error code is:%{public}d", result);
-        return result;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(result == ERR_NONE,
+        result, PASTEBOARD_MODULE_CLIENT, "failed, error code is:%{public}d", result);
     int32_t res = reply.ReadInt32();
-    int32_t rawDataSize = reply.ReadInt32();
-    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid raw data size");
-        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR) ;
-    }
-    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(reply.ReadRawData(rawDataSize));
-    if (rawData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to get raw data");
-        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
-    }
+    int64_t rawDataSize = reply.ReadInt64();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawDataSize > 0 && rawDataSize <= MessageParcelWarp::MAX_RAWDATA_SIZE,
+        static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "invalid raw data size");
+    MessageParcelWarp messageReply;
+    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(reply, rawDataSize));
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawData != nullptr,
+        static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "fail to get raw data, size=%{public}" PRId64, rawDataSize);
     std::vector<uint8_t> receiveTlv(rawData, rawData + rawDataSize);
     PasteDataEntry entryValue;
     if (!entryValue.Decode(receiveTlv)) {
@@ -220,12 +218,14 @@ int32_t PasteboardServiceProxy::SetPasteData(PasteData &pasteData, const sptr<IP
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to encode pastedata in TLV");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    if (!data.WriteInt32(pasteDataTlv.size())) {
+    if (!data.WriteInt64(pasteDataTlv.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw size");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    if (!data.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw data");
+    MessageParcelWarp messageData;
+    size_t tlvSize = pasteDataTlv.size();
+    if (!messageData.WriteRawData(data, pasteDataTlv.data(), tlvSize)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to write raw data size:%{public}zu", tlvSize);
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
     if (pasteData.IsDelayData() && !data.WriteRemoteObject(delayGetter->AsObject())) {
@@ -265,16 +265,16 @@ __attribute__ ((no_sanitize("cfi"))) int32_t PasteboardServiceProxy::GetPasteDat
         return result;
     }
     pasteData.SetPasteId("");
-    int32_t rawDataSize = reply.ReadInt32();
-    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
+    int64_t rawDataSize = reply.ReadInt64();
+    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::MAX_RAWDATA_SIZE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid raw data size");
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
-    auto *rawData = (uint8_t *)reply.ReadRawData(rawDataSize);
-    if (rawData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to get raw data");
-        return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
-    }
+    MessageParcelWarp messageReply;
+    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(reply, rawDataSize));
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawData != nullptr,
+        static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "Failed to get raw data, size=%{public}" PRId64, rawDataSize);
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
     bool ret = pasteData.Decode(pasteDataTlv);
     if (!ret) {

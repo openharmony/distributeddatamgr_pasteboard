@@ -14,11 +14,11 @@
  */
 
 #include "pasteboard_entry_getter_stub.h"
+
 #include "ipc_skeleton.h"
+#include "message_parcel_warp.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_serv_ipc_interface_code.h"
-
-#define MAX_RAWDATA_SIZE (128 * 1024 * 1024)
 
 namespace OHOS {
 namespace MiscServices {
@@ -58,16 +58,15 @@ int PasteboardEntryGetterStub::OnRemoteRequest(
 int32_t PasteboardEntryGetterStub::OnGetRecordValueByType(MessageParcel &data, MessageParcel &reply)
 {
     uint32_t recordId = data.ReadUint32();
-    int32_t rawDataSize = data.ReadInt32();
-    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
+    int64_t rawDataSize = data.ReadInt64();
+    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::MAX_RAWDATA_SIZE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid raw data size");
         return ERR_INVALID_VALUE;
     }
-    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(data.ReadRawData(rawDataSize));
-    if (rawData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "read entry tlv raw data fail");
-        return ERR_INVALID_VALUE;
-    }
+    MessageParcelWarp messageData;
+    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageData.ReadRawData(data, rawDataSize));
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawData != nullptr, ERR_INVALID_VALUE,
+        PASTEBOARD_MODULE_CLIENT, "read entry tlv raw data failed, size=%{public}" PRId64, rawDataSize);
     std::vector<uint8_t> recvEntryTlv(rawData, rawData + rawDataSize);
     PasteDataEntry entryValue;
     bool ret = entryValue.Decode(recvEntryTlv);
@@ -86,12 +85,14 @@ int32_t PasteboardEntryGetterStub::OnGetRecordValueByType(MessageParcel &data, M
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "marshall entry value failed");
         return ERR_INVALID_VALUE;
     }
-    if (!reply.WriteInt32(sendEntryTLV.size())) {
+    if (!reply.WriteInt64(sendEntryTLV.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write entry tlv raw data size failed");
         return ERR_INVALID_VALUE;
     }
-    if (!reply.WriteRawData(sendEntryTLV.data(), sendEntryTLV.size())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write entry tlv raw data failed");
+    MessageParcelWarp messageReply;
+    size_t tlvSize = sendEntryTLV.size();
+    if (!messageReply.WriteRawData(reply, sendEntryTLV.data(), tlvSize)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "write entry tlv raw data failed size:%{public}zu", tlvSize);
         return ERR_INVALID_VALUE;
     }
     return ERR_OK;

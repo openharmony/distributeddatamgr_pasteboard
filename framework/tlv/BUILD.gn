@@ -33,6 +33,7 @@ ohos_static_library("pasteboard_tlv") {
     debug = false
   }
   sources = [
+    "message_parcel_warp.cpp",
     "tlv_readable.cpp",
     "tlv_utils.cpp",
     "tlv_writeable.cpp",
