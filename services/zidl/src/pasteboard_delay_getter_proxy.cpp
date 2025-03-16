@@ -14,9 +14,9 @@
 */
 
 #include "pasteboard_delay_getter_proxy.h"
-#include "pasteboard_hilog.h"
 
-#define MAX_RAWDATA_SIZE (128 * 1024 * 1024)
+#include "message_parcel_warp.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -43,16 +43,15 @@ void PasteboardDelayGetterProxy::GetPasteData(const std::string &type, PasteData
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "send request fail, error:%{public}d", result);
         return;
     }
-    int32_t rawDataSize = reply.ReadInt32();
-    if (rawDataSize <= 0 || rawDataSize > MAX_RAWDATA_SIZE) {
+    int64_t rawDataSize = reply.ReadInt64();
+    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::MAX_RAWDATA_SIZE) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid raw data size");
         return;
     }
-    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(reply.ReadRawData(rawDataSize));
-    if (rawData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to get raw data");
-        return;
-    }
+    MessageParcelWarp messageReply;
+    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(reply, rawDataSize));
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(rawData != nullptr,
+        PASTEBOARD_MODULE_CLIENT, "fail to get raw data, size=%{public}" PRId64, rawDataSize);
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
     bool ret = data.Decode(pasteDataTlv);
     if (!ret) {

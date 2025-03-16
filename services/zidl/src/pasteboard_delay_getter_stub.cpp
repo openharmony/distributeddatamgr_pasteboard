@@ -12,10 +12,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
 #include "pasteboard_delay_getter_stub.h"
 
 #include "ipc_skeleton.h"
+#include "message_parcel_warp.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
@@ -54,12 +54,14 @@ int32_t PasteboardDelayGetterStub::OnGetPasteData(MessageParcel &data, MessagePa
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail encode paste data");
         return ERR_INVALID_VALUE;
     }
-    if (!reply.WriteInt32(pasteDataTlv.size())) {
+    if (!reply.WriteInt64(pasteDataTlv.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail write data size");
         return ERR_INVALID_VALUE;
     }
-    if (!reply.WriteRawData(pasteDataTlv.data(), pasteDataTlv.size())) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail  write raw data");
+    MessageParcelWarp messageReply;
+    size_t tlvSize = pasteDataTlv.size();
+    if (!messageReply.WriteRawData(reply, pasteDataTlv.data(), tlvSize)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail write raw data size:%{public}zu", tlvSize);
         return ERR_INVALID_VALUE;
     }
     return ERR_OK;
