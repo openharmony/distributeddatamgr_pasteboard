@@ -44,7 +44,7 @@ void PasteboardDelayGetterProxy::GetPasteData(const std::string &type, PasteData
         return;
     }
     int64_t rawDataSize = reply.ReadInt64();
-    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::MAX_RAWDATA_SIZE) {
+    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::maxRawDataSize) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid raw data size");
         return;
     }

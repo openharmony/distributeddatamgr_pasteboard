@@ -28,13 +28,11 @@ public:
     bool WriteRawData(MessageParcel &parcelPata, const void *data, size_t size);
     const void *ReadRawData(MessageParcel &parcelData, size_t size);
 
-    static constexpr int64_t MAX_RAWDATA_SIZE = 2ULL * 1024 * 1024 * 1024;
+    static inline int64_t maxRawDataSize = 128 * 1024 * 1024; // 128M
 
 private:
-    bool MemcpyData(void *ptr, const void *data, size_t size);
+    bool MemcpyData(void *ptr, size_t size, const void *data, size_t count);
 
-    static constexpr size_t maxAshmemDataSize = static_cast<size_t>(2ULL * 1024 * 1024 * 1024); // 2G
-    static constexpr size_t minAshmemDataSize = 32 * 1024; // 32K
     std::shared_ptr<char> rawData_;
     int writeRawDataFd_;
     int readRawDataFd_;
