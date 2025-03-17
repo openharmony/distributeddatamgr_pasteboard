@@ -121,7 +121,7 @@ int32_t PasteboardServiceStub::OnGetRecordValueByType(MessageParcel &data, Messa
         "read uint32 failed");
     PasteDataEntry entryValue;
     int64_t rawDataSize = data.ReadInt64();
-    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::MAX_RAWDATA_SIZE) {
+    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::maxRawDataSize) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid raw data size");
         return ERR_INVALID_VALUE;
     }
@@ -204,7 +204,7 @@ int32_t PasteboardServiceStub::OnHasPasteData(MessageParcel &data, MessageParcel
 std::shared_ptr<PasteData> PasteboardServiceStub::UnmarshalPasteData(MessageParcel &data, MessageParcel &reply)
 {
     int64_t rawDataSize = data.ReadInt64();
-    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::MAX_RAWDATA_SIZE) {
+    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::maxRawDataSize) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Invalid raw data size");
         return nullptr;
     }
