@@ -123,6 +123,8 @@ private:
     std::string GetPassUri();
     void AddUriEntry();
     std::set<std::string> GetUdtTypes() const;
+    bool DecodeItem1(uint16_t tag, ReadOnlyBuffer &buffer, TLVHead &head);
+    bool DecodeItem2(uint16_t tag, ReadOnlyBuffer &buffer, TLVHead &head);
 
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
@@ -133,9 +135,6 @@ private:
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
     bool hasGrantUriPermission_ = false;
-    using DecodeFunc = std::function<bool(ReadOnlyBuffer &buffer, TLVHead &head)>;
-    std::map<uint16_t, DecodeFunc> decodeMap;
-    void InitDecodeMap();
 
     int32_t udType_ = UDMF::UD_BUTT;
     std::shared_ptr<Details> details_;

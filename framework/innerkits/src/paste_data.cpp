@@ -68,13 +68,11 @@ PasteData::PasteData()
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
-    InitDecodeMap();
 }
 
 PasteData::~PasteData()
 {
-    records_.clear();
-    decodeMap_.clear();
+    std::vector<std::shared_ptr<PasteDataRecord>>().swap(records_);
 }
 
 PasteData::PasteData(const PasteData &data)
@@ -86,7 +84,6 @@ PasteData::PasteData(const PasteData &data)
     for (const auto &item : data.records_) {
         this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
     }
-    InitDecodeMap();
 }
 
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
@@ -97,7 +94,6 @@ PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : re
     props_.timestamp = steady_clock::now().time_since_epoch().count();
     props_.localOnly = false;
     props_.shareOption = ShareOption::CrossDevice;
-    InitDecodeMap();
 }
 
 PasteData &PasteData::operator=(const PasteData &data)
@@ -493,46 +489,35 @@ bool PasteData::EncodeTLV(WriteOnlyBuffer &buffer) const
     return ret;
 }
 
-void PasteData::InitDecodeMap()
-{
-    decodeMap_ = {
-        {TAG_PROPS,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(props_, head); }},
-        {TAG_RECORDS,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(records_, head); }},
-        {TAG_DRAGGED_DATA_FLAG,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isDraggedData_, head); }},
-        {TAG_LOCAL_PASTE_FLAG,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isLocalPaste_, head); }},
-        {TAG_DELAY_DATA_FLAG,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isDelayData_, head); }},
-        {TAG_DEVICE_ID,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(deviceId_, head); }},
-        {TAG_PASTE_ID,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(pasteId_, head); }},
-        {TAG_DELAY_RECORD_FLAG,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(isDelayRecord_, head); }},
-        {TAG_DATA_ID,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(dataId_, head); }},
-        {TAG_RECORD_ID,
-            [&](ReadOnlyBuffer &buffer, TLVHead &head) { return buffer.ReadValue(recordId_, head); }},
-    };
-}
-
 bool PasteData::DecodeTLV(ReadOnlyBuffer &buffer)
 {
     for (; buffer.IsEnough();) {
         TLVHead head{};
         bool ret = buffer.ReadHead(head);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "read head failed");
-
-        const auto it = decodeMap_.find(head.tag);
-        if (it == decodeMap_.end()) {
-            ret = buffer.Skip(head.len);
+        if (head.tag == TAG_PROPS) {
+            ret = buffer.ReadValue(props_, head);
+        } else if (head.tag == TAG_RECORDS) {
+            ret = buffer.ReadValue(records_, head);
+        } else if (head.tag == TAG_DRAGGED_DATA_FLAG) {
+            ret = buffer.ReadValue(isDraggedData_, head);
+        } else if (head.tag == TAG_LOCAL_PASTE_FLAG) {
+            ret = buffer.ReadValue(isLocalPaste_, head);
+        } else if (head.tag == TAG_DELAY_DATA_FLAG) {
+            ret = buffer.ReadValue(isDelayData_, head);
+        } else if (head.tag == TAG_DEVICE_ID) {
+            ret = buffer.ReadValue(deviceId_, head);
+        } else if (head.tag == TAG_PASTE_ID) {
+            ret = buffer.ReadValue(pasteId_, head);
+        } else if (head.tag == TAG_DELAY_RECORD_FLAG) {
+            ret = buffer.ReadValue(isDelayRecord_, head);
+        } else if (head.tag == TAG_DATA_ID) {
+            ret = buffer.ReadValue(dataId_, head);
+        } else if (head.tag == TAG_RECORD_ID) {
+            ret = buffer.ReadValue(recordId_, head);
         } else {
-            ret = it->second(buffer, head);
+            ret = buffer.Skip(head.len);
         }
-
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON,
             "read value failed, tag=%{public}hu, len=%{public}u", head.tag, head.len);
     }
@@ -638,7 +623,7 @@ PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)
 
 PasteDataProperty::~PasteDataProperty()
 {
-    mimeTypes.clear();
+    std::vector<std::string>().swap(mimeTypes);
 }
 
 PasteDataProperty &PasteDataProperty::operator=(const PasteDataProperty &property)
@@ -657,7 +642,7 @@ PasteDataProperty &PasteDataProperty::operator=(const PasteDataProperty &propert
     this->setTime = property.setTime;
     this->screenStatus = property.screenStatus;
     this->additions = property.additions;
-    this->mimeTypes.clear();
+    std::vector<std::string>().swap(this->mimeTypes);
     std::copy(property.mimeTypes.begin(), property.mimeTypes.end(), std::back_inserter(this->mimeTypes));
     return *this;
 }
