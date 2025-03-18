@@ -43,6 +43,7 @@ ohos_unittest("PasteboardFrameworkTest") {
 
   sources = [
     "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
+    "${pasteboard_root_path}/framework/innerkits/src/pasteboard_copy.cpp",
     "${pasteboard_service_path}/load/src/config.cpp",
     "src/clip_plugin_test.cpp",
     "src/convert_utils_test.cpp",
@@ -57,6 +58,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "src/paste_data_test.cpp",
     "src/pasteboard_client_test.cpp",
     "src/pasteboard_client_udmf_delay_test.cpp",
+    "src/pasteboard_copy_test.cpp",
     "src/pasteboard_event_test.cpp",
     "src/pasteboard_multi_type_unified_data_delay_test.cpp",
     "src/pasteboard_unified_data_test.cpp",
@@ -74,6 +76,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:zuri",
     "cJSON:cjson",
     "c_utils:utils",
+    "dfs_service:distributed_file_daemon_kit_inner",
     "ffrt:libffrt",
     "googletest:gmock",
     "googletest:gtest_main",
