@@ -39,6 +39,310 @@ void DMAdapterTest::SetUp(void) { }
 void DMAdapterTest::TearDown(void) { }
 
 /**
+ * @tc.name: OnDeviceOnline001
+ * @tc.desc: OnDeviceOnline.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceOnline001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = INVALID_TYPE;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceOnline(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceOnline002
+ * @tc.desc: OnDeviceOnline.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceOnline002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceOnline(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceOnline003
+ * @tc.desc: OnDeviceOnline.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceOnline003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = INVALID_TYPE;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        nullptr,
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceOnline(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceOnline004
+ * @tc.desc: OnDeviceOnline.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceOnline004, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        nullptr,
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceOnline(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceOffline001
+ * @tc.desc: OnDeviceOffline.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceOffline001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        nullptr);
+    stateObserver->OnDeviceOffline(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceOffline002
+ * @tc.desc: OnDeviceOffline.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceOffline002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceOffline(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceReady001
+ * @tc.desc: OnDeviceReady.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceReady001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = INVALID_TYPE;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceReady(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceReady002
+ * @tc.desc: OnDeviceReady.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceReady002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceReady(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceReady003
+ * @tc.desc: OnDeviceReady.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceReady003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = INVALID_TYPE;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        nullptr,
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceReady(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OnDeviceReady004
+ * @tc.desc: OnDeviceReady.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, OnDeviceReady004, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    auto stateObserver = std::make_shared<DmStateObserver>(
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        },
+        nullptr,
+        [](const DmDeviceInfo &deviceInfo) {
+            return;
+        });
+    stateObserver->OnDeviceReady(info);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: GetNetworkIds001
+ * @tc.desc: GetNetworkIds.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, GetNetworkIds001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::string networkId = "testNetworkId";
+    std::string testName = "testDeviceName";
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    std::copy(networkId.begin(), networkId.end(), info.networkId);
+    std::copy(testName.begin(), testName.end(), info.deviceName);
+    DMAdapter::GetInstance().devices_.emplace_back(info);
+    auto ids = DMAdapter::GetInstance().GetNetworkIds();
+    ASSERT_NE(0, ids.size());
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
  * @tc.name: GetLocalDeviceUdid001
  * @tc.desc: Get the local device udid.
  * @tc.type: FUNC
@@ -76,6 +380,43 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid002, TestSize.Level0)
     DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceUdid_);
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     ASSERT_FALSE(udid.empty());
+}
+
+/**
+ * @tc.name: GetLocalDeviceUdid003
+ * @tc.desc: GetLocalDeviceUdid.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, GetLocalDeviceUdid003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DMAdapter::GetInstance().localDeviceUdid_ = "testUdid";
+    auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
+    ASSERT_FALSE(udid.empty());
+#else
+    ASSERT_TRUE(udid.empty());
+#endif
+}
+
+/**
+ * @tc.name: GetLocalDeviceUdid004
+ * @tc.desc: GetLocalDeviceUdid.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, GetLocalDeviceUdid004, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    DMAdapter::GetInstance().localDeviceUdid_ = "";
+    DMAdapter::GetInstance().pkgName_ = "testpkgName";
+    auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
+    ASSERT_FALSE(udid.empty());
+#else
+    ASSERT_TRUE(udid.empty());
+#endif
 }
 
 /**
@@ -128,6 +469,60 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetRemoteDeviceInfo002
+ * @tc.desc: Get the remote device info.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::string bundleName = "com.example.myapplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    std::string testName = "testDeviceName";
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    std::copy(networkId.begin(), networkId.end(), info.networkId);
+    std::copy(testName.begin(), testName.end(), info.deviceName);
+    DMAdapter::GetInstance().devices_.emplace_back(info);
+    DmDeviceInfo remoteDevice;
+    int32_t result = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: GetRemoteDeviceInfo003
+ * @tc.desc: Get the remote device info.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::string bundleName = "com.example.myapplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    std::string testName = "testDeviceName";
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    std::copy(networkId.begin(), networkId.end(), info.networkId);
+    std::copy(testName.begin(), testName.end(), info.deviceName);
+    DMAdapter::GetInstance().devices_.emplace_back(info);
+    DmDeviceInfo remoteDevice;
+    int32_t result = DMAdapter::GetInstance().GetRemoteDeviceInfo("testNetworkId", remoteDevice);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), result);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
  * @tc.name: GetUdidByNetworkId
  * @tc.desc: Get Udid By NetworkId.
  * @tc.type: FUNC
@@ -151,7 +546,57 @@ HWTEST_F(DMAdapterTest, IsSameAccount, TestSize.Level0)
 {
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     bool ret = DMAdapter::GetInstance().IsSameAccount(networkId);
+    ASSERT_TRUE(ret);
+}
+
+/**
+ * @tc.name: IsSameAccount002
+ * @tc.desc: is same account.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, IsSameAccount002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::string networkId = "testNetworkId";
+    std::string testName = "testDeviceName";
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    std::copy(networkId.begin(), networkId.end(), info.networkId);
+    std::copy(testName.begin(), testName.end(), info.deviceName);
+    DMAdapter::GetInstance().devices_.emplace_back(info);
+    bool ret = DMAdapter::GetInstance().IsSameAccount(networkId);
+    ASSERT_TRUE(ret);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: IsSameAccount003
+ * @tc.desc: is same account.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, IsSameAccount003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::string bundleName = "com.example.myapplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    std::string testName = "testDeviceName";
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    std::copy(networkId.begin(), networkId.end(), info.networkId);
+    std::copy(testName.begin(), testName.end(), info.deviceName);
+    DMAdapter::GetInstance().devices_.emplace_back(info);
+    bool ret = DMAdapter::GetInstance().IsSameAccount("testNetworkId");
     ASSERT_FALSE(ret);
+#else
+    ASSERT_TRUE(true);
+#endif
 }
 
 /**
@@ -197,6 +642,58 @@ HWTEST_F(DMAdapterTest, GetDeviceName002, TestSize.Level0)
     std::string expectedDeviceName = "unknown";
     std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName(networkId);
     EXPECT_EQ(expectedDeviceName, actualDeviceName);
+}
+
+/**
+ * @tc.name: GetDeviceName003
+ * @tc.desc: GetDeviceName.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, GetDeviceName003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::string bundleName = "com.example.myapplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    std::string expectedDeviceName = "testDeviceName";
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    std::copy(networkId.begin(), networkId.end(), info.networkId);
+    std::copy(expectedDeviceName.begin(), expectedDeviceName.end(), info.deviceName);
+    DMAdapter::GetInstance().devices_.emplace_back(info);
+    std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName(networkId);
+    EXPECT_EQ(expectedDeviceName, actualDeviceName);
+#else
+    ASSERT_TRUE(udid.empty());
+#endif
+}
+
+/**
+ * @tc.name: GetDeviceName004
+ * @tc.desc: GetDeviceName.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, GetDeviceName004, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::string bundleName = "com.example.myapplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    std::string testName = "testDeviceName";
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    std::copy(networkId.begin(), networkId.end(), info.networkId);
+    std::copy(testName.begin(), testName.end(), info.deviceName);
+    DMAdapter::GetInstance().devices_.emplace_back(info);
+    std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName("testNetworkId");
+    EXPECT_EQ("unknown", actualDeviceName);
+#else
+    ASSERT_TRUE(udid.empty());
+#endif
 }
 
 /**

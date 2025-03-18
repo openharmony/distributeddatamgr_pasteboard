@@ -13,10 +13,7 @@
  * limitations under the License.
  */
 #include "device/dm_adapter.h"
-#ifdef PB_DEVICE_MANAGER_ENABLE
-#include "device_manager.h"
-#include "device_manager_callback.h"
-#endif
+
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
@@ -24,74 +21,57 @@ namespace OHOS::MiscServices {
 constexpr size_t DMAdapter::MAX_ID_LEN;
 constexpr const char *PKG_NAME = "pasteboard_service";
 
-#ifdef PB_DEVICE_MANAGER_ENABLE
-class DmStateObserver : public DeviceStateCallback {
-public:
-    DmStateObserver(const std::function<void(const DmDeviceInfo &)> online,
-        const std::function<void(const DmDeviceInfo &)> onReady,
-        const std::function<void(const DmDeviceInfo &)> offline)
-        : online_(std::move(online)), onReady_(std::move(onReady)), offline_(std::move(offline))
-    {
-    }
+DmStateObserver::DmStateObserver(const std::function<void(const DmDeviceInfo &)> online,
+    const std::function<void(const DmDeviceInfo &)> onReady, const std::function<void(const DmDeviceInfo &)> offline) :
+    online_(std::move(online)),
+    onReady_(std::move(onReady)), offline_(std::move(offline))
+{
+}
 
-    void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override
-    {
-        if (online_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
-            return;
-        }
+void DmStateObserver::OnDeviceOnline(const DmDeviceInfo &deviceInfo)
+{
+    if (online_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
+        return;
+    }
+    online_(deviceInfo);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device on:%{public}.6s", deviceInfo.networkId);
+}
+
+void DmStateObserver::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
+{
+    if (offline_ == nullptr) {
+        return;
+    }
+    offline_(deviceInfo);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device off:%{public}.6s", deviceInfo.networkId);
+}
+
+void DmStateObserver::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
+{
+    // authForm not valid use networkId
+    if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
         online_(deviceInfo);
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device on:%{public}.6s", deviceInfo.networkId);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device config changed:%{public}.6s", deviceInfo.networkId);
+}
 
-    void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override
-    {
-        if (offline_ == nullptr) {
-            return;
-        }
-        offline_(deviceInfo);
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device off:%{public}.6s", deviceInfo.networkId);
+void DmStateObserver::OnDeviceReady(const DmDeviceInfo &deviceInfo)
+{
+    if (onReady_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
+        return;
     }
+    onReady_(deviceInfo);
+}
 
-    void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override
-    {
-        // authForm not valid use networkId
-        if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
-            online_(deviceInfo);
-        }
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device config changed:%{public}.6s", deviceInfo.networkId);
-    }
-
-    void OnDeviceReady(const DmDeviceInfo &deviceInfo) override
-    {
-        if (onReady_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
-            return;
-        }
-        onReady_(deviceInfo);
-    }
-
-private:
-    std::function<void(const DmDeviceInfo &)> online_;
-    std::function<void(const DmDeviceInfo &)> onReady_;
-    std::function<void(const DmDeviceInfo &)> offline_;
-};
-
-class DmDeath : public DmInitCallback, public std::enable_shared_from_this<DmDeath> {
-public:
-    DmDeath(std::shared_ptr<DmStateObserver> observer, std::string pkgName)
-        : observer_(observer), pkgName_(std::move(pkgName))
-    {
-    }
-    void OnRemoteDied() override
-    {
-        DeviceManager::GetInstance().InitDeviceManager(pkgName_, shared_from_this());
-        DeviceManager::GetInstance().RegisterDevStateCallback(pkgName_, "", observer_);
-    }
-
-private:
-    std::shared_ptr<DmStateObserver> observer_;
-    std::string pkgName_;
-};
-#endif
+DmDeath::DmDeath(std::shared_ptr<DmStateObserver> observer, std::string pkgName) :
+    observer_(observer), pkgName_(std::move(pkgName))
+{
+}
+void DmDeath::OnRemoteDied()
+{
+    DeviceManager::GetInstance().InitDeviceManager(pkgName_, shared_from_this());
+    DeviceManager::GetInstance().RegisterDevStateCallback(pkgName_, "", observer_);
+}
 
 DMAdapter::DMAdapter() {}
 

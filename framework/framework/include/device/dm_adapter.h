@@ -20,6 +20,8 @@
 #include "api/visibility.h"
 #include "common/concurrent_map.h"
 #ifdef PB_DEVICE_MANAGER_ENABLE
+#include "device_manager.h"
+#include "device_manager_callback.h"
 #include "dm_device_info.h"
 #endif
 
@@ -27,6 +29,35 @@ namespace OHOS::MiscServices {
 #ifdef PB_DEVICE_MANAGER_ENABLE
 using namespace OHOS::DistributedHardware;
 #endif
+
+#ifdef PB_DEVICE_MANAGER_ENABLE
+class DmStateObserver : public DeviceStateCallback {
+public:
+    DmStateObserver(const std::function<void(const DmDeviceInfo &)> online,
+        const std::function<void(const DmDeviceInfo &)> onReady,
+        const std::function<void(const DmDeviceInfo &)> offline);
+    void OnDeviceOnline(const DmDeviceInfo &deviceInfo) override;
+    void OnDeviceOffline(const DmDeviceInfo &deviceInfo) override;
+    void OnDeviceChanged(const DmDeviceInfo &deviceInfo) override;
+    void OnDeviceReady(const DmDeviceInfo &deviceInfo) override;
+
+private:
+    std::function<void(const DmDeviceInfo &)> online_;
+    std::function<void(const DmDeviceInfo &)> onReady_;
+    std::function<void(const DmDeviceInfo &)> offline_;
+};
+
+class DmDeath : public DmInitCallback, public std::enable_shared_from_this<DmDeath> {
+public:
+    DmDeath(std::shared_ptr<DmStateObserver> observer, std::string pkgName);
+    void OnRemoteDied() override;
+
+private:
+    std::shared_ptr<DmStateObserver> observer_;
+    std::string pkgName_;
+};
+#endif
+
 class API_EXPORT DMAdapter {
 public:
     static constexpr size_t MAX_ID_LEN = 64;

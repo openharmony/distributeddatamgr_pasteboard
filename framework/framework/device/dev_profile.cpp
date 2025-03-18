@@ -232,7 +232,7 @@ bool DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &
     cJSON *jsonObj = cJSON_Parse(jsonStr.c_str());
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(jsonObj != nullptr,
         false,
-        PASTEBOARD_MODULE_CLIENT, "parse profile failed, profile=%{public}s", jsonStr.c_str());
+        PASTEBOARD_MODULE_SERVICE, "parse profile failed, profile=%{public}s", jsonStr.c_str());
 
     cJSON *version = cJSON_GetObjectItemCaseSensitive(jsonObj, VERSION_ID);
     if (version == nullptr || !cJSON_IsNumber(version) || (version->valuedouble < 0)) {
