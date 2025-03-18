@@ -26,6 +26,7 @@ public:
     int32_t RegisterObserver(const std::string &key, sptr<AAFwk::IDataAbilityObserver> observer);
     int32_t UnregisterObserver(const std::string &key, sptr<AAFwk::IDataAbilityObserver> observer);
     int32_t GetValue(const std::string &key, std::string &value);
+    void SetUserId(int32_t userId);
 
 private:
     DataShareDelegate() = default;
@@ -40,6 +41,7 @@ private:
     static std::mutex mutex_;
     static DataShareDelegate *instance_;
     static sptr<IRemoteObject> remoteObj_;
+    std::string userId_ = "100";
 };
 } // namespace OHOS::MiscServices
 

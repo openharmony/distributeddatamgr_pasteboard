@@ -137,6 +137,8 @@ public:
     virtual int32_t GetChangeCount(uint32_t &changeCount) override;
     void ChangeStoreStatus(int32_t userId);
     void CloseDistributedStore(int32_t user, bool isNeedClear);
+    PastedSwitch switch_;
+    static int32_t GetCurrentAccountId();
 
 private:
     std::mutex saMutex_;
@@ -229,7 +231,6 @@ private:
     void AddSysAbilityListener();
     int32_t Init();
     void InitScreenStatus();
-    static int32_t GetCurrentAccountId();
     static ScreenEvent GetCurrentScreenStatus();
     std::string DumpHistory() const;
     std::string DumpData();
@@ -377,7 +378,6 @@ private:
     };
 
     ConcurrentMap<uint32_t, GlobalShareOption> globalShareOptions_;
-    PastedSwitch switch_;
 
     void AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveSingleObserver(
