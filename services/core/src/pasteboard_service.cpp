@@ -84,6 +84,7 @@ constexpr int32_t CONTROL_TYPE_ALLOW_SEND_RECEIVE = 1;
 constexpr uint32_t EVENT_TIME_OUT = 2000;
 constexpr uint32_t MAX_RECOGNITION_LENGTH = 1000;
 constexpr int32_t DEVICE_COLLABORATION_UID = 5521;
+constexpr uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -2064,11 +2065,17 @@ std::map<uint32_t, ShareOption> PasteboardService::GetGlobalShareOption(const st
     return result;
 }
 
+bool PasteboardService::IsSystemAppByFullTokenID(uint64_t tokenId)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "called token id: %{public}" PRIu64, tokenId);
+    return (tokenId & SYSTEM_APP_MASK) == SYSTEM_APP_MASK;
+}
+
 int32_t PasteboardService::SetAppShareOptions(const ShareOption &shareOptions)
 {
     auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(fullTokenId)) {
+    if (!IsSystemAppByFullTokenID(fullTokenId)) {
         if (shareOptions != InApp) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "param is invalid");
             return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
@@ -2096,7 +2103,7 @@ int32_t PasteboardService::RemoveAppShareOptions()
 {
     auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    if (!OHOS::Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(fullTokenId)) {
+    if (!IsSystemAppByFullTokenID(fullTokenId)) {
         auto isManageGrant = IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION, tokenId);
         if (!isManageGrant) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "No permission, token id: 0x%{public}x.", tokenId);

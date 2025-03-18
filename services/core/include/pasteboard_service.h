@@ -165,6 +165,7 @@ private:
     void SetInputMethodPid(pid_t callPid);
     void ClearInputMethodPidByPid(pid_t callPid);
     void ClearInputMethodPid(void);
+    bool IsSystemAppByFullTokenID(uint64_t tokenId);
     FocusedAppInfo GetFocusedAppInfo(void) const;
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
