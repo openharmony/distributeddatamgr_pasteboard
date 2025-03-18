@@ -40,7 +40,6 @@ void DevProfileMockTest::TearDownTestCase(void)
 void DevProfileMockTest::SetUp(void) { }
 
 void DevProfileMockTest::TearDown(void) { }
-
 /**
  * @tc.name: GetEnabledStatusTest001
  * @tc.desc: GetEnabledStatus should return E_OK when query valid networkId
@@ -49,6 +48,30 @@ void DevProfileMockTest::TearDown(void) { }
  * @tc.author:
  */
 HWTEST_F(DevProfileMockTest, GetEnabledStatusTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    EXPECT_CALL(
+        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+        .WillRepeatedly(testing::Return(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR)));
+    std::string bundleName = "com.example.myApplication";
+    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    std::string enabledStatus = "";
+    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    int32_t ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR), ret);
+#else
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), ret);
+#endif
+}
+
+/**
+ * @tc.name: GetEnabledStatusTest002
+ * @tc.desc: GetEnabledStatus should return E_OK when query valid networkId
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileMockTest, GetEnabledStatusTest002, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(
@@ -67,29 +90,6 @@ HWTEST_F(DevProfileMockTest, GetEnabledStatusTest001, TestSize.Level0)
 #endif
 }
 
-/**
- * @tc.name: GetEnabledStatusTest002
- * @tc.desc: GetEnabledStatus should return E_OK when query valid networkId
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(DevProfileMockTest, GetEnabledStatusTest002, TestSize.Level0)
-{
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
-        .WillRepeatedly(testing::Return(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR)));
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "";
-    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    int32_t ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR), ret);
-#else
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), ret);
-#endif
-}
 
 /**
  * @tc.name: PutCharacteristicProfile001
@@ -105,7 +105,7 @@ HWTEST_F(DevProfileMockTest, PutCharacteristicProfile001, TestSize.Level0)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "";
+    std::string enabledStatus = "1";
     DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
@@ -127,7 +127,7 @@ HWTEST_F(DevProfileMockTest, PutCharacteristicProfile002, TestSize.Level0)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_CACHE_EXIST));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "";
+    std::string enabledStatus = "1";
     DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
@@ -149,7 +149,7 @@ HWTEST_F(DevProfileMockTest, PutCharacteristicProfile003, TestSize.Level0)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_INVALID_PARAMS));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "";
+    std::string enabledStatus = "1";
     DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
