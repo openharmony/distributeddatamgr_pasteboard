@@ -111,7 +111,6 @@ ohos_shared_library("pasteboard_service") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
