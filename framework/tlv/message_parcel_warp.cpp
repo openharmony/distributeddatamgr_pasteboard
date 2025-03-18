@@ -154,6 +154,7 @@ const void *MessageParcelWarp::ReadRawData(MessageParcel &parcelPata, size_t siz
         "buffer size not equal size, bufferSize:%{public}zu size:%{public}zu", bufferSize, size);
     if (bufferSize <= MIN_RAW_SIZE) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "use ReadUnpadBuffer end.");
+        rawDataSize_ = size;
         return parcelPata.ReadUnpadBuffer(size);
     }
 

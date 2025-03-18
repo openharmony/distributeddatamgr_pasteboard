@@ -209,7 +209,7 @@ std::shared_ptr<PasteData> PasteboardServiceStub::UnmarshalPasteData(MessageParc
         return nullptr;
     }
     MessageParcelWarp messageData;
-    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageData.ReadRawData(reply, rawDataSize));
+    const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageData.ReadRawData(data, rawDataSize));
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawData != nullptr, nullptr,
         PASTEBOARD_MODULE_SERVICE, "Failed to get raw data, size=%{public}" PRId64, rawDataSize);
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
