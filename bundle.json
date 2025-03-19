@@ -63,10 +63,14 @@
           "time_service",
           "udmf",
           "window_manager",
-          "ffrt"
+          "ffrt",
+          "runtime_core"
         ]
         },
       "build": {
+        "sub_component": [
+          "//foundation/distributeddatamgr/pasteboard/interfaces/kits/ani:pasteboard_ani_package"
+        ],
         "group_type": {
             "base_group": [
             ],
