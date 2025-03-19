@@ -22,9 +22,8 @@ constexpr size_t DMAdapter::MAX_ID_LEN;
 constexpr const char *PKG_NAME = "pasteboard_service";
 
 DmStateObserver::DmStateObserver(const std::function<void(const DmDeviceInfo &)> online,
-    const std::function<void(const DmDeviceInfo &)> onReady, const std::function<void(const DmDeviceInfo &)> offline) :
-    online_(std::move(online)),
-    onReady_(std::move(onReady)), offline_(std::move(offline))
+    const std::function<void(const DmDeviceInfo &)> onReady, const std::function<void(const DmDeviceInfo &)> offline)
+    : online_(std::move(online)), onReady_(std::move(onReady)), offline_(std::move(offline))
 {
 }
 
@@ -63,8 +62,8 @@ void DmStateObserver::OnDeviceReady(const DmDeviceInfo &deviceInfo)
     onReady_(deviceInfo);
 }
 
-DmDeath::DmDeath(std::shared_ptr<DmStateObserver> observer, std::string pkgName) :
-    observer_(observer), pkgName_(std::move(pkgName))
+DmDeath::DmDeath(std::shared_ptr<DmStateObserver> observer, std::string pkgName)
+    : observer_(observer), pkgName_(std::move(pkgName))
 {
 }
 void DmDeath::OnRemoteDied()
