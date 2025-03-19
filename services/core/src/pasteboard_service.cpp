@@ -162,7 +162,7 @@ void PasteboardService::OnStart()
         return;
     }
     auto callback = [this]() {
-        switch_.Init();
+        switch_.Init(GetCurrentAccountId());
     };
     serviceHandler_->PostTask(callback);
     copyHistory = std::make_shared<Command>(std::vector<std::string>{ "--copy-history" },
@@ -3151,6 +3151,10 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
         if (pasteboardService_ != nullptr) {
             pasteboardService_->ChangeStoreStatus(userId);
         }
+        auto accountId = pasteboardService_->GetCurrentAccountId();
+        pasteboardService_->switch_.DeInit();
+        pasteboardService_->switch_.Init(accountId);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetSwitch end");
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_STOPPING) {
         std::lock_guard<std::mutex> lock(mutex_);
         int32_t userId = data.GetCode();
