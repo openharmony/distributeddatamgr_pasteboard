@@ -506,6 +506,7 @@ private:
        std::string progressKey);
     static int32_t CheckProgressParam(std::shared_ptr<GetDataParams> params);
     void ShowProgress(const std::string &progressKey);
+    std::string GetPasteDataInfoSummary(const PasteData &pasteData);
     static std::mutex instanceLock_;
     std::atomic<uint32_t> getSequenceId_ = 0;
     static std::atomic<bool> remoteTask_;

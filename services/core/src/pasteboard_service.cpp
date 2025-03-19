@@ -44,16 +44,17 @@
 #include "remote_file_share.h"
 #include "res_sched_client.h"
 #include "reporter.h"
+#include "distributed_module_config.h"
 #ifdef PB_SCREENLOCK_MGR_ENABLE
 #include "screenlock_manager.h"
-#endif
+#endif // PB_SCREENLOCK_MGR_ENABLE
 #include "tokenid_kit.h"
 #include "uri_permission_manager_client.h"
 #ifdef SCENE_BOARD_ENABLE
 #include "window_manager_lite.h"
 #else
 #include "window_manager.h"
-#endif
+#endif // SCENE_BOARD_ENABLE
 
 namespace OHOS {
 namespace MiscServices {
@@ -947,10 +948,12 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         std::string targetBundleName = GetAppBundleName(appInfo);
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
+
     RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_DATA_INFO, DFX_SUCCESS, CONCURRENT_ID, pasteId, GET_DATA_APP,
-        appInfo.bundleName, GET_DATA_TYPE, GenerateDataType(data), LOCAL_DEV_TYPE,
-        DMAdapter::GetInstance().GetLocalDeviceType(), PEER_NET_ID, PasteboardDfxUntil::GetAnonymousID(peerNetId),
-        PEER_UDID, PasteboardDfxUntil::GetAnonymousID(peerUdid));
+        appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType(),
+        NETWORK_DEV_NUM, DMAdapter::GetInstance().GetNetworkIds().size(), PEER_NET_ID,
+        PasteboardDfxUntil::GetAnonymousID(peerNetId), PEER_UDID, PasteboardDfxUntil::GetAnonymousID(peerUdid));
+
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get local or remote data err:%{public}d", result);
         return result;
@@ -1523,7 +1526,9 @@ int32_t PasteboardService::SaveData(PasteData &pasteData,
     clips_.InsertOrAssign(appInfo.userId, std::make_shared<PasteData>(pasteData));
     IncreaseChangeCount(appInfo.userId);
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData.IsDelayData()),
-        SET_DATA_APP, appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType());
+        SET_DATA_APP, appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType(),
+        NETWORK_DEV_NUM, DMAdapter::GetInstance().GetNetworkIds().size()
+    );
     HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     copyTime_.InsertOrAssign(appInfo.userId, curTime);

@@ -116,6 +116,7 @@ constexpr const char *SET_DATA_TYPE = "SET_DATA_TYPE";
 constexpr const char *GET_DATA_APP = "GET_DATA_APP";
 constexpr const char *GET_DATA_TYPE = "GET_DATA_TYPE";
 constexpr const char *LOCAL_DEV_TYPE = "LOCAL_DEV_TYPE";
+constexpr const char *NETWORK_DEV_NUM = "NETWORK_DEV_NUM";
 constexpr const char *COVER_DELAY_DATA = "COVER_DELAY_DATA";
 constexpr const char *SEND_BROADCAST_TIME = "SEND_BROADCAST_TIME_64";
 constexpr const char *RECEIVE_BROADCAST_TIME = "RECEIVE_BROADCAST_TIME_64";
@@ -125,6 +126,8 @@ constexpr const char *DIS_SYNC_TIME = "DIS_SYNC_TIME";
 constexpr const char *PACKAGE_NAME = "PACKAGE_NAME";
 constexpr const char *PEER_NET_ID = "PEER_NET_ID";
 constexpr const char *PEER_UDID = "PEER_UDID";
+constexpr const char *PASTEDATA_SUMMARY = "PASTEDATA_SUMMARY";
+
 constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 
 #define RADAR_REPORT(bizScene, bizStage, stageRes, ...)                                                              \
