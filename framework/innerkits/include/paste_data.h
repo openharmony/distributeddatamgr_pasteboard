@@ -134,7 +134,8 @@ public:
     static const std::string SHARE_PATH_PREFIX_ACCOUNT;
     std::string deviceId_;
     static const std::string DOCS_LOCAL_TAG;
-    static constexpr size_t URI_BATCH_SIZE = 500;
+    static constexpr size_t URI_BATCH_SIZE = 10000;
+    static constexpr int32_t SUPPORT_POSITIVE_ORDER_API_VERSION = 20;
 
 private:
     void RefreshMimeProp();
@@ -150,6 +151,7 @@ private:
     bool isDelayRecord_ = false;
     uint32_t dataId_ = 0;
     uint32_t recordId_ = 0;
+    int32_t apiTargetVersion_ = 0;
 };
 
 class IPasteDataProcessor {
