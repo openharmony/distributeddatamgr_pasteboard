@@ -73,6 +73,7 @@
             "base_group": [
             ],
             "fwk_group": [
+                "//foundation/distributeddatamgr/pasteboard/adapter:pasteboard_adapter",
                 "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
                 "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
                 "//foundation/distributeddatamgr/pasteboard/interfaces/cj:cj_pasteboard_ffi",

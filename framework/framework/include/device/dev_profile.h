@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,63 +18,40 @@
 
 #include "api/visibility.h"
 #include "common/concurrent_map.h"
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-#include "distributed_device_profile_client.h"
-#include "profile_change_listener_stub.h"
-#endif // PB_DEVICE_INFO_MANAGER_ENABLE
+
+#include <memory>
+#include <unordered_set>
 
 namespace OHOS {
 namespace MiscServices {
+class DeviceProfileProxy;
+
 class API_EXPORT DevProfile {
 public:
     using Observer = std::function<void(bool isEnable)>;
     static DevProfile &GetInstance();
-    int32_t GetEnabledStatus(const std::string &networkId, std::string &enabledStatus);
-    void OnReady();
-    void PutEnabledStatus(const std::string &enabledStatus);
-    bool GetRemoteDeviceVersion(const std::string &networkId, uint32_t &deviceVersion);
+    int32_t GetDeviceStatus(const std::string &networkId, bool &status);
+    void PutDeviceStatus(bool status);
+    bool GetDeviceVersion(const std::string &networkId, uint32_t &deviceVersion);
     void SubscribeProfileEvent(const std::string &networkId);
     void UnSubscribeProfileEvent(const std::string &networkId);
-    void UnsubscribeAllProfileEvents();
+    void UnSubscribeAllProfileEvents();
     void Watch(Observer observer);
-    void UpdateEnabledStatus(const std::string &udid, const std::string &res);
+    void UpdateEnabledStatus(const std::string &udid, bool status);
     void EraseEnabledStatus(const std::string &udid);
     static constexpr const uint32_t FIRST_VERSION = 4;
 
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    class SubscribeDPChangeListener : public DistributedDeviceProfile::ProfileChangeListenerStub {
-    public:
-        SubscribeDPChangeListener();
-        ~SubscribeDPChangeListener();
-        int32_t OnTrustDeviceProfileAdd(const DistributedDeviceProfile::TrustDeviceProfile &profile) override;
-        int32_t OnTrustDeviceProfileDelete(const DistributedDeviceProfile::TrustDeviceProfile &profile) override;
-        int32_t OnTrustDeviceProfileUpdate(const DistributedDeviceProfile::TrustDeviceProfile &oldProfile,
-            const DistributedDeviceProfile::TrustDeviceProfile &newProfile) override;
-        int32_t OnDeviceProfileAdd(const DistributedDeviceProfile::DeviceProfile &profile) override;
-        int32_t OnDeviceProfileDelete(const DistributedDeviceProfile::DeviceProfile &profile) override;
-        int32_t OnDeviceProfileUpdate(const DistributedDeviceProfile::DeviceProfile &oldProfile,
-            const DistributedDeviceProfile::DeviceProfile &newProfile) override;
-        int32_t OnServiceProfileAdd(const DistributedDeviceProfile::ServiceProfile &profile) override;
-        int32_t OnServiceProfileDelete(const DistributedDeviceProfile::ServiceProfile &profile) override;
-        int32_t OnServiceProfileUpdate(const DistributedDeviceProfile::ServiceProfile &oldProfile,
-            const DistributedDeviceProfile::ServiceProfile &newProfile) override;
-        int32_t OnCharacteristicProfileAdd(const DistributedDeviceProfile::CharacteristicProfile &profile) override;
-        int32_t OnCharacteristicProfileDelete(const DistributedDeviceProfile::CharacteristicProfile &profile) override;
-        int32_t OnCharacteristicProfileUpdate(const DistributedDeviceProfile::CharacteristicProfile &oldProfile,
-            const DistributedDeviceProfile::CharacteristicProfile &newProfile) override;
-    };
-#endif
-
 private:
-    DevProfile();
-    ~DevProfile() = default;
+    DevProfile() = default;
+    virtual ~DevProfile() = default;
+    static void OnProfileUpdate(const std::string &udid, bool status);
     void Notify(bool isEnable);
-    std::mutex callbackMutex_;
+
     Observer observer_ = nullptr;
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    std::map<std::string, DistributedDeviceProfile::SubscribeInfo> subscribeInfoCache_;
-    ConcurrentMap<std::string, std::string> enabledStatusCache_;
-#endif // PB_DEVICE_INFO_MANAGER_ENABLE
+    ConcurrentMap<std::string, bool> enabledStatusCache_;
+    std::shared_ptr<DeviceProfileProxy> proxy_ = nullptr;
+    std::mutex proxyMutex_;
+    std::unordered_set<std::string> subscribeUdidList_;
 };
 } // namespace MiscServices
 } // namespace OHOS

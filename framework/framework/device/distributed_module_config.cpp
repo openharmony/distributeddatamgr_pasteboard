@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -100,19 +100,19 @@ size_t DistributedModuleConfig::GetDeviceNum()
 int32_t DistributedModuleConfig::GetEnabledStatus()
 {
     auto localNetworkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    std::string localEnable = "";
-    auto status = DevProfile::GetInstance().GetEnabledStatus(localNetworkId, localEnable);
-    if (status != static_cast<int32_t>(PasteboardError::E_OK) || localEnable != SUPPORT_STATUS) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false, status:%{public}d, switch:%{public}s",
-            status, localEnable.c_str());
+    bool localEnable = false;
+    auto status = DevProfile::GetInstance().GetDeviceStatus(localNetworkId, localEnable);
+    if (status != static_cast<int32_t>(PasteboardError::E_OK) || !localEnable) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetLocalEnable false, ret:%{public}d, switch:%{public}d",
+            status, localEnable);
         return static_cast<int32_t>(PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON);
     }
     auto networkIds = DMAdapter::GetInstance().GetNetworkIds();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device online nums: %{public}zu", networkIds.size());
     for (auto &id : networkIds) {
-        std::string remoteEnable = "";
-        auto res = DevProfile::GetInstance().GetEnabledStatus(id, remoteEnable);
-        if (res == static_cast<int32_t>(PasteboardError::E_OK) && remoteEnable == SUPPORT_STATUS) {
+        bool remoteEnable = false;
+        auto res = DevProfile::GetInstance().GetDeviceStatus(id, remoteEnable);
+        if (res == static_cast<int32_t>(PasteboardError::E_OK) && remoteEnable) {
             return static_cast<int32_t>(PasteboardError::E_OK);
         }
     }
@@ -139,14 +139,14 @@ std::pair<uint32_t, uint32_t> DistributedModuleConfig::GetRemoteDeviceVersion()
 
     const auto &networkIds = DMAdapter::GetInstance().GetNetworkIds();
     for (const auto &networkId : networkIds) {
-        std::string remoteEnable = "";
-        auto res = DevProfile::GetInstance().GetEnabledStatus(networkId, remoteEnable);
-        if (res != static_cast<int32_t>(PasteboardError::E_OK) || remoteEnable != SUPPORT_STATUS) {
+        bool remoteEnable = false;
+        auto res = DevProfile::GetInstance().GetDeviceStatus(networkId, remoteEnable);
+        if (res != static_cast<int32_t>(PasteboardError::E_OK) || !remoteEnable) {
             continue;
         }
 
         uint32_t deviceVersion = 0;
-        if (!DevProfile::GetInstance().GetRemoteDeviceVersion(networkId, deviceVersion)) {
+        if (!DevProfile::GetInstance().GetDeviceVersion(networkId, deviceVersion)) {
             continue;
         }
 
@@ -161,8 +161,8 @@ void DistributedModuleConfig::Online(const std::string &device)
     srand(time(nullptr));
     std::this_thread::sleep_for(std::chrono::milliseconds((int32_t(rand() % (RANDOM_MAX - RANDOM_MIN)))));
     DevProfile::GetInstance().SubscribeProfileEvent(device);
-    std::string remoteEnable = "";
-    DevProfile::GetInstance().GetEnabledStatus(device, remoteEnable);
+    bool remoteEnable = false;
+    DevProfile::GetInstance().GetDeviceStatus(device, remoteEnable);
     Notify();
 }
 
@@ -178,7 +178,7 @@ void DistributedModuleConfig::Offline(const std::string &device)
 
 void DistributedModuleConfig::OnReady(const std::string &device)
 {
-    DevProfile::GetInstance().OnReady();
+    (void)device;
 }
 
 void DistributedModuleConfig::Init()

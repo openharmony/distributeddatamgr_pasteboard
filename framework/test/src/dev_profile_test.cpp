@@ -38,18 +38,18 @@ void DevProfileTest::SetUp(void) { }
 void DevProfileTest::TearDown(void) { }
 
 /**
- * @tc.name: GetRemoteDeviceVersionTest001
- * @tc.desc: Get Remote Device Version
+ * @tc.name: GetDeviceVersionTest001
+ * @tc.desc: Get Device Version
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
+HWTEST_F(DevProfileTest, GetDeviceVersionTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
-    DevProfile::GetInstance().GetRemoteDeviceVersion(bundleName, versionId);
+    DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
@@ -57,19 +57,19 @@ HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetRemoteDeviceVersionTest002
- * @tc.desc: Get Remote Device Version
+ * @tc.name: GetDeviceVersionTest002
+ * @tc.desc: Get Device Version
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest002, TestSize.Level0)
+HWTEST_F(DevProfileTest, GetDeviceVersionTest002, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    DevProfile::GetInstance().GetRemoteDeviceVersion(bundleName, versionId);
+    DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
@@ -77,18 +77,18 @@ HWTEST_F(DevProfileTest, GetRemoteDeviceVersionTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetEnabledStatusTest001
- * @tc.desc: GetEnabledStatus should not return E_OK when query invalid networkId
+ * @tc.name: GetDeviceStatusTest001
+ * @tc.desc: GetDeviceStatus should not return E_OK when query invalid networkId
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, GetEnabledStatusTest001, TestSize.Level0)
+HWTEST_F(DevProfileTest, GetDeviceStatusTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    std::string enabledStatus = "";
+    bool enabledStatus = false;
     std::string networkId = "test.dev.profile";
-    int32_t ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
+    int32_t ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
     EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::E_OK));
 #else
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
@@ -96,18 +96,18 @@ HWTEST_F(DevProfileTest, GetEnabledStatusTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetEnabledStatusTest002
- * @tc.desc: GetEnabledStatus should not return NO_TRUST_DEVICE_ERROR when query valid networkId
+ * @tc.name: GetDeviceStatusTest002
+ * @tc.desc: GetDeviceStatus should not return NO_TRUST_DEVICE_ERROR when query valid networkId
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, GetEnabledStatusTest002, TestSize.Level0)
+HWTEST_F(DevProfileTest, GetDeviceStatusTest002, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    std::string enabledStatus = "";
+    bool enabledStatus = false;
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    int32_t ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
+    int32_t ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
     EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
 #else
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
@@ -115,19 +115,19 @@ HWTEST_F(DevProfileTest, GetEnabledStatusTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: PutEnabledStatus001
- * @tc.desc: PutEnabledStatus should not return NO_TRUST_DEVICE_ERROR when query valid networkId
+ * @tc.name: PutDeviceStatus001
+ * @tc.desc: PutDeviceStatus should not return NO_TRUST_DEVICE_ERROR when query valid networkId
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, PutEnabledStatus001, TestSize.Level0)
+HWTEST_F(DevProfileTest, PutDeviceStatus001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "1";
-    DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
+    bool enabledStatus = true;
+    DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
