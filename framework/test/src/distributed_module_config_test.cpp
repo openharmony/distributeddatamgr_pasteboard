@@ -68,6 +68,30 @@ HWTEST_F(DistributedModuleConfigTest, IsOnTest002, TestSize.Level0)
     config.Online(device);
     config.Offline(device);
     EXPECT_FALSE(result);
+    config.DeInit();
+}
+
+/**
+ * @tc.name: IsOnTest003
+ * @tc.desc: Is On.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DistributedModuleConfigTest, IsOnTest003, TestSize.Level0)
+{
+    std::string networkId = "testNetworkId";
+    std::string testName = "testDeviceName";
+    DmDeviceInfo info;
+    info.authForm = IDENTICAL_ACCOUNT;
+    std::copy(networkId.begin(), networkId.end(), info.networkId);
+    std::copy(testName.begin(), testName.end(), info.deviceName);
+    DMAdapter::GetInstance().devices_.emplace_back(info);
+
+    DistributedModuleConfig config;
+    bool result = config.IsOn();
+    EXPECT_FALSE(result);
+    config.DeInit();
 }
 
 /**
@@ -84,5 +108,6 @@ HWTEST_F(DistributedModuleConfigTest, WatchTest, TestSize.Level0)
     config.Notify();
     config.Watch(observer);
     EXPECT_FALSE(observer);
+    config.DeInit();
 }
 } // namespace OHOS::MiscServices

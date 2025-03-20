@@ -39,7 +39,10 @@ void DevProfileMockTest::TearDownTestCase(void)
 
 void DevProfileMockTest::SetUp(void) { }
 
-void DevProfileMockTest::TearDown(void) { }
+void DevProfileMockTest::TearDown(void)
+{
+    testing::Mock::VerifyAndClear(distributedDeviceProfileClientMock_.get());
+}
 /**
  * @tc.name: GetEnabledStatusTest001
  * @tc.desc: GetEnabledStatus should return E_OK when query valid networkId
