@@ -22,7 +22,7 @@
 #include "pasteboard_hilog.h"
 #include "pasteboard_client.h"
 #include "common/block_object.h"
-#include "ani_common/ani_common_want.h"
+#include "ani_common_want.h"
 #include "image_ani_utils.h"
 #include "pasteboard_ani_utils.h"
 
