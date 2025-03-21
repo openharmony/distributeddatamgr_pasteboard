@@ -61,6 +61,7 @@ ohos_shared_library("pasteboard_ani") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ani_common",
     "ability_runtime:napi_common",
     "ability_runtime:sts_environment",
     "c_utils:utils",
