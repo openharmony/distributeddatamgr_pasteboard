@@ -1244,6 +1244,62 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0022, TestSize.Level0)
 }
 
 /**
+ * @tc.name: PasteDataTest0023
+ * @tc.desc: paste pastedata with 3 records
+ * @tc.type: FUNC
+ * @tc.require: RR2025020589956
+ * @tc.author: wangchenghao
+ */
+HWTEST_F(PasteboardServiceTest, PasteDataTest0023, TestSize.Level0)
+{
+    std::string text = "plain text";
+    auto data = PasteboardClient::GetInstance()->CreatePlainTextData(text);
+    ASSERT_TRUE(data != nullptr);
+    auto record1 = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record1");
+    auto record2 = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record2");
+    data->AddRecord(record1);
+    data->AddRecord(record2);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteData pasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = pasteData.GetPrimaryText();
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_TRUE(*record == "paste record2");
+}
+
+/**
+ * @tc.name: PasteDataTest0024
+ * @tc.desc: paste pastedata with 5 records
+ * @tc.type: FUNC
+ * @tc.require: RR2025020589956
+ * @tc.author: wangchenghao
+ */
+HWTEST_F(PasteboardServiceTest, PasteDataTest0024, TestSize.Level0)
+{
+    std::string text = "plain text";
+    auto data = PasteboardClient::GetInstance()->CreatePlainTextData(text);
+    ASSERT_TRUE(data != nullptr);
+    auto record1 = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record1");
+    auto record2 = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record2");
+    auto record3 = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record3");
+    auto record4 = PasteboardClient::GetInstance()->CreatePlainTextRecord("paste record4");
+    data->AddRecord(record1);
+    data->AddRecord(record2);
+    data->AddRecord(record3);
+    data->AddRecord(record4);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    PasteData pasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = pasteData.GetPrimaryText();
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_TRUE(*record == "paste record4");
+}
+
+/**
  * @tc.name: BigPixelMap001
  * @tc.desc: paste big pixel map image
  * @tc.type: FUNC
