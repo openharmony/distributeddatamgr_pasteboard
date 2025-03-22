@@ -89,6 +89,7 @@ enum class PasteboardError : int32_t {
     RESOURCE_APPLY_NOT_FIND,
     CHECK_DESCRIPTOR_ERROR,
     GET_SAME_REMOTE_DATA,
+    DLOPEN_FAILED,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -155,6 +156,7 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::RESOURCE_APPLY_NOT_FIND, "RESOURCE_APPLY_NOT_FIND"},
     {PasteboardError::CHECK_DESCRIPTOR_ERROR, "CHECK_DESCRIPTOR_ERROR"},
     {PasteboardError::GET_SAME_REMOTE_DATA, "GET_SAME_REMOTE_DATA"},
+    {PasteboardError::DLOPEN_FAILED, "DLOPEN_FAILED"},
 };
 
 } // namespace MiscServices

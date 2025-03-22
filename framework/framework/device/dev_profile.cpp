@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (C) 2022-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 #include "dev_profile.h"
 
-#include "cJSON.h"
+#include "device_profile_proxy.h"
 #include "dm_adapter.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_ue.h"
@@ -23,121 +23,6 @@
 
 namespace OHOS {
 namespace MiscServices {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-using namespace OHOS::DistributedDeviceProfile;
-using namespace UeReporter;
-constexpr const int32_t HANDLE_OK = 0;
-constexpr const int32_t PASTEBOARD_SA_ID = 3701;
-
-constexpr const char *SERVICE_ID = "pasteboardService";
-constexpr const char *STATIC_CHARACTER_ID = "static_capability";
-constexpr const char *VERSION_ID = "PasteboardVersionId";
-constexpr const char *CHARACTERISTIC_VALUE = "characteristicValue";
-constexpr const char *SUPPORT_STATUS = "1";
-constexpr const char *SWITCH_ID = "SwitchStatus_Key_Distributed_Pasteboard";
-constexpr const char *CHARACTER_ID = "SwitchStatus";
-
-DevProfile::SubscribeDPChangeListener::SubscribeDPChangeListener() { }
-
-DevProfile::SubscribeDPChangeListener::~SubscribeDPChangeListener() { }
-
-int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileAdd(const TrustDeviceProfile &profile)
-{
-    (void)profile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileAdd start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileDelete(const TrustDeviceProfile &profile)
-{
-    (void)profile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileDelete start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnTrustDeviceProfileUpdate(
-    const TrustDeviceProfile &oldProfile, const TrustDeviceProfile &newProfile)
-{
-    (void)oldProfile;
-    (void)newProfile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnTrustDeviceProfileUpdate start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileAdd(const DeviceProfile &profile)
-{
-    (void)profile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileAdd start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileDelete(const DeviceProfile &profile)
-{
-    (void)profile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileDelete start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnDeviceProfileUpdate(
-    const DeviceProfile &oldProfile, const DeviceProfile &newProfile)
-{
-    (void)oldProfile;
-    (void)newProfile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnDeviceProfileUpdate start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileAdd(const ServiceProfile &profile)
-{
-    (void)profile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileAdd start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileDelete(const ServiceProfile &profile)
-{
-    (void)profile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileDelete start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnServiceProfileUpdate(
-    const ServiceProfile &oldProfile, const ServiceProfile &newProfile)
-{
-    (void)oldProfile;
-    (void)newProfile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnServiceProfileUpdate start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileAdd(const CharacteristicProfile &profile)
-{
-    (void)profile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileAdd start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileDelete(const CharacteristicProfile &profile)
-{
-    (void)profile;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "OnCharacteristicProfileDelete start.");
-    return HANDLE_OK;
-}
-
-int32_t DevProfile::SubscribeDPChangeListener::OnCharacteristicProfileUpdate(
-    const CharacteristicProfile &oldProfile, const CharacteristicProfile &newProfile)
-{
-    std::string id = newProfile.GetDeviceId();
-    std::string status = newProfile.GetCharacteristicValue();
-    PASTEBOARD_HILOGI(
-        PASTEBOARD_MODULE_SERVICE, "status is %{public}s, id is %{public}.5s.", status.c_str(), id.c_str());
-    DevProfile::GetInstance().UpdateEnabledStatus(id, status);
-    DevProfile::GetInstance().Notify(status == SUPPORT_STATUS);
-    return HANDLE_OK;
-}
-#endif
-
-DevProfile::DevProfile() { }
 
 DevProfile &DevProfile::GetInstance()
 {
@@ -145,181 +30,143 @@ DevProfile &DevProfile::GetInstance()
     return instance;
 }
 
-void DevProfile::OnReady() { }
-
-void DevProfile::PutEnabledStatus(const std::string &enabledStatus)
+void DevProfile::OnProfileUpdate(const std::string &udid, bool status)
 {
-    Notify(enabledStatus == SUPPORT_STATUS);
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PutEnabledStatus, start");
-    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
-    if (udid.empty()) {
-        PASTEBOARD_HILOGE(
-            PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, networkId is %{public}.5s", networkId.c_str());
-        return;
-    }
-    UpdateEnabledStatus(udid, enabledStatus);
-    UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE,
-        (enabledStatus == SUPPORT_STATUS) ? UeReporter::SwitchStatus::SWITCH_OPEN :
-                                            UeReporter::SwitchStatus::SWITCH_CLOSE);
-    DistributedDeviceProfile::CharacteristicProfile profile;
-    profile.SetDeviceId(udid);
-    profile.SetServiceName(SWITCH_ID);
-    profile.SetCharacteristicKey(CHARACTER_ID);
-    profile.SetCharacteristicValue(enabledStatus);
-    int32_t errNo = DistributedDeviceProfileClient::GetInstance().PutCharacteristicProfile(profile);
-    if (errNo != DistributedDeviceProfile::DP_SUCCESS && errNo != DistributedDeviceProfile::DP_CACHE_EXIST) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PutCharacteristicProfile failed, %{public}d", errNo);
-        return;
-    }
-#else
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
-#endif
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "udid=%{public}.5s, status=%{public}d", udid.c_str(), status);
+    DevProfile::GetInstance().UpdateEnabledStatus(udid, status);
+    DevProfile::GetInstance().Notify(status);
 }
 
-int32_t DevProfile::GetEnabledStatus(const std::string &networkId, std::string &enabledStatus)
+void DevProfile::PutDeviceStatus(bool status)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
-    if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s", networkId.c_str());
-        return static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR);
-    }
-    bool cachedStatus = enabledStatusCache_.ComputeIfPresent(udid, [&enabledStatus](const auto &key, auto &value) {
-        enabledStatus = value;
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(!udid.empty(), PASTEBOARD_MODULE_SERVICE,
+        "get udid failed, netId=%{public}.5s", networkId.c_str());
+
+    UpdateEnabledStatus(udid, status);
+    UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE, status ?
+        UeReporter::SwitchStatus::SWITCH_OPEN : UeReporter::SwitchStatus::SWITCH_CLOSE);
+
+    DeviceProfileProxy proxy;
+    auto adapter = proxy.GetAdapter();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+    int32_t ret = adapter->PutDeviceStatus(udid, status);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), PASTEBOARD_MODULE_SERVICE,
+        "put dp status failed, ret=%{public}d", ret);
+
+    Notify(status);
+}
+
+int32_t DevProfile::GetDeviceStatus(const std::string &networkId, bool &status)
+{
+    std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!udid.empty(),
+        static_cast<int32_t>(PasteboardError::GET_LOCAL_DEVICE_ID_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "get udid failed, netId=%{public}.5s", networkId.c_str());
+
+    bool cachedStatus = enabledStatusCache_.ComputeIfPresent(udid, [&status](const auto &key, auto &value) {
+        status = value;
         return true;
     });
     if (cachedStatus) {
         return static_cast<int32_t>(PasteboardError::E_OK);
     }
-    DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret =
-        DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid, SWITCH_ID, CHARACTER_ID, profile);
-    if (ret == DistributedDeviceProfile::DP_SUCCESS) {
-        enabledStatus = profile.GetCharacteristicValue();
-        UpdateEnabledStatus(udid, enabledStatus);
-        return static_cast<int32_t>(PasteboardError::E_OK);
-    }
-    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Get status failed, %{public}.5s. ret:%{public}d", udid.c_str(), ret);
-    return static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR);
-#else
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-#endif
-    return static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR);
+
+    DeviceProfileProxy proxy;
+    auto adapter = proxy.GetAdapter();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(adapter != nullptr, static_cast<int32_t>(PasteboardError::DLOPEN_FAILED),
+        PASTEBOARD_MODULE_SERVICE, "adapter is null");
+    int32_t ret = adapter->GetDeviceStatus(udid, status);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
+        PASTEBOARD_MODULE_SERVICE, "get dp status failed, udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
+
+    UpdateEnabledStatus(udid, status);
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-bool DevProfile::GetRemoteDeviceVersion(const std::string &networkId, uint32_t &versionId)
+bool DevProfile::GetDeviceVersion(const std::string &networkId, uint32_t &versionId)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "netid=%{public}.5s", networkId.c_str());
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
-    if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get udid failed, netid=%{public}.5s", networkId.c_str());
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!udid.empty(), false,
+        PASTEBOARD_MODULE_SERVICE, "get udid failed, netId=%{public}.5s", networkId.c_str());
 
-    DistributedDeviceProfile::CharacteristicProfile profile;
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(
-        udid, SERVICE_ID, STATIC_CHARACTER_ID, profile);
-    if (ret != DistributedDeviceProfile::DP_SUCCESS) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get profile failed, udid=%{public}.5s", udid.c_str());
-        return false;
-    }
+    DeviceProfileProxy proxy;
+    auto adapter = proxy.GetAdapter();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(adapter != nullptr, false, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+    bool ret = adapter->GetDeviceVersion(udid, versionId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false,
+        PASTEBOARD_MODULE_SERVICE, "get dp version failed, udid=%{public}.5s", udid.c_str());
 
-    const std::string &jsonStr = profile.GetCharacteristicValue();
-    cJSON *jsonObj = cJSON_Parse(jsonStr.c_str());
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(jsonObj != nullptr,
-        false,
-        PASTEBOARD_MODULE_SERVICE, "parse profile failed, profile=%{public}s", jsonStr.c_str());
-
-    cJSON *version = cJSON_GetObjectItemCaseSensitive(jsonObj, VERSION_ID);
-    if (version == nullptr || !cJSON_IsNumber(version) || (version->valuedouble < 0)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "version not found, profile=%{public}s", jsonStr.c_str());
-        cJSON_Delete(jsonObj);
-        return false;
-    }
-
-    versionId = static_cast<uint32_t>(version->valuedouble);
-    cJSON_Delete(jsonObj);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "netid=%{public}.5s, udid=%{public}.5s, version=%{public}u",
         networkId.c_str(), udid.c_str(), versionId);
     return true;
-#else
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return true;
-#endif
 }
 
 void DevProfile::SubscribeProfileEvent(const std::string &networkId)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, networkId = %{public}.5s", networkId.c_str());
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
-    if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s", networkId.c_str());
-        return;
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(!udid.empty(), PASTEBOARD_MODULE_SERVICE,
+        "get udid failed, netId=%{public}.5s", networkId.c_str());
+
+    IDeviceProfileAdapter *adapter = nullptr;
+    std::lock_guard lock(proxyMutex_);
+    if (proxy_ == nullptr) {
+        proxy_ = std::make_shared<DeviceProfileProxy>();
+        adapter = proxy_->GetAdapter();
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+        int32_t ret = adapter->RegisterUpdateCallback(&DevProfile::OnProfileUpdate);
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), PASTEBOARD_MODULE_SERVICE,
+            "register dp update callback failed, ret=%{public}d", ret);
+    } else {
+        adapter = proxy_->GetAdapter();
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
     }
-    std::lock_guard<std::mutex> mutexLock(callbackMutex_);
-    if (subscribeInfoCache_.find(udid) != subscribeInfoCache_.end()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "networkId = %{public}.5s already exists.", udid.c_str());
-        return;
-    }
-    DistributedDeviceProfile::SubscribeInfo subscribeInfo;
-    subscribeInfo.SetSaId(PASTEBOARD_SA_ID);
-    subscribeInfo.SetSubscribeKey(udid, SWITCH_ID, CHARACTER_ID, CHARACTERISTIC_VALUE);
-    subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_ADD);
-    subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_UPDATE);
-    subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_DELETE);
-    sptr<IProfileChangeListener> subscribeDPChangeListener = new (std::nothrow) SubscribeDPChangeListener;
-    subscribeInfo.SetListener(subscribeDPChangeListener);
-    subscribeInfoCache_[udid] = subscribeInfo;
-    int32_t errCode = DistributedDeviceProfileClient::GetInstance().SubscribeDeviceProfile(subscribeInfo);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SubscribeDeviceProfile result, errCode = %{public}d.", errCode);
-#else
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
-#endif
+    int32_t ret = adapter->SubscribeProfileEvent(udid);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
+
+    subscribeUdidList_.emplace(udid);
 }
 
 void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "start, networkId = %{public}.5s", networkId.c_str());
     std::string udid = DMAdapter::GetInstance().GetUdidByNetworkId(networkId);
-    if (udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "GetUdidByNetworkId failed, %{public}.5s.", udid.c_str());
-        return;
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(!udid.empty(), PASTEBOARD_MODULE_SERVICE,
+        "get udid failed, netId=%{public}.5s", networkId.c_str());
+
+    std::lock_guard lock(proxyMutex_);
+    if (proxy_ == nullptr) {
+        proxy_ = std::make_shared<DeviceProfileProxy>();
     }
-    std::lock_guard<std::mutex> mutexLock(callbackMutex_);
-    auto it = subscribeInfoCache_.find(udid);
-    if (it == subscribeInfoCache_.end()) {
-        return;
+    auto adapter = proxy_->GetAdapter();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+
+    int32_t ret = adapter->UnSubscribeProfileEvent(udid);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
+
+    subscribeUdidList_.erase(udid);
+    if (subscribeUdidList_.empty()) {
+        proxy_ = nullptr;
     }
-    int32_t errCode = DistributedDeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(it->second);
-    subscribeInfoCache_.erase(it);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "UnsubscribeProfileEvent result, errCode = %{public}d.", errCode);
-#else
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
-#endif
 }
 
-void DevProfile::UnsubscribeAllProfileEvents()
+void DevProfile::UnSubscribeAllProfileEvents()
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "UnsubscribeAllProfileEvents start.");
-    std::lock_guard<std::mutex> mutexLock(callbackMutex_);
-    for (auto it = subscribeInfoCache_.begin(); it != subscribeInfoCache_.end(); ++it) {
-        int32_t ret = DistributedDeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(it->second);
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "errCode = %{public}d.", ret);
-        it = subscribeInfoCache_.erase(it);
+    std::lock_guard lock(proxyMutex_);
+    if (proxy_ == nullptr) {
+        proxy_ = std::make_shared<DeviceProfileProxy>();
     }
-#else
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PB_DEVICE_INFO_MANAGER_ENABLE not defined");
-    return;
-#endif
+    auto adapter = proxy_->GetAdapter();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+
+    int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
+    for (const std::string &udid : subscribeUdidList_) {
+        ret = adapter->UnSubscribeProfileEvent(udid);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
+    }
+
+    subscribeUdidList_.clear();
+    proxy_ = nullptr;
 }
 
 void DevProfile::Watch(Observer observer)
@@ -334,10 +181,10 @@ void DevProfile::Notify(bool isEnable)
     }
 }
 
-void DevProfile::UpdateEnabledStatus(const std::string &udid, const std::string &res)
+void DevProfile::UpdateEnabledStatus(const std::string &udid, bool status)
 {
-    enabledStatusCache_.Compute(udid, [&res](const auto &key, auto &value) {
-        value = res;
+    enabledStatusCache_.Compute(udid, [&status](const auto &key, auto &value) {
+        value = status;
         return true;
     });
 }
