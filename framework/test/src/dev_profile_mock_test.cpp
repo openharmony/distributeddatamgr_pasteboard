@@ -41,13 +41,13 @@ void DevProfileMockTest::SetUp(void) { }
 
 void DevProfileMockTest::TearDown(void) { }
 /**
- * @tc.name: GetEnabledStatusTest001
- * @tc.desc: GetEnabledStatus should return E_OK when query valid networkId
+ * @tc.name: GetDeviceStatusTest001
+ * @tc.desc: GetDeviceStatus should return E_OK when query valid networkId
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileMockTest, GetEnabledStatusTest001, TestSize.Level0)
+HWTEST_F(DevProfileMockTest, GetDeviceStatusTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(
@@ -55,23 +55,23 @@ HWTEST_F(DevProfileMockTest, GetEnabledStatusTest001, TestSize.Level0)
         .WillRepeatedly(testing::Return(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR)));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "";
+    bool enabledStatus = false;
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    int32_t ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR), ret);
+    int32_t ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), ret);
 #else
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), ret);
 #endif
 }
 
 /**
- * @tc.name: GetEnabledStatusTest002
- * @tc.desc: GetEnabledStatus should return E_OK when query valid networkId
+ * @tc.name: GetDeviceStatusTest002
+ * @tc.desc: GetDeviceStatus should return E_OK when query valid networkId
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileMockTest, GetEnabledStatusTest002, TestSize.Level0)
+HWTEST_F(DevProfileMockTest, GetDeviceStatusTest002, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(
@@ -79,11 +79,11 @@ HWTEST_F(DevProfileMockTest, GetEnabledStatusTest002, TestSize.Level0)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "";
+    bool enabledStatus = false;
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    int32_t ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
+    int32_t ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
-    ret = DevProfile::GetInstance().GetEnabledStatus(networkId, enabledStatus);
+    ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
 #else
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
@@ -92,21 +92,21 @@ HWTEST_F(DevProfileMockTest, GetEnabledStatusTest002, TestSize.Level0)
 
 
 /**
- * @tc.name: PutCharacteristicProfile001
- * @tc.desc: PutCharacteristicProfile
+ * @tc.name: PutDeviceStatus001
+ * @tc.desc: PutDeviceStatus
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileMockTest, PutCharacteristicProfile001, TestSize.Level0)
+HWTEST_F(DevProfileMockTest, PutDeviceStatus001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(*distributedDeviceProfileClientMock_, PutCharacteristicProfile(testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "1";
-    DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
+    bool enabledStatus = true;
+    DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
@@ -114,21 +114,21 @@ HWTEST_F(DevProfileMockTest, PutCharacteristicProfile001, TestSize.Level0)
 }
 
 /**
- * @tc.name: PutCharacteristicProfile002
- * @tc.desc: PutCharacteristicProfile
+ * @tc.name: PutDeviceStatus002
+ * @tc.desc: PutDeviceStatus
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileMockTest, PutCharacteristicProfile002, TestSize.Level0)
+HWTEST_F(DevProfileMockTest, PutDeviceStatus002, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(*distributedDeviceProfileClientMock_, PutCharacteristicProfile(testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_CACHE_EXIST));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "1";
-    DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
+    bool enabledStatus = true;
+    DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
@@ -136,21 +136,21 @@ HWTEST_F(DevProfileMockTest, PutCharacteristicProfile002, TestSize.Level0)
 }
 
 /**
- * @tc.name: PutCharacteristicProfile003
- * @tc.desc: PutCharacteristicProfile
+ * @tc.name: PutDeviceStatus003
+ * @tc.desc: PutDeviceStatus
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileMockTest, PutCharacteristicProfile003, TestSize.Level0)
+HWTEST_F(DevProfileMockTest, PutDeviceStatus003, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(*distributedDeviceProfileClientMock_, PutCharacteristicProfile(testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_INVALID_PARAMS));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "1";
-    DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
+    bool enabledStatus = true;
+    DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
@@ -158,13 +158,13 @@ HWTEST_F(DevProfileMockTest, PutCharacteristicProfile003, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetRemoteDeviceVersionTest001
- * @tc.desc: GetRemoteDeviceVersionTest
+ * @tc.name: GetDeviceVersionTest001
+ * @tc.desc: GetDeviceVersionTest
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileMockTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
+HWTEST_F(DevProfileMockTest, GetDeviceVersionTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(
@@ -172,7 +172,7 @@ HWTEST_F(DevProfileMockTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
-    DevProfile::GetInstance().GetRemoteDeviceVersion(bundleName, versionId);
+    DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
@@ -180,13 +180,13 @@ HWTEST_F(DevProfileMockTest, GetRemoteDeviceVersionTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetRemoteDeviceVersionTest002
- * @tc.desc: GetRemoteDeviceVersionTest
+ * @tc.name: GetDeviceVersionTest002
+ * @tc.desc: GetDeviceVersionTest
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileMockTest, GetRemoteDeviceVersionTest002, TestSize.Level0)
+HWTEST_F(DevProfileMockTest, GetDeviceVersionTest002, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(
@@ -194,7 +194,7 @@ HWTEST_F(DevProfileMockTest, GetRemoteDeviceVersionTest002, TestSize.Level0)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_INVALID_PARAMS));
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
-    DevProfile::GetInstance().GetRemoteDeviceVersion(bundleName, versionId);
+    DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);

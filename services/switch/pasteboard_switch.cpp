@@ -54,11 +54,12 @@ void PastedSwitch::SetSwitch(int32_t userId)
     DataShareDelegate::GetInstance().SetUserId(userId);
     DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEBOARD_SWITCH, value);
     if (value.empty()) {
-        DevProfile::GetInstance().PutEnabledStatus(SUPPORT_STATUS);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "empty switch, set status enable");
+        DevProfile::GetInstance().PutDeviceStatus(true);
         return;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "set switch status to %{public}s.", value.c_str());
-    DevProfile::GetInstance().PutEnabledStatus(value);
+    DevProfile::GetInstance().PutDeviceStatus(value == SUPPORT_STATUS);
 }
 
 void PastedSwitch::DeInit()

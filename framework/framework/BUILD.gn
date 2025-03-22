@@ -55,6 +55,7 @@ ohos_shared_library("pasteboard_framework") {
     "clip/clip_plugin.cpp",
     "clip/default_clip.cpp",
     "device/dev_profile.cpp",
+    "device/device_profile_proxy.cpp",
     "device/distributed_module_config.cpp",
     "device/dm_adapter.cpp",
     "device/pasteboard_static_capability.cpp",
@@ -79,7 +80,7 @@ ohos_shared_library("pasteboard_framework") {
   defines = []
 
   public_configs = [ ":module_public_config" ]
-
+  include_dirs = [ "${pasteboard_root_path}/adapter/include" ]
   deps = [ "${pasteboard_root_path}/framework/tlv:pasteboard_tlv" ]
 
   external_deps = [
@@ -102,14 +103,6 @@ ohos_shared_library("pasteboard_framework") {
     "image_framework:image_native",
     "udmf:udmf_client",
   ]
-
-  if (pasteboard_device_info_manager_part_enabled) {
-    external_deps += [
-      "device_info_manager:distributed_device_profile_common",
-      "device_info_manager:distributed_device_profile_sdk",
-    ]
-    defines += [ "PB_DEVICE_INFO_MANAGER_ENABLE" ]
-  }
 
   if (pasteboard_device_manager_part_enabled) {
     external_deps += [ "device_manager:devicemanagersdk" ]
