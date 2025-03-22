@@ -212,13 +212,12 @@ PasteDataRecord::~PasteDataRecord()
 }
 
 PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
-    : mimeType_(record.mimeType_), htmlText_(record.htmlText_), want_(record.want_), plainText_(record.plainText_),
-      uri_(record.uri_), convertUri_(record.convertUri_), pixelMap_(record.pixelMap_), customData_(record.customData_),
-      hasGrantUriPermission_(record.hasGrantUriPermission_), udType_(record.udType_),
-      details_(record.details_), textContent_(record.textContent_),
-      systemDefinedContents_(record.systemDefinedContents_), udmfValue_(record.udmfValue_), entries_(record.entries_),
-      dataId_(record.dataId_), recordId_(record.recordId_), isDelay_(record.isDelay_),
-      entryGetter_(record.entryGetter_), from_(record.from_)
+    : isDelay_(record.isDelay_), hasGrantUriPermission_(record.hasGrantUriPermission_), udType_(record.udType_),
+      dataId_(record.dataId_), recordId_(record.recordId_), from_(record.from_), convertUri_(record.convertUri_),
+      textContent_(record.textContent_), mimeType_(record.mimeType_), htmlText_(record.htmlText_),
+      want_(record.want_), plainText_(record.plainText_), uri_(record.uri_), pixelMap_(record.pixelMap_),
+      customData_(record.customData_), details_(record.details_), systemDefinedContents_(record.systemDefinedContents_),
+      udmfValue_(record.udmfValue_), entries_(record.entries_), entryGetter_(record.entryGetter_)
 {
     this->isConvertUriFromRemote = record.isConvertUriFromRemote;
 }

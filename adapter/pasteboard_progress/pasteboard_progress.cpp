@@ -24,36 +24,6 @@ using namespace OHOS::UDMF;
 namespace OHOS::MiscServices {
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
-std::mutex PasteBoardProgress::mutex_;
-sptr<IRemoteObject> PasteBoardProgress::remoteObj_ = nullptr;
-PasteBoardProgress *PasteBoardProgress::instance_ = nullptr;
-PasteBoardProgress &PasteBoardProgress::GetInstance()
-{
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = new PasteBoardProgress();
-            Initialize();
-        }
-    }
-    return *instance_;
-}
-
-void PasteBoardProgress::Initialize()
-{
-    auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get sa manager return nullptr");
-        return;
-    }
-    auto remoteObj = samgr->GetSystemAbility(PASTEBOARD_SA_ID);
-    if (remoteObj == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get system ability failed, id=%{public}d", PASTEBOARD_SA_ID);
-        return;
-    }
-    remoteObj_ = remoteObj;
-}
-
 int32_t PasteBoardProgress::InsertValue(std::string &key, std::string &value)
 {
     CustomOption option = {.intention = Intention::UD_INTENTION_DATA_HUB};

@@ -37,6 +37,8 @@ ohos_shared_library("libpasteboard") {
     "${pasteboard_interfaces_path}/ndk/src/oh_pasteboard_observer_impl.cpp",
   ]
 
+  version_script = "pasteboard_interface_map"
+
   cflags_cc = [ "-fstack-protector" ]
 
   defines = [ "API_EXPORT=__attribute__((visibility (\"default\")))" ]

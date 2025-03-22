@@ -52,14 +52,7 @@ enum TAG_PROPERTY : uint16_t {
     TAG_SCREENSTATUS,
 };
 
-std::string PasteData::sharePath = "";
 std::string PasteData::WEBVIEW_PASTEDATA_TAG = "WebviewPasteDataTag";
-const std::string PasteData::DISTRIBUTEDFILES_TAG = "distributedfiles";
-const std::string PasteData::PATH_SHARE = "/data/storage/el2/share/r/";
-const std::string PasteData::IMG_LOCAL_URI = "file:///";
-const std::string PasteData::SHARE_PATH_PREFIX = "/mnt/hmdfs/";
-const std::string PasteData::SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
-const std::string PasteData::DOCS_LOCAL_TAG = "/docs/";
 const char *REMOTE_FILE_SIZE = "remoteFileSize";
 const char *REMOTE_FILE_SIZE_LONG = "remoteFileSizeLong";
 
@@ -76,9 +69,9 @@ PasteData::~PasteData()
 }
 
 PasteData::PasteData(const PasteData &data)
-    : originAuthority_(data.originAuthority_), valid_(data.valid_), isDraggedData_(data.isDraggedData_),
-      isLocalPaste_(data.isLocalPaste_), isDelayData_(data.isDelayData_), pasteId_(data.pasteId_),
-      isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_), recordId_(data.recordId_)
+    : valid_(data.valid_), isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_),
+      isDelayData_(data.isDelayData_), isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_),
+      recordId_(data.recordId_), originAuthority_(data.originAuthority_), pasteId_(data.pasteId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {

@@ -15,19 +15,19 @@
 
 #ifndef OHOS_DISTRIBUTED_DATA_FRAMEWORKS_COMMON_CONCURRENT_MAP_H
 #define OHOS_DISTRIBUTED_DATA_FRAMEWORKS_COMMON_CONCURRENT_MAP_H
-#include <map>
+#include <unordered_map>
 #include <mutex>
 
 namespace OHOS {
 template<typename _Key, typename _Tp>
 class ConcurrentMap {
 public:
-    using key_type = typename std::map<_Key, _Tp>::key_type;
-    using mapped_type = typename std::map<_Key, _Tp>::mapped_type;
-    using value_type = typename std::map<_Key, _Tp>::value_type;
-    using size_type = typename std::map<_Key, _Tp>::size_type;
-    using reference = typename std::map<_Key, _Tp>::reference;
-    using const_reference = typename std::map<_Key, _Tp>::const_reference;
+    using key_type = typename std::unordered_map<_Key, _Tp>::key_type;
+    using mapped_type = typename std::unordered_map<_Key, _Tp>::mapped_type;
+    using value_type = typename std::unordered_map<_Key, _Tp>::value_type;
+    using size_type = typename std::unordered_map<_Key, _Tp>::size_type;
+    using reference = typename std::unordered_map<_Key, _Tp>::reference;
+    using const_reference = typename std::unordered_map<_Key, _Tp>::const_reference;
 
     ConcurrentMap() = default;
     ~ConcurrentMap()
@@ -236,13 +236,13 @@ public:
     }
 
 private:
-    std::map<_Key, _Tp> Steal() noexcept
+    std::unordered_map<_Key, _Tp> Steal() noexcept
     {
         std::lock_guard<decltype(mutex_)> lock(mutex_);
         return std::move(entries_);
     }
 
-    std::map<_Key, _Tp> Clone() const noexcept
+    std::unordered_map<_Key, _Tp> Clone() const noexcept
     {
         std::lock_guard<decltype(mutex_)> lock(mutex_);
         return entries_;
@@ -250,7 +250,7 @@ private:
 
 private:
     mutable std::recursive_mutex mutex_;
-    std::map<_Key, _Tp> entries_;
+    std::unordered_map<_Key, _Tp> entries_;
 };
 } // namespace OHOS
 #endif // OHOS_DISTRIBUTED_DATA_FRAMEWORKS_COMMON_CONCURRENT_MAP_H
