@@ -21,7 +21,6 @@
 #include "common/block_object.h"
 #include "int_wrapper.h"
 #include "pasteboard_client.h"
-#include "pasteboard_service_loader.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -547,7 +546,7 @@ HWTEST_F(PasteDataTest, LoadSystemAbilityFail001, TestSize.Level0)
     std::vector<uint8_t> arrayBuffer(46);
     std::string mimeType = "image/jpg";
     arrayBuffer = { 1, 2, 3, 4, 6 };
-    PasteboardServiceLoader::GetInstance().LoadSystemAbilityFail();
+    PasteboardClient::GetInstance()->LoadSystemAbilityFail();
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
     ASSERT_TRUE(pasteDataRecord != nullptr);
 }
@@ -565,7 +564,7 @@ HWTEST_F(PasteDataTest, LoadSystemAbilitySuccess001, TestSize.Level0)
     std::string mimeType = "image/jpg";
     arrayBuffer = { 1, 2, 3, 4, 6 };
     sptr<IRemoteObject> remoteObject = nullptr;
-    PasteboardServiceLoader::GetInstance().LoadSystemAbilitySuccess(remoteObject);
+    PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
     ASSERT_TRUE(pasteDataRecord != nullptr);
 }

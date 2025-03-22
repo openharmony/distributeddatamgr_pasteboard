@@ -99,7 +99,8 @@ ohos_shared_library("pasteboard_service") {
 
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
-    "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
   defines = []
 
