@@ -55,11 +55,8 @@ int32_t EventCenter::PostEvent(std::unique_ptr<Event> evt) const
 void EventCenter::Dispatch(const Event &evt) const
 {
     auto observers = observers_.Find(evt.GetEventId());
-    if (!observers.first) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "event not find, id=%{public}d", evt.GetEventId());
-        return;
-    }
-
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(
+        observers.first, PASTEBOARD_MODULE_SERVICE, "event not find, id=%{public}d", evt.GetEventId());
     for (const auto &observer : observers.second) {
         observer(evt);
     }
@@ -70,22 +67,14 @@ EventCenter::Defer::Defer(std::function<void(const Event &)> handler, int32_t ev
     if (asyncQueue_ == nullptr) {
         asyncQueue_ = new (std::nothrow) AsyncQueue();
     }
-
-    if (asyncQueue_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "asyncQueue_ is null");
-        return;
-    }
-
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(asyncQueue_ != nullptr, PASTEBOARD_MODULE_SERVICE, "asyncQueue_ is null");
     ++(*asyncQueue_);
     asyncQueue_->AddHandler(evtId, std::move(handler));
 }
 
 EventCenter::Defer::~Defer()
 {
-    if (asyncQueue_ == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "asyncQueue_ is null");
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(asyncQueue_ != nullptr, PASTEBOARD_MODULE_SERVICE, "asyncQueue_ is null");
     --(*asyncQueue_);
     if ((*asyncQueue_) <= 0) {
         delete asyncQueue_;
@@ -133,29 +122,18 @@ void EventCenter::AsyncQueue::Post(std::unique_ptr<Event> evt)
         if (event->GetEventId() != evt->GetEventId()) {
             continue;
         }
-
-        if (event->Equals(*evt)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "event not equal");
-            return;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(!event->Equals(*evt), PASTEBOARD_MODULE_SERVICE, "event not equal");
     }
     events_.push_back(std::move(evt));
 }
 
 void EventCenter::AsyncQueue::AddHandler(int32_t evtId, std::function<void(const Event &)> handler)
 {
-    if (evtId == Event::EVT_INVALID || handler == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "invalid param, evtId=%{public}d, handler is null=%{public}d", evtId, (handler == nullptr));
-        return;
-    }
-
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(evtId != Event::EVT_INVALID && handler != nullptr, PASTEBOARD_MODULE_SERVICE,
+        "invalid param, evtId=%{public}d, handler is null=%{public}d", evtId, (handler == nullptr));
     // The topper layer event will be effective
-    if (handlers_.find(evtId) != handlers_.end()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "handler already exist, evtId=%{public}d", evtId);
-        return;
-    }
-
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(handlers_.find(evtId) == handlers_.end(), PASTEBOARD_MODULE_SERVICE,
+        "handler already exist, evtId=%{public}d", evtId);
     handlers_[evtId] = std::move(handler);
 }
 } // namespace OHOS::MiscServices

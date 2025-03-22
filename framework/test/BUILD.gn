@@ -125,6 +125,7 @@ ohos_unittest("PasteboardFrameworkMockTest") {
     "${pasteboard_service_path}/load/src/config.cpp",
     "mock/distributed_device_profile_client_mock.cpp",
     "src/dev_profile_mock_test.cpp",
+    "src/distributed_module_config_mock_test.cpp",
   ]
   configs = [ ":module_private_config" ]
   cflags = [ "-fno-access-control" ]

@@ -119,6 +119,71 @@ HWTEST_F(ClipPluginTest, PublishServiceStateTest, TestSize.Level0)
 }
 
 /**
+ * @tc.name: CloseTest
+ * @tc.desc: Close.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(ClipPluginTest, CloseTest, TestSize.Level0)
+{
+    CustomClipPlugin clipPlugin;
+    int32_t user = 0;
+    bool isNeedClear = true;
+    int32_t result = clipPlugin.Close(user, isNeedClear);
+    ASSERT_EQ(0, result);
+}
+
+/**
+ * @tc.name: RegisterDelayCallbackTest
+ * @tc.desc: RegisterDelayCallback.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(ClipPluginTest, RegisterDelayCallbackTest, TestSize.Level0)
+{
+    CustomClipPlugin clipPlugin;
+    ClipPlugin::DelayDataCallback dataCallback = nullptr;
+    ClipPlugin::DelayEntryCallback entryCallback = nullptr;
+    clipPlugin.RegisterDelayCallback(dataCallback, entryCallback);
+    ASSERT_TRUE(true);
+}
+
+/**
+ * @tc.name: GetPasteDataEntryTest
+ * @tc.desc: GetPasteDataEntry.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(ClipPluginTest, GetPasteDataEntryTest, TestSize.Level0)
+{
+    CustomClipPlugin clipPlugin;
+    ClipPlugin::GlobalEvent event;
+    uint32_t recordId = 0;
+    std::string utdId = "";
+    std::vector<uint8_t> rawData;
+    int32_t result = clipPlugin.GetPasteDataEntry(event, recordId, utdId, rawData);
+    ASSERT_EQ(0, result);
+}
+
+/**
+ * @tc.name: ChangeStoreStatusTest
+ * @tc.desc: ChangeStoreStatus.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(ClipPluginTest, ChangeStoreStatusTest, TestSize.Level0)
+{
+    CustomClipPlugin clipPlugin;
+    uint32_t userId = 0;
+    clipPlugin.ChangeStoreStatus(userId);
+    ASSERT_TRUE(true);
+}
+
+/**
  * @tc.name: RegCreatorTest001
  * @tc.desc: RegCreator.
  * @tc.type: FUNC
