@@ -21,7 +21,6 @@
 #include "common/block_object.h"
 #include "int_wrapper.h"
 #include "pasteboard_client.h"
-#include "pasteboard_service_loader.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
