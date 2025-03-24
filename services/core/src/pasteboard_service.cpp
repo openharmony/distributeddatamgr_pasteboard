@@ -669,14 +669,11 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
         return false;
     }
     auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
-    if (isReadGrant) {
-        return true;
-    }
     auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
-    if (isSecureGrant) {
+    AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
+    if (isSecureGrant || isReadGrant) {
         return true;
     }
-    AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         "isReadGrant is %{public}d, isSecureGrant is %{public}d,", isReadGrant, isSecureGrant);
     bool isCtrlVAction = false;
