@@ -24,7 +24,7 @@ import common from '@ohos.app.ability.common';
 import { Configuration } from '@ohos.app.ability.Configuration';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import AbilityConstant from '@ohos.app.ability.AbilityConstant';
-import { ComponentContent } from '@ohos.arkui.node';
+import { ComponentContent, LengthMetrics } from '@ohos.arkui.node';
 import window from '@ohos.window';
 import rpc from '@ohos.rpc';
 import unifiedDataChannel from '@ohos.data.unifiedDataChannel';
@@ -518,11 +518,11 @@ struct PasteboardProgress {
     Button({ buttonStyle: ButtonStyleMode.TEXTUAL }) {
       SymbolGlyph($r('sys.symbol.xmark_circle_fill'))
         .fontColor([$r('sys.color.ohos_id_color_foreground')])
-        .fontSize(24)
+        .fontSize('24vp')
     }
     .id('close_button')
     .opacity(0.4)
-    .margin({ left: 16 })
+    .margin({ start: LengthMetrics.vp(16) })
     .size({ width: 24, height: 24 })
     .accessibilityText($r('app.string.progress_cancel_btn'))
     .onClick(() => {
