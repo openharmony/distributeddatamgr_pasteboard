@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
+#include "message_parcel_warp.h"
+
 #include <sys/mman.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 
 #include "api/visibility.h"
 #include "ashmem.h"
-#include "message_parcel_warp.h"
 #include "parameters.h"
 #include "parcel.h"
 #include "pasteboard_hilog.h"
@@ -29,8 +30,10 @@ namespace OHOS {
 namespace MiscServices {
 
 constexpr int64_t SIZE_K = 1024;
-constexpr size_t KERNEL_MAX_SIZE = static_cast<size_t>(4ULL * 1024 * 1024 * 1024); // 4G
+constexpr int32_t KERNEL_MAX_SIZE = 4096; // 4G
 constexpr size_t MIN_RAW_SIZE = 32 * 1024; // 32k
+constexpr int32_t DEFAULT_LOCAL_CAPACITY = 128;
+constexpr size_t WRITE_SPLIT_CHUNK_SIZE = 256 * 1024 * 1024;
 
 MessageParcelWarp::MessageParcelWarp()
 {
@@ -40,11 +43,13 @@ MessageParcelWarp::MessageParcelWarp()
     kernelMappedRead_ = nullptr;
     rawData_ = nullptr;
     rawDataSize_ = 0;
+    canWrite_ = true;
+    canRead_ = true;
     static int32_t paramMaxSize =
-        OHOS::system::GetIntParameter("const.pasteboard.data.local_capacity", 128);
+        OHOS::system::GetIntParameter("const.pasteboard.data.local_capacity", DEFAULT_LOCAL_CAPACITY);
     PASTEBOARD_CHECK_AND_RETURN_LOGE(paramMaxSize > 0 && paramMaxSize < KERNEL_MAX_SIZE,
         PASTEBOARD_MODULE_COMMON, "invalid param, max_raw_size=%{public}d", paramMaxSize);
-    maxRawDataSize = paramMaxSize * SIZE_K * SIZE_K;
+    maxRawDataSize_ = paramMaxSize * SIZE_K * SIZE_K;
 }
 
 MessageParcelWarp::~MessageParcelWarp()
@@ -58,54 +63,55 @@ MessageParcelWarp::~MessageParcelWarp()
         kernelMappedRead_ = nullptr;
     }
 
-    if (readRawDataFd_ > 0) {
+    if (readRawDataFd_ >= 0) {
         ::close(readRawDataFd_);
         readRawDataFd_ = -1;
     }
-    if (writeRawDataFd_ > 0) {
+    if (writeRawDataFd_ >= 0) {
         ::close(writeRawDataFd_);
         writeRawDataFd_ = -1;
     }
     rawData_ = nullptr;
     rawDataSize_ = 0;
+    canWrite_ = false;
+    canRead_ = false;
 }
 
 bool MessageParcelWarp::MemcpyData(void *ptr, size_t size, const void *data, size_t count)
 {
-    size_t chunkSize = 256 * 1024 * 1024;
-    if (size > chunkSize) {
-        char* ptrDest = static_cast<char*>(ptr);
-        const char* ptrSrc = static_cast<const char*>(data);
-        size_t remaining = size;
-        size_t offset = 0;
-        while (remaining > 0) {
-            size_t currentChunkSize = (remaining > chunkSize) ? chunkSize : remaining;
-            size_t destSize = size - offset;
-            size_t destChunkCount = currentChunkSize;
-            size_t copyCount = (destChunkCount <= destSize) ? destChunkCount : destSize;
-            if (memcpy_s(ptrDest + offset, copyCount, ptrSrc + offset, currentChunkSize) != EOK) {
-                ::munmap(ptr, size);
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "memcpy_s failed, size:%{public}zu", size);
-                return false;
-            }
-            offset += currentChunkSize;
-            remaining -= currentChunkSize;
-        }
-    } else {
+    if (size <= WRITE_SPLIT_CHUNK_SIZE) {
         if (memcpy_s(ptr, size, data, count) != EOK) {
-            ::munmap(ptr, size);
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "memcpy_s failed, size:%{public}zu", size);
             return false;
         }
+        return true;
+    }
+    char* ptrDest = static_cast<char*>(ptr);
+    const char* ptrSrc = static_cast<const char*>(data);
+    size_t remaining = size;
+    size_t offset = 0;
+    while (remaining > 0) {
+        size_t currentChunkSize = (remaining > WRITE_SPLIT_CHUNK_SIZE) ? WRITE_SPLIT_CHUNK_SIZE : remaining;
+        size_t destSize = size - offset;
+        size_t destChunkCount = currentChunkSize;
+        size_t copyCount = (destChunkCount <= destSize) ? destChunkCount : destSize;
+        if (memcpy_s(ptrDest + offset, copyCount, ptrSrc + offset, currentChunkSize) != EOK) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "memcpy_s failed, size:%{public}zu", size);
+            return false;
+        }
+        offset += currentChunkSize;
+        remaining -= currentChunkSize;
     }
     return true;
 }
 
 bool MessageParcelWarp::WriteRawData(MessageParcel &parcelPata, const void *data, size_t size)
 {
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data != nullptr, false,
-        PASTEBOARD_MODULE_COMMON, "data is null");
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(0 < size && size <= maxRawDataSize, false,
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(canWrite_, false,
+        PASTEBOARD_MODULE_COMMON, "is already write, size:%{public}zu", size);
+    canWrite_ = false;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data != nullptr, false, PASTEBOARD_MODULE_COMMON, "data is null");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(0 < size && size <= maxRawDataSize_, false,
         PASTEBOARD_MODULE_COMMON, "size invalid, size:%{public}zu", size);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(kernelMappedWrite_ == nullptr, false,
         PASTEBOARD_MODULE_COMMON, "kernelMappedWrite_ not null end.");
@@ -114,7 +120,6 @@ bool MessageParcelWarp::WriteRawData(MessageParcel &parcelPata, const void *data
         return false;
     }
     if (size <= MIN_RAW_SIZE) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "use WriteUnpadBuffer end.");
         rawDataSize_ = size;
         return parcelPata.WriteUnpadBuffer(data, size);
     }
@@ -136,6 +141,7 @@ bool MessageParcelWarp::WriteRawData(MessageParcel &parcelPata, const void *data
     }
     if (!MemcpyData(ptr, size, data, size)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "memcpy_s failed, fd:%{public}d size:%{public}zu", fd, size);
+        ::munmap(ptr, size);
         return false;
     }
     kernelMappedWrite_ = ptr;
@@ -146,30 +152,19 @@ bool MessageParcelWarp::WriteRawData(MessageParcel &parcelPata, const void *data
 
 const void *MessageParcelWarp::ReadRawData(MessageParcel &parcelPata, size_t size)
 {
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(size != 0, nullptr,
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(canRead_, nullptr,
+        PASTEBOARD_MODULE_COMMON, "is already write, size:%{public}zu", size);
+    canRead_ = false;
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(0 < size && size <= maxRawDataSize_, nullptr,
         PASTEBOARD_MODULE_COMMON, "size invalid, size:%{public}zu", size);
     size_t bufferSize = static_cast<size_t>(parcelPata.ReadInt64());
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(bufferSize == size, nullptr,
-        PASTEBOARD_MODULE_COMMON,
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(bufferSize == size, nullptr, PASTEBOARD_MODULE_COMMON,
         "buffer size not equal size, bufferSize:%{public}zu size:%{public}zu", bufferSize, size);
     if (bufferSize <= MIN_RAW_SIZE) {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "use ReadUnpadBuffer end.");
         rawDataSize_ = size;
         return parcelPata.ReadUnpadBuffer(size);
     }
 
-    // from /foundation/communication/ipc/ipc/native/src/core/framework/source/message_parcel.cpp
-    if (rawData_ != nullptr && writeRawDataFd_ == 0) {
-        /* should read fd for move readCursor of parcel */
-        if (parcelPata.ReadFileDescriptor()) {
-            // do nothing
-        }
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawDataSize_ == size, nullptr,
-            PASTEBOARD_MODULE_COMMON,
-            "rawData is received from remote, the rawDataSize:%{public}zu not equal size:%{public}zu",
-            rawDataSize_, size);
-        return rawData_.get();
-    }
     int fd = parcelPata.ReadFileDescriptor();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(fd >= 0, nullptr,
         PASTEBOARD_MODULE_COMMON, "read file descriptor failed fd:%{public}d", fd);

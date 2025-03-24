@@ -73,11 +73,11 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
     }
     res = reply.ReadInt32();
     int64_t rawDataSize = reply.ReadInt64();
-    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::maxRawDataSize) {
+    MessageParcelWarp messageReply;
+    if (rawDataSize <= 0 || rawDataSize > messageReply.GetRawDataSize()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "read entry tlv raw data size failed");
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
-    MessageParcelWarp messageReply;
     const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(reply, rawDataSize));
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawData != nullptr,
         static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR),

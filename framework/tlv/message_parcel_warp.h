@@ -20,6 +20,9 @@
 
 namespace OHOS {
 namespace MiscServices {
+
+constexpr int64_t DEFAULT_MAX_RAW_DATA_SIZE = 128 * 1024 * 1024; // 128M
+
 class MessageParcelWarp {
 public:
     MessageParcelWarp();
@@ -27,18 +30,23 @@ public:
 
     bool WriteRawData(MessageParcel &parcelPata, const void *data, size_t size);
     const void *ReadRawData(MessageParcel &parcelData, size_t size);
-
-    static inline int64_t maxRawDataSize = 128 * 1024 * 1024; // 128M
+    inline int64_t GetRawDataSize()
+    {
+        return maxRawDataSize_;
+    }
 
 private:
     bool MemcpyData(void *ptr, size_t size, const void *data, size_t count);
 
-    std::shared_ptr<char> rawData_;
-    int writeRawDataFd_;
-    int readRawDataFd_;
-    void *kernelMappedWrite_;
-    void *kernelMappedRead_;
-    size_t rawDataSize_;
+    std::shared_ptr<char> rawData_ = nullptr;
+    int writeRawDataFd_ = -1;
+    int readRawDataFd_ = -1;
+    void *kernelMappedWrite_ = nullptr;
+    void *kernelMappedRead_ = nullptr;
+    size_t rawDataSize_ = 0;
+    bool canWrite_ = true;
+    bool canRead_ = true;
+    int64_t maxRawDataSize_ = DEFAULT_MAX_RAW_DATA_SIZE;
 };
 } // namespace MiscServices
 } // namespace OHOS

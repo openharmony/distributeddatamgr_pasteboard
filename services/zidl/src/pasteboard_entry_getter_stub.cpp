@@ -59,11 +59,11 @@ int32_t PasteboardEntryGetterStub::OnGetRecordValueByType(MessageParcel &data, M
 {
     uint32_t recordId = data.ReadUint32();
     int64_t rawDataSize = data.ReadInt64();
-    if (rawDataSize <= 0 || rawDataSize > MessageParcelWarp::maxRawDataSize) {
+    MessageParcelWarp messageData;
+    if (rawDataSize <= 0 || rawDataSize > messageData.GetRawDataSize()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid raw data size");
         return ERR_INVALID_VALUE;
     }
-    MessageParcelWarp messageData;
     const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageData.ReadRawData(data, rawDataSize));
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawData != nullptr, ERR_INVALID_VALUE,
         PASTEBOARD_MODULE_CLIENT, "read entry tlv raw data failed, size=%{public}" PRId64, rawDataSize);

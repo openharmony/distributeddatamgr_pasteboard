@@ -26,7 +26,7 @@ constexpr int ARGC_TYPE_SET1 = 1;
 constexpr int ARGC_TYPE_SET2 = 2;
 const int32_t STR_MAX_SIZE = 256;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
-constexpr int32_t MAX_TEXT_LEN = 170 * 1024 * 1024;
+constexpr int32_t MAX_TEXT_LEN = 100 * 1024 * 1024;
 constexpr size_t STR_TAIL_LENGTH = 1;
 } // namespace
 static thread_local napi_ref g_pasteData = nullptr;
