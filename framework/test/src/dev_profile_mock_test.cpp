@@ -29,12 +29,15 @@ void DevProfileMockTest::SetUpTestCase(void)
 {
     DistributedDeviceProfile::PasteDistributedDeviceProfileClient::pasteDistributedDeviceProfileClient =
         distributedDeviceProfileClientMock_;
+    DistributedHardware::PasteDeviceManager::pasteDeviceManager = deviceManagerMock_;
 }
 
 void DevProfileMockTest::TearDownTestCase(void)
 {
     DistributedDeviceProfile::PasteDistributedDeviceProfileClient::pasteDistributedDeviceProfileClient = nullptr;
     distributedDeviceProfileClientMock_ = nullptr;
+    DistributedHardware::PasteDeviceManager::pasteDeviceManager = nullptr;
+    deviceManagerMock_ = nullptr;
 }
 
 void DevProfileMockTest::SetUp(void) { }
@@ -42,6 +45,7 @@ void DevProfileMockTest::SetUp(void) { }
 void DevProfileMockTest::TearDown(void)
 {
     testing::Mock::VerifyAndClear(distributedDeviceProfileClientMock_.get());
+    testing::Mock::VerifyAndClear(deviceManagerMock_.get());
 }
 /**
  * @tc.name: GetDeviceStatusTest001
@@ -58,6 +62,13 @@ HWTEST_F(DevProfileMockTest, GetDeviceStatusTest001, TestSize.Level0)
         .WillRepeatedly(testing::Return(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR)));
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .Times(1)
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     bool enabledStatus = false;
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     int32_t ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
@@ -80,8 +91,12 @@ HWTEST_F(DevProfileMockTest, GetDeviceStatusTest002, TestSize.Level0)
     EXPECT_CALL(
         *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     bool enabledStatus = false;
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     int32_t ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
@@ -92,7 +107,6 @@ HWTEST_F(DevProfileMockTest, GetDeviceStatusTest002, TestSize.Level0)
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
 #endif
 }
-
 
 /**
  * @tc.name: PutDeviceStatus001
@@ -106,8 +120,12 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus001, TestSize.Level0)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(*distributedDeviceProfileClientMock_, PutCharacteristicProfile(testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     bool enabledStatus = true;
     DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
@@ -128,8 +146,12 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus002, TestSize.Level0)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(*distributedDeviceProfileClientMock_, PutCharacteristicProfile(testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_CACHE_EXIST));
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     bool enabledStatus = true;
     DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
@@ -150,8 +172,12 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus003, TestSize.Level0)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(*distributedDeviceProfileClientMock_, PutCharacteristicProfile(testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_INVALID_PARAMS));
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     bool enabledStatus = true;
     DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
@@ -173,6 +199,12 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest001, TestSize.Level0)
     EXPECT_CALL(
         *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
@@ -195,6 +227,12 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest002, TestSize.Level0)
     EXPECT_CALL(
         *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_INVALID_PARAMS));
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);

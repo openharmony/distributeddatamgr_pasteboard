@@ -121,11 +121,14 @@ ohos_unittest("PasteboardFrameworkMockTest") {
   module_out_path = module_output_path
 
   sources = [
+    "${pasteboard_root_path}/framework/framework/device/dm_adapter.cpp",
     "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
     "${pasteboard_service_path}/load/src/config.cpp",
+    "mock/device_manager_mock.cpp",
     "mock/distributed_device_profile_client_mock.cpp",
     "src/dev_profile_mock_test.cpp",
     "src/distributed_module_config_mock_test.cpp",
+    "src/dm_adapter_mock_test.cpp",
   ]
   configs = [ ":module_private_config" ]
   cflags = [ "-fno-access-control" ]
