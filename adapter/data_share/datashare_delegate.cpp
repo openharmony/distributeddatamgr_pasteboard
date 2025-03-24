@@ -31,44 +31,29 @@ const constexpr char *SETTING_URI_PROXY_SUFFIX = "?Proxy=true";
 constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
-std::mutex DataShareDelegate::mutex_;
-sptr<IRemoteObject> DataShareDelegate::remoteObj_ = nullptr;
-DataShareDelegate *DataShareDelegate::instance_ = nullptr;
 DataShareDelegate &DataShareDelegate::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = new DataShareDelegate();
-            Initialize();
-        }
-    }
-    return *instance_;
+    static DataShareDelegate instance;
+    return instance;
 }
 
-void DataShareDelegate::Initialize()
+sptr<IRemoteObject> GetSystemAbilitySafe(int32_t saId)
 {
     auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get sa manager return nullptr");
-        return;
-    }
-    auto remoteObj = samgr->GetSystemAbility(PASTEBOARD_SA_ID);
-    if (remoteObj == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get system ability failed, id=%{public}d", PASTEBOARD_SA_ID);
-        return;
-    }
-    remoteObj_ = remoteObj;
+    return samgr ? samgr->GetSystemAbility(saId) : nullptr;
 }
 
 std::shared_ptr<DataShare::DataShareHelper> DataShareDelegate::CreateDataShareHelper()
 {
     auto SETTING_URI_PROXY = std::string(SETTING_URI_PROXY_PREFIX) + userId_ + std::string(SETTING_URI_PROXY_SUFFIX);
-    auto [ret, helper] = DataShare::DataShareHelper::Create(remoteObj_, SETTING_URI_PROXY, SETTINGS_DATA_EXT_URI);
-    if (ret != 0) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "create helper failed ret %{public}d", ret);
+    auto remoteObj = GetSystemAbilitySafe(PASTEBOARD_SA_ID);
+    if (!remoteObj) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get sa manager return nullptr");
         return nullptr;
     }
+    
+    auto [ret, helper] = DataShare::DataShareHelper::Create(remoteObj, SETTING_URI_PROXY, SETTINGS_DATA_EXT_URI);
+    remoteObj = nullptr;
     return helper;
 }
 

@@ -340,7 +340,7 @@ void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<GetDataParams> 
     lock.unlock();
     std::string currentValue = std::to_string(params->info->percentage);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "pasteboard progress percent = %{public}s", currentValue.c_str());
-    PasteBoardProgress::GetInstance().UpdateValue(progressKey, currentValue);
+    PasteBoardProgress::UpdateValue(progressKey, currentValue);
 }
 
 int32_t PasteboardClient::SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params)
@@ -521,7 +521,7 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     std::shared_ptr<FFRTTimer> ffrtTimer;
     ffrtTimer = std::make_shared<FFRTTimer>("pasteboard_progress");
     if (params->progressIndicator != NONE_PROGRESS_INDICATOR) {
-        PasteBoardProgress::GetInstance().InsertValue(progressKey, keyDefaultValue); // 0%
+        PasteBoardProgress::InsertValue(progressKey, keyDefaultValue); // 0%
         std::unique_lock<std::mutex> lock(instanceLock_);
         g_progressKey = progressKey;
         lock.unlock();
@@ -942,12 +942,14 @@ int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
     int32_t progressStatusValue = 0;
     std::shared_ptr<ProgressReportLintener> progressReport = std::make_shared<ProgressReportLintener>();
     progressReport->OnProgressFail = OnProgressAbnormal;
+
+    static const std::regex numberRegex(R"(^[+-]?\d+$)");
+    if (!std::regex_match(signalValue, numberRegex)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progressStatusValue invalid = %{public}s", signalValue.c_str());
+        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
+    }
     try {
         progressStatusValue = std::stoi(signalValue);
-    } catch (const std::invalid_argument &e) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-            "progressStatusValue invalid = %{public}s", e.what());
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     } catch (const std::out_of_range &e) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
             "progressStatusValue out of range = %{public}s", e.what());

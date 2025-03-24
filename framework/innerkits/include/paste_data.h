@@ -125,33 +125,32 @@ public:
     std::string GetDeviceId() const;
 
     static void ShareOptionToString(ShareOption shareOption, std::string &out);
-    static std::string sharePath;
     static std::string WEBVIEW_PASTEDATA_TAG;
-    static const std::string DISTRIBUTEDFILES_TAG;
-    static const std::string PATH_SHARE;
-    static const std::string IMG_LOCAL_URI;
-    static const std::string SHARE_PATH_PREFIX;
-    static const std::string SHARE_PATH_PREFIX_ACCOUNT;
-    std::string deviceId_;
-    static const std::string DOCS_LOCAL_TAG;
+    static constexpr const char *DISTRIBUTEDFILES_TAG = "distributedfiles";
+    static constexpr const char *PATH_SHARE = "/data/storage/el2/share/r/";
+    static constexpr const char *IMG_LOCAL_URI = "file:///";
+    static constexpr const char *SHARE_PATH_PREFIX = "/mnt/hmdfs/";
+    static constexpr const char *SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
+    static constexpr const char *DOCS_LOCAL_TAG = "/docs/";
     static constexpr size_t URI_BATCH_SIZE = 10000;
     static constexpr int32_t SUPPORT_POSITIVE_ORDER_API_VERSION = 20;
+    std::string deviceId_;
 
 private:
-    void RefreshMimeProp();
-
-    PasteDataProperty props_;
-    std::vector<std::shared_ptr<PasteDataRecord>> records_;
-    std::string originAuthority_;
     bool valid_ = true;
     bool isDraggedData_ = false;
     bool isLocalPaste_ = false; // local in app paste
     bool isDelayData_ = false;
-    std::string pasteId_;
     bool isDelayRecord_ = false;
     uint32_t dataId_ = 0;
     uint32_t recordId_ = 0;
     int32_t apiTargetVersion_ = 0;
+    PasteDataProperty props_;
+    std::vector<std::shared_ptr<PasteDataRecord>> records_;
+    std::string originAuthority_;
+    std::string pasteId_;
+ 
+    void RefreshMimeProp();
 };
 
 class IPasteDataProcessor {

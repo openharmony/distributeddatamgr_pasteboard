@@ -58,6 +58,8 @@ ohos_shared_library("pasteboard_service") {
     cfi_cross_dso = true
     debug = false
   }
+
+  version_script = "pasteboard_service_map"
   sources = [
     "../adapter/data_share/datashare_delegate.cpp",
     "../adapter/security_level/security_level.cpp",

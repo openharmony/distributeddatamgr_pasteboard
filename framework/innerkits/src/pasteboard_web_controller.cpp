@@ -99,10 +99,10 @@ void PasteboardWebController::SetWebviewPasteData(PasteData &pasteData, const st
         std::shared_ptr<Uri> uri = item->GetUri();
         std::string puri = uri->ToString();
         if (puri.substr(0, strlen(IMG_LOCAL_URI)) == PasteData::IMG_LOCAL_URI &&
-            puri.find(FILE_SCHEME_PREFIX + PasteData::PATH_SHARE) == std::string::npos) {
+            puri.find(std::string(FILE_SCHEME_PREFIX) + PasteData::PATH_SHARE) == std::string::npos) {
             std::string path = uri->GetPath();
             std::string newUriStr = "";
-            if (path.substr(0, PasteData::DOCS_LOCAL_TAG.size()) == PasteData::DOCS_LOCAL_TAG) {
+            if (path.substr(0, std::string(PasteData::DOCS_LOCAL_TAG).size()) == PasteData::DOCS_LOCAL_TAG) {
                 newUriStr = FILE_SCHEME_PREFIX;
                 newUriStr += path.substr(DOCS_LOCAL_PATH_SUBSTR_START_INDEX);
             } else {

@@ -126,27 +126,27 @@ private:
     bool DecodeItem1(uint16_t tag, ReadOnlyBuffer &buffer, TLVHead &head);
     bool DecodeItem2(uint16_t tag, ReadOnlyBuffer &buffer, TLVHead &head);
 
+    bool isDelay_ = false;
+    bool hasGrantUriPermission_ = false;
+    int32_t udType_ = UDMF::UD_BUTT;
+    uint32_t dataId_ = 0;
+    uint32_t recordId_ = 0;
+    uint32_t from_ = 0;
+    std::string convertUri_;
+    std::string textContent_;
     std::string mimeType_;
     std::shared_ptr<std::string> htmlText_;
     std::shared_ptr<OHOS::AAFwk::Want> want_;
     std::shared_ptr<std::string> plainText_;
     std::shared_ptr<OHOS::Uri> uri_;
-    std::string convertUri_;
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
     std::shared_ptr<MineCustomData> customData_;
-    bool hasGrantUriPermission_ = false;
 
-    int32_t udType_ = UDMF::UD_BUTT;
     std::shared_ptr<Details> details_;
-    std::string textContent_;
     std::shared_ptr<Details> systemDefinedContents_;
     std::shared_ptr<EntryValue> udmfValue_;
     std::vector<std::shared_ptr<PasteDataEntry>> entries_;
-    uint32_t dataId_ = 0;
-    uint32_t recordId_ = 0;
-    bool isDelay_ = false;
     std::shared_ptr<UDMF::EntryGetter> entryGetter_;
-    uint32_t from_ = 0;
 };
 } // namespace MiscServices
 } // namespace OHOS
