@@ -16,6 +16,7 @@
 #ifndef PASTEBOARD_DEV_PROFILE_MOCK_TEST_H
 #define PASTEBOARD_DEV_PROFILE_MOCK_TEST_H
 
+#include "device_manager_mock.h"
 #include "distributed_device_profile_client_mock.h"
 #include <gtest/gtest.h>
 
@@ -34,6 +35,8 @@ public:
     static inline std::shared_ptr<DistributedDeviceProfile::DistributedDeviceProfileClientMock>
         distributedDeviceProfileClientMock_ =
             std::make_shared<DistributedDeviceProfile::DistributedDeviceProfileClientMock>();
+    static inline std::shared_ptr<DistributedHardware::DeviceManagerMock> deviceManagerMock_ =
+        std::make_shared<DistributedHardware::DeviceManagerMock>();
 };
 
 } // namespace MiscServices

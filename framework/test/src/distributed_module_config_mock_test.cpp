@@ -16,8 +16,8 @@
 #include "distributed_module_config_mock_test.h"
 
 #include "device/dev_profile.h"
-#include "device/dm_adapter.h"
 #include "device/distributed_module_config.h"
+#include "device/dm_adapter.h"
 #include "pasteboard_error.h"
 
 using namespace testing;
@@ -30,12 +30,15 @@ void DistributedModuleConfigMockTest::SetUpTestCase(void)
 {
     DistributedDeviceProfile::PasteDistributedDeviceProfileClient::pasteDistributedDeviceProfileClient =
         distributedDeviceProfileClientMock_;
+    DistributedHardware::PasteDeviceManager::pasteDeviceManager = deviceManagerMock_;
 }
 
 void DistributedModuleConfigMockTest::TearDownTestCase(void)
 {
     DistributedDeviceProfile::PasteDistributedDeviceProfileClient::pasteDistributedDeviceProfileClient = nullptr;
     distributedDeviceProfileClientMock_ = nullptr;
+    DistributedHardware::PasteDeviceManager::pasteDeviceManager = nullptr;
+    deviceManagerMock_ = nullptr;
 }
 
 void DistributedModuleConfigMockTest::SetUp(void) { }
@@ -43,6 +46,7 @@ void DistributedModuleConfigMockTest::SetUp(void) { }
 void DistributedModuleConfigMockTest::TearDown(void)
 {
     testing::Mock::VerifyAndClear(distributedDeviceProfileClientMock_.get());
+    testing::Mock::VerifyAndClear(deviceManagerMock_.get());
 }
 
 /**
@@ -60,8 +64,12 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest001, TestSize.Leve
         .WillRepeatedly(testing::Return(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR)));
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     DistributedModuleConfig config;
     int32_t ret = config.GetEnabledStatus();
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON), ret);
@@ -82,6 +90,7 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest002, TestSize.Leve
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     EXPECT_CALL(
         *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+        .Times(2)
         .WillOnce([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "1";
             return DistributedDeviceProfile::DP_SUCCESS;
@@ -92,9 +101,18 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest002, TestSize.Leve
         });
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string networkId = "testNetworkId";
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .Times(2)
+        .WillOnce([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        })
+        .WillOnce([](auto, auto, std::string &udid) {
+            udid = "invalidUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
+    std::string networkId = "invalidNetworkId";
     std::string testName = "testDeviceName";
     DmDeviceInfo info;
     info.authForm = IDENTICAL_ACCOUNT;
@@ -128,8 +146,13 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest003, TestSize.Leve
         });
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .Times(2)
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string testName = "testDeviceName";
     DmDeviceInfo info;
@@ -164,8 +187,12 @@ HWTEST_F(DistributedModuleConfigMockTest, Notify001, TestSize.Level0)
         });
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string testName = "testDeviceName";
     DmDeviceInfo info;
@@ -201,8 +228,12 @@ HWTEST_F(DistributedModuleConfigMockTest, Notify002, TestSize.Level0)
         });
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string testName = "testDeviceName";
     DmDeviceInfo info;
@@ -242,8 +273,12 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion001, TestSize
         });
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string testName = "testDeviceName";
     DmDeviceInfo info;
@@ -278,8 +313,12 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion002, TestSize
         });
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string testName = "testDeviceName";
     DmDeviceInfo info;
@@ -314,8 +353,12 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion003, TestSize
         });
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string testName = "testDeviceName";
     DmDeviceInfo info;
@@ -350,8 +393,12 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion004, TestSize
         });
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
-    std::string bundleName = "com.example.myApplication";
-    bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string testName = "testDeviceName";
     DmDeviceInfo info;

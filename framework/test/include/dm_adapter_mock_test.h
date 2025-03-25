@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef PASTEBOARD_DISTRIBUTED_MODULE_CONFIG_MOCK_TEST_H
-#define PASTEBOARD_DISTRIBUTED_MODULE_CONFIG_MOCK_TEST_H
+#ifndef PASTEBOARD_DM_ADAPTER_MOCK_TEST_H
+#define PASTEBOARD_DM_ADAPTER_MOCK_TEST_H
 
 #include "device_manager_mock.h"
-#include "distributed_device_profile_client_mock.h"
 #include <gtest/gtest.h>
 
 namespace OHOS {
@@ -25,20 +24,17 @@ namespace MiscServices {
 
 using namespace testing::ext;
 
-class DistributedModuleConfigMockTest : public testing::Test {
+class DMAdapterMockTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
 
-    static inline std::shared_ptr<DistributedDeviceProfile::DistributedDeviceProfileClientMock>
-        distributedDeviceProfileClientMock_ =
-            std::make_shared<DistributedDeviceProfile::DistributedDeviceProfileClientMock>();
     static inline std::shared_ptr<DistributedHardware::DeviceManagerMock> deviceManagerMock_ =
         std::make_shared<DistributedHardware::DeviceManagerMock>();
 };
 
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTEBOARD_DISTRIBUTED_MODULE_CONFIG_MOCK_TEST_H
+#endif // PASTEBOARD_DM_ADAPTER_MOCK_TEST_H

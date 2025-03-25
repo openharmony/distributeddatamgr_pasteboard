@@ -431,6 +431,9 @@ std::string PasteboardService::GetAllPrimaryText(const PasteData &pasteData)
 
 int32_t PasteboardService::ExtractEntity(const std::string &entity, std::string &location)
 {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!entity.empty(),
+        static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "entity invalid");
     nlohmann::json entityJson = nlohmann::json::parse(entity);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!entityJson.is_discarded(),
         static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR), PASTEBOARD_MODULE_SERVICE,
