@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include "pasteboard_client.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_service_loader.h"
 
 using namespace OHOS::Media;
 
@@ -731,7 +731,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
         if (isDelay_ && !entry->HasContent(utdType) && !PasteBoardCommon::IsPasteboardService()) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay record value, dataId=%{public}u, "
                 "recordId=%{public}u, type=%{public}s", dataId_, recordId_, utdType.c_str());
-            PasteboardServiceLoader::GetInstance().GetRecordValueByType(dataId_, recordId_, *entry);
+            PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
         }
         if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
             return std::make_shared<PasteDataEntry>(utdType, GetUri()->ToString());
@@ -746,7 +746,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
             if (isDelay_ && !entry->HasContent(utdType) && !PasteBoardCommon::IsPasteboardService()) {
                 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "get delay entry value, dataId=%{public}u, "
                     "recordId=%{public}u, type=%{public}s", dataId_, recordId_, utdType.c_str());
-                PasteboardServiceLoader::GetInstance().GetRecordValueByType(dataId_, recordId_, *entry);
+                PasteboardClient::GetInstance()->GetRecordValueByType(dataId_, recordId_, *entry);
             }
             if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
                 return std::make_shared<PasteDataEntry>(utdType, GetUri()->ToString());

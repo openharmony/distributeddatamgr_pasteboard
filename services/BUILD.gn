@@ -96,7 +96,11 @@ ohos_shared_library("pasteboard_service") {
     "-O2",
   ]
 
-  deps = [ "${pasteboard_framework_path}:pasteboard_framework" ]
+  deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
+  ]
   defines = []
 
   external_deps = [
