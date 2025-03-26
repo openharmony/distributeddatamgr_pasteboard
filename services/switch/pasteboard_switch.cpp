@@ -25,7 +25,7 @@ using namespace UeReporter;
 const constexpr char *DISTRIBUTED_PASTEBOARD_SWITCH = "distributed_pasteboard_switch";
 constexpr const char *SUPPORT_STATUS = "1";
 constexpr int32_t ERROR_USERID = -1;
-
+constexpr const char *UE_SWITCH_STATUS = "PASTEBOARD_SWITCH_STATUS";
 PastedSwitch::PastedSwitch()
 {
     switchObserver_ = new (std::nothrow) PastedSwitchObserver([this]() -> void {
@@ -71,7 +71,7 @@ void PastedSwitch::ReportUeSwitchEvent()
 {
     std::string value;
     DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEBOARD_SWITCH, value);
-    UE_SWITCH(UeReporter::UE_SWITCH_STATUS, UeReporter::UE_STATUS_TYPE,
+    UE_SWITCH(UE_SWITCH_STATUS, UeReporter::UE_STATUS_TYPE,
         (value == SUPPORT_STATUS) ? UeReporter::SwitchStatus::SWITCH_OPEN : UeReporter::SwitchStatus::SWITCH_CLOSE);
 }
 

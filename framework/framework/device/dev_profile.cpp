@@ -23,6 +23,7 @@
 
 namespace OHOS {
 namespace MiscServices {
+constexpr const char *UE_SWITCH_OPERATION = "PASTEBOARD_SWITCH_OPERATION";
 
 DevProfile &DevProfile::GetInstance()
 {
@@ -45,7 +46,7 @@ void DevProfile::PutDeviceStatus(bool status)
         "get udid failed, netId=%{public}.5s", networkId.c_str());
 
     UpdateEnabledStatus(udid, status);
-    UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE, status ?
+    UE_SWITCH(UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE, status ?
         UeReporter::SwitchStatus::SWITCH_OPEN : UeReporter::SwitchStatus::SWITCH_CLOSE);
 
     DeviceProfileProxy proxy;
