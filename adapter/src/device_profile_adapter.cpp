@@ -17,7 +17,8 @@
 
 #include "cJSON.h"
 #include "distributed_device_profile_client.h"
-#include "profile_change_listener_stub.h"
+#include "i_profile_change_listener.h"
+#include "i_static_capability_collector.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
@@ -49,7 +50,7 @@ static inline bool Str2Bool(const std::string &value)
     return value == STATUS_ENABLE;
 }
 
-class SubscribeDPChangeListener : public ProfileChangeListenerStub {
+class SubscribeDPChangeListener : public IRemoteStub<IProfileChangeListener> {
 public:
     SubscribeDPChangeListener() = default;
     ~SubscribeDPChangeListener() = default;
@@ -268,14 +269,31 @@ IDeviceProfileAdapter *GetDeviceProfileAdapter()
     return &instance;
 }
 
-void __attribute__((constructor)) OnPasteboardAdapterOpened()
+void DeinitDeviceProfileAdapter()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "dlopen libpasteboard_adapter.z.so");
+    DistributedDeviceProfileClient::GetInstance().ReleaseResource();
 }
 
-void __attribute__((destructor)) OnPasteboardAdapterClosed()
+class PasteboardStaticCapability : public IStaticCapabilityCollector {
+public:
+    static PasteboardStaticCapability &GetInstance()
+    {
+        static PasteboardStaticCapability instance;
+        return instance;
+    }
+
+    bool IsSupportCapability() override
+    {
+        return true;
+    }
+};
+
+extern "C" {
+API_EXPORT IStaticCapabilityCollector *GetStaticCapabilityCollector()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "dlclose libpasteboard_adapter.z.so");
+    return &PasteboardStaticCapability::GetInstance();
 }
+} // extern "C"
+
 } // namespace MiscServices
 } // namespace OHOS

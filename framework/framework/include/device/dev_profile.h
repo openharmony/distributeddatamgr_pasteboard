@@ -46,11 +46,12 @@ private:
     virtual ~DevProfile() = default;
     static void OnProfileUpdate(const std::string &udid, bool status);
     void Notify(bool isEnable);
+    void PostDelayReleaseProxy();
 
     Observer observer_ = nullptr;
     ConcurrentMap<std::string, bool> enabledStatusCache_;
     std::shared_ptr<DeviceProfileProxy> proxy_ = nullptr;
-    std::mutex proxyMutex_;
+    std::recursive_mutex proxyMutex_;
     std::unordered_set<std::string> subscribeUdidList_;
 };
 } // namespace MiscServices

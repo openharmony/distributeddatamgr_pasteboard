@@ -17,6 +17,7 @@
 
 #include "device_profile_proxy.h"
 #include "dm_adapter.h"
+#include "ffrt_utils.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_ue.h"
 #include "pasteboard_hilog.h"
@@ -37,6 +38,28 @@ void DevProfile::OnProfileUpdate(const std::string &udid, bool status)
     DevProfile::GetInstance().Notify(status);
 }
 
+void DevProfile::PostDelayReleaseProxy()
+{
+    constexpr uint32_t DELAY_TIME = 60 * 1000; // 60s
+    static FFRTTimer ffrtTimer("release_dp_proxy");
+
+    FFRTTask task = [this]() {
+        std::lock_guard lock(proxyMutex_);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "execute delay task");
+        if (proxy_ == nullptr) {
+            return;
+        }
+
+        if (subscribeUdidList_.empty()) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deinit dp proxy");
+            proxy_ = nullptr;
+        }
+    };
+
+    ffrtTimer.SetTimer("release_dp_proxy", task, DELAY_TIME);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "post delay task");
+}
+
 void DevProfile::PutDeviceStatus(bool status)
 {
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -48,8 +71,12 @@ void DevProfile::PutDeviceStatus(bool status)
     UE_SWITCH(UeReporter::UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE, status ?
         UeReporter::SwitchStatus::SWITCH_OPEN : UeReporter::SwitchStatus::SWITCH_CLOSE);
 
-    DeviceProfileProxy proxy;
-    auto adapter = proxy.GetAdapter();
+    std::lock_guard lock(proxyMutex_);
+    PostDelayReleaseProxy();
+    if (proxy_ == nullptr) {
+        proxy_ = std::make_shared<DeviceProfileProxy>();
+    }
+    auto adapter = proxy_->GetAdapter();
     PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
     int32_t ret = adapter->PutDeviceStatus(udid, status);
     PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), PASTEBOARD_MODULE_SERVICE,
@@ -73,8 +100,12 @@ int32_t DevProfile::GetDeviceStatus(const std::string &networkId, bool &status)
         return static_cast<int32_t>(PasteboardError::E_OK);
     }
 
-    DeviceProfileProxy proxy;
-    auto adapter = proxy.GetAdapter();
+    std::lock_guard lock(proxyMutex_);
+    PostDelayReleaseProxy();
+    if (proxy_ == nullptr) {
+        proxy_ = std::make_shared<DeviceProfileProxy>();
+    }
+    auto adapter = proxy_->GetAdapter();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(adapter != nullptr, static_cast<int32_t>(PasteboardError::DLOPEN_FAILED),
         PASTEBOARD_MODULE_SERVICE, "adapter is null");
     int32_t ret = adapter->GetDeviceStatus(udid, status);
@@ -91,8 +122,12 @@ bool DevProfile::GetDeviceVersion(const std::string &networkId, uint32_t &versio
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!udid.empty(), false,
         PASTEBOARD_MODULE_SERVICE, "get udid failed, netId=%{public}.5s", networkId.c_str());
 
-    DeviceProfileProxy proxy;
-    auto adapter = proxy.GetAdapter();
+    std::lock_guard lock(proxyMutex_);
+    PostDelayReleaseProxy();
+    if (proxy_ == nullptr) {
+        proxy_ = std::make_shared<DeviceProfileProxy>();
+    }
+    auto adapter = proxy_->GetAdapter();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(adapter != nullptr, false, PASTEBOARD_MODULE_SERVICE, "adapter is null");
     bool ret = adapter->GetDeviceVersion(udid, versionId);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false,
@@ -111,6 +146,7 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
 
     IDeviceProfileAdapter *adapter = nullptr;
     std::lock_guard lock(proxyMutex_);
+    PostDelayReleaseProxy();
     if (proxy_ == nullptr) {
         proxy_ = std::make_shared<DeviceProfileProxy>();
         adapter = proxy_->GetAdapter();
@@ -135,6 +171,7 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
         "get udid failed, netId=%{public}.5s", networkId.c_str());
 
     std::lock_guard lock(proxyMutex_);
+    PostDelayReleaseProxy();
     if (proxy_ == nullptr) {
         proxy_ = std::make_shared<DeviceProfileProxy>();
     }
@@ -145,14 +182,14 @@ void DevProfile::UnSubscribeProfileEvent(const std::string &networkId)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
 
     subscribeUdidList_.erase(udid);
-    if (subscribeUdidList_.empty()) {
-        proxy_ = nullptr;
-    }
 }
 
 void DevProfile::UnSubscribeAllProfileEvents()
 {
     std::lock_guard lock(proxyMutex_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(!subscribeUdidList_.empty(), PASTEBOARD_MODULE_SERVICE, "udid list empty");
+
+    PostDelayReleaseProxy();
     if (proxy_ == nullptr) {
         proxy_ = std::make_shared<DeviceProfileProxy>();
     }
@@ -166,7 +203,6 @@ void DevProfile::UnSubscribeAllProfileEvents()
     }
 
     subscribeUdidList_.clear();
-    proxy_ = nullptr;
 }
 
 void DevProfile::Watch(Observer observer)

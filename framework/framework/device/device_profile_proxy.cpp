@@ -22,7 +22,8 @@
 namespace OHOS {
 namespace MiscServices {
 constexpr const char *LIB_NAME = "libpasteboard_adapter.z.so";
-constexpr const char *FUN_NAME = "GetDeviceProfileAdapter";
+constexpr const char *FUN_NAME_GET = "GetDeviceProfileAdapter";
+constexpr const char *FUN_NAME_DEINIT = "DeinitDeviceProfileAdapter";
 
 DeviceProfileProxy::DeviceProfileProxy()
 {
@@ -33,15 +34,25 @@ DeviceProfileProxy::DeviceProfileProxy()
 
 DeviceProfileProxy::~DeviceProfileProxy()
 {
-    if (handler != nullptr) {
-        dlclose(handler);
-        handler == nullptr;
+    if (handler == nullptr) {
+        return;
     }
+
+    auto func = reinterpret_cast<DeinitDeviceProfileAdapterFunc>(dlsym(handler, FUN_NAME_DEINIT));
+    if (func != nullptr) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "deinit adapter");
+        func();
+    } else {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "dlsym failed, msg=%{public}s", dlerror());
+    }
+
+    dlclose(handler);
+    handler = nullptr;
 }
 
 IDeviceProfileAdapter *DeviceProfileProxy::GetAdapter()
 {
-    auto func = reinterpret_cast<GetDeviceProfileAdapterFunc>(dlsym(handler, FUN_NAME));
+    auto func = reinterpret_cast<GetDeviceProfileAdapterFunc>(dlsym(handler, FUN_NAME_GET));
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(func != nullptr, nullptr, PASTEBOARD_MODULE_COMMON,
         "dlsym failed, msg=%{public}s", dlerror());
     return func();
