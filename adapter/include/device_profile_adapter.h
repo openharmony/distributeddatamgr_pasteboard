@@ -39,8 +39,10 @@ public:
 
 extern "C" {
     typedef IDeviceProfileAdapter *(*GetDeviceProfileAdapterFunc)();
+    typedef void (*DeinitDeviceProfileAdapterFunc)();
 
     API_EXPORT IDeviceProfileAdapter *GetDeviceProfileAdapter();
+    API_EXPORT void DeinitDeviceProfileAdapter();
 }
 
 } // namespace MiscServices
