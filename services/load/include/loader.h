@@ -24,12 +24,12 @@ public:
     void LoadComponents();
     int32_t LoadUid();
     static bool ComponentIsExist(const std::string &);
-    static std::unordered_map<std::string, void *> handleMap;
 
 private:
     using Constructor = void (*)(const char *);
     Config LoadConfig();
     static constexpr const char *CONF_FILE = "/system/etc/pasteboard/conf/pasteboard.json";
+    static inline std::unordered_map<std::string, void *> handleMap;
 };
 } // namespace OHOS::MiscServices
 #endif // OHOS_PASTEBOARD_SERVICES_LOAD_LOADER_H
