@@ -22,20 +22,11 @@ namespace OHOS {
 namespace MiscServices {
 namespace UeReporter {
 using namespace OHOS::HiviewDFX;
-constexpr const char *CROSS_FLAG = "IS_DISTRIBUTED_PASTEBOARD";
 
 constexpr HiviewDFX::HiSysEvent::EventType UE_OPERATION_TYPE = HiviewDFX::HiSysEvent::EventType::BEHAVIOR;
 constexpr HiviewDFX::HiSysEvent::EventType UE_STATUS_TYPE = HiviewDFX::HiSysEvent::EventType::STATISTIC;
 
 constexpr const char *VERSION = "1.0";
-
-constexpr const char *UE_COPY = "DISTRIBUTED_PASTEBOARD_COPY";
-constexpr const char *UE_PASTE = "DISTRIBUTED_PASTEBOARD_PASTE";
-constexpr const char *UE_SWITCH_STATUS = "PASTEBOARD_SWITCH_STATUS";
-constexpr const char *UE_SWITCH_OPERATION = "PASTEBOARD_SWITCH_OPERATION";
-
-constexpr const int32_t E_OK_OPERATION = 0;
-
 constexpr char UE_DOMAIN[] = "PASTEBOARD_UE";
 
 enum SwitchStatus : std::int32_t {

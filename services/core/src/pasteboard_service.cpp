@@ -77,6 +77,18 @@ constexpr const char *READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBO
 constexpr const char *TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.datafiles_trans_ctrl";
 constexpr const char *MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION =
     "ohos.permission.MANAGE_PASTEBOARD_APP_SHARE_OPTION";
+constexpr const char *SET_DATA_APP = "SET_DATA_APP";
+constexpr const char *GET_DATA_APP = "GET_DATA_APP";
+constexpr const char *GET_DATA_TYPE = "GET_DATA_TYPE";
+constexpr const char *LOCAL_DEV_TYPE = "LOCAL_DEV_TYPE";
+constexpr const char *COVER_DELAY_DATA = "COVER_DELAY_DATA";
+constexpr const char *PEER_NET_ID = "PEER_NET_ID";
+constexpr const char *PEER_UDID = "PEER_UDID";
+
+constexpr const char *CROSS_FLAG = "IS_DISTRIBUTED_PASTEBOARD";
+constexpr const char *UE_COPY = "DISTRIBUTED_PASTEBOARD_COPY";
+constexpr const char *UE_PASTE = "DISTRIBUTED_PASTEBOARD_PASTE";
+constexpr const char *NETWORK_DEV_NUM = "NETWORK_DEV_NUM";
 
 constexpr int32_t INVALID_VERSION = -1;
 constexpr int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
@@ -86,6 +98,7 @@ constexpr uint32_t EVENT_TIME_OUT = 2000;
 constexpr uint32_t MAX_RECOGNITION_LENGTH = 1000;
 constexpr int32_t DEVICE_COLLABORATION_UID = 5521;
 constexpr uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
+constexpr int32_t E_OK_OPERATION = 0;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -295,8 +308,8 @@ void PasteboardService::NotifySaStatus()
 void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int32_t result)
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
-    auto res = (result == static_cast<int32_t>(PasteboardError::E_OK)) ? UeReporter::E_OK_OPERATION : result;
-    UE_REPORT(UeReporter::UE_COPY, GenerateDataType(pasteData), appInfo.bundleName, res,
+    auto res = (result == static_cast<int32_t>(PasteboardError::E_OK)) ? E_OK_OPERATION : result;
+    UE_REPORT(UE_COPY, GenerateDataType(pasteData), appInfo.bundleName, res,
         DMAdapter::GetInstance().GetLocalDeviceType());
 }
 
@@ -890,9 +903,9 @@ int32_t PasteboardService::GetPasteData(PasteData &data, int32_t &syncTime)
         return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
     }
     auto ret = GetData(tokenId, data, syncTime);
-    UE_REPORT(UeReporter::UE_PASTE, GenerateDataType(data), appInfo.bundleName,
-        (ret == static_cast<int32_t>(PasteboardError::E_OK)) ? UeReporter::E_OK_OPERATION : ret,
-        DMAdapter::GetInstance().GetLocalDeviceType(), UeReporter::CROSS_FLAG, data.IsRemote());
+    UE_REPORT(UE_PASTE, GenerateDataType(data), appInfo.bundleName,
+        (ret == static_cast<int32_t>(PasteboardError::E_OK)) ? E_OK_OPERATION : ret,
+        DMAdapter::GetInstance().GetLocalDeviceType(), CROSS_FLAG, data.IsRemote());
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "data is invalid, ret is %{public}d, callPid is %{public}d, tokenId is %{public}d", ret, callPid, tokenId);
