@@ -1152,7 +1152,7 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest003, TestSize.Level0)
     result.shareOption = InApp;
     result = PasteboardUtils::Convert(properties);
     EXPECT_EQ(result.shareOption, CrossDevice);
-    result.shareOption = CrossDevice;
+    result.shareOption = LocalDevice;
     result = PasteboardUtils::Convert(properties);
     EXPECT_EQ(result.shareOption, CrossDevice);
 
@@ -1175,7 +1175,7 @@ HWTEST_F(PasteboardUtilsTest, ConvertShareOptionTest004, TestSize.Level0)
     result.shareOption = InApp;
     result = PasteboardUtils::Convert(properties);
     EXPECT_EQ(result.shareOption, CrossDevice);
-    result.shareOption = CrossDevice;
+    result.shareOption = LocalDevice;
     result = PasteboardUtils::Convert(properties);
     EXPECT_EQ(result.shareOption, CrossDevice);
 

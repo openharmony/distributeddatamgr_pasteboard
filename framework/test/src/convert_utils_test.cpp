@@ -584,7 +584,7 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest004, TestSize.Level0)
     result.shareOption = InApp;
     result = ConvertUtils::ConvertProperty(properties, unifiedData);
     EXPECT_EQ(result.shareOption, CrossDevice);
-    result.shareOption = CrossDevice;
+    result.shareOption = LocalDevice;
     result = ConvertUtils::ConvertProperty(properties, unifiedData);
     EXPECT_EQ(result.shareOption, CrossDevice);
 
@@ -608,7 +608,7 @@ HWTEST_F(ConvertUtilsTest, ConvertPropertyTest005, TestSize.Level0)
     result.shareOption = InApp;
     result = ConvertUtils::ConvertProperty(properties, unifiedData);
     EXPECT_EQ(result.shareOption, CrossDevice);
-    result.shareOption = CrossDevice;
+    result.shareOption = LocalDevice;
     result = ConvertUtils::ConvertProperty(properties, unifiedData);
     EXPECT_EQ(result.shareOption, CrossDevice);
 
