@@ -46,7 +46,7 @@ MessageParcelWarp::MessageParcelWarp()
     canWrite_ = true;
     canRead_ = true;
     static int32_t paramMaxSize =
-        OHOS::system::GetIntParameter("const.pasteboard.data.local_capacity", DEFAULT_LOCAL_CAPACITY);
+        OHOS::system::GetIntParameter("const.pasteboard.local_data_capacity", DEFAULT_LOCAL_CAPACITY);
     PASTEBOARD_CHECK_AND_RETURN_LOGE(paramMaxSize > 0 && paramMaxSize < KERNEL_MAX_SIZE,
         PASTEBOARD_MODULE_COMMON, "invalid param, max_raw_size=%{public}d", paramMaxSize);
     maxRawDataSize_ = paramMaxSize * SIZE_K * SIZE_K;
