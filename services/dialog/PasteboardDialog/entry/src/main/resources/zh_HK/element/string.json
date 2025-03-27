@@ -30,11 +30,11 @@
         },
         {
             "name":"prompttext_udmf_format_error",
-            "value":"無法進行格式化轉換，請稍後再試"
+            "value":"無法轉換格式，請稍後再試"
         },
         {
             "name":"prompttext_udmf_format",
-            "value":"格式化轉換中…"
+            "value":"轉換格式中…"
         },
         {
             "name":"prompttext_udmf_download",

@@ -54,7 +54,7 @@
         },
         {
             "name":"prompttext_udmf_import_error",
-            "value":"كىرگۈزگىلى بولمىدى، كېيىنرەك قايتا سىناڭ."
+            "value":"كىرگۈزۈلمىدى، كېيىنرەك قايتا سىناڭ."
         },
         {
             "name":"prompttext_udmf_download_error",
@@ -74,7 +74,7 @@
         },
         {
             "name":"progress_completed_percentage",
-            "value":"%s تاماملاندى"
+            "value":"پۈتكەن ‎%s"
         }
     ]
 }
