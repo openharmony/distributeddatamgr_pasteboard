@@ -3395,7 +3395,8 @@ bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, bool isFocused)
     }
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
     auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    auto ret = (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime - actionTime_ < EVENT_TIME_OUT;
+    auto ret = (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime >= actionTime_ &&
+        curTime - actionTime_ < EVENT_TIME_OUT;
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "windowPid is: %{public}d, callingPid is: %{public}d,"
             "curTime is: %{public}llu, actionTime is: %{public}llu, isFocused is: %{public}d", windowPid_, callingPid,
