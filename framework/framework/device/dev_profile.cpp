@@ -145,21 +145,19 @@ void DevProfile::SubscribeProfileEvent(const std::string &networkId)
     PASTEBOARD_CHECK_AND_RETURN_LOGE(!udid.empty(), PASTEBOARD_MODULE_SERVICE,
         "get udid failed, netId=%{public}.5s", networkId.c_str());
 
-    IDeviceProfileAdapter *adapter = nullptr;
     std::lock_guard lock(proxyMutex_);
     PostDelayReleaseProxy();
     if (proxy_ == nullptr) {
         proxy_ = std::make_shared<DeviceProfileProxy>();
-        adapter = proxy_->GetAdapter();
-        PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
-        int32_t ret = adapter->RegisterUpdateCallback(&DevProfile::OnProfileUpdate);
-        PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), PASTEBOARD_MODULE_SERVICE,
-            "register dp update callback failed, ret=%{public}d", ret);
-    } else {
-        adapter = proxy_->GetAdapter();
-        PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
     }
-    int32_t ret = adapter->SubscribeProfileEvent(udid);
+    auto adapter = proxy_->GetAdapter();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+
+    int32_t ret = adapter->RegisterUpdateCallback(&DevProfile::OnProfileUpdate);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), PASTEBOARD_MODULE_SERVICE,
+        "register dp update callback failed, ret=%{public}d", ret);
+
+    ret = adapter->SubscribeProfileEvent(udid);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
 
     subscribeUdidList_.emplace(udid);

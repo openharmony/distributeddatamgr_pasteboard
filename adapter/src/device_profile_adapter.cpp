@@ -17,10 +17,10 @@
 
 #include "cJSON.h"
 #include "distributed_device_profile_client.h"
-#include "i_profile_change_listener.h"
 #include "i_static_capability_collector.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "profile_change_listener_stub.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -50,7 +50,7 @@ static inline bool Str2Bool(const std::string &value)
     return value == STATUS_ENABLE;
 }
 
-class SubscribeDPChangeListener : public IRemoteStub<IProfileChangeListener> {
+class SubscribeDPChangeListener : public ProfileChangeListenerStub {
 public:
     SubscribeDPChangeListener() = default;
     ~SubscribeDPChangeListener() = default;
@@ -271,6 +271,7 @@ IDeviceProfileAdapter *GetDeviceProfileAdapter()
 
 void DeinitDeviceProfileAdapter()
 {
+    g_onProfileUpdateCallback = nullptr;
     DistributedDeviceProfileClient::GetInstance().ReleaseResource();
 }
 

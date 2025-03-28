@@ -19,9 +19,6 @@
 
 #include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
-    
-std::unordered_map<std::string, void *> Loader::handleMap {};
-
 Loader::Loader() {}
 
 Loader::~Loader() {}
