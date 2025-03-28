@@ -405,3 +405,20 @@ HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_001, TestSize.Level1)
     auto result = PasteboardWebController::GetInstance();
     EXPECT_NO_THROW(result.CheckAppUriPermission(pasteData));
 }
+
+/**
+ * @tc.name: SetWebviewPasteDataTest_001.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_001, TestSize.Level1)
+{
+    PasteboardWebController pasteboardWebController;
+    PasteData pasteData;
+    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    std::string bundleName = "testBundle";
+    pasteboardWebController.SetWebviewPasteData(pasteData, bundleName);
+    ASSERT_EQ(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
+}
