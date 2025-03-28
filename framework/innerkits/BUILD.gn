@@ -29,6 +29,77 @@ config("pasteboard_client_config") {
   ]
 }
 
+config("pasteboard_data_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "include",
+    "${pasteboard_root_path}/framework/tlv",
+    "${pasteboard_service_path}/core/include",
+    "${pasteboard_service_path}/dfx/src",
+    "${pasteboard_service_path}/zidl/include",
+    "${pasteboard_utils_path}/native/include",
+  ]
+}
+
+ohos_shared_library("pasteboard_data") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  sources = [
+    "${pasteboard_service_path}/zidl/src/ipasteboard_client_death_observer.cpp",
+    "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
+    "src/convert_utils.cpp",
+    "src/paste_data.cpp",
+    "src/paste_data_entry.cpp",
+    "src/paste_data_record.cpp",
+    "src/pasteboard_load_callback.cpp",
+    "src/pasteboard_service_loader.cpp",
+    "src/pasteboard_web_controller.cpp",
+  ]
+
+  cflags_cc = [
+    "-fstack-protector",
+    "-D_FORTIFY_SOURCE=2",
+    "-O2",
+    "-fvisibility=hidden",
+  ]
+  cflags = [
+    "-fvisibility=hidden",
+    "-O2",
+  ]
+
+  public_configs = [ ":pasteboard_data_config" ]
+  deps = [ "${pasteboard_root_path}/framework/tlv:pasteboard_tlv" ]
+
+  external_deps = [
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:uri_permission_mgr",
+    "access_token:libtokenid_sdk",
+    "app_file_service:fileuri_native",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+  public_external_deps = [
+    "image_framework:image_native",
+    "udmf:udmf_client",
+  ]
+  subsystem_name = "distributeddatamgr"
+  use_exceptions = true
+  innerapi_tags = [ "platformsdk" ]
+  part_name = "pasteboard"
+}
+
 ohos_shared_library("pasteboard_client") {
   branch_protector_ret = "pac_ret"
   sanitize = {
@@ -67,6 +138,7 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
     "src/pasteboard_progress_signal.cpp",
+    "src/pasteboard_service_loader.cpp",
     "src/pasteboard_signal_callback.cpp",
     "src/pasteboard_utils.cpp",
     "src/pasteboard_web_controller.cpp",

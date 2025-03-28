@@ -21,6 +21,7 @@
         *PasteDataPropert*;
         *PasteData*;
         *PasteboardSaDeathRecipient*;
+        *PasteboardServiceLoader*;
         *PasteboardClient*;
         *PasteboardObserver*;
         *ProgressSignalClient*;

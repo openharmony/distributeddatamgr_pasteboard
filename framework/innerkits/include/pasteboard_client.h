@@ -24,15 +24,6 @@
 
 namespace OHOS {
 namespace MiscServices {
-class API_EXPORT PasteboardSaDeathRecipient : public IRemoteObject::DeathRecipient {
-public:
-    explicit PasteboardSaDeathRecipient();
-    ~PasteboardSaDeathRecipient() = default;
-    void OnRemoteDied(const wptr<IRemoteObject> &object) override;
-        
-private:
-    DISALLOW_COPY_AND_MOVE(PasteboardSaDeathRecipient);
-};
 
 enum ProgressStatus {
     NORMAL_PASTE = 0,
@@ -449,29 +440,6 @@ public:
     int32_t RemoveAppShareOptions();
 
     /**
-     * OnRemoteSaDied
-     * @descrition
-     * @param object systemAbility proxy object
-     * @return void.
-     */
-    void OnRemoteSaDied(const wptr<IRemoteObject> &object);
-
-    /**
-     * LoadSystemAbilitySuccess
-     * @descrition inherit SystemAbilityLoadCallbackStub override LoadSystemAbilitySuccess
-     * @param remoteObject systemAbility proxy object.
-     * @return void.
-     */
-    void LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
- 
-    /**
-     * LoadSystemAbilityFail
-     * @descrition inherit SystemAbilityLoadCallbackStub override LoadSystemAbilityFail
-     * @return void.
-     */
-    void LoadSystemAbilityFail();
-
-    /**
      * PasteStart
      * @descrition Utilized to notify pasteboard service while reading PasteData, in this case, the service will help to
      *     preserve the context and resources
@@ -523,7 +491,6 @@ public:
 
 private:
     sptr<IPasteboardService> GetPasteboardService();
-    sptr<IPasteboardService> GetPasteboardServiceProxy();
     static void GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params);
     static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
     static void ProgressSmoothToTwentyPercent(PasteData &pasteData, std::string &progressKey,
@@ -536,35 +503,13 @@ private:
     void ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo);
     static int32_t ProgressAfterTwentyPercent(PasteData &pasteData, std::shared_ptr<GetDataParams> params,
        std::string progressKey);
-    void SetPasteboardServiceProxy(const sptr<IRemoteObject> &remoteObject);
     static int32_t CheckProgressParam(std::shared_ptr<GetDataParams> params);
     void ShowProgress(const std::string &progressKey);
-    static sptr<IPasteboardService> pasteboardServiceProxy_;
     std::string GetPasteDataInfoSummary(const PasteData &pasteData);
     static std::mutex instanceLock_;
-    bool constructing_ = false;
-    static std::condition_variable proxyConVar_;
-    sptr<IRemoteObject::DeathRecipient> deathRecipient_{ nullptr };
     std::atomic<uint32_t> getSequenceId_ = 0;
     static std::atomic<bool> remoteTask_;
     static std::atomic<bool> isPasting_;
-    class StaticDestoryMonitor {
-    public:
-        StaticDestoryMonitor() : destoryed_(false) {}
-        ~StaticDestoryMonitor()
-        {
-            destoryed_ = true;
-        }
-    
-        bool IsDestoryed() const
-        {
-            return destoryed_;
-        }
-    
-    private:
-        bool destoryed_;
-    };
-    static StaticDestoryMonitor staticDestoryMonitor_;
 };
 } // namespace MiscServices
 } // namespace OHOS

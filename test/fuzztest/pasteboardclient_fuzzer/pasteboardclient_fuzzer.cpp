@@ -17,9 +17,10 @@
 #include <cstdint>
 #include <map>
 
-#include "pasteboard_client.h"
 #include "entity_recognition_observer.h"
+#include "pasteboard_client.h"
 #include "pasteboard_observer.h"
+#include "pasteboard_service_loader.h"
 #include "paste_data.h"
 #include "paste_data_record.h"
 
@@ -235,10 +236,10 @@ void FuzzPasteData002(const uint8_t *rawData, size_t size)
     pasteData2.Decode(buffer);
     pasteData2.SetInvalid();
     sptr<IRemoteObject> remoteObject = nullptr;
-    PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
-    PasteboardClient::GetInstance()->LoadSystemAbilityFail();
+    PasteboardServiceLoader::GetInstance().LoadSystemAbilitySuccess(remoteObject);
+    PasteboardServiceLoader::GetInstance().LoadSystemAbilityFail();
     const wptr<IRemoteObject> object;
-    PasteboardClient::GetInstance()->OnRemoteSaDied(object);
+    PasteboardServiceLoader::GetInstance().OnRemoteSaDied(object);
     PasteboardClient::GetInstance()->Clear();
     PasteboardClient::GetInstance()->GetChangeCount(changeCount);
 }
