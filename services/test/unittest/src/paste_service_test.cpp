@@ -28,6 +28,7 @@
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_observer_callback.h"
+#include "pasteboard_service_loader.h"
 #include "permission_state_full.h"
 #include "pixel_map.h"
 #include "token_setproc.h"
@@ -1088,7 +1089,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
     const wptr<IRemoteObject> object;
     PasteboardSaDeathRecipient death;
     death.OnRemoteDied(object);
-    PasteboardClient::GetInstance()->OnRemoteSaDied(object);
+    PasteboardServiceLoader::GetInstance().OnRemoteSaDied(object);
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
     InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);

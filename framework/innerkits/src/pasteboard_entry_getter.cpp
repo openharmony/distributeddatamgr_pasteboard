@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-#include "pasteboard_client.h"
 #include "pasteboard_entry_getter.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_service_loader.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -45,7 +45,7 @@ UDMF::ValueType PasteboardEntryGetter::GetValueByType(uint32_t dataId, uint32_t 
     PasteDataEntry entryValue;
     entryValue.SetUtdId(utdId);
     entryValue.SetMimeType(pasteType);
-    auto result = PasteboardClient::GetInstance()->GetRecordValueByType(dataId, recordId, entryValue);
+    auto result = PasteboardServiceLoader::GetInstance().GetRecordValueByType(dataId, recordId, entryValue);
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get entry value fail, result:%{public}d", result);
     }

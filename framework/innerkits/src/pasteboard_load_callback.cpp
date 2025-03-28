@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#include "pasteboard_client.h"
 #include "pasteboard_load_callback.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_service_loader.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -23,13 +23,13 @@ namespace MiscServices {
 void PasteboardLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
-    PasteboardClient::GetInstance()->LoadSystemAbilitySuccess(remoteObject);
+    PasteboardServiceLoader::GetInstance().LoadSystemAbilitySuccess(remoteObject);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Load system ability successed!");
 }
 
 void PasteboardLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
-    PasteboardClient::GetInstance()->LoadSystemAbilityFail();
+    PasteboardServiceLoader::GetInstance().LoadSystemAbilityFail();
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Load system ability failed!");
 }
 } // namespace MiscServices
