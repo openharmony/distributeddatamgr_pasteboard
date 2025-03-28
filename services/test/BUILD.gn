@@ -149,6 +149,7 @@ ohos_unittest("PasteServInterfaceTest") {
     "imf:inputmethod_client",
     "input:libmmi-client",
     "ipc:ipc_single",
+    "libxml2:libxml2",
     "memmgr:memmgrclient",
     "os_account:os_account_innerkits",
     "resource_schedule_service:ressched_client",
@@ -269,6 +270,7 @@ ohos_unittest("PasteboardPatternTest") {
     "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "libxml2:libxml2",
   ]
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
