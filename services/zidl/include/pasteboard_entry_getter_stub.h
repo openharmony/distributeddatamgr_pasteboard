@@ -17,7 +17,7 @@
 #define PASTEBOARD_ENTRY_GETTER_STUB_H
 
 #include "iremote_stub.h"
-#include "i_pasteboard_entry_getter.h"
+#include "ipasteboard_entry_getter.h"
 
 namespace OHOS {
 namespace MiscServices {

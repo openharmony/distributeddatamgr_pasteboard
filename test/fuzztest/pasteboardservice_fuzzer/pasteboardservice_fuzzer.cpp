@@ -59,27 +59,64 @@ const std::vector<PasteboardServiceInterfaceCode> CODE_LIST = {
 
 class PasteboardServiceMock : public PasteboardServiceStub {
 public:
-    int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
-        const sptr<IPasteboardEntryGetter> entryGetter = nullptr) override
+    int32_t SetPasteData(int fd, int64_t memSize, const std::vector<uint8_t> &buffer,
+        const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter) override
     {
-        (void)pasteData;
+        (void)fd;
+        (void)memSize;
+        (void)buffer;
         (void)delayGetter;
         (void)entryGetter;
         return 0;
     }
 
-    int32_t GetPasteData(PasteData &data, int32_t &syncTime) override
+    int32_t SetPasteDataDelayData(int fd, int64_t memSize, const std::vector<uint8_t> &buffer,
+        const sptr<IPasteboardDelayGetter> &delayGetter) override
     {
-        (void)data;
+        (void)fd;
+        (void)memSize;
+        (void)buffer;
+        (void)delayGetter;
+        return 0;
+    }
+
+    int32_t SetPasteDataEntryData(int fd, int64_t memSize, const std::vector<uint8_t> &buffer,
+        const sptr<IPasteboardEntryGetter> &entryGetter) override
+    {
+        (void)fd;
+        (void)memSize;
+        (void)buffer;
+        (void)entryGetter;
+        return 0;
+    }
+
+    int32_t SetPasteDataOnly(int fd, int64_t memSize, const std::vector<uint8_t> &buffer) override
+    {
+        (void)fd;
+        (void)memSize;
+        (void)buffer;
+        return 0;
+    }
+
+    int32_t GetPasteData(int &fd, int64_t &memSize, std::vector<uint8_t> &buffer,
+        const std::string &pasteId, int32_t &syncTime) override
+    {
+        (void)fd;
+        (void)memSize;
+        (void)buffer;
+        (void)pasteId;
         (void)syncTime;
         return 0;
     }
 
-    int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value) override
+    int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, int64_t &rawDataSize,
+        std::vector<uint8_t> &buffer, int &fd) override
     {
         (void)dataId;
         (void)recordId;
-        (void)value;
+        (void)rawDataSize;
+        (void)buffer;
+        (void)fd;
         return 0;
     }
 
@@ -89,13 +126,15 @@ public:
         return 0;
     }
 
-    std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) override
+    int32_t GetGlobalShareOption(const std::vector<uint32_t> &tokenIds,
+        std::unordered_map<uint32_t, int32_t>& funcResult) override
     {
         (void)tokenIds;
-        return {};
+        (void)funcResult;
+        return 0;
     }
 
-    int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) override
+    int32_t SetGlobalShareOption(const std::unordered_map<uint32_t, int32_t> &globalShareOptions) override
     {
         (void)globalShareOptions;
         return 0;
@@ -107,7 +146,7 @@ public:
         return 0;
     }
 
-    int32_t SetAppShareOptions(const ShareOption &shareOptions) override
+    int32_t SetAppShareOptions(int32_t shareOptions) override
     {
         (void)shareOptions;
         return 0;
@@ -118,26 +157,29 @@ public:
         return 0;
     }
 
-    int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override
+    int32_t RegisterClientDeathObserver(const sptr<IRemoteObject> &observer) override
     {
         (void)observer;
         return 0;
     }
 
-    bool HasPasteData() override
+    int32_t HasPasteData(bool& funcResult) override
     {
-        return true;
+        (void)funcResult;
+        return 0;
     }
 
-    bool HasDataType(const std::string &mimeType) override
+    int32_t HasDataType(const std::string &mimeType, bool& funcResult) override
     {
         (void)mimeType;
-        return true;
+        (void)funcResult;
+        return 0;
     }
 
-    std::vector<std::string> GetMimeTypes() override
+    int32_t GetMimeTypes(std::vector<std::string>& funcResult) override
     {
-        return {};
+        (void)funcResult;
+        return 0;
     }
 
     int32_t GetChangeCount(uint32_t &changeCount) override
@@ -163,47 +205,56 @@ public:
         return 0;
     }
 
-    bool IsRemoteData() override
+    int32_t IsRemoteData(bool& funcResult) override
     {
-        return true;
+        (void)funcResult;
+        return 0;
     }
 
-    std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override
+    int32_t DetectPatterns(const std::vector<Pattern> &patternsToCheck,
+        std::vector<Pattern>& funcResult) override
     {
         (void)patternsToCheck;
-        return {};
+        (void)funcResult;
+        return 0;
     }
 
-    void SubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override
+    int32_t SubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override
     {
         (void)type;
         (void)observer;
+        return 0;
     }
 
-    void UnsubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override
+    int32_t UnsubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override
     {
         (void)type;
         (void)observer;
+        return 0;
     }
 
-    void UnsubscribeAllObserver(PasteboardObserverType type) override
+    int32_t UnsubscribeAllObserver(PasteboardObserverType type) override
     {
         (void)type;
+        return 0;
     }
 
-    void PasteStart(const std::string &pasteId) override
+    int32_t PasteStart(const std::string &pasteId) override
     {
         (void)pasteId;
+        return 0;
     }
 
-    void PasteComplete(const std::string &deviceId, const std::string &pasteId) override
+    int32_t PasteComplete(const std::string &deviceId, const std::string &pasteId) override
     {
         (void)deviceId;
         (void)pasteId;
+        return 0;
     }
 
-    void Clear() override
+    int32_t Clear() override
     {
+        return 0;
     }
 
     int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override
@@ -213,10 +264,11 @@ public:
         return 0;
     }
 
-    void ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override
+    int32_t ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override
     {
         (void)progressKey;
         (void)observer;
+        return 0;
     }
 };
 

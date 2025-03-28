@@ -22,12 +22,11 @@
 #include "ipasteboard_client_death_observer.h"
 #include "pasteboard_copy.h"
 #include "pasteboard_deduplicate_memory.h"
-#include "pasteboard_delay_getter_client.h"
-#include "pasteboard_entry_getter_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_load_callback.h"
+#include "pasteboard_pattern.h"
 #include "pasteboard_progress.h"
 #include "pasteboard_signal_callback.h"
 #include "pasteboard_time.h"
@@ -63,6 +62,7 @@ std::mutex PasteboardClient::instanceLock_;
 std::atomic<bool> PasteboardClient::remoteTask_(false);
 std::atomic<bool> PasteboardClient::isPasting_(false);
 std::atomic<uint64_t> PasteboardClient::progressStartTime_;
+constexpr int64_t MIN_ASHMEM_DATA_SIZE = 32 * 1024; // 32K
 
 struct RadarReportIdentity {
     pid_t pid;
@@ -204,7 +204,7 @@ int32_t PasteboardClient::GetChangeCount(uint32_t &changeCount)
         changeCount = 0;
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
-    return proxyService->GetChangeCount(changeCount);
+    return ConvertErrCode(proxyService->GetChangeCount(changeCount));
 }
 
 int32_t PasteboardClient::SubscribeEntityObserver(
@@ -220,7 +220,7 @@ int32_t PasteboardClient::SubscribeEntityObserver(
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->SubscribeEntityObserver(entityType, expectedDataLength, observer);
+    return ConvertErrCode(proxyService->SubscribeEntityObserver(entityType, expectedDataLength, observer));
 }
 
 int32_t PasteboardClient::UnsubscribeEntityObserver(
@@ -236,16 +236,12 @@ int32_t PasteboardClient::UnsubscribeEntityObserver(
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->UnsubscribeEntityObserver(entityType, expectedDataLength, observer);
+    return ConvertErrCode(proxyService->UnsubscribeEntityObserver(entityType, expectedDataLength, observer));
 }
 
 int32_t PasteboardClient::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
 {
-    auto proxyService = GetPasteboardService();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
-        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
-        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->GetRecordValueByType(dataId, recordId, value);
+    return PasteboardServiceLoader::GetInstance().GetRecordValueByType(dataId, recordId, value);
 }
 
 void PasteboardClient::Clear()
@@ -258,10 +254,17 @@ void PasteboardClient::Clear()
     return;
 }
 
+void PasteboardClient::CloseSharedMemFd(int fd)
+{
+    if (fd >= 0) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "CloseSharedMemFd:%{public}d", fd);
+        close(fd);
+    }
+}
+
 int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "enter");
-    static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
     pid_t pid = getpid();
     std::string currentPid = std::to_string(pid);
     uint32_t tmpSequenceId = getSequenceId_++;
@@ -282,11 +285,34 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     int32_t syncTime = 0;
-    int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
-    pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> recvTLV;
+    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    ret = ConvertErrCode(ret);
+    if (ret == static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR)) {
+        CloseSharedMemFd(fd);
+        GetDataReport(pasteData, syncTime, currentId, currentPid, ret);
+        return ret;
+    }
+    ret = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
+    if (ret == static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR)) {
+        GetDataReport(pasteData, syncTime, currentId, currentPid, ret);
+        return ret;
+    }
     PasteboardWebController::GetInstance().RetainUri(pasteData);
     PasteboardWebController::GetInstance().RebuildWebviewPasteData(pasteData);
+    GetDataReport(pasteData, syncTime, currentId, currentPid, ret);
+    return ret;
+}
+
+void PasteboardClient::GetDataReport(PasteData &pasteData, int32_t syncTime, const std::string &currentId,
+    const std::string &currentPid, int32_t ret)
+{
+    static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
+    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         if (pasteData.deviceId_.empty()) {
@@ -301,7 +327,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
                 pasteDataInfoSummary);
         }
     } else if (ret != static_cast<int32_t>(PasteboardError::TASK_PROCESSING) &&
-               !reportMemory.IsDuplicate({.pid = pid, .errorCode = ret})) {
+               !reportMemory.IsDuplicate({.pid = getpid(), .errorCode = ret})) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_FAILED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
             PACKAGE_NAME, currentPid, DIS_SYNC_TIME, syncTime,
@@ -313,7 +339,6 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
             ERROR_CODE, ret, PASTEDATA_SUMMARY, pasteDataInfoSummary);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "leave, ret=%{public}d", ret);
-    return ret;
 }
 
 void PasteboardClient::GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params)
@@ -405,7 +430,6 @@ void PasteboardClient::OnProgressAbnormal(int32_t result)
 int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
     PasteDataFromServiceInfo &pasteDataFromServiceInfo, std::string progressKey, std::shared_ptr<GetDataParams> params)
 {
-    static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
     auto proxyService = GetPasteboardService();
     std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     if (proxyService == nullptr) {
@@ -417,11 +441,72 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     int32_t syncTime = 0;
-    int32_t ret = proxyService->GetPasteData(pasteData, syncTime);
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> recvTLV(0);
+    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
+    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    ret = ConvertErrCode(ret);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+        CloseSharedMemFd(fd);
+        return ret;
+    }
+    ret = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+        return ret;
+    }
     pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     ProgressSmoothToTwentyPercent(pasteData, progressKey, params);
-    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     PasteboardWebController::GetInstance().RetainUri(pasteData);
+    ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+template<typename T>
+int32_t PasteboardClient::ProcessPasteData(T &data, int64_t rawDataSize, int fd,
+    const std::vector<uint8_t> &recvTLV)
+{
+    int32_t ret = static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
+    if (fd < 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail fd:%{public}d", fd);
+        return ret;
+    }
+    MessageParcelWarp messageReply;
+    if (rawDataSize <= 0 || rawDataSize > messageReply.GetRawDataSize()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid raw data size:%{public}" PRId64, rawDataSize);
+        CloseSharedMemFd(fd);
+        return ret;
+    }
+    bool result = false;
+    MessageParcel parcelData;
+    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        parcelData.WriteInt64(rawDataSize);
+        parcelData.WriteFileDescriptor(fd);
+        const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, rawDataSize));
+        if (rawData == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "mmap failed, size=%{public}" PRId64, rawDataSize);
+            return ret;
+        }
+        std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
+        result = data.Decode(pasteDataTlv);
+    } else {
+        result = data.Decode(recvTLV);
+        CloseSharedMemFd(fd);
+    }
+    if (!result) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
+        return ret;
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardClient::ProcessRadarReport(int32_t ret, PasteData &pasteData,
+    PasteDataFromServiceInfo &pasteDataFromServiceInfo, int32_t syncTime, const std::string &pasteDataInfoSummary)
+{
+    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         if (pasteData.deviceId_.empty()) {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
@@ -448,7 +533,6 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
             DIS_SYNC_TIME, syncTime, ERROR_CODE, ret, PASTEDATA_SUMMARY,
             pasteDataInfoSummary);
     }
-    return ret;
 }
 
 void PasteboardClient::ProgressRadarReport(PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo)
@@ -584,7 +668,61 @@ bool PasteboardClient::HasPasteData()
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false,
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->HasPasteData();
+    bool ret = false;
+    int32_t errCode = proxyService->HasPasteData(ret);
+    if (errCode != ERR_OK) {
+        return false;
+    }
+    return ret;
+}
+
+void PasteboardClient::CreateGetterAgent(sptr<PasteboardDelayGetterClient> &delayGetterAgent,
+    std::shared_ptr<PasteboardDelayGetter> &delayGetter, sptr<PasteboardEntryGetterClient> &entryGetterAgent,
+    std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> &entryGetters, PasteData &pasteData)
+{
+    if (delayGetter != nullptr) {
+        pasteData.SetDelayData(true);
+        delayGetterAgent = new (std::nothrow) PasteboardDelayGetterClient(delayGetter);
+    }
+    if (!(entryGetters.empty())) {
+        pasteData.SetDelayRecord(true);
+        entryGetterAgent = new (std::nothrow) PasteboardEntryGetterClient(entryGetters);
+    }
+    if (pasteData.IsDelayData() && delayGetterAgent == nullptr) {
+        pasteData.SetDelayData(false);
+    }
+    if (pasteData.IsDelayRecord() && entryGetterAgent == nullptr) {
+        pasteData.SetDelayRecord(false);
+    }
+}
+
+int32_t PasteboardClient::WritePasteData(PasteData &pasteData, std::vector<uint8_t> &buffer, int &fd,
+    int64_t &tlvSize, MessageParcelWarp &messageData, MessageParcel &parcelPata)
+{
+    std::vector<uint8_t> pasteDataTlv(0);
+    bool result = pasteData.Encode(pasteDataTlv);
+    if (!result) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "paste data encode failed.");
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+    }
+    tlvSize = pasteDataTlv.size();
+    if (tlvSize > MIN_ASHMEM_DATA_SIZE) {
+        if (!messageData.WriteRawData(parcelPata, pasteDataTlv.data(), tlvSize)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to WriteRawData");
+            return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+        }
+        fd = messageData.GetWriteDataFd();
+        pasteDataTlv.clear();
+    } else {
+        fd = messageData.CreateTmpFd();
+        if (fd < 0) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to create tmp fd");
+            return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+        }
+    }
+    buffer = std::move(pasteDataTlv);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "set: fd:%{public}d, size:%{public}" PRId64, fd, tlvSize);
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<PasteboardDelayGetter> delayGetter,
@@ -604,27 +742,36 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     sptr<PasteboardDelayGetterClient> delayGetterAgent;
-    if (delayGetter != nullptr) {
-        pasteData.SetDelayData(true);
-        delayGetterAgent = new (std::nothrow) PasteboardDelayGetterClient(delayGetter);
-    }
     sptr<PasteboardEntryGetterClient> entryGetterAgent;
-    if (!(entryGetters.empty())) {
-        pasteData.SetDelayRecord(true);
-        entryGetterAgent = new (std::nothrow) PasteboardEntryGetterClient(entryGetters);
+    CreateGetterAgent(delayGetterAgent, delayGetter, entryGetterAgent, entryGetters, pasteData);
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Write data failed, size=%{public}" PRId64, tlvSize);
+        return ret;
     }
-
-    auto ret = proxyService->SetPasteData(pasteData, delayGetterAgent, entryGetterAgent);
+    if (delayGetterAgent != nullptr && entryGetterAgent != nullptr) {
+        ret = proxyService->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetterAgent, entryGetterAgent);
+    } else if (delayGetterAgent != nullptr && entryGetterAgent == nullptr) {
+        ret = proxyService->SetPasteDataDelayData(fd, tlvSize, pasteDataTlv, delayGetterAgent);
+    } else if (delayGetterAgent == nullptr && entryGetterAgent != nullptr) {
+        ret = proxyService->SetPasteDataEntryData(fd, tlvSize, pasteDataTlv, entryGetterAgent);
+    } else {
+        ret = proxyService->SetPasteDataOnly(fd, tlvSize, pasteDataTlv);
+    }
     pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
+    ret = ConvertErrCode(ret);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END,
-            PASTEDATA_SUMMARY, pasteDataInfoSummary);
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, PASTEDATA_SUMMARY, pasteDataInfoSummary);
     } else {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_FAILED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END,
-            ERROR_CODE, ret,
-            PASTEDATA_SUMMARY, pasteDataInfoSummary);
+            ERROR_CODE, ret, PASTEDATA_SUMMARY, pasteDataInfoSummary);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "leave, ret=%{public}d", ret);
     return ret;
@@ -705,7 +852,16 @@ int32_t PasteboardClient::SetGlobalShareOption(const std::map<uint32_t, ShareOpt
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->SetGlobalShareOption(globalShareOptions);
+    std::unordered_map<uint32_t, int32_t> shareOptions = {};
+    for (const auto &pair : globalShareOptions) {
+        shareOptions[pair.first] = static_cast<int32_t>(pair.second);
+    }
+    int32_t ret = proxyService->SetGlobalShareOption(shareOptions);
+    ret = ConvertErrCode(ret);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        ret = ERR_OK;
+    }
+    return ret;
 }
 
 int32_t PasteboardClient::RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds)
@@ -714,7 +870,12 @@ int32_t PasteboardClient::RemoveGlobalShareOption(const std::vector<uint32_t> &t
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->RemoveGlobalShareOption(tokenIds);
+    int32_t ret = proxyService->RemoveGlobalShareOption(tokenIds);
+    ret = ConvertErrCode(ret);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        ret = ERR_OK;
+    }
+    return ret;
 }
 
 std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(const std::vector<uint32_t> &tokenIds)
@@ -722,7 +883,17 @@ std::map<uint32_t, ShareOption> PasteboardClient::GetGlobalShareOption(const std
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, {},
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->GetGlobalShareOption(tokenIds);
+    std::unordered_map<uint32_t, int32_t> funcResult = {};
+    int32_t ret = proxyService->GetGlobalShareOption(tokenIds, funcResult);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption failed, ret=%{public}d", ret);
+        return {};
+    }
+    std::map<uint32_t, ShareOption> result;
+    for (const auto &pair : funcResult) {
+        result[pair.first] = static_cast<ShareOption>(pair.second);
+    }
+    return result;
 }
 
 int32_t PasteboardClient::SetAppShareOptions(const ShareOption &shareOptions)
@@ -740,7 +911,12 @@ int32_t PasteboardClient::RemoveAppShareOptions()
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->RemoveAppShareOptions();
+    int32_t ret = proxyService->RemoveAppShareOptions();
+    ret = ConvertErrCode(ret);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        ret = ERR_OK;
+    }
+    return ret;
 }
 
 bool PasteboardClient::IsRemoteData()
@@ -749,7 +925,12 @@ bool PasteboardClient::IsRemoteData()
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false,
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    auto ret = proxyService->IsRemoteData();
+    bool ret = false;
+    int32_t retCode = proxyService->IsRemoteData(ret);
+    if (retCode != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "IsRemoteData failed, retCode=%{public}d", retCode);
+        return false;
+    }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "IsRemoteData end.");
     return ret;
 }
@@ -763,7 +944,7 @@ int32_t PasteboardClient::GetDataSource(std::string &bundleName)
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     int32_t ret = proxyService->GetDataSource(bundleName);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataSource end.");
-    return ret;
+    return ConvertErrCode(ret);
 }
 
 std::vector<std::string> PasteboardClient::GetMimeTypes()
@@ -772,7 +953,13 @@ std::vector<std::string> PasteboardClient::GetMimeTypes()
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, {},
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->GetMimeTypes();
+    std::vector<std::string> mimeTypes = {};
+    int32_t ret = proxyService->GetMimeTypes(mimeTypes);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes failed, ret=%{public}d", ret);
+        return {};
+    }
+    return mimeTypes;
 }
 
 bool PasteboardClient::HasDataType(const std::string &mimeType)
@@ -783,7 +970,12 @@ bool PasteboardClient::HasDataType(const std::string &mimeType)
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!mimeType.empty(), false, PASTEBOARD_MODULE_CLIENT, "parameter is invalid");
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "type is %{public}s", mimeType.c_str());
-    bool ret = proxyService->HasDataType(mimeType);
+    bool ret = false;
+    int32_t retCode = proxyService->HasDataType(mimeType, ret);
+    if (retCode != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "HasDataType failed, retCode=%{public}d", retCode);
+        return false;
+    }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "HasDataType end.");
     return ret;
 }
@@ -798,7 +990,15 @@ std::set<Pattern> PasteboardClient::DetectPatterns(const std::set<Pattern> &patt
     auto proxyService = GetPasteboardService();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, {},
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->DetectPatterns(patternsToCheck);
+    std::vector<Pattern> patterns(patternsToCheck.begin(), patternsToCheck.end());
+    std::vector<Pattern> funcResult = {};
+    int32_t ret = proxyService->DetectPatterns(patterns, funcResult);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "DetectPatterns failed, ret=%{public}d", ret);
+        return {};
+    }
+    std::set<Pattern> result(funcResult.begin(), funcResult.end());
+    return result;
 }
 
 sptr<IPasteboardService> PasteboardClient::GetPasteboardService()
@@ -828,7 +1028,7 @@ int32_t PasteboardClient::GetRemoteDeviceName(std::string &deviceName, bool &isR
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
         PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return proxyService->GetRemoteDeviceName(deviceName, isRemote);
+    return ConvertErrCode(proxyService->GetRemoteDeviceName(deviceName, isRemote));
 }
 
 int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
@@ -906,6 +1106,19 @@ std::string PasteboardClient::GetPasteDataInfoSummary(const PasteData &pasteData
 
     // To string and return
     return RadarReportInfoInJson.dump(JSON_INDENT);
+}
+
+int32_t PasteboardClient::ConvertErrCode(int32_t errCode)
+{
+    switch (errCode) {
+        case ERR_INVALID_VALUE: // fall-through
+        case ERR_INVALID_DATA:
+            return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+        case ERR_OK:
+            return static_cast<int32_t>(PasteboardError::E_OK);
+        default:
+            return errCode;
+    }
 }
 } // namespace MiscServices
 } // namespace OHOS

@@ -40,17 +40,14 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [
-    "${pasteboard_root_path}/services/zidl/src/pasteboard_observer_proxy.cpp",
-    "${pasteboard_root_path}/services/zidl/src/pasteboard_service_stub.cpp",
-    "pasteboardservice_fuzzer.cpp",
-  ]
+  sources = [ "pasteboardservice_fuzzer.cpp" ]
 
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
     "${pasteboard_service_path}:pasteboard_service",
+    "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
 
   external_deps = [

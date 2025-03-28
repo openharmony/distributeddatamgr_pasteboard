@@ -18,8 +18,8 @@
 
 #include <map>
 
-#include "i_entity_recognition_observer.h"
-#include "i_pasteboard_service.h"
+#include "ientity_recognition_observer.h"
+#include "ipasteboard_service.h"
 #include "ipc_skeleton.h"
 #include "iremote_stub.h"
 

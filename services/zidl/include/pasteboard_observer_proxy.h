@@ -15,7 +15,7 @@
 #ifndef PASTE_BOARD_OBSERVER_PROXY_H
 #define PASTE_BOARD_OBSERVER_PROXY_H
 
-#include "i_pasteboard_observer.h"
+#include "ipasteboard_changed_observer.h"
 #include "iremote_proxy.h"
 
 namespace OHOS {

@@ -34,10 +34,11 @@ public:
     {
         return maxRawDataSize_;
     }
-
-private:
+    int CreateTmpFd();
+    int GetWriteDataFd();
     bool MemcpyData(void *ptr, size_t size, const void *data, size_t count);
 
+private:
     std::shared_ptr<char> rawData_ = nullptr;
     int writeRawDataFd_ = -1;
     int readRawDataFd_ = -1;

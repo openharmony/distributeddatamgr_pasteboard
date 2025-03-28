@@ -19,6 +19,9 @@
 #include <singleton.h>
 
 #include "entity_recognition_observer.h"
+#include "message_parcel_warp.h"
+#include "pasteboard_delay_getter_client.h"
+#include "pasteboard_entry_getter_client.h"
 #include "pasteboard_observer.h"
 #include "pasteboard_progress_signal.h"
 
@@ -506,6 +509,22 @@ private:
     static int32_t CheckProgressParam(std::shared_ptr<GetDataParams> params);
     void ShowProgress(const std::string &progressKey);
     std::string GetPasteDataInfoSummary(const PasteData &pasteData);
+    int32_t ConvertErrCode(int32_t errCode);
+    int32_t WritePasteData(PasteData &pasteData, std::vector<uint8_t> &pasteDataTlv, int &fd, int64_t &tlvSize,
+        MessageParcelWarp &messageData, MessageParcel &parcelPata);
+    void CreateGetterAgent(sptr<PasteboardDelayGetterClient> &delayGetterAgent,
+        std::shared_ptr<PasteboardDelayGetter> &delayGetter, sptr<PasteboardEntryGetterClient> &entryGetterAgent,
+        std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> &entryGetters, PasteData &pasteData);
+    void ProcessRadarReport(int32_t ret, PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo,
+        int32_t syncTime, const std::string &pasteDataInfoSummary);
+    void CloseSharedMemFd(int fd);
+    template<typename T>
+    int32_t ProcessPasteData(T &data, int64_t rawDataSize, int fd,
+        const std::vector<uint8_t> &recvTLV);
+    int32_t ProcessPasteDataFromService(PasteData &pasteData, int64_t rawDataSize, int fd,
+        const std::vector<uint8_t> &recvTLV);
+    void GetDataReport(PasteData &pasteData, int32_t syncTime, const std::string &currentId,
+        const std::string &currentPid, int32_t ret);
     static std::mutex instanceLock_;
     std::atomic<uint32_t> getSequenceId_ = 0;
     static std::atomic<bool> remoteTask_;

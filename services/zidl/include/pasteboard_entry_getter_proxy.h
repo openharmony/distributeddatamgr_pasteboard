@@ -17,7 +17,7 @@
 #define PASTEBOARD_ENTRY_GETTER_PROXY_H
 
 #include "iremote_proxy.h"
-#include "i_pasteboard_entry_getter.h"
+#include "ipasteboard_entry_getter.h"
 
 namespace OHOS {
 namespace MiscServices {

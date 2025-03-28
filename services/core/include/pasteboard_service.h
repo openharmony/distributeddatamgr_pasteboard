@@ -24,7 +24,7 @@
 #include "distributed_module_config.h"
 #include "eventcenter/event_center.h"
 #include "ffrt_utils.h"
-#include "i_entity_recognition_observer.h"
+#include "ientity_recognition_observer.h"
 #include "input_manager.h"
 #include "loader.h"
 #include "pasteboard_account_state_subscriber.h"
@@ -96,38 +96,47 @@ class PasteboardService final : public SystemAbility, public PasteboardServiceSt
 public:
     API_EXPORT PasteboardService();
     API_EXPORT ~PasteboardService();
-    virtual void Clear() override;
-    virtual int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value) override;
-    virtual int32_t GetPasteData(PasteData &data, int32_t &syncTime) override;
-    virtual bool HasPasteData() override;
-    virtual int32_t SetPasteData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
-        const sptr<IPasteboardEntryGetter> entryGetter = nullptr) override;
-    virtual bool IsRemoteData() override;
-    virtual std::vector<std::string> GetMimeTypes() override;
-    virtual bool HasDataType(const std::string &mimeType) override;
-    virtual std::set<Pattern> DetectPatterns(const std::set<Pattern> &patternsToCheck) override;
+    virtual int32_t Clear() override;
+    virtual int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, int64_t &rawDataSize,
+        std::vector<uint8_t> &buffer, int &fd) override;
+    virtual int32_t GetPasteData(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
+        const std::string &pasteId, int32_t &syncTime) override;
+    virtual int32_t HasPasteData(bool &funcResult) override;
+    virtual int32_t SetPasteData(int fd, int64_t memSize, const std::vector<uint8_t> &buffer,
+        const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter) override;
+    virtual int32_t SetPasteDataDelayData(int fd, int64_t memSize, const std::vector<uint8_t> &buffer,
+        const sptr<IPasteboardDelayGetter> &delayGetter) override;
+    virtual int32_t SetPasteDataEntryData(int fd, int64_t memSize, const std::vector<uint8_t> &buffer,
+        const sptr<IPasteboardEntryGetter> &entryGetter) override;
+    virtual int32_t SetPasteDataOnly(int fd, int64_t memSize, const std::vector<uint8_t> &buffer) override;
+    virtual int32_t IsRemoteData(bool &funcResult) override;
+    virtual int32_t GetMimeTypes(std::vector<std::string> &funcResult) override;
+    virtual int32_t HasDataType(const std::string &mimeType, bool &funcResult) override;
+    virtual int32_t DetectPatterns(
+        const std::vector<Pattern> &patternsToCheck, std::vector<Pattern>& funcResult) override;
     virtual int32_t GetDataSource(std::string &bundleNme) override;
     virtual int32_t SubscribeEntityObserver(
         EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) override;
     virtual int32_t UnsubscribeEntityObserver(
         EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) override;
-    virtual void SubscribeObserver(
+    virtual int32_t SubscribeObserver(
         PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
-    virtual void UnsubscribeObserver(
+    virtual int32_t UnsubscribeObserver(
         PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
-    virtual void UnsubscribeAllObserver(PasteboardObserverType type) override;
-    virtual int32_t SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions) override;
+    virtual int32_t UnsubscribeAllObserver(PasteboardObserverType type) override;
+    virtual int32_t SetGlobalShareOption(const std::unordered_map<uint32_t, int32_t> &globalShareOptions) override;
     virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
-    virtual std::map<uint32_t, ShareOption> GetGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
-    virtual int32_t SetAppShareOptions(const ShareOption &shareOptions) override;
+    virtual int32_t GetGlobalShareOption(
+        const std::vector<uint32_t> &tokenIds, std::unordered_map<uint32_t, int32_t>& funcResult) override;
+    virtual int32_t SetAppShareOptions(int32_t shareOptions) override;
     virtual int32_t RemoveAppShareOptions() override;
     virtual void OnStart() override;
     virtual void OnStop() override;
-    virtual void PasteStart(const std::string &pasteId) override;
-    virtual void PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
+    virtual int32_t PasteStart(const std::string &pasteId) override;
+    virtual int32_t PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
     virtual int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override;
-    virtual void ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override;
-    virtual int32_t RegisterClientDeathObserver(sptr<IRemoteObject> observer) override;
+    virtual int32_t ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override;
+    virtual int32_t RegisterClientDeathObserver(const sptr<IRemoteObject> &observer) override;
     static int32_t currentUserId_;
     static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
@@ -325,6 +334,14 @@ private:
     void DMAdapterInit();
     void NotifySaStatus();
     void ReportUeCopyEvent(PasteData &pasteData, int32_t result);
+    bool HasDataType(const std::string &mimeType);
+    bool HasPasteData();
+    bool IsRemoteData();
+    int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value);
+    int32_t GetRecordValueByType(int64_t &rawDataSize, std::vector<uint8_t> &buffer, int &fd,
+        const PasteDataEntry &entryValue);
+    int32_t DealData(int &fd, int64_t &size, std::vector<uint8_t> &rawData, PasteData &data);
+    bool WriteRawData(const void *data, int64_t size, int &serFd);
 
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
