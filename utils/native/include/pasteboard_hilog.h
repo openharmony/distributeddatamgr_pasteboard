@@ -29,6 +29,7 @@ enum PasteboardSubModule {
     PASTEBOARD_MODULE_COMMON,
     PASTEBOARD_MODULE_JS_NAPI,
     PASTEBOARD_MODULE_CAPI,
+    PASTEBOARD_MODULE_JS_ANI,
     PASTEBOARD_MODULE_BUTT,
 };
 
@@ -44,6 +45,7 @@ enum PasteboardDomainId {
     PASTEBOARD_COMMON_DOMAIN,
     PASTEBOARD_JS_NAPI,
     PASTEBOARD_CAPI,
+    PASTEBOARD_JS_ANI,
     PASTEBOARD_BUTT,
 };
 
@@ -56,6 +58,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PASTEBOARD[PASTEBOARD_MODULE_BUTT] 
     { LOG_CORE, PASTEBOARD_COMMON_DOMAIN, "PBCM" },
     { LOG_CORE, PASTEBOARD_JS_NAPI, "PBJS" },
     { LOG_CORE, PASTEBOARD_CAPI, "PBCA" },
+    { LOG_CORE, PASTEBOARD_JS_ANI, "PBANI" },
 };
 
 // In order to improve performance, do not check the module range.

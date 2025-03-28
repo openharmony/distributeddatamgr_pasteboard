@@ -21,7 +21,7 @@ config("ani_config") {
     "${pasteboard_root_path}/framework/tlv",
     "${pasteboard_root_path}/framework/uri",
     "${pasteboard_utils_path}/native/include",
-    "${pasteboard_interfaces_path}/kits/ani/include",
+    "${pasteboard_interfaces_path}/ani/include",
   ]
 }
 
@@ -62,7 +62,6 @@ ohos_shared_library("pasteboard_ani") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ani_common",
-    "ability_runtime:napi_common",
     "ability_runtime:sts_environment",
     "c_utils:utils",
     "hilog:libhilog",
