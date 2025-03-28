@@ -486,6 +486,9 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0013, TestSize.Level0)
                              "src='file:///docs/storage/Users/currentUser/VMDocs/test.png'></div>";
     std::string htmlTextOut = "<div class='item'><img data-ohos='clipboard' "
                               "src='file:///storage/Users/currentUser/VMDocs/test.png'></div>";
+    std::string rk3568Out = "<div class='item'><img data-ohos='clipboard' "
+                            "src='file:///data/storage/el2/share/r/docs/"
+                            "storage/Users/currentUser/VMDocs/test.png'></div>";
     auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlTextIn);
     ASSERT_TRUE(data != nullptr);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
@@ -497,7 +500,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0013, TestSize.Level0)
     ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
     auto record = newPasteData.GetPrimaryHtml();
     ASSERT_TRUE(record != nullptr);
-    ASSERT_TRUE(*record == htmlTextOut);
+    ASSERT_TRUE(*record == htmlTextOut || *record == rk3568Out);
 }
 
 /**

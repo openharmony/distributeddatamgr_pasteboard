@@ -126,7 +126,7 @@ HWTEST_F(DevProfileTest, PutEnabledStatus001, TestSize.Level0)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
-    std::string enabledStatus = "";
+    std::string enabledStatus = "1";
     DevProfile::GetInstance().PutEnabledStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
