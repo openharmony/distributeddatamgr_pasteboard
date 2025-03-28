@@ -129,6 +129,7 @@ ohos_shared_library("pasteboard_service") {
     "imf:inputmethod_client",
     "input:libmmi-client",
     "ipc:ipc_single",
+    "libxml2:libxml2",
     "memmgr:memmgrclient",
     "os_account:os_account_innerkits",
     "resource_schedule_service:ressched_client",
