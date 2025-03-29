@@ -284,6 +284,52 @@ ohos_unittest("PasteboardPatternTest") {
   ]
 }
 
+ohos_unittest("PasteboardDelayStubTest") {
+  module_out_path = module_output_path
+  sources = [
+    "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_stub.cpp",
+    "unittest/src/pasteboard_delay_getter_stub_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_service_path}:pasteboard_service",
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
+  ]
+  external_deps = [
+    "c_utils:utils",
+    "ffrt:libffrt",
+    "googletest:gtest_main",
+    "googletest:gmock_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
+ohos_unittest("PasteboardDelayProxyTest") {
+  module_out_path = module_output_path
+  sources = [
+    "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_proxy.cpp",
+    "unittest/src/pasteboard_delay_getter_proxy_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_service_path}:pasteboard_service",
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
+  ]
+  external_deps = [
+    "c_utils:utils",
+    "ffrt:libffrt",
+    "googletest:gtest_main",
+    "googletest:gmock_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 group("unittest") {
   testonly = true
   deps = [
@@ -294,5 +340,7 @@ group("unittest") {
     ":PasteboardLinkedListTest",
     ":PasteboardPatternTest",
     ":PasteboardServiceTest",
+    ":PasteboardDelayStubTest",
+    ":PasteboardDelayProxyTest",
   ]
 }
