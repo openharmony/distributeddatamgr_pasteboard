@@ -18,9 +18,7 @@
 #include "ipc_skeleton.h"
 #include "message_parcel_warp.h"
 #include "pasteboard_hilog.h"
-#define private public
 #include "pasteboard_delay_getter_proxy.h"
-#undef private
 
 using namespace testing;
 using namespace testing::ext;
@@ -34,7 +32,8 @@ public:
     ~RemoteObjectTest() {}
 
     int32_t GetObjectRefCount() { return 0; }
-    int SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) { return g_sendRequest; }
+    int SendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
+                    MessageOption &option) { return g_sendRequest; }
     bool AddDeathRecipient(const sptr<DeathRecipient> &recipient) { return true; }
     bool RemoveDeathRecipient(const sptr<DeathRecipient> &recipient) { return true; }
     int Dump(int fd, const std::vector<std::u16string> &args) { return 0; }
@@ -43,7 +42,7 @@ public:
 constexpr int64_t TEST_ERROR_PAW_DATA_SIZE = -1;
 constexpr int64_t TEST_MAX_RAW_DATA_SIZE = 256 * 1024 * 1024; // 256M
 constexpr int64_t ERR_INVALID_PARAMETER = 401;
-}//namespace
+} // namespace
 
 class PasteboardDelayProxyTest : public testing::Test {
 public:
@@ -65,9 +64,9 @@ void PasteboardDelayProxyTest::TearDown(void) { }
 void PasteboardDelayProxyTest::SetSendRequestResult(int status)
 {
     g_sendRequest = status;
-} 
+}
 
-class PasteboardDelayProxyInterface : public MessageParcel{
+class PasteboardDelayProxyInterface : public MessageParcel {
 public:
     PasteboardDelayProxyInterface() {};
     virtual ~PasteboardDelayProxyInterface() {};
@@ -132,7 +131,7 @@ extern "C" {
     }
 
     int IRemoteObject::SendRequest(uint32_t code, MessageParcel &data,
-                                       MessageParcel &reply, MessageOption &option)
+                                   MessageParcel &reply, MessageOption &option)
     {
         PasteboardDelayProxyInterface *interface = GetPasteboardDelayProxyInterface();
         if (interface == nullptr) {
@@ -322,4 +321,4 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest008, TestSize.Level0)
     PasteboardDelayGetterProxy proxy(remote);
     ASSERT_NO_FATAL_FAILURE(proxy.GetUnifiedData(testType, testData));
 }
-}//namespace OHOS
+} // namespace OHOS

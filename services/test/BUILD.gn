@@ -286,6 +286,10 @@ ohos_unittest("PasteboardPatternTest") {
 
 ohos_unittest("PasteboardDelayStubTest") {
   module_out_path = module_output_path
+  defines = [
+    "private = public",
+    "protected = public",
+  ]
   sources = [
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_stub.cpp",
     "unittest/src/pasteboard_delay_getter_stub_test.cpp",
@@ -309,6 +313,10 @@ ohos_unittest("PasteboardDelayStubTest") {
 
 ohos_unittest("PasteboardDelayProxyTest") {
   module_out_path = module_output_path
+  defines = [
+    "private = public",
+    "protected = public",
+  ]
   sources = [
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_proxy.cpp",
     "unittest/src/pasteboard_delay_getter_proxy_test.cpp",

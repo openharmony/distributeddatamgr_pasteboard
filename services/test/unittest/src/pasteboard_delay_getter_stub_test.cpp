@@ -18,9 +18,7 @@
 #include "ipc_skeleton.h"
 #include "message_parcel_warp.h"
 #include "pasteboard_hilog.h"
-#define private public
 #include "pasteboard_delay_getter_stub.h"
-#undef private
 
 using namespace testing;
 using namespace testing::ext;
