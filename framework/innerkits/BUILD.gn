@@ -54,7 +54,6 @@ ohos_shared_library("pasteboard_data") {
     debug = false
   }
   sources = [
-    "${pasteboard_service_path}/zidl/src/ipasteboard_client_death_observer.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
     "src/convert_utils.cpp",
     "src/paste_data.cpp",
@@ -85,7 +84,10 @@ ohos_shared_library("pasteboard_data") {
   ]
 
   public_configs = [ ":pasteboard_data_config" ]
-  deps = [ "${pasteboard_root_path}/framework/tlv:pasteboard_tlv" ]
+  deps = [
+    "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
+    "${pasteboard_root_path}/services:pasteboard_stub_proxy",
+  ]
 
   external_deps = [
     "ability_base:zuri",
@@ -127,13 +129,11 @@ ohos_shared_library("pasteboard_client") {
     "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
     "${pasteboard_service_path}/zidl/src/entity_recognition_observer_stub.cpp",
-    "${pasteboard_service_path}/zidl/src/ipasteboard_client_death_observer.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_client.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_client.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
-    "${pasteboard_service_path}/zidl/src/pasteboard_signal_stub.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "src/convert_utils.cpp",

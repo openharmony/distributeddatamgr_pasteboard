@@ -19,7 +19,6 @@
 #include "convert_utils.h"
 #include "ffrt_utils.h"
 #include "hitrace_meter.h"
-#include "ipasteboard_client_death_observer.h"
 #include "pasteboard_copy.h"
 #include "pasteboard_deduplicate_memory.h"
 #include "pasteboard_error.h"
@@ -291,20 +290,18 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     ret = ConvertErrCode(ret);
-    if (ret == static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR)) {
-        CloseSharedMemFd(fd);
-        GetDataReport(pasteData, syncTime, currentId, currentPid, ret);
-        return ret;
-    }
-    ret = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
-    if (ret == static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR)) {
-        GetDataReport(pasteData, syncTime, currentId, currentPid, ret);
-        return ret;
-    }
+    int32_t result = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
     PasteboardWebController::GetInstance().RetainUri(pasteData);
     PasteboardWebController::GetInstance().RebuildWebviewPasteData(pasteData);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        GetDataReport(pasteData, syncTime, currentId, currentPid, ret);
+        return ret;
+    } else if (result == static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR)) {
+        GetDataReport(pasteData, syncTime, currentId, currentPid, result);
+        return result;
+    }
     GetDataReport(pasteData, syncTime, currentId, currentPid, ret);
-    return ret;
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 void PasteboardClient::GetDataReport(PasteData &pasteData, int32_t syncTime, const std::string &currentId,
@@ -447,19 +444,17 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
     int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     ret = ConvertErrCode(ret);
-    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
-        CloseSharedMemFd(fd);
-        return ret;
-    }
-    ret = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
-    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
-        return ret;
-    }
+    int32_t result = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
     pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     ProgressSmoothToTwentyPercent(pasteData, progressKey, params);
     PasteboardWebController::GetInstance().RetainUri(pasteData);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+        return ret;
+    } else if (result == static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR)) {
+        ProcessRadarReport(result, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+        return result;
+    }
     ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
@@ -484,7 +479,8 @@ int32_t PasteboardClient::ProcessPasteData(T &data, int64_t rawDataSize, int fd,
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         parcelData.WriteInt64(rawDataSize);
         parcelData.WriteFileDescriptor(fd);
-        const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, rawDataSize));
+        const uint8_t *rawData =
+            reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, static_cast<size_t>(rawDataSize)));
         if (rawData == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "mmap failed, size=%{public}" PRId64, rawDataSize);
             return ret;
@@ -705,9 +701,9 @@ int32_t PasteboardClient::WritePasteData(PasteData &pasteData, std::vector<uint8
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "paste data encode failed.");
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    tlvSize = pasteDataTlv.size();
+    tlvSize = static_cast<int64_t>(pasteDataTlv.size());
     if (tlvSize > MIN_ASHMEM_DATA_SIZE) {
-        if (!messageData.WriteRawData(parcelPata, pasteDataTlv.data(), tlvSize)) {
+        if (!messageData.WriteRawData(parcelPata, pasteDataTlv.data(), pasteDataTlv.size())) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to WriteRawData");
             return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
         }
