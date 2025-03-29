@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cstring>
+#include <iostream>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <cstring>
 #include <sys/mman.h>
-#include <iostream>
 
 #include "message_parcel_warp.h"
 using namespace testing;

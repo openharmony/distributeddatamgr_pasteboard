@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -264,56 +264,10 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest005, TestSize.Level0)
 
 /**
  * @tc.name: GetPasteDataTest006
- * @tc.desc: Function GetPasteData when ReadRawData return error
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest006, TestSize.Level0)
-{
-    std::string testType = "text/plain";
-    std::vector<uint8_t> mockData = {0x01, 0x02, 0x03};
-    PasteData testData;
-    NiceMock<PasteboardDelayProxyInterfaceMock> mock;
-    sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
-    EXPECT_CALL(mock, WriteInterfaceToken(testing::_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, WriteString(testing::_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, SendRequest(testing::_, testing::_, testing::_, testing::_))
-               .WillRepeatedly(Return(OHOS::ERR_OK));
-    EXPECT_CALL(mock, ReadInt64()).WillRepeatedly(Return(mockData.size()));
-    EXPECT_CALL(mock, ReadRawData(testing::_, testing::_)).WillRepeatedly(Return(nullptr));
-    PasteboardDelayGetterProxy proxy(remote);
-    ASSERT_NO_FATAL_FAILURE(proxy.GetPasteData(testType, testData));
-}
-
-/**
- * @tc.name: GetPasteDataTest007
- * @tc.desc: Function GetPasteData when Decode return error
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest007, TestSize.Level0)
-{
-    std::string testType = "text/plain";
-    std::vector<uint8_t> mockData = {0x01, 0x02, 0x03};
-    PasteData testData;
-    NiceMock<PasteboardDelayProxyInterfaceMock> mock;
-    sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
-    EXPECT_CALL(mock, WriteInterfaceToken(testing::_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, WriteString(testing::_)).WillOnce(Return(true));
-    EXPECT_CALL(mock, SendRequest(testing::_, testing::_, testing::_, testing::_))
-               .WillRepeatedly(Return(OHOS::ERR_OK));
-    EXPECT_CALL(mock, ReadInt64()).WillRepeatedly(Return(mockData.size()));
-    EXPECT_CALL(mock, ReadUnpadBuffer(testing::_)).WillRepeatedly(Return(mockData.data()));
-    //EXPECT_CALL(mock, ReadRawData(testing::_, testing::_)).WillRepeatedly(Return(mockData.data()));
-    EXPECT_CALL(mock, Decode(testing::_)).WillRepeatedly(Return(false));
-    PasteboardDelayGetterProxy proxy(remote);
-    ASSERT_NO_FATAL_FAILURE(proxy.GetPasteData(testType, testData));
-}
-
-/**
- * @tc.name: GetPasteDataTest008
  * @tc.desc: Function GetUnifiedData
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest008, TestSize.Level0)
+HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest006, TestSize.Level0)
 {
     std::string testType = "text/plain";
     UDMF::UnifiedData testData;

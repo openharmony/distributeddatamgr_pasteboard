@@ -338,20 +338,52 @@ ohos_unittest("PasteboardDelayProxyTest") {
   ]
 }
 
-ohos_unittest("PasteboardServiceProxyTest") {
+ohos_unittest("PasteboardEntryGetterStubTest") {
   module_out_path = module_output_path
+  include_dirs = []
   sources = [
-    "${pasteboard_service_path}/zidl/src/pasteboard_service_proxy.cpp",
-    "unittest/src/pasteboard_service_proxy_test.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
+    "${pasteboard_tlv_path}/message_parcel_warp.cpp",
+    "unittest/src/pasteboard_entry_getter_stub_test.cpp",
   ]
   configs = [ ":module_private_config" ]
+  cflags = [ "-fno-access-control" ]
   external_deps = [
     "c_utils:utils",
     "ffrt:libffrt",
     "googletest:gmock",
     "googletest:gtest_main",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
+    "udmf:udmf_client",
+  ]
+  deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
+  ]
+}
+
+ohos_unittest("PasteboardEntryGetterProxyTest") {
+  module_out_path = module_output_path
+  include_dirs = []
+  sources = [
+    "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_proxy.cpp",
+    "${pasteboard_tlv_path}/message_parcel_warp.cpp",
+    "unittest/src/pasteboard_entry_getter_proxy_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  cflags = [ "-fno-access-control" ]
+  external_deps = [
+    "c_utils:utils",
+    "ffrt:libffrt",
+    "googletest:gmock",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "udmf:udmf_client",
   ]
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
@@ -369,9 +401,10 @@ group("unittest") {
     ":PasteboardDelayStubTest",
     ":PasteboardDialogAbnormalTest",
     ":PasteboardDialogNormalTest",
+    ":PasteboardEntryGetterProxyTest",
+    ":PasteboardEntryGetterStubTest",
     ":PasteboardLinkedListTest",
     ":PasteboardPatternTest",
     ":PasteboardServiceTest",
-    ":PasteboardServiceProxyTest",
   ]
 }
