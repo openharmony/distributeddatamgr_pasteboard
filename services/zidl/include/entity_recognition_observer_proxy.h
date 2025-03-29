@@ -15,7 +15,7 @@
 #ifndef ENTITY_RECOGNITION_OBSERVER_PROXY_H
 #define ENTITY_RECOGNITION_OBSERVER_PROXY_H
 
-#include "i_entity_recognition_observer.h"
+#include "ientity_recognition_observer.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"

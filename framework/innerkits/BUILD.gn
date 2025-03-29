@@ -26,6 +26,7 @@ config("pasteboard_client_config") {
     "${pasteboard_utils_path}/native/include",
     "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
     "//foundation/distributeddatamgr/pasteboard/framework/tlv",
+    "${root_out_dir}/gen/foundation/distributeddatamgr/pasteboard/services",
   ]
 }
 
@@ -38,6 +39,7 @@ config("pasteboard_data_config") {
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
     "${pasteboard_utils_path}/native/include",
+    "${root_out_dir}/gen/foundation/distributeddatamgr/pasteboard/services",
   ]
 }
 
@@ -123,7 +125,6 @@ ohos_shared_library("pasteboard_client") {
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_client.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
-    "${pasteboard_service_path}/zidl/src/pasteboard_service_proxy.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_signal_stub.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
@@ -155,6 +156,7 @@ ohos_shared_library("pasteboard_client") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
+    "${pasteboard_root_path}/services:pasteboard_stub_proxy",
   ]
 
   external_deps = [

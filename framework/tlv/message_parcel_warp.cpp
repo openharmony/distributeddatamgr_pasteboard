@@ -179,5 +179,18 @@ const void *MessageParcelWarp::ReadRawData(MessageParcel &parcelPata, size_t siz
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "read ashmem end. fd:%{public}d size:%{public}zu", fd, size);
     return ptr;
 }
+
+int MessageParcelWarp::CreateTmpFd()
+{
+    int fd = AshmemCreate("PasteboardTmpAshmem", 1);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(fd >= 0, -1, PASTEBOARD_MODULE_COMMON, "ashmem create failed");
+    writeRawDataFd_ = fd;
+    return fd;
+}
+
+int MessageParcelWarp::GetWriteDataFd()
+{
+    return writeRawDataFd_;
+}
 }
 }

@@ -17,7 +17,7 @@
 #define OHOS_PASTEBOARD_DELAY_GETTER_STUB_H
 
 #include "iremote_stub.h"
-#include "i_pasteboard_delay_getter.h"
+#include "ipasteboard_delay_getter.h"
 
 namespace OHOS {
 namespace MiscServices {

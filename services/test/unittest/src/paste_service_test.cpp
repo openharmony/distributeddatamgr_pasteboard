@@ -23,6 +23,7 @@
 #include "access_token.h"
 #include "accesstoken_kit.h"
 #include "hap_token_info.h"
+#include "message_parcel_warp.h"
 #include "os_account_manager.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
@@ -43,6 +44,7 @@ constexpr const char *CMD = "hidumper -s 3701 -a --data";
 constexpr const uint16_t EACH_LINE_LENGTH = 50;
 constexpr const uint16_t TOTAL_LENGTH = 500;
 constexpr const int32_t EDM_UID = 3057;
+constexpr int32_t MIN_ASHMEM_DATA_SIZE = 32 * 1024;
 const uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
 std::string g_webviewPastedataTag = "WebviewPasteDataTag";
 class PasteboardServiceTest : public testing::Test {
@@ -513,11 +515,9 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0014, TestSize.Level0)
     std::string htmlUriOut = "file://docs/storage/Users/currentUser/VMDocs/test.png";
     auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlTextIn);
     ASSERT_TRUE(data != nullptr);
-    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
-    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    ASSERT_TRUE(PasteboardClient::GetInstance()->SetPasteData(*data) == static_cast<int32_t>(PasteboardError::E_OK));
     auto has = PasteboardClient::GetInstance()->HasPasteData();
     ASSERT_TRUE(has == true);
-
     sptr<IPasteboardService> pasteboardServiceProxy_;
     sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     ASSERT_TRUE(samgrProxy != nullptr);
@@ -526,11 +526,28 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0014, TestSize.Level0)
     ASSERT_TRUE(remoteObject != nullptr);
     pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
     ASSERT_TRUE(pasteboardServiceProxy_ != nullptr);
-    
     PasteData pasteData;
     int32_t syncTime = 0;
-    int32_t res = pasteboardServiceProxy_->GetPasteData(pasteData, syncTime);
-    ASSERT_TRUE(res == static_cast<int32_t>(PasteboardError::E_OK));
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> recvTLV(0);
+    int32_t res = pasteboardServiceProxy_->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
+    ASSERT_TRUE(res == ERR_OK);
+    ASSERT_TRUE(rawDataSize > 0 && rawDataSize < MessageParcelWarp().GetRawDataSize());
+    bool result = false;
+    MessageParcelWarp messageReply;
+    MessageParcel parcelData;
+    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        parcelData.WriteInt64(rawDataSize);
+        parcelData.WriteFileDescriptor(fd);
+        const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, rawDataSize));
+        ASSERT_TRUE(rawData != nullptr);
+        std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
+        result = pasteData.Decode(pasteDataTlv);
+    } else {
+        result = pasteData.Decode(recvTLV);
+    }
+    ASSERT_TRUE(result);
     std::string htmlUriConvert = "";
     for (auto &item : pasteData.AllRecords()) {
         if (item != nullptr) {

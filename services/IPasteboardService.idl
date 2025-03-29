@@ -1,0 +1,59 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+sequenceable OHOS.IRemoteObject;
+interface OHOS.MiscServices.IPasteboardDelayGetter;
+interface OHOS.MiscServices.IPasteboardEntryGetter;
+interface OHOS.MiscServices.IPasteboardChangedObserver;
+interface OHOS.MiscServices.IEntityRecognitionObserver;
+import PasteboardTypes;
+
+interface OHOS.MiscServices.IPasteboardService {
+    void Clear();
+    void GetRecordValueByType([in] unsigned int dataId, [in] unsigned int recordId, [inout] long rawDataSize,
+        [inout] unsigned char[] buffer, [inout] FileDescriptor fd);
+    void GetPasteData([out] FileDescriptor fd, [out] long memSize, [out] unsigned char[] buffer, [in] String pasteId,
+        [out] int syncTime);
+    void HasPasteData([out] boolean funcResult);
+    void SetPasteData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
+        [in] IPasteboardDelayGetter delayGetter, [in] IPasteboardEntryGetter entryGetter);
+    void SetPasteDataDelayData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
+        [in] IPasteboardDelayGetter delayGetter);
+    void SetPasteDataEntryData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
+        [in] IPasteboardEntryGetter entryGetter);
+    void SetPasteDataOnly([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer);
+    void IsRemoteData([out] boolean funcResult);
+    void GetChangeCount([out] unsigned int changeCount);
+    void GetDataSource([out] String bundleName);
+    void SubscribeEntityObserver(
+        [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
+    void UnsubscribeEntityObserver(
+        [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
+    void GetMimeTypes([out] String[] funcResult);
+    void HasDataType([in] String mimeType, [out] boolean funcResult);
+    void DetectPatterns([in] Pattern[] patternsToCheck, [out] Pattern[] funcResult);
+    void SubscribeObserver([in] PasteboardObserverType type, [in] IPasteboardChangedObserver observer);
+    void UnsubscribeObserver([in] PasteboardObserverType type, [in] IPasteboardChangedObserver observer);
+    void UnsubscribeAllObserver([in] PasteboardObserverType type);
+    void SetGlobalShareOption([in] Map<unsigned int, int> globalShareOptions);
+    void RemoveGlobalShareOption([in] unsigned int[] tokenIds);
+    void GetGlobalShareOption([in] unsigned int[] tokenIds, [out] Map<unsigned int, int> funcResult);
+    void SetAppShareOptions([in] int shareOptions);
+    void RemoveAppShareOptions();
+    void PasteStart([in] String pasteId);
+    void PasteComplete([in] String deviceId, [in] String pasteId);
+    void GetRemoteDeviceName([out] String deviceName, [out] boolean isRemote);
+    void ShowProgress([in] String progressKey, [in] IRemoteObject observer);
+    void RegisterClientDeathObserver([in] IRemoteObject observer);
+}

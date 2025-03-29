@@ -16,7 +16,7 @@
 #ifndef PASTE_BOARD_SERVICE_LOADER_H
 #define PASTE_BOARD_SERVICE_LOADER_H
 
-#include "i_pasteboard_service.h"
+#include "ipasteboard_service.h"
 #include "paste_data_entry.h"
 #include "refbase.h"
 #include "visibility.h"
@@ -48,6 +48,8 @@ public:
 private:
     PasteboardServiceLoader();
     ~PasteboardServiceLoader();
+    int32_t ProcessPasteData(PasteDataEntry &data, int64_t rawDataSize, int fd,
+        const std::vector<uint8_t> &recvTLV);
     static sptr<IPasteboardService> pasteboardServiceProxy_;
     static std::condition_variable proxyConVar_;
     static std::mutex instanceLock_;

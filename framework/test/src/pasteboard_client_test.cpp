@@ -830,7 +830,7 @@ HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest001, TestSize.Level0)
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
         EntityType::MAX, expectedDataLength, observer);
-    ASSERT_EQ(ERR_INVALID_VALUE, result);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
 }
 
 /**
@@ -1001,7 +1001,7 @@ HWTEST_F(PasteboardClientTest, UnsubscribeEntityObserverTest001, TestSize.Level0
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::MAX, expectedDataLength, observer);
-    ASSERT_EQ(ERR_INVALID_VALUE, result);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
 }
 
 /**

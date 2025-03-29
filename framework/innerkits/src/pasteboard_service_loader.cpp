@@ -17,6 +17,7 @@
 #include <iservice_registry.h>
 
 #include "ipasteboard_client_death_observer.h"
+#include "message_parcel_warp.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_load_callback.h"
@@ -27,6 +28,7 @@ namespace OHOS {
 namespace MiscServices {
 
 constexpr int32_t LOADSA_TIMEOUT_MS = 4000;
+constexpr int64_t MIN_ASHMEM_DATA_SIZE = 32 * 1024; // 32K
 sptr<IPasteboardService> PasteboardServiceLoader::pasteboardServiceProxy_;
 std::condition_variable PasteboardServiceLoader::proxyConVar_;
 PasteboardServiceLoader::StaticDestroyMonitor PasteboardServiceLoader::staticDestroyMonitor_;
@@ -140,10 +142,81 @@ void PasteboardServiceLoader::SetPasteboardServiceProxy(const sptr<IRemoteObject
 int32_t PasteboardServiceLoader::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
 {
     auto proxyService = GetPasteboardService();
-    if (proxyService == nullptr) {
-        return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
+    std::vector<uint8_t> sendTLV(0);
+    if (!value.Encode(sendTLV)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail encode entry value");
+        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    return proxyService->GetRecordValueByType(dataId, recordId, value);
+    int fd = -1;
+    int64_t tlvSize = static_cast<int64_t>(sendTLV.size());
+    MessageParcelWarp messageData;
+    MessageParcel parcelData;
+    if (tlvSize > MIN_ASHMEM_DATA_SIZE) {
+        if (!messageData.WriteRawData(parcelData, sendTLV.data(), tlvSize)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteRawData Failed, size:%{public}" PRId64, tlvSize);
+            return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+        }
+        fd = messageData.GetWriteDataFd();
+        std::vector<uint8_t>().swap(sendTLV);
+    } else {
+        fd = messageData.CreateTmpFd();
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(fd >= 0, static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR),
+            PASTEBOARD_MODULE_CLIENT, "CreateTmpFd failed:%{public}d", fd);
+    }
+    int32_t ret = proxyService->GetRecordValueByType(dataId, recordId, tlvSize, sendTLV, fd);
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetRecordValueByType failed, ret:%{public}d", ret);
+        if (fd != messageData.GetWriteDataFd() && fd >= 0) {
+            close(fd);
+        }
+        return ret;
+    }
+
+    return ProcessPasteData(value, tlvSize, fd, sendTLV);
+}
+
+int32_t PasteboardServiceLoader::ProcessPasteData(PasteDataEntry &data, int64_t rawDataSize, int fd,
+    const std::vector<uint8_t> &recvTLV)
+{
+    int32_t ret = static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
+    if (fd < 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail fd:%{public}d", fd);
+        return ret;
+    }
+    MessageParcelWarp messageReply;
+    if (rawDataSize <= 0 || rawDataSize > messageReply.GetRawDataSize()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid raw data size:%{public}" PRId64, rawDataSize);
+        if (fd >= 0) {
+            close(fd);
+        }
+        return ret;
+    }
+    bool result = false;
+    MessageParcel parcelData;
+    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        parcelData.WriteInt64(rawDataSize);
+        parcelData.WriteFileDescriptor(fd);
+        const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, rawDataSize));
+        if (rawData == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "mmap failed, size=%{public}" PRId64, rawDataSize);
+            return ret;
+        }
+        std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
+        result = data.Decode(pasteDataTlv);
+    } else {
+        result = data.Decode(recvTLV);
+        if (fd >= 0) {
+            close(fd);
+        }
+    }
+    if (!result) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
+        return ret;
+    }
+    return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
 void PasteboardServiceLoader::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)

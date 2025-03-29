@@ -35,7 +35,13 @@ module_output_path = "pasteboard/pasteboard"
 
 ohos_unittest("PasteboardServiceTest") {
   module_out_path = module_output_path
-
+  sanitize = {
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   sources = [
     "${pasteboard_service_path}/dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
     "${pasteboard_service_path}/dfx/src/fault/pasteboard_fault_impl.cpp",
@@ -67,6 +73,7 @@ ohos_unittest("PasteboardServiceTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 }
 
@@ -96,8 +103,6 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_service_path}/zidl/src/ipasteboard_client_death_observer.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_proxy.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_proxy.cpp",
-    "${pasteboard_service_path}/zidl/src/pasteboard_observer_proxy.cpp",
-    "${pasteboard_service_path}/zidl/src/pasteboard_service_stub.cpp",
     "unittest/src/pasteboard_service_test.cpp",
   ]
   defines = []
@@ -162,6 +167,7 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_service_path}:pasteboard_service",
+    "${pasteboard_service_path}:pasteboard_stub_proxy",
     "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
   if (pasteboard_vixl_part_enabled) {

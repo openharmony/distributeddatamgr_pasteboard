@@ -19,7 +19,7 @@
 #include "os_account_manager.h"
 #include "os_account_subscribe_info.h"
 #include "os_account_subscriber.h"
-#include "i_pasteboard_service.h"
+#include "ipasteboard_service.h"
 
 namespace OHOS::MiscServices {
 class PasteboardService;

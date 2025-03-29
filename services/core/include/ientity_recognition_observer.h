@@ -17,13 +17,10 @@
 #define ENTITY_RECOGNITION_OBSERVER_INTERFACE_H
 
 #include "iremote_broker.h"
+#include "pasteboard_types.h"
 
 namespace OHOS {
 namespace MiscServices {
-enum class EntityType : std::uint32_t {
-    ADDRESS = 0,
-    MAX
-};
 
 class IEntityRecognitionObserver : public IRemoteBroker {
 public:
