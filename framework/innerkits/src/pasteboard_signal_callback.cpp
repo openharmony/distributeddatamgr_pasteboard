@@ -18,10 +18,11 @@
 
 namespace OHOS {
 namespace MiscServices {
-void PasteboardSignalCallback::HandleProgressSignalValue(const std::string &signalValue)
+int32_t PasteboardSignalCallback::HandleProgressSignalValue(const std::string &signalValue)
 {
     int32_t ret = PasteboardClient::GetInstance()->HandleSignalValue(signalValue);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleProgressSignalValue finished: ret=%{public}d.", ret);
+    return ERR_OK;
 }
 } // namespace MiscServices
 } // namespace OHOS

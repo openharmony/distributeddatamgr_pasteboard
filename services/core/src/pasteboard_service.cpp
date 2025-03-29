@@ -641,7 +641,7 @@ int32_t PasteboardService::GetRecordValueByType(int64_t &rawDataSize,
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "fail encode entry value");
         return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
     }
-    rawDataSize = entryValueTLV.size();
+    rawDataSize = static_cast<int64_t>(entryValueTLV.size());
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         if (!WriteRawData(entryValueTLV.data(), rawDataSize, fd)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to WriteRawData");
@@ -996,7 +996,7 @@ bool PasteboardService::WriteRawData(const void *data, int64_t size, int &serFd)
         close(fd);
         return false;
     }
-    if (!messageData.MemcpyData(ptr, size, data, size)) {
+    if (!messageData.MemcpyData(ptr, static_cast<size_t>(size), data, size)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "memcpy_s failed, fd:%{public}d", fd);
         close(fd);
         ::munmap(ptr, size);
@@ -1050,7 +1050,7 @@ int32_t PasteboardService::DealData(int &fd, int64_t &size, std::vector<uint8_t>
         HiViewAdapter::ReportUseBehaviour(data, HiViewAdapter::PASTE_STATE, ERR_INVALID_VALUE);
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
-    int64_t tlvSize = pasteDataTlv.size();
+    int64_t tlvSize = static_cast<int64_t>(pasteDataTlv.size());
     int serviceFd = -1;
     if (tlvSize > MIN_ASHMEM_DATA_SIZE) {
         bool res = WriteRawData(pasteDataTlv.data(), tlvSize, serviceFd);

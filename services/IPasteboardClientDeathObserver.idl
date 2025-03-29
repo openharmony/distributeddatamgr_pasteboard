@@ -13,25 +13,6 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_PASTE_SIGNAL_CALLBACK_H
-#define OHOS_PASTE_SIGNAL_CALLBACK_H
-
-#include "pasteboard_signal_stub.h"
-#include "pasteboard_hilog.h"
-
-namespace OHOS {
-namespace MiscServices {
-class PasteboardSignalCallback : public PasteboardSignalStub {
-public:
-    PasteboardSignalCallback()
-    {}
-    ~PasteboardSignalCallback()
-    {
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deconstructor.");
-    };
-
-    int32_t HandleProgressSignalValue(const std::string &signalValue) override;
-};
-} // namespace MiscServices
-} // namespace OHOS
-#endif // OHOS_PASTE_SIGNAL_CALLBACK_H
+ interface OHOS.MiscServices.IPasteboardClientDeathObserver {
+    
+ }

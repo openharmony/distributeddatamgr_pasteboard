@@ -16,8 +16,8 @@
 #include <if_system_ability_manager.h>
 #include <iservice_registry.h>
 
-#include "ipasteboard_client_death_observer.h"
 #include "message_parcel_warp.h"
+#include "pasteboard_client_death_observer_stub.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_load_callback.h"
@@ -155,7 +155,7 @@ int32_t PasteboardServiceLoader::GetRecordValueByType(uint32_t dataId, uint32_t 
     MessageParcelWarp messageData;
     MessageParcel parcelData;
     if (tlvSize > MIN_ASHMEM_DATA_SIZE) {
-        if (!messageData.WriteRawData(parcelData, sendTLV.data(), tlvSize)) {
+        if (!messageData.WriteRawData(parcelData, sendTLV.data(), sendTLV.size())) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "WriteRawData Failed, size:%{public}" PRId64, tlvSize);
             return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
         }
@@ -169,9 +169,6 @@ int32_t PasteboardServiceLoader::GetRecordValueByType(uint32_t dataId, uint32_t 
     int32_t ret = proxyService->GetRecordValueByType(dataId, recordId, tlvSize, sendTLV, fd);
     if (ret != ERR_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetRecordValueByType failed, ret:%{public}d", ret);
-        if (fd != messageData.GetWriteDataFd() && fd >= 0) {
-            close(fd);
-        }
         return ret;
     }
 
@@ -189,9 +186,7 @@ int32_t PasteboardServiceLoader::ProcessPasteData(PasteDataEntry &data, int64_t 
     MessageParcelWarp messageReply;
     if (rawDataSize <= 0 || rawDataSize > messageReply.GetRawDataSize()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid raw data size:%{public}" PRId64, rawDataSize);
-        if (fd >= 0) {
-            close(fd);
-        }
+        close(fd);
         return ret;
     }
     bool result = false;
@@ -199,7 +194,8 @@ int32_t PasteboardServiceLoader::ProcessPasteData(PasteDataEntry &data, int64_t 
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         parcelData.WriteInt64(rawDataSize);
         parcelData.WriteFileDescriptor(fd);
-        const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, rawDataSize));
+        const uint8_t *rawData =
+            reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, static_cast<size_t>(rawDataSize)));
         if (rawData == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "mmap failed, size=%{public}" PRId64, rawDataSize);
             return ret;
@@ -208,9 +204,7 @@ int32_t PasteboardServiceLoader::ProcessPasteData(PasteDataEntry &data, int64_t 
         result = data.Decode(pasteDataTlv);
     } else {
         result = data.Decode(recvTLV);
-        if (fd >= 0) {
-            close(fd);
-        }
+        close(fd);
     }
     if (!result) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
