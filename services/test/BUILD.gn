@@ -48,6 +48,7 @@ ohos_unittest("PasteboardServiceTest") {
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
     "${pasteboard_service_path}/dfx/src/reporter.cpp",
     "${pasteboard_service_path}/dfx/src/statistic/time_consuming_statistic_impl.cpp",
+    "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "unittest/src/dfx_test.cpp",
     "unittest/src/paste_service_test.cpp",
   ]
@@ -67,7 +68,6 @@ ohos_unittest("PasteboardServiceTest") {
     "ipc:ipc_core",
     "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
-    "time_service:time_client",
   ]
 
   deps = [
@@ -103,6 +103,7 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_service_path}/zidl/src/ipasteboard_client_death_observer.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_proxy.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_proxy.cpp",
+    "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "unittest/src/pasteboard_service_test.cpp",
   ]
   defines = []
@@ -160,7 +161,6 @@ ohos_unittest("PasteServInterfaceTest") {
     "resource_schedule_service:ressched_client",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "time_service:time_client",
     "udmf:udmf_client",
   ]
   deps = [

@@ -51,12 +51,21 @@ ohos_shared_library("pasteboard_framework") {
     "ffrt/ffrt_utils.cpp",
     "serializable/serializable.cpp",
   ]
+  ldflags = [ "-Wl,--gc-sections" ]
   cflags = [
+    "-fdata-sections",
+    "-ffunction-sections",
     "-fvisibility=hidden",
     "-Wno-multichar",
     "-O2",
   ]
   cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fomit-frame-pointer",
+    "-fstack-protector",
     "-fvisibility=hidden",
     "-fstack-protector",
     "-D_FORTIFY_SOURCE=2",
