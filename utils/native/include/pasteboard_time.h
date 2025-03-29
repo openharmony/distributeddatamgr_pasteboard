@@ -23,11 +23,14 @@
 
 namespace OHOS {
 namespace MiscServices {
-class PasteBoardTime : public Singleton<PasteBoardTime> {
+class PasteBoardTime {
 public:
     PasteBoardTime() = default;
     ~PasteBoardTime() = default;
+
     static uint64_t GetCurrentTimeMicros(void);
+    static int64_t GetBootTimeMs(void);
+    static int64_t GetWallTimeMs(void);
 };
 } // namespace MiscServices
 } // namespace OHOS

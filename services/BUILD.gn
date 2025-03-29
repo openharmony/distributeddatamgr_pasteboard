@@ -49,7 +49,7 @@ config("pasteboard_service_config") {
     "${pasteboard_tlv_path}",
     "${target_gen_dir}",
   ]
-  ldflags = [ "-Wl,--exclude-libs=ALL" ]
+  ldflags = [ "-Wl,--exclude-libs=ALL,--gc-sections" ]
   cflags = [
     "-fdata-sections",
     "-ffunction-sections",
@@ -72,6 +72,7 @@ ohos_shared_library("pasteboard_service") {
   version_script = "pasteboard_service_map"
   output_values = get_target_outputs(":pasteboard_service_interface")
   sources = [
+    "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "../adapter/data_share/datashare_delegate.cpp",
     "../adapter/security_level/security_level.cpp",
     "account/src/account_manager.cpp",
@@ -105,7 +106,13 @@ ohos_shared_library("pasteboard_service") {
     "dfs_service:distributed_file_daemon_kit_inner",
   ]
   cflags_cc = [
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fomit-frame-pointer",
     "-fstack-protector",
+    "-fvisibility=hidden",
     "-D_FORTIFY_SOURCE=2",
     "-O2",
   ]
@@ -147,7 +154,6 @@ ohos_shared_library("pasteboard_service") {
     "resource_schedule_service:ressched_client",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "time_service:time_client",
   ]
   if (pasteboard_vixl_part_enabled) {
     external_deps += [ "vixl:libvixl" ]

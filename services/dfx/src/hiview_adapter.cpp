@@ -22,7 +22,7 @@
 #include "def.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_error.h"
-#include "time_service_client.h"
+#include "pasteboard_time.h"
 
 namespace OHOS {
 using namespace HiviewDFX;
@@ -513,9 +513,9 @@ void HiViewAdapter::ReportUseBehaviour(PasteData& pastData, const char* state, i
             {.name = {"PASTEBOARD_STATE"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)stateStr.c_str()},
                 .arraySize = 0, },
             {.name = {"BOOTTIME"}, .t = HISYSEVENT_INT64,
-                .v = { .i64 = TimeServiceClient::GetInstance()->GetBootTimeMs()}, .arraySize = 0, },
+                .v = { .i64 = PasteBoardTime::GetBootTimeMs()}, .arraySize = 0, },
             {.name = {"WALLTIME"}, .t = HISYSEVENT_INT64,
-                .v = { .i64 = TimeServiceClient::GetInstance()->GetWallTimeMs()}, .arraySize = 0, },
+                .v = { .i64 = PasteBoardTime::GetWallTimeMs()}, .arraySize = 0, },
 
             {.name = {"RESULT"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)appRet}, .arraySize = 0, },
             {.name = {"OPERATE_APP"}, .t = HISYSEVENT_STRING, .v = { .s = (char *)bundleName.c_str()}, .arraySize = 0},
