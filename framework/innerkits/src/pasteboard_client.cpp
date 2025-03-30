@@ -1038,13 +1038,14 @@ int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progressStatusValue invalid = %{public}s", signalValue.c_str());
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
-    try {
-        progressStatusValue = std::stoi(signalValue);
-    } catch (const std::out_of_range &e) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-            "progressStatusValue out of range = %{public}s", e.what());
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-    }
+    char *endPtr = nullptr;
+    errno = 0;
+    long progressStatusLong = strtol(signalValue.c_str(), &endPtr, 10);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(endPtr != signalValue.c_str() && *endPtr == '\0' && errno != ERANGE &&
+            progressStatusLong >= INT_MIN && progressStatusLong <= INT_MAX,
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_CLIENT,
+        "progressStatusValue conversion or out of range");
+    progressStatusValue = static_cast<int32_t>(progressStatusLong);
     if (progressStatusValue == NORMAL_PASTE) {
         return static_cast<int32_t>(PasteboardError::E_OK);
     }

@@ -242,5 +242,129 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest002, TestSize.Level0)
 #endif
 }
 
+/**
+ * @tc.name: GetDeviceVersionTest003
+ * @tc.desc: GetDeviceVersionTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileMockTest, GetDeviceVersionTest003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    EXPECT_CALL(
+        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
+            characteristicProfile.characteristicValue_ = "{}";
+            return DistributedDeviceProfile::DP_SUCCESS;
+        });
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
+    uint32_t versionId;
+    std::string bundleName = "com.dev.profile";
+    DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: GetDeviceVersionTest004
+ * @tc.desc: GetDeviceVersionTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileMockTest, GetDeviceVersionTest004, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    EXPECT_CALL(
+        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
+            characteristicProfile.characteristicValue_ = R"({"PasteboardVersionId": "invalid"})";
+            return DistributedDeviceProfile::DP_SUCCESS;
+        });
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
+    uint32_t versionId;
+    std::string bundleName = "com.dev.profile";
+    DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: GetDeviceVersionTest005
+ * @tc.desc: GetDeviceVersionTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileMockTest, GetDeviceVersionTest005, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    EXPECT_CALL(
+        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
+            characteristicProfile.characteristicValue_ = R"({"PasteboardVersionId": 10})";
+            return DistributedDeviceProfile::DP_SUCCESS;
+        });
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
+    uint32_t versionId;
+    std::string bundleName = "com.dev.profile";
+    DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: GetDeviceVersionTest006
+ * @tc.desc: GetDeviceVersionTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileMockTest, GetDeviceVersionTest006, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    EXPECT_CALL(
+        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
+            characteristicProfile.characteristicValue_ = R"({"PasteboardVersionId": -1})";
+            return DistributedDeviceProfile::DP_SUCCESS;
+        });
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+            udid = "testUdid";
+            return 0;
+        });
+    DMAdapter::GetInstance().pkgName_ = "com.exapmle.myApplicationdm_adaper";
+    uint32_t versionId;
+    std::string bundleName = "com.dev.profile";
+    DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
 } // namespace MiscServices
 } // namespace OHOS

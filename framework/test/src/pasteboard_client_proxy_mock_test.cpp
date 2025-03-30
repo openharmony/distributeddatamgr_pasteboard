@@ -1,0 +1,119 @@
+/*
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "pasteboard_client_mock_test.h"
+
+#include "pasteboard_client.h"
+#include "pasteboard_error.h"
+#include "pasteboard_service_loader.h"
+
+using namespace testing;
+using namespace testing::ext;
+
+namespace OHOS {
+namespace MiscServices {
+
+void PasteboardClientMockTest::SetUpTestCase(void)
+{
+    PasteSystemAbilityManagerClient::pasteSystemAbilityManagerClient = systemAbilityManagerClientMock_;
+}
+
+void PasteboardClientMockTest::TearDownTestCase(void)
+{
+    PasteSystemAbilityManagerClient::pasteSystemAbilityManagerClient = nullptr;
+    systemAbilityManagerClientMock_ = nullptr;
+}
+
+void PasteboardClientMockTest::SetUp(void) { }
+
+void PasteboardClientMockTest::TearDown(void)
+{
+    testing::Mock::VerifyAndClear(systemAbilityManagerClientMock_.get());
+}
+
+/**
+ * @tc.name: GetChangeCount001
+ * @tc.desc: GetChangeCount.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientMockTest, GetChangeCount001, TestSize.Level0)
+{
+    EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
+    PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
+    PasteboardServiceLoader::GetInstance().constructing_ = false;
+    uint32_t changeCount = 0;
+    int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+}
+
+/**
+ * @tc.name: GetPasteData001
+ * @tc.desc: GetPasteData.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientMockTest, GetPasteData001, TestSize.Level0)
+{
+    EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
+    PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
+    PasteboardServiceLoader::GetInstance().constructing_ = false;
+    PasteData pasteData;
+    int32_t status = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+}
+
+/**
+ * @tc.name: GetPasteDataFromService001
+ * @tc.desc: GetPasteDataFromService.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientMockTest, GetPasteDataFromService001, TestSize.Level0)
+{
+    EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
+    PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
+    PasteboardServiceLoader::GetInstance().constructing_ = false;
+    PasteData pasteData;
+    PasteDataFromServiceInfo pasteDataFromServiceInfo;
+    std::string progressKey = "";
+    std::shared_ptr<GetDataParams> params = nullptr;
+    int32_t status = PasteboardClient::GetInstance()->GetPasteDataFromService(
+        pasteData, pasteDataFromServiceInfo, progressKey, params);
+    ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+}
+
+/**
+ * @tc.name: SetPasteData001
+ * @tc.desc: SetPasteData.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientMockTest, SetPasteData001, TestSize.Level0)
+{
+    EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
+    PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
+    PasteboardServiceLoader::GetInstance().constructing_ = false;
+    PasteData pasteData;
+    int32_t status = PasteboardClient::GetInstance()->SetPasteData(pasteData);
+    ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+}
+
+} // namespace MiscServices
+} // namespace OHOS
