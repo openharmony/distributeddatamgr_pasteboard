@@ -64,8 +64,8 @@ public:
     virtual bool Encode(std::vector<uint8_t> &buffer) const = 0;
     virtual pid_t GetCallingUid() = 0;
     virtual uint32_t GetCallingTokenID() = 0;
-	virtual uint64_t GetCallingFullTokenID() = 0;
-	virtual pid_t GetCallingPid() = 0;
+    virtual uint64_t GetCallingFullTokenID() = 0;
+    virtual pid_t GetCallingPid() = 0;
     virtual bool HasContent(const std::string &utdId) const = 0;
     virtual std::shared_ptr<PasteDataRecord> GetRecordById(uint32_t recordId) const = 0;
     virtual std::shared_ptr<PasteDataEntry> GetEntry(const std::string &utdType) = 0;
@@ -82,8 +82,8 @@ public:
     MOCK_CONST_METHOD1(Encode, bool(std::vector<uint8_t> &buffer));
     MOCK_METHOD0(GetCallingUid, pid_t());
     MOCK_METHOD0(GetCallingTokenID, uint32_t());
-	MOCK_METHOD0(GetCallingFullTokenID, uint64_t());
-	MOCK_METHOD0(GetCallingPid, pid_t());
+    MOCK_METHOD0(GetCallingFullTokenID, uint64_t());
+    MOCK_METHOD0(GetCallingPid, pid_t());
     MOCK_CONST_METHOD1(HasContent, bool(const std::string &utdId));
     MOCK_METHOD1(GetEntry, std::shared_ptr<PasteDataEntry>(const std::string &utdType));
     MOCK_CONST_METHOD0(IsOn, bool());
@@ -1366,7 +1366,8 @@ HWTEST_F(PasteboardServiceTest, SetGlobalShareOptionTest002, TestSize.Level0)
     NiceMock<PasteboardServiceInterfaceMock> ipcMock;
     EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(3057));
 
-    std::unordered_map<uint32_t, int32_t> globalShareOptions = {{1, static_cast<int32_t>(InApp)}, {2, static_cast<int32_t>(CrossDevice)}};
+    std::unordered_map<uint32_t, int32_t> globalShareOptions =
+	    {{1, static_cast<int32_t>(InApp)}, {2, static_cast<int32_t>(CrossDevice)}};
     int32_t result = service.SetGlobalShareOption(globalShareOptions);
     ASSERT_EQ(result, ERR_OK);
 }
