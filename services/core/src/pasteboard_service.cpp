@@ -1530,13 +1530,18 @@ int32_t PasteboardService::GrantUriPermission(const std::vector<Uri> &grantUris,
     size_t offset = 0;
     size_t length = grantUris.size();
     size_t count = PasteData::URI_BATCH_SIZE;
+    bool isNeedPersistance = OHOS::system::GetBoolParameter("const.pasteboard.uri_persistable_permission", false);
+    auto permFlag = AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION;
+    if (isNeedPersistance) {
+        permFlag |= AAFwk::Want::FLAG_AUTH_WRITE_URI_PERMISSION | AAFwk::Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    }
     while (length > offset) {
         if (length - offset < PasteData::URI_BATCH_SIZE) {
             count = length - offset;
         }
         auto sendValues = std::vector<Uri>(grantUris.begin() + offset, grantUris.begin() + offset + count);
         int32_t permissionCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(
-            sendValues, AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION, targetBundleName);
+            sendValues, permFlag, targetBundleName);
         hasGranted = hasGranted || (permissionCode == 0);
         ret = permissionCode == 0 ? ret : permissionCode;
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
