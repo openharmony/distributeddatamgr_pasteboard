@@ -235,6 +235,134 @@ ohos_unittest("MessageParcelWarpTest") {
   }
 }
 
+ohos_unittest("PasteboardClientMockTest") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "./cfi_blocklist.txt"
+  }
+  resource_config_file = "//foundation/distributeddatamgr/pasteboard/framework/test/resource/ohos_test.xml"
+  module_out_path = module_output_path
+
+  sources = [
+    "${pasteboard_root_path}/adapter/data_share/datashare_delegate.cpp",
+    "${pasteboard_root_path}/adapter/pasteboard_progress/pasteboard_progress.cpp",
+    "${pasteboard_root_path}/adapter/security_level/security_level.cpp",
+    "${pasteboard_root_path}/framework/framework/device/dm_adapter.cpp",
+    "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
+    "${pasteboard_root_path}/framework/innerkits/src/pasteboard_client.cpp",
+    "${pasteboard_root_path}/framework/innerkits/src/pasteboard_copy.cpp",
+    "${pasteboard_root_path}/framework/innerkits/src/pasteboard_signal_callback.cpp",
+    "${pasteboard_service_path}/account/src/account_manager.cpp",
+    "${pasteboard_service_path}/core/src/pasteboard_dialog.cpp",
+    "${pasteboard_service_path}/core/src/pasteboard_lib_guard.cpp",
+    "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
+    "${pasteboard_service_path}/core/src/pasteboard_service.cpp",
+    "${pasteboard_service_path}/dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
+    "${pasteboard_service_path}/dfx/src/calculate_time_consuming.cpp",
+    "${pasteboard_service_path}/dfx/src/command.cpp",
+    "${pasteboard_service_path}/dfx/src/fault/pasteboard_fault_impl.cpp",
+    "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
+    "${pasteboard_service_path}/dfx/src/pasteboard_dump_helper.cpp",
+    "${pasteboard_service_path}/dfx/src/pasteboard_event_dfx.cpp",
+    "${pasteboard_service_path}/dfx/src/pasteboard_trace.cpp",
+    "${pasteboard_service_path}/dfx/src/reporter.cpp",
+    "${pasteboard_service_path}/dfx/src/statistic/time_consuming_statistic_impl.cpp",
+    "${pasteboard_service_path}/load/src/config.cpp",
+    "${pasteboard_service_path}/load/src/loader.cpp",
+    "${pasteboard_service_path}/switch/pasteboard_switch.cpp",
+    "${pasteboard_service_path}/zidl/src/entity_recognition_observer_stub.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_client.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_proxy.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_stub.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_client.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_proxy.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
+    "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
+    "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
+    "src/pasteboard_client_mock_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  cflags = [ "-fno-access-control" ]
+  external_deps = [
+    "ability_base:base",
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:uri_permission_mgr",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libprivacy_sdk",
+    "access_token:libtokenid_sdk",
+    "app_file_service:fileshare_native",
+    "app_file_service:fileuri_native",
+    "app_file_service:remote_file_share_native",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "data_share:datashare_consumer",
+    "dataclassification:data_transit_mgr",
+    "dfs_service:distributed_file_daemon_kit_inner",
+    "eventhandler:libeventhandler",
+    "ffrt:libffrt",
+    "ffrt:libffrt",
+    "googletest:gmock",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "hitrace:libhitracechain",
+    "image_framework:image_native",
+    "imf:inputmethod_client",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+    "ipc:ipc_single",
+    "libxml2:libxml2",
+    "memmgr:memmgrclient",
+    "os_account:os_account_innerkits",
+    "resource_schedule_service:ressched_client",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "udmf:udmf_client",
+    "window_manager:libwm",
+  ]
+
+  deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_root_path}/services:pasteboard_stub_proxy",
+    "${pasteboard_service_path}:pasteboard_service",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
+  ]
+
+  defines = []
+
+  if (pasteboard_device_info_manager_part_enabled) {
+    external_deps += [
+      "device_info_manager:distributed_device_profile_common",
+      "device_info_manager:distributed_device_profile_sdk",
+    ]
+    defines += [ "PB_DEVICE_INFO_MANAGER_ENABLE" ]
+  }
+
+  if (pasteboard_device_manager_part_enabled) {
+    external_deps += [ "device_manager:devicemanagersdk" ]
+    defines += [ "PB_DEVICE_MANAGER_ENABLE" ]
+  }
+}
+
 ohos_unittest("PasteboardServiceLoaderTest") {
   module_out_path = module_output_path
   defines = [
@@ -270,6 +398,7 @@ group("unittest") {
   testonly = true
   deps = [
     ":MessageParcelWarpTest",
+    ":PasteboardClientMockTest",
     ":PasteboardFrameworkMockTest",
     ":PasteboardFrameworkTest",
     ":PasteboardServiceLoaderTest",
