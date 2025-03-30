@@ -43,6 +43,7 @@ const PERCENTAGE_CALCULATION: number = 100;
 const DIALOG_MAX_WIDTH: number = 400;
 const DIALOG_MAX_HEIGHT_PERCENTAGE: number = 0.9;
 const PROGRESS_SIGNAL_IPC_CODE: number = 0;
+const PROGRESS_SIGNAL_IPC_CODE_IDL: number = 1;
 
 function getNumberByResourceId(resourceId: number, defaultValue: number, allowZero?: boolean): number {
   try {
@@ -231,6 +232,7 @@ export struct Index {
     }
     if (isNeedCancelTask) {
       this.cancelTask();
+      this.cancelTaskIdl();
     }
   }
 
@@ -243,6 +245,23 @@ export struct Index {
       await data.writeInterfaceToken(CommonConstants.COMP_DIALOG_CALLBACK);
       await data.writeString(this.isTimeoutError ? SignalValue.CANCEL_TIMEOUT_ERROR : SignalValue.CANCEL_PROGRESS_TASK);
       proxy.sendMessageRequest(PROGRESS_SIGNAL_IPC_CODE, data, reply, option);
+    } catch (err) {
+      console.error(TAG + `hap sendMessageRequest failed: ${JSON.stringify(err)}`);
+    } finally {
+      data.reclaim();
+      reply.reclaim();
+    }
+  }
+
+  async cancelTaskIdl() {
+    const option = new rpc.MessageOption();
+    const data = new rpc.MessageSequence();
+    const reply = new rpc.MessageSequence();
+    try {
+      const proxy = this.want.parameters['ipcCallback'].value as rpc.IRemoteObject;
+      await data.writeInterfaceToken(CommonConstants.COMP_DIALOG_CALLBACK_IDL);
+      await data.writeString(this.isTimeoutError ? SignalValue.CANCEL_TIMEOUT_ERROR : SignalValue.CANCEL_PROGRESS_TASK);
+      proxy.sendMessageRequest(PROGRESS_SIGNAL_IPC_CODE_IDL, data, reply, option);
     } catch (err) {
       console.error(TAG + `hap sendMessageRequest failed: ${JSON.stringify(err)}`);
     } finally {
