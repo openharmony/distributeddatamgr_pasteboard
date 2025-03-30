@@ -58,7 +58,7 @@ describe('PasteBoardJSTest', function () {
     const htmlText = '<html><head></head><body>Hello World!</body></html>';
     const pasteData = pasteboard.createHtmlData(htmlText);
     await systemPasteboard.setPasteData(pasteData);
-    newCount = systemPasteboard.getChangeCount();
+    let newCount = systemPasteboard.getChangeCount();
     let expectCount = changeCount + 2;
     expect(newCount).assertEqual(expectCount);
     done();
