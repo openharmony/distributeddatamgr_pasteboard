@@ -69,7 +69,29 @@ HWTEST_F(DevProfileTest, GetDeviceVersionTest002, TestSize.Level0)
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
+    DevProfile::GetInstance().proxy_ = nullptr;
+    DevProfile::GetInstance().subscribeUdidList_.clear();
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: PostDelayReleaseProxy001
+ * @tc.desc: in SetTimer
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, PostDelayReleaseProxy001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    DevProfile::GetInstance().proxy_ = nullptr;
+    std::string uuid = "PostDelayReleaseProxy001";
+    DevProfile::GetInstance().subscribeUdidList_.emplace(uuid);
+    DevProfile::GetInstance().UnSubscribeAllProfileEvents();
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
@@ -127,6 +149,8 @@ HWTEST_F(DevProfileTest, PutDeviceStatus001, TestSize.Level0)
     std::string bundleName = "com.example.myApplication";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
     bool enabledStatus = true;
+    DevProfile::GetInstance().proxy_ = nullptr;
+    DevProfile::GetInstance().subscribeUdidList_.clear();
     DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
 #else
@@ -242,6 +266,30 @@ HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest003, TestSize.Level0)
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
     DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
     DevProfile::GetInstance().UnSubscribeProfileEvent(bundleName);
+    EXPECT_TRUE(true);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: UnSubscribeAllProfileEvents001
+ * @tc.desc: subscribeUdidList_ is empty
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, UnSubscribeAllProfileEvents001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    DevProfile& dp = DevProfile::GetInstance();
+    dp.subscribeUdidList_.clear();
+    dp.UnSubscribeAllProfileEvents();
+
+    dp.proxy_= nullptr;
+    dp.subscribeUdidList_.clear();
+    dp.UnSubscribeAllProfileEvents();
+
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
