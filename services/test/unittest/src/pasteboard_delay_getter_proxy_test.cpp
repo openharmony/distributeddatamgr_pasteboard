@@ -182,7 +182,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest001, TestSize.Level0)
     EXPECT_CALL(mock, WriteInterfaceToken(testing::_)).WillOnce(Return(false));
 
     PasteboardDelayGetterProxy proxy(remote);
-    ASSERT_NO_FATAL_FAILURE(proxy.GetPasteData(testType, testData));
+    proxy.GetPasteData(testType, testData);
 }
 
 /**
@@ -200,7 +200,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest002, TestSize.Level0)
     EXPECT_CALL(mock, WriteString(testing::_)).WillOnce(Return(false));
 
     PasteboardDelayGetterProxy proxy(remote);
-    ASSERT_NO_FATAL_FAILURE(proxy.GetPasteData(testType, testData));
+    proxy.GetPasteData(testType, testData);
 }
 
 /**
@@ -218,7 +218,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest003, TestSize.Level0)
     EXPECT_CALL(mock, WriteString(testing::_)).WillOnce(Return(true));
     SetSendRequestResult(ERR_INVALID_PARAMETER);
     PasteboardDelayGetterProxy proxy(remote);
-    ASSERT_NO_FATAL_FAILURE(proxy.GetPasteData(testType, testData));
+    proxy.GetPasteData(testType, testData);
     SetSendRequestResult(OHOS::ERR_OK);
 }
 
@@ -239,7 +239,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest004, TestSize.Level0)
                .WillRepeatedly(Return(OHOS::ERR_OK));
     EXPECT_CALL(mock, ReadInt64()).WillRepeatedly(Return(TEST_ERROR_PAW_DATA_SIZE));
     PasteboardDelayGetterProxy proxy(remote);
-    ASSERT_NO_FATAL_FAILURE(proxy.GetPasteData(testType, testData));
+    proxy.GetPasteData(testType, testData);
 }
 
 /**
@@ -259,7 +259,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest005, TestSize.Level0)
                .WillRepeatedly(Return(OHOS::ERR_OK));
     EXPECT_CALL(mock, ReadInt64()).WillRepeatedly(Return(TEST_MAX_RAW_DATA_SIZE));
     PasteboardDelayGetterProxy proxy(remote);
-    ASSERT_NO_FATAL_FAILURE(proxy.GetPasteData(testType, testData));
+    proxy.GetPasteData(testType, testData);
 }
 
 /**
@@ -272,7 +272,8 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest006, TestSize.Level0)
     std::string testType = "text/plain";
     UDMF::UnifiedData testData;
     sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
+    EXPECT_NE(remote, nullptr);
     PasteboardDelayGetterProxy proxy(remote);
-    ASSERT_NO_FATAL_FAILURE(proxy.GetUnifiedData(testType, testData));
+    proxy.GetUnifiedData(testType, testData);
 }
 } // namespace OHOS

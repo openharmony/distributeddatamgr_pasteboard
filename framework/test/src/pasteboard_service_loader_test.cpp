@@ -195,7 +195,7 @@ HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest001, TestSize
     EXPECT_NE(samgrProxy, nullptr);
     sptr<IRemoteObject> remoteObject = samgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
     EXPECT_NE(remoteObject, nullptr);
-    ASSERT_NO_FATAL_FAILURE(PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(remoteObject));
+    PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(remoteObject);
 }
 
 /**
@@ -207,10 +207,10 @@ HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest001, TestSize
  */
 HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest003, TestSize.Level0)
 {
-    sptr<IRemoteObject> rObject = new (std::nothrow) TestIRemoteObject();
+    sptr<IRemoteObject> rObject = sptr<TestIRemoteObject>::MakeSptr();
+    EXPECT_NE(rObject, nullptr);
     g_adddeathrecipient = false;
-    ASSERT_NO_FATAL_FAILURE(PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(rObject));
-    delete rObject;
+    PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(rObject);
 }
 
 /**

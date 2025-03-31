@@ -1072,8 +1072,7 @@ HWTEST_F(PasteboardClientTest, UnsubscribeEntityObserverTest005, TestSize.Level0
  */
 HWTEST_F(PasteboardClientTest, UpdateProgressTest001, TestSize.Level0)
 {
-    PasteboardClient client;
-    client.UpdateProgress(nullptr, 50);
+    PasteboardClient::GetInstance()->UpdateProgress(nullptr, 50);
     EXPECT_TRUE(true);
 }
 } // namespace OHOS::MiscServices

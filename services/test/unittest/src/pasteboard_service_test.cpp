@@ -804,8 +804,6 @@ HWTEST_F(PasteboardServiceTest, PasteComplete002, TestSize.Level0)
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
 }
 
-int32_t GetMimeTypes(std::vector<std::string> &funcResult);
-
 /**
  * @tc.name: ShowProgressTest001
  * @tc.desc: test Func ShowProgress 
@@ -1232,7 +1230,7 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataOnlyTest001, TestSize.Level0)
     PasteboardService service;
     int64_t rawDataSize = 0;
     std::vector<uint8_t> buffer;
-    int fd = 1;
+    int fd = 3;
 
     int32_t result = service.SetPasteDataOnly(fd, rawDataSize, buffer);
     ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
