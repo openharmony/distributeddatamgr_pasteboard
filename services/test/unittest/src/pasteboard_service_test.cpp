@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
 #include "pasteboard_error.h"
 #include "pasteboard_service.h"
@@ -25,6 +26,7 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::MiscServices;
 using namespace std::chrono;
+using namespace OHOS::Security::AccessToken;
 namespace OHOS {
 namespace {
     const int32_t ACCOUNT_IDS_RANDOM = 1121;
@@ -32,6 +34,7 @@ namespace {
     const int INT_ONE = 1;
     const uint8_t UINT8_ONE = 1;
     const int32_t INT32_NEGATIVE_NUMBER = -1;
+    const pid_t TEST_SERVER_UID = 3500;
     const int64_t INT64_NEGATIVE_NUMBER = -1;
     const uint32_t UINT32_EXCEPTION_APPID = 9999985;
     const int INT_THREETHREETHREE = 333;
@@ -70,6 +73,8 @@ public:
     virtual std::shared_ptr<PasteDataRecord> GetRecordById(uint32_t recordId) const = 0;
     virtual std::shared_ptr<PasteDataEntry> GetEntry(const std::string &utdType) = 0;
     virtual bool IsOn() const = 0;
+    virtual int VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName) = 0;
+    virtual ATokenTypeEnum GetTokenTypeFlag(AccessTokenID tokenId) = 0;
 };
 
 class PasteboardServiceInterfaceMock : public PasteboardServiceInterface {
@@ -88,6 +93,8 @@ public:
     MOCK_METHOD1(GetEntry, std::shared_ptr<PasteDataEntry>(const std::string &utdType));
     MOCK_CONST_METHOD0(IsOn, bool());
     MOCK_CONST_METHOD1(GetRecordById, std::shared_ptr<PasteDataRecord>(uint32_t recordId));
+    MOCK_METHOD2(VerifyAccessToken, int(AccessTokenID tokenID, const std::string &permissionName));
+    MOCK_METHOD1(GetTokenTypeFlag, ATokenTypeEnum(AccessTokenID tokenId));
 };
 
 static void *g_interface = nullptr;
@@ -199,6 +206,24 @@ pid_t IPCSkeleton::GetCallingPid()
         return false;
     }
     return interface->GetCallingPid();
+}
+
+int AccessTokenKit::VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName)
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return false;
+    }
+    return interface->VerifyAccessToken(tokenID, permissionName);
+}
+
+ATokenTypeEnum AccessTokenKit::GetTokenTypeFlag(AccessTokenID tokenId)
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return ATokenTypeEnum::TOKEN_INVALID;
+    }
+    return interface->GetTokenTypeFlag(tokenId);
 }
 }
 
@@ -855,6 +880,22 @@ int32_t HasPasteData(bool &funcResult);
  * @tc.desc: test Func ShowProgress 
  * @tc.type: FUNC
  */
+HWTEST_F(PasteboardServiceTest, HasPasteDataTest001, TestSize.Level0)
+{
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, QueryActiveOsAccountIds(testing::_)).WillOnce(Return(INT_ONE));
+    PasteboardService service;
+    bool flag = false;
+    int32_t result = service.HasPasteData(flag);
+    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(flag, false);
+}
+
+/**
+ * @tc.name: ShowProgressTest001
+ * @tc.desc: test Func ShowProgress 
+ * @tc.type: FUNC
+ */
 HWTEST_F(PasteboardServiceTest, HasPasteDataTest002, TestSize.Level0)
 {
     PasteboardService service;
@@ -969,6 +1010,86 @@ HWTEST_F(PasteboardServiceTest, HasDataTypeTest004, TestSize.Level0)
     bool funcResult;
     int32_t res = tempPasteboard->HasDataType(MIMETYPE_TEXT_PLAIN, funcResult);
     EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: GetPasteDataTest001
+ * @tc.desc: test Func GetPasteData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetPasteDataTest001, TestSize.Level0)
+{
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetTokenTypeFlag).WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE));
+    EXPECT_CALL(mock, VerifyAccessToken).WillOnce(Return(PermissionState::PERMISSION_GRANTED))
+        .WillOnce(Return(PermissionState::PERMISSION_GRANTED));
+    PasteboardService service;
+    int fd;
+    int64_t size;
+    std::vector<uint8_t> rawData;
+    int32_t syncTime;
+    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
+}
+
+/**
+ * @tc.name: GetPasteDataTest002
+ * @tc.desc: test Func GetPasteData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetPasteDataTest002, TestSize.Level0)
+{
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetTokenTypeFlag).WillOnce(Return(ATokenTypeEnum::TOKEN_HAP))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_HAP));
+    PasteboardService service;
+    service.setPasteDataUId_ = ERROR_USERID;
+    int fd;
+    int64_t size;
+    std::vector<uint8_t> rawData;
+    int32_t syncTime;
+    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+}
+
+/**
+ * @tc.name: GetPasteDataTest003
+ * @tc.desc: test Func GetPasteData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetPasteDataTest003, TestSize.Level0)
+{
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetTokenTypeFlag).WillOnce(Return(ATokenTypeEnum::TOKEN_HAP))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_HAP))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_HAP));
+    PasteboardService service;
+    service.setPasteDataUId_ = TEST_SERVER_UID;
+    int fd;
+    int64_t size;
+    std::vector<uint8_t> rawData;
+    int32_t syncTime;
+    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
+}
+
+/**
+ * @tc.name: DealDataTest001
+ * @tc.desc: test Func DealData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, DealDataTest001, TestSize.Level0)
+{
+    PasteboardService service;
+    int fd = -1;
+    int64_t size;
+    std::vector<uint8_t> rawData;
+    PasteData data;
+    int32_t result = service.DealData(fd, size, rawData, data);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR));
 }
 
 /**
