@@ -125,6 +125,69 @@ ohos_unittest("PasteboardFrameworkMockTest") {
   module_out_path = module_output_path
 
   sources = [
+    "${pasteboard_root_path}/framework/framework/device/dm_adapter.cpp",
+    "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
+    "${pasteboard_service_path}/load/src/config.cpp",
+    "mock/device_manager_mock.cpp",
+    "mock/distributed_device_profile_client_mock.cpp",
+    "src/dev_profile_mock_test.cpp",
+    "src/distributed_module_config_mock_test.cpp",
+    "src/dm_adapter_mock_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  cflags = [ "-fno-access-control" ]
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "cJSON:cjson",
+    "c_utils:utils",
+    "ffrt:libffrt",
+    "googletest:gmock",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "image_framework:image_native",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+    "udmf:udmf_client",
+  ]
+
+  deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_innerkits_path}:pasteboard_client",
+  ]
+
+  defines = []
+
+  if (pasteboard_device_info_manager_part_enabled) {
+    external_deps += [
+      "device_info_manager:distributed_device_profile_common",
+      "device_info_manager:distributed_device_profile_sdk",
+    ]
+    defines += [ "PB_DEVICE_INFO_MANAGER_ENABLE" ]
+  }
+
+  if (pasteboard_device_manager_part_enabled) {
+    external_deps += [ "device_manager:devicemanagersdk" ]
+    defines += [ "PB_DEVICE_MANAGER_ENABLE" ]
+  }
+}
+
+ohos_unittest("PasteboardClientProxyMockTest") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "./cfi_blocklist.txt"
+  }
+  resource_config_file =
+      "${pasteboard_root_path}/framework/test/resource/ohos_test.xml"
+  module_out_path = module_output_path
+
+  sources = [
     "${pasteboard_root_path}/adapter/pasteboard_progress/pasteboard_progress.cpp",
     "${pasteboard_root_path}/framework/framework/device/dm_adapter.cpp",
     "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
@@ -141,12 +204,7 @@ ohos_unittest("PasteboardFrameworkMockTest") {
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_client.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
-    "mock/device_manager_mock.cpp",
-    "mock/distributed_device_profile_client_mock.cpp",
     "mock/system_ability_manager_client_mock.cpp",
-    "src/dev_profile_mock_test.cpp",
-    "src/distributed_module_config_mock_test.cpp",
-    "src/dm_adapter_mock_test.cpp",
     "src/pasteboard_client_proxy_mock_test.cpp",
   ]
   configs = [ ":module_private_config" ]
@@ -270,6 +328,7 @@ group("unittest") {
   testonly = true
   deps = [
     ":MessageParcelWarpTest",
+    ":PasteboardClientProxyMockTest",
     ":PasteboardFrameworkMockTest",
     ":PasteboardFrameworkTest",
   ]
