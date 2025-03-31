@@ -401,8 +401,8 @@ ohos_unittest("PasteboardServiceLoaderTest") {
     "protected = public",
   ]
   sources = [
+    "${pasteboard_root_path}/framework/innerkits/src/pasteboard_load_callback.cpp",
     "${pasteboard_root_path}/framework/innerkits/src/pasteboard_service_loader.cpp",
-    "${pasteboard_root_path}/pasteboard/framework/innerkits/src/pasteboard_load_callback.cpp",
     "src/pasteboard_service_loader_test.cpp",
   ]
   configs = [ ":module_private_config" ]
