@@ -72,38 +72,36 @@ static PasteboardClientInterface *GetPasteboardClientInterface()
     return reinterpret_cast<PasteboardClientInterface *>(g_interface);
 }
 
-extern "C" {
-    bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
-    {
-        if (GetPasteboardClientInterface() == nullptr) {
-            return false;
-        }
-        if (g_interface) {
-            buffer.push_back(TEST_DATA);
-        }
-        return GetPasteboardClientInterface()->Encode(buffer);
+bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
+{
+    if (GetPasteboardClientInterface() == nullptr) {
+        return false;
     }
-    bool TLVReadable::Decode(const std::vector<std::uint8_t> &buffer)
-    {
-        if (GetPasteboardClientInterface() == nullptr) {
-            return false;
-        }
-        return GetPasteboardClientInterface()->Decode(buffer);
+    if (g_interface) {
+        buffer.push_back(TEST_DATA);
     }
-    bool Parcel::WriteInt64(int64_t value)
-    {
-        if (GetPasteboardClientInterface() == nullptr) {
-            return false;
-        }
-        return GetPasteboardClientInterface()->WriteInt64(value);
+    return GetPasteboardClientInterface()->Encode(buffer);
+}
+bool TLVReadable::Decode(const std::vector<std::uint8_t> &buffer)
+{
+    if (GetPasteboardClientInterface() == nullptr) {
+        return false;
     }
-    bool Parcel::WriteUnpadBuffer(const void *data, size_t size)
-    {
-        if (GetPasteboardClientInterface() == nullptr) {
-            return false;
-        }
-        return GetPasteboardClientInterface()->WriteUnpadBuffer(data, size);
+    return GetPasteboardClientInterface()->Decode(buffer);
+}
+bool Parcel::WriteInt64(int64_t value)
+{
+    if (GetPasteboardClientInterface() == nullptr) {
+        return false;
     }
+    return GetPasteboardClientInterface()->WriteInt64(value);
+}
+bool Parcel::WriteUnpadBuffer(const void *data, size_t size)
+{
+    if (GetPasteboardClientInterface() == nullptr) {
+        return false;
+    }
+    return GetPasteboardClientInterface()->WriteUnpadBuffer(data, size);
 }
 
 class UDMFEntryGetterImpl : public UDMF::EntryGetter {
@@ -146,18 +144,20 @@ void PasteboardClientMockTest::TearDown(void) { }
  */
 HWTEST_F(PasteboardClientMockTest, WritePasteDataTest001, TestSize.Level0)
 {
-    PasteboardClient client;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- WritePasteDataTest001  enter-----");
     PasteData pasteData;
     int64_t tlvSize = 1;
     MessageParcelWarp messageData;
     MessageParcel parcelPata;
     std::vector<uint8_t> buffer = {0x01, 0x02, 0x03};
-    int fd = 1;
+    int fd = 3;
     NiceMock<PasteboardClientMock> mock;
 
     EXPECT_CALL(mock, Encode).WillRepeatedly(testing::Return(false));
-    auto result = client.WritePasteData(pasteData, buffer, fd, tlvSize, messageData, parcelPata);
+    auto result = PasteboardClient::GetInstance()->WritePasteData(
+        pasteData, buffer, fd, tlvSize, messageData, parcelPata);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- WritePasteDataTest001  end-----");
 }
 
 /**
@@ -169,20 +169,22 @@ HWTEST_F(PasteboardClientMockTest, WritePasteDataTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, WritePasteDataTest002, TestSize.Level0)
 {
-    PasteboardClient client;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- WritePasteDataTest002  enter-----");
     PasteData pasteData;
     int64_t tlvSize = MIN_ASHMEM_DATA_SIZE + 1;
     MessageParcelWarp messageData;
     MessageParcel parcelPata;
     std::vector<uint8_t> buffer = {0x01, 0x02, 0x03};
-    int fd = 1;
+    int fd = 3;
     NiceMock<PasteboardClientMock> mock;
 
     EXPECT_CALL(mock, Encode).WillRepeatedly(testing::Return(true));
     EXPECT_CALL(mock, WriteInt64).WillRepeatedly(testing::Return(true));
     EXPECT_CALL(mock, WriteUnpadBuffer).WillRepeatedly(testing::Return(true));
-    auto result = client.WritePasteData(pasteData, buffer, fd, tlvSize, messageData, parcelPata);
+    auto result = PasteboardClient::GetInstance()->WritePasteData(
+        pasteData, buffer, fd, tlvSize, messageData, parcelPata);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- WritePasteDataTest002  end-----");
 }
 
 /**
@@ -194,11 +196,13 @@ HWTEST_F(PasteboardClientMockTest, WritePasteDataTest002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, GetProgressByProgressInfoTest001, TestSize.Level0)
 {
-    PasteboardClient client;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetProgressByProgressInfoTest001  enter-----");
     auto params = std::make_shared<GetDataParams>();
+    EXPECT_NE(params, nullptr);
     params->info = nullptr;
 
-    ASSERT_NO_FATAL_FAILURE(client.GetProgressByProgressInfo(params));
+    PasteboardClient::GetInstance()->GetProgressByProgressInfo(params);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetProgressByProgressInfoTest001  end-----");
 }
 
 /**
@@ -210,9 +214,10 @@ HWTEST_F(PasteboardClientMockTest, GetProgressByProgressInfoTest001, TestSize.Le
  */
 HWTEST_F(PasteboardClientMockTest, ConvertErrCode001, TestSize.Level0)
 {
-    PasteboardClient client;
-    int32_t code = client.ConvertErrCode(ERR_INVALID_VALUE);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode001  enter-----");
+    int32_t code = PasteboardClient::GetInstance()->ConvertErrCode(ERR_INVALID_VALUE);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode001  end-----");
 }
 
 /**
@@ -224,9 +229,10 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ConvertErrCode002, TestSize.Level0)
 {
-    PasteboardClient client;
-    int32_t code = client.ConvertErrCode(ERR_INVALID_DATA);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode002  enter-----");
+    int32_t code = PasteboardClient::GetInstance()->ConvertErrCode(ERR_INVALID_DATA);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode002  end-----");
 }
 
 /**
@@ -238,9 +244,10 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ConvertErrCode003, TestSize.Level0)
 {
-    PasteboardClient client;
-    int32_t code = client.ConvertErrCode(ERR_OK);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode003  enter-----");
+    int32_t code = PasteboardClient::GetInstance()->ConvertErrCode(ERR_OK);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode003  end-----");
 }
 
 /**
@@ -252,9 +259,10 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ConvertErrCode004, TestSize.Level0)
 {
-    PasteboardClient client;
-    int32_t code = client.ConvertErrCode(ERR_PERMISSION_DENIED);
-    ASSERT_EQ(static_cast<int32_t>(ERR_PERMISSION_DENIED), code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode004  enter-----");
+    int32_t code = PasteboardClient::GetInstance()->ConvertErrCode(ERR_PERMISSION_DENIED);
+    EXPECT_EQ(static_cast<int32_t>(ERR_PERMISSION_DENIED), code);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode004  end-----");
 }
 
 /**
@@ -266,12 +274,13 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, GetRemoteDeviceName001, TestSize.Level0)
 {
-    PasteboardClient client;
-    std::string deviceName;
-    bool isRemote;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetRemoteDeviceName001  enter-----");
+    std::string deviceName = "";
+    bool isRemote = false;
     int32_t expect = static_cast<int32_t>(PasteboardError::E_OK);
-    int32_t ret = client.GetRemoteDeviceName(deviceName, isRemote);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
+    int32_t ret = PasteboardClient::GetInstance()->GetRemoteDeviceName(deviceName, isRemote);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetRemoteDeviceName001  end-----");
 }
 
 /**
@@ -283,9 +292,10 @@ HWTEST_F(PasteboardClientMockTest, GetRemoteDeviceName001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, RemoveAppShareOptions001, TestSize.Level0)
 {
-    PasteboardClient client;
-    int32_t ret = client.RemoveAppShareOptions();
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR), ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- RemoveAppShareOptions001  enter-----");
+    int32_t ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR), ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- RemoveAppShareOptions001  end-----");
 }
 
 /**
@@ -298,19 +308,22 @@ HWTEST_F(PasteboardClientMockTest, RemoveAppShareOptions001, TestSize.Level0)
 
 HWTEST_F(PasteboardClientMockTest, CreateGetterAgent001, TestSize.Level0)
 {
-    PasteboardClient client;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- CreateGetterAgent001  enter-----");
     sptr<PasteboardDelayGetterClient> delayGetterAgent;
     std::shared_ptr<PasteboardDelayGetter> delayGetter = nullptr;
     sptr<PasteboardEntryGetterClient> entryGetterAgent = nullptr;
     std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters;
     PasteData pasteData;
 
-    entryGetters.emplace(1, std::make_shared<UDMFEntryGetterImpl>());
+    auto udmfEntryGetterImpl = std::make_shared<UDMFEntryGetterImpl>();
+    EXPECT_NE(udmfEntryGetterImpl, nullptr);
+    entryGetters.emplace(1, udmfEntryGetterImpl);
     pasteData.SetDelayData(true);
     pasteData.SetDelayRecord(true);
-    ASSERT_NO_FATAL_FAILURE(client.CreateGetterAgent(delayGetterAgent,
-        delayGetter, entryGetterAgent, entryGetters, pasteData));
+    PasteboardClient::GetInstance()->CreateGetterAgent(delayGetterAgent,
+        delayGetter, entryGetterAgent, entryGetters, pasteData);
     entryGetters.clear();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- CreateGetterAgent001  end-----");
 }
 
 /**
@@ -322,26 +335,31 @@ HWTEST_F(PasteboardClientMockTest, CreateGetterAgent001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ProcessRadarReport001, TestSize.Level0)
 {
-    PasteboardClient client;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessRadarReport001  enter-----");
     int32_t ret;
     PasteData pasteData;
     PasteDataFromServiceInfo pasteDataFromServiceInfo;
     int32_t syncTime;
-    std::string pasteDataInfoSummary;
+    std::string pasteDataInfoSummary = "";
 
     syncTime = 0;
     ret = static_cast<int32_t>(PasteboardError::E_OK);
     pasteData.deviceId_ = "";
-    client.ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
-
+    PasteboardClient::GetInstance()->ProcessRadarReport(
+        ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+    EXPECT_EQ(pasteData.deviceId_.length(), 0);
     pasteData.deviceId_ = "deviceId_";
-    client.ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+    PasteboardClient::GetInstance()->ProcessRadarReport(
+        ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
 
     ret = static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-    client.ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+    PasteboardClient::GetInstance()->ProcessRadarReport(
+        ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
 
     ret = static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
-    client.ProcessRadarReport(ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+    PasteboardClient::GetInstance()->ProcessRadarReport(
+        ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessRadarReport001  end-----");
 }
 
 /**
@@ -353,77 +371,90 @@ HWTEST_F(PasteboardClientMockTest, ProcessRadarReport001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ProcessPasteData001, TestSize.Level0)
 {
-    PasteboardClient client;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessPasteData001  enter-----");
     PasteData pasteData;
     int64_t rawDataSize = 0;
     int fd = -1;
-    const std::vector<uint8_t> recvTLV;
+    const std::vector<uint8_t> recvTLV = {};
     int ret = -1;
 
     // fd < 0
-    ret = client.ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
+    ret = PasteboardClient::GetInstance()->ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
 
     // rawDataSize =< 0
-    fd = 1;
-    ret = client.ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
+    fd = 4;
+    ret = PasteboardClient::GetInstance()->ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
 
     // rawDataSize > DEFAULT_MAX_RAW_DATA_SIZE
     rawDataSize = DEFAULT_MAX_RAW_DATA_SIZE * 2;
-    ret = client.ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
+    ret = PasteboardClient::GetInstance()->ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
 
     // rawDataSize > MIN_ASHMEM_DATA_SIZE
     rawDataSize = MIN_ASHMEM_DATA_SIZE * 2;
-    ret = client.ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
+    ret = PasteboardClient::GetInstance()->ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
 
     // rawDataSize else
     rawDataSize = MIN_ASHMEM_DATA_SIZE / 2;
-    ret = client.ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
-    ASSERT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
+    ret = PasteboardClient::GetInstance()->ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessPasteData001  end-----");
 }
 
 HWTEST_F(PasteboardClientMockTest, GetDataReportTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest001  enter-----");
     PasteData pasteData;
     pasteData.deviceId_ = "";
     const int32_t syncTime = 0;
     const std::string currentId = "test_111";
     const std::string currentPid = "test.app";
-    ASSERT_NO_FATAL_FAILURE(PasteboardClient::GetInstance()->GetDataReport(pasteData, syncTime, currentId, currentPid,
-        static_cast<int32_t>(PasteboardError::E_OK)));
+    PasteboardClient::GetInstance()->GetDataReport(pasteData, syncTime, currentId, currentPid,
+        static_cast<int32_t>(PasteboardError::E_OK));
+    EXPECT_EQ(pasteData.deviceId_.length(), 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest001  end-----");
 }
 
 HWTEST_F(PasteboardClientMockTest, GetDataReportTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest002  enter-----");
     PasteData pasteData;
     const int32_t syncTime = 100;
     pasteData.deviceId_ = "test_222";
     const std::string currentPid = "test.app";
-    ASSERT_NO_FATAL_FAILURE(PasteboardClient::GetInstance()->GetDataReport(
-        pasteData, syncTime, "error_222", currentPid, static_cast<int32_t>(PasteboardError::E_OK)));
+    PasteboardClient::GetInstance()->GetDataReport(
+        pasteData, syncTime, "error_222", currentPid, static_cast<int32_t>(PasteboardError::E_OK));
+    EXPECT_NE(pasteData.deviceId_.length(), 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest002  end-----");
 }
 
 HWTEST_F(PasteboardClientMockTest, GetDataReportTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest003  enter-----");
     PasteData pasteData;
     const int32_t syncTime = 0;
     const std::string currentId = "test_333";
     const std::string currentPid = "test.app";
-    ASSERT_NO_FATAL_FAILURE(PasteboardClient::GetInstance()->GetDataReport(pasteData, syncTime, currentId, currentPid,
-        static_cast<int32_t>(PasteboardError::TASK_PROCESSING)));
+    PasteboardClient::GetInstance()->GetDataReport(pasteData, syncTime, currentId, currentPid,
+        static_cast<int32_t>(PasteboardError::TASK_PROCESSING));
+    EXPECT_EQ(pasteData.deviceId_.length(), 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest003  end-----");
 }
 
 HWTEST_F(PasteboardClientMockTest, GetDataReportTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest004  enter-----");
     PasteData pasteData;
     const int32_t syncTime = 0;
     const std::string currentId = "test_444";
     const std::string currentPid = "test.app";
-    ASSERT_NO_FATAL_FAILURE(PasteboardClient::GetInstance()->GetDataReport(pasteData, syncTime, currentId, currentPid,
-        static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR)));
+    PasteboardClient::GetInstance()->GetDataReport(pasteData, syncTime, currentId, currentPid,
+        static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR));
+    EXPECT_EQ(pasteData.deviceId_.length(), 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest004  end-----");
 }
 }
 } // namespace OHOS::MiscServices
