@@ -15,6 +15,7 @@
 
 #include "dev_profile.h"
 
+#include "c/ffrt_ipc.h"
 #include "device_profile_proxy.h"
 #include "dm_adapter.h"
 #include "ffrt_utils.h"
@@ -45,6 +46,8 @@ void DevProfile::PostDelayReleaseProxy()
     static FFRTTimer ffrtTimer("release_dp_proxy");
 
     FFRTTask task = [this]() {
+        ffrt_this_task_set_legacy_mode(true);
+
         std::lock_guard lock(proxyMutex_);
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "execute delay task");
         if (proxy_ == nullptr) {
