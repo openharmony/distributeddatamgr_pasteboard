@@ -41,6 +41,7 @@ group("unittest") {
     deps += [
       "${pasteboard_root_path}/framework/test:MessageParcelWarpTest",
       "${pasteboard_root_path}/framework/test:PasteboardClientMockTest",
+      "${pasteboard_root_path}/framework/test:PasteboardClientProxyMockTest",
       "${pasteboard_root_path}/framework/test:PasteboardFrameworkMockTest",
       "${pasteboard_root_path}/framework/test:PasteboardFrameworkTest",
       "${pasteboard_root_path}/framework/test:PasteboardServiceLoaderTest",
