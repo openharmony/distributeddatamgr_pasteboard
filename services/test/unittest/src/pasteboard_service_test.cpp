@@ -64,6 +64,8 @@ public:
     virtual bool Encode(std::vector<uint8_t> &buffer) const = 0;
     virtual pid_t GetCallingUid() = 0;
     virtual uint32_t GetCallingTokenID() = 0;
+    virtual uint64_t GetCallingFullTokenID() = 0;
+    virtual pid_t GetCallingPid() = 0;
     virtual bool HasContent(const std::string &utdId) const = 0;
     virtual std::shared_ptr<PasteDataRecord> GetRecordById(uint32_t recordId) const = 0;
     virtual std::shared_ptr<PasteDataEntry> GetEntry(const std::string &utdType) = 0;
@@ -80,6 +82,8 @@ public:
     MOCK_CONST_METHOD1(Encode, bool(std::vector<uint8_t> &buffer));
     MOCK_METHOD0(GetCallingUid, pid_t());
     MOCK_METHOD0(GetCallingTokenID, uint32_t());
+    MOCK_METHOD0(GetCallingFullTokenID, uint64_t());
+    MOCK_METHOD0(GetCallingPid, pid_t());
     MOCK_CONST_METHOD1(HasContent, bool(const std::string &utdId));
     MOCK_METHOD1(GetEntry, std::shared_ptr<PasteDataEntry>(const std::string &utdType));
     MOCK_CONST_METHOD0(IsOn, bool());
@@ -177,6 +181,24 @@ uint32_t IPCSkeleton::GetCallingTokenID()
         return false;
     }
     return interface->GetCallingTokenID();
+}
+
+uint64_t IPCSkeleton::GetCallingFullTokenID()
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return false;
+    }
+    return interface->GetCallingFullTokenID();
+}
+
+pid_t IPCSkeleton::GetCallingPid()
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return false;
+    }
+    return interface->GetCallingPid();
 }
 }
 
@@ -1198,6 +1220,387 @@ HWTEST_F(PasteboardServiceTest, IsRemoteDataTest003, TestSize.Level0)
     bool funcResult;
     int32_t result = service.IsRemoteData(funcResult);
     EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SetPasteDataOnlyTest001
+ * @tc.desc: test Func SetPasteDataOnly, it will be return INVALID_PARAM_ERROR.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetPasteDataOnlyTest001, TestSize.Level0)
+{
+    PasteboardService service;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> buffer;
+    int fd = 1;
+
+    int32_t result = service.SetPasteDataOnly(fd, rawDataSize, buffer);
+    ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+}
+
+/**
+ * @tc.name: SetAppShareOptionsTest001
+ * @tc.desc: test Func SetAppShareOptions, it will be return INVALID_PARAM_ERROR.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetAppShareOptionsTest001, TestSize.Level0)
+{
+    PasteboardService service;
+    int32_t shareOptions = 1;
+
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetCallingFullTokenID).WillOnce(testing::Return(123));
+    int32_t result = service.SetAppShareOptions(shareOptions);
+    ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+}
+
+/**
+ * @tc.name: SetAppShareOptionsTest002
+ * @tc.desc: test Func SetAppShareOptions, it will be return PERMISSION_VERIFICATION_ERROR.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetAppShareOptionsTest002, TestSize.Level0)
+{
+    PasteboardService service;
+    int32_t shareOptions = 0;
+
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetCallingFullTokenID).WillOnce(testing::Return(123));
+    EXPECT_CALL(mock, GetCallingTokenID).WillOnce(testing::Return(1000));
+    int32_t result = service.SetAppShareOptions(shareOptions);
+    ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+}
+
+/**
+ * @tc.name: SetAppShareOptionsTest003
+ * @tc.desc: test Func SetAppShareOptions, it will be return PERMISSION_VERIFICATION_ERROR.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetAppShareOptionsTest003, TestSize.Level0)
+{
+    PasteboardService service;
+    int32_t shareOptions = 0;
+
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingFullTokenID).WillOnce(testing::Return(4294967295));
+    EXPECT_CALL(ipcMock, GetCallingTokenID).WillOnce(testing::Return(1000));
+    int32_t result = service.SetAppShareOptions(shareOptions);
+    ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+}
+
+/**
+ * @tc.name: GetGlobalShareOptionTest001
+ * @tc.desc: test Func GetGlobalShareOption, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetGlobalShareOptionTest001, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(3057));
+
+    std::vector<uint32_t> tokenIds;
+    std::unordered_map<uint32_t, int32_t> funcResult;
+    int32_t result = service.GetGlobalShareOption(tokenIds, funcResult);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: GetGlobalShareOptionTest002
+ * @tc.desc: test Func GetGlobalShareOption, it will be return PERMISSION_VERIFICATION_ERROR.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetGlobalShareOptionTest002, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(0));
+
+    std::vector<uint32_t> tokenIds;
+    std::unordered_map<uint32_t, int32_t> funcResult;
+    int32_t result = service.GetGlobalShareOption(tokenIds, funcResult);
+    ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+}
+
+/**
+ * @tc.name: GetGlobalShareOptionTest003
+ * @tc.desc: test Func GetGlobalShareOption, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetGlobalShareOptionTest003, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(3057));
+
+    std::vector<uint32_t> tokenIds = {1, 2, 3};
+    std::unordered_map<uint32_t, int32_t> funcResult;
+    int32_t result = service.GetGlobalShareOption(tokenIds, funcResult);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SetGlobalShareOptionTest001
+ * @tc.desc: test Func SetGlobalShareOption, it will be return PERMISSION_VERIFICATION_ERROR.
+ * @tc.type: FUNC
+ */
+ HWTEST_F(PasteboardServiceTest, SetGlobalShareOptionTest001, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(0));
+
+    std::unordered_map<uint32_t, int32_t> globalShareOptions = {{1, static_cast<int32_t>(InApp)}};
+    int32_t result = service.SetGlobalShareOption(globalShareOptions);
+    ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+}
+
+/**
+ * @tc.name: SetGlobalShareOptionTest002
+ * @tc.desc: test Func SetGlobalShareOption, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetGlobalShareOptionTest002, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(3057));
+
+    std::unordered_map<uint32_t, int32_t> globalShareOptions =
+	    {{1, static_cast<int32_t>(InApp)}, {2, static_cast<int32_t>(CrossDevice)}};
+    int32_t result = service.SetGlobalShareOption(globalShareOptions);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SetGlobalShareOptionTest003
+ * @tc.desc: test Func SetGlobalShareOption, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetGlobalShareOptionTest003, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(3057));
+
+    std::unordered_map<uint32_t, int32_t> globalShareOptions = {{1, static_cast<int32_t>(InApp)}, {2, -1}};
+    int32_t result = service.SetGlobalShareOption(globalShareOptions);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: UnsubscribeAllObserverTest001
+ * @tc.desc: test Func UnsubscribeAllObserver, it will be return 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeAllObserverTest001, TestSize.Level0)
+{
+    PasteboardService service;
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_EVENT;
+    int32_t result = service.UnsubscribeAllObserver(type);
+    ASSERT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: UnsubscribeAllObserverTest002
+ * @tc.desc: test Func UnsubscribeAllObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeAllObserverTest002, TestSize.Level0)
+{
+    PasteboardService service;
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_LOCAL;
+    int32_t result = service.UnsubscribeAllObserver(type);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: UnsubscribeAllObserverTest003
+ * @tc.desc: test Func UnsubscribeAllObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeAllObserverTest003, TestSize.Level0)
+{
+    PasteboardService service;
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_REMOTE;
+
+    int32_t result = service.UnsubscribeAllObserver(type);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: UnsubscribeAllObserverTest004
+ * @tc.desc: test Func UnsubscribeAllObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeAllObserverTest004, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(3057));
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_EVENT;
+
+    int32_t result = service.UnsubscribeAllObserver(type);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: UnsubscribeObserverTest001
+ * @tc.desc: test Func UnsubscribeObserver, it will be return 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeObserverTest001, TestSize.Level0)
+{
+    PasteboardService service;
+
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_EVENT;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.UnsubscribeObserver(type, observer);
+    ASSERT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: UnsubscribeObserverTest002
+ * @tc.desc: test Func UnsubscribeObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeObserverTest002, TestSize.Level0)
+{
+    PasteboardService service;
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_LOCAL;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.UnsubscribeObserver(type, observer);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: UnsubscribeObserverTest003
+ * @tc.desc: test Func UnsubscribeObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeObserverTest003, TestSize.Level0)
+{
+    PasteboardService service;
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_REMOTE;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.UnsubscribeObserver(type, observer);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: UnsubscribeObserverTest004
+ * @tc.desc: test Func UnsubscribeObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeObserverTest004, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(3057));
+
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_EVENT;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.UnsubscribeObserver(type, observer);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: UnsubscribeObserverTest005
+ * @tc.desc: test Func UnsubscribeObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnsubscribeObserverTest005, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(0));
+
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_EVENT;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.UnsubscribeObserver(type, observer);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SubscribeObserverTest001
+ * @tc.desc: test Func SubscribeObserver, it will be return 0.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest001, TestSize.Level0)
+{
+    PasteboardService service;
+
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_EVENT;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.SubscribeObserver(type, observer);
+    ASSERT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: SubscribeObserverTest002
+ * @tc.desc: test Func SubscribeObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest002, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingPid()).WillOnce(testing::Return(1234));
+
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_LOCAL;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.SubscribeObserver(type, observer);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SubscribeObserverTest003
+ * @tc.desc: test Func SubscribeObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest003, TestSize.Level0)
+{
+    PasteboardService service;
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_REMOTE;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.SubscribeObserver(type, observer);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SubscribeObserverTest004
+ * @tc.desc: test Func SubscribeObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest004, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(3057));
+    EXPECT_CALL(ipcMock, GetCallingPid()).WillOnce(testing::Return(1234));
+
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_EVENT;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.SubscribeObserver(type, observer);
+    ASSERT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: SubscribeObserverTest005
+ * @tc.desc: test Func SubscribeObserver, it will be return ERR_OK.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest005, TestSize.Level0)
+{
+    PasteboardService service;
+    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, GetCallingUid()).WillOnce(testing::Return(0));
+    EXPECT_CALL(ipcMock, GetCallingPid()).WillOnce(testing::Return(1234));
+
+    PasteboardObserverType type = PasteboardObserverType::OBSERVER_EVENT;
+    sptr<IPasteboardChangedObserver> observer = nullptr;
+    int32_t result = service.SubscribeObserver(type, observer);
+    ASSERT_EQ(result, ERR_OK);
 }
 }
 } // namespace OHOS::MiscServices
