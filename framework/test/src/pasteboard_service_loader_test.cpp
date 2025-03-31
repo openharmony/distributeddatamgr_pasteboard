@@ -244,4 +244,89 @@ HWTEST_F(PasteboardServiceLoaderTest, GetRecordValueByTypeTest002, TestSize.Leve
     int32_t result = PasteboardServiceLoader::GetInstance().GetRecordValueByType(DATAID_TEST, RECORD_TEST, *value);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
 }
+
+/**
+ * @tc.name: ProcessPasteDataTest001
+ * @tc.desc: ProcessPasteData is ok
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest001, TestSize.Level0)
+{
+    std::vector<uint8_t> sendTLV(0);
+    int64_t tlvSize = 1;
+    auto value = std::make_shared<PasteDataEntry>();
+    int fd = 3;
+    int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, tlvSize, fd, sendTLV);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: ProcessPasteDataTest002
+ * @tc.desc: fd is -1
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest002, TestSize.Level0)
+{
+    std::vector<uint8_t> sendTLV(0);
+    auto value = std::make_shared<PasteDataEntry>();
+    int64_t tlvSize = 1;
+    int fd = -1;
+    int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, tlvSize, fd, sendTLV);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
+}
+
+/**
+ * @tc.name: ProcessPasteDataTest003
+ * @tc.desc: rawDataSize = 0
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest003, TestSize.Level0)
+{
+    auto value = std::make_shared<PasteDataEntry>();
+    int64_t rawDataSize = 0;
+    int fd = 3;
+    std::vector<uint8_t> sendTLV(0);
+    int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
+}
+
+/**
+ * @tc.name: ProcessPasteDataTest004
+ * @tc.desc: rawDataSize > DEFAULT_MAX_RAW_DATA_SIZE
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest004, TestSize.Level0)
+{
+    auto value = std::make_shared<PasteDataEntry>();
+    int64_t rawDataSize = DEFAULT_MAX_RAW_DATA_SIZE + 1;
+    int fd = 3;
+    std::vector<uint8_t> sendTLV(0);
+    int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
+}
+
+/**
+ * @tc.name: ProcessPasteDataTest005
+ * @tc.desc: rawDataSize < DEFAULT_MAX_RAW_DATA_SIZE
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest005, TestSize.Level0)
+{
+    auto value = std::make_shared<PasteDataEntry>();
+    int64_t rawDataSize = DEFAULT_MAX_RAW_DATA_SIZE - 1;
+    int fd = 3;
+    std::vector<uint8_t> sendTLV(0);
+    int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
+}
 }
