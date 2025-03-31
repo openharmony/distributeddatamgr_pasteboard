@@ -363,6 +363,37 @@ ohos_unittest("PasteboardClientMockTest") {
   }
 }
 
+ohos_unittest("PasteboardServiceLoaderTest") {
+  module_out_path = module_output_path
+  defines = [
+    "private = public",
+    "protected = public",
+  ]
+  sources = [
+    "${pasteboard_root_path}/framework/innerkits/src/pasteboard_service_loader.cpp",
+    "${pasteboard_root_path}/pasteboard/framework/innerkits/src/pasteboard_load_callback.cpp",
+    "src/pasteboard_service_loader_test.cpp",
+  ]
+  configs = [ ":module_private_config" ]
+  cflags = [ "-fno-access-control" ]
+  external_deps = [
+    "c_utils:utils",
+    "ffrt:libffrt",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+
+  deps = [
+    "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_root_path}/services:pasteboard_stub_proxy",
+    "${pasteboard_tlv_path}:pasteboard_tlv",
+  ]
+}
+
 group("unittest") {
   testonly = true
   deps = [
@@ -370,5 +401,6 @@ group("unittest") {
     ":PasteboardClientMockTest",
     ":PasteboardFrameworkMockTest",
     ":PasteboardFrameworkTest",
+    ":PasteboardServiceLoaderTest",
   ]
 }
