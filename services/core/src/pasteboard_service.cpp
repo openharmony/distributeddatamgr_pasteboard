@@ -998,10 +998,11 @@ bool PasteboardService::WriteRawData(const void *data, int64_t size, int &serFd)
     }
     if (!messageData.MemcpyData(ptr, static_cast<size_t>(size), data, size)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "memcpy_s failed, fd:%{public}d", fd);
-        close(fd);
         ::munmap(ptr, size);
+        close(fd);
         return false;
     }
+    ::munmap(ptr, size);
     serFd = fd;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Write data end. fd:%{public}d size:%{public}" PRId64, serFd, size);
     return true;
