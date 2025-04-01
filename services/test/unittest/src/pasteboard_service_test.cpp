@@ -749,6 +749,8 @@ HWTEST_F(PasteboardServiceTest, ShowProgressTest003, TestSize.Level0)
     data->SetTokenId(IPCSkeleton::GetCallingTokenID());
     service.clips_.InsertOrAssign(ACCOUNT_IDS_RANDOM, data);
     NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetTokenTypeFlag).WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE));
     EXPECT_CALL(mock, QueryActiveOsAccountIds(testing::_)).WillRepeatedly(Return(ERR_OK));
 
     int32_t result = service.ShowProgress(progressKey, observer);
@@ -768,8 +770,6 @@ HWTEST_F(PasteboardServiceTest, WriteRawDataTest001, TestSize.Level0)
     bool result = service.WriteRawData(rawData, sizeof(rawData), fd);
     EXPECT_EQ(result, true);
 }
-
-int32_t PasteStart(const std::string &pasteId);
 
 /**
  * @tc.name: ShowProgressTest001
@@ -798,8 +798,6 @@ HWTEST_F(PasteboardServiceTest, PasteStart002, TestSize.Level0)
     int32_t result = service.PasteStart(pasteId);
     EXPECT_EQ(result, ERR_OK);
 }
-
-int32_t PasteComplete(const std::string &deviceId, const std::string &pasteId);
 
 /**
  * @tc.name: ShowProgressTest001
@@ -857,8 +855,6 @@ HWTEST_F(PasteboardServiceTest, GetMimeTypesTest002, TestSize.Level0)
     EXPECT_EQ(result, ERR_OK);
 }
 
-int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote);
-
 /**
  * @tc.name: ShowProgressTest001
  * @tc.desc: test Func ShowProgress 
@@ -873,7 +869,6 @@ HWTEST_F(PasteboardServiceTest, GetRemoteDeviceName001, TestSize.Level0)
     int32_t result = service.GetRemoteDeviceName(deviceName, isRemote);
     EXPECT_EQ(result, ERR_OK);
 }
-int32_t HasPasteData(bool &funcResult);
 
 /**
  * @tc.name: ShowProgressTest001
@@ -1384,6 +1379,7 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptionsTest002, TestSize.Level0)
     int32_t shareOptions = 0;
 
     NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, VerifyAccessToken).WillOnce(Return(PermissionState::PERMISSION_DENIED));
     EXPECT_CALL(mock, GetCallingFullTokenID).WillOnce(testing::Return(123));
     EXPECT_CALL(mock, GetCallingTokenID).WillOnce(testing::Return(1000));
     int32_t result = service.SetAppShareOptions(shareOptions);
@@ -1401,6 +1397,7 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptionsTest003, TestSize.Level0)
     int32_t shareOptions = 0;
 
     NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+    EXPECT_CALL(ipcMock, VerifyAccessToken).WillOnce(Return(PermissionState::PERMISSION_DENIED));
     EXPECT_CALL(ipcMock, GetCallingFullTokenID).WillOnce(testing::Return(4294967295));
     EXPECT_CALL(ipcMock, GetCallingTokenID).WillOnce(testing::Return(1000));
     int32_t result = service.SetAppShareOptions(shareOptions);
