@@ -1100,7 +1100,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0018, TestSize.Level0)
 {
     PasteboardClient::GetInstance()->RemovePasteboardChangedObserver(nullptr);
     if (PasteboardServiceTest::pasteboardObserver_ == nullptr) {
-        PasteboardServiceTest::pasteboardObserver_ = new PasteboardObserverCallback();
+        PasteboardServiceTest::pasteboardObserver_ = sptr<PasteboardObserverCallback>::MakeSptr();
     }
     PasteboardServiceTest::pasteboardChangedFlag_ = false;
     ASSERT_TRUE(PasteboardServiceTest::pasteboardObserver_ != nullptr);
@@ -1153,7 +1153,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0019, TestSize.Level0)
 {
     PasteboardClient::GetInstance()->RemovePasteboardEventObserver(nullptr);
     if (PasteboardServiceTest::pasteboardEventObserver_ == nullptr) {
-        PasteboardServiceTest::pasteboardEventObserver_ = new PasteboardEventObserverCallback();
+        PasteboardServiceTest::pasteboardEventObserver_ = sptr<PasteboardEventObserverCallback>::MakeSptr();
     }
     PasteboardServiceTest::pasteboardEventStatus_ = -1;
     ASSERT_TRUE(PasteboardServiceTest::pasteboardEventObserver_ != nullptr);
@@ -1216,9 +1216,9 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0020, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceTest, PasteDataTest0021, TestSize.Level0)
 {
-    PasteboardClient::GetInstance()->AddPasteboardEventObserver(new PasteboardEventObserverCallback());
-    PasteboardClient::GetInstance()->AddPasteboardEventObserver(new PasteboardEventObserverCallback());
-    PasteboardClient::GetInstance()->AddPasteboardEventObserver(new PasteboardEventObserverCallback());
+    PasteboardClient::GetInstance()->AddPasteboardEventObserver(sptr<PasteboardEventObserverCallback>::MakeSptr());
+    PasteboardClient::GetInstance()->AddPasteboardEventObserver(sptr<PasteboardEventObserverCallback>::MakeSptr());
+    PasteboardClient::GetInstance()->AddPasteboardEventObserver(sptr<PasteboardEventObserverCallback>::MakeSptr());
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData("hello");
     ASSERT_TRUE(pasteData != nullptr);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
