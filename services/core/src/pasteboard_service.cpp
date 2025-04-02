@@ -3361,6 +3361,7 @@ void PasteboardService::OnConfigChange(bool isOn)
     p2pMap_.Clear();
     std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (!isOn) {
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(clipPlugin_ != nullptr, PASTEBOARD_MODULE_SERVICE, "clipPlugin is null");
         int32_t userId = GetCurrentAccountId();
         clipPlugin_->Close(userId, false);
         clipPlugin_ = nullptr;
