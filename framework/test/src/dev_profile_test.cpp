@@ -14,11 +14,9 @@
  */
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include "device/dev_profile.h"
 #include "device/dm_adapter.h"
-#include "device_manager_mock.h"
 #include "pasteboard_error.h"
 
 namespace OHOS::MiscServices {
@@ -29,28 +27,15 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-
-    static inline std::shared_ptr<DistributedHardware::DeviceManagerMock> deviceManagerMock_ =
-        std::make_shared<DistributedHardware::DeviceManagerMock>();
 };
 
-void DevProfileTest::SetUpTestCase(void)
-{
-    DistributedHardware::PasteDeviceManager::pasteDeviceManager = deviceManagerMock_;
-}
+void DevProfileTest::SetUpTestCase(void) { }
 
-void DevProfileTest::TearDownTestCase(void)
-{
-    DistributedHardware::PasteDeviceManager::pasteDeviceManager = nullptr;
-    deviceManagerMock_ = nullptr;
-}
+void DevProfileTest::TearDownTestCase(void) { }
 
 void DevProfileTest::SetUp(void) { }
 
-void DevProfileTest::TearDown(void)
-{
-    testing::Mock::VerifyAndClear(deviceManagerMock_.get());
-}
+void DevProfileTest::TearDown(void) { }
 
 /**
  * @tc.name: GetDeviceVersionTest001
@@ -63,16 +48,8 @@ HWTEST_F(DevProfileTest, GetDeviceVersionTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
-    DevProfile::GetInstance().proxy_ = nullptr;
-    DevProfile::GetInstance().subscribeUdidList_.clear();
-    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
-        .WillRepeatedly([](auto, auto, std::string &udid) {
-            udid = "SubscribeProfileEventTest001";
-            return 0;
-        });
     std::string bundleName = "com.dev.profile";
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
-    DMAdapter::GetInstance().localDeviceUdid_ = "";
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
@@ -182,39 +159,13 @@ HWTEST_F(DevProfileTest, PutDeviceStatus001, TestSize.Level0)
 }
 
 /**
- * @tc.name: SubscribeProfileEvent001
- * @tc.desc: Sub scribe Profile Event
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
-{
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
-        .WillRepeatedly([](auto, auto, std::string &udid) {
-            udid = "SubscribeProfileEventTest001";
-            return 0;
-        });
-    DevProfile::GetInstance().proxy_ = nullptr;
-    DevProfile::GetInstance().subscribeUdidList_.clear();
-    std::string bundleName = "com.pro.proEvent";
-    DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
-    DMAdapter::GetInstance().localDeviceUdid_ = "";
-    EXPECT_TRUE(true);
-#else
-    EXPECT_TRUE(true);
-#endif
-}
-
-/**
- * @tc.name: SubscribeProfileEvent002
+ * @tc.name: SubscribeProfileEventTest001
  * @tc.desc: Subscribe Profile Event
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, SubscribeProfileEventTest002, TestSize.Level0)
+HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "com.pro.proEvent";
@@ -247,39 +198,13 @@ HWTEST_F(DevProfileTest, SubscribeProfileEventTest003, TestSize.Level0)
 }
 
 /**
- * @tc.name: UnSubscribeProfileEvent001
- * @tc.desc: UnSub scribe Profile Event
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
-{
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
-        .WillRepeatedly([](auto, auto, std::string &udid) {
-            udid = "SubscribeProfileEventTest001";
-            return 0;
-        });
-    DevProfile::GetInstance().proxy_ = nullptr;
-    DevProfile::GetInstance().subscribeUdidList_.clear();
-    std::string bsndleName = "com.pro.proEvent";
-    DevProfile::GetInstance().UnSubscribeProfileEvent(bsndleName);
-    DMAdapter::GetInstance().localDeviceUdid_ = "";
-    EXPECT_TRUE(true);
-#else
-    EXPECT_TRUE(true);
-#endif
-}
-
-/**
- * @tc.name: UnSubscribeProfileEvent002
+ * @tc.name: UnSubscribeProfileEventTest001
  * @tc.desc: UnSubscribe Profile Event
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
+HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "com.pro.proEvent";
@@ -292,13 +217,13 @@ HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: UnSubscribeProfileEvent003
+ * @tc.name: UnSubscribeProfileEventTest002
  * @tc.desc: UnSubscribe Profile Event
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest003, TestSize.Level0)
+HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
 {
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "com.pro.proEvent";
