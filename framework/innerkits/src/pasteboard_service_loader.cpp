@@ -194,6 +194,7 @@ int32_t PasteboardServiceLoader::ProcessPasteData(PasteDataEntry &data, int64_t 
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         parcelData.WriteInt64(rawDataSize);
         parcelData.WriteFileDescriptor(fd);
+        close(fd);
         const uint8_t *rawData =
             reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, static_cast<size_t>(rawDataSize)));
         if (rawData == nullptr) {

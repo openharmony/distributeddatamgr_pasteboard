@@ -981,7 +981,7 @@ bool PasteboardService::WriteRawData(const void *data, int64_t size, int &serFd)
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(0 < size && size <= messageData.GetRawDataSize(), false,
         PASTEBOARD_MODULE_SERVICE, "size invalid, size:%{public}" PRId64, size);
 
-    int fd = AshmemCreate("Pasteboard Ashmem", size);
+    int fd = AshmemCreate("WriteRawData Ashmem", size);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(fd >= 0, false, PASTEBOARD_MODULE_SERVICE, "ashmem create failed");
 
     int32_t result = AshmemSetProt(fd, PROT_READ | PROT_WRITE);
@@ -1061,7 +1061,7 @@ int32_t PasteboardService::DealData(int &fd, int64_t &size, std::vector<uint8_t>
         }
         pasteDataTlv.clear();
     } else {
-        serviceFd = AshmemCreate("PasteboardService", 1);
+        serviceFd = AshmemCreate("DealData Ashmem", 1);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(serviceFd >= 0,
             static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR),
             PASTEBOARD_MODULE_SERVICE, "create fd failed");
@@ -1973,6 +1973,14 @@ int32_t PasteboardService::GetDataSource(std::string &bundleName)
     return ERR_OK;
 }
 
+void PasteboardService::CloseSharedMemFd(int fd)
+{
+    if (fd >= 0) {
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Close fd:%{public}d", fd);
+        close(fd);
+    }
+}
+
 int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::vector<uint8_t> &buffer,
     const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter)
 {
@@ -1980,6 +1988,7 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fd=%{public}d, rawDataSize=%{public}" PRId64, fd, rawDataSize);
     if (rawDataSize <= 0 || rawDataSize > messageData.GetRawDataSize()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Invalid raw data size:%{public}" PRId64, rawDataSize);
+        CloseSharedMemFd(fd);
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
     PasteData pasteData{};
@@ -1987,19 +1996,25 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
     MessageParcel parcelPata;
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         void *ptr = ::mmap(nullptr, rawDataSize, PROT_READ, MAP_SHARED, fd, 0);
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ptr != MAP_FAILED,
-            static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR),
-            PASTEBOARD_MODULE_SERVICE, "mmap failed, fd:%{public}d size:%{public}" PRId64, fd, rawDataSize);
+        if (ptr == MAP_FAILED) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mmap failed, size:%{public}" PRId64, rawDataSize);
+            CloseSharedMemFd(fd);
+            return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
+        }
         const uint8_t *rawData = reinterpret_cast<const uint8_t *>(ptr);
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(rawData != nullptr,
-            static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR),
-            PASTEBOARD_MODULE_SERVICE, "Failed to get raw data, size=%{public} " PRId64, rawDataSize);
+        if (rawData == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "rawData is nullptr, size:%{public}" PRId64, rawDataSize);
+            ::munmap(ptr, rawDataSize);
+            CloseSharedMemFd(fd);
+            return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
+        }
         std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
         result = pasteData.Decode(pasteDataTlv);
         ::munmap(ptr, rawDataSize);
     } else {
         result = pasteData.Decode(buffer);
     }
+    CloseSharedMemFd(fd);
     if (!result) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
@@ -2015,7 +2030,6 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to save data, ret=%{public}d", ret);
         return ret;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteData end, size=%{public}" PRId64, rawDataSize);
     return ERR_OK;
 }
 
