@@ -352,7 +352,7 @@ HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest001, TestSize.L
  */
 HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest002, TestSize.Level0)
 {
-    sptr<IRemoteObject> rObject = new (std::nothrow) TestIRemoteObject();
+    sptr<IRemoteObject> rObject = sptr<TestIRemoteObject>::MakeSptr();
     PasteDataEntry entry;
     PasteboardEntryGetterProxy proxy(rObject);
     g_sendrequest = false;
@@ -375,7 +375,7 @@ HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest002, TestSize.L
  */
 HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest003, TestSize.Level0)
 {
-    sptr<IRemoteObject> rObject = new (std::nothrow) TestIRemoteObject();
+    sptr<IRemoteObject> rObject = sptr<TestIRemoteObject>::MakeSptr();
     PasteDataEntry entry;
     PasteboardEntryGetterProxy proxy(rObject);
     g_sendrequest = true;
@@ -400,7 +400,7 @@ HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest003, TestSize.L
  */
 HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest004, TestSize.Level0)
 {
-    sptr<IRemoteObject> rObject = new (std::nothrow) TestIRemoteObject();
+    sptr<IRemoteObject> rObject = sptr<TestIRemoteObject>::MakeSptr();
     PasteDataEntry entry;
     PasteboardEntryGetterProxy proxy(rObject);
     g_sendrequest = true;
@@ -424,7 +424,7 @@ HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest004, TestSize.L
  */
 HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest005, TestSize.Level0)
 {
-    sptr<IRemoteObject> rObject = new (std::nothrow) TestIRemoteObject();
+    sptr<IRemoteObject> rObject = sptr<TestIRemoteObject>::MakeSptr();
     PasteDataEntry entry;
     PasteboardEntryGetterProxy proxy(rObject);
     g_sendrequest = true;
@@ -451,7 +451,7 @@ HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest005, TestSize.L
  */
 HWTEST_F(PasteboardEntryGetterProxyTest, GetRecordValueByTypeTest006, TestSize.Level0)
 {
-    sptr<IRemoteObject> rObject = new (std::nothrow) TestIRemoteObject();
+    sptr<IRemoteObject> rObject = sptr<TestIRemoteObject>::MakeSptr();
     PasteDataEntry entry;
     PasteboardEntryGetterProxy proxy(rObject);
     g_sendrequest = true;

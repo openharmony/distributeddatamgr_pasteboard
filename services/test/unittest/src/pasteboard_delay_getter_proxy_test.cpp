@@ -178,7 +178,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest001, TestSize.Level0)
     std::string testType = "text/plain";
     PasteData testData;
     NiceMock<PasteboardDelayProxyInterfaceMock> mock;
-    sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
+    sptr<RemoteObjectTest> remote = sptr<RemoteObjectTest>::MakeSptr(u"test");
     EXPECT_CALL(mock, WriteInterfaceToken(testing::_)).WillOnce(Return(false));
 
     PasteboardDelayGetterProxy proxy(remote);
@@ -195,7 +195,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest002, TestSize.Level0)
     std::string testType = "text/plain";
     PasteData testData;
     NiceMock<PasteboardDelayProxyInterfaceMock> mock;
-    sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
+    sptr<RemoteObjectTest> remote = sptr<RemoteObjectTest>::MakeSptr(u"test");
     EXPECT_CALL(mock, WriteInterfaceToken(testing::_)).WillOnce(Return(true));
     EXPECT_CALL(mock, WriteString(testing::_)).WillOnce(Return(false));
 
@@ -213,7 +213,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest003, TestSize.Level0)
     std::string testType = "text/plain";
     PasteData testData;
     NiceMock<PasteboardDelayProxyInterfaceMock> mock;
-    sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
+    sptr<RemoteObjectTest> remote = sptr<RemoteObjectTest>::MakeSptr(u"test");
     EXPECT_CALL(mock, WriteInterfaceToken(testing::_)).WillOnce(Return(true));
     EXPECT_CALL(mock, WriteString(testing::_)).WillOnce(Return(true));
     SetSendRequestResult(ERR_INVALID_PARAMETER);
@@ -232,7 +232,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest004, TestSize.Level0)
     std::string testType = "text/plain";
     PasteData testData;
     NiceMock<PasteboardDelayProxyInterfaceMock> mock;
-    sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
+    sptr<RemoteObjectTest> remote = sptr<RemoteObjectTest>::MakeSptr(u"test");
     EXPECT_CALL(mock, WriteInterfaceToken(testing::_)).WillOnce(Return(true));
     EXPECT_CALL(mock, WriteString(testing::_)).WillOnce(Return(true));
     EXPECT_CALL(mock, SendRequest(testing::_, testing::_, testing::_, testing::_))
@@ -252,7 +252,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest005, TestSize.Level0)
     std::string testType = "text/plain";
     PasteData testData;
     NiceMock<PasteboardDelayProxyInterfaceMock> mock;
-    sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
+    sptr<RemoteObjectTest> remote = sptr<RemoteObjectTest>::MakeSptr(u"test");
     EXPECT_CALL(mock, WriteInterfaceToken(testing::_)).WillOnce(Return(true));
     EXPECT_CALL(mock, WriteString(testing::_)).WillOnce(Return(true));
     EXPECT_CALL(mock, SendRequest(testing::_, testing::_, testing::_, testing::_))
@@ -271,7 +271,7 @@ HWTEST_F(PasteboardDelayProxyTest, GetPasteDataTest006, TestSize.Level0)
 {
     std::string testType = "text/plain";
     UDMF::UnifiedData testData;
-    sptr<RemoteObjectTest> remote = new RemoteObjectTest(u"test");
+    sptr<RemoteObjectTest> remote = sptr<RemoteObjectTest>::MakeSptr(u"test");
     EXPECT_NE(remote, nullptr);
     PasteboardDelayGetterProxy proxy(remote);
     proxy.GetUnifiedData(testType, testData);
