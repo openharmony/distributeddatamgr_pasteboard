@@ -16,6 +16,7 @@
 #include "device_profile_proxy.h"
 
 #include <dlfcn.h>
+#include <thread>
 
 #include "pasteboard_hilog.h"
 
@@ -42,6 +43,7 @@ DeviceProfileProxy::~DeviceProfileProxy()
     if (func != nullptr) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "deinit adapter");
         func();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     } else {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "dlsym failed, msg=%{public}s", dlerror());
     }
