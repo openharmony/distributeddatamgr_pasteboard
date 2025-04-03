@@ -183,10 +183,10 @@ ohos_unittest("PasteboardClientProxyMockTest") {
     debug = false
     blocklist = "./cfi_blocklist.txt"
   }
+  use_exceptions = true
   resource_config_file =
       "${pasteboard_root_path}/framework/test/resource/ohos_test.xml"
   module_out_path = module_output_path
-
   sources = [
     "${pasteboard_root_path}/adapter/pasteboard_progress/pasteboard_progress.cpp",
     "${pasteboard_root_path}/framework/framework/device/dm_adapter.cpp",
@@ -332,6 +332,7 @@ ohos_unittest("PasteboardClientMockTest") {
     debug = false
     blocklist = "./cfi_blocklist.txt"
   }
+  use_exceptions = true
   resource_config_file = "//foundation/distributeddatamgr/pasteboard/framework/test/resource/ohos_test.xml"
   module_out_path = module_output_path
 
