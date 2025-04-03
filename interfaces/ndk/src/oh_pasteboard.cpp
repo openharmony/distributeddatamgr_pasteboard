@@ -238,6 +238,11 @@ OH_UdmfData *OH_Pasteboard_GetData(OH_Pasteboard *pasteboard, int *status)
         return nullptr;
     }
     OH_UdmfData *data = OH_UdmfData_Create();
+    if (data == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "Failed to create OH_UdmfData");
+        *status = ERR_PASTEBOARD_GET_DATA_FAILED;
+        return nullptr;
+    }
     data->unifiedData_ = std::move(unifiedData);
     *status = ERR_OK;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "leave");
@@ -345,8 +350,7 @@ void OH_Pasteboard_ProgressCancel(Pasteboard_GetDataParams* params)
     ProgressSignalClient::GetInstance().Cancel();
 }
 
-OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteboard_GetDataParams* params,
-    int* status)
+OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteboard_GetDataParams* params, int* status)
 {
     if (!IsPasteboardValid(pasteboard) || params == nullptr || status == nullptr) {
         if (status != nullptr) {
@@ -374,7 +378,6 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
         .ProgressNotify = ProgressNotify,
     };
     getDataParams->listener = listener;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CAPI, "GetDataWithProgress Start");
     int32_t ret = PasteboardClient::GetInstance()->GetUnifiedDataWithProgress(*unifiedData, getDataParams);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(
@@ -389,6 +392,11 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
         return nullptr;
     }
     OH_UdmfData *data = OH_UdmfData_Create();
+    if (data == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "Failed to create OH_UdmfData");
+        *status = ERR_PASTEBOARD_GET_DATA_FAILED;
+        return nullptr;
+    }
     data->unifiedData_ = std::move(unifiedData);
     *status = ERR_OK;
     return data;
