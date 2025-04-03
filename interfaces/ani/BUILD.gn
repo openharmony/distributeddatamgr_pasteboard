@@ -62,6 +62,7 @@ ohos_shared_library("pasteboard_ani") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ani_common",
+    "ability_runtime:runtime",
     "ability_runtime:sts_environment",
     "c_utils:utils",
     "hilog:libhilog",
