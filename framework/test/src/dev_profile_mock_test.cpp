@@ -387,31 +387,7 @@ HWTEST_F(DevProfileMockTest, SubscribeProfileEventTest001, TestSize.Level0)
     DevProfile::GetInstance().subscribeUdidList_.clear();
     std::string bundleName = "com.pro.proEvent";
     DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
-    EXPECT_TRUE(true);
-#else
-    EXPECT_TRUE(true);
-#endif
-}
-
-/**
- * @tc.name: UnSubscribeProfileEvent001
- * @tc.desc: UnSub scribe Profile Event
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(DevProfileMockTest, UnSubscribeProfileEventTest001, TestSize.Level0)
-{
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
-        .WillRepeatedly([](auto, auto, std::string &udid) {
-            udid = "SubscribeProfileEventTest001";
-            return 0;
-        });
-    DevProfile::GetInstance().proxy_ = nullptr;
-    DevProfile::GetInstance().subscribeUdidList_.clear();
-    std::string bsndleName = "com.pro.proEvent";
-    DevProfile::GetInstance().UnSubscribeProfileEvent(bsndleName);
+    DevProfile::GetInstance().UnSubscribeProfileEvent(bundleName);
     EXPECT_TRUE(true);
 #else
     EXPECT_TRUE(true);
