@@ -133,7 +133,6 @@ public:
     static constexpr const char *SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
     static constexpr const char *DOCS_LOCAL_TAG = "/docs/";
     static constexpr size_t URI_BATCH_SIZE = 10000;
-    static constexpr int32_t SUPPORT_POSITIVE_ORDER_API_VERSION = 20;
     std::string deviceId_;
 
 private:
@@ -144,7 +143,6 @@ private:
     bool isDelayRecord_ = false;
     uint32_t dataId_ = 0;
     uint32_t recordId_ = 0;
-    int32_t apiTargetVersion_ = 0;
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
     std::string originAuthority_;
