@@ -158,11 +158,7 @@ void PasteData::AddRecord(std::shared_ptr<PasteDataRecord> record)
     PASTEBOARD_CHECK_AND_RETURN_LOGE(record != nullptr, PASTEBOARD_MODULE_CLIENT, "record is null");
     record->SetRecordId(++recordId_);
 
-    if (apiTargetVersion_ <= 0) {
-        apiTargetVersion_ = PasteBoardCommon::GetInstance().GetApiTargetVersionForSelf();
-    }
-
-    if (PasteBoardCommon::IsPasteboardService() || apiTargetVersion_ >= SUPPORT_POSITIVE_ORDER_API_VERSION) {
+    if (PasteBoardCommon::IsPasteboardService()) {
         props_.mimeTypes.emplace_back(record->GetMimeType());
         records_.emplace_back(std::move(record));
     } else {
