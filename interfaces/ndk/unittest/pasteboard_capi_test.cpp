@@ -1358,5 +1358,72 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetChangeCount003, TestSize.Level1)
     EXPECT_EQ(newCount, changeCount + 2);
     OH_Pasteboard_Destroy(pasteboard);
 }
+
+/**
+ * @tc.name: OH_Pasteboard_HasTypeTest001
+ * @tc.desc: OH_Pasteboard_HasTypeTest001
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_HasTypeTest001, TestSize.Level2)
+{
+    OH_Pasteboard invalidPasteboard;
+    const char* type = "text/plain";
+    bool ret = OH_Pasteboard_HasType(&invalidPasteboard, type);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_HasTypeTest002
+ * @tc.desc: OH_Pasteboard_HasTypeTest002
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_HasTypeTest002, TestSize.Level2)
+{
+    OH_Pasteboard validPasteboard;
+    bool ret = OH_Pasteboard_HasType(&validPasteboard, nullptr);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_HasTypeTest003
+ * @tc.desc: OH_Pasteboard_HasTypeTest003
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_HasTypeTest003, TestSize.Level2)
+{
+    OH_Pasteboard validPasteboard;
+    const char* existingType = "text/plain";
+    bool ret = OH_Pasteboard_HasType(&validPasteboard, existingType);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_HasTypeTest004
+ * @tc.desc: OH_Pasteboard_HasTypeTest004
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_HasTypeTest004, TestSize.Level2)
+{
+    OH_Pasteboard validPasteboard;
+    const char* nonExistingType = "non/existing";
+    bool ret = OH_Pasteboard_HasType(&validPasteboard, nonExistingType);
+    EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_HasDataTest001
+ * @tc.desc: OH_Pasteboard_HasDataTest001
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_HasDataTest001, TestSize.Level2)
+{
+    bool ret = OH_Pasteboard_HasData(nullptr);
+    EXPECT_FALSE(ret);
+}
 } // namespace Test
 } // namespace OHOS
