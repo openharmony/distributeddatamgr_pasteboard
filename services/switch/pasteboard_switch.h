@@ -34,11 +34,11 @@ private:
 class PastedSwitch {
 public:
     PastedSwitch();
-    void Init();
+    void Init(int32_t userId);
     void DeInit();
-
+    void SetSwitch(int32_t userId);
+    int32_t userId_;
 private:
-    void SetSwitch();
     void ReportUeSwitchEvent();
     sptr<PastedSwitchObserver> switchObserver_;
 };

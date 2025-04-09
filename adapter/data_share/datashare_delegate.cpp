@@ -25,8 +25,9 @@
 namespace OHOS::MiscServices {
 const constexpr char *SETTING_COLUMN_KEYWORD = "KEYWORD";
 const constexpr char *SETTING_COLUMN_VALUE = "VALUE";
-const constexpr char *SETTING_URI_PROXY = "datashare:///com.ohos.settingsdata/entry/settingsdata/"
-                                          "USER_SETTINGSDATA_SECURE_100?Proxy=true";
+const constexpr char *SETTING_URI_PROXY_PREFIX = "datashare:///com.ohos.settingsdata/entry/settingsdata/"
+                                                 "USER_SETTINGSDATA_SECURE_";
+const constexpr char *SETTING_URI_PROXY_SUFFIX = "?Proxy=true";
 constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
@@ -62,12 +63,18 @@ void DataShareDelegate::Initialize()
 
 std::shared_ptr<DataShare::DataShareHelper> DataShareDelegate::CreateDataShareHelper()
 {
+    auto SETTING_URI_PROXY = std::string(SETTING_URI_PROXY_PREFIX) + userId_ + std::string(SETTING_URI_PROXY_SUFFIX);
     auto [ret, helper] = DataShare::DataShareHelper::Create(remoteObj_, SETTING_URI_PROXY, SETTINGS_DATA_EXT_URI);
     if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "create helper failed ret %{public}d", ret);
         return nullptr;
     }
     return helper;
+}
+
+void DataShareDelegate::SetUserId(int32_t userId)
+{
+    this->userId_ = std::to_string(userId);
 }
 
 bool DataShareDelegate::ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper> helper)
@@ -121,7 +128,7 @@ int32_t DataShareDelegate::GetValue(const std::string &key, std::string &value)
 
 Uri DataShareDelegate::MakeUri(const std::string &key)
 {
-    Uri uri(std::string(SETTING_URI_PROXY) + "&key=" + key);
+    Uri uri(std::string(SETTING_URI_PROXY_PREFIX) + userId_ + std::string(SETTING_URI_PROXY_SUFFIX) + "&key=" + key);
     return uri;
 }
 
