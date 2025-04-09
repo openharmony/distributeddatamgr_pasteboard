@@ -20,7 +20,7 @@
 #include "paste_data_entry.h"
 
 namespace OHOS {
-namespace UDMF{
+namespace UDMF {
 class EntryGetter;
 }
 namespace MiscServices {
