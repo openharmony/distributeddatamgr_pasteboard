@@ -124,7 +124,6 @@ ohos_shared_library("pasteboard_service") {
     ":pasteboard_service_interface",
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_data",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
   defines = []
 

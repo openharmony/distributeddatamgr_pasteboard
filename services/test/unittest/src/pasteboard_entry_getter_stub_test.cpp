@@ -137,8 +137,9 @@ extern "C" {
         return GetPasteboardEntryGetterStubInterface()->WriteInt64(data);
     }
 
-    bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
+    bool TLVWriteable::Encode(std::vector<uint8_t> &buffer, bool isRemote) const
     {
+        (void)isRemote;
         if (GetPasteboardEntryGetterStubInterface() == nullptr) {
             return false;
         }

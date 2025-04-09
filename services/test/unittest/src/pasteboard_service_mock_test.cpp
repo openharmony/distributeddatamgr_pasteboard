@@ -154,8 +154,9 @@ bool PasteDataEntry::HasContent(const std::string &utdId) const
     return interface->HasContent(utdId);
 }
 
-bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
+bool TLVWriteable::Encode(std::vector<uint8_t> &buffer, bool isRemote) const
 {
+    (void)isRemote;
     PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
     if (interface == nullptr) {
         return false;

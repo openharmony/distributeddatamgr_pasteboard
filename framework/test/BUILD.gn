@@ -93,7 +93,6 @@ ohos_unittest("PasteboardFrameworkTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 
   defines = []
@@ -244,7 +243,6 @@ ohos_unittest("PasteboardClientProxyMockTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
     "${pasteboard_root_path}/services:pasteboard_stub_proxy",
   ]
 
@@ -305,7 +303,6 @@ ohos_unittest("MessageParcelWarpTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 
   defines = []
@@ -428,7 +425,6 @@ ohos_unittest("PasteboardClientMockTest") {
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_root_path}/services:pasteboard_stub_proxy",
     "${pasteboard_service_path}:pasteboard_service",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 
   defines = []
@@ -474,7 +470,6 @@ ohos_unittest("PasteboardServiceLoaderTest") {
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_root_path}/services:pasteboard_stub_proxy",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 }
 

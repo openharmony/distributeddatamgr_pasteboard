@@ -21,6 +21,8 @@
 
 namespace OHOS::MiscServices {
 
+bool IsRemoteEncode();
+
 class WriteOnlyBuffer;
 
 class TLVWriteable : public TLVCountable {
@@ -29,7 +31,7 @@ public:
 
     virtual bool EncodeTLV(WriteOnlyBuffer &buffer) const = 0;
 
-    API_EXPORT bool Encode(std::vector<uint8_t> &buffer) const;
+    API_EXPORT bool Encode(std::vector<uint8_t> &buffer, bool isRemote = false) const;
 };
 
 class WriteOnlyBuffer : public TLVBuffer {
