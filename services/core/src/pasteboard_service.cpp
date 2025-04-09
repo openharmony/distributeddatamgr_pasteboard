@@ -3685,8 +3685,8 @@ bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, bool isFocused)
         curTime - actionTime_ < EVENT_TIME_OUT;
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "windowPid is: %{public}d, callingPid is: %{public}d,"
-            "curTime is: %{public}llu, actionTime is: %{public}llu, isFocused is: %{public}d", windowPid_, callingPid,
-            curTime, actionTime_, isFocused);
+            "curTime is: %{public}" PRIu64 ", actionTime is: %{public}" PRIu64 ", isFocused is: %{public}d",
+            windowPid_, callingPid, curTime, actionTime_, isFocused);
     }
     return ret;
 }
