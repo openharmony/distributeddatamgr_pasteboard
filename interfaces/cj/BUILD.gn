@@ -64,6 +64,7 @@ ohos_shared_library("cj_pasteboard_ffi") {
       "image_framework:cj_image_ffi",
       "napi:cj_bind_ffi",
       "napi:cj_bind_native",
+      "udmf:udmf_client",
     ]
     sources = [
       "src/paste_data_impl.cpp",

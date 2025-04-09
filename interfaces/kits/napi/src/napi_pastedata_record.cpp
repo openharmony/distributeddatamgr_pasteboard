@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "entry_getter.h"
 #include "pasteboard_hilog.h"
 #include "pastedata_record_napi.h"
 

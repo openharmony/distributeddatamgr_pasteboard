@@ -16,7 +16,7 @@
 #ifndef PASTEBOARD_PROGRESS_SIGNAL_H
 #define PASTEBOARD_PROGRESS_SIGNAL_H
 
-#include "visibility.h"
+#include "api/visibility.h"
 
 namespace OHOS {
 namespace MiscServices {

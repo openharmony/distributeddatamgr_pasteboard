@@ -55,6 +55,7 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
     "hilog:libhilog",
     "image_framework:image_native",
     "ipc:ipc_core",
+    "udmf:udmf_client",
   ]
 }
 

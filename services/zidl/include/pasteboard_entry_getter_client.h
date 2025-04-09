@@ -16,10 +16,12 @@
 #ifndef PASTEBOARD_ENTRY_GETTER_CLIENT_H
 #define PASTEBOARD_ENTRY_GETTER_CLIENT_H
 
-#include "entry_getter.h"
 #include "pasteboard_entry_getter_stub.h"
 
 namespace OHOS {
+namespace UDMF {
+class EntryGetter;
+}
 namespace MiscServices {
 class PasteboardEntryGetterClient : public PasteboardEntryGetterStub {
 public:

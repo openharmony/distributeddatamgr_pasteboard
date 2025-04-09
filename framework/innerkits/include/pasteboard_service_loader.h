@@ -19,7 +19,7 @@
 #include "ipasteboard_service.h"
 #include "paste_data_entry.h"
 #include "refbase.h"
-#include "visibility.h"
+#include "api/visibility.h"
 
 namespace OHOS {
 namespace MiscServices {
