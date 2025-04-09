@@ -37,7 +37,11 @@ void CalculateTimeConsuming::SetBeginTime()
 
 CalculateTimeConsuming::~CalculateTimeConsuming()
 {
-    uint64_t delta = GetCurrentTimeMicros() - lastTime_;
+    uint64_t endTime = GetCurrentTimeMicros();
+    if (endTime < lastTime_) {
+        return;
+    }
+    uint64_t delta = endTime - lastTime_;
     int calculateTime = CalculateTime(delta);
     Reporter::GetInstance().TimeConsumingStatistic().Report({ pasteboardState_, pasteboardData_, calculateTime });
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "~CalculateTimeConsuming()");
