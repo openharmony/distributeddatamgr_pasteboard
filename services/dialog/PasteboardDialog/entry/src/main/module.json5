@@ -56,7 +56,7 @@
         "description": "$string:PasteboardSwitchAbility_desc",
         "label": "$string:PasteboardSwitchAbility_label",
         "type": "sys/commonUI",
-        "exported": true
+        "exported": false
       },
       {
         "name": "PasteboardProgressAbility",
@@ -64,7 +64,7 @@
         "description": "$string:PasteboardProgressAbility_desc",
         "icon": "$media:icon",
         "label": "$string:PasteboardProgressAbility_label",
-        "visible": true,
+        "visible": false,
         "type": "service"
       }
     ],

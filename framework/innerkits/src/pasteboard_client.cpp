@@ -269,18 +269,15 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     uint32_t tmpSequenceId = getSequenceId_++;
     std::string currentId = "GetPasteData_" + currentPid + "_" + std::to_string(tmpSequenceId);
     pasteData.SetPasteId(currentId);
-    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
         RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
-        PACKAGE_NAME, currentPid, PASTEDATA_SUMMARY, pasteDataInfoSummary);
+        PACKAGE_NAME, currentPid);
     StartAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_CHECK_GET_SERVER, RadarReporter::DFX_FAILED,
             RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, currentId,
-            PACKAGE_NAME, currentPid, ERROR_CODE,
-            static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR), PASTEDATA_SUMMARY,
-            pasteDataInfoSummary);
+            PACKAGE_NAME, currentPid, ERROR_CODE, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     int32_t syncTime = 0;
@@ -726,16 +723,13 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "enter");
-    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
-        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN,
-        PASTEDATA_SUMMARY, pasteDataInfoSummary);
+        RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN);
     auto proxyService = GetPasteboardService();
     if (proxyService == nullptr) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_CHECK_SET_SERVER, RadarReporter::DFX_FAILED,
-            RadarReporter::BIZ_STATE, RadarReporter::DFX_END,
-            ERROR_CODE, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
-            PASTEDATA_SUMMARY, pasteDataInfoSummary);
+            RadarReporter::BIZ_STATE, RadarReporter::DFX_END, ERROR_CODE,
+            static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     sptr<PasteboardDelayGetterClient> delayGetterAgent;
@@ -760,7 +754,7 @@ int32_t PasteboardClient::SetPasteData(PasteData &pasteData, std::shared_ptr<Pas
     } else {
         ret = proxyService->SetPasteDataOnly(fd, tlvSize, pasteDataTlv);
     }
-    pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
+    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     ret = ConvertErrCode(ret);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         RADAR_REPORT(RadarReporter::DFX_SET_PASTEBOARD, RadarReporter::DFX_SET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
@@ -1074,7 +1068,6 @@ std::string PasteboardClient::GetPasteDataInfoSummary(const PasteData &pasteData
 {
     // Deal with pasteData info
     json RadarReportInfoInJson = {
-        {"CopyBundle", pasteData.GetOriginAuthority().empty() ? "/" : pasteData.GetOriginAuthority()},
         {"PasteBundle", pasteData.GetBundleName().empty() ? "/" : pasteData.GetBundleName()},
         {"PasteDataSize", pasteData.CountTLV()},
         {"RecordCount", pasteData.GetRecordCount()},
