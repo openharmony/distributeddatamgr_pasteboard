@@ -1125,6 +1125,128 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithMultiAttributes002, TestSi
     uData = nullptr;
 }
 
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithMultiAttributes003
+ * @tc.desc: should get html & text when set html & text with file uri without tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithMultiAttributes003, TestSize.Level1)
+{
+    const char *htmlContent = "<p>Hello world!<img src=\"file:///storage/local/files/Images/hello.png\"/></p>";
+    const char *plainContent = "Hello world!";
+
+    OH_UdsHtml *uHtml = OH_UdsHtml_Create();
+    OH_UdsHtml_SetContent(uHtml, htmlContent);
+    OH_UdsHtml_SetPlainContent(uHtml, plainContent);
+
+    OH_UdmfRecord *uRecord = OH_UdmfRecord_Create();
+    OH_UdmfRecord_AddHtml(uRecord, uHtml);
+    OH_UdsHtml_Destroy(uHtml);
+    uHtml = nullptr;
+
+    OH_UdmfData *uData = OH_UdmfData_Create();
+    OH_UdmfData_AddRecord(uData, uRecord);
+
+    OH_Pasteboard *pasteboard = OH_Pasteboard_Create();
+    int ret = OH_Pasteboard_SetData(pasteboard, uData);
+    OH_UdmfRecord_Destroy(uRecord);
+    OH_UdmfData_Destroy(uData);
+    uData = nullptr;
+    uRecord = nullptr;
+    EXPECT_EQ(ret, ERR_OK);
+
+    ret = -1;
+    uData = OH_Pasteboard_GetData(pasteboard, &ret);
+    OH_Pasteboard_Destroy(pasteboard);
+    pasteboard = nullptr;
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_NE(uData, nullptr);
+
+    unsigned int count = 0;
+    OH_UdmfRecord **records = OH_UdmfData_GetRecords(uData, &count);
+    EXPECT_EQ(count, 1);
+    EXPECT_NE(records, nullptr);
+
+    if (count == 1 && records != nullptr) {
+        uHtml = OH_UdsHtml_Create();
+        OH_UdmfRecord_GetHtml(records[0], uHtml);
+
+        const char *htmlText = OH_UdsHtml_GetContent(uHtml);
+        const char *plainText = OH_UdsHtml_GetPlainContent(uHtml);
+        EXPECT_NE(htmlText, nullptr);
+        EXPECT_STREQ(plainText, plainContent);
+
+        OH_UdsHtml_Destroy(uHtml);
+        uHtml = nullptr;
+    }
+
+    OH_UdmfData_Destroy(uData);
+    uData = nullptr;
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithMultiAttributes004
+ * @tc.desc: should get html & text when set html & text with file uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithMultiAttributes004, TestSize.Level1)
+{
+    const char *htmlContent = "<p>Hello world!<img src=\"file:///storage/local/files/Images/hello.png\"/></p>";
+    const char *plainContent = "Hello world!";
+
+    OH_UdsHtml *uHtml = OH_UdsHtml_Create();
+    OH_UdsHtml_SetContent(uHtml, htmlContent);
+    OH_UdsHtml_SetPlainContent(uHtml, plainContent);
+
+    OH_UdmfRecord *uRecord = OH_UdmfRecord_Create();
+    OH_UdmfRecord_AddHtml(uRecord, uHtml);
+    OH_UdsHtml_Destroy(uHtml);
+    uHtml = nullptr;
+
+    OH_UdmfData *uData = OH_UdmfData_Create();
+    OH_UdmfData_AddRecord(uData, uRecord);
+
+    OH_UdmfProperty *uProp = OH_UdmfProperty_Create(uData);
+    int ret = OH_UdmfProperty_SetTag(uProp, PasteData::WEBVIEW_PASTEDATA_TAG.c_str()); // set webview tag
+    EXPECT_EQ(ret, ERR_OK);
+
+    OH_Pasteboard *pasteboard = OH_Pasteboard_Create();
+    ret = OH_Pasteboard_SetData(pasteboard, uData);
+    OH_UdmfRecord_Destroy(uRecord);
+    OH_UdmfData_Destroy(uData);
+    uData = nullptr;
+    uRecord = nullptr;
+    EXPECT_EQ(ret, ERR_OK);
+
+    ret = -1;
+    uData = OH_Pasteboard_GetData(pasteboard, &ret);
+    OH_Pasteboard_Destroy(pasteboard);
+    pasteboard = nullptr;
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_NE(uData, nullptr);
+
+    unsigned int count = 0;
+    OH_UdmfRecord **records = OH_UdmfData_GetRecords(uData, &count);
+    EXPECT_EQ(count, 1);
+    EXPECT_NE(records, nullptr);
+
+    if (count == 1 && records != nullptr) {
+        uHtml = OH_UdsHtml_Create();
+        OH_UdmfRecord_GetHtml(records[0], uHtml);
+
+        const char *htmlText = OH_UdsHtml_GetContent(uHtml);
+        const char *plainText = OH_UdsHtml_GetPlainContent(uHtml);
+        EXPECT_NE(htmlText, nullptr);
+        EXPECT_STREQ(plainText, plainContent);
+
+        OH_UdsHtml_Destroy(uHtml);
+        uHtml = nullptr;
+    }
+
+    OH_UdmfData_Destroy(uData);
+    uData = nullptr;
+}
+
 void OH_Pasteboard_ProgressListener(Pasteboard_ProgressInfo *progressInfo)
 {
     int percentage = OH_Pasteboard_ProgressInfo_GetProgress(progressInfo);

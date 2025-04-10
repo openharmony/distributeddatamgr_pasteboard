@@ -739,9 +739,10 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysAppItemDataTest001, TestSize.Level
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
     auto details1 = pasteRecord->GetDetails();
-    auto udmfValue = pasteRecord->GetUDMFValue();
-    ASSERT_NE(udmfValue, nullptr);
-    auto newAppItem1 = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, *udmfValue);
+    auto entries = pasteRecord->GetEntries();
+    ASSERT_NE(entries.size(), 0);
+    auto entryValue = entries.front()->GetValue();
+    auto newAppItem1 = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, entryValue);
     ASSERT_EQ(newAppItem1->GetAppId(), "appId");
     ASSERT_EQ(newAppItem1->GetAppIconId(), "appIconId");
     ASSERT_EQ(newAppItem1->GetAppName(), "appName");

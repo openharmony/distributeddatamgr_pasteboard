@@ -315,6 +315,7 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::PlainText2PasteRecord(const st
     object->value_[UDMF::ABSTRACT] = plainText->GetAbstract();
     pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
     pbRecord->SetDetails(plainText->GetDetails());
+    pbRecord->SetUDType(UDMF::PLAIN_TEXT);
     return pbRecord;
 }
 
@@ -322,10 +323,10 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2PlaintText(const std
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "plain text record is null.");
-    auto udmfValue = record->GetUDMFValue();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(udmfValue != nullptr, nullptr,
-        PASTEBOARD_MODULE_CLIENT, "udmfvalue is null.");
-    auto plainText = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, *udmfValue);
+    auto entry = record->GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entry != nullptr, nullptr,
+        PASTEBOARD_MODULE_CLIENT, "entry is null.");
+    auto plainText = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, entry->GetValue());
     if (record->GetDetails()) {
         plainText->SetDetails(*record->GetDetails());
     }
@@ -374,6 +375,7 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Html2PasteRecord(const std::sh
     object->value_[UDMF::PLAIN_CONTENT] = html->GetPlainContent();
     pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
     pbRecord->SetDetails(html->GetDetails());
+    pbRecord->SetUDType(UDMF::HTML);
     return pbRecord;
 }
 
@@ -381,10 +383,10 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Html(const std::shar
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "record2 html record is null.");
-    auto udmfValue = record->GetUDMFValue();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(udmfValue != nullptr, nullptr,
-        PASTEBOARD_MODULE_CLIENT, "udmfvalue is null.");
-    auto html = std::make_shared<UDMF::Html>(UDMF::HTML, *udmfValue);
+    auto entry = record->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entry != nullptr, nullptr,
+        PASTEBOARD_MODULE_CLIENT, "entry is null.");
+    auto html = std::make_shared<UDMF::Html>(UDMF::HTML, entry->GetValue());
     if (record->GetDetails()) {
         html->SetDetails(*record->GetDetails());
     }
@@ -409,6 +411,7 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::Link2PasteRecord(const std::sh
     object->value_[UDMF::DESCRIPTION] = link->GetDescription();
     pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
     pbRecord->SetDetails(link->GetDetails());
+    pbRecord->SetUDType(UDMF::HYPERLINK);
     return pbRecord;
 }
 
@@ -416,10 +419,11 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Link(const std::shar
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "record2 link record is null.");
-    auto udmfValue = record->GetUDMFValue();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(udmfValue != nullptr, nullptr,
-        PASTEBOARD_MODULE_CLIENT, "udmfvalue is null.");
-    auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, *udmfValue);
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::HYPERLINK);
+    auto entry = record->GetEntry(utdId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entry != nullptr, nullptr,
+        PASTEBOARD_MODULE_CLIENT, "entry is null.");
+    auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, entry->GetValue());
     if (record->GetDetails()) {
         link->SetDetails(*record->GetDetails());
     }
@@ -602,6 +606,7 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::AppItem2PasteRecord(const std:
     object->value_[UDMF::ABILITY_NAME] = appItem->GetAbilityName();
     pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
     pbRecord->SetDetails(appItem->GetDetails());
+    pbRecord->SetUDType(UDMF::SYSTEM_DEFINED_APP_ITEM);
     return pbRecord;
 }
 
@@ -609,10 +614,11 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2AppItem(const std::s
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "app Item record is null.");
-    auto udmfValue = record->GetUDMFValue();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(udmfValue != nullptr, nullptr,
-        PASTEBOARD_MODULE_CLIENT, "udmfvalue is null.");
-    auto unifiedRecord = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, *udmfValue);
+    auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDType::SYSTEM_DEFINED_APP_ITEM);
+    auto entry = record->GetEntry(utdId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entry != nullptr, nullptr,
+        PASTEBOARD_MODULE_CLIENT, "entry is null.");
+    auto unifiedRecord = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, entry->GetValue());
     if (record->GetDetails() != nullptr) {
         unifiedRecord->SetDetails(*record->GetDetails());
     }
@@ -732,6 +738,7 @@ std::shared_ptr<PasteDataRecord> PasteboardUtils::AppDefined2PasteRecord(const s
     object->value_[UDMF::ARRAY_BUFFER] = appRecord->GetRawData();
     object->value_[UDMF::ARRAY_BUFFER_LENGTH] = static_cast<int64_t>(appRecord->GetRawData().size());
     pbRecord->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
+    pbRecord->SetUDType(UDMF::APPLICATION_DEFINED_RECORD);
     return pbRecord;
 }
 

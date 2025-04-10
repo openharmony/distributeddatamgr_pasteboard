@@ -14,13 +14,21 @@
  */
 
 #include "tlv_writeable.h"
-
+#include <thread>
 #include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 
-bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
+thread_local bool g_isRemoteEncode = false;
+
+bool IsRemoteEncode()
 {
+    return g_isRemoteEncode;
+}
+
+bool TLVWriteable::Encode(std::vector<uint8_t> &buffer, bool isRemote) const
+{
+    g_isRemoteEncode = isRemote;
     size_t len = CountTLV();
     WriteOnlyBuffer buff(len);
     bool ret = EncodeTLV(buff);

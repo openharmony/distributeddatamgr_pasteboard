@@ -42,7 +42,6 @@ ohos_fuzztest("PasteboardClientFuzzTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 
   external_deps = [

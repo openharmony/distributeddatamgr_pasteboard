@@ -73,8 +73,9 @@ static PasteboardClientInterface *GetPasteboardClientInterface()
     return reinterpret_cast<PasteboardClientInterface *>(g_interface);
 }
 
-bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
+bool TLVWriteable::Encode(std::vector<uint8_t> &buffer, bool isRemote) const
 {
+    (void)isRemote;
     if (GetPasteboardClientInterface() == nullptr) {
         return false;
     }

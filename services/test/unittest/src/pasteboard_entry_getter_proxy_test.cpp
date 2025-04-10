@@ -176,8 +176,9 @@ extern "C" {
         return GetPasteboardEntryGetterProxyInterface()->WriteUint32(value);
     }
 
-    bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
+    bool TLVWriteable::Encode(std::vector<uint8_t> &buffer, bool isRemote) const
     {
+        (void)isRemote;
         if (GetPasteboardEntryGetterProxyInterface() == nullptr) {
             return false;
         }

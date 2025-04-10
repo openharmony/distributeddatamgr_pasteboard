@@ -16,6 +16,7 @@
 #ifndef MESSAGE_PARCEL_WARP_H
 #define MESSAGE_PARCEL_WARP_H
 
+#include "api/visibility.h"
 #include "message_parcel.h"
 
 namespace OHOS {
@@ -23,7 +24,7 @@ namespace MiscServices {
 
 constexpr int64_t DEFAULT_MAX_RAW_DATA_SIZE = 128 * 1024 * 1024; // 128M
 
-class MessageParcelWarp {
+class API_EXPORT MessageParcelWarp {
 public:
     MessageParcelWarp();
     ~MessageParcelWarp();

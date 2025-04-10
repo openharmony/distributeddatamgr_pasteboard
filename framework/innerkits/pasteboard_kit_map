@@ -33,6 +33,7 @@
         *CommonUtils*;
         *TLVWriteable*;
         *TLVReadable*;
+        *MessageParcelWarp*;
     };
     local:
         *;

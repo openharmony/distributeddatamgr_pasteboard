@@ -328,9 +328,10 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_PLAIN);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::PLAIN_TEXT);
-    auto udmfValue = record->GetUDMFValue();
-    ASSERT_NE(udmfValue, nullptr);
-    auto link = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, *udmfValue);
+    auto entries = record->GetEntries();
+    ASSERT_NE(entries.size(), 0);
+    auto entryValue = entries.front()->GetValue();
+    auto link = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, entryValue);
     ASSERT_EQ(link->GetContent(), text_);
     ASSERT_EQ(link->GetAbstract(), extraText_);
 
@@ -384,9 +385,10 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_HTML);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::HTML);
-    auto udmfValue = record->GetUDMFValue();
-    ASSERT_NE(udmfValue, nullptr);
-    auto link = std::make_shared<UDMF::Html>(UDMF::HTML, *udmfValue);
+    auto entries = record->GetEntries();
+    ASSERT_NE(entries.size(), 0);
+    auto entryValue = entries.front()->GetValue();
+    auto link = std::make_shared<UDMF::Html>(UDMF::HTML, entryValue);
     ASSERT_EQ(link->GetHtmlContent(), text_);
     ASSERT_EQ(link->GetPlainContent(), extraText_);
 
@@ -438,9 +440,10 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_PLAIN);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::HYPERLINK);
-    auto udmfValue = record->GetUDMFValue();
-    ASSERT_NE(udmfValue, nullptr);
-    auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, *udmfValue);
+    auto entries = record->GetEntries();
+    ASSERT_NE(entries.size(), 0);
+    auto entryValue = entries.front()->GetValue();
+    auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, entryValue);
     ASSERT_EQ(link->GetUrl(), text_);
     ASSERT_EQ(link->GetDescription(), extraText_);
 
@@ -846,9 +849,10 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
     auto details1 = record->GetDetails();
     ASSERT_NE(details1, nullptr);
     ASSERT_EQ(*details1, details_);
-    auto udmfValue = record->GetUDMFValue();
-    ASSERT_NE(udmfValue, nullptr);
-    auto newAppItem1 = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, *udmfValue);
+    auto entries = record->GetEntries();
+    ASSERT_NE(entries.size(), 0);
+    auto entryValue = entries.front()->GetValue();
+    auto newAppItem1 = std::make_shared<UDMF::SystemDefinedAppItem>(UDMF::SYSTEM_DEFINED_APP_ITEM, entryValue);
     ASSERT_EQ(newAppItem1->GetAppId(), "appId");
     ASSERT_EQ(newAppItem1->GetAppIconId(), "appIconId");
     ASSERT_EQ(newAppItem1->GetAppName(), "appName");

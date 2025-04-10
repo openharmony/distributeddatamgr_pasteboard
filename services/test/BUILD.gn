@@ -74,7 +74,6 @@ ohos_unittest("PasteboardServiceTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 }
 
@@ -171,7 +170,6 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
   if (pasteboard_vixl_part_enabled) {
     external_deps += [ "vixl:libvixl" ]
@@ -298,7 +296,6 @@ ohos_unittest("PasteServInterfaceMockTest") {
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
   if (pasteboard_vixl_part_enabled) {
     external_deps += [ "vixl:libvixl" ]
@@ -430,7 +427,6 @@ ohos_unittest("PasteboardDelayStubTest") {
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_service_path}:pasteboard_service",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
   external_deps = [
     "c_utils:utils",
@@ -458,7 +454,6 @@ ohos_unittest("PasteboardDelayProxyTest") {
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
     "${pasteboard_service_path}:pasteboard_service",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
   external_deps = [
     "c_utils:utils",
@@ -494,7 +489,6 @@ ohos_unittest("PasteboardEntryGetterStubTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 }
 
@@ -521,7 +515,6 @@ ohos_unittest("PasteboardEntryGetterProxyTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_tlv_path}:pasteboard_tlv",
   ]
 }
 

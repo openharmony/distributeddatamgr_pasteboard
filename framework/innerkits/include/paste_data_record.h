@@ -26,6 +26,18 @@ class EntryGetter;
 namespace MiscServices {
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
 
+struct RemoteRecordValue {
+    int32_t udType_ = UDMF::UD_BUTT;
+    std::string mimeType_;
+    std::shared_ptr<std::string> plainText_;
+    std::shared_ptr<std::string> htmlText_;
+    std::shared_ptr<OHOS::AAFwk::Want> want_;
+    std::shared_ptr<OHOS::Media::PixelMap> pixelMap_;
+    std::shared_ptr<OHOS::Uri> uri_;
+    EntryValue udmfValue_;
+    std::vector<std::shared_ptr<PasteDataEntry>> entries_;
+};
+
 class API_EXPORT PasteDataRecord : public TLVWriteable, public TLVReadable {
 public:
     PasteDataRecord();
@@ -38,6 +50,10 @@ public:
     bool EncodeTLV(WriteOnlyBuffer &buffer) const override;
     bool DecodeTLV(ReadOnlyBuffer &buffer) override;
     size_t CountTLV() const override;
+    size_t CountTLVLocal() const;
+    size_t CountTLVRemote() const;
+    bool EncodeTLVLocal(WriteOnlyBuffer &buffer) const;
+    bool EncodeTLVRemote(WriteOnlyBuffer &buffer) const;
 
     static std::shared_ptr<PasteDataRecord> NewHtmlRecord(const std::string &htmlText);
     static std::shared_ptr<PasteDataRecord> NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want);
@@ -81,9 +97,6 @@ public:
     void SetUDType(int32_t type);
 
     bool HasEmptyEntry() const;
-    void SetUDMFValue(const std::shared_ptr<EntryValue> &udmfValue);
-    std::shared_ptr<EntryValue> GetUDMFValue();
-
     void AddEntry(const std::string &utdType, std::shared_ptr<PasteDataEntry> value);
     void AddEntryByMimeType(const std::string &mimeType, std::shared_ptr<PasteDataEntry> value);
     std::shared_ptr<PasteDataEntry> GetEntry(const std::string &utdType);
@@ -127,6 +140,8 @@ private:
     std::set<std::string> GetUdtTypes() const;
     bool DecodeItem1(uint16_t tag, ReadOnlyBuffer &buffer, TLVHead &head);
     bool DecodeItem2(uint16_t tag, ReadOnlyBuffer &buffer, TLVHead &head);
+    std::shared_ptr<PasteDataEntry> Remote2Local() const;
+    std::shared_ptr<RemoteRecordValue> Local2Remote() const;
 
     bool isDelay_ = false;
     bool hasGrantUriPermission_ = false;

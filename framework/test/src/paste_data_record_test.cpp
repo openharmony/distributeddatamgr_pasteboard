@@ -339,7 +339,7 @@ HWTEST_F(PasteDataRecordTest, SetUriTest001, TestSize.Level0)
     record.SetUri(nullptr);
 
     auto uri = record.GetUri();
-    EXPECT_NE(uri, nullptr);
+    EXPECT_EQ(uri, nullptr);
 }
 
 /**
@@ -570,7 +570,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest002, TestSize.Level0)
     record.AddEntryByMimeType(MIMETYPE_TEXT_PLAIN, entry);
 
     auto ret = record.GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
-    EXPECT_EQ(ret, nullptr);
+    EXPECT_NE(ret, nullptr);
 }
 
 /**
@@ -606,10 +606,6 @@ HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest004, TestSize.Level0)
     auto ret = record.GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
     EXPECT_NE(ret, nullptr);
 
-    record.SetUDMFValue(nullptr);
-    ret = record.GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
-    EXPECT_NE(ret, nullptr);
-
     AddHtmlUdsEntry(record);
     std::set<std::string> mimeTypes = record.GetMimeTypes();
     bool isExist = mimeTypes.find(MIMETYPE_TEXT_PLAIN) == mimeTypes.end();
@@ -624,8 +620,8 @@ HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest004, TestSize.Level0)
 HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest001, TestSize.Level0)
 {
     PasteDataRecord record;
-    auto value = record.GetUDMFValue();
-    EXPECT_EQ(value, nullptr);
+    auto entries = record.GetEntries();
+    EXPECT_EQ(entries.size(), 0);
 
     bool ret = record.HasEmptyEntry();
     EXPECT_FALSE(ret);
@@ -639,10 +635,12 @@ HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest001, TestSize.Level0)
 HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest002, TestSize.Level0)
 {
     PasteDataRecord record;
-    auto udmfValue = std::make_shared<EntryValue>();
-    record.SetUDMFValue(udmfValue);
-    auto value = record.GetUDMFValue();
-    EXPECT_EQ(value, udmfValue);
+    auto entry = std::make_shared<PasteDataEntry>();
+    std::string utdId = "general.hyperlink";
+    entry->SetUtdId(utdId);
+    record.AddEntry(utdId, entry);
+    auto entries = record.GetEntries();
+    EXPECT_EQ(entries.size(), 1);
 
     bool ret = record.HasEmptyEntry();
     EXPECT_TRUE(ret);
@@ -656,21 +654,16 @@ HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest002, TestSize.Level0)
 HWTEST_F(PasteDataRecordTest, GetUDMFValueTest001, TestSize.Level0)
 {
     PasteDataRecord record1("1", nullptr, nullptr, nullptr, nullptr);
-    auto value = record1.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
+    auto entries = record1.GetEntries();
+    EXPECT_EQ(entries.size(), 0);
 
     auto customData = std::make_shared<MineCustomData>();
     PasteDataRecord::Builder builder("1");
     builder.SetCustomData(customData);
     auto record2 = builder.Build();
     ASSERT_NE(record2, nullptr);
-    value = record2->GetUDMFValue();
-    EXPECT_EQ(value, nullptr);
-
-    auto udmfValue = std::make_shared<EntryValue>();
-    record2->SetUDMFValue(udmfValue);
-    value = record2->GetUDMFValue();
-    EXPECT_NE(value, nullptr);
+    entries = record2->GetEntries();
+    EXPECT_EQ(entries.size(), 0);
 }
 
 /**
@@ -681,8 +674,8 @@ HWTEST_F(PasteDataRecordTest, GetUDMFValueTest001, TestSize.Level0)
 HWTEST_F(PasteDataRecordTest, GetUDMFValueTest002, TestSize.Level0)
 {
     PasteDataRecord record1(MIMETYPE_PIXELMAP, nullptr, nullptr, nullptr, nullptr);
-    auto value = record1.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
+    auto entries = record1.GetEntries();
+    EXPECT_EQ(entries.size(), 0);
 
     const uint32_t color[] = { 0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08 };
     uint32_t len = sizeof(color) / sizeof(color[0]);
@@ -697,75 +690,8 @@ HWTEST_F(PasteDataRecordTest, GetUDMFValueTest002, TestSize.Level0)
     builder.SetPixelMap(pixelMap);
     auto record2 = builder.Build();
     ASSERT_NE(record2, nullptr);
-    value = record2->GetUDMFValue();
-    EXPECT_NE(value, nullptr);
-}
-
-/**
- * @tc.name: GetUDMFValueTest003
- * @tc.desc: GetUDMFValue
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataRecordTest, GetUDMFValueTest003, TestSize.Level0)
-{
-    PasteDataRecord record1(MIMETYPE_TEXT_HTML, nullptr, nullptr, nullptr, nullptr);
-    auto value = record1.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
-
-    auto htmlText = std::make_shared<std::string>("1");
-    PasteDataRecord record2(MIMETYPE_TEXT_HTML, htmlText, nullptr, nullptr, nullptr);
-    value = record2.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
-}
-
-/**
- * @tc.name: GetUDMFValueTest004
- * @tc.desc: GetUDMFValue
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataRecordTest, GetUDMFValueTest004, TestSize.Level0)
-{
-    PasteDataRecord record1(MIMETYPE_TEXT_PLAIN, nullptr, nullptr, nullptr, nullptr);
-    auto value = record1.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
-
-    auto plainText = std::make_shared<std::string>("1");
-    PasteDataRecord record2(MIMETYPE_TEXT_PLAIN, nullptr, nullptr, plainText, nullptr);
-    value = record2.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
-}
-
-/**
- * @tc.name: GetUDMFValueTest005
- * @tc.desc: GetUDMFValue
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataRecordTest, GetUDMFValueTest005, TestSize.Level0)
-{
-    PasteDataRecord record1(MIMETYPE_TEXT_URI, nullptr, nullptr, nullptr, nullptr);
-    auto value = record1.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
-
-    auto uri = std::make_shared<OHOS::Uri>(uri_);
-    PasteDataRecord record2(MIMETYPE_TEXT_URI, nullptr, nullptr, nullptr, uri);
-    value = record2.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
-
-    AddFileUriUdsEntry(record2);
-    value = record2.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
-}
-
-/**
- * @tc.name: GetUDMFValueTest006
- * @tc.desc: GetUDMFValue
- * @tc.type: FUNC
- */
-HWTEST_F(PasteDataRecordTest, GetUDMFValueTest006, TestSize.Level0)
-{
-    PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
-    auto value = record.GetUDMFValue();
-    EXPECT_NE(value, nullptr);
+    entries = record2->GetEntries();
+    EXPECT_EQ(entries.size(), 1);
 }
 
 /**

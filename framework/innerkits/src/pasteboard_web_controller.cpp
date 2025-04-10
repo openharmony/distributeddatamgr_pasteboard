@@ -177,6 +177,8 @@ void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &recor
         AppFileService::ModuleFileUri::FileUri fileUri(puri);
         std::string realPath = PasteBoardCommon::IsPasteboardService() ? fileUri.GetRealPathBySA(targetBundle) :
             fileUri.GetRealPath();
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(!realPath.empty(), PASTEBOARD_MODULE_COMMON,
+            "file not exist, id=%{public}u, uri=%{public}s", record->GetRecordId(), puri.c_str());
         realUri = FILE_SCHEME_PREFIX;
         realUri += realPath;
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(), realUri.c_str());
@@ -211,14 +213,8 @@ void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData, cons
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "rebuild start, record count=%{public}zu", pasteData.GetRecordCount());
     auto justSplitHtml = false;
-    auto details = std::make_shared<Details>();
-    std::string textContent;
     for (auto &item : pasteData.AllRecords()) {
         justSplitHtml = justSplitHtml || item->GetFrom() > 0;
-        if (!item->GetTextContent().empty() && textContent.empty()) {
-            details = item->GetDetails();
-            textContent = item->GetTextContent();
-        }
         RefreshUri(item, targetBundle);
     }
     if (justSplitHtml) {
@@ -226,26 +222,6 @@ void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData, cons
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "Rebuild webview PasteData end, merged uris into html.");
         return;
     }
-    if (pasteData.GetPrimaryHtml() == nullptr) {
-        return;
-    }
-
-    auto webData = std::make_shared<PasteData>(pasteData);
-    RebuildHtml(webData);
-    PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
-    std::shared_ptr<PasteDataRecord> pasteDataRecord = builder.SetMimeType(MIMETYPE_TEXT_HTML).
-        SetPlainText(pasteData.GetPrimaryText()).SetHtmlText(webData->GetPrimaryHtml()).Build();
-    if (details) {
-        pasteDataRecord->SetDetails(*details);
-    }
-    pasteDataRecord->SetUDType(UDMF::HTML);
-    pasteDataRecord->SetTextContent(textContent);
-    webData->AddRecord(pasteDataRecord);
-    std::size_t recordCnt = webData->GetRecordCount();
-    if (recordCnt >= 1) {
-        webData->RemoveRecordAt(recordCnt - 1);
-    }
-    pasteData = *webData;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "Rebuild end, record count=%{public}zu", pasteData.GetRecordCount());
 }
 
