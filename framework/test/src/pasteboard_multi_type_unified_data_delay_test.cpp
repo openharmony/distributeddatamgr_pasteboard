@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include <variant>
 
+#include "entry_getter.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"

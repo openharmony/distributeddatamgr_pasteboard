@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "entry_getter.h"
 #include "paste_data_record.h"
 #include "unified_meta.h"
 

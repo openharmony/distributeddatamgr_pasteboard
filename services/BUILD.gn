@@ -140,8 +140,11 @@ ohos_shared_library("pasteboard_service") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
+    "c_utils:utils",
     "data_share:datashare_consumer",
     "dataclassification:data_transit_mgr",
+    "device_manager:devicemanagersdk",
+    "dfs_service:distributed_file_daemon_kit_inner",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",
@@ -156,6 +159,7 @@ ohos_shared_library("pasteboard_service") {
     "resource_schedule_service:ressched_client",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "udmf:udmf_client",
   ]
   if (pasteboard_vixl_part_enabled) {
     external_deps += [ "vixl:libvixl" ]

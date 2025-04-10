@@ -17,10 +17,12 @@
 #define PASTE_BOARD_RECORD_H
 
 #include "common/constant.h"
-#include "entry_getter.h"
 #include "paste_data_entry.h"
 
 namespace OHOS {
+namespace UDMF {
+class EntryGetter;
+}
 namespace MiscServices {
 enum ResultCode : int32_t { OK = 0, IPC_NO_DATA, IPC_ERROR };
 

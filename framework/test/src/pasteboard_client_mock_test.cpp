@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include <thread>
 
+#include "entry_getter.h"
 #include "errors.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"

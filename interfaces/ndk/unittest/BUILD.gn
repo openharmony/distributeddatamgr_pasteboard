@@ -42,6 +42,7 @@ common_external_deps = [
   "ipc:ipc_single",
   "os_account:os_account_innerkits",
   "udmf:libudmf",
+  "udmf:udmf_client",
 ]
 
 ohos_unittest("PasteboardNdkTest") {
