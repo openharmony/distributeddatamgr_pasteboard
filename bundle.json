@@ -111,25 +111,6 @@
             }
           },
           {
-            "name": "//foundation/distributeddatamgr/pasteboard/framework/tlv:pasteboard_tlv",
-            "header": {
-              "header_files": [
-                "tlv_writeable.h"
-              ],
-              "header_base":"//foundation/distributeddatamgr/pasteboard/framework/tlv"
-            }
-          },
-          {
-            "name": "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_data",
-            "header": {
-              "header_files": [
-                "paste_data.h",
-                "paste_data_record.h"
-              ],
-            "header_base":"//foundation/distributeddatamgr/pasteboard/framework/innerkits/include"
-            }
-          },
-          {
             "name": "//foundation/distributeddatamgr/pasteboard/interfaces/ndk:libpasteboard",
             "header": {
               "header_files": [

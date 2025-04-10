@@ -13,19 +13,20 @@
 
 import("//build/ohos.gni")
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
+import("${pasteboard_tlv_path}/pasteboard_tlv.gni")
 
 config("pasteboard_client_config") {
   visibility = [ ":*" ]
   visibility += [ "//foundation/distributeddatamgr/pasteboard/test/fuzztest/pasteboardclient_fuzzer/*" ]
   include_dirs = [
     "include",
+    "${pasteboard_framework_path}/include",
     "${pasteboard_root_path}/adapter/pasteboard_progress",
     "${pasteboard_service_path}/core/include",
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
+    "${pasteboard_tlv_path}",
     "${pasteboard_utils_path}/native/include",
-    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
-    "//foundation/distributeddatamgr/pasteboard/framework/tlv",
     "${root_out_dir}/gen/foundation/distributeddatamgr/pasteboard/services",
   ]
 }
@@ -34,10 +35,11 @@ config("pasteboard_data_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include",
-    "${pasteboard_root_path}/framework/tlv",
+    "${pasteboard_framework_path}/include",
     "${pasteboard_service_path}/core/include",
     "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/zidl/include",
+    "${pasteboard_tlv_path}",
     "${pasteboard_utils_path}/native/include",
     "${root_out_dir}/gen/foundation/distributeddatamgr/pasteboard/services",
   ]
@@ -63,6 +65,7 @@ ohos_shared_library("pasteboard_data") {
     "src/pasteboard_service_loader.cpp",
     "src/pasteboard_web_controller.cpp",
   ]
+  sources += pasteboard_tlv_sources
 
   ldflags = [ "-Wl,--gc-sections" ]
   cflags = [
@@ -84,10 +87,7 @@ ohos_shared_library("pasteboard_data") {
   ]
 
   public_configs = [ ":pasteboard_data_config" ]
-  deps = [
-    "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
-    "${pasteboard_root_path}/services:pasteboard_stub_proxy",
-  ]
+  deps = [ "${pasteboard_root_path}/services:pasteboard_stub_proxy" ]
 
   external_deps = [
     "ability_base:zuri",
@@ -152,6 +152,7 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_utils.cpp",
     "src/pasteboard_web_controller.cpp",
   ]
+  sources += pasteboard_tlv_sources
 
   cflags_cc = [
     "-fstack-protector",
@@ -163,7 +164,6 @@ ohos_shared_library("pasteboard_client") {
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
-    "${pasteboard_root_path}/framework/tlv:pasteboard_tlv",
     "${pasteboard_root_path}/services:pasteboard_stub_proxy",
   ]
 

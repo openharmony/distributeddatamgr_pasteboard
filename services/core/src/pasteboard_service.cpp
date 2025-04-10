@@ -2921,7 +2921,7 @@ bool PasteboardService::SetCurrentData(Event event, PasteData &data)
     }
     GenerateDistributedUri(data);
     std::vector<uint8_t> rawData;
-    if (!data.Encode(rawData)) {
+    if (!data.Encode(rawData, true)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
         return false;
@@ -3007,7 +3007,7 @@ int32_t PasteboardService::ProcessDistributedDelayUri(int32_t userId, PasteData 
         entry.SetFileSize(static_cast<int64_t>(fileSize));
     }
 
-    bool encodeSucc = entry.Encode(rawData);
+    bool encodeSucc = entry.Encode(rawData, true);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode uri failed");
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -3036,7 +3036,7 @@ int32_t PasteboardService::ProcessDistributedDelayHtml(PasteData &data, PasteDat
         GenerateDistributedUri(tmp);
     }
 
-    bool encodeSucc = tmp.Encode(rawData);
+    bool encodeSucc = tmp.Encode(rawData, true);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode html failed");
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -3044,7 +3044,7 @@ int32_t PasteboardService::ProcessDistributedDelayHtml(PasteData &data, PasteDat
 
 int32_t PasteboardService::ProcessDistributedDelayEntry(PasteDataEntry &entry, std::vector<uint8_t> &rawData)
 {
-    bool encodeSucc = entry.Encode(rawData);
+    bool encodeSucc = entry.Encode(rawData, true);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode entry failed, type=%{public}s", entry.GetUtdId().c_str());
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -3076,7 +3076,7 @@ int32_t PasteboardService::GetDistributedDelayData(const Event &evt, uint8_t ver
     PasteboardWebController::GetInstance().CheckAppUriPermission(*data);
     GenerateDistributedUri(*data);
 
-    bool encodeSucc = data->Encode(rawData);
+    bool encodeSucc = data->Encode(rawData, true);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode data failed, dataId:%{public}u, seqId:%{public}hu", evt.dataId, evt.seqId);
 
@@ -3182,10 +3182,10 @@ int32_t PasteboardService::ProcessRemoteDelayHtml(const std::string &remoteDevic
     auto htmlRecord = tmpData.GetRecordById(1);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(htmlRecord != nullptr,
         static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED), PASTEBOARD_MODULE_SERVICE, "record is null");
-    auto entryValue = htmlRecord->GetUDMFValue();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entryValue != nullptr,
-        static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED), PASTEBOARD_MODULE_SERVICE, "udmfValue is null");
-    entry.SetValue(*entryValue);
+    auto htmlEntry = htmlRecord->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(htmlEntry != nullptr,
+        static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED), PASTEBOARD_MODULE_SERVICE, "htmlEntry is null");
+    entry.SetValue(htmlEntry->GetValue());
     record.AddEntry(entry.GetUtdId(), std::make_shared<PasteDataEntry>(entry));
 
     if (htmlRecord->GetFrom() == 0) {

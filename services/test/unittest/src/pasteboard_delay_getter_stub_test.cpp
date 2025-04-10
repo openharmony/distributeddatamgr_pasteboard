@@ -95,8 +95,9 @@ std::u16string MessageParcel::ReadInterfaceToken()
     return interface->ReadInterfaceToken();
 }
 
-bool TLVWriteable::Encode(std::vector<uint8_t> &buffer) const
+bool TLVWriteable::Encode(std::vector<uint8_t> &buffer, bool isRemote) const
 {
+    (void)isRemote;
     PasteboardDelayStubInterface *interface = GetPasteboardDelayStubInterface();
     if (interface == nullptr) {
         return false;
