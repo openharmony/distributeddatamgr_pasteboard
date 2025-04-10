@@ -104,10 +104,7 @@ ohos_shared_library("pasteboard_data") {
     "samgr:samgr_proxy",
     "udmf:udmf_client",
   ]
-  public_external_deps = [
-    "image_framework:image_native",
-    "udmf:udmf_client",
-  ]
+  public_external_deps = [ "udmf:udmf_client" ]
   subsystem_name = "distributeddatamgr"
   use_exceptions = true
   innerapi_tags = [ "platformsdk" ]
