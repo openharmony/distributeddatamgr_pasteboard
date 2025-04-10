@@ -195,6 +195,7 @@ ohos_shared_library("pasteboard_service") {
     defines += [ "PB_SCREENLOCK_MGR_ENABLE" ]
   }
   subsystem_name = "distributeddatamgr"
+  use_exceptions = true
   part_name = "pasteboard"
 }
 

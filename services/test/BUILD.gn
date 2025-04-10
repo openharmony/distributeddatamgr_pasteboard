@@ -78,6 +78,7 @@ ohos_unittest("PasteboardServiceTest") {
 }
 
 ohos_unittest("PasteServInterfaceTest") {
+  use_exceptions = true
   module_out_path = module_output_path
   sources = [
     "${pasteboard_root_path}/adapter/data_share/datashare_delegate.cpp",
@@ -206,6 +207,7 @@ ohos_unittest("PasteServInterfaceTest") {
 }
 
 ohos_unittest("PasteServInterfaceMockTest") {
+  use_exceptions = true
   module_out_path = module_output_path
   sources = [
     "${pasteboard_root_path}/adapter/data_share/datashare_delegate.cpp",
@@ -390,6 +392,7 @@ ohos_unittest("PasteboardDeduplicateMemoryTest") {
 }
 
 ohos_unittest("PasteboardPatternTest") {
+  use_exceptions = true
   module_out_path = module_output_path
   sources = [
     "${pasteboard_service_path}/core/src/pasteboard_lib_guard.cpp",

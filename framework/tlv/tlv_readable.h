@@ -42,6 +42,9 @@ public:
     template<typename T>
     bool ReadValue(std::vector<T> &value, const TLVHead &head)
     {
+        if (cursor_ + head.len > data_.size()) {
+            return false;
+        }
         auto vectorEnd = cursor_ + head.len;
         for (; cursor_ < vectorEnd;) {
             // V: item value
