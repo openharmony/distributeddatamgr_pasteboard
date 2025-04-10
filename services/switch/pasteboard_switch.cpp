@@ -24,23 +24,34 @@ namespace OHOS::MiscServices {
 using namespace UeReporter;
 const constexpr char *DISTRIBUTED_PASTEBOARD_SWITCH = "distributed_pasteboard_switch";
 constexpr const char *SUPPORT_STATUS = "1";
+constexpr int32_t ERROR_USERID = -1;
+
 PastedSwitch::PastedSwitch()
 {
     switchObserver_ = new (std::nothrow) PastedSwitchObserver([this]() -> void {
-        SetSwitch();
+        SetSwitch(userId_);
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteSwitch SetSwitch %{public}d", userId_);
     });
 }
 
-void PastedSwitch::Init()
+void PastedSwitch::Init(int32_t userId)
 {
+    if (userId == ERROR_USERID) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
+        return;
+    }
+    this->userId_ = userId;
+    DataShareDelegate::GetInstance().SetUserId(userId_);
     DataShareDelegate::GetInstance().RegisterObserver(DISTRIBUTED_PASTEBOARD_SWITCH, switchObserver_);
-    SetSwitch();
+    SetSwitch(userId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Init SetSwitch %{public}d", userId);
     ReportUeSwitchEvent();
 }
 
-void PastedSwitch::SetSwitch()
+void PastedSwitch::SetSwitch(int32_t userId)
 {
     std::string value;
+    DataShareDelegate::GetInstance().SetUserId(userId);
     DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEBOARD_SWITCH, value);
     if (value.empty()) {
         DevProfile::GetInstance().PutEnabledStatus(SUPPORT_STATUS);
