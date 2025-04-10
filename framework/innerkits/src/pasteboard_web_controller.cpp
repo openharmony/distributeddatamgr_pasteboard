@@ -321,12 +321,16 @@ std::vector<std::pair<std::string, uint32_t>> PasteboardWebController::SplitHtml
     std::string::const_iterator iterEnd = html->end();
     std::vector<std::pair<std::string, uint32_t>> matchVec;
 
-    while (std::regex_search(iterStart, iterEnd, results, reg)) {
-        std::string tmp = results[0];
-        iterStart = results[0].second;
-        uint32_t offset = static_cast<uint32_t>(results[0].first - html->begin());
+    try {
+        while (std::regex_search(iterStart, iterEnd, results, reg)) {
+            std::string tmp = results[0];
+            iterStart = results[0].second;
+            uint32_t offset = static_cast<uint32_t>(results[0].first - html->begin());
 
-        matchVec.emplace_back(tmp, offset);
+            matchVec.emplace_back(tmp, offset);
+        }
+    } catch (std::regex_error& e) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "Regex error !");
     }
 
     return matchVec;

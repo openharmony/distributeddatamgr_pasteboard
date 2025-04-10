@@ -60,6 +60,9 @@ ani_object Create([[maybe_unused]] ani_env *env, std::shared_ptr<PasteData> &ptr
 PasteData* unwrapAndGetPasteDataPtr([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_object object)
 {
     auto shareptrPasteData = NativeObjectWrapper<SharedPtrHolder<PasteData>>::Unwrap(env, object);
+    if (shareptrPasteData == nullptr) {
+        return nullptr;
+    }
     return shareptrPasteData->Get().get();
 }
 
