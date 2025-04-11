@@ -26,7 +26,7 @@ const constexpr char *DISTRIBUTED_PASTEBOARD_SWITCH = "distributed_pasteboard_sw
 constexpr const char *SUPPORT_STATUS = "1";
 constexpr int32_t ERROR_USERID = -1;
 
-PastedSwitch::PastedSwitch()
+PastedSwitch::PastedSwitch() : userId_(ERROR_USERID)
 {
     switchObserver_ = new (std::nothrow) PastedSwitchObserver([this]() -> void {
         SetSwitch(userId_);
