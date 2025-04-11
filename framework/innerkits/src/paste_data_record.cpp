@@ -327,6 +327,20 @@ void PasteDataRecord::SetUri(std::shared_ptr<OHOS::Uri> uri)
     if (uri == nullptr) {
         return;
     }
+
+    for (auto &entry : entries_) {
+        if (entry != nullptr && entry->GetMimeType() == MIMETYPE_TEXT_URI) {
+            auto entryValue = entry->GetValue();
+            if (std::holds_alternative<std::shared_ptr<Object>>(entryValue)) {
+                auto object = std::get<std::shared_ptr<Object>>(entryValue);
+                object->value_[UDMF::FILE_URI_PARAM] = uri->ToString();
+            } else {
+                entry->SetValue(uri->ToString());
+            }
+            return;
+        }
+    }
+
     auto entry = std::make_shared<PasteDataEntry>();
     entry->SetValue(uri->ToString());
     AddEntryByMimeType(MIMETYPE_TEXT_URI, entry);
@@ -611,7 +625,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::Remote2Local() const
         object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
         object->value_[UDMF::CONTENT] = *plainText_;
     } else if (mimeType_ == MIMETYPE_TEXT_HTML && htmlText_ != nullptr) {
-        object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+        object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
         object->value_[UDMF::HTML_CONTENT] = *htmlText_;
         if (plainText_ != nullptr) {
             object->value_[UDMF::PLAIN_CONTENT] = *plainText_;
@@ -825,7 +839,8 @@ void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<Paste
 
     bool has = false;
     for (auto &entry : entries_) {
-        if (entry->GetUtdId() == utdType) {
+        if (entry->GetUtdId() == utdType ||
+            (entry->GetMimeType() == MIMETYPE_TEXT_URI && value->GetMimeType() == MIMETYPE_TEXT_URI)) {
             entry = value;
             has = true;
             break;
@@ -867,8 +882,7 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
 
 std::vector<std::shared_ptr<PasteDataEntry>> PasteDataRecord::GetEntries() const
 {
-    std::vector<std::shared_ptr<PasteDataEntry>> entries = entries_;
-    return entries;
+    return entries_;
 }
 
 void PasteDataRecord::SetDataId(uint32_t dataId)
