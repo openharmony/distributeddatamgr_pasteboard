@@ -255,6 +255,7 @@ ohos_unittest("PasteServInterfaceMockTest") {
     "${pasteboard_utils_path}/system/safwk/native/include",
     "${pasteboard_framework_path}/framework/include",
     "${pasteboard_framework_path}/framework/include/device",
+    "${pasteboard_framework_path}/tlv",
   ]
   external_deps = [
     "ability_base:base",

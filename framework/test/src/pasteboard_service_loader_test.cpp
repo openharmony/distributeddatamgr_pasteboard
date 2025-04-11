@@ -257,10 +257,12 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest001, TestSize.Level0)
 {
     std::vector<uint8_t> sendTLV(0);
     int64_t tlvSize = 1;
+    auto mpw = std::make_shared<MessageParcelWarp>();
     auto value = std::make_shared<PasteDataEntry>();
-    int fd = 3;
+    int fd = mpw->CreateTmpFd();
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, tlvSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+    close(fd);
 }
 
 /**
@@ -290,11 +292,13 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest002, TestSize.Level0)
 HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest003, TestSize.Level0)
 {
     auto value = std::make_shared<PasteDataEntry>();
+    auto mpw = std::make_shared<MessageParcelWarp>();
     int64_t rawDataSize = 0;
-    int fd = 3;
+    int fd = mpw->CreateTmpFd();
     std::vector<uint8_t> sendTLV(0);
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
+    close(fd);
 }
 
 /**
@@ -306,12 +310,14 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest003, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest004, TestSize.Level0)
 {
+    auto mpw = std::make_shared<MessageParcelWarp>();
     auto value = std::make_shared<PasteDataEntry>();
     int64_t rawDataSize = DEFAULT_MAX_RAW_DATA_SIZE + 1;
-    int fd = 3;
+    int fd = mpw->CreateTmpFd();
     std::vector<uint8_t> sendTLV(0);
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
+    close(fd);
 }
 
 /**
@@ -323,11 +329,13 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest004, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest005, TestSize.Level0)
 {
+    auto mpw = std::make_shared<MessageParcelWarp>();
     auto value = std::make_shared<PasteDataEntry>();
     int64_t rawDataSize = DEFAULT_MAX_RAW_DATA_SIZE - 1;
-    int fd = 3;
+    int fd = mpw->CreateTmpFd();
     std::vector<uint8_t> sendTLV(0);
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
+    close(fd);
 }
 }
