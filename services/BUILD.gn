@@ -104,10 +104,6 @@ ohos_shared_library("pasteboard_service") {
   ]
   sources += filter_include(output_values, [ "*.cpp" ])
   public_configs = [ ":pasteboard_service_config" ]
-  public_external_deps = [
-    "c_utils:utils",
-    "dfs_service:distributed_file_daemon_kit_inner",
-  ]
   cflags_cc = [
     "-fdata-sections",
     "-ffunction-sections",
