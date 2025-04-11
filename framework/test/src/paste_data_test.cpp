@@ -30,6 +30,8 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
 constexpr const int32_t INVALID_FD = -1;
 constexpr const char *FILE_URI = "/data/test/resource/pasteboardTest.txt";
+constexpr const char *REMOTE_FILE_SIZE_LONG = "remoteFileSizeLong";
+constexpr const char *REMOTE_FILE_SIZE = "remoteFileSize";
 class PasteDataTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -1009,5 +1011,30 @@ HWTEST_F(PasteDataTest, ReplaceRecordAtTest001, TestSize.Level0)
 
     //Assert
     EXPECT_FALSE(pasteData.ReplaceRecordAt(0, record));
+}
+
+/**
+ * @tc.name: GetFileSizeTest001
+ * @tc.desc: GetFileSizeTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, GetFileSizeTest001, TestSize.Level0)
+{
+    OHOS::Uri uri("uri");
+    auto pasteData = PasteboardClient::GetInstance()->CreateUriData(uri);
+    ASSERT_TRUE(pasteData != nullptr);
+    PasteDataProperty property = pasteData->GetProperty();
+    property.tokenId = 1;
+
+    AAFwk::ILong *ao = nullptr;
+    int64_t fileSize = pasteData->GetFileSize();
+    EXPECT_EQ(fileSize, property.additions.GetIntParam(REMOTE_FILE_SIZE, -1));
+
+    int64_t fileSize2 = 0L;
+    pasteData->SetFileSize(fileSize2);
+    int64_t fileSize3 = pasteData->GetFileSize();
+    EXPECT_EQ(fileSize3, fileSize2);
 }
 } // namespace OHOS::MiscServices

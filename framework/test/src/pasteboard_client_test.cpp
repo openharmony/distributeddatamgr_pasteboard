@@ -1075,4 +1075,18 @@ HWTEST_F(PasteboardClientTest, UpdateProgressTest001, TestSize.Level0)
     PasteboardClient::GetInstance()->UpdateProgress(nullptr, 50);
     EXPECT_TRUE(true);
 }
+
+/**
+ * @tc.name: GetRecordValueByTypeTest001
+ * @tc.desc: GetRecordValueByTypeTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, GetRecordValueByTypeTest001, TestSize.Level0)
+{
+    PasteDataEntry entry;
+    int32_t result = PasteboardClient::GetInstance()->GetRecordValueByType(1, 1, entry);
+    ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_DATA_ID));
+}
 } // namespace OHOS::MiscServices
