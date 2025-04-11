@@ -329,7 +329,7 @@ std::vector<std::pair<std::string, uint32_t>> PasteboardWebController::SplitHtml
 
             matchVec.emplace_back(tmp, offset);
         }
-    } catch (std::regex_error& e) {
+    } catch (std::regex_error &e) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "Regex error !");
     }
 
