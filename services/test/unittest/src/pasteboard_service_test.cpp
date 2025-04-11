@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "message_parcel_warp.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_service.h"
@@ -628,13 +629,14 @@ HWTEST_F(PasteboardServiceTest, IsRemoteDataTest003, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceTest, SetPasteDataOnlyTest001, TestSize.Level0)
 {
+    auto mpw = std::make_shared<MessageParcelWarp>();
     auto service = std::make_shared<PasteboardService>();
     int64_t rawDataSize = 0;
     std::vector<uint8_t> buffer;
-    int fd = 3;
-
+    int fd = mpw->CreateTmpFd();
     int32_t result = service->SetPasteDataOnly(fd, rawDataSize, buffer);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    close(fd);
 }
 
 /**
