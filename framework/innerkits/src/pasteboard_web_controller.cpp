@@ -318,19 +318,23 @@ std::map<std::string, std::vector<uint8_t>> PasteboardWebController::SplitHtmlWi
         std::string::const_iterator iterStart = node.first.begin();
         std::string::const_iterator iterEnd = node.first.end();
 
-        while (std::regex_search(iterStart, iterEnd, match, re)) {
-            std::string tmp = match[0];
-            iterStart = match[0].second;
-            uint32_t offset = static_cast<uint32_t>(match[0].first - node.first.begin());
-            tmp = tmp.substr(strlen(IMG_TAG_SRC_HEAD));
-            tmp.pop_back();
-            if (!IsLocalURI(tmp)) {
-                continue;
+        try {
+            while (std::regex_search(iterStart, iterEnd, match, re)) {
+                std::string tmp = match[0];
+                iterStart = match[0].second;
+                uint32_t offset = static_cast<uint32_t>(match[0].first - node.first.begin());
+                tmp = tmp.substr(strlen(IMG_TAG_SRC_HEAD));
+                tmp.pop_back();
+                if (!IsLocalURI(tmp)) {
+                    continue;
+                }
+                offset += strlen(IMG_TAG_SRC_HEAD) + node.second;
+                for (uint32_t i = 0; i < FOUR_BYTES; i++) {
+                    res[tmp].emplace_back((offset >> (EIGHT_BIT * i)) & 0xff);
+                }
             }
-            offset += strlen(IMG_TAG_SRC_HEAD) + node.second;
-            for (uint32_t i = 0; i < FOUR_BYTES; i++) {
-                res[tmp].emplace_back((offset >> (EIGHT_BIT * i)) & 0xff);
-            }
+        } catch (std::regex_error &e) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "Regex error !");
         }
     }
     return res;
