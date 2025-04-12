@@ -858,7 +858,12 @@ void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<Paste
 std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntryByMimeType(const std::string &mimeType)
 {
     auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, mimeType);
-    return GetEntry(utdId);
+    std::shared_ptr<PasteDataEntry> entry = GetEntry(utdId);
+    if (entry == nullptr && mimeType == MIMETYPE_TEXT_PLAIN) {
+        utdId = CommonUtils::Convert2UtdId(UDMF::UDType::HYPERLINK, mimeType);
+        entry = GetEntry(utdId);
+    }
+    return entry;
 }
 
 std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utdType)
