@@ -2876,7 +2876,7 @@ bool PasteboardService::SetCurrentDistributedData(PasteData &data, Event event)
                 if (!isNeedCheck) {
                     isNeedCheck = true;
                 }
-                std::thread thread([this, &event, &block]() mutable {
+                std::thread thread([this, event, block]() mutable {
                     PasteData data;
                     {
                         std::lock_guard<std::mutex> lock(setDistributedMemory_.mutex);
