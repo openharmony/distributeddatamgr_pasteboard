@@ -26,6 +26,7 @@
 #include "oh_pasteboard_err_code.h"
 #include "oh_pasteboard_observer_impl.h"
 #include "udmf.h"
+#include "udmf_meta.h"
 #include "uds.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_client.h"
@@ -713,6 +714,95 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_SetData001, TestSize.Level1)
     OH_UdsPlainText_Destroy(plainText);
     OH_UdmfRecord_Destroy(record);
     OH_UdmfData_Destroy(setData);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_SetData002
+ * @tc.desc: OH_Pasteboard_SetData test file uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_SetData002, TestSize.Level1)
+{
+    const char *uri1 = "file://PasteboardNdkTest/data/storage/el2/base/files/file.txt";
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData *uData = OH_UdmfData_Create();
+    OH_UdmfRecord *uRecord = OH_UdmfRecord_Create();
+    OH_UdsFileUri *uFileUri = OH_UdsFileUri_Create();
+
+    OH_UdsFileUri_SetFileUri(uFileUri, uri1);
+    OH_UdmfRecord_AddFileUri(uRecord, uFileUri);
+    OH_UdmfData_AddRecord(uData, uRecord);
+    int32_t ret = OH_Pasteboard_SetData(pasteboard, uData);
+    EXPECT_EQ(ret, ERR_OK);
+
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_UdsFileUri_Destroy(uFileUri);
+    OH_UdmfRecord_Destroy(uRecord);
+    OH_UdmfData_Destroy(uData);
+
+    PasteData pasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    auto record = pasteData.GetRecordAt(0);
+    ASSERT_NE(record, nullptr);
+    auto mimeType = record->GetMimeType();
+    EXPECT_EQ(mimeType, MIMETYPE_TEXT_URI);
+    auto entries = record->GetEntries();
+    ASSERT_EQ(entries.size(), 1);
+    auto entry = entries.front();
+    ASSERT_NE(entry, nullptr);
+    auto utdId = entry->GetUtdId();
+    EXPECT_STREQ(utdId.c_str(), UDMF_META_GENERAL_FILE_URI);
+    mimeType = entry->GetMimeType();
+    EXPECT_STREQ(mimeType.c_str(), MIMETYPE_TEXT_URI);
+    auto uri2 = entry->ConvertToUri();
+    ASSERT_NE(uri2, nullptr);
+    auto uriStr = uri2->ToString();
+    EXPECT_STREQ(uri1, uriStr.c_str());
+}
+
+/**
+ * @tc.name: OH_Pasteboard_SetData003
+ * @tc.desc: OH_Pasteboard_SetData test hyperlink
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_SetData003, TestSize.Level1)
+{
+    const char *link1 = "link://data/storage/el2/base/files/file.txt";
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData *uData = OH_UdmfData_Create();
+    OH_UdmfRecord *uRecord = OH_UdmfRecord_Create();
+    OH_UdsHyperlink *uHyperlink = OH_UdsHyperlink_Create();
+
+    OH_UdsHyperlink_SetUrl(uHyperlink, link1);
+    OH_UdmfRecord_AddHyperlink(uRecord, uHyperlink);
+    OH_UdmfData_AddRecord(uData, uRecord);
+    int32_t ret = OH_Pasteboard_SetData(pasteboard, uData);
+    EXPECT_EQ(ret, ERR_OK);
+
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_UdsHyperlink_Destroy(uHyperlink);
+    OH_UdmfRecord_Destroy(uRecord);
+    OH_UdmfData_Destroy(uData);
+
+    PasteData pasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(pasteData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    auto record = pasteData.GetRecordAt(0);
+    ASSERT_NE(record, nullptr);
+    auto mimeType = record->GetMimeType();
+    EXPECT_EQ(mimeType, MIMETYPE_TEXT_PLAIN);
+    auto entry = record->GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
+    ASSERT_NE(entry, nullptr);
+    auto utdId = entry->GetUtdId();
+    EXPECT_STREQ(utdId.c_str(), UDMF_META_HYPERLINK);
+    mimeType = entry->GetMimeType();
+    EXPECT_STREQ(mimeType.c_str(), MIMETYPE_TEXT_PLAIN);
+    auto link2 = entry->ConvertToPlainText();
+    ASSERT_NE(link2, nullptr);
+    EXPECT_STREQ(link1, link2->c_str());
 }
 
 /**
