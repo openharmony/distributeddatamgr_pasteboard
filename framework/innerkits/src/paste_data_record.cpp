@@ -859,6 +859,15 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntryByMimeType(const std::s
 {
     auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, mimeType);
     std::shared_ptr<PasteDataEntry> entry = GetEntry(utdId);
+    if (entry == nullptr && customData_ != nullptr) {
+        const std::map<std::string, std::vector<uint8_t>> &itemData = customData_->GetItemData();
+        for (const auto &[key, value] : itemData) {
+            if (mimeType == key) {
+                entry = std::make_shared<PasteDataEntry>(utdId, mimeType, value);
+                return entry;
+            }
+        }
+    }
     if (entry == nullptr && mimeType == MIMETYPE_TEXT_PLAIN) {
         utdId = CommonUtils::Convert2UtdId(UDMF::UDType::HYPERLINK, mimeType);
         entry = GetEntry(utdId);
