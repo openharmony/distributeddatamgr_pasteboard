@@ -804,6 +804,71 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType005, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetEntryByMimeType006
+ * @tc.desc: GetEntryByMimeType(custom)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetEntryByMimeType006, TestSize.Level0)
+{
+    std::string key = "openharmony.styled-string";
+    std::vector<uint8_t> val = {0x01, 0x02, 0x03};
+    auto customData = std::make_shared<MineCustomData>();
+    customData->AddItemData(key, val);
+
+    std::string htmlStr = "<p>hello</p>";
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_HTML);
+    builder.SetHtmlText(std::make_shared<std::string>(htmlStr));
+    builder.SetCustomData(customData);
+
+    auto record = builder.Build();
+    ASSERT_NE(record, nullptr);
+
+    auto entry = record->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+    ASSERT_NE(entry, nullptr);
+    std::shared_ptr<std::string> html = entry->ConvertToHtml();
+    ASSERT_NE(html, nullptr);
+    EXPECT_STREQ(html->c_str(), htmlStr.c_str());
+
+    entry = record->GetEntryByMimeType(key);
+    ASSERT_NE(entry, nullptr);
+    customData = entry->ConvertToCustomData();
+    ASSERT_NE(customData, nullptr);
+    auto itemData = customData->GetItemData();
+    auto item = itemData.find(key);
+    ASSERT_NE(item, itemData.end());
+    std::vector<uint8_t> dataArray = item->second;
+    EXPECT_EQ(dataArray, val);
+}
+
+/**
+ * @tc.name: GetEntryByMimeType007
+ * @tc.desc: GetEntryByMimeType(custom)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetEntryByMimeType007, TestSize.Level0)
+{
+    std::string key = "openharmony.styled-string";
+    std::vector<uint8_t> val = {0x01, 0x02, 0x03};
+    auto customData = std::make_shared<MineCustomData>();
+    customData->AddItemData(key, val);
+
+    PasteDataRecord::Builder builder(key);
+    builder.SetCustomData(customData);
+    auto record = builder.Build();
+    ASSERT_NE(record, nullptr);
+
+    auto entry = record->GetEntryByMimeType(key);
+    ASSERT_NE(entry, nullptr);
+    customData = entry->ConvertToCustomData();
+    ASSERT_NE(customData, nullptr);
+    auto itemData = customData->GetItemData();
+    auto item = itemData.find(key);
+    ASSERT_NE(item, itemData.end());
+    std::vector<uint8_t> dataArray = item->second;
+    EXPECT_EQ(dataArray, val);
+}
+
+/**
  * @tc.name: GetPassUriTest001
  * @tc.desc:
  * @tc.type: FUNC
