@@ -70,15 +70,28 @@ struct PasteDateResult {
     int32_t errorCode = 0;
 };
 
+struct PasteP2pEstablishInfo {
+    std::string networkId;
+    std::shared_ptr<BlockObject<bool>> pasteBlock;
+};
+
 struct FocusedAppInfo {
     int32_t windowId = 0;
     sptr<IRemoteObject> abilityToken = nullptr;
 };
+class PasteboardService;
 class InputEventCallback : public MMI::IInputEventConsumer {
 public:
+    enum InputType : int32_t {
+        INPUTTYPE_PASTE = 0,
+        INPUTTYPE_PRESYNC,
+    };
+    InputEventCallback(int32_t inputType = INPUTTYPE_PASTE, PasteboardService *pasteboardService = nullptr)
+        : inputType_(inputType), pasteboardService_(pasteboardService) {};
     void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
     void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
     void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override;
+    void OnKeyInputEventForPaste(std::shared_ptr<MMI::KeyEvent> keyEvent) const;
     bool IsCtrlVProcess(uint32_t callingPid, bool isFocused);
     void Clear();
 
@@ -89,6 +102,8 @@ private:
     mutable std::shared_mutex inputEventMutex_;
     mutable std::shared_mutex blockMapMutex_;
     mutable std::map<uint32_t, std::shared_ptr<BlockObject<bool>>> blockMap_;
+    int32_t inputType_ = INPUTTYPE_PASTE;
+    PasteboardService *pasteboardService_ = nullptr;
 };
 
 class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
@@ -149,6 +164,7 @@ public:
     virtual int32_t GetChangeCount(uint32_t &changeCount) override;
     void ChangeStoreStatus(int32_t userId);
     void CloseDistributedStore(int32_t user, bool isNeedClear);
+    void PreSyncRemotePasteboardData();
     PastedSwitch switch_;
     static int32_t GetCurrentAccountId();
 
@@ -170,9 +186,17 @@ private:
     static constexpr const pid_t ROOT_UID = 0;
     static constexpr uint32_t EXPIRATION_INTERVAL = 2 * 60 * 1000;
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; // ms
+    static constexpr int PRESYNC_MONITOR_TIME = 2 * 60 * 1000; // ms
+    static constexpr int PRE_ESTABLISH_P2P_LINK_TIME = 2 * 60 * 1000; // ms
     static constexpr uint32_t SET_DISTRIBUTED_DATA_INTERVAL = 40 * 1000; // 40 seconds
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
+    static constexpr int64_t PRESYNC_MONITOR_INTERVAL_MILLISECONDS = 500; // ms
+    static constexpr int32_t INVALID_SUBSCRIBE_ID = -1;
+    static const std::string REGISTER_PRESYNC_MONITOR;
+    static const std::string UNREGISTER_PRESYNC_MONITOR;
+    static const std::string P2P_ESTABLISH_STR;
+    static const std::string P2P_PRESYNC_ID;
     bool SetPasteboardHistory(HistoryInfo &info);
     bool IsFocusedApp(uint32_t tokenId);
     void InitBundles(Loader &loader);
@@ -279,6 +303,8 @@ private:
     std::pair<int32_t, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string &perm, uint32_t tokenId);
+    int32_t CheckAndGrantRemoteUri(PasteData &data, const AppInfo &appInfo,
+        const std::string &pasteId, const std::string &deviceId, std::shared_ptr<BlockObject<bool>> pasteBlock);
     int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime);
 
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
@@ -297,7 +323,13 @@ private:
     bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
+    void OpenP2PLink(const std::string &networkId);
+    std::shared_ptr<BlockObject<bool>> CheckAndReuseP2PLink(const std::string &networkId, const std::string &pasteId);
     void EstablishP2PLink(const std::string &networkId, const std::string &pasteId);
+    bool IsContainUri(const std::vector<std::string> &dataType);
+    std::shared_ptr<BlockObject<bool>> EstablishP2PLinkTask(
+        const std::string &pasteId, const ClipPlugin::GlobalEvent &event);
+    void ClearP2PEstablishTaskInfo();
     void CloseP2PLink(const std::string &networkId);
     uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
@@ -348,6 +380,17 @@ private:
     bool WriteRawData(const void *data, int64_t size, int &serFd);
     void CloseSharedMemFd(int fd);
 
+    void RegisterPreSyncCallback(std::shared_ptr<ClipPlugin> clipPlugin);
+    bool OpenP2PLinkForPreEstablish(const std::string &networkId, ClipPlugin *clipPlugin);
+    void PreEstablishP2PLink(const std::string &networkId, ClipPlugin *clipPlugin);
+    void PreEstablishP2PLinkCallback(const std::string &networkId, ClipPlugin *clipPlugin);
+    void PreSyncSwitchMonitorCallback();
+    void RegisterPreSyncMonitor();
+    void UnRegisterPreSyncMonitor();
+    void DeletePreSyncP2pFromP2pMap(const std::string &networkId);
+    void DeletePreSyncP2pMap(const std::string &networkId);
+    void AddPreSyncP2pTimeoutTask(const std::string &networkId);
+
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::mutex observerMutex_;
@@ -389,7 +432,11 @@ private:
     };
 
     std::shared_ptr<FFRTTimer> ffrtTimer_;
+    std::mutex p2pMapMutex_;
+    PasteP2pEstablishInfo p2pEstablishInfo_;
     ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
+    std::map<std::string, std::shared_ptr<BlockObject<bool>>> preSyncP2pMap_;
+    int32_t subscribeActiveId_ = INVALID_SUBSCRIBE_ID;
     enum GlobalShareOptionSource {
         MDM = 0,
         APP = 1,
