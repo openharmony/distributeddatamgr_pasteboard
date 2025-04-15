@@ -1617,7 +1617,7 @@ void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData
             if (item == nullptr || item->GetOriginUri() == nullptr) {
                 continue;
             }
-            Uri &uri = *(item->GetOriginUri());
+            Uri uri = *(item->GetOriginUri());
             for (std::set<std::string>::iterator it = bundles.begin(); it != bundles.end(); it++) {
                 auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, *it);
                 PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
