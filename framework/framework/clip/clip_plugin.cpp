@@ -114,6 +114,26 @@ int32_t ClipPlugin::GetPasteDataEntry(const GlobalEvent &event, uint32_t recordI
     return 0;
 }
 
+bool ClipPlugin::NeedSyncTopEvent()
+{
+    return false;
+}
+
+void ClipPlugin::RegisterPreSyncCallback(const PreSyncCallback &callback)
+{
+    (void)callback;
+}
+
+void ClipPlugin::RegisterPreSyncMonitorCallback(const PreSyncMonitorCallback &callback)
+{
+    (void)callback;
+}
+
+void ClipPlugin::SendPreSyncEvent(int32_t userId)
+{
+    (void)userId;
+}
+
 bool ClipPlugin::GlobalEvent::Marshal(Serializable::json &node) const
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(SetValue(node, version, GET_NAME(version)),

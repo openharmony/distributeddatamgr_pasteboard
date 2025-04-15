@@ -56,6 +56,8 @@ public:
     using DelayDataCallback = std::function<int32_t(const GlobalEvent &, uint8_t, std::vector<uint8_t> &)>;
     using DelayEntryCallback = std::function<int32_t(const GlobalEvent &, uint32_t, const std::string &,
         std::vector<uint8_t> &)>;
+    using PreSyncCallback = std::function<void(const std::string &, ClipPlugin *)>;
+    using PreSyncMonitorCallback = std::function<void(void)>;
 
     static bool RegCreator(const std::string &name, Factory *factory);
     static ClipPlugin *CreatePlugin(const std::string &name);
@@ -74,6 +76,10 @@ public:
     virtual int32_t GetPasteDataEntry(const GlobalEvent &event, uint32_t recordId, const std::string &utdId,
         std::vector<uint8_t> &rawData);
     virtual void ChangeStoreStatus(int32_t userId);
+    virtual bool NeedSyncTopEvent();
+    virtual void RegisterPreSyncCallback(const PreSyncCallback &callback);
+    virtual void RegisterPreSyncMonitorCallback(const PreSyncMonitorCallback &callback);
+    virtual void SendPreSyncEvent(int32_t userId);
 
 private:
     static std::map<std::string, Factory *> factories_;

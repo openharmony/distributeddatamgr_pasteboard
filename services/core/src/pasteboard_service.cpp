@@ -55,6 +55,7 @@
 #else
 #include "window_manager.h"
 #endif // SCENE_BOARD_ENABLE
+#include "c/ffrt_ipc.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -97,6 +98,10 @@ std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
 int32_t PasteboardService::currentUserId_ = ERROR_USERID;
 ScreenEvent PasteboardService::currentScreenStatus = ScreenEvent::Default;
+const std::string PasteboardService::REGISTER_PRESYNC_MONITOR = "RegisterPresyncMonitor";
+const std::string PasteboardService::UNREGISTER_PRESYNC_MONITOR = "UnregisterPresyncMonitor";
+const std::string PasteboardService::P2P_ESTABLISH_STR = "P2pEstablish";
+const std::string PasteboardService::P2P_PRESYNC_ID = "P2pPreSyncId_";
 
 PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
@@ -105,6 +110,7 @@ PasteboardService::PasteboardService()
     ServiceListenerFuncs_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
         &PasteboardService::DMAdapterInit;
     ServiceListenerFuncs_[static_cast<int32_t>(MEMORY_MANAGER_SA_ID)] = &PasteboardService::NotifySaStatus;
+    p2pEstablishInfo_.pasteBlock = nullptr;
 }
 
 PasteboardService::~PasteboardService()
@@ -1224,39 +1230,34 @@ int32_t PasteboardService::GetDelayPasteRecord(int32_t userId, PasteData &data)
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-void PasteboardService::EstablishP2PLink(const std::string &networkId, const std::string &pasteId)
+void PasteboardService::ClearP2PEstablishTaskInfo()
 {
-#ifdef PB_DEVICE_MANAGER_ENABLE
-    auto callPid = IPCSkeleton::GetCallingPid();
-    p2pMap_.Compute(networkId, [pasteId, callPid](const auto &key, auto &value) {
-        value.Compute(pasteId, [callPid](const auto &key, auto &value) {
-            value = callPid;
-            return true;
-        });
-        return true;
-    });
-    if (ffrtTimer_ != nullptr) {
-        FFRTTask task = [this, networkId, pasteId] {
-            PasteComplete(networkId, pasteId);
-        };
-        ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
-    }
+    std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+    p2pEstablishInfo_.networkId.clear();
+    p2pEstablishInfo_.pasteBlock = nullptr;
+}
+
+void PasteboardService::OpenP2PLink(const std::string &networkId)
+{
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "remote device is not exist");
+        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         p2pMap_.Erase(networkId);
         return;
     }
     auto plugin = GetClipPlugin();
     if (plugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
+        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         p2pMap_.Erase(networkId);
         return;
     }
     auto status = DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "open p2p error, status:%{public}d", status);
+        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         p2pMap_.Erase(networkId);
         return;
     }
@@ -1264,12 +1265,37 @@ void PasteboardService::EstablishP2PLink(const std::string &networkId, const std
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
     }
+}
+
+void PasteboardService::EstablishP2PLink(const std::string &networkId, const std::string &pasteId)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto callPid = IPCSkeleton::GetCallingPid();
+    {
+        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+        p2pMap_.Compute(networkId, [pasteId, callPid](const auto &key, auto &value) {
+            value.Compute(pasteId, [callPid](const auto &key, auto &value) {
+                value = callPid;
+                return true;
+            });
+            return true;
+        });
+    }
+    if (ffrtTimer_ != nullptr) {
+        FFRTTask task = [this, networkId, pasteId] {
+            ffrt_this_task_set_legacy_mode(true);
+            PasteComplete(networkId, pasteId);
+        };
+        ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
+    }
+    OpenP2PLink(networkId);
 #endif
 }
 
 void PasteboardService::CloseP2PLink(const std::string &networkId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseP2PLink enter");
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(networkId, remoteDevice);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
@@ -1309,6 +1335,7 @@ void PasteboardService::PasteComplete(const std::string &deviceId, const std::st
         pasteId.c_str());
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_DISTRIBUTED_FILE_END, RadarReporter::DFX_SUCCESS,
         RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID, pasteId);
+    std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
     p2pMap_.ComputeIfPresent(deviceId, [pasteId, deviceId, this](const auto &key, auto &value) {
         value.ComputeIfPresent(pasteId, [deviceId](const auto &key, auto &value) {
             return false;
@@ -2373,6 +2400,118 @@ bool PasteboardService::IsFocusedApp(uint32_t tokenId)
     return ret == NO_ERROR && isFocused;
 }
 
+void PasteboardService::DeletePreSyncP2pFromP2pMap(const std::string &networkId)
+{
+    std::string taskName = P2P_PRESYNC_ID + networkId;
+    ffrtTimer_->CancelTimer(taskName);
+    std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+    p2pMap_.ComputeIfPresent(networkId, [this](const auto &key, auto &value) {
+        value.ComputeIfPresent(P2P_PRESYNC_ID, [](const auto &key, auto &value) {
+            return false;
+        });
+        return true;
+    });
+    DeletePreSyncP2pMap(networkId);
+}
+
+void PasteboardService::DeletePreSyncP2pMap(const std::string &networkId)
+{
+    auto p2pIter = preSyncP2pMap_.find(networkId);
+    if (p2pIter != preSyncP2pMap_.end()) {
+        if (p2pIter->second) {
+            p2pIter->second->SetValue(true);
+        }
+        preSyncP2pMap_.erase(networkId);
+    }
+}
+
+void PasteboardService::RegisterPreSyncCallback(std::shared_ptr<ClipPlugin> clipPlugin)
+{
+    if (!clipPlugin) {
+        return;
+    }
+    clipPlugin->RegisterPreSyncCallback(std::bind(&PasteboardService::PreEstablishP2PLinkCallback,
+        this, std::placeholders::_1, std::placeholders::_2));
+    clipPlugin->RegisterPreSyncMonitorCallback(std::bind(&PasteboardService::PreSyncSwitchMonitorCallback, this));
+}
+
+void PasteboardService::PreEstablishP2PLinkCallback(const std::string &networkId, ClipPlugin *clipPlugin)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PreEstablishP2PLinkCallback enter");
+    if (networkId.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PreEstablishP2PLinkCallback failed, networkId is null");
+        return;
+    }
+    if (!ffrtTimer_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
+        return;
+    }
+}
+
+void PasteboardService::PreSyncRemotePasteboardData()
+{
+    auto clipPlugin = GetClipPlugin();
+    if (!clipPlugin) {
+        return;
+    }
+    if (!clipPlugin->NeedSyncTopEvent()) {
+        return;
+    }
+    const int32_t DEFAULT_USER_ID = 0;
+    clipPlugin->SendPreSyncEvent(DEFAULT_USER_ID);
+}
+
+void PasteboardService::PreSyncSwitchMonitorCallback()
+{
+    if (!ffrtTimer_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
+        return;
+    }
+    FFRTTask monitorTask = [this] {
+        ffrt_this_task_set_legacy_mode(true);
+        RegisterPreSyncMonitor();
+    };
+    ffrtTimer_->SetTimer(REGISTER_PRESYNC_MONITOR, monitorTask);
+}
+
+void PasteboardService::RegisterPreSyncMonitor()
+{
+    if (!ffrtTimer_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
+        return;
+    }
+    FFRTTask monitorTask = [this] {
+        ffrt_this_task_set_legacy_mode(true);
+        UnRegisterPreSyncMonitor();
+    };
+    if (subscribeActiveId_ != INVALID_SUBSCRIBE_ID) {
+        ffrtTimer_->SetTimer(UNREGISTER_PRESYNC_MONITOR, monitorTask, PRESYNC_MONITOR_TIME);
+        return;
+    }
+    std::shared_ptr<InputEventCallback> preSyncMonitor =
+        std::make_shared<InputEventCallback>(InputEventCallback::INPUTTYPE_PRESYNC, this);
+    if (!preSyncMonitor) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to alloc InputEventCallback");
+        return;
+    }
+    subscribeActiveId_ = MMI::InputManager::GetInstance()->SubscribeInputActive(
+        std::static_pointer_cast<MMI::IInputEventConsumer>(preSyncMonitor), PRESYNC_MONITOR_INTERVAL_MILLISECONDS);
+    if  (subscribeActiveId_ < 0) {
+        subscribeActiveId_ = INVALID_SUBSCRIBE_ID;
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SubscirbeInputActive failed");
+        return;
+    }
+    ffrtTimer_->SetTimer(UNREGISTER_PRESYNC_MONITOR, monitorTask, PRESYNC_MONITOR_TIME);
+}
+
+void PasteboardService::UnRegisterPreSyncMonitor()
+{
+    if (subscribeActiveId_ != INVALID_SUBSCRIBE_ID) {
+        MMI::InputManager::GetInstance()->UnsubscribeInputActive(subscribeActiveId_);
+        subscribeActiveId_ = INVALID_SUBSCRIBE_ID;
+    }
+}
+
 FocusedAppInfo PasteboardService::GetFocusedAppInfo(void) const
 {
     FocusedAppInfo appInfo = { 0 };
@@ -3048,6 +3187,7 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     };
 
     clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
+    RegisterPreSyncCallback(clipPlugin_);
     return clipPlugin_;
 }
 
@@ -3074,7 +3214,10 @@ void PasteboardService::CloseDistributedStore(int32_t user, bool isNeedClear)
 void PasteboardService::OnConfigChange(bool isOn)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConfigChange isOn: %{public}d.", isOn);
-    p2pMap_.Clear();
+    {
+        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+        p2pMap_.Clear();
+    }
     std::lock_guard<decltype(mutex)> lockGuard(mutex);
     if (!isOn) {
         int32_t userId = GetCurrentAccountId();
@@ -3099,6 +3242,7 @@ void PasteboardService::OnConfigChange(bool isOn)
     };
 
     clipPlugin_ = std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME), release);
+    RegisterPreSyncCallback(clipPlugin_);
 }
 
 std::string PasteboardService::GetAppLabel(uint32_t tokenId)
@@ -3213,6 +3357,7 @@ void PasteboardService::PasteboardEventSubscriber()
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
             return;
         }
+        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         p2pMap_.EraseIf([networkId, this](auto &key, auto &value) {
             if (key == networkId) {
                 CloseP2PLink(networkId);
@@ -3272,20 +3417,23 @@ int32_t PasteboardService::AppExit(pid_t pid)
     RemoveObserverByPid(COMMON_USERID, pid, observerEventMap_);
     entityObserverMap_.Erase(pid);
     std::vector<std::string> networkIds;
-    p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
-        pidMap.EraseIf([pid, this](const auto &key, const auto &value) {
-            if (value == pid) {
-                PasteStart(key);
+    {
+        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+        p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
+            pidMap.EraseIf([pid, this](const auto &key, const auto &value) {
+                if (value == pid) {
+                    PasteStart(key);
+                    return true;
+                }
+                return false;
+            });
+            if (pidMap.Empty()) {
+                networkIds.emplace_back(networkId);
                 return true;
             }
             return false;
         });
-        if (pidMap.Empty()) {
-            networkIds.emplace_back(networkId);
-            return true;
-        }
-        return false;
-    });
+    }
     for (const auto &id : networkIds) {
         CloseP2PLink(id);
     }
@@ -3328,7 +3476,7 @@ std::function<void(const OHOS::MiscServices::Event &)> PasteboardService::Remote
     };
 }
 
-void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
+void InputEventCallback::OnKeyInputEventForPaste(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
     auto keyItems = keyEvent->GetKeyItems();
     if (keyItems.size() != CTRLV_EVENT_SIZE) {
@@ -3360,7 +3508,29 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) c
     }
 }
 
-void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const {}
+void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "keyEvent, inputType_ = %{public}d", inputType_);
+    if (inputType_ == INPUTTYPE_PASTE) {
+        OnKeyInputEventForPaste(keyEvent);
+    } else if (inputType_ == INPUTTYPE_PRESYNC) {
+        if (pasteboardService_) {
+            pasteboardService_->PreSyncRemotePasteboardData();
+        }
+    } else {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid inputType_ = %{public}d", inputType_);
+    }
+}
+
+void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
+{
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pointerEvent, inputType_ = %{public}d", inputType_);
+    if (inputType_ == INPUTTYPE_PRESYNC) {
+        if (pasteboardService_) {
+            pasteboardService_->PreSyncRemotePasteboardData();
+        }
+    }
+}
 
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const {}
 
