@@ -1938,20 +1938,6 @@ HWTEST_F(PasteboardServiceTest, SetDistributedDataTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: SetCurrentDistributedDataTest001
- * @tc.desc: test Func SetCurrentDistributedData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, SetCurrentDistributedDataTest001, TestSize.Level0)
-{
-    PasteData pasteData;
-    ClipPlugin::GlobalEvent event {};
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->SetCurrentDistributedData(pasteData, event);
-}
-
-/**
  * @tc.name: SetCurrentDataTest001
  * @tc.desc: test Func SetCurrentData
  * @tc.type: FUNC
