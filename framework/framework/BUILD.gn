@@ -65,9 +65,7 @@ ohos_shared_library("pasteboard_framework") {
     "-fno-asynchronous-unwind-tables",
     "-fno-unwind-tables",
     "-fomit-frame-pointer",
-    "-fstack-protector",
     "-fvisibility=hidden",
-    "-fstack-protector",
     "-D_FORTIFY_SOURCE=2",
     "-O2",
   ]

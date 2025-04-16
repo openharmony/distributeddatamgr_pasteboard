@@ -39,7 +39,7 @@ ohos_shared_library("libpasteboard") {
 
   version_script = "pasteboard_interface_map"
 
-  cflags_cc = [ "-fstack-protector" ]
+  cflags_cc = []
 
   defines = [ "API_EXPORT=__attribute__((visibility (\"default\")))" ]
 

@@ -56,7 +56,6 @@ ohos_shared_library("pasteboard_adapter") {
   ]
   cflags_cc = [
     "-fvisibility=hidden",
-    "-fstack-protector",
     "-D_FORTIFY_SOURCE=2",
     "-O2",
   ]
