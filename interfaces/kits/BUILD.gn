@@ -39,7 +39,6 @@ ohos_shared_library("pasteboard_napi") {
   ]
 
   cflags_cc = [
-    "-fstack-protector",
     "-D_FORTIFY_SOURCE=2",
     "-O2",
   ]

@@ -80,7 +80,6 @@ ohos_shared_library("pasteboard_data") {
     "-fno-asynchronous-unwind-tables",
     "-fno-unwind-tables",
     "-fomit-frame-pointer",
-    "-fstack-protector",
     "-fvisibility=hidden",
     "-D_FORTIFY_SOURCE=2",
     "-O2",
@@ -153,7 +152,6 @@ ohos_shared_library("pasteboard_client") {
   sources += pasteboard_tlv_sources
 
   cflags_cc = [
-    "-fstack-protector",
     "-D_FORTIFY_SOURCE=2",
     "-O2",
     "-fvisibility=hidden",
