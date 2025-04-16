@@ -2669,5 +2669,35 @@ HWTEST_F(PasteboardServiceTest, UnsubscribeAllEntityObserverTest001, TestSize.Le
 
     tempPasteboard->UnsubscribeAllEntityObserver();
 }
+
+/**
+ * @tc.name: GrantUriPermissionTest001
+ * @tc.desc: GrantUriPermissionTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest001, TestSize.Level1)
+{
+    PasteboardService service;
+    std::vector<Uri> emptyUris;
+    std::string targetBundleName = "com.example.app";
+    int32_t result = service.GrantUriPermission(emptyUris, targetBundleName);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: GetRemoteDeviceNameTest002
+ * @tc.desc: test Func GetRemoteDeviceName
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetRemoteDeviceName002, TestSize.Level1)
+{
+    PasteboardService service;
+    std::string deviceName;
+    bool isRemote;
+
+    EXPECT_EQ(service.GetRemoteDeviceName(deviceName, isRemote), ERR_OK);
+    EXPECT_EQ(deviceName, "local");
+    EXPECT_FALSE(isRemote);
+}
 } // namespace MiscServices
 } // namespace OHOS
