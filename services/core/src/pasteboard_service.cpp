@@ -791,7 +791,7 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     return true;
 }
 
-int32_t PasteboardService::IsDataVaild(PasteData &pasteData, uint32_t tokenId)
+int32_t PasteboardService::IsDataValid(PasteData &pasteData, uint32_t tokenId)
 {
     if (pasteData.IsDraggedData() || !pasteData.IsValid()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "data is invalid");
@@ -944,7 +944,7 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 int32_t PasteboardService::ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer)
 {
     if (!HasPasteData()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not pastedata, no need to show progress.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not paste data, no need to show progress.");
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -1047,7 +1047,7 @@ int32_t PasteboardService::DealData(int &fd, int64_t &size, std::vector<uint8_t>
 {
     std::vector<uint8_t> pasteDataTlv(0);
     if (!data.Encode(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode pastedata in TLV");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode paste data in TLV");
         HiViewAdapter::ReportUseBehaviour(data, HiViewAdapter::PASTE_STATE, ERR_INVALID_VALUE);
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
@@ -1290,7 +1290,7 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no data userId is %{public}d.", appInfo.userId);
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
-    auto ret = IsDataVaild(*(it.second), appInfo.tokenId);
+    auto ret = IsDataValid(*(it.second), appInfo.tokenId);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invaild. ret is %{public}d", ret);
         return ret;
@@ -1663,7 +1663,7 @@ bool PasteboardService::HasPasteData()
     auto it = clips_.Find(userId);
     if (it.first && (it.second != nullptr)) {
         auto tokenId = IPCSkeleton::GetCallingTokenID();
-        auto ret = IsDataVaild(*(it.second), tokenId);
+        auto ret = IsDataValid(*(it.second), tokenId);
         if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
                 "pasteData is invalid, tokenId: %{public}d, userId: %{public}d,"
@@ -1883,7 +1883,7 @@ std::vector<std::string> PasteboardService::GetLocalMimeTypes()
         return {};
     }
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto ret = IsDataVaild(*(it.second), tokenId);
+    auto ret = IsDataValid(*(it.second), tokenId);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "pasteData is invalid, tokenId is %{public}d, userId: %{public}d, ret is %{public}d",
@@ -1908,7 +1908,7 @@ bool PasteboardService::HasLocalDataType(const std::string &mimeType)
         return false;
     }
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    auto ret = IsDataVaild(*(it.second), tokenId);
+    auto ret = IsDataValid(*(it.second), tokenId);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "pasteData is invalid, tokenId is %{public}d, userId: %{public}d,"
@@ -2016,7 +2016,7 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
     }
     CloseSharedMemFd(fd);
     if (!result) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode pastedata in TLV");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode paste data in TLV");
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);

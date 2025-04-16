@@ -324,7 +324,7 @@ private:
     static std::string GetTime();
     bool IsDataAged();
     bool VerifyPermission(uint32_t tokenId);
-    int32_t IsDataVaild(PasteData &pasteData, uint32_t tokenId);
+    int32_t IsDataValid(PasteData &pasteData, uint32_t tokenId);
     static AppInfo GetAppInfo(uint32_t tokenId);
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
