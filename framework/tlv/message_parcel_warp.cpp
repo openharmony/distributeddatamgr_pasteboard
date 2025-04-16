@@ -111,7 +111,7 @@ bool MessageParcelWarp::WriteRawData(MessageParcel &parcelPata, const void *data
         PASTEBOARD_MODULE_COMMON, "is already write, size:%{public}zu", size);
     canWrite_ = false;
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(data != nullptr, false, PASTEBOARD_MODULE_COMMON, "data is null");
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(0 < size && size <= maxRawDataSize_, false,
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(0 < size && static_cast<int64_t>(size) <= maxRawDataSize_, false,
         PASTEBOARD_MODULE_COMMON, "size invalid, size:%{public}zu", size);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(kernelMappedWrite_ == nullptr, false,
         PASTEBOARD_MODULE_COMMON, "kernelMappedWrite_ not null end.");
@@ -155,7 +155,7 @@ const void *MessageParcelWarp::ReadRawData(MessageParcel &parcelPata, size_t siz
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(canRead_, nullptr,
         PASTEBOARD_MODULE_COMMON, "is already write, size:%{public}zu", size);
     canRead_ = false;
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(0 < size && size <= maxRawDataSize_, nullptr,
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(0 < size && static_cast<int64_t>(size) <= maxRawDataSize_, nullptr,
         PASTEBOARD_MODULE_COMMON, "size invalid, size:%{public}zu", size);
     size_t bufferSize = static_cast<size_t>(parcelPata.ReadInt64());
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(bufferSize == size, nullptr, PASTEBOARD_MODULE_COMMON,
