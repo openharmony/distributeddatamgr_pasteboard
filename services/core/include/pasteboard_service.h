@@ -402,7 +402,7 @@ private:
     void RemoveSingleObserver(
         int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveAllObserver(int32_t userId, ObserverMap &observerMap);
-    inline bool IsCallerUidValid();
+    bool IsCallerUidValid();
     std::vector<std::string> GetLocalMimeTypes();
     bool HasLocalDataType(const std::string &mimeType);
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);
