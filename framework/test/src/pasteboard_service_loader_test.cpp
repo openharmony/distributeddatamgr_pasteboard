@@ -262,7 +262,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest001, TestSize.Level0)
     int fd = mpw->CreateTmpFd();
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, tlvSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
-    close(fd);
+    mpw->writeRawDataFd_ = -1;
 }
 
 /**
@@ -298,7 +298,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest003, TestSize.Level0)
     std::vector<uint8_t> sendTLV(0);
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
-    close(fd);
+    mpw->writeRawDataFd_ = -1;
 }
 
 /**
@@ -317,7 +317,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest004, TestSize.Level0)
     std::vector<uint8_t> sendTLV(0);
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
-    close(fd);
+    mpw->writeRawDataFd_ = -1;
 }
 
 /**
@@ -336,6 +336,6 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest005, TestSize.Level0)
     std::vector<uint8_t> sendTLV(0);
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
-    close(fd);
+    mpw->writeRawDataFd_ = -1;
 }
 }
