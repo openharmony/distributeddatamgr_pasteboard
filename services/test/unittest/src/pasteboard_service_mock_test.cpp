@@ -58,6 +58,39 @@ class MyTestEntityRecognitionObserver : public IEntityRecognitionObserver {
     }
 };
 
+class PasteboardEntryGetterImpl : public IPasteboardEntryGetter {
+public:
+    PasteboardEntryGetterImpl() {};
+    ~PasteboardEntryGetterImpl() {};
+    int32_t GetRecordValueByType(uint32_t recordId, PasteDataEntry &value)
+    {
+        return 0;
+    };
+    sptr<IRemoteObject> AsObject()
+    {
+        return nullptr;
+    };
+};
+
+class PasteboardDelayGetterImpl : public IPasteboardDelayGetter {
+public:
+    PasteboardDelayGetterImpl() {};
+    ~PasteboardDelayGetterImpl() {};
+    void GetPasteData(const std::string &type, PasteData &data) {};
+    void GetUnifiedData(const std::string &type, UDMF::UnifiedData &data) {};
+    sptr<IRemoteObject> AsObject()
+    {
+        return nullptr;
+    };
+};
+
+class DistributedFileDaemonManager {
+public:
+    DistributedFileDaemonManager() {};
+    ~DistributedFileDaemonManager() {};
+    int CloseP2PConnection(DmDeviceInfo &remoteDevice);
+};
+
 class PasteboardServiceInterface {
 public:
     PasteboardServiceInterface(){};
@@ -74,6 +107,10 @@ public:
     virtual std::shared_ptr<PasteDataRecord> GetRecordById(uint32_t recordId) const = 0;
     virtual std::shared_ptr<PasteDataEntry> GetEntry(const std::string &utdType) = 0;
     virtual bool IsOn() const = 0;
+    virtual bool IsDelayData() const = 0;
+    virtual bool IsDelayRecord() const = 0;
+    virtual int GetRemoteDeviceInfo (const std::string &networkId, DmDeviceInfo &remoteDevice) = 0;
+    virtual int CloseP2PConnection(DmDeviceInfo &remoteDevice) = 0;
     virtual int VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName) = 0;
     virtual ATokenTypeEnum GetTokenTypeFlag(AccessTokenID tokenId) = 0;
     virtual uint32_t GetDeviceSecurityLevel() = 0;
@@ -95,6 +132,10 @@ public:
     MOCK_CONST_METHOD1(HasContent, bool(const std::string &utdId));
     MOCK_METHOD1(GetEntry, std::shared_ptr<PasteDataEntry>(const std::string &utdType));
     MOCK_CONST_METHOD0(IsOn, bool());
+    MOCK_CONST_METHOD0(IsDelayData, bool());
+    MOCK_CONST_METHOD0(IsDelayRecord, bool());
+    MOCK_METHOD1(CloseP2PConnection, int(DmDeviceInfo &remoteDevice));
+    MOCK_METHOD2(GetRemoteDeviceInfo, int(const std::string &networkId, DmDeviceInfo &remoteDevice));
     MOCK_CONST_METHOD1(GetRecordById, std::shared_ptr<PasteDataRecord>(uint32_t recordId));
     MOCK_METHOD2(VerifyAccessToken, int(AccessTokenID tokenID, const std::string &permissionName));
     MOCK_METHOD1(GetTokenTypeFlag, ATokenTypeEnum(AccessTokenID tokenId));
@@ -148,6 +189,42 @@ bool DistributedModuleConfig::IsOn()
         return false;
     }
     return interface->IsOn();
+}
+
+bool pasteData::IsDelayData() const
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return false;
+    }
+    return interface->IsDelayData();
+}
+
+bool pasteData::IsDelayRecord() const
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return false;
+    }
+    return interface->IsDelayRecord();
+}
+
+int DMAdapter::GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice)
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return false;
+    }
+    return interface->GetRemoteDeviceInfo(networkId, remoteDevice);
+}
+
+int DistributedFileDaemonManager::CloseP2PConnection(DmDeviceInfo &remoteDevice)
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return false;
+    }
+    return interface->CloseP2PConnection(remoteDevice);
 }
 
 std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utdType)
@@ -1309,6 +1386,138 @@ HWTEST_F(PasteboardServiceTest, PasteboardEventSubscriberTest003, TestSize.Level
     tempPasteboard->p2pMap_.Insert("networkId2", p2pMap);
     tempPasteboard->PasteboardEventSubscriber();
     EXPECT_NE(tempPasteboard->p2pMap_.Size(), 0);
+}
+
+/**
+ * @tc.name: HandleDelayDataAndRecordTest001
+ * @tc.desc: HandleDelayDataAndRecordTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, HandleDelayDataAndRecordTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    PasteData pasteData;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
+    AppInfo appInfo;
+    
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, IsDelayData()).WillOnce(Return(true));
+    
+    tempPasteboard->HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
+}
+
+/**
+ * @tc.name: HandleDelayDataAndRecordTest002
+ * @tc.desc: HandleDelayDataAndRecordTest002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, HandleDelayDataAndRecordTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    PasteData pasteData;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+    AppInfo appInfo;
+    
+    tempPasteboard->HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
+}
+
+/**
+ * @tc.name: HandleDelayDataAndRecordTest003
+ * @tc.desc: HandleDelayDataAndRecordTest003
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, HandleDelayDataAndRecordTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    PasteData pasteData;
+    sptr<IPasteboardDelayGetter> delayGetter = sptr<PasteboardDelayGetterImpl>::MakeSptr();
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+    AppInfo appInfo;
+    
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, IsDelayRecord()).WillOnce(Return(true));
+    
+    tempPasteboard->HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
+}
+
+/**
+ * @tc.name: EstablishP2PLinkTest001
+ * @tc.desc: EstablishP2PLinkTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    PasteboardService service;
+    std::string networkld = "network123";
+    std::string pasteld = "paste123";
+    
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetRemoteDeviceInfo(testing::_)).WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK));
+    
+    tempPasteboard->EstablishP2PLink(networkld, pasteld);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: EstablishP2PLinkTest001
+ * @tc.desc: EstablishP2PLinkTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    PasteboardService service;
+    std::string networkld = "network123";
+    std::string pasteld = "paste123";
+    
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetRemoteDeviceInfo(testing::_)).WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK));
+    
+    tempPasteboard->EstablishP2PLink(networkld, pasteld);
+    ASSERT_TRUE(true);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: CloseP2PLinkTest001
+ * @tc.desc: CloseP2PLinkTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, CloseP2PLinkTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    std::string networkld = "network123";
+    
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetRemoteDeviceInfo(testing::_)).WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK));
+    
+    tempPasteboard->CloseP2PLink(networkld);
+#else
+    ASSERT_TRUE(true);
+#endif
 }
 }
 } // namespace OHOS::MiscServices
