@@ -135,6 +135,7 @@ ohos_shared_library("pasteboard_client") {
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "src/convert_utils.cpp",
     "src/entity_recognition_observer.cpp",
+    "src/i_paste_data_processor.cpp",
     "src/paste_data.cpp",
     "src/paste_data_entry.cpp",
     "src/paste_data_record.cpp",

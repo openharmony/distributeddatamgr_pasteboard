@@ -20,6 +20,7 @@
 #include "pasteboard_hilog.h"
 #include "pasteboard_service.h"
 #include "paste_data_entry.h"
+#include <thread>
 
 using namespace testing;
 using namespace testing::ext;
@@ -35,7 +36,7 @@ const int32_t INT32_NEGATIVE_NUMBER = -1;
 const uint32_t MAX_RECOGNITION_LENGTH = 1000;
 const int32_t ACCOUNT_IDS_RANDOM = 1121;
 const uint32_t UINT32_ONE = 1;
-const std::string testEntityText =
+const std::string TEST_ENTITY_TEXT =
     "清晨，从杭州市中心出发，沿着湖滨路缓缓前行。湖滨路是杭州市中心通往西湖的主要街道之一，两旁绿树成荫，湖光山色尽收眼"
     "底。你可以选择步行或骑行，感受微风拂面的惬意。湖滨路的尽头是南山路，这里有一片开阔的广场，是欣赏西湖全景的绝佳位置"
     "。进入南山路后，继续前行，雷峰塔的轮廓会逐渐映入眼帘。雷峰塔是西湖的标志性建筑之一，矗立在南屏山下，与西湖相映成趣"
@@ -749,7 +750,7 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataOnlyTest001, TestSize.Level0)
     int fd = mpw->CreateTmpFd();
     int32_t result = service->SetPasteDataOnly(fd, rawDataSize, buffer);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
-    close(fd);
+    mpw->writeRawDataFd_ = -1;
 }
 
 /**
@@ -1099,6 +1100,25 @@ HWTEST_F(PasteboardServiceTest, NotifyEntityObserversTest004, TestSize.Level0)
 }
 
 /**
+ * @tc.name: NotifyEntityObserversTest005
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, NotifyEntityObserversTest005, TestSize.Level0)
+{
+    std::string entity = "hello";
+    uint32_t dataLength = 1;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    EntityType entityType = EntityType::ADDRESS;
+    uint32_t expectedDataLength = 10;
+    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+    int32_t result = tempPasteboard->SubscribeEntityObserver(entityType, expectedDataLength, observer);
+    EXPECT_EQ(result, ERR_OK);
+    tempPasteboard->NotifyEntityObservers(entity, EntityType::MAX, dataLength);
+}
+
+/**
  * @tc.name: GetAllPrimaryTextTest001
  * @tc.desc:
  * @tc.type: FUNC
@@ -1122,7 +1142,7 @@ HWTEST_F(PasteboardServiceTest, GetAllPrimaryTextTest002, TestSize.Level0)
     PasteData pasteData;
     pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
     pasteData.AddTextRecord("testRecord");
-    pasteData.AddTextRecord(testEntityText);
+    pasteData.AddTextRecord(TEST_ENTITY_TEXT);
     pasteData.AddTextRecord("testRecord");
     pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
     auto tempPasteboard = std::make_shared<PasteboardService>();
@@ -1159,7 +1179,7 @@ HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest002, TestSize.Level0)
     uint32_t recordId = 0;
     std::vector<std::shared_ptr<PasteDataEntry>> tempEntries;
     tempEntries.emplace_back(std::make_shared<PasteDataEntry>());
-    std::string primaryText = testEntityText;
+    std::string primaryText = TEST_ENTITY_TEXT;
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
@@ -1256,6 +1276,34 @@ HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest005, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetAllEntryPlainTextTest006
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest006, TestSize.Level0)
+{
+    uint32_t dataId = 1;
+    uint32_t recordId = 0;
+    std::vector<std::shared_ptr<PasteDataEntry>> tempEntries;
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>();
+    entry->SetMimeType(MIMETYPE_TEXT_URI);
+    entry->SetValue(1);
+    tempEntries.emplace_back(entry);
+    std::string primaryText = "";
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
+    pasteData->SetDataId(dataId);
+    pasteData->AddTextRecord("test");
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = tempPasteboard->GetAppInfo(tokenId);
+    tempPasteboard->clips_.InsertOrAssign(appInfo.userId, pasteData);
+    auto ret = tempPasteboard->GetAllEntryPlainText(dataId, recordId, tempEntries, primaryText);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    tempPasteboard->clips_.Clear();
+}
+
+/**
  * @tc.name: ExtractEntityTest001
  * @tc.desc: ExtractEntity
  * @tc.type: FUNC
@@ -1326,16 +1374,38 @@ HWTEST_F(PasteboardServiceTest, ExtractEntityTest005, TestSize.Level0)
 }
 
 /**
- * @tc.name: RecognizePasteData001
- * @tc.desc: RecognizePasteData001
+ * @tc.name: RecognizePasteDataTest001
+ * @tc.desc: test Func RecognizePasteData
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardServiceTest, RecognizePasteData001, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, RecognizePasteDataTest001, TestSize.Level0)
 {
     std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
     PasteData pasteData;
     tempPasteboard->RecognizePasteData(pasteData);
+}
+
+/**
+ * @tc.name: RecognizePasteDataTest002
+ * @tc.desc: test Func RecognizePasteData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, RecognizePasteDataTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
+    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+    int32_t result = tempPasteboard->SubscribeEntityObserver(
+        EntityType::ADDRESS, expectedDataLength, observer);
+    PasteData pasteData;
+    std::string plainText = "陕西省西安市高新区丈八八路";
+    pasteData.AddTextRecord(plainText);
+    tempPasteboard->RecognizePasteData(pasteData);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    result = tempPasteboard->UnsubscribeEntityObserver(
+        EntityType::ADDRESS, expectedDataLength, observer);
 }
 
 /**
