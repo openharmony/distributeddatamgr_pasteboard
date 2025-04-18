@@ -787,6 +787,69 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataOnlyTest001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: IsBasicTypeTest001
+ * @tc.desc: IsBasicTypeTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsBasicTypeTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    bool ret = tempPasteboard->IsBasicType(MIMETYPE_TEXT_HTML);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: IsBasicTypeTest002
+ * @tc.desc: IsBasicTypeTest002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsBasicTypeTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    int32_t userld = 1;
+    PasteData data;
+    tempPasteboard->GetDelayPasteData(userld, data);
+    
+    bool ret = tempPasteboard->IsBasicType(MIMETYPE_TEXT_PLAIN);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: IsBasicTypeTest003
+ * @tc.desc: IsBasicTypeTest003
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsBasicTypeTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    tempPasteboard->RevokeUriPermission(nullptr);
+    
+    bool ret = tempPasteboard->IsBasicType(MIMETYPE_TEXT_URI);
+    EXPECT_TRUE(ret);
+}
+
+/**
+ * @tc.name: IsBasicTypeTest004
+ * @tc.desc: IsBasicTypeTest004
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsBasicTypeTest004, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    
+    
+    bool ret = tempPasteboard->IsBasicType("application/octet-stream");
+    EXPECT_FALSE(ret);
+}
+
+/**
  * @tc.name: HasDataTypeTest001
  * @tc.desc: currentScreenStatus is default.
  * @tc.type: FUNC
