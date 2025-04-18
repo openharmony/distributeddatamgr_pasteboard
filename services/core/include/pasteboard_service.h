@@ -24,6 +24,7 @@
 #include "distributed_module_config.h"
 #include "eventcenter/event_center.h"
 #include "ffrt_utils.h"
+#include "i_paste_data_processor.h"
 #include "ientity_recognition_observer.h"
 #include "input_manager.h"
 #include "loader.h"
