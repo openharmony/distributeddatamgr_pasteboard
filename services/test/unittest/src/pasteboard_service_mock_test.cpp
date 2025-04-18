@@ -1234,7 +1234,7 @@ HWTEST_F(PasteboardServiceTest, OnConfigChangeTest003, TestSize.Level0)
  * @tc.type: FUNC
  */
 HWTEST_F(PasteboardServiceTest, OnConfigChangeTest004, TestSize.Level0)
- {
+{
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
     testing::NiceMock<PasteboardServiceInterfaceMock> mock;
