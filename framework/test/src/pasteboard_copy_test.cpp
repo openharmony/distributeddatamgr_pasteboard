@@ -226,4 +226,118 @@ HWTEST_F(PasteboardCopyTest, HandleProgressTest, TestSize.Level0)
     delete params->info;
     params->info = nullptr;
 }
+
+/**
+ * @tc.name: InitCopyInfoTest
+ * @tc.desc: Test init copy info
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardCopyTest, InitCopyInfoTest, TestSize.Level0)
+{
+    PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
+    std::string srcUri = "file:///source/path";
+    std::string destUri = "file:///destination/path";
+    std::shared_ptr<GetDataParams> dataParams = std::make_shared<GetDataParams>();
+    dataParams->destUri = destUri;
+    std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
+    int32_t index = 0;
+
+    int32_t result = pasteBoardCopyFile.InitCopyInfo(srcUri, dataParams, copyInfo, index);
+    EXPECT_EQ(result, ENOMEM);
+}
+
+/**
+ * @tc.name: CopyFileDataTest001
+ * @tc.desc: Test copy file data
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardCopyTest, CopyFileDataTest001, TestSize.Level0)
+{
+    PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
+    PasteData pasteData;
+    std::string destUri = "file:///destination/path";
+    std::shared_ptr<GetDataParams> dataParams = std::make_shared<GetDataParams>();
+    dataParams->destUri = destUri;
+
+    int32_t result = pasteBoardCopyFile.CopyFileData(pasteData, dataParams);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: CopyFileDataTest002
+ * @tc.desc: Test copy file data
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardCopyTest, CopyFileDataTest002, TestSize.Level0)
+{
+    PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
+    PasteData pasteData;
+    OHOS::Uri uri("/");
+    pasteData.AddUriRecord(uri);
+    std::string destUri = "file:///destination/path";
+    std::shared_ptr<GetDataParams> dataParams = std::make_shared<GetDataParams>();
+    dataParams->destUri = destUri;
+    EXPECT_NE(dataParams, nullptr);
+
+    int32_t result = pasteBoardCopyFile.CopyFileData(pasteData, dataParams);
+}
+
+/**
+ * @tc.name: CopyFileDataTest003
+ * @tc.desc: Test copy file data
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardCopyTest, CopyFileDataTest003, TestSize.Level0)
+{
+    PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
+    PasteData pasteData;
+    pasteData.AddTextRecord("hello");
+    std::shared_ptr<GetDataParams> dataParams = std::make_shared<GetDataParams>();
+
+    int32_t result = pasteBoardCopyFile.CopyFileData(pasteData, dataParams);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: CopyPasteDataTest001
+ * @tc.desc: Test copy paste data
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardCopyTest, CopyPasteDataTest001, TestSize.Level0)
+{
+    PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
+    PasteData pasteData;
+    pasteData.AddTextRecord("hello");
+    std::shared_ptr<GetDataParams> dataParams = nullptr;
+
+    int32_t result = pasteBoardCopyFile.CopyPasteData(pasteData, dataParams);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+}
+
+/**
+ * @tc.name: CopyPasteDataTest002
+ * @tc.desc: Test copy paste data
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardCopyTest, CopyPasteDataTest002, TestSize.Level0)
+{
+    PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
+    PasteData pasteData;
+    pasteData.AddTextRecord("hello");
+    std::shared_ptr<GetDataParams> dataParams = std::make_shared<GetDataParams>();
+    dataParams->fileConflictOption = FILE_OVERWRITE;
+    dataParams->progressIndicator = DEFAULT_PROGRESS_INDICATOR;
+    dataParams->info = new ProgressInfo();
+    EXPECT_NE(dataParams, nullptr);
+
+    int32_t result = pasteBoardCopyFile.CopyPasteData(pasteData, dataParams);
+    delete dataParams->info;
+    dataParams->info = nullptr;
+}
 } // namespace OHOS::MiscServices

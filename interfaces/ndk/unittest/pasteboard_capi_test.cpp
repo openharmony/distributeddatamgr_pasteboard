@@ -1503,6 +1503,224 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress006, TestSize.Leve
 }
 
 /**
+ * @tc.name: OH_Pasteboard_GetDataParams_Destroy001
+ * @tc.desc: handle data params destroy
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_Destroy001, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    Pasteboard_GetDataParams *g_params = nullptr;
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_Destroy002
+ * @tc.desc: handle data params destroy
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_Destroy002, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    g_params->destUri = nullptr;
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_SetProgressIndicator001
+ * @tc.desc: handle set progress indicator
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_SetProgressIndicator001, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    Pasteboard_GetDataParams *g_params = nullptr;
+    OH_Pasteboard_GetDataParams_SetProgressIndicator(g_params, PASTEBOARD_NONE);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_SetDestUri001
+ * @tc.desc: handle set dest uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_SetDestUri001, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    Pasteboard_GetDataParams *g_params = nullptr;
+    auto uri = nullptr;
+    uint32_t destUriLen = 0;
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, destUriLen);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_SetDestUri002
+ * @tc.desc: handle set dest uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_SetDestUri002, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    g_params->destUri = nullptr;
+    auto uri = nullptr;
+    uint32_t destUriLen = 0;
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, destUriLen);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_SetDestUri003
+ * @tc.desc: handle set dest uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_SetDestUri003, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    auto uri = nullptr;
+    uint32_t destUriLen = 0;
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, destUriLen);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_SetDestUri004
+ * @tc.desc: handle set dest uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_SetDestUri004, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    auto uri = "/data/storage/el2/base/haps/entry/files/dstFile.txt";
+    uint32_t destUriLen = 0;
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, destUriLen);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_SetDestUri005
+ * @tc.desc: handle set dest uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_SetDestUri005, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    auto uri = "/data/storage/el2/base/haps/entry/files/dstFile.txt";
+    uint32_t destUriLen = 1025;
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, destUriLen);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_SetFileConflictOptions001
+ * @tc.desc: handle set file conflict options
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_SetFileConflictOptions001, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    Pasteboard_GetDataParams *g_params = nullptr;
+    OH_Pasteboard_GetDataParams_SetFileConflictOptions(g_params, PASTEBOARD_OVERWRITE);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_SetProgressListener001
+ * @tc.desc: handle set progress listener
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_SetProgressListener001, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    Pasteboard_GetDataParams *g_params = nullptr;
+    OH_Pasteboard_GetDataParams_SetProgressListener(g_params, Pasteboard_ProgressListener);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataParams_GetProgress001
+ * @tc.desc: handle get progress
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataParams_GetProgress001, TestSize.Level1)
+{
+    std::string plainText = "helloWorld";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    Pasteboard_ProgressInfo *info = nullptr;
+    OH_Pasteboard_ProgressInfo_GetProgress(info);
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
  * @tc.name: OH_Pasteboard_GetChangeCount001
  * @tc.desc: changeCount should not change after clear pasteboard
  * @tc.type: FUNC

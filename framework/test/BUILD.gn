@@ -75,6 +75,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
+    "app_file_service:fileuri_native",
     "cJSON:cjson",
     "c_utils:utils",
     "device_manager:devicemanagersdk",
