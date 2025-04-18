@@ -63,10 +63,7 @@ PasteData::PasteData()
     props_.shareOption = ShareOption::CrossDevice;
 }
 
-PasteData::~PasteData()
-{
-    std::vector<std::shared_ptr<PasteDataRecord>>().swap(records_);
-}
+PasteData::~PasteData() {}
 
 PasteData::PasteData(const PasteData &data)
     : valid_(data.valid_), isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_),

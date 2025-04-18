@@ -150,12 +150,6 @@ private:
  
     void RefreshMimeProp();
 };
-
-class IPasteDataProcessor {
-public:
-    virtual ~IPasteDataProcessor() = default;
-    virtual int32_t Process(const std::string &data, std::string &result) = 0;
-};
 } // namespace MiscServices
 } // namespace OHOS
 #endif // PASTE_BOARD_DATA_H
