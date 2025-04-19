@@ -1465,7 +1465,7 @@ HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTest001, TestSize.Level0)
     
     NiceMock<PasteboardServiceInterfaceMock> mock;
     EXPECT_CALL(mock, GetRemoteDeviceInfo(testing::_, testing::_))
-        .WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK));
+        .WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK)));
     
     tempPasteboard->EstablishP2PLink(networkld, pasteld);
     ASSERT_TRUE(true);
@@ -1489,7 +1489,7 @@ HWTEST_F(PasteboardServiceTest, CloseP2PLinkTest001, TestSize.Level0)
     
     NiceMock<PasteboardServiceInterfaceMock> mock;
     EXPECT_CALL(mock, GetRemoteDeviceInfo(testing::_, testing::_))
-        .WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK));
+        .WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK)));
     
     tempPasteboard->CloseP2PLink(networkld);
 #else
