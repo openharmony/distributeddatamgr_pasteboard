@@ -109,7 +109,7 @@ public:
     virtual bool IsOn() const = 0;
     virtual bool IsDelayData() const = 0;
     virtual bool IsDelayRecord() const = 0;
-    virtual int GetRemoteDeviceInfo (const std::string &networkId, DmDeviceInfo &remoteDevice) = 0;
+    virtual int GetRemoteDeviceInfo(const std::string &networkId, DmDeviceInfo &remoteDevice) = 0;
     virtual int CloseP2PConnection(DmDeviceInfo &remoteDevice) = 0;
     virtual int VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName) = 0;
     virtual ATokenTypeEnum GetTokenTypeFlag(AccessTokenID tokenId) = 0;
