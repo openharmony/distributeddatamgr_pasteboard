@@ -1192,34 +1192,6 @@ HWTEST_F(PasteboardServiceTest, OnConfigChangeTest003, TestSize.Level0)
 }
 
 /**
- * @tc.name: OnConfigChangeTest004
- * @tc.desc: test Func OnConfigChange
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, OnConfigChangeTest004, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
-    EXPECT_CALL(mock, GetDeviceSecurityLevel()).WillOnce(testing::Return(4));
-    tempPasteboard->OnConfigChange(true);
-}
-
-/**
- * @tc.name: OnConfigChangeTest005
- * @tc.desc: test Func OnConfigChange
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, OnConfigChangeTest005, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
-    EXPECT_CALL(mock, GetDeviceSecurityLevel()).WillOnce(testing::Return(4));
-    tempPasteboard->OnConfigChange(true);
-}
-
-/**
  * @tc.name: PasteboardEventSubscriberTest001
  * @tc.desc: test Func PasteboardEventSubscriber
  * @tc.type: FUNC
