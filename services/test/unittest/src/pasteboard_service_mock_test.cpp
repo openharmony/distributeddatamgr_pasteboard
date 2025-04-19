@@ -1474,31 +1474,6 @@ HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: EstablishP2PLinkTest001
- * @tc.desc: EstablishP2PLinkTest001
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTest001, TestSize.Level0)
-{
-#ifdef PB_DEVICE_MANAGER_ENABLE
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    
-    PasteboardService service;
-    std::string networkld = "network123";
-    std::string pasteld = "paste123";
-    
-    NiceMock<PasteboardServiceInterfaceMock> mock;
-    EXPECT_CALL(mock, GetRemoteDeviceInfo(testing::_)).WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK));
-    
-    tempPasteboard->EstablishP2PLink(networkld, pasteld);
-    ASSERT_TRUE(true);
-#else
-    ASSERT_TRUE(true);
-#endif
-}
-
-/**
  * @tc.name: CloseP2PLinkTest001
  * @tc.desc: CloseP2PLinkTest001
  * @tc.type: FUNC
