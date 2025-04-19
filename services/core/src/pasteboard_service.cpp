@@ -2452,7 +2452,7 @@ bool PasteboardService::CheckMdmShareOption(PasteData &pasteData)
     return result;
 }
 
-inline bool PasteboardService::IsCallerUidValid()
+bool PasteboardService::IsCallerUidValid()
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     if (callingUid == EDM_UID || (uid_ != -1 && callingUid == uid_)) {
