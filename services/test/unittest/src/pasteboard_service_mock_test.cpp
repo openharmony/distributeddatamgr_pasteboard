@@ -191,7 +191,7 @@ bool DistributedModuleConfig::IsOn()
     return interface->IsOn();
 }
 
-bool pasteData::IsDelayData() const
+bool PasteData::IsDelayData() const
 {
     PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
     if (interface == nullptr) {
@@ -200,7 +200,7 @@ bool pasteData::IsDelayData() const
     return interface->IsDelayData();
 }
 
-bool pasteData::IsDelayRecord() const
+bool PasteData::IsDelayRecord() const
 {
     PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
     if (interface == nullptr) {
