@@ -2486,14 +2486,15 @@ HWTEST_F(PasteboardServiceTest, OnStateChangedTest005, TestSize.Level0)
     sptr<PasteboardService> service = new PasteboardService();
     auto tempPasteboard = std::make_shared<PasteBoardAccountStateSubscriber>(subscribeInfo, service);
     EXPECT_NE(tempPasteboard, nullptr);
-    AccountSA::OsAccountStateData data;
-    data.state = AccountSA::OsAccountState::STOPPING;
-    data.fromId = 1;
-    data.toId = 2;
+    std::shared_ptr<AccountSA::OsAccountStateData> data = std::make_shared<AccountSA::OsAccountStateData>();
+    data->state = AccountSA::OsAccountState::STOPPING;
+    data->fromId = 1;
+    data->toId = 2;
     sptr<IRemoteObject> object;
-    data.callback = new AccountSA::OsAccountStateReplyCallback(object);
-    tempPasteboard->OnStateChanged(data);
-    delete data.callback;
+    AccountSA::OsAccountStateReplyCallback newCallbackObject(object);
+    sptr<AccountSA::OsAccountStateReplyCallback> callback = &newCallbackObject;
+    data->callback = callback;
+    tempPasteboard->OnStateChanged(*data);
 }
 
 /**
