@@ -211,6 +211,7 @@ ohos_unittest("PasteServInterfaceMockTest") {
   module_out_path = module_output_path
   sources = [
     "${pasteboard_root_path}/adapter/data_share/datashare_delegate.cpp",
+    "${pasteboard_root_path}/adapter/security_level/security_level.cpp",
     "${pasteboard_service_path}/account/src/account_manager.cpp",
     "${pasteboard_service_path}/core/src/pasteboard_dialog.cpp",
     "${pasteboard_service_path}/core/src/pasteboard_lib_guard.cpp",
@@ -221,7 +222,6 @@ ohos_unittest("PasteServInterfaceMockTest") {
     "${pasteboard_service_path}/dfx/src/command.cpp",
     "${pasteboard_service_path}/dfx/src/fault/pasteboard_fault_impl.cpp",
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
-    "${pasteboard_service_path}/dfx/src/pasteboard_dump_helper.cpp",
     "${pasteboard_service_path}/dfx/src/pasteboard_event_dfx.cpp",
     "${pasteboard_service_path}/dfx/src/pasteboard_trace.cpp",
     "${pasteboard_service_path}/dfx/src/reporter.cpp",
@@ -249,6 +249,7 @@ ohos_unittest("PasteServInterfaceMockTest") {
     "${pasteboard_service_path}/switch",
     "${pasteboard_root_path}/adapter/data_share",
     "${pasteboard_root_path}/adapter/pasteboard_progress",
+    "${pasteboard_root_path}/adapter/security_level",
     "${pasteboard_innerkits_path}/include",
     "${pasteboard_utils_path}/mock/include",
     "${pasteboard_utils_path}/native/include",
