@@ -60,34 +60,34 @@ class MyTestEntityRecognitionObserver : public IEntityRecognitionObserver {
 
 class PasteboardEntryGetterImpl : public IPasteboardEntryGetter {
 public:
-    PasteboardEntryGetterImpl() {};
-    ~PasteboardEntryGetterImpl() {};
+    PasteboardEntryGetterImpl() {}
+    ~PasteboardEntryGetterImpl() {}
     int32_t GetRecordValueByType(uint32_t recordId, PasteDataEntry &value)
     {
         return 0;
-    };
+    }
     sptr<IRemoteObject> AsObject()
     {
         return nullptr;
-    };
+    }
 };
 
 class PasteboardDelayGetterImpl : public IPasteboardDelayGetter {
 public:
-    PasteboardDelayGetterImpl() {};
-    ~PasteboardDelayGetterImpl() {};
+    PasteboardDelayGetterImpl() {}
+    ~PasteboardDelayGetterImpl() {}
     void GetPasteData(const std::string &type, PasteData &data) {};
     void GetUnifiedData(const std::string &type, UDMF::UnifiedData &data) {};
     sptr<IRemoteObject> AsObject()
     {
         return nullptr;
-    };
+    }
 };
 
 class DistributedFileDaemonManager {
 public:
-    DistributedFileDaemonManager() {};
-    ~DistributedFileDaemonManager() {};
+    DistributedFileDaemonManager() {}
+    ~DistributedFileDaemonManager() {}
     int CloseP2PConnection(DmDeviceInfo &remoteDevice);
 };
 
