@@ -18,42 +18,47 @@ interface OHOS.MiscServices.IPasteboardEntryGetter;
 interface OHOS.MiscServices.IPasteboardChangedObserver;
 interface OHOS.MiscServices.IEntityRecognitionObserver;
 import PasteboardTypes;
+option_stub_hooks on;
 
 interface OHOS.MiscServices.IPasteboardService {
-    void Clear();
-    void GetRecordValueByType([in] unsigned int dataId, [in] unsigned int recordId, [inout] long rawDataSize,
-        [inout] unsigned char[] buffer, [inout] FileDescriptor fd);
-    void GetPasteData([out] FileDescriptor fd, [out] long memSize, [out] unsigned char[] buffer, [in] String pasteId,
-        [out] int syncTime);
-    void HasPasteData([out] boolean funcResult);
-    void SetPasteData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
-        [in] IPasteboardDelayGetter delayGetter, [in] IPasteboardEntryGetter entryGetter);
-    void SetPasteDataDelayData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
+    [ipccode 1] void RegisterClientDeathObserver([in] IRemoteObject observer);
+    [ipccode 2] void SubscribeObserver([in] PasteboardObserverType type, [in] IPasteboardChangedObserver observer);
+    [ipccode 3] void UnsubscribeObserver([in] PasteboardObserverType type, [in] IPasteboardChangedObserver observer);
+    [ipccode 4] void UnsubscribeAllObserver([in] PasteboardObserverType type);
+    [ipccode 5] void SubscribeEntityObserver(
+        [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
+    [ipccode 6] void UnsubscribeEntityObserver(
+        [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
+
+    [ipccode 100] void Clear();
+    [ipccode 101] void SetPasteDataOnly([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer);
+    [ipccode 102] void SetPasteDataDelayData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
         [in] IPasteboardDelayGetter delayGetter);
-    void SetPasteDataEntryData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
+    [ipccode 103] void SetPasteDataEntryData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
         [in] IPasteboardEntryGetter entryGetter);
-    void SetPasteDataOnly([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer);
-    void IsRemoteData([out] boolean funcResult);
-    void GetChangeCount([out] unsigned int changeCount);
-    void GetDataSource([out] String bundleName);
-    void SubscribeEntityObserver(
-        [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
-    void UnsubscribeEntityObserver(
-        [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
-    void GetMimeTypes([out] String[] funcResult);
-    void HasDataType([in] String mimeType, [out] boolean funcResult);
-    void DetectPatterns([in] Pattern[] patternsToCheck, [out] Pattern[] funcResult);
-    void SubscribeObserver([in] PasteboardObserverType type, [in] IPasteboardChangedObserver observer);
-    void UnsubscribeObserver([in] PasteboardObserverType type, [in] IPasteboardChangedObserver observer);
-    void UnsubscribeAllObserver([in] PasteboardObserverType type);
-    void SetGlobalShareOption([in] Map<unsigned int, int> globalShareOptions);
-    void RemoveGlobalShareOption([in] unsigned int[] tokenIds);
-    void GetGlobalShareOption([in] unsigned int[] tokenIds, [out] Map<unsigned int, int> funcResult);
-    void SetAppShareOptions([in] int shareOptions);
-    void RemoveAppShareOptions();
-    void PasteStart([in] String pasteId);
-    void PasteComplete([in] String deviceId, [in] String pasteId);
-    void GetRemoteDeviceName([out] String deviceName, [out] boolean isRemote);
-    void ShowProgress([in] String progressKey, [in] IRemoteObject observer);
-    void RegisterClientDeathObserver([in] IRemoteObject observer);
+    [ipccode 104] void SetPasteData([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer,
+        [in] IPasteboardDelayGetter delayGetter, [in] IPasteboardEntryGetter entryGetter);
+
+    [ipccode 200] void GetPasteData([out] FileDescriptor fd, [out] long memSize, [out] unsigned char[] buffer,
+        [in] String pasteId, [out] int syncTime);
+    [ipccode 201] void GetRecordValueByType([in] unsigned int dataId, [in] unsigned int recordId,
+        [inout] long rawDataSize, [inout] unsigned char[] buffer, [inout] FileDescriptor fd);
+    [ipccode 202] void PasteStart([in] String pasteId);
+    [ipccode 203] void PasteComplete([in] String deviceId, [in] String pasteId);
+    [ipccode 204] void ShowProgress([in] String progressKey, [in] IRemoteObject observer);
+
+    [ipccode 300] void HasPasteData([out] boolean funcResult);
+    [ipccode 301] void HasDataType([in] String mimeType, [out] boolean funcResult);
+    [ipccode 302] void GetMimeTypes([out] String[] funcResult);
+    [ipccode 303] void GetDataSource([out] String bundleName);
+    [ipccode 304] void IsRemoteData([out] boolean funcResult);
+    [ipccode 305] void GetChangeCount([out] unsigned int changeCount);
+    [ipccode 306] void DetectPatterns([in] Pattern[] patternsToCheck, [out] Pattern[] funcResult);
+    [ipccode 307] void GetRemoteDeviceName([out] String deviceName, [out] boolean isRemote);
+
+    [ipccode 400] void SetGlobalShareOption([in] Map<unsigned int, int> globalShareOptions);
+    [ipccode 401] void RemoveGlobalShareOption([in] unsigned int[] tokenIds);
+    [ipccode 402] void GetGlobalShareOption([in] unsigned int[] tokenIds, [out] Map<unsigned int, int> funcResult);
+    [ipccode 403] void SetAppShareOptions([in] int shareOptions);
+    [ipccode 404] void RemoveAppShareOptions();
 }

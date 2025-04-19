@@ -97,6 +97,8 @@ class PasteboardService final : public SystemAbility, public PasteboardServiceSt
 public:
     API_EXPORT PasteboardService();
     API_EXPORT ~PasteboardService();
+    int32_t CallbackEnter(uint32_t code) override;
+    int32_t CallbackExit(uint32_t code, int32_t result) override;
     virtual int32_t Clear() override;
     virtual int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, int64_t &rawDataSize,
         std::vector<uint8_t> &buffer, int &fd) override;
