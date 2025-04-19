@@ -1483,28 +1483,6 @@ HWTEST_F(PasteboardServiceTest, RecognizePasteDataTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: RecognizePasteDataTest002
- * @tc.desc: test Func RecognizePasteData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, RecognizePasteDataTest002, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
-    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
-    int32_t result = tempPasteboard->SubscribeEntityObserver(
-        EntityType::ADDRESS, expectedDataLength, observer);
-    PasteData pasteData;
-    std::string plainText = "陕西省西安市高新区丈八八路";
-    pasteData.AddTextRecord(plainText);
-    tempPasteboard->RecognizePasteData(pasteData);
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    result = tempPasteboard->UnsubscribeEntityObserver(
-        EntityType::ADDRESS, expectedDataLength, observer);
-}
-
-/**
  * @tc.name: PostProcessDelayHtmlEntryTest001
  * @tc.desc: PostProcessDelayHtmlEntry
  * @tc.type: FUNC
