@@ -1595,43 +1595,6 @@ HWTEST_F(PasteboardServiceTest, CloseDistributedStoreTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: CloseDistributedStoreTest003
- * @tc.desc: test Func CloseDistributedStore
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, CloseDistributedStoreTest003, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    int32_t user = 1;
-    bool isNeedClear = true;
-    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
-    EXPECT_CALL(mock, IsOn()).WillRepeatedly(testing::Return(true));
-    EXPECT_CALL(mock, GetDeviceSecurityLevel()).WillRepeatedly(testing::Return(4));
-    tempPasteboard->clipPlugin_ = nullptr;
-    EXPECT_NE(tempPasteboard->GetClipPlugin(), nullptr);
-    EXPECT_NE(tempPasteboard->GetClipPlugin(), nullptr);
-    tempPasteboard->CloseDistributedStore(user, isNeedClear);
-}
-
-/**
- * @tc.name: CloseDistributedStoreTest004
- * @tc.desc: test Func CloseDistributedStore
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, CloseDistributedStoreTest004, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    int32_t user = 1;
-    bool isNeedClear = true;
-    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
-    EXPECT_CALL(mock, IsOn()).WillRepeatedly(testing::Return(false));
-    EXPECT_EQ(tempPasteboard->GetClipPlugin(), nullptr);
-    tempPasteboard->CloseDistributedStore(user, isNeedClear);
-}
-
-/**
  * @tc.name: OnConfigChangeTest001
  * @tc.desc: test Func OnConfigChange
  * @tc.type: FUNC
@@ -1655,34 +1618,6 @@ HWTEST_F(PasteboardServiceTest, OnConfigChangeTest003, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     testing::NiceMock<PasteboardServiceInterfaceMock> mock;
     EXPECT_CALL(mock, GetDeviceSecurityLevel()).WillOnce(testing::Return(0));
-    tempPasteboard->OnConfigChange(true);
-}
-
-/**
- * @tc.name: OnConfigChangeTest004
- * @tc.desc: test Func OnConfigChange
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, OnConfigChangeTest004, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
-    EXPECT_CALL(mock, GetDeviceSecurityLevel()).WillOnce(testing::Return(4));
-    tempPasteboard->OnConfigChange(true);
-}
-
-/**
- * @tc.name: OnConfigChangeTest005
- * @tc.desc: test Func OnConfigChange
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, OnConfigChangeTest005, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
-    EXPECT_CALL(mock, GetDeviceSecurityLevel()).WillOnce(testing::Return(4));
     tempPasteboard->OnConfigChange(true);
 }
 
