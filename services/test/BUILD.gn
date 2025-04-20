@@ -48,9 +48,12 @@ ohos_unittest("PasteboardServiceTest") {
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
     "${pasteboard_service_path}/dfx/src/reporter.cpp",
     "${pasteboard_service_path}/dfx/src/statistic/time_consuming_statistic_impl.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_client.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "unittest/src/dfx_test.cpp",
     "unittest/src/paste_service_test.cpp",
+    "unittest/src/pasteboard_entry_getter_client_test.cpp",
   ]
   configs = [ ":module_private_config" ]
   external_deps = [
@@ -426,6 +429,7 @@ ohos_unittest("PasteboardDelayStubTest") {
   ]
   sources = [
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_stub.cpp",
+    "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
     "unittest/src/pasteboard_delay_getter_stub_test.cpp",
   ]
   configs = [ ":module_private_config" ]

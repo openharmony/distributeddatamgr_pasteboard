@@ -19,6 +19,7 @@
 #include "message_parcel_warp.h"
 #include "pasteboard_delay_getter_stub.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_observer_stub.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -31,6 +32,34 @@ public:
     void SetUp();
     void TearDown();
 };
+
+class PasteboardObserverImpl : public PasteboardObserverStub {
+public:
+    PasteboardObserverImpl();
+    ~PasteboardObserverImpl();
+    void OnPasteboardChanged() override;
+    void OnPasteboardEvent(std::string bundleName, int32_t status) override;
+};
+
+PasteboardObserverImpl::PasteboardObserverImpl()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "New Pasteboard Observer.");
+}
+
+PasteboardObserverImpl::~PasteboardObserverImpl()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "delete Pasteboard Observer.");
+}
+
+void PasteboardObserverImpl::OnPasteboardChanged()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "changed callback.");
+}
+
+void PasteboardObserverImpl::OnPasteboardEvent(std::string bundleName, int32_t status)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "event callback.");
+}
 
 class PasteboardDelayGetterStubTest : public PasteboardDelayGetterStub {
 public:
@@ -141,12 +170,91 @@ HWTEST_F(PasteboardDelayStubTest, OnRemoteRequestTest001, TestSize.Level0)
 HWTEST_F(PasteboardDelayStubTest, OnRemoteRequestTest002, TestSize.Level0)
 {
     auto tempDelayGetter = std::make_shared<PasteboardDelayGetterStubTest>();
+    std::u16string localDescriptor = tempDelayGetter->GetDescriptor();
+    NiceMock<PasteboardDelayStubInterfaceMock> mock;
+    EXPECT_CALL(mock, ReadInterfaceToken()).WillOnce(Return(localDescriptor));
     uint32_t code = IPasteboardDelayGetter::TRANS_BUTT;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     int32_t ret = tempDelayGetter->OnRemoteRequest(code, data, reply, option);
     ASSERT_EQ(ret, -1);
+}
+
+/* *
+ * @tc.name: OnRemoteRequestTest003
+ * @tc.desc: code >= TRANS_BUTT
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardDelayStubTest, OnRemoteRequestTest003, TestSize.Level0)
+{
+    auto tempDelayGetter = std::make_shared<PasteboardDelayGetterStubTest>();
+    std::u16string localDescriptor = tempDelayGetter->GetDescriptor();
+    NiceMock<PasteboardDelayStubInterfaceMock> mock;
+    EXPECT_CALL(mock, ReadInterfaceToken()).WillOnce(Return(localDescriptor));
+    uint32_t code = 1;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = tempDelayGetter->OnRemoteRequest(code, data, reply, option);
+    ASSERT_EQ(ret, ERR_OK);
+}
+
+/* *
+ * @tc.name: OnRemoteRequestTest004
+ * @tc.desc: code >= TRANS_BUTT
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardDelayStubTest, OnRemoteRequestTest004, TestSize.Level0)
+{
+    auto pasteboardObserverStub = std::make_shared<PasteboardObserverImpl>();
+    NiceMock<PasteboardDelayStubInterfaceMock> mock;
+    EXPECT_CALL(mock, ReadInterfaceToken()).WillOnce(Return(u"testing"));
+    uint32_t code = 2;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = pasteboardObserverStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_EQ(ret, IPC_STUB_UNKNOW_TRANS_ERR);
+}
+
+/* *
+ * @tc.name: OnRemoteRequestTest005
+ * @tc.desc: code >= TRANS_BUTT
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardDelayStubTest, OnRemoteRequestTest005, TestSize.Level0)
+{
+    auto pasteboardObserverStub = std::make_shared<PasteboardObserverImpl>();
+    std::u16string myDescriptor = pasteboardObserverStub->GetDescriptor();
+    NiceMock<PasteboardDelayStubInterfaceMock> mock;
+    EXPECT_CALL(mock, ReadInterfaceToken()).WillOnce(Return(myDescriptor));
+    uint32_t code = 2;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = pasteboardObserverStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_EQ(ret, IPC_STUB_UNKNOW_TRANS_ERR);
+}
+
+/* *
+ * @tc.name: OnRemoteRequestTest006
+ * @tc.desc: code >= TRANS_BUTT
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardDelayStubTest, OnRemoteRequestTest006, TestSize.Level0)
+{
+    auto pasteboardObserverStub = std::make_shared<PasteboardObserverImpl>();
+    std::u16string myDescriptor = pasteboardObserverStub->GetDescriptor();
+    pasteboardObserverStub->memberFuncMap_[2] = nullptr;
+    NiceMock<PasteboardDelayStubInterfaceMock> mock;
+    EXPECT_CALL(mock, ReadInterfaceToken()).WillOnce(Return(myDescriptor));
+    uint32_t code = 2;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = pasteboardObserverStub->OnRemoteRequest(code, data, reply, option);
+    ASSERT_EQ(ret, IPC_STUB_UNKNOW_TRANS_ERR);
 }
 
 /* *
