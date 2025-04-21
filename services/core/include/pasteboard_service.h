@@ -175,6 +175,7 @@ private:
     static constexpr uint32_t EXPIRATION_INTERVAL = 2;
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; // ms
     static constexpr int PRESYNC_MONITOR_TIME = 2 * 60 * 1000; // ms
+    static constexpr int PRE_ESTABLISH_P2P_LINK_TIME = 2 * 60 * 1000; // ms
     static constexpr uint32_t SET_DISTRIBUTED_DATA_INTERVAL = 40 * 1000; // 40 seconds
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
@@ -308,7 +309,10 @@ private:
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void OpenP2PLink(const std::string &networkId);
+    std::shared_ptr<BlockObject<bool>> CheckAndReuseP2PLink(const std::string &networkId, const std::string &pasteId);
     void EstablishP2PLink(const std::string &networkId, const std::string &pasteId);
+    std::shared_ptr<BlockObject<bool>> EstablishP2PLinkTask(
+        const std::string &pasteId, const ClipPlugin::GlobalEvent &event);
     void ClearP2PEstablishTaskInfo();
     void CloseP2PLink(const std::string &networkId);
     uint8_t GenerateDataType(PasteData &data);
@@ -352,12 +356,15 @@ private:
     void ReportUeCopyEvent(PasteData &pasteData, int32_t result);
 
     void RegisterPreSyncCallback(std::shared_ptr<ClipPlugin> clipPlugin);
+    bool OpenP2PLinkForPreEstablish(const std::string &networkId, ClipPlugin *clipPlugin);
+    void PreEstablishP2PLink(const std::string &networkId, ClipPlugin *clipPlugin);
     void PreEstablishP2PLinkCallback(const std::string &networkId, ClipPlugin *clipPlugin);
     void PreSyncSwitchMonitorCallback();
     void RegisterPreSyncMonitor();
     void UnRegisterPreSyncMonitor();
     void DeletePreSyncP2pFromP2pMap(const std::string &networkId);
     void DeletePreSyncP2pMap(const std::string &networkId);
+    void AddPreSyncP2pTimeoutTask(const std::string &networkId);
 
     ServiceRunningState state_;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
