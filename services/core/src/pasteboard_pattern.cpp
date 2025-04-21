@@ -28,10 +28,10 @@ std::map<uint32_t, std::string> PatternDetection::patterns_{
     { static_cast<uint32_t>(Pattern::URL), std::string("[a-zA-Z0-9+.-]+://[-a-zA-Z0-9+&@#/%?"
                                                        "=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_]") },
     { static_cast<uint32_t>(Pattern::NUMBER), std::string("[-+]?[0-9]*\\.?[0-9]+") },
-    { static_cast<uint32_t>(Pattern::EMAIL_ADDRESS), std::string("(([a-zA-Z0-9_\\-\\.]+)@"
-                                                                "((?:\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\])|"
-                                                                "([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*))"
-                                                                "([a-zA-Z]{2,}|[0-9]{1,3}))") },
+    { static_cast<uint32_t>(Pattern::EMAIL_ADDRESS), std::string("(([a-zA-Z0-9_\\-\\.\\%\\+]+)@"
+                                                                "(([a-zA-Z0-9\\-]+(?:\\.[a-zA-Z0-9\\-]+)*)|"
+                                                                "(?:\\[([0-9]{1,3}\\.){3}[0-9]{1,3}\\]))"
+                                                                "([a-zA-Z]{1,}|[0-9]{1,3}))") },
 };
 
 const std::set<Pattern> PatternDetection::Detect(
