@@ -3624,6 +3624,23 @@ std::function<void(const OHOS::MiscServices::Event &)> PasteboardService::Remote
     };
 }
 
+int32_t PasteboardService::CallbackEnter(uint32_t code)
+{
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t uid = IPCSkeleton::GetCallingUid();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u", pid, uid, code);
+    return ERR_NONE;
+}
+
+int32_t PasteboardService::CallbackExit(uint32_t code, int32_t result)
+{
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t uid = IPCSkeleton::GetCallingUid();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u, ret:%{public}d",
+        pid, uid, code, result);
+    return ERR_NONE;
+}
+
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
     auto keyItems = keyEvent->GetKeyItems();

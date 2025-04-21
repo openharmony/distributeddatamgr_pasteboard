@@ -31,6 +31,9 @@ const std::vector<IPasteboardServiceIpcCode> CODE_LIST = {
     IPasteboardServiceIpcCode::COMMAND_GET_PASTE_DATA,
     IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA,
     IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA,
+    IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_ONLY,
+    IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_DELAY_DATA,
+    IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_ENTRY_DATA,
     IPasteboardServiceIpcCode::COMMAND_CLEAR,
     IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_OBSERVER,
@@ -58,6 +61,19 @@ const std::vector<IPasteboardServiceIpcCode> CODE_LIST = {
 
 class PasteboardServiceMock : public PasteboardServiceStub {
 public:
+    int32_t CallbackEnter(uint32_t code) override
+    {
+        (void)code;
+        return 0;
+    }
+
+    int32_t CallbackExit(uint32_t code, int32_t result) override
+    {
+        (void)code;
+        (void)result;
+        return 0;
+    }
+
     int32_t SetPasteData(int fd, int64_t memSize, const std::vector<uint8_t> &buffer,
         const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter) override
     {
