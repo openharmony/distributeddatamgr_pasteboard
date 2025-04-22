@@ -44,7 +44,7 @@ export namespace pasteboard {
     }
 
     export interface PasteDataProperty {
-        shareOption: number;
+        shareOption: ShareOption;
     }
 
     export interface PasteDataRecord {
@@ -76,7 +76,7 @@ export class PasteDataRecordImpl implements pasteboard.PasteDataRecord {
 }
 
 export class PasteDataPropertyImpl implements pasteboard.PasteDataProperty {
-    shareOption: number = 0;
+    shareOption: pasteboard.ShareOption = pasteboard.ShareOption.CROSSDEVICE;
 }
 
 export class PasteDataImpl implements pasteboard.PasteData {
