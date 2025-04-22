@@ -37,6 +37,7 @@ const uint32_t MAX_RECOGNITION_LENGTH = 1000;
 const int32_t ACCOUNT_IDS_RANDOM = 1121;
 const uint32_t UINT32_ONE = 1;
 constexpr int64_t MIN_ASHMEM_DATA_SIZE = 32 * 1024;
+constexpr uint32_t EVENT_TIME_OUT = 2000;
 const std::string TEST_ENTITY_TEXT =
     "清晨，从杭州市中心出发，沿着湖滨路缓缓前行。湖滨路是杭州市中心通往西湖的主要街道之一，两旁绿树成荫，湖光山色尽收眼"
     "底。你可以选择步行或骑行，感受微风拂面的惬意。湖滨路的尽头是南山路，这里有一片开阔的广场，是欣赏西湖全景的绝佳位置"
@@ -2614,9 +2615,13 @@ HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest002, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     uint32_t callingPid = 1;
     bool isFocused = true;
+    tempPasteboard->windowPid_ = callingPid;
+    tempPasteboard->actionTime_ = static_cast<uint64_t>(
+        duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    std::shared_ptr<BlockObject<bool>> block = std::make_shared<BlockObject<bool>>(100, false);
+    tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
     auto result = tempPasteboard->IsCtrlVProcess(callingPid, isFocused);
-    result = tempPasteboard->IsCtrlVProcess(callingPid, isFocused);
-    EXPECT_EQ(result, false);
+    EXPECT_EQ(result, true);
 }
 
 /**
@@ -2629,8 +2634,74 @@ HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest003, TestSize.Level0)
     auto tempPasteboard = std::make_shared<InputEventCallback>();
     EXPECT_NE(tempPasteboard, nullptr);
     uint32_t callingPid = 1;
-    bool isFocused = false;
+    bool isFocused = true;
+    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
+    tempPasteboard->windowPid_ = 2;
+    tempPasteboard->actionTime_ = static_cast<uint64_t>(
+        duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     auto result = tempPasteboard->IsCtrlVProcess(callingPid, isFocused);
+    EXPECT_EQ(result, true);
+}
+
+/**
+ * @tc.name: IsCtrlVProcessTest004
+ * @tc.desc: IsCtrlVProcess function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest004, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<InputEventCallback>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    uint32_t callingPid = 1;
+    bool isFocused = false;
+    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
+    tempPasteboard->windowPid_ = 2;
+    auto result = tempPasteboard->IsCtrlVProcess(callingPid, isFocused);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.name: IsCtrlVProcessTest005
+ * @tc.desc: IsCtrlVProcess function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest005, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<InputEventCallback>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    uint32_t callingPid = 1;
+    bool isFocused = true;
+    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
+    tempPasteboard->actionTime_ = static_cast<uint64_t>(
+        duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) + 2000;
+    auto result = tempPasteboard->IsCtrlVProcess(callingPid, isFocused);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.name: IsCtrlVProcessTest006
+ * @tc.desc: IsCtrlVProcess function.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest006, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<InputEventCallback>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    uint32_t callingPid = 1;
+    bool isFocused = true;
+    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
+    tempPasteboard->actionTime_ = static_cast<uint64_t>(
+        duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto result = true;
+    if (tempPasteboard->actionTime_ > EVENT_TIME_OUT) {
+        tempPasteboard->actionTime_ -= EVENT_TIME_OUT;
+    } else {
+        tempPasteboard->actionTime_ += EVENT_TIME_OUT;
+    }
     result = tempPasteboard->IsCtrlVProcess(callingPid, isFocused);
     EXPECT_EQ(result, false);
 }
