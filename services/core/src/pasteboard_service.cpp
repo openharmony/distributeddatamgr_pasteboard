@@ -23,7 +23,7 @@
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
 #include "common_event_manager.h"
-#include "dev_profile.h"
+#include "device/dev_profile.h"
 #include "distributed_file_daemon_manager.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"

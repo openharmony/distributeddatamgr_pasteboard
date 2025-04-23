@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-#include "dev_profile.h"
+#include "device/dev_profile.h"
 
 #include "c/ffrt_ipc.h"
-#include "device_profile_proxy.h"
-#include "dm_adapter.h"
-#include "ffrt_utils.h"
+#include "device/device_profile_proxy.h"
+#include "device/dm_adapter.h"
+#include "ffrt/ffrt_utils.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_ue.h"
 #include "pasteboard_hilog.h"
