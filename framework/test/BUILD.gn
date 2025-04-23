@@ -18,11 +18,11 @@ config("module_private_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
+    "${pasteboard_framework_path}/include",
     "${pasteboard_innerkits_path}/include",
-    "//foundation/distributeddatamgr/pasteboard/framework/framework/include",
-    "//foundation/distributeddatamgr/pasteboard/framework/tlv",
-    "${pasteboard_root_path}/framework/framework/include/serializable",
+    "${pasteboard_root_path}/adapter/include",
     "${pasteboard_service_path}/load/include",
+    "${pasteboard_tlv_path}",
     "include",
     "test/include",
   ]
@@ -42,10 +42,19 @@ ohos_unittest("PasteboardFrameworkTest") {
   module_out_path = module_output_path
 
   sources = [
-    "${pasteboard_root_path}/framework/framework/device/dm_adapter.cpp",
-    "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
-    "${pasteboard_root_path}/framework/innerkits/src/pasteboard_copy.cpp",
+    "${pasteboard_framework_path}/clip/clip_plugin.cpp",
+    "${pasteboard_framework_path}/clip/default_clip.cpp",
+    "${pasteboard_framework_path}/device/dev_profile.cpp",
+    "${pasteboard_framework_path}/device/device_profile_proxy.cpp",
+    "${pasteboard_framework_path}/device/distributed_module_config.cpp",
+    "${pasteboard_framework_path}/device/dm_adapter.cpp",
+    "${pasteboard_framework_path}/eventcenter/event.cpp",
+    "${pasteboard_framework_path}/eventcenter/event_center.cpp",
+    "${pasteboard_framework_path}/eventcenter/pasteboard_event.cpp",
+    "${pasteboard_framework_path}/serializable/serializable.cpp",
+    "${pasteboard_innerkits_path}/src/pasteboard_copy.cpp",
     "${pasteboard_service_path}/load/src/config.cpp",
+    "mock/ffrt_utils_mock.cpp",
     "src/clip_plugin_test.cpp",
     "src/convert_utils_test.cpp",
     "src/dev_profile_test.cpp",
@@ -53,7 +62,6 @@ ohos_unittest("PasteboardFrameworkTest") {
     "src/dm_adapter_test.cpp",
     "src/event_center_test.cpp",
     "src/event_test.cpp",
-    "src/ffrt_utils_test.cpp",
     "src/paste_data_entry_test.cpp",
     "src/paste_data_record_test.cpp",
     "src/paste_data_test.cpp",
@@ -84,6 +92,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "googletest:gmock",
     "googletest:gtest_main",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "image_framework:image_native",
     "init:libbeget_proxy",
     "init:libbegetutil",
@@ -92,10 +101,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "udmf:udmf_client",
   ]
 
-  deps = [
-    "${pasteboard_framework_path}:pasteboard_framework",
-    "${pasteboard_innerkits_path}:pasteboard_client",
-  ]
+  deps = [ "${pasteboard_innerkits_path}:pasteboard_client" ]
 
   defines = []
 
@@ -126,11 +132,18 @@ ohos_unittest("PasteboardFrameworkMockTest") {
   module_out_path = module_output_path
 
   sources = [
-    "${pasteboard_root_path}/framework/framework/device/dm_adapter.cpp",
-    "${pasteboard_root_path}/framework/framework/serializable/serializable.cpp",
+    "${pasteboard_framework_path}/device/dev_profile.cpp",
+    "${pasteboard_framework_path}/device/device_profile_proxy.cpp",
+    "${pasteboard_framework_path}/device/distributed_module_config.cpp",
+    "${pasteboard_framework_path}/device/dm_adapter.cpp",
+    "${pasteboard_framework_path}/eventcenter/event.cpp",
+    "${pasteboard_framework_path}/eventcenter/event_center.cpp",
+    "${pasteboard_framework_path}/eventcenter/pasteboard_event.cpp",
+    "${pasteboard_framework_path}/serializable/serializable.cpp",
     "${pasteboard_service_path}/load/src/config.cpp",
     "mock/device_manager_mock.cpp",
     "mock/distributed_device_profile_client_mock.cpp",
+    "mock/ffrt_utils_mock.cpp",
     "src/dev_profile_mock_test.cpp",
     "src/distributed_module_config_mock_test.cpp",
     "src/dm_adapter_mock_test.cpp",
@@ -147,6 +160,7 @@ ohos_unittest("PasteboardFrameworkMockTest") {
     "googletest:gmock",
     "googletest:gtest_main",
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "image_framework:image_native",
     "init:libbeget_proxy",
     "init:libbegetutil",
@@ -155,10 +169,7 @@ ohos_unittest("PasteboardFrameworkMockTest") {
     "udmf:udmf_client",
   ]
 
-  deps = [
-    "${pasteboard_framework_path}:pasteboard_framework",
-    "${pasteboard_innerkits_path}:pasteboard_client",
-  ]
+  deps = [ "${pasteboard_innerkits_path}:pasteboard_client" ]
 
   defines = []
 
@@ -174,6 +185,31 @@ ohos_unittest("PasteboardFrameworkMockTest") {
     external_deps += [ "device_manager:devicemanagersdk" ]
     defines += [ "PB_DEVICE_MANAGER_ENABLE" ]
   }
+}
+
+ohos_unittest("FfrtUtilsTest") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    blocklist = "./cfi_blocklist.txt"
+  }
+  module_out_path = module_output_path
+
+  sources = [ "src/ffrt_utils_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [ "${pasteboard_framework_path}:pasteboard_framework" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "ffrt:libffrt",
+    "googletest:gtest_main",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
 }
 
 ohos_unittest("PasteboardClientProxyMockTest") {
@@ -481,6 +517,7 @@ ohos_unittest("PasteboardServiceLoaderTest") {
 group("unittest") {
   testonly = true
   deps = [
+    ":FfrtUtilsTest",
     ":MessageParcelWarpTest",
     ":PasteboardClientMockTest",
     ":PasteboardClientProxyMockTest",

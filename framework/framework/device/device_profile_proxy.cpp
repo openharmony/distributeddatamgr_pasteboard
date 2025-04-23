@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "device_profile_proxy.h"
+#include "device/device_profile_proxy.h"
 
 #include <dlfcn.h>
 #include <thread>

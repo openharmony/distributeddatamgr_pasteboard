@@ -23,8 +23,6 @@ config("module_public_config") {
     "${pasteboard_utils_path}/native/include",
     "${pasteboard_service_path}/dfx/src",
     "include",
-    "include/device",
-    "include/ffrt",
   ]
 }
 
