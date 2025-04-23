@@ -170,7 +170,8 @@ void PasteboardService::OnStart()
     Loader loader;
     uid_ = loader.LoadUid();
     moduleConfig_.Init();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", DATASL_OnStart());
+    auto status = DATASL_OnStart();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", status);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
     if (Init() != ERR_OK) {
@@ -223,6 +224,7 @@ void PasteboardService::OnStop()
     }
     moduleConfig_.DeInit();
     switch_.DeInit();
+    DATASL_OnStop();
     EventCenter::GetInstance().Unsubscribe(PasteboardEvent::DISCONNECT);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
     EventCenter::GetInstance().Unsubscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE);
