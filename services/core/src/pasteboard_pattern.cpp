@@ -73,8 +73,12 @@ void PatternDetection::DetectPlainText(
             continue;
         }
         std::regex curRegex(it->second);
-        if (std::regex_search(plainText, curRegex)) {
-            patternsOut.insert(pattern);
+        try {
+            if (std::regex_search(plainText, curRegex)) {
+                patternsOut.insert(pattern);
+            }
+        } catch (std::regex_error &e) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Regex error !");
         }
     }
 }
