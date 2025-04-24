@@ -1037,4 +1037,18 @@ HWTEST_F(PasteDataTest, GetFileSizeTest001, TestSize.Level0)
     int64_t fileSize3 = pasteData->GetFileSize();
     EXPECT_EQ(fileSize3, fileSize2);
 }
+
+/**
+ * @tc.name: SetDataIdTest001
+ * @tc.desc: SetDataId
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, SetDataIdTest001, TestSize.Level0)
+{
+    PasteData pasteData;
+    pasteData.SetDataId(0);
+    EXPECT_EQ(0, pasteData.GetDataId());
+}
 } // namespace OHOS::MiscServices
