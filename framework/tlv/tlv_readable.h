@@ -43,6 +43,9 @@ public:
     bool ReadValue(std::vector<T> &value, const TLVHead &head)
     {
         auto vectorEnd = cursor_ + head.len;
+        if (vectorEnd > data_.size()) {
+            return false;
+        }
         for (; cursor_ < vectorEnd;) {
             // V: item value
             TLVHead valueHead{};

@@ -68,6 +68,7 @@ ohos_unittest("PasteboardServiceTest") {
 }
 
 ohos_unittest("PasteServInterfaceTest") {
+  use_exceptions = true
   module_out_path = module_output_path
   sources = [
     "${pasteboard_root_path}/adapter/data_share/datashare_delegate.cpp",
@@ -254,6 +255,7 @@ ohos_unittest("PasteboardDeduplicateMemoryTest") {
 
 ohos_unittest("PasteboardPatternTest") {
   module_out_path = module_output_path
+  use_exceptions = true
   sources = [
     "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
     "unittest/src/pasteboard_pattern_test.cpp",
