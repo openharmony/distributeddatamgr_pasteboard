@@ -1844,7 +1844,7 @@ std::pair<int32_t, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistribut
     }
 
     evt = events[0];
-    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId() || evt.expiration < currentEvent_.expiration) {
+    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data");
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DATA), evt);
     }
