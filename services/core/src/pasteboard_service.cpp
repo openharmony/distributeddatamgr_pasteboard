@@ -3631,6 +3631,9 @@ std::function<void(const OHOS::MiscServices::Event &)> PasteboardService::Remote
 
 int32_t PasteboardService::CallbackEnter(uint32_t code)
 {
+    if (code == static_cast<uint32_t>(IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA)) {
+        return ERR_NONE;
+    }
     pid_t pid = IPCSkeleton::GetCallingPid();
     pid_t uid = IPCSkeleton::GetCallingUid();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u", pid, uid, code);
@@ -3639,6 +3642,9 @@ int32_t PasteboardService::CallbackEnter(uint32_t code)
 
 int32_t PasteboardService::CallbackExit(uint32_t code, int32_t result)
 {
+    if (code == static_cast<uint32_t>(IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA)) {
+        return ERR_NONE;
+    }
     pid_t pid = IPCSkeleton::GetCallingPid();
     pid_t uid = IPCSkeleton::GetCallingUid();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u, ret:%{public}d",
