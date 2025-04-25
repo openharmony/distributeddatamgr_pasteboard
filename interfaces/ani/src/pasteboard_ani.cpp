@@ -23,6 +23,7 @@
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_client.h"
+#include "pasteboard_js_err.h"
 #include "common/block_object.h"
 #include "ani_common_want.h"
 #include "image_ani_utils.h"
@@ -33,6 +34,44 @@ using namespace OHOS::MiscServices;
 
 constexpr size_t SYNC_TIMEOUT = 3500;
 constexpr size_t MIMETYPE_MAX_LEN = 1024;
+
+static void ThrowBusinessError(ani_env *env, int errCode, std::string&& errMsg)
+{
+    PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "into ThrowBusinessError.");
+    static const char *errorClsName = "L@ohos/base/BusinessError;";
+    ani_class cls {};
+    if (env->FindClass(errorClsName, &cls) != ANI_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "findClass BusinessError failed.");
+        return;
+    }
+    ani_method ctor;
+    if (env->Class_FindMethod(cls, "<ctor>", ":V", &ctor) != ANI_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "find method BusinessError.constructor failed.");
+        return;
+    }
+    ani_object errorObject;
+    if (env->Object_New(cls, ctor, &errorObject) != ANI_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "create BusinessError object failed.");
+        return;
+    }
+    ani_double aniErrCode = static_cast<ani_double>(errCode);
+    ani_string errMsgStr;
+    if (env->String_NewUTF8(errMsg.c_str(), errMsg.size(), &errMsgStr) != ANI_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "convert errMsg to ani_string failed.");
+        return;
+    }
+    if (env->Object_SetFieldByName_Double(errorObject, "code", aniErrCode) != ANI_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "set error code failed.");
+        return;
+    }
+    if (env->Object_SetPropertyByName_Ref(errorObject, "message", errMsgStr) != ANI_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "set error message failed.");
+        return;
+    }
+    ani_status flag = env->ThrowError(static_cast<ani_error>(errorObject));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_ANI, "flag: %{public}d.", flag);
+    return;
+}
 
 ani_object GetNullObject(ani_env *env)
 {
@@ -91,10 +130,17 @@ std::string GetStdStringFromUnion([[maybe_unused]] ani_env *env, ani_object unio
 {
     UnionAccessor unionAccessor(env, union_obj);
     ani_string str;
+    if (!unionAccessor.IsInstanceOf("Lstd/core/String;")) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
+            "[GetStdStringFromUnion] union_obj is not string! ");
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            "The type of mimeType must be string.");
+        return "";
+    }
     if (!unionAccessor.TryConvert<ani_string>(str)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
             "[GetStdStringFromUnion] try to convert union object to ani_string failed! ");
-        return nullptr;
+        return "";
     }
 
     return ANIUtils_ANIStringToStdString(env, str);
@@ -126,12 +172,21 @@ bool getArrayBuffer([[maybe_unused]] ani_env *env, ani_object unionObj, std::vec
 
 bool CheckMimeType(ani_env *env, std::string &mimeType)
 {
-    if (mimeType.size() == 0 || mimeType.size() >= MIMETYPE_MAX_LEN) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Parameter error. \
-            The length of mimeType cannot be greater than 1024 bytes, or The length of mimeType is 0.");
-        // throw JSErrorCode::INVALID_PARAMETERS
+    if (mimeType.size() == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "The length of mimeType is 0.");
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            "The length of mimeType is 0.");
         return false;
     }
+
+    if (mimeType.size() > MIMETYPE_MAX_LEN) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
+            "The length of mimeType cannot be greater than 1024 bytes.");
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            "The length of mimeType cannot be greater than 1024 bytes.");
+        return false;
+    }
+
     return true;
 }
 
@@ -198,7 +253,7 @@ static void AddRecordByTypeValue([[maybe_unused]] ani_env *env, [[maybe_unused]]
     auto mimeType = ANIUtils_ANIStringToStdString(env, static_cast<ani_string>(type));
     if (!CheckMimeType(env, mimeType)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[AddRecordByTypeValue] minetype length is error. ");
+            "[AddRecordByTypeValue] minetype length is error. %{public}s", mimeType.c_str());
         return;
     }
 
@@ -247,8 +302,15 @@ static ani_object GetRecord([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_
     [[maybe_unused]] ani_double index)
 {
     PasteData* pPasteData = unwrapAndGetPasteDataPtr(env, object);
-    if (pPasteData == nullptr || index >= pPasteData->GetRecordCount()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] pPasteData is null or index is out of range.");
+    if (pPasteData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] pPasteData is null.");
+        return GetNullObject(env);
+    }
+
+    if (index >= pPasteData->GetRecordCount() || index < 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] index is out of range.");
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::OUT_OF_RANGE),
+            "index out of range.");
         return GetNullObject(env);
     }
 
@@ -476,8 +538,9 @@ bool ParsekeyValAndProcess([[maybe_unused]] ani_env *env, ani_ref key_value, ani
     std::shared_ptr<std::vector<std::pair<std::string, std::shared_ptr<EntryValue>>>> result)
 {
     std::string keyStr = ANIUtils_ANIStringToStdString(env, static_cast<ani_string>(key_value));
-    if (keyStr.length() == 0 || keyStr.length() > MIMETYPE_MAX_LEN) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ParsekeyValAndProcess] keyStr is null or length is too big.");
+    if (!CheckMimeType(env, keyStr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
+            "[ParsekeyValAndProcess] keyStr is empty or length is more than 1024 bytes.");
         return false;
     }
 
@@ -512,6 +575,7 @@ bool ParsekeyValAndProcess([[maybe_unused]] ani_env *env, ani_ref key_value, ani
         }
         *entryValue = value_str;
     }
+
     result->emplace_back(std::make_pair(keyStr, entryValue));
 
     return true;
@@ -530,7 +594,6 @@ bool forEachMapEntry(ani_env *env, ani_object map_object,
     while (success) {
         ani_ref next;
         ani_boolean done;
-
         if (ANI_OK != env->Object_CallMethodByName_Ref(
             static_cast<ani_object>(keys), "next", nullptr, &next)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to get next key. ");
@@ -659,8 +722,12 @@ static ani_int SetData([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_objec
     if (ret == static_cast<int>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "SetPasteData successfully");
     } else if (ret == static_cast<int>(PasteboardError::PROHIBIT_COPY)) {
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::COPY_FORBIDDEN),
+            "The system prohibits copying.");
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "The system prohibits copying");
     } else if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING),
+            "Another setData is being processed.");
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Another setData is being processed");
     }
 
@@ -686,6 +753,7 @@ static ani_object GetDataSync([[maybe_unused]] ani_env *env, [[maybe_unused]] an
     auto value = block->GetValue();
     if (value == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "time out, GetDataSync failed.");
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::REQUEST_TIME_OUT), "request timed out.");
         return GetNullObject(env);
     }
     ani_object pasteDataObj = Create(env, pasteData);
@@ -707,6 +775,7 @@ static ani_string GetDataSource([[maybe_unused]] ani_env *env, [[maybe_unused]] 
     auto value = block->GetValue();
     if (value == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "time out, GetDataSource failed.");
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::REQUEST_TIME_OUT), "request timed out.");
         return nullptr;
     }
 

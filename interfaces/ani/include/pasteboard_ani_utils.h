@@ -141,7 +141,7 @@ public:
     {
     }
 
-    bool IsInstanceOf(std::string& cls_name)
+    bool IsInstanceOf(const std::string& cls_name)
     {
         ani_class cls;
         env_->FindClass(cls_name.c_str(), &cls);
