@@ -1,0 +1,110 @@
+/*
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@!namespace("@ohos.pasteboard", "pasteboard")
+
+@!sts_inject("const MIMETYPE_TEXT_HTML: string = 'text/html'")
+
+@!sts_inject("const MIMETYPE_TEXT_PLAIN: string = 'text/plain'")
+
+@!sts_inject("const MIMETYPE_TEXT_URI: string = 'text/uri'")
+
+enum ShareOption: i32 {
+    INAPP = 0,
+    LOCALDEVICE = 1,
+}
+
+enum Pattern: u32 {
+    URL = 0,
+    NUMBER = 1,
+}
+
+union ValueType {
+    string: String;
+    arrayBuffer: @arrayBuffer Array<u8>;
+    pixelMapOrWant: Opaque;
+}
+
+interface PasteDataRecord {
+    @get("mimeType") GetMimeType: String;
+    @set("mimeType") SetMimeType(mimeType: String): void;
+
+    @get("plainText") GetPlainText: String;
+    @set("plainText") SetPlainText(plainText: String): void;
+
+    @get("uri") GetUri: String;
+    @set("uri") SetUri(uri: String): void;
+
+    @get("pixelMap") GetPixelMap: Opaque;
+    @set("pixelMap") SetPixelMap(pixelMap: Opaque): void;
+
+    @gen_promise("getData")
+    GetDataSync(type: String): ValueType;
+
+    ToPlainText(): String;
+    GetRecordImpl: i64;
+}
+function MakePasteDataRecord(): PasteDataRecord;
+
+interface PasteData {
+    @overload("addRecord")
+    AddRecordData(record: PasteDataRecord);
+    @overload("addRecord")
+    AddRecordValue(mimeType: String, value: ValueType);
+    GetMimeTypes(): Array<String>;
+    GetPrimaryHtml(): String;
+    GetPrimaryWant(): Opaque;
+    GetPrimaryMimeType(): String;
+    GetPrimaryText(): String;
+    GetPrimaryUri(): String;
+    GetProperty(): PasteDataProperty;
+    SetProperty(property: PasteDataProperty): void;
+    GetRecord(index: u32): PasteDataRecord;
+    GetRecordCount(): u32;
+    GetTag(): String;
+
+    GetPasteDataImpl(): i64;
+}
+function CreatePasteData(): PasteData;
+
+interface SystemPasteboard {
+    @!sts_inject_into_interface("on(type: 'update', callback: () => void): void")
+    @!sts_inject_into_interface("off(type: 'update', callback: () => void): void")
+
+    @gen_promise("clearData")
+    ClearDataSync(): void;
+
+    @gen_async("hasData")
+    @gen_promise("hasData")
+    HasDataSync(): bool;
+
+    @gen_async("setData")
+    @gen_promise("setData")
+    SetDataSync(data: PasteData): void;
+
+    @gen_promise("getMimeTypes")
+    GetMimeTypesSync(): Array<String>;
+
+    GetDataSource(): String;
+    HasDataType(mimeType: String): bool;
+}
+function CreateSystemPasteboard(): SystemPasteboard;
+
+@overload("createData")
+function CreateDataByValue(mimeType: String, value: ValueType): PasteData;
+@overload("createData")
+function CreateDataByRecord(data: @record Map<String, ValueType>): PasteData;
+
+function GetSystemPasteboard(): SystemPasteboard;
