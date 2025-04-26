@@ -12,10 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "distributed_module_config.h"
+#include "device/distributed_module_config.h"
 
 #include <thread>
-#include "dev_profile.h"
+#include "device/dev_profile.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 

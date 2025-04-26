@@ -894,4 +894,226 @@ HWTEST_F(PasteDataRecordTest, GetPassUriTest002, TestSize.Level0)
     PasteDataRecord record;
     EXPECT_EQ(record.GetPassUri(), "");
 }
+
+/**
+ * @tc.name: EncodeRemoteTest001
+ * @tc.desc: test encode & decode remote plain-text
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, EncodeRemoteTest001, TestSize.Level0)
+{
+    PasteDataRecord obj1;
+    auto udmfObject = std::make_shared<Object>();
+    std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
+    udmfObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    udmfObject->value_[UDMF::CONTENT] = "content";
+    auto entry1 = std::make_shared<PasteDataEntry>();
+    entry1->SetValue(udmfObject);
+    entry1->SetUtdId(utdId);
+    entry1->SetMimeType(MIMETYPE_TEXT_PLAIN);
+    obj1.AddEntry(utdId, entry1);
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Encode(buffer, true);
+    ASSERT_TRUE(ret);
+
+    PasteDataRecord obj2;
+    ret = obj2.Decode(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1.GetMimeType(), obj2.GetMimeType());
+    auto entry2 = obj2.GetEntry(utdId);
+    ASSERT_NE(entry2, nullptr);
+    auto entryValue = entry2->GetValue();
+    ASSERT_TRUE(std::holds_alternative<std::shared_ptr<Object>>(entryValue));
+    auto udmfObject2 = std::get<std::shared_ptr<Object>>(entryValue);
+    ASSERT_NE(udmfObject2, nullptr);
+    EXPECT_EQ(udmfObject->value_, udmfObject2->value_);
+}
+
+/**
+ * @tc.name: EncodeRemoteTest002
+ * @tc.desc: test encode & decode remote html
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, EncodeRemoteTest002, TestSize.Level0)
+{
+    PasteDataRecord obj1;
+    auto udmfObject = std::make_shared<Object>();
+    std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
+    udmfObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    udmfObject->value_[UDMF::HTML_CONTENT] = "html content";
+    udmfObject->value_[UDMF::PLAIN_CONTENT] = "text content";
+    auto entry1 = std::make_shared<PasteDataEntry>();
+    entry1->SetValue(udmfObject);
+    entry1->SetUtdId(utdId);
+    entry1->SetMimeType(MIMETYPE_TEXT_HTML);
+    obj1.AddEntry(utdId, entry1);
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Encode(buffer, true);
+    ASSERT_TRUE(ret);
+
+    PasteDataRecord obj2;
+    ret = obj2.Decode(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1.GetMimeType(), obj2.GetMimeType());
+    auto entry2 = obj2.GetEntry(utdId);
+    ASSERT_NE(entry2, nullptr);
+    auto entryValue = entry2->GetValue();
+    ASSERT_TRUE(std::holds_alternative<std::shared_ptr<Object>>(entryValue));
+    auto udmfObject2 = std::get<std::shared_ptr<Object>>(entryValue);
+    ASSERT_NE(udmfObject2, nullptr);
+    EXPECT_EQ(udmfObject->value_, udmfObject2->value_);
+}
+
+/**
+ * @tc.name: EncodeRemoteTest003
+ * @tc.desc: test encode & decode remote uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, EncodeRemoteTest003, TestSize.Level0)
+{
+    std::string uri = "file://content";
+    PasteDataRecord obj1;
+    auto udmfObject = std::make_shared<Object>();
+    std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
+    udmfObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    udmfObject->value_[UDMF::FILE_URI_PARAM] = uri;
+    auto entry1 = std::make_shared<PasteDataEntry>();
+    entry1->SetValue(udmfObject);
+    entry1->SetUtdId(utdId);
+    entry1->SetMimeType(MIMETYPE_TEXT_URI);
+    obj1.AddEntry(utdId, entry1);
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Encode(buffer, true);
+    ASSERT_TRUE(ret);
+
+    PasteDataRecord obj2;
+    ret = obj2.Decode(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1.GetMimeType(), obj2.GetMimeType());
+    auto entry2 = obj2.GetEntry(utdId);
+    ASSERT_NE(entry2, nullptr);
+    auto uri2 = entry2->ConvertToUri();
+    ASSERT_NE(uri2, nullptr);
+    EXPECT_STREQ(uri.c_str(), uri2->ToString().c_str());
+}
+
+/**
+ * @tc.name: EncodeRemoteTest004
+ * @tc.desc: test encode & decode remote pixelMap
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, EncodeRemoteTest004, TestSize.Level0)
+{
+    const uint32_t color[] = { 0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08 };
+    uint32_t len = sizeof(color) / sizeof(color[0]);
+    Media::InitializationOptions opts;
+    opts.size.width = 2;
+    opts.size.height = 3;
+    opts.pixelFormat = Media::PixelFormat::UNKNOWN;
+    opts.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
+    std::shared_ptr<OHOS::Media::PixelMap> pixelMap = Media::PixelMap::Create(color, len, 0, opts.size.width, opts);
+
+    PasteDataRecord obj1;
+    auto udmfObject = std::make_shared<Object>();
+    std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
+    udmfObject->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
+    udmfObject->value_[UDMF::PIXEL_MAP] = pixelMap;
+    auto entry1 = std::make_shared<PasteDataEntry>();
+    entry1->SetValue(udmfObject);
+    entry1->SetUtdId(utdId);
+    entry1->SetMimeType(MIMETYPE_PIXELMAP);
+    obj1.AddEntry(utdId, entry1);
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Encode(buffer, true);
+    ASSERT_TRUE(ret);
+
+    PasteDataRecord obj2;
+    ret = obj2.Decode(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1.GetMimeType(), obj2.GetMimeType());
+    auto entry2 = obj2.GetEntry(utdId);
+    ASSERT_NE(entry2, nullptr);
+    auto pixelMap2 = entry2->ConvertToPixelMap();
+    ASSERT_NE(pixelMap2, nullptr);
+    EXPECT_TRUE(pixelMap->IsSameImage(*pixelMap2));
+}
+
+/**
+ * @tc.name: EncodeRemoteTest005
+ * @tc.desc: test encode & decode remote want
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, EncodeRemoteTest005, TestSize.Level0)
+{
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    want->SetUri(uri_);
+
+    PasteDataRecord obj1;
+    std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::OPENHARMONY_WANT);
+    auto entry1 = std::make_shared<PasteDataEntry>();
+    entry1->SetValue(want);
+    entry1->SetUtdId(utdId);
+    entry1->SetMimeType(MIMETYPE_TEXT_WANT);
+    obj1.AddEntry(utdId, entry1);
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1.Encode(buffer, true);
+    ASSERT_TRUE(ret);
+
+    PasteDataRecord obj2;
+    ret = obj2.Decode(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1.GetMimeType(), obj2.GetMimeType());
+    auto entry2 = obj2.GetEntry(utdId);
+    ASSERT_NE(entry2, nullptr);
+    auto entryValue = entry2->GetValue();
+    ASSERT_TRUE(std::holds_alternative<std::shared_ptr<AAFwk::Want>>(entryValue));
+    auto want2 = std::get<std::shared_ptr<AAFwk::Want>>(entryValue);
+    ASSERT_NE(want2, nullptr);
+    EXPECT_STREQ(want2->ToString().c_str(), want->ToString().c_str());
+}
+
+/**
+ * @tc.name: EncodeRemoteTest006
+ * @tc.desc: test encode & decode remote custom
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, EncodeRemoteTest006, TestSize.Level0)
+{
+    std::string mimeType = "openharmony.styled-string";
+    std::vector<uint8_t> array = {0x01, 0x02, 0x03};
+    auto customData = std::make_shared<MineCustomData>();
+    customData->AddItemData(mimeType, array);
+
+    PasteDataRecord::Builder builder(mimeType);
+    builder.SetCustomData(customData);
+
+    auto obj1 = builder.Build();
+    ASSERT_NE(obj1, nullptr);
+
+    std::vector<uint8_t> buffer;
+    bool ret = obj1->Encode(buffer, true);
+    ASSERT_TRUE(ret);
+
+    PasteDataRecord obj2;
+    ret = obj2.Decode(buffer);
+    ASSERT_TRUE(ret);
+
+    EXPECT_EQ(obj1->GetMimeType(), obj2.GetMimeType());
+    auto entry2 = obj2.GetEntryByMimeType(mimeType);
+    ASSERT_NE(entry2, nullptr);
+    auto entryValue = entry2->GetValue();
+    ASSERT_TRUE(std::holds_alternative<std::vector<uint8_t>>(entryValue));
+    auto array2 = std::get<std::vector<uint8_t>>(entryValue);
+    EXPECT_EQ(array2, array);
+}
 } // namespace OHOS::MiscServices

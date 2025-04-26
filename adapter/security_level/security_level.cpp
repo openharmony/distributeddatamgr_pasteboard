@@ -28,11 +28,8 @@ uint32_t SecurityLevel::GetDeviceSecurityLevel()
 
 bool SecurityLevel::InitDEVSLQueryParams(DEVSLQueryParams *params, const std::string &udid)
 {
-    if (params == nullptr || udid.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "params check failed, params is null %{public}d", params == nullptr);
-        return false;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(params != nullptr && !udid.empty(), false, PASTEBOARD_MODULE_SERVICE,
+        "params check failed, params is null %{public}d", params == nullptr);
     std::vector<uint8_t> vec(udid.begin(), udid.end());
     for (size_t i = 0; i < MAX_UDID_LENGTH && i < vec.size(); i++) {
         params->udid[i] = vec[i];
@@ -45,18 +42,13 @@ uint32_t SecurityLevel::GetSensitiveLevel()
 {
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     DEVSLQueryParams query;
-    if (!InitDEVSLQueryParams(&query, udid)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "init query params failed! udid:%{public}.6s", udid.c_str());
-        return DATA_SEC_LEVEL0;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(InitDEVSLQueryParams(&query, udid), DATA_SEC_LEVEL0, PASTEBOARD_MODULE_SERVICE,
+        "init query params failed! udid:%{public}.6s", udid.c_str());
 
     uint32_t level = DATA_SEC_LEVEL0;
     int32_t result = DATASL_GetHighestSecLevel(&query, &level);
-    if (result != DEVSL_SUCCESS) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "get highest level failed(%{public}.6s)! level:%{public}u, error:%{public}d", udid.c_str(), level, result);
-        return DATA_SEC_LEVEL0;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(result == DEVSL_SUCCESS, DATA_SEC_LEVEL0, PASTEBOARD_MODULE_SERVICE,
+        "get highest level failed(%{public}.6s)! level:%{public}u, error:%{public}d", udid.c_str(), level, result);
     securityLevel_ = level;
     PASTEBOARD_HILOGI(
         PASTEBOARD_MODULE_SERVICE, "get highest level success(%{public}.6s)! level: %{public}u", udid.c_str(), level);

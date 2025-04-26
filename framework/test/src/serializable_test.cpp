@@ -17,7 +17,7 @@
 #include "clip/clip_plugin.h"
 #include "config.h"
 #include "pasteboard_hilog.h"
-#include "serializable.h"
+#include "serializable/serializable.h"
 
 namespace OHOS::DistributedData {
 using namespace testing::ext;

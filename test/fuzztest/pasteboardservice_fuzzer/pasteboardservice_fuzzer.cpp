@@ -17,48 +17,63 @@
 
 #include <thread>
 
+#include "ipasteboard_service.h"
 #include "loader.h"
 #include "message_parcel.h"
 #include "pasteboard_service.h"
-#include "pasteboard_serv_ipc_interface_code.h"
 
 namespace {
 using namespace OHOS;
 using namespace OHOS::MiscServices;
-using namespace OHOS::Security::PasteboardServ;
 
-const std::u16string PASTEBOARDSERVICE_INTERFACE_TOKEN = u"ohos.miscservices.pasteboard.IPasteboardService";
-const std::vector<PasteboardServiceInterfaceCode> CODE_LIST = {
-    GET_PASTE_DATA,
-    HAS_PASTE_DATA,
-    SET_PASTE_DATA,
-    CLEAR_ALL,
-    SUBSCRIBE_OBSERVER,
-    UNSUBSCRIBE_OBSERVER,
-    UNSUBSCRIBE_ALL_OBSERVER,
-    IS_REMOTE_DATA,
-    GET_DATA_SOURCE,
-    HAS_DATA_TYPE,
-    SET_GLOBAL_SHARE_OPTION,
-    REMOVE_GLOBAL_SHARE_OPTION,
-    GET_GLOBAL_SHARE_OPTION,
-    SET_APP_SHARE_OPTIONS,
-    REMOVE_APP_SHARE_OPTIONS,
-    PASTE_START,
-    PASTE_COMPLETE,
-    REGISTER_CLIENT_DEATH_OBSERVER,
-    DETECT_PATTERNS,
-    GET_RECORD_VALUE,
-    GET_MIME_TYPES,
-    GET_REMOTE_DEVICE_NAME,
-    SHOW_PROGRESS,
-    GET_CHANGE_COUNT,
-    SUBSCRIBE_ENTITY_OBSERVER,
-    UNSUBSCRIBE_ENTITY_OBSERVER,
+const std::u16string PASTEBOARDSERVICE_INTERFACE_TOKEN = u"OHOS.MiscServices.IPasteboardService";
+const std::vector<IPasteboardServiceIpcCode> CODE_LIST = {
+    IPasteboardServiceIpcCode::COMMAND_GET_PASTE_DATA,
+    IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA,
+    IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA,
+    IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_ONLY,
+    IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_DELAY_DATA,
+    IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_ENTRY_DATA,
+    IPasteboardServiceIpcCode::COMMAND_CLEAR,
+    IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_OBSERVER,
+    IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_OBSERVER,
+    IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_ALL_OBSERVER,
+    IPasteboardServiceIpcCode::COMMAND_IS_REMOTE_DATA,
+    IPasteboardServiceIpcCode::COMMAND_GET_DATA_SOURCE,
+    IPasteboardServiceIpcCode::COMMAND_HAS_DATA_TYPE,
+    IPasteboardServiceIpcCode::COMMAND_SET_GLOBAL_SHARE_OPTION,
+    IPasteboardServiceIpcCode::COMMAND_REMOVE_GLOBAL_SHARE_OPTION,
+    IPasteboardServiceIpcCode::COMMAND_GET_GLOBAL_SHARE_OPTION,
+    IPasteboardServiceIpcCode::COMMAND_SET_APP_SHARE_OPTIONS,
+    IPasteboardServiceIpcCode::COMMAND_REMOVE_APP_SHARE_OPTIONS,
+    IPasteboardServiceIpcCode::COMMAND_PASTE_START,
+    IPasteboardServiceIpcCode::COMMAND_PASTE_COMPLETE,
+    IPasteboardServiceIpcCode::COMMAND_REGISTER_CLIENT_DEATH_OBSERVER,
+    IPasteboardServiceIpcCode::COMMAND_DETECT_PATTERNS,
+    IPasteboardServiceIpcCode::COMMAND_GET_RECORD_VALUE_BY_TYPE,
+    IPasteboardServiceIpcCode::COMMAND_GET_MIME_TYPES,
+    IPasteboardServiceIpcCode::COMMAND_GET_REMOTE_DEVICE_NAME,
+    IPasteboardServiceIpcCode::COMMAND_SHOW_PROGRESS,
+    IPasteboardServiceIpcCode::COMMAND_GET_CHANGE_COUNT,
+    IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_ENTITY_OBSERVER,
+    IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_ENTITY_OBSERVER,
 };
 
 class PasteboardServiceMock : public PasteboardServiceStub {
 public:
+    int32_t CallbackEnter(uint32_t code) override
+    {
+        (void)code;
+        return 0;
+    }
+
+    int32_t CallbackExit(uint32_t code, int32_t result) override
+    {
+        (void)code;
+        (void)result;
+        return 0;
+    }
+
     int32_t SetPasteData(int fd, int64_t memSize, const std::vector<uint8_t> &buffer,
         const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter) override
     {
@@ -301,7 +316,7 @@ public:
         return isInited_;
     }
 
-    void DoRemoteRequest(PasteboardServiceInterfaceCode code, MessageParcel &data)
+    void DoRemoteRequest(IPasteboardServiceIpcCode code, MessageParcel &data)
     {
         MessageParcel reply;
         MessageOption option;
@@ -326,7 +341,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     if (data == nullptr || size == 0) {
         return 0;
     }
-    PasteboardServiceInterfaceCode code = CODE_LIST[data[0] % CODE_LIST.size()];
+    IPasteboardServiceIpcCode code = CODE_LIST[data[0] % CODE_LIST.size()];
 
     OHOS::MessageParcel parcel;
     parcel.WriteInterfaceToken(PASTEBOARDSERVICE_INTERFACE_TOKEN);

@@ -15,7 +15,7 @@
 
 #include <gtest/gtest.h>
 
-#include "ffrt_utils.h"
+#include "ffrt/ffrt_utils.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;

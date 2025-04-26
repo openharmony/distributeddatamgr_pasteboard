@@ -39,7 +39,7 @@ ohos_shared_library("libpasteboard") {
 
   version_script = "pasteboard_interface_map"
 
-  cflags_cc = []
+  cflags_cc = [ "-D_FORTIFY_SOURCE=2" ]
 
   defines = [ "API_EXPORT=__attribute__((visibility (\"default\")))" ]
 

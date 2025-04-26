@@ -23,7 +23,7 @@
 #include "account_manager.h"
 #include "calculate_time_consuming.h"
 #include "common_event_manager.h"
-#include "dev_profile.h"
+#include "device/dev_profile.h"
 #include "distributed_file_daemon_manager.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
@@ -170,7 +170,8 @@ void PasteboardService::OnStart()
     Loader loader;
     uid_ = loader.LoadUid();
     moduleConfig_.Init();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", DATASL_OnStart());
+    auto status = DATASL_OnStart();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", status);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
     if (Init() != ERR_OK) {
@@ -223,6 +224,7 @@ void PasteboardService::OnStop()
     }
     moduleConfig_.DeInit();
     switch_.DeInit();
+    DATASL_OnStop();
     EventCenter::GetInstance().Unsubscribe(PasteboardEvent::DISCONNECT);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
     EventCenter::GetInstance().Unsubscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE);
@@ -482,6 +484,7 @@ void PasteboardService::RecognizePasteData(PasteData &pasteData)
 {
     if (pasteData.GetShareOption() == ShareOption::InApp) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "shareOption is InApp, recognition not allowed");
+        return;
     }
     std::string primaryText = GetAllPrimaryText(pasteData);
     if (primaryText.empty()) {
@@ -1458,10 +1461,7 @@ void PasteboardService::CloseP2PLink(const std::string &networkId)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "close p2p error, status:%{public}d", status);
     }
     auto plugin = GetClipPlugin();
-    if (plugin == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(plugin != nullptr, PASTEBOARD_MODULE_SERVICE, "plugin is not exist");
     status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::IDLE);
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state idle error, status:%{public}d", status);
@@ -1848,7 +1848,7 @@ std::pair<int32_t, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistribut
     }
 
     evt = events[0];
-    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId() || evt.expiration < currentEvent_.expiration) {
+    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data");
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DATA), evt);
     }
@@ -2461,7 +2461,7 @@ bool PasteboardService::CheckMdmShareOption(PasteData &pasteData)
     return result;
 }
 
-inline bool PasteboardService::IsCallerUidValid()
+bool PasteboardService::IsCallerUidValid()
 {
     pid_t callingUid = IPCSkeleton::GetCallingUid();
     if (callingUid == EDM_UID || (uid_ != -1 && callingUid == uid_)) {
@@ -3460,11 +3460,11 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id switched: %{public}d", userId);
         if (pasteboardService_ != nullptr) {
             pasteboardService_->ChangeStoreStatus(userId);
+            auto accountId = pasteboardService_->GetCurrentAccountId();
+            pasteboardService_->switch_.DeInit();
+            pasteboardService_->switch_.Init(accountId);
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetSwitch end");
         }
-        auto accountId = pasteboardService_->GetCurrentAccountId();
-        pasteboardService_->switch_.DeInit();
-        pasteboardService_->switch_.Init(accountId);
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetSwitch end");
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_STOPPING) {
         std::lock_guard<std::mutex> lock(mutex_);
         int32_t userId = data.GetCode();
@@ -3631,6 +3631,23 @@ std::function<void(const OHOS::MiscServices::Event &)> PasteboardService::Remote
             }
         }
     };
+}
+
+int32_t PasteboardService::CallbackEnter(uint32_t code)
+{
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t uid = IPCSkeleton::GetCallingUid();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u", pid, uid, code);
+    return ERR_NONE;
+}
+
+int32_t PasteboardService::CallbackExit(uint32_t code, int32_t result)
+{
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    pid_t uid = IPCSkeleton::GetCallingUid();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid:%{public}d, uid:%{public}d, cmd:%{public}u, ret:%{public}d",
+        pid, uid, code, result);
+    return ERR_NONE;
 }
 
 void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const

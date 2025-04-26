@@ -91,6 +91,146 @@ HWTEST_F(PasteDataTest, AddRecord002, TestSize.Level0)
 }
 
 /**
+ * @tc.name: AddRecord003
+ * @tc.desc: PasteDataRecord AddRecord, add multi records and check the order of records of data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, AddRecord003, TestSize.Level0)
+{
+    std::vector<std::string> testTextVec = { "text001", "text002", "text003" };
+    std::vector<std::string> expectTextVec = { "text003", "text002", "text001" };
+    PasteData data;
+    for (const auto &itText : testTextVec) {
+        PasteDataRecord::Builder builder(MIMETYPE_TEXT_PLAIN);
+        auto text = std::make_shared<std::string>(itText);
+        auto record = builder.SetPlainText(text).Build();
+        ASSERT_TRUE(record != nullptr);
+        data.AddRecord(*record);
+    }
+
+    auto count = data.GetRecordCount();
+    EXPECT_TRUE(count == testTextVec.size());
+
+    std::vector<std::string> result;
+    for (const auto &itRec : data.AllRecords()) {
+        ASSERT_TRUE(itRec != nullptr);
+        EXPECT_TRUE(itRec->GetMimeType() == MIMETYPE_TEXT_PLAIN);
+        auto plainText = itRec->GetPlainText();
+        ASSERT_TRUE(plainText != nullptr);
+        result.emplace_back(*plainText);
+    }
+
+    EXPECT_TRUE(result.size() == expectTextVec.size());
+    EXPECT_TRUE(std::equal(result.begin(), result.end(), expectTextVec.begin(), expectTextVec.end()));
+}
+
+/**
+ * @tc.name: AddRecord004
+ * @tc.desc: PasteDataRecord AddHtmlRecord, add multi records and check the order of records of data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, AddRecord004, TestSize.Level0)
+{
+    std::vector<std::string> testHtmlVec = {
+        "<div class='disable'>html001</div>",
+        "<div class='disable'>html002</div>",
+        "<div class='disable'>html003</div>"
+    };
+    std::vector<std::string> expectHtmlVec = {
+        "<div class='disable'>html003</div>",
+        "<div class='disable'>html002</div>",
+        "<div class='disable'>html001</div>"
+    };
+    PasteData data;
+    for (const auto &itHtml: testHtmlVec) {
+        data.AddHtmlRecord(itHtml);
+    }
+
+    auto count = data.GetRecordCount();
+    EXPECT_TRUE(count == testHtmlVec.size());
+
+    std::vector<std::string> result;
+    for (const auto &itRec : data.AllRecords()) {
+        ASSERT_TRUE(itRec != nullptr);
+        EXPECT_TRUE(itRec->GetMimeType() == MIMETYPE_TEXT_HTML);
+        auto htmlText = itRec->GetHtmlText();
+        ASSERT_TRUE(htmlText != nullptr);
+        result.emplace_back(*htmlText);
+    }
+
+    EXPECT_TRUE(result.size() == expectHtmlVec.size());
+    EXPECT_TRUE(std::equal(result.begin(), result.end(), expectHtmlVec.begin(), expectHtmlVec.end()));
+}
+
+/**
+ * @tc.name: AddRecord005
+ * @tc.desc: PasteDataRecord AddTextRecord, add multi records and check the order of records of data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, AddRecord005, TestSize.Level0)
+{
+    std::vector<std::string> testTextVec = { "text101", "text102", "text103" };
+    std::vector<std::string> expectTextVec = { "text103", "text102", "text101" };
+    PasteData data;
+    for (const auto &itText: testTextVec) {
+        data.AddTextRecord(itText);
+    }
+
+    auto count = data.GetRecordCount();
+    EXPECT_TRUE(count == testTextVec.size());
+
+    std::vector<std::string> result;
+    for (const auto &itRec : data.AllRecords()) {
+        ASSERT_TRUE(itRec != nullptr);
+        EXPECT_TRUE(itRec->GetMimeType() == MIMETYPE_TEXT_PLAIN);
+        auto plainText = itRec->GetPlainText();
+        ASSERT_TRUE(plainText != nullptr);
+        result.emplace_back(*plainText);
+    }
+
+    EXPECT_TRUE(result.size() == expectTextVec.size());
+    EXPECT_TRUE(std::equal(result.begin(), result.end(), expectTextVec.begin(), expectTextVec.end()));
+}
+
+/**
+ * @tc.name: AddRecord006
+ * @tc.desc: PasteDataRecord AddUriRecord, add multi records and check the order of records of data.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, AddRecord006, TestSize.Level0)
+{
+    std::vector<std::string> testUriVec = {
+        "file://pasteboard_service/test_uri_001",
+        "file://pasteboard_service/test_uri_002",
+        "file://pasteboard_service/test_uri_003"
+    };
+    std::vector<std::string> expectUriVec = {
+        "file://pasteboard_service/test_uri_003",
+        "file://pasteboard_service/test_uri_002",
+        "file://pasteboard_service/test_uri_001"
+    };
+    PasteData data;
+    for (const auto &itUri: testUriVec) {
+        data.AddUriRecord(OHOS::Uri(itUri));
+    }
+
+    auto count = data.GetRecordCount();
+    EXPECT_TRUE(count == testUriVec.size());
+
+    std::vector<std::string> result;
+    for (const auto &itRec : data.AllRecords()) {
+        ASSERT_TRUE(itRec != nullptr);
+        EXPECT_TRUE(itRec->GetMimeType() == MIMETYPE_TEXT_URI);
+        auto uri = itRec->GetUri();
+        ASSERT_TRUE(uri != nullptr);
+        result.emplace_back(uri->ToString());
+    }
+
+    EXPECT_TRUE(result.size() == expectUriVec.size());
+    EXPECT_TRUE(std::equal(result.begin(), result.end(), expectUriVec.begin(), expectUriVec.end()));
+}
+
+/**
  * @tc.name: Marshalling001
  * @tc.desc: PasteData Marshalling
  * @tc.type: FUNC

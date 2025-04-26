@@ -21,9 +21,9 @@
 #include "bundle_mgr_proxy.h"
 #include "clip/clip_plugin.h"
 #include "common/block_object.h"
-#include "distributed_module_config.h"
+#include "device/distributed_module_config.h"
 #include "eventcenter/event_center.h"
-#include "ffrt_utils.h"
+#include "ffrt/ffrt_utils.h"
 #include "i_paste_data_processor.h"
 #include "ientity_recognition_observer.h"
 #include "input_manager.h"
@@ -97,6 +97,8 @@ class PasteboardService final : public SystemAbility, public PasteboardServiceSt
 public:
     API_EXPORT PasteboardService();
     API_EXPORT ~PasteboardService();
+    int32_t CallbackEnter(uint32_t code) override;
+    int32_t CallbackExit(uint32_t code, int32_t result) override;
     virtual int32_t Clear() override;
     virtual int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, int64_t &rawDataSize,
         std::vector<uint8_t> &buffer, int &fd) override;
@@ -403,7 +405,7 @@ private:
     void RemoveSingleObserver(
         int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveAllObserver(int32_t userId, ObserverMap &observerMap);
-    inline bool IsCallerUidValid();
+    bool IsCallerUidValid();
     std::vector<std::string> GetLocalMimeTypes();
     bool HasLocalDataType(const std::string &mimeType);
     void AddPermissionRecord(uint32_t tokenId, bool isReadGrant, bool isSecureGrant);

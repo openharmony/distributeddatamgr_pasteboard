@@ -341,7 +341,9 @@ struct PasteboardSwitch {
         }
         .margin({
           bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
-          top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
+          top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP,
+          left: '8vp',
+          right: '8vp'
         })
         .textAlign(TextAlign.Center)
         .width('100%')
@@ -441,7 +443,6 @@ struct PasteboardSwitch {
     .width('100%')
     .height(this.screenHeight)
     .scrollable(ScrollDirection.Vertical)
-    .scrollBar(BarState.Off)
     .align(Alignment.TopStart)
     .friction(0.6)
     .edgeEffect(EdgeEffect.Spring)
@@ -476,6 +477,7 @@ struct PasteboardSwitch {
       console.info(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.imageAnimatorWidth = ' +
       this.imageAnimatorWidth + ', this.imageAnimatorHeight = ' + this.imageAnimatorHeight);
     })
+    .padding({ bottom: '16vp' })
   }
 
   private getContentVisibility(): Visibility {

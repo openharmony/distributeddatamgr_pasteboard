@@ -986,6 +986,7 @@ HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest009, TestSize.Level0)
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_NE(newData, nullptr);
     result = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
     ASSERT_TRUE(observer->entity_.empty());
 }
@@ -995,7 +996,7 @@ HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest009, TestSize.Level0)
  * @tc.desc: Subscribe EntityObserver and copy plainText with ShareOption::InApp, will not exec callback.
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest009, TestSize.Level0)
+HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest0010, TestSize.Level0)
 {
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<TestEntityRecognitionObserver> observer = sptr<TestEntityRecognitionObserver>::MakeSptr();
@@ -1007,6 +1008,7 @@ HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest009, TestSize.Level0)
     ASSERT_NE(newData, nullptr);
     newData->SetShareOption(ShareOption::InApp);
     result = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
     ASSERT_TRUE(observer->entity_.empty());
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
