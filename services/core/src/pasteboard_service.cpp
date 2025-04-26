@@ -482,6 +482,10 @@ int32_t PasteboardService::ExtractEntity(const std::string &entity, std::string 
 
 void PasteboardService::RecognizePasteData(PasteData &pasteData)
 {
+    if (pasteData.GetShareOption() == ShareOption::InApp) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "shareOption is InApp, recognition not allowed");
+        return;
+    }
     std::string primaryText = GetAllPrimaryText(pasteData);
     if (primaryText.empty()) {
         return;
