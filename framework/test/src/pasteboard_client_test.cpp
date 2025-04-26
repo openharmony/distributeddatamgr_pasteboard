@@ -991,6 +991,30 @@ HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest009, TestSize.Level0)
 }
 
 /**
+ * @tc.name: SubscribeEntityObserverTest010
+ * @tc.desc: Subscribe EntityObserver and copy plainText with ShareOption::InApp, will not exec callback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest009, TestSize.Level0)
+{
+    uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
+    sptr<TestEntityRecognitionObserver> observer = sptr<TestEntityRecognitionObserver>::MakeSptr();
+    int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
+        EntityType::ADDRESS, expectedDataLength, observer);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    std::string plainText = "陕西省西安市高新区丈八八路";
+    auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
+    ASSERT_NE(newData, nullptr);
+    newData->SetShareOption(ShareOption::InApp);
+    result = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    ASSERT_TRUE(observer->entity_.empty());
+    result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
+        EntityType::ADDRESS, expectedDataLength, observer);
+    ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+}
+
+/**
  * @tc.name: UnsubscribeEntityObserverTest001
  * @tc.desc: Subscribe EntityObserver when EntityType is MAX, should return INVALID_PARAM_ERROR.
  * @tc.type: FUNC
