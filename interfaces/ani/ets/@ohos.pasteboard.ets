@@ -15,14 +15,54 @@
 
 import { BusinessError } from '@ohos.base'
 import { AsyncCallback } from '@ohos.base';
-import Want from "@ohos.app.ability.Want";
-import image from "@ohos.multimedia.image";
+import Want from '@ohos.app.ability.Want';
+import image from '@ohos.multimedia.image';
+
+class Cleaner {
+    static callback(cleaner: Cleaner): void {
+        console.println("enter Cleaner.callback. ");
+        cleaner.clean()
+    }
+
+    constructor(targetPtr: long) {
+        this.targetPtr = targetPtr
+    }
+
+    native clean(): void
+
+    private targetPtr: long = 0
+}
+
+class FinalizationAgent<T extends Object> {
+    constructor(obj: T, ptr: long) {
+        this.register(obj, ptr);
+    }
+
+    register(obj: T, ptr: long): void {
+        this.unregisterToken = {};
+        this.cleaner = new Cleaner(ptr);
+        finalizer.register(obj, this.cleaner!, this.unregisterToken);
+    }
+
+    unregister(): void {
+        finalizer.unregister(this.unregisterToken);
+    }
+
+    private cleaner: Cleaner | null = null;
+    private unregisterToken: object = {};
+}
+
+let finalizer = new FinalizationRegistry<Cleaner>(Cleaner.callback)
 
 export namespace pasteboard {
 
     loadLibrary("pasteboard_ani");
 
-    export const MIMETYPE_TEXT_URI: string = "text/uri";
+    export const MIMETYPE_TEXT_URI: string = 'text/uri';
+    export const MIMETYPE_TEXT_HTML: string = 'text/html';
+    export const MIMETYPE_TEXT_PLAIN: string = 'text/plain';
+    export const MIMETYPE_PIXELMAP: string = 'pixelMap';
+    export const MIMETYPE_TEXT_WANT: string = 'text/want';
     export type ValueType = string | image.PixelMap | Want | ArrayBuffer;
 
     export native function createDataTypeValue(mimeType: string, value: ValueType): PasteData;
@@ -44,10 +84,14 @@ export namespace pasteboard {
     }
 
     export interface PasteDataProperty {
-        shareOption: number;
+        tag: string;
+        readonly timestamp: number;
+        shareOption: ShareOption;
     }
 
     export interface PasteDataRecord {
+        mimeType: string;
+        plainText: string;
         uri: string;
     }
 
@@ -72,17 +116,27 @@ export namespace pasteboard {
 }
 
 export class PasteDataRecordImpl implements pasteboard.PasteDataRecord {
+    mimeType: string = "";
+    plainText: string = "";
     uri: string = "";
 }
 
 export class PasteDataPropertyImpl implements pasteboard.PasteDataProperty {
-    shareOption: number = 0;
+    tag: string = "";
+    timestamp: number = 0;
+    shareOption: pasteboard.ShareOption = pasteboard.ShareOption.CROSSDEVICE;
 }
 
 export class PasteDataImpl implements pasteboard.PasteData {
     private nativePtr: long = 0;
+    private fzAgent: FinalizationAgent<PasteDataImpl>;
     constructor(nativePtr: long) {
         this.nativePtr = nativePtr;
+        this.fzAgent = new FinalizationAgent<PasteDataImpl>(this, this.nativePtr);
+    }
+
+    unregisterCleaner(): void {
+        this.fzAgent.unregister();
     }
 
     getNativePtr() : long {
