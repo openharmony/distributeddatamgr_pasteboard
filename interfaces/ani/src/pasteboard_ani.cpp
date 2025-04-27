@@ -190,6 +190,31 @@ bool CheckMimeType(ani_env *env, std::string &mimeType)
     return true;
 }
 
+ani_enum_item GetEnumItem(ani_env *env, ani_int shareOption)
+{
+    ani_namespace ns;
+    const char *nameSpaceName = "L@ohos/pasteboard/pasteboard;";
+    if (ANI_OK != env->FindNamespace(nameSpaceName, &ns)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Not found namespace: %s", nameSpaceName);
+        return nullptr;
+    }
+
+    ani_enum enumType;
+    const char *enumName = "LShareOption;";
+    if (ANI_OK != env->Namespace_FindEnum(ns, enumName, &enumType)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Find Enum Faild: %s", enumName);
+        return nullptr;
+    }
+
+    ani_enum_item enumItem;
+    if (ANI_OK != env->Enum_GetEnumItemByIndex(enumType, shareOption, &enumItem)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Enum_GetEnumItemByIndex FAILD");
+        return nullptr;
+    }
+
+    return enumItem;
+}
+
 static ani_double GetRecordCount([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_object object)
 {
     PasteData* pPasteData = unwrapAndGetPasteDataPtr(env, object);
@@ -298,6 +323,47 @@ static void AddRecordByTypeValue([[maybe_unused]] ani_env *env, [[maybe_unused]]
     return;
 }
 
+void SetNamedPropertyByStr(ani_env *env, ani_class cls, const char *propertyName, std::string propertyValue,
+    ani_object &obj)
+{
+    ani_string propertyAniStr = {};
+    env->String_NewUTF8(propertyValue.c_str(), propertyValue.length(), &propertyAniStr);
+
+    ani_method propertySetter;
+    if (ANI_OK != env->Class_FindMethod(cls, propertyName, nullptr, &propertySetter)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
+            "[SetNamedPropertyByStr] Class_FindMethod Fail: %{public}s.", propertyName);
+        return;
+    }
+    if (ANI_OK != env->Object_CallMethod_Void(obj, propertySetter, propertyAniStr)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
+            "[SetNamedPropertyByStr] Object_CallMethod_Void Fail: %{public}s.", propertyName);
+        return;
+    }
+}
+
+void FillPasteDataRecordObject(ani_env *env, std::shared_ptr<PasteDataRecord> recordFromBottom, ani_object &obj)
+{
+    ani_class cls;
+    if (ANI_OK != env->FindClass("L@ohos/pasteboard/PasteDataRecordImpl;", &cls)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataRecordObject] Not found class. ");
+        return;
+    }
+
+    auto mimeType = recordFromBottom->GetMimeType();
+    SetNamedPropertyByStr(env, cls, "<set>mimeType", mimeType, obj);
+
+    auto plainTextPtr = recordFromBottom->GetPlainText();
+    if (plainTextPtr != nullptr) {
+        SetNamedPropertyByStr(env, cls, "<set>plainText", *plainTextPtr.get(), obj);
+    }
+
+    auto uriPtr = recordFromBottom->GetUri();
+    if (uriPtr != nullptr) {
+        SetNamedPropertyByStr(env, cls, "<set>uri", uriPtr->ToString(), obj);
+    }
+}
+
 static ani_object GetRecord([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_object object,
     [[maybe_unused]] ani_double index)
 {
@@ -319,32 +385,13 @@ static ani_object GetRecord([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] recordFromBottom is null.");
         return GetNullObject(env);
     }
-    ani_string uri_string{};
-    auto uriptr = recordFromBottom->GetUri();
-    if (uriptr != nullptr) {
-        env->String_NewUTF8(uriptr->ToString().c_str(), uriptr->ToString().length(), &uri_string);
-    }
 
     ani_object record = CreateObjectFromClass(env, "L@ohos/pasteboard/PasteDataRecordImpl;");
     if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] CreateObjectFromClass failed.");
         return GetNullObject(env);
     }
-
-    ani_class cls;
-    if (ANI_OK != env->FindClass("L@ohos/pasteboard/PasteDataRecordImpl;", &cls)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] Not found. ");
-        return record;
-    }
-
-    ani_method uriSetter;
-    if (ANI_OK != env->Class_FindMethod(cls, "<set>uri", nullptr, &uriSetter)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] Class_FindMethod Fail. ");
-        return record;
-    }
-    if (ANI_OK != env->Object_CallMethod_Void(record, uriSetter, uri_string)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] Object_CallMethod_Void Fail. ");
-        return record;
-    }
+    FillPasteDataRecordObject(env, recordFromBottom, record);
 
     return record;
 }
@@ -357,18 +404,72 @@ static void SetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_obje
         return;
     }
 
-    ani_double shareOptionValue;
-    if (ANI_OK != env->Object_GetPropertyByName_Double(static_cast<ani_object>(property),
-        "shareOption", &shareOptionValue)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] Object_GetPropertyByName_Int Faild. ");
+    ani_ref shareOption;
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(property), "shareOption", &shareOption)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] Object_GetPropertyByName_Ref Faild");
         return;
     }
-
+    ani_int shareOptionValue;
+    if (ANI_OK != env->EnumItem_GetValue_Int(static_cast<ani_enum_item>(shareOption), &shareOptionValue)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] EnumItem_GetValue_Int FAILD");
+        return;
+    }
     ani_int localOnlyValue = shareOptionValue == ShareOption::CrossDevice ? false : true;
     pPasteData->SetLocalOnly(localOnlyValue);
     pPasteData->SetShareOption(static_cast<ShareOption>(shareOptionValue));
 
+    ani_ref tag;
+    if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(property), "tag", &tag)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] Object_GetPropertyByName_Ref Faild");
+        return;
+    }
+    auto tag_str = ANIUtils_ANIStringToStdString(env, static_cast<ani_string>(tag));
+    pPasteData->SetTag(tag_str);
+
     return;
+}
+
+void SetNamedPropertyByEnumInt(ani_env *env, ani_class cls, const char *propertyName, ani_int shareOpionValue,
+    ani_object &obj)
+{
+    ani_enum_item enumItem = GetEnumItem(env, shareOpionValue);
+    if (enumItem == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Class_FindMethod Fail. ");
+        return;
+    }
+    ani_method shareOptionSetter;
+    if (ANI_OK != env->Class_FindMethod(cls, propertyName, nullptr, &shareOptionSetter)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Class_FindMethod Fail. ");
+        return;
+    }
+    if (ANI_OK != env->Object_CallMethod_Void(obj, shareOptionSetter, enumItem)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Object_CallMethod_Void Fail. ");
+        return;
+    }
+}
+
+void FillPasteDataPropertyObject(ani_env *env, PasteDataProperty &property, ani_object &obj)
+{
+    ani_class cls;
+    if (ANI_OK != env->FindClass("L@ohos/pasteboard/PasteDataPropertyImpl;", &cls)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Not found class. ");
+        return;
+    }
+
+    ani_int shareOpionValue = property.shareOption;
+    SetNamedPropertyByEnumInt(env, cls, "<set>shareOption", shareOpionValue, obj);
+    SetNamedPropertyByStr(env, cls, "<set>tag", property.tag, obj);
+
+    ani_double timestampValue = property.timestamp;
+    ani_method timestampSetter;
+    if (ANI_OK != env->Class_FindMethod(cls, "<set>timestamp", nullptr, &timestampSetter)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Class_FindMethod Fail. ");
+        return;
+    }
+    if (ANI_OK != env->Object_CallMethod_Void(obj, timestampSetter, timestampValue)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Object_CallMethod_Void Fail. ");
+        return;
+    }
 }
 
 static ani_object GetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_object object)
@@ -380,28 +481,13 @@ static ani_object GetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] an
     }
 
     PasteDataProperty property = pPasteData->GetProperty();
-    ani_double shareOpionValue = property.shareOption;
 
     ani_object propertyToAbove = CreateObjectFromClass(env, "L@ohos/pasteboard/PasteDataPropertyImpl;");
     if (propertyToAbove == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetProperty] CreateObjectFromClass failed. ");
         return GetNullObject(env);
     }
-
-    ani_class cls;
-    if (ANI_OK != env->FindClass("L@ohos/pasteboard/PasteDataPropertyImpl;", &cls)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetProperty] Not found class. ");
-        return propertyToAbove;
-    }
-
-    ani_method shareOptionSetter;
-    if (ANI_OK != env->Class_FindMethod(cls, "<set>shareOption", nullptr, &shareOptionSetter)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetProperty] Class_FindMethod Fail. ");
-        return propertyToAbove;
-    }
-    if (ANI_OK != env->Object_CallMethod_Void(propertyToAbove, shareOptionSetter, shareOpionValue)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetProperty] Object_CallMethod_Void Fail. ");
-        return propertyToAbove;
-    }
+    FillPasteDataPropertyObject(env, property, propertyToAbove);
 
     return propertyToAbove;
 }
@@ -696,6 +782,7 @@ static ani_boolean HasDataType([[maybe_unused]] ani_env *env, [[maybe_unused]] a
     auto value = block->GetValue();
     if (value == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[HasDataType] time out. ");
+        ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::REQUEST_TIME_OUT), "request timed out.");
         return false;
     }
 
