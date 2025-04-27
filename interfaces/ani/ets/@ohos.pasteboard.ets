@@ -15,14 +15,18 @@
 
 import { BusinessError } from '@ohos.base'
 import { AsyncCallback } from '@ohos.base';
-import Want from "@ohos.app.ability.Want";
-import image from "@ohos.multimedia.image";
+import Want from '@ohos.app.ability.Want';
+import image from '@ohos.multimedia.image';
 
 export namespace pasteboard {
 
     loadLibrary("pasteboard_ani");
 
-    export const MIMETYPE_TEXT_URI: string = "text/uri";
+    export const MIMETYPE_TEXT_URI: string = 'text/uri';
+    export const MIMETYPE_TEXT_HTML: string = 'text/html';
+    export const MIMETYPE_TEXT_PLAIN: string = 'text/plain';
+    export const MIMETYPE_PIXELMAP: string = 'pixelMap';
+    export const MIMETYPE_TEXT_WANT: string = 'text/want';
     export type ValueType = string | image.PixelMap | Want | ArrayBuffer;
 
     export native function createDataTypeValue(mimeType: string, value: ValueType): PasteData;
@@ -44,10 +48,14 @@ export namespace pasteboard {
     }
 
     export interface PasteDataProperty {
+        tag: string;
+        readonly timestamp: number;
         shareOption: ShareOption;
     }
 
     export interface PasteDataRecord {
+        mimeType: string;
+        plainText: string;
         uri: string;
     }
 
@@ -72,10 +80,14 @@ export namespace pasteboard {
 }
 
 export class PasteDataRecordImpl implements pasteboard.PasteDataRecord {
+    mimeType: string = "";
+    plainText: string = "";
     uri: string = "";
 }
 
 export class PasteDataPropertyImpl implements pasteboard.PasteDataProperty {
+    tag: string = "";
+    timestamp: number = 0;
     shareOption: pasteboard.ShareOption = pasteboard.ShareOption.CROSSDEVICE;
 }
 
