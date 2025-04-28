@@ -928,6 +928,10 @@ bool PasteDataNapi::IsProperty(napi_env env, napi_value in)
     bool hasProperty = false;
     const char *key[] = { "additions", "mimeTypes", "tag", "timestamp", "localOnly", "shareOption" };
     const napi_valuetype type[] = { napi_object, napi_object, napi_string, napi_number, napi_boolean, napi_number };
+    if (propertyNamesNum != static_cast<uint32_t>(sizeof(type) / sizeof(type[0]))) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "propertyNames invalid");
+        return false;
+    }
     napi_value propertyValue = nullptr;
     for (uint32_t i = 0; i < propertyNamesNum; i++) {
         NAPI_CALL_BASE(env, napi_has_named_property(env, in, key[i], &hasProperty), false);
