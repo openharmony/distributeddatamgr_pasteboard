@@ -463,9 +463,6 @@ napi_value SystemPasteboardNapi::GetData(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
         if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
-            ret = static_cast<int32_t>(JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING);
-        }
-        if (ret == static_cast<int32_t>(JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING)) {
             context->SetErrInfo(ret, "Another getData is being processed");
         } else {
             context->status = napi_ok;
