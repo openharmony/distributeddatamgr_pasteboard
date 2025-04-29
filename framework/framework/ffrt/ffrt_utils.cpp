@@ -14,6 +14,7 @@
  */
 
 #include "ffrt_utils.h"
+#include "common_utils.h"
 #include "pasteboard_hilog.h"
 
 namespace OHOS {
@@ -105,7 +106,7 @@ void FFRTTimer::SetTimer(const std::string &timerId, FFRTTask &task, uint32_t de
     CancelTimerInner(timerId);
     ++taskId_[timerId];
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Add Task[%{public}u] with delay = %{public}u",
-        timerId.c_str(), taskId_[timerId], delayMs);
+        CommonUtils::GetAnonymousString(timerId).c_str(), taskId_[timerId], delayMs);
     if (delayMs == 0) {
         FFRTUtils::SubmitTask(task);
     } else {
@@ -127,8 +128,8 @@ void FFRTTimer::CancelAllTimerInner()
 {
     for (auto &p : handleMap_) {
         if (p.second != nullptr) {
-            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Cancel Task[%{public}u]", p.first.c_str(),
-                taskId_[p.first]);
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Cancel Task[%{public}u]",
+                CommonUtils::GetAnonymousString(p.first).c_str(), taskId_[p.first]);
             FFRTUtils::CancelTask(p.second, queue_);
         }
     }
@@ -137,8 +138,8 @@ void FFRTTimer::CancelAllTimerInner()
 void FFRTTimer::CancelTimerInner(const std::string &timerId)
 {
     if (handleMap_[timerId] != nullptr) {
-        PASTEBOARD_HILOGD(
-            PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Cancel Task[%{public}u]", timerId.c_str(), taskId_[timerId]);
+        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "Timer[%{public}s] Cancel Task[%{public}u]",
+            CommonUtils::GetAnonymousString(timerId).c_str(), taskId_[timerId]);
         FFRTUtils::CancelTask(handleMap_[timerId], queue_);
         handleMap_[timerId] = nullptr;
     }
