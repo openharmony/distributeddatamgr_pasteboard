@@ -116,7 +116,6 @@ std::string ANIUtils_ANIStringToStdString(ani_env *env, ani_string ani_str)
     std::vector<char> buffer(strSize + 1); // +1 for null terminator
     char* utf8_buffer = buffer.data();
 
-    //String_GetUTF8 Supportted by https://gitee.com/openharmony/arkcompiler_runtime_core/pulls/3416
     ani_size bytes_written = 0;
     env->String_GetUTF8(ani_str, utf8_buffer, strSize + 1, &bytes_written);
 
@@ -186,7 +185,7 @@ bool UnionAccessor::TryConvert<std::string>(std::string &value)
 }
 
 template<typename T>
-class SharedPtrHolder {
+class SharedPtrHolder : public NativeObject {
 public:
     SharedPtrHolder(std::shared_ptr<T> &sptr) : sptr_(sptr)
     {
@@ -207,5 +206,42 @@ public:
 
 private:
     std::shared_ptr<T> sptr_;
+};
+
+class NativePtrCleaner {
+    public:
+        static void Clean([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_object object)
+        {
+            ani_long ptr = 0;
+            if (ANI_OK != env->Object_GetFieldByName_Long(object, "targetPtr", &ptr)) {
+                return;
+            }
+
+            if (ptr != 0) {
+                delete reinterpret_cast<NativeObject *>(ptr);
+                ptr = 0;
+            }
+        }
+    
+        NativePtrCleaner(ani_env *env)
+            : env_(env)
+        {
+        }
+    
+        ani_status Bind(ani_class cls)
+        {
+            std::array methods = {
+                ani_native_function { "clean", nullptr, reinterpret_cast<void *>(NativePtrCleaner::Clean) },
+            };
+    
+            if (ANI_OK != env_->Class_BindNativeMethods(cls, methods.data(), methods.size())) {
+                return (ani_status)ANI_ERROR;
+            };
+    
+            return ANI_OK;
+        }
+    
+    private:
+        ani_env *env_ = nullptr;
 };
 #endif

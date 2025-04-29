@@ -959,6 +959,19 @@ ANI_EXPORT ani_status ANI_Constructor_SystemPasteboard(ani_env *env)
     return ANI_OK;
 }
 
+static ani_status BindCleanerclassMethods(ani_env *env)
+{
+    static const char *className = "L@ohos/pasteboard/Cleaner;";
+    ani_class cleanerCls;
+    ani_status status = env->FindClass(className, &cleanerCls);
+    if (ANI_OK != status) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
+            "[BindCleanerclassMethods] Not found ohos/pasteboard/Cleaner. status:%{public}d", status);
+        return ANI_NOT_FOUND;
+    }
+    return NativePtrCleaner(env).Bind(cleanerCls);
+}
+
 ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 {
     ani_env *env;
@@ -980,6 +993,12 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
     ani_status systemboardStatus = ANI_Constructor_SystemPasteboard(env);
     if (systemboardStatus != ANI_OK) {
         return systemboardStatus;
+    }
+
+    if (ANI_OK != BindCleanerclassMethods(env)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
+            "[ANI_Constructor_PasteData]BindCleanerclassMethods failed");
+        return ANI_ERROR;
     }
 
     *result = ANI_VERSION_1;
