@@ -51,7 +51,7 @@ public:
         TH_THROW(std::runtime_error, "GetpixelMap not implemented");
     }
 
-    ValueType GetDataSync(string_view type)
+    ValueType GetRecordValueByType(string_view type)
     {
         TH_THROW(std::runtime_error, "GetDataSync not implemented");
     }
@@ -119,7 +119,7 @@ public:
         TH_THROW(std::runtime_error, "GetProperty not implemented");
     }
 
-    void SetProperty(PasteDataProperty const &property)
+    void SetProperty(const PasteDataProperty &property)
     {
         TH_THROW(std::runtime_error, "SetProperty not implemented");
     }
@@ -223,7 +223,7 @@ SystemPasteboard CreateSystemPasteboard()
     return make_holder<SystemPasteboardImpl, SystemPasteboard>();
 }
 
-PasteData CreateDataByValue(string_view mimeType, ValueType const &value)
+PasteData CreateDataByValue(string_view mimeType, const ValueType &value)
 {
     // The parameters in the make_holder function should be of the same type
     // as the parameters in the constructor of the actual implementation class.

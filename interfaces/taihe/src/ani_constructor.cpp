@@ -17,7 +17,13 @@
 
 ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 {
-    ani_env *env;
+    if (vm == nullptr) {
+        return ANI_ERROR;
+    }
+    if (result == nullptr) {
+        return ANI_ERROR;
+    }
+    ani_env *env = nullptr;
     if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
         return ANI_ERROR;
     }

@@ -57,7 +57,7 @@ interface PasteDataRecord {
     GetpixelMap(): @sts_type("image.PixelMap") Opaque;
 
     @gen_promise("getData")
-    GetDataSync(type: String): ValueType;
+    GetRecordValueByType(type: String): ValueType;
 
     ToPlainText(): String;
     GetRecordImpl(): i64;
