@@ -168,7 +168,7 @@ private:
     static constexpr uint32_t MAX_INDEX_LENGTH = 8;
     static constexpr const pid_t EDM_UID = 3057;
     static constexpr const pid_t ROOT_UID = 0;
-    static constexpr uint32_t EXPIRATION_INTERVAL = 2;
+    static constexpr uint32_t EXPIRATION_INTERVAL = 2 * 60 * 1000;
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; // ms
     static constexpr uint32_t SET_DISTRIBUTED_DATA_INTERVAL = 40 * 1000; // 40 seconds
     static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;

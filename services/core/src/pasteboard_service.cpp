@@ -43,6 +43,7 @@
 #include "pasteboard_event_dfx.h"
 #include "pasteboard_event_ue.h"
 #include "pasteboard_pattern.h"
+#include "pasteboard_time.h"
 #include "pasteboard_trace.h"
 #include "pasteboard_web_controller.h"
 #include "remote_file_share.h"
@@ -883,7 +884,7 @@ bool PasteboardService::IsDataAged()
         return true;
     }
     uint64_t copyTime = it.second;
-    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "copyTime = %{public}" PRIu64 ", curTime = %{public}" PRIu64,
         copyTime, curTime);
     if (curTime > copyTime && curTime - copyTime > ONE_HOUR_MILLISECONDS) {
@@ -1266,7 +1267,7 @@ int32_t PasteboardService::GetRemotePasteData(int32_t userId, const Event &event
                 clips_.InsertOrAssign(userId, result.first);
                 IncreaseChangeCount(userId);
                 auto curTime =
-                    static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+                    static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
                 copyTime_.InsertOrAssign(userId, curTime);
             }
             pasteDataTime->syncTime = result.second.syncTime;
@@ -1727,7 +1728,7 @@ int32_t PasteboardService::SaveData(PasteData &pasteData,
         NETWORK_DEV_NUM, DMAdapter::GetInstance().GetNetworkIds().size()
     );
     HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
-    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     copyTime_.InsertOrAssign(appInfo.userId, curTime);
     if (!(pasteData.IsDelayData())) {
         SetDistributedData(appInfo.userId, pasteData);
@@ -1873,7 +1874,7 @@ std::pair<int32_t, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistribut
     }
 
     uint64_t curTime =
-        static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+        static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     ret = evt.status == ClipPlugin::EVT_NORMAL ? ret : static_cast<int32_t>(PasteboardError::INVALID_EVENT_STATUS);
     ret = curTime < evt.expiration ? ret : static_cast<int32_t>(PasteboardError::DATA_EXPIRED_ERROR);
     return std::make_pair(ret, evt);
@@ -2844,8 +2845,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     Event event;
     event.user = user;
     event.seqId = ++sequenceId_;
-    auto expiration =
-        duration_cast<milliseconds>((system_clock::now() + minutes(EXPIRATION_INTERVAL)).time_since_epoch()).count();
+    auto expiration = PasteBoardTime::GetBootTimeMs() + EXPIRATION_INTERVAL;
     event.expiration = static_cast<uint64_t>(expiration);
     event.deviceId = networkId;
     event.account = AccountManager::GetInstance().GetCurrentAccount();
@@ -3673,7 +3673,7 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) c
         std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
         windowPid_ = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
         actionTime_ =
-            static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+            static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
         std::shared_ptr<BlockObject<bool>> block = nullptr;
         {
             std::unique_lock<std::shared_mutex> blockMapLock(blockMapMutex_);
@@ -3712,7 +3712,7 @@ bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, bool isFocused)
         block->GetValue();
     }
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
-    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     auto ret = (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime >= actionTime_ &&
         curTime - actionTime_ < EVENT_TIME_OUT;
     if (!ret) {
