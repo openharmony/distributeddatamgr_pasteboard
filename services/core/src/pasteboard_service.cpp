@@ -784,14 +784,17 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
     if (isSecureGrant || isReadGrant) {
         return true;
     }
+    auto tokenType = AccessTokenKit::GetTokenTypeFlag(tokenId);
+    auto isAllowTokenAccess = tokenType != ATokenTypeEnum::TOKEN_HAP ? true : false;
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
-        "isReadGrant is %{public}d, isSecureGrant is %{public}d,", isReadGrant, isSecureGrant);
+        "isReadGrant is %{public}d, isSecureGrant is %{public}d, isAllowTokenAccess is %{public}d", isReadGrant,
+        isSecureGrant, isAllowTokenAccess);
     bool isCtrlVAction = false;
     if (inputEventCallback_ != nullptr) {
         isCtrlVAction = inputEventCallback_->IsCtrlVProcess(callPid, IsFocusedApp(tokenId));
         inputEventCallback_->Clear();
     }
-    auto isGrant = isReadGrant || isSecureGrant || isCtrlVAction;
+    auto isGrant = isReadGrant || isSecureGrant || isAllowTokenAccess || isCtrlVAction;
     if (!isGrant && version >= ADD_PERMISSION_CHECK_SDK_VERSION) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "no permission, callPid is %{public}d, version is %{public}d",
             callPid, version);
