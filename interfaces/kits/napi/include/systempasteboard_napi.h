@@ -269,13 +269,20 @@ typedef struct {
     napi_value jsCallback;
 } ProgressListenerFn;
 
-const std::map<MiscServices::PasteboardError, MiscServices::JSErrorCode> ErrorCodeMap = {
-    {MiscServices::PasteboardError::TASK_PROCESSING, MiscServices::JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING},
-    {MiscServices::PasteboardError::COPY_FILE_ERROR, MiscServices::JSErrorCode::ERR_COPY_FILE_ERROR},
-    {MiscServices::PasteboardError::PROGRESS_START_ERROR, MiscServices::JSErrorCode::ERR_PROGRESS_START_ERROR},
-    {MiscServices::PasteboardError::PROGRESS_ABNORMAL, MiscServices::JSErrorCode::ERR_PROGRESS_ABNORMAL},
-    {MiscServices::PasteboardError::PERMISSION_VERIFICATION_ERROR, MiscServices::JSErrorCode::NO_PERMISSION},
-    {MiscServices::PasteboardError::INVALID_PARAM_ERROR, MiscServices::JSErrorCode::INVALID_PARAMETERS},
+const std::map<MiscServices::PasteboardError, std::pair<MiscServices::JSErrorCode, std::string>> ErrorCodeMap = {
+    {MiscServices::PasteboardError::TASK_PROCESSING,
+     {MiscServices::JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING, "Another copy or paste operation is in progress."}},
+    {MiscServices::PasteboardError::COPY_FILE_ERROR,
+     {MiscServices::JSErrorCode::ERR_COPY_FILE_ERROR, "Invalid destUri or file system error."}},
+    {MiscServices::PasteboardError::PROGRESS_START_ERROR,
+     {MiscServices::JSErrorCode::ERR_PROGRESS_START_ERROR, "Failed to start progress."}},
+    {MiscServices::PasteboardError::PROGRESS_ABNORMAL,
+     {MiscServices::JSErrorCode::ERR_PROGRESS_ABNORMAL, "Progress exits abnormally."}},
+    {MiscServices::PasteboardError::PERMISSION_VERIFICATION_ERROR,
+     {MiscServices::JSErrorCode::NO_PERMISSION,
+      "Permission verification failed. A non-permission application calls a API."}},
+    {MiscServices::PasteboardError::INVALID_PARAM_ERROR,
+     {MiscServices::JSErrorCode::INVALID_PARAMETERS, "Parameter error. Parameter verification failed."}},
 };
 
 class SystemPasteboardNapi {
