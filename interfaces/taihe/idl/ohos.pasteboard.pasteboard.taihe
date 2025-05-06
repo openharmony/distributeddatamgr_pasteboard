@@ -15,6 +15,10 @@
 
 @!namespace("@ohos.pasteboard", "pasteboard")
 
+@!sts_inject_into_module("import Want from '@ohos.app.ability.Want';")
+ 
+@!sts_inject_into_module("import image from '@ohos.multimedia.image';")
+
 @!sts_inject("const MIMETYPE_TEXT_HTML: String = 'text/html'")
 
 @!sts_inject("const MIMETYPE_TEXT_PLAIN: String = 'text/plain'")
@@ -26,7 +30,7 @@ enum ShareOption: i32 {
     LOCALDEVICE = 1
 }
 
-enum Pattern: u32 {
+enum Pattern: i32 {
     URL = 0,
     NUMBER = 1,
 }
@@ -45,41 +49,41 @@ struct PasteDataProperty {
 
 interface PasteDataRecord {      
     @get("mimeType")
-    GetmimeType(): String;
+    GetMimeType(): String;
     
     @get("plainText")
-    GetplainText(): String;
+    GetPlainText(): String;
     
     @get("uri")
-    Geturi(): String;
+    GetUri(): String;
     
     @get("pixelMap")
-    GetpixelMap(): @sts_type("image.PixelMap") Opaque;
+    GetPixelMap(): @sts_type("image.PixelMap") Opaque;
 
     @gen_promise("getData")
-    GetRecordValueByType(type: String): ValueType;
+    GetRecordValueByType(type: String): Optional<ValueType>;
 
-    ToPlainText(): String;
+    ToPlainText(): Optional<String>;
     GetRecordImpl(): i64;
 }
 function MakePasteDataRecord(): PasteDataRecord;
 
 interface PasteData {
     @overload("addRecord")
-    AddRecordData(record: PasteDataRecord);
+    AddRecord(record: PasteDataRecord);
     @overload("addRecord")
-    AddRecordValue(mimeType: String, value: ValueType);
+    CreateAndAddRecord(mimeType: String, value: ValueType);
 
-    GetMimeTypes(): Array<String>;
-    GetPrimaryHtml(): String;
-    GetPrimaryWant(): Opaque;
-    GetPrimaryMimeType(): String;
-    GetPrimaryText(): String;
-    GetPrimaryUri(): String;
+    GetMimeTypes(): Optional<Array<String>>;
+    GetPrimaryHtml(): Optional<String>;
+    GetPrimaryWant(): Optional<Opaque>;
+    GetPrimaryMimeType(): Optional<String>;
+    GetPrimaryText(): Optional<String>;
+    GetPrimaryUri(): Optional<String>;
     GetProperty(): PasteDataProperty;
     SetProperty(property: PasteDataProperty): void;
-    GetRecord(index: u32): PasteDataRecord;
-    GetRecordCount(): u32;
+    GetRecord(index: i32): Optional<PasteDataRecord>;
+    GetRecordCount(): i32;
     GetTag(): String;
 
     GetPasteDataImpl(): i64;
@@ -95,32 +99,35 @@ interface SystemPasteboard {
 
     
     @gen_promise("clearData")
-    ClearDataSync(): void;
+    ClearDataImpl(): void;
     
     @gen_async("getData")
     @gen_promise("getData")
-    GetDataSync(): PasteData;
+    GetDataImpl(): PasteData;
     
     @gen_async("hasData")
     @gen_promise("hasData")
-    HasDataSync(): bool;
+    HasDataImpl(): bool;
 
     @gen_async("setData")
     @gen_promise("setData")
-    SetDataSync(data: PasteData): void;
+    SetDataImpl(data: PasteData): void;
 
     @gen_promise("getMimeTypes")
     GetMimeTypesSync(): Array<String>;
 
-    GetDataSource(): String;
+    GetDataSource(): Optional<String>;
     HasDataType(mimeType: String): bool;
+    ClearDataSync(): void;
+    GetDataSync(): PasteData;
+    HasDataSync(): Optional<bool>;
 }
 function CreateSystemPasteboard(): SystemPasteboard;
 
 @overload("createData")
-function CreateDataByValue(mimeType: String, value: ValueType): PasteData;
+function CreateDataByValue(mimeType: String, value: ValueType): Optional<PasteData>;
 
 @overload("createData")
-function CreateDataByRecord(data: @record Map<String, ValueType>): PasteData;
+function CreateDataByRecord(data: @record Map<String, ValueType>): Optional<PasteData>;
 
 function GetSystemPasteboard(): SystemPasteboard;

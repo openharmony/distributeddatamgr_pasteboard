@@ -18,12 +18,13 @@ import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 config("taihe_config") {
   include_dirs = [
+    "${pasteboard_framework_path}/include/common",
     "${pasteboard_innerkits_path}/include",
+    "${pasteboard_interfaces_path}/kits/napi/include",
     "${pasteboard_root_path}/framework/tlv",
     "${pasteboard_root_path}/framework/uri",
     "${pasteboard_utils_path}/native/include",
-    "${pasteboard_interfaces_path}/ani/include",
-    "${pasteboard_framework_path}/include/ffrt",
+    "include",
   ]
 }
 
@@ -33,7 +34,6 @@ taihe_generated_file_path = "$taihe_file_path/out/$subsystem_name/$part_name"
 
 copy_taihe_idl("copy_pasteboard") {
   sources = [
-    "idl/ohos.pasteboard.import.taihe",
     "idl/ohos.pasteboard.pasteboard.taihe",
   ]
 }
@@ -56,6 +56,7 @@ taihe_shared_library("pasteboard_taihe_native") {
   sources += [
     "src/ani_constructor.cpp",
     "src/ohos.pasteboard.pasteboard.impl.cpp",
+    "src/pasteboard_taihe_utils.cpp",
   ]
   deps = [
     ":run_pasteboard_taihe",
