@@ -691,10 +691,11 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
 
     std::string utdId = value.GetUtdId();
     auto entry = record->GetEntry(utdId);
+    bool isRemoteData = data->IsRemote();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(entry != nullptr, static_cast<int32_t>(PasteboardError::INVALID_MIMETYPE),
         PASTEBOARD_MODULE_SERVICE, "entry is null, recordId=%{public}u, type=%{public}s", recordId, utdId.c_str());
 
-    if (data->IsRemote() && !entry->HasContent(utdId)) {
+    if (isRemoteData && !entry->HasContent(utdId)) {
         int32_t ret = GetRemoteEntryValue(appInfo, *data, *record, value);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
             PASTEBOARD_MODULE_SERVICE, "get remote entry failed, type=%{public}s, ret=%{public}d", utdId.c_str(), ret);
@@ -711,7 +712,7 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
     }
     if (mimeType == MIMETYPE_TEXT_URI) {
         std::vector<Uri> grantUris = CheckUriPermission(*data, appInfo.bundleName);
-        return GrantUriPermission(grantUris, appInfo.bundleName);
+        return GrantUriPermission(grantUris, appInfo.bundleName, isRemoteData);
     }
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
@@ -727,6 +728,7 @@ int32_t PasteboardService::ProcessDelayHtmlEntry(PasteData &data, const std::str
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
 
     PasteData tmp;
+    bool isRemoteData = data.IsRemote();
     std::shared_ptr<std::string> html = entry.ConvertToHtml();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(html != nullptr, static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED),
         PASTEBOARD_MODULE_SERVICE, "convert to html failed");
@@ -734,13 +736,13 @@ int32_t PasteboardService::ProcessDelayHtmlEntry(PasteData &data, const std::str
     tmp.AddHtmlRecord(*html);
     tmp.SetOriginAuthority(data.GetOriginAuthority());
     tmp.SetTokenId(data.GetTokenId());
-    tmp.SetRemote(data.IsRemote());
+    tmp.SetRemote(isRemoteData);
     PasteboardWebController::GetInstance().SplitWebviewPasteData(tmp);
     PasteboardWebController::GetInstance().SetWebviewPasteData(tmp, data.GetOriginAuthority());
     PasteboardWebController::GetInstance().CheckAppUriPermission(tmp);
 
     std::vector<Uri> grantUris = CheckUriPermission(tmp, targetBundle);
-    int32_t ret = GrantUriPermission(grantUris, targetBundle);
+    int32_t ret = GrantUriPermission(grantUris, targetBundle, isRemoteData);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
         PASTEBOARD_MODULE_SERVICE, "grant to %{public}s failed, ret=%{public}d", targetBundle.c_str(), ret);
 
@@ -1143,18 +1145,19 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         return result;
     }
     int64_t fileSize = data.GetFileSize();
+    bool isRemoteData = data.IsRemote();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64 ", isRemote=%{public}d", fileSize,
-        static_cast<int>(data.IsRemote()));
+        static_cast<int>(isRemoteData));
     GetPasteDataDot(data, appInfo.bundleName);
     std::vector<Uri> grantUris = CheckUriPermission(data, appInfo.bundleName);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(!grantUris.empty(), static_cast<int32_t>(PasteboardError::E_OK),
         PASTEBOARD_MODULE_SERVICE, "no uri");
-    if (data.IsRemote()) {
+    if (isRemoteData) {
         data.SetPasteId(pasteId);
         data.deviceId_ = distEvt.deviceId;
         EstablishP2PLink(data.deviceId_, data.GetPasteId());
     }
-    return GrantUriPermission(grantUris, appInfo.bundleName);
+    return GrantUriPermission(grantUris, appInfo.bundleName, isRemoteData);
 }
 
 PasteboardService::RemoteDataTaskManager::DataTask PasteboardService::RemoteDataTaskManager::GetRemoteDataTask(
@@ -1530,7 +1533,8 @@ int32_t PasteboardService::GetRemoteDeviceName(std::string &deviceName, bool &is
     return ERR_OK;
 }
 
-int32_t PasteboardService::GrantUriPermission(const std::vector<Uri> &grantUris, const std::string &targetBundleName)
+int32_t PasteboardService::GrantUriPermission(const std::vector<Uri> &grantUris, const std::string &targetBundleName,
+    bool isRemoteData)
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(!grantUris.empty(), static_cast<int32_t>(PasteboardError::E_OK),
         PASTEBOARD_MODULE_SERVICE, "no uri");
@@ -1543,7 +1547,7 @@ int32_t PasteboardService::GrantUriPermission(const std::vector<Uri> &grantUris,
     size_t count = PasteData::URI_BATCH_SIZE;
     bool isNeedPersistance = OHOS::system::GetBoolParameter("const.pasteboard.uri_persistable_permission", false);
     auto permFlag = AAFwk::Want::FLAG_AUTH_READ_URI_PERMISSION;
-    if (isNeedPersistance) {
+    if (isNeedPersistance && !isRemoteData) {
         permFlag |= AAFwk::Want::FLAG_AUTH_WRITE_URI_PERMISSION | AAFwk::Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
     }
     while (length > offset) {
@@ -3175,7 +3179,7 @@ int32_t PasteboardService::GetRemoteEntryValue(const AppInfo &appInfo, PasteData
     std::vector<Uri> grantUris = CheckUriPermission(data, appInfo.bundleName);
     if (!grantUris.empty()) {
         EstablishP2PLink(distEvt.deviceId, data.GetPasteId());
-        ret = GrantUriPermission(grantUris, appInfo.bundleName);
+        ret = GrantUriPermission(grantUris, appInfo.bundleName, data.IsRemote());
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
             PASTEBOARD_MODULE_SERVICE, "grant remote uri failed, uri=%{private}s, ret=%{public}d",
             distributedUri.c_str(), ret);
@@ -3228,7 +3232,7 @@ int32_t PasteboardService::ProcessRemoteDelayHtml(const std::string &remoteDevic
     std::vector<Uri> grantUris = CheckUriPermission(data, bundleName);
     if (!grantUris.empty()) {
         EstablishP2PLink(remoteDeviceId, data.GetPasteId());
-        int32_t ret = GrantUriPermission(grantUris, bundleName);
+        int32_t ret = GrantUriPermission(grantUris, bundleName, data.IsRemote());
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
             PASTEBOARD_MODULE_SERVICE, "grant to %{public}s failed, ret=%{public}d", bundleName.c_str(), ret);
     }

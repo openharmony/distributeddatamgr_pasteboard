@@ -4594,7 +4594,7 @@ HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest001, TestSize.Level1)
     PasteboardService service;
     std::vector<Uri> emptyUris;
     std::string targetBundleName = "com.example.app";
-    int32_t result = service.GrantUriPermission(emptyUris, targetBundleName);
+    int32_t result = service.GrantUriPermission(emptyUris, targetBundleName, false);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
 }
 

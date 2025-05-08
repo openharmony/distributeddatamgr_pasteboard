@@ -22,6 +22,7 @@
 #include "input_method_controller.h"
 #include "input_method_property.h"
 #include "ipc_skeleton.h"
+#include "parameters.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_service.h"
@@ -140,6 +141,7 @@ public:
     virtual sptr<InputMethodController> GetInstance() = 0;
     virtual void RegisterCommand(std::shared_ptr<Command> &cmd) = 0;
     virtual int32_t GetDefaultInputMethod(std::shared_ptr<MiscServices::Property> &property) = 0;
+    virtual bool GetBoolParameter(const std::string &key, bool defaultValue) = 0;
 };
 
 class PasteboardServiceInterfaceMock : public PasteboardServiceInterface {
@@ -175,6 +177,7 @@ public:
     MOCK_METHOD0(GetInstance, sptr<InputMethodController>());
     MOCK_CONST_METHOD2(Dump, bool(int fd, const std::vector<std::string> &args));
     MOCK_METHOD1(GetDefaultInputMethod, int32_t(std::shared_ptr<MiscServices::Property> &property));
+    MOCK_METHOD2(GetBoolParameter, bool(const std::string &key, bool defaultValue));
 };
 
 static void *g_interface = nullptr;
@@ -433,6 +436,15 @@ std::vector<std::shared_ptr<PasteDataRecord>> PasteData::AllRecords() const
     }
     return interface->AllRecords();
 }
+}
+
+bool OHOS::system::GetBoolParameter(const std::string &key, bool defaultValue)
+{
+    PasteboardServiceInterface *interface = GetPasteboardServiceInterface();
+    if (interface == nullptr) {
+        return false;
+    }
+    return interface->GetBoolParameter(key, defaultValue);
 }
 
 namespace MiscServices {
@@ -2742,6 +2754,94 @@ HWTEST_F(PasteboardServiceTest, IsNeedThaw005, TestSize.Level0)
     EXPECT_CALL(mock, GetDefaultInputMethod).WillOnce(testing::Return(0));
     bool result = tempPasteboard->IsNeedThaw();
     EXPECT_TRUE(result);
+}
+
+/**
+ * @tc.name: GrantUriPermissionTest001
+ * @tc.desc: test Func GrantUriPermission
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetBoolParameter(_, _)).WillRepeatedly(testing::Return(true));
+
+    std::vector<Uri> grantUris;
+    std::string targetBundleName = "com.example.app";
+    std::string uriStr = URI_STRING;
+    auto uri = OHOS::Uri(uriStr);
+    grantUris.push_back(uri);
+
+    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, false);
+    EXPECT_NE(result, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: GrantUriPermissionTest002
+ * @tc.desc: test Func GrantUriPermission
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetBoolParameter(_, _)).WillRepeatedly(testing::Return(false));
+
+    std::vector<Uri> grantUris;
+    std::string targetBundleName = "com.example.app";
+    std::string uriStr = URI_STRING;
+    auto uri = OHOS::Uri(uriStr);
+    grantUris.push_back(uri);
+
+    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, false);
+    EXPECT_NE(result, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: GrantUriPermissionTest003
+ * @tc.desc: test Func GrantUriPermission
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetBoolParameter(_, _)).WillRepeatedly(testing::Return(true));
+
+    std::vector<Uri> grantUris;
+    std::string targetBundleName = "com.example.app";
+    std::string uriStr = URI_STRING;
+    auto uri = OHOS::Uri(uriStr);
+    grantUris.push_back(uri);
+
+    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, true);
+    EXPECT_NE(result, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: GrantUriPermissionTest004
+ * @tc.desc: test Func GrantUriPermission
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest004, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetBoolParameter(_, _)).WillRepeatedly(testing::Return(false));
+
+    std::vector<Uri> grantUris;
+    std::string targetBundleName = "com.example.app";
+    std::string uriStr = URI_STRING;
+    auto uri = OHOS::Uri(uriStr);
+    grantUris.push_back(uri);
+
+    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, true);
+    EXPECT_NE(result, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
 /**

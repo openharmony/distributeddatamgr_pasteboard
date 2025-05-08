@@ -290,7 +290,8 @@ private:
     int32_t ProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
     int32_t PostProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
     std::vector<Uri> CheckUriPermission(PasteData &data, const std::string &targetBundleName);
-    int32_t GrantUriPermission(const std::vector<Uri> &grantUris, const std::string &targetBundleName);
+    int32_t GrantUriPermission(const std::vector<Uri> &grantUris, const std::string &targetBundleName,
+        bool isRemoteData);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
     bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
