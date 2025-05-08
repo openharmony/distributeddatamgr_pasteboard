@@ -38,6 +38,10 @@ constexpr size_t MIMETYPE_MAX_LEN = 1024;
 static void ThrowBusinessError(ani_env *env, int errCode, std::string&& errMsg)
 {
     PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "into ThrowBusinessError.");
+    if (env == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "into ThrowBusinessError. env is null, return.");
+        return;
+    }
     static const char *errorClsName = "L@ohos/base/BusinessError;";
     ani_class cls {};
     if (env->FindClass(errorClsName, &cls) != ANI_OK) {
@@ -110,16 +114,16 @@ ani_object CreateObjectFromClass([[maybe_unused]] ani_env *env, const char* clas
     ani_object obj = nullptr;
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateObjectFromClass] Not found class. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateObjectFromClass] Not found class.");
         return obj;
     }
     ani_method ctor;
     if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateObjectFromClass] get ctor Failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateObjectFromClass] get ctor failed.");
         return obj;
     }
     if (ANI_OK != env->Object_New(cls, ctor, &obj)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateObjectFromClass] Create Object Failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateObjectFromClass] Create Object failed.");
         return obj;
     }
 
@@ -131,15 +135,14 @@ std::string GetStdStringFromUnion([[maybe_unused]] ani_env *env, ani_object unio
     UnionAccessor unionAccessor(env, union_obj);
     ani_string str;
     if (!unionAccessor.IsInstanceOf("Lstd/core/String;")) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[GetStdStringFromUnion] union_obj is not string! ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetStdStringFromUnion] union_obj is not string!");
         ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
             "The type of mimeType must be string.");
         return "";
     }
     if (!unionAccessor.TryConvert<ani_string>(str)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[GetStdStringFromUnion] try to convert union object to ani_string failed! ");
+            "[GetStdStringFromUnion] try to convert union object to ani_string failed!");
         return "";
     }
 
@@ -152,7 +155,7 @@ bool getArrayBuffer([[maybe_unused]] ani_env *env, ani_object unionObj, std::vec
     bool isArrayBuffer = ANIUtils_UnionIsInstanceOf(env, unionObj, classname);
     if (!isArrayBuffer) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[getArrayBuffer] Failed: is not arraybuffer. ");
+            "[getArrayBuffer] Failed: is not arraybuffer.");
         return false;
     }
 
@@ -160,7 +163,7 @@ bool getArrayBuffer([[maybe_unused]] ani_env *env, ani_object unionObj, std::vec
     size_t length;
     if (ANI_OK != env->ArrayBuffer_GetInfo(static_cast<ani_arraybuffer>(unionObj), &data, &length)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[getArrayBuffer] Failed: env->ArrayBuffer_GetInfo(). ");
+            "[getArrayBuffer] Failed: env->ArrayBuffer_GetInfo().");
         return false;
     }
 
@@ -192,6 +195,10 @@ bool CheckMimeType(ani_env *env, std::string &mimeType)
 
 ani_enum_item GetEnumItem(ani_env *env, ani_int shareOption)
 {
+    if (env == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] env is null.");
+        return nullptr;
+    }
     ani_namespace ns;
     const char *nameSpaceName = "L@ohos/pasteboard/pasteboard;";
     if (ANI_OK != env->FindNamespace(nameSpaceName, &ns)) {
@@ -202,13 +209,13 @@ ani_enum_item GetEnumItem(ani_env *env, ani_int shareOption)
     ani_enum enumType;
     const char *enumName = "LShareOption;";
     if (ANI_OK != env->Namespace_FindEnum(ns, enumName, &enumType)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Find Enum Faild: %s", enumName);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Find Enum failed: %s", enumName);
         return nullptr;
     }
 
     ani_enum_item enumItem;
     if (ANI_OK != env->Enum_GetEnumItemByIndex(enumType, shareOption, &enumItem)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Enum_GetEnumItemByIndex FAILD");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Enum_GetEnumItemByIndex failed.");
         return nullptr;
     }
 
@@ -219,7 +226,7 @@ static ani_double GetRecordCount([[maybe_unused]] ani_env *env, [[maybe_unused]]
 {
     PasteData* pPasteData = unwrapAndGetPasteDataPtr(env, object);
     if (pPasteData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecordCount] pPasteData is null");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecordCount] pPasteData is null.");
         return 0;
     }
 
@@ -231,7 +238,7 @@ static void AddRecordByPasteDataRecord([[maybe_unused]] ani_env *env, [[maybe_un
 {
     ani_ref uri;
     if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(record), "uri", &uri)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecord] Object_GetPropertyByName_Ref Faild");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecord] Object_GetPropertyByName_Ref failed.");
         return;
     }
 
@@ -239,7 +246,7 @@ static void AddRecordByPasteDataRecord([[maybe_unused]] ani_env *env, [[maybe_un
 
     PasteData* pPasteData = unwrapAndGetPasteDataPtr(env, object);
     if (pPasteData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecord] pPasteData is null");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecord] pPasteData is null.");
         return;
     }
 
@@ -247,7 +254,7 @@ static void AddRecordByPasteDataRecord([[maybe_unused]] ani_env *env, [[maybe_un
     builder.SetUri(std::make_shared<OHOS::Uri>(OHOS::Uri(uri_str)));
     std::shared_ptr<PasteDataRecord> result = builder.Build();
     if (result == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecord] result is null");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecord] result is null.");
         return;
     }
     pPasteData->AddRecord(*(result.get()));
@@ -258,7 +265,7 @@ static void ProcessStrValueOfRecord([[maybe_unused]] ani_env *env, ani_object un
 {
     if (pPasteData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[ProcessStrValueOfRecord] pPasteData is null. ");
+            "[ProcessStrValueOfRecord] pPasteData is null.");
         return;
     }
 
@@ -284,14 +291,14 @@ static void AddRecordByTypeValue([[maybe_unused]] ani_env *env, [[maybe_unused]]
 
     PasteData* pPasteData = unwrapAndGetPasteDataPtr(env, object);
     if (pPasteData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecordByTypeValue] pPasteData is null");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecordByTypeValue] pPasteData is null.");
         return;
     }
 
     if (mimeType == MIMETYPE_PIXELMAP) {
         OHOS::Media::PixelMap* rawPixelMap = OHOS::Media::ImageAniUtils::GetPixelMapFromEnv(env, union_obj);
         if (rawPixelMap == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecordByTypeValue] GetPixelMapFromEnv failed. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecordByTypeValue] GetPixelMapFromEnv failed.");
             return;
         }
         auto pixelMap = std::shared_ptr<OHOS::Media::PixelMap>(rawPixelMap);
@@ -300,7 +307,7 @@ static void AddRecordByTypeValue([[maybe_unused]] ani_env *env, [[maybe_unused]]
     } else if (mimeType == MIMETYPE_TEXT_WANT) {
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, union_obj, want)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecordByTypeValue] UnwrapWant failed. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecordByTypeValue] UnwrapWant failed.");
             return;
         }
         pPasteData->AddWantRecord(std::make_shared<OHOS::AAFwk::Want>(want));
@@ -315,7 +322,7 @@ static void AddRecordByTypeValue([[maybe_unused]] ani_env *env, [[maybe_unused]]
     std::vector<uint8_t> vec;
     vec.clear();
     if (!getArrayBuffer(env, union_obj, vec)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecordByTypeValue] getArrayBuffer failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[AddRecordByTypeValue] getArrayBuffer failed.");
         return;
     }
     pPasteData->AddKvRecord(mimeType, vec);
@@ -326,27 +333,36 @@ static void AddRecordByTypeValue([[maybe_unused]] ani_env *env, [[maybe_unused]]
 void SetNamedPropertyByStr(ani_env *env, ani_class cls, const char *propertyName, std::string propertyValue,
     ani_object &obj)
 {
+    if (env == nullptr || propertyName == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByStr] env or propertyName is null.");
+        return;
+    }
     ani_string propertyAniStr = {};
     env->String_NewUTF8(propertyValue.c_str(), propertyValue.length(), &propertyAniStr);
 
     ani_method propertySetter;
     if (ANI_OK != env->Class_FindMethod(cls, propertyName, nullptr, &propertySetter)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[SetNamedPropertyByStr] Class_FindMethod Fail: %{public}s.", propertyName);
+            "[SetNamedPropertyByStr] Class_FindMethod failed: %{public}s.", propertyName);
         return;
     }
     if (ANI_OK != env->Object_CallMethod_Void(obj, propertySetter, propertyAniStr)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[SetNamedPropertyByStr] Object_CallMethod_Void Fail: %{public}s.", propertyName);
+            "[SetNamedPropertyByStr] Object_CallMethod_Void failed: %{public}s.", propertyName);
         return;
     }
 }
 
 void FillPasteDataRecordObject(ani_env *env, std::shared_ptr<PasteDataRecord> recordFromBottom, ani_object &obj)
 {
+    if (env == nullptr || recordFromBottom == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataRecordObject] env or recordFromBottom is null.");
+        return;
+    }
+
     ani_class cls;
     if (ANI_OK != env->FindClass("L@ohos/pasteboard/PasteDataRecordImpl;", &cls)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataRecordObject] Not found class. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataRecordObject] Not found class.");
         return;
     }
 
@@ -400,18 +416,18 @@ static void SetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_obje
 {
     PasteData* pPasteData = unwrapAndGetPasteDataPtr(env, object);
     if (pPasteData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] pPasteData is null. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] pPasteData is null.");
         return;
     }
 
     ani_ref shareOption;
     if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(property), "shareOption", &shareOption)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] Object_GetPropertyByName_Ref Faild");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] Object_GetPropertyByName_Ref failed.");
         return;
     }
     ani_int shareOptionValue;
     if (ANI_OK != env->EnumItem_GetValue_Int(static_cast<ani_enum_item>(shareOption), &shareOptionValue)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] EnumItem_GetValue_Int FAILD");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] EnumItem_GetValue_Int failed.");
         return;
     }
     ani_int localOnlyValue = shareOptionValue == ShareOption::CrossDevice ? false : true;
@@ -420,7 +436,7 @@ static void SetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_obje
 
     ani_ref tag;
     if (ANI_OK != env->Object_GetPropertyByName_Ref(static_cast<ani_object>(property), "tag", &tag)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] Object_GetPropertyByName_Ref Faild");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetProperty] Object_GetPropertyByName_Ref failed.");
         return;
     }
     auto tag_str = ANIUtils_ANIStringToStdString(env, static_cast<ani_string>(tag));
@@ -432,27 +448,36 @@ static void SetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_obje
 void SetNamedPropertyByEnumInt(ani_env *env, ani_class cls, const char *propertyName, ani_int shareOpionValue,
     ani_object &obj)
 {
+    if (env == nullptr || propertyName == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] env or propertyName is null.");
+        return;
+    }
     ani_enum_item enumItem = GetEnumItem(env, shareOpionValue);
     if (enumItem == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Class_FindMethod Fail. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Class_FindMethod failed.");
         return;
     }
     ani_method shareOptionSetter;
     if (ANI_OK != env->Class_FindMethod(cls, propertyName, nullptr, &shareOptionSetter)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Class_FindMethod Fail. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Class_FindMethod failed.");
         return;
     }
     if (ANI_OK != env->Object_CallMethod_Void(obj, shareOptionSetter, enumItem)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Object_CallMethod_Void Fail. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[SetNamedPropertyByEnumInt] Object_CallMethod_Void failed.");
         return;
     }
 }
 
 void FillPasteDataPropertyObject(ani_env *env, PasteDataProperty &property, ani_object &obj)
 {
+    if (env == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] env is null.");
+        return;
+    }
+
     ani_class cls;
     if (ANI_OK != env->FindClass("L@ohos/pasteboard/PasteDataPropertyImpl;", &cls)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Not found class. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Not found class.");
         return;
     }
 
@@ -463,11 +488,11 @@ void FillPasteDataPropertyObject(ani_env *env, PasteDataProperty &property, ani_
     ani_double timestampValue = property.timestamp;
     ani_method timestampSetter;
     if (ANI_OK != env->Class_FindMethod(cls, "<set>timestamp", nullptr, &timestampSetter)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Class_FindMethod Fail. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Class_FindMethod failed.");
         return;
     }
     if (ANI_OK != env->Object_CallMethod_Void(obj, timestampSetter, timestampValue)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Object_CallMethod_Void Fail. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Object_CallMethod_Void failed.");
         return;
     }
 }
@@ -476,7 +501,7 @@ static ani_object GetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] an
 {
     PasteData* pPasteData = unwrapAndGetPasteDataPtr(env, object);
     if (pPasteData == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetProperty] pPasteData is null. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetProperty] pPasteData is null.");
         return GetNullObject(env);
     }
 
@@ -484,7 +509,7 @@ static ani_object GetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] an
 
     ani_object propertyToAbove = CreateObjectFromClass(env, "L@ohos/pasteboard/PasteDataPropertyImpl;");
     if (propertyToAbove == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetProperty] CreateObjectFromClass failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetProperty] CreateObjectFromClass failed.");
         return GetNullObject(env);
     }
     FillPasteDataPropertyObject(env, property, propertyToAbove);
@@ -497,7 +522,7 @@ static ani_object CreateHtmlData([[maybe_unused]] ani_env *env, ani_object union
     auto value_str = GetStdStringFromUnion(env, union_obj);
     auto ptr = PasteboardClient::GetInstance()->CreateHtmlData(value_str);
     if (ptr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateHtmlData] CreateHtmlData failed ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateHtmlData] CreateHtmlData failed.");
         return GetNullObject(env);
     }
     ani_object PasteDataImpl = Create(env, ptr);
@@ -510,7 +535,7 @@ static ani_object CreatePlainTextData([[maybe_unused]] ani_env *env, ani_object 
     auto value_str = GetStdStringFromUnion(env, union_obj);
     auto ptr = PasteboardClient::GetInstance()->CreatePlainTextData(value_str);
     if (ptr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreatePlainTextData] CreatePlainTextData failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreatePlainTextData] CreatePlainTextData failed.");
         return GetNullObject(env);
     }
     ani_object PasteDataImpl = Create(env, ptr);
@@ -523,7 +548,7 @@ static ani_object CreateUriData([[maybe_unused]] ani_env *env, ani_object union_
     auto value_str = GetStdStringFromUnion(env, union_obj);
     auto ptr = PasteboardClient::GetInstance()->CreateUriData(OHOS::Uri(value_str));
     if (ptr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateUriData] CreateUriData failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateUriData] CreateUriData failed.");
         return GetNullObject(env);
     }
     ani_object PasteDataImpl = Create(env, ptr);
@@ -535,7 +560,7 @@ static ani_object CreatePixelMapData([[maybe_unused]] ani_env *env, ani_object u
 {
     OHOS::Media::PixelMap* rawPixelMap = OHOS::Media::ImageAniUtils::GetPixelMapFromEnv(env, union_obj);
     if (rawPixelMap == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreatePixelMapData] GetPixelMapFromEnv failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreatePixelMapData] GetPixelMapFromEnv failed.");
         return GetNullObject(env);
     }
 
@@ -551,13 +576,13 @@ static ani_object CreateWantData([[maybe_unused]] ani_env *env, ani_object union
     OHOS::AAFwk::Want want;
     bool ret = OHOS::AppExecFwk::UnwrapWant(env, union_obj, want);
     if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateWantData] UnwrapWant failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateWantData] UnwrapWant failed.");
         return GetNullObject(env);
     }
 
     auto ptr = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<OHOS::AAFwk::Want>(want));
     if (ptr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateWantData] CreateWantData failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateWantData] CreateWantData failed.");
         return GetNullObject(env);
     }
     ani_object PasteDataImpl = Create(env, ptr);
@@ -603,7 +628,7 @@ static ani_object CreateDataTypeValue([[maybe_unused]] ani_env *env, ani_string 
     size_t length;
     if (ANI_OK != env->ArrayBuffer_GetInfo(static_cast<ani_arraybuffer>(union_obj), &data, &length)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[CreateDataTypeValue] Failed: env->ArrayBuffer_GetInfo(). ");
+            "[CreateDataTypeValue] Failed: env->ArrayBuffer_GetInfo().");
         return GetNullObject(env);
     }
 
@@ -612,7 +637,7 @@ static ani_object CreateDataTypeValue([[maybe_unused]] ani_env *env, ani_string 
 
     auto ptr = PasteboardClient::GetInstance()->CreateKvData(type_str, vec);
     if (ptr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateDataTypeValue] CreateKvData failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateDataTypeValue] CreateKvData failed.");
         return GetNullObject(env);
     }
     ani_object PasteDataImpl = Create(env, ptr);
@@ -642,14 +667,14 @@ bool ParsekeyValAndProcess([[maybe_unused]] ani_env *env, ani_ref key_value, ani
     if (keyStr == "pixelMap") {
         OHOS::Media::PixelMap* rawPixelMap = OHOS::Media::ImageAniUtils::GetPixelMapFromEnv(env, value_obj);
         if (rawPixelMap == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ParsekeyValAndProcess] GetPixelMapFromEnv failed. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ParsekeyValAndProcess] GetPixelMapFromEnv failed.");
             return false;
         }
         *entryValue = std::shared_ptr<OHOS::Media::PixelMap>(rawPixelMap);
     } else if (keyStr == "text/want") {
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, value_obj, want)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ParsekeyValAndProcess] UnwrapWant failed. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ParsekeyValAndProcess] UnwrapWant failed.");
             return false;
         }
         *entryValue = std::make_shared<OHOS::AAFwk::Want>(want);
@@ -672,7 +697,7 @@ bool forEachMapEntry(ani_env *env, ani_object map_object,
 {
     ani_ref keys;
     if (ANI_OK != env->Object_CallMethodByName_Ref(map_object, "keys", ":Lescompat/IterableIterator;", &keys)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to get keys iterator. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to get keys iterator.");
         return false;
     }
 
@@ -682,26 +707,26 @@ bool forEachMapEntry(ani_env *env, ani_object map_object,
         ani_boolean done;
         if (ANI_OK != env->Object_CallMethodByName_Ref(
             static_cast<ani_object>(keys), "next", nullptr, &next)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to get next key. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to get next key.");
             success = false;
             break;
         }
 
         if (ANI_OK != env->Object_GetFieldByName_Boolean(
             static_cast<ani_object>(next), "done", &done)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to check iterator done. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to check iterator done.");
             success = false;
             break;
         }
         if (done) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] done break. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] done break.");
             break;
         }
 
         ani_ref key_value;
         if (ANI_OK != env->Object_GetFieldByName_Ref(static_cast<ani_object>(next),
             "value", &key_value)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to get key value. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[forEachMapEntry] Failed to get key value.");
             success = false;
             break;
         }
@@ -709,7 +734,7 @@ bool forEachMapEntry(ani_env *env, ani_object map_object,
         ani_ref value_obj;
         if (ANI_OK != env->Object_CallMethodByName_Ref(map_object, "$_get", nullptr,
             &value_obj, key_value)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "[forEachMapEntry] Failed to get value for key. ");
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "[forEachMapEntry] Failed to get value for key.");
             success = false;
             break;
         }
@@ -724,7 +749,7 @@ static ani_object CreateDataRecord([[maybe_unused]] ani_env *env, ani_object map
         std::make_shared<std::vector<std::pair<std::string, std::shared_ptr<EntryValue>>>>();
     forEachMapEntry(env, map_object, typeValueVector);
     if (typeValueVector == nullptr || typeValueVector->empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateDataRecord] typeValueVector is null or empty. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateDataRecord] typeValueVector is null or empty.");
         return GetNullObject(env);
     }
 
@@ -736,7 +761,7 @@ static ani_object CreateDataRecord([[maybe_unused]] ani_env *env, ani_object map
     auto ptr = PasteboardClient::GetInstance()->CreateMultiTypeData(std::move(typeValueMap),
         typeValueVector->begin()->first);
     if (ptr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateDataRecord] CreateMultiTypeData failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[CreateDataRecord] CreateMultiTypeData failed.");
         return GetNullObject(env);
     }
 
@@ -750,18 +775,18 @@ static ani_object GetSystemPasteboard([[maybe_unused]] ani_env *env)
     static const char *className = "L@ohos/pasteboard/SystemPasteboardImpl;";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetSystemPasteboard] Not found classname. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetSystemPasteboard] Not found classname.");
         return systemPasteboard;
     }
 
     ani_method ctor;
     if (ANI_OK != env->Class_FindMethod(cls, "<ctor>", nullptr, &ctor)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetSystemPasteboard] get ctor Failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetSystemPasteboard] get ctor failed.");
         return systemPasteboard;
     }
 
     if (ANI_OK != env->Object_New(cls, ctor, &systemPasteboard)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetSystemPasteboard] Create Object Failed. ");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetSystemPasteboard] Create Object failed.");
         return systemPasteboard;
     }
 
@@ -795,7 +820,7 @@ static ani_int SetData([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_objec
     int32_t ret = static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
     auto data = unwrapAndGetPasteDataPtr(env, pasteData);
     if (data == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "PasteData is null");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "PasteData is null.");
         return ret;
     }
 
@@ -807,15 +832,15 @@ static ani_int SetData([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_objec
     }
     ret = PasteboardClient::GetInstance()->SetPasteData(*data, nullptr, entryGetters);
     if (ret == static_cast<int>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "SetPasteData successfully");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "SetPasteData successfully.");
     } else if (ret == static_cast<int>(PasteboardError::PROHIBIT_COPY)) {
         ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::COPY_FORBIDDEN),
             "The system prohibits copying.");
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "The system prohibits copying");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "The system prohibits copying.");
     } else if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
         ThrowBusinessError(env, static_cast<int32_t>(JSErrorCode::OTHER_COPY_OR_PASTE_IN_PROCESSING),
             "Another setData is being processed.");
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Another setData is being processed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Another setData is being processed.");
     }
 
     return ret;
@@ -867,7 +892,7 @@ static ani_string GetDataSource([[maybe_unused]] ani_env *env, [[maybe_unused]] 
     }
 
     if (*value != static_cast<int>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetDataSource, failed, ret = %{public}d", *value);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetDataSource, failed, ret = %{public}d.", *value);
         return nullptr;
     }
 
@@ -898,7 +923,7 @@ ANI_EXPORT ani_status ANI_Constructor_Namespace(ani_env *env)
 
     if (ANI_OK != env->Namespace_BindNativeFunctions(ns, methods.data(), methods.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[ANI_Constructor_Namespace] Cannot bind native methods to %s", nameSpaceName);
+            "[ANI_Constructor_Namespace] Cannot bind native methods to %s.", nameSpaceName);
         return ANI_ERROR;
     };
 
@@ -910,7 +935,7 @@ ANI_EXPORT ani_status ANI_Constructor_PasteData(ani_env *env)
     static const char *className = "L@ohos/pasteboard/PasteDataImpl;";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ANI_Constructor_PasteData] Not found %s", className);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ANI_Constructor_PasteData] Not found %s.", className);
         return ANI_NOT_FOUND;
     }
 
@@ -926,7 +951,7 @@ ANI_EXPORT ani_status ANI_Constructor_PasteData(ani_env *env)
 
     if (ANI_OK != env->Class_BindNativeMethods(cls, methods.data(), methods.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[ANI_Constructor_PasteData] Cannot bind native methods to %s", className);
+            "[ANI_Constructor_PasteData] Cannot bind native methods to %s.", className);
         return ANI_ERROR;
     };
 
@@ -938,7 +963,7 @@ ANI_EXPORT ani_status ANI_Constructor_SystemPasteboard(ani_env *env)
     static const char *className = "L@ohos/pasteboard/SystemPasteboardImpl;";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ANI_Constructor_SystemPasteboard] Not found %s", className);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ANI_Constructor_SystemPasteboard] Not found %s.", className);
         return ANI_NOT_FOUND;
     }
 
@@ -952,7 +977,7 @@ ANI_EXPORT ani_status ANI_Constructor_SystemPasteboard(ani_env *env)
 
     if (ANI_OK != env->Class_BindNativeMethods(cls, methods.data(), methods.size())) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[ANI_Constructor_SystemPasteboard] Cannot bind native methods to %s", className);
+            "[ANI_Constructor_SystemPasteboard] Cannot bind native methods to %s.", className);
         return ANI_ERROR;
     };
 
@@ -961,12 +986,17 @@ ANI_EXPORT ani_status ANI_Constructor_SystemPasteboard(ani_env *env)
 
 static ani_status BindCleanerclassMethods(ani_env *env)
 {
+    if (env == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[BindCleanerclassMethods] env is null.");
+        return ANI_ERROR;
+    }
+
     static const char *className = "L@ohos/pasteboard/Cleaner;";
     ani_class cleanerCls;
     ani_status status = env->FindClass(className, &cleanerCls);
     if (ANI_OK != status) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[BindCleanerclassMethods] Not found ohos/pasteboard/Cleaner. status:%{public}d", status);
+            "[BindCleanerclassMethods] Not found ohos/pasteboard/Cleaner. status:%{public}d.", status);
         return ANI_NOT_FOUND;
     }
     return NativePtrCleaner(env).Bind(cleanerCls);
@@ -976,7 +1006,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 {
     ani_env *env;
     if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ANI_Constructor] Unsupported ANI_VERSION_1");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[ANI_Constructor] Unsupported ANI_VERSION_1.");
         return ANI_ERROR;
     }
 
@@ -997,7 +1027,7 @@ ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 
     if (ANI_OK != BindCleanerclassMethods(env)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
-            "[ANI_Constructor_PasteData]BindCleanerclassMethods failed");
+            "[ANI_Constructor_PasteData]BindCleanerclassMethods failed.");
         return ANI_ERROR;
     }
 
