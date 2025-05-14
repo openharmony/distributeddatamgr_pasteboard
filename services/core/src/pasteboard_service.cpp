@@ -2828,6 +2828,21 @@ bool PasteboardService::IsDisallowDistributed()
 
 bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
 {
+    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!networkId.empty(), false, PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
+    Event event;
+    event.user = user;
+    event.seqId = ++sequenceId_;
+    auto expiration = PasteBoardTime::GetBootTimeMs() + EXPIRATION_INTERVAL;
+    event.expiration = static_cast<uint64_t>(expiration);
+    event.deviceId = networkId;
+    event.account = AccountManager::GetInstance().GetCurrentAccount();
+    event.status = ClipPlugin::EVT_NORMAL;
+    event.dataType = data.GetMimeTypes();
+    event.isDelay = data.IsDelayRecord();
+    event.dataId = data.GetDataId();
+    currentEvent_ = event;
+
     if (!IsAllowSendData() || IsDisallowDistributed()) {
         return false;
     }
@@ -2844,20 +2859,6 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(shareOpt != ShareOption::LocalDevice, false, PASTEBOARD_MODULE_SERVICE,
             "data share option is local device, dataId:%{public}u", data.GetDataId());
     }
-    auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!networkId.empty(), false, PASTEBOARD_MODULE_SERVICE, "networkId is empty.");
-    Event event;
-    event.user = user;
-    event.seqId = ++sequenceId_;
-    auto expiration = PasteBoardTime::GetBootTimeMs() + EXPIRATION_INTERVAL;
-    event.expiration = static_cast<uint64_t>(expiration);
-    event.deviceId = networkId;
-    event.account = AccountManager::GetInstance().GetCurrentAccount();
-    event.status = ClipPlugin::EVT_NORMAL;
-    event.dataType = data.GetMimeTypes();
-    event.isDelay = data.IsDelayRecord();
-    event.dataId = data.GetDataId();
-    currentEvent_ = event;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "dataId:%{public}u, seqId:%{public}hu, isDelay:%{public}d,"
         "expiration:%{public}" PRIu64, event.dataId, event.seqId, event.isDelay, event.expiration);
     return SetCurrentDistributedData(data, event);
