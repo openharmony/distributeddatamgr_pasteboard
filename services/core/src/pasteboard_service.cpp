@@ -1308,7 +1308,7 @@ int32_t PasteboardService::GetLocalData(const AppInfo &appInfo, PasteData &data)
     }
     auto ret = IsDataValid(*(it.second), appInfo.tokenId);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invaild. ret is %{public}d", ret);
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "paste data is invalid. ret is %{public}d", ret);
         return ret;
     }
     data = *(it.second);

@@ -49,6 +49,7 @@ group("unittest") {
       "${pasteboard_root_path}/interfaces/kits/napi/test/unittest/pasteboardperf:unittest",
       "${pasteboard_root_path}/interfaces/ndk/unittest:unittest",
       "${pasteboard_root_path}/services/test:unittest",
+      "${pasteboard_root_path}/utils/test:unittest",
     ]
   }
 }

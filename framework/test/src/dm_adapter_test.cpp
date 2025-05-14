@@ -698,7 +698,7 @@ HWTEST_F(DMAdapterTest, GetDeviceName004, TestSize.Level0)
 
 /**
  * @tc.name: DeInitialize
- * @tc.desc: De Initi alize
+ * @tc.desc: De Initialize
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:

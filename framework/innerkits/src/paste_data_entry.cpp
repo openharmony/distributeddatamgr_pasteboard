@@ -264,13 +264,13 @@ std::shared_ptr<Media::PixelMap> PasteDataEntry::ConvertToPixelMap() const
         return nullptr;
     }
     auto object = std::get<std::shared_ptr<Object>>(entry);
-    std::string objecType;
-    if (!object->GetValue(UDMF::UNIFORM_DATA_TYPE, objecType)) {
+    std::string objType;
+    if (!object->GetValue(UDMF::UNIFORM_DATA_TYPE, objType)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type error, utdId:%{public}s", utdId.c_str());
         return nullptr;
     }
-    if (objecType != UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type error, objecType:%{public}s", objecType.c_str());
+    if (objType != UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type error, objType:%{public}s", objType.c_str());
         return nullptr;
     }
     auto val = object->value_[UDMF::PIXEL_MAP];
@@ -290,18 +290,18 @@ std::shared_ptr<MineCustomData> PasteDataEntry::ConvertToCustomData() const
         return std::make_shared<MineCustomData>(customdata);
     }
     if (!std::holds_alternative<std::shared_ptr<Object>>(entry)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error, no cust data, utdId:%{public}s", utdId_.c_str());
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "value error, no custom data, utdId:%{public}s", utdId_.c_str());
         return nullptr;
     }
     auto object = std::get<std::shared_ptr<Object>>(entry);
-    std::string objecType;
-    if (!object->GetValue(UDMF::UNIFORM_DATA_TYPE, objecType)) {
+    std::string objType;
+    if (!object->GetValue(UDMF::UNIFORM_DATA_TYPE, objType)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type error, utdId:%{public}s", utdId_.c_str());
         return nullptr;
     }
-    if (objecType != GetUtdId()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type diff error, utdId:%{public}s, objecType:%{public}s",
-            utdId_.c_str(), objecType.c_str());
+    if (objType != GetUtdId()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type diff error, utdId:%{public}s, objType:%{public}s",
+            utdId_.c_str(), objType.c_str());
     }
     std::vector<uint8_t> recordValue;
     if (!object->GetValue(UDMF::ARRAY_BUFFER, recordValue)) {

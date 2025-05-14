@@ -64,7 +64,7 @@ private:
             destroyed_ = true;
         }
 
-        bool IsDestoryed() const
+        bool IsDestroyed() const
         {
             return destroyed_;
         }

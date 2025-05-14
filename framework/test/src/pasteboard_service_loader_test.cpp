@@ -80,7 +80,7 @@ bool TLVWriteable::Encode(std::vector<uint8_t> &buffer, bool isRemote) const
     return interface->Encode(buffer);
 }
 }
-static bool g_adddeathrecipient = false;
+static bool g_addDeathRecipient = false;
 class TestIRemoteObject : public IRemoteObject {
     TestIRemoteObject(): IRemoteObject(DESCRIPTOR_TEST) {}
 
@@ -96,7 +96,7 @@ class TestIRemoteObject : public IRemoteObject {
 
     bool AddDeathRecipient(const sptr<DeathRecipient> &recipient)
     {
-        return g_adddeathrecipient ;
+        return g_addDeathRecipient ;
     }
 
     bool RemoveDeathRecipient(const sptr<DeathRecipient> &recipient)
@@ -147,9 +147,9 @@ HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceProxyTest001, TestSize
  */
 HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest001, TestSize.Level0)
 {
-    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(samgrProxy, nullptr);
-    sptr<IRemoteObject> remoteObject = samgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
+    sptr<ISystemAbilityManager> saMgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(saMgrProxy, nullptr);
+    sptr<IRemoteObject> remoteObject = saMgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
     EXPECT_NE(remoteObject, nullptr);
     PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(remoteObject);
     auto ret = PasteboardServiceLoader::GetInstance().GetPasteboardService();
@@ -192,9 +192,9 @@ HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest003, TestSize.Leve
  */
 HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest001, TestSize.Level0)
 {
-    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    EXPECT_NE(samgrProxy, nullptr);
-    sptr<IRemoteObject> remoteObject = samgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
+    sptr<ISystemAbilityManager> saMgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(saMgrProxy, nullptr);
+    sptr<IRemoteObject> remoteObject = saMgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
     EXPECT_NE(remoteObject, nullptr);
     PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(remoteObject);
 }
@@ -210,7 +210,7 @@ HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest003, TestSize
 {
     sptr<IRemoteObject> rObject = sptr<TestIRemoteObject>::MakeSptr();
     EXPECT_NE(rObject, nullptr);
-    g_adddeathrecipient = false;
+    g_addDeathRecipient = false;
     PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(rObject);
 }
 

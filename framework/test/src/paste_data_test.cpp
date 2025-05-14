@@ -589,13 +589,13 @@ HWTEST_F(PasteDataTest, SetRemote001, TestSize.Level0)
 }
 
 /**
- * @tc.name: SetOrginAuthority001
- * @tc.desc: PasteData: SetOrginAuthority
+ * @tc.name: SetOriginAuthority001
+ * @tc.desc: PasteData: SetOriginAuthority
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(PasteDataTest, SetOrginAuthority001, TestSize.Level0)
+HWTEST_F(PasteDataTest, SetOriginAuthority001, TestSize.Level0)
 {
     std::string plainText = "plain text";
     std::string bundleName = "com.example.myapplication";

@@ -106,14 +106,14 @@ HWTEST_F(FFRTTimerTest, SubmitQueueTasksTest, TestSize.Level0)
  */
 HWTEST_F(FFRTTimerTest, SubmitDelayTaskTest, TestSize.Level0)
 {
-    std::shared_ptr<FFRTQueue> queu = std::make_shared<FFRTQueue>("delayTask");
+    std::shared_ptr<FFRTQueue> queue = std::make_shared<FFRTQueue>("delayTask");
     uint32_t delayMs = 20;
     int x = 10;
     FFRTTask task0 = [&x] {
         x <<= 3;
     };
-    FFRTHandle handle = FFRTUtils::SubmitDelayTask(task0, delayMs, queu);
-    FFRTUtils::CancelTask(handle, queu);
+    FFRTHandle handle = FFRTUtils::SubmitDelayTask(task0, delayMs, queue);
+    FFRTUtils::CancelTask(handle, queue);
     EXPECT_TRUE(true);
 }
 

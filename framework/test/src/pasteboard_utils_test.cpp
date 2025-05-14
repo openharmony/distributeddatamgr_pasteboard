@@ -51,7 +51,7 @@ public:
     UDMF::UnifiedData InitFolderData();
     UDMF::UnifiedData InitSystemRecordData();
     UDMF::UnifiedData InitSystemAppItemData();
-    UDMF::UnifiedData InitSysteFormData();
+    UDMF::UnifiedData InitSystemFormData();
     UDMF::UnifiedData InitSystemPixelMapData();
     UDMF::UnifiedData InitAppDefinedData();
 
@@ -91,7 +91,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitTextData()
 UDMF::UnifiedData PasteboardUtilsTest::InitPlainData()
 {
     text_ = "helloWorld_plainText";
-    extraText_ = "helloWorld_plainabstract";
+    extraText_ = "helloWorld_plainAbstract";
     UDMF::UnifiedData data;
     std::shared_ptr<UDMF::PlainText> plainTextRecord = std::make_shared<UDMF::PlainText>(text_, extraText_);
     plainTextRecord->SetDetails(details_);
@@ -105,7 +105,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitPlainData()
 UDMF::UnifiedData PasteboardUtilsTest::InitHtmlData()
 {
     text_ = "<div class='disable'>helloWorld</div>";
-    extraText_ = "helloWorld_plainabstract";
+    extraText_ = "helloWorld_plainAbstract";
     UDMF::UnifiedData data;
     std::shared_ptr<UDMF::Html> htmlRecord = std::make_shared<UDMF::Html>(text_, extraText_);
     htmlRecord->SetDetails(details_);
@@ -217,7 +217,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitSystemAppItemData()
     data.AddRecord(systemDefinedAppItem1);
     return data;
 }
-UDMF::UnifiedData PasteboardUtilsTest::InitSysteFormData()
+UDMF::UnifiedData PasteboardUtilsTest::InitSystemFormData()
 {
     UDMF::UnifiedData data;
     std::shared_ptr<UDMF::SystemDefinedForm> form = std::make_shared<UDMF::SystemDefinedForm>();
@@ -901,7 +901,7 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
 {
-    auto data = InitSysteFormData();
+    auto data = InitSystemFormData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
     auto record = pasteData->GetRecordAt(0);

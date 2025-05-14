@@ -713,7 +713,7 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_exception_test23
-   * @tc.desc      Test setproperty throw error
+   * @tc.desc      Test set property throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */
@@ -732,7 +732,7 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_exception_test24
-   * @tc.desc      Test setproperty throw error
+   * @tc.desc      Test set property throw error
    * @tc.type      Function
    * @tc.require   I5TYVJ
    */

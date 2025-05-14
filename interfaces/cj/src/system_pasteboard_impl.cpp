@@ -53,7 +53,7 @@ int32_t SystemPasteboardImpl::GetSystemPasteboardImpl(int64_t &id)
     sptr<SystemPasteboardImpl> instance = nullptr;
     int32_t status = NewInstance(instance);
     if (status != 0) {
-        LOGE("[SystemPasteboardImpl] CJgetSystemPasteboard create instance failed");
+        LOGE("[SystemPasteboardImpl] GetSystemPasteboard create instance failed");
         return status;
     }
     id = instance->GetID();

@@ -41,7 +41,7 @@ PasteboardServiceLoader::PasteboardServiceLoader()
 
 PasteboardServiceLoader::~PasteboardServiceLoader()
 {
-    if (staticDestroyMonitor_.IsDestoryed()) {
+    if (staticDestroyMonitor_.IsDestroyed()) {
         return;
     }
     auto pasteboardServiceProxy = GetPasteboardServiceProxy();
@@ -76,13 +76,13 @@ sptr<IPasteboardService> PasteboardServiceLoader::GetPasteboardService()
         return pasteboardServiceProxy_;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardService start.");
-    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrProxy == nullptr) {
+    sptr<ISystemAbilityManager> saMgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (saMgrProxy == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Get SystemAbilityManager failed.");
         pasteboardServiceProxy_ = nullptr;
         return nullptr;
     }
-    sptr<IRemoteObject> remoteObject = samgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
+    sptr<IRemoteObject> remoteObject = saMgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
     if (remoteObject != nullptr) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Get PasteboardServiceProxy succeed.");
         SetPasteboardServiceProxy(remoteObject);
@@ -91,7 +91,7 @@ sptr<IPasteboardService> PasteboardServiceLoader::GetPasteboardService()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");
     sptr<PasteboardLoadCallback> loadCallback = new PasteboardLoadCallback();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGI(loadCallback != nullptr, nullptr, PASTEBOARD_MODULE_CLIENT, "loadCb is null");
-    int32_t ret = samgrProxy->LoadSystemAbility(PASTEBOARD_SERVICE_ID, loadCallback);
+    int32_t ret = saMgrProxy->LoadSystemAbility(PASTEBOARD_SERVICE_ID, loadCallback);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == ERR_OK, nullptr, PASTEBOARD_MODULE_CLIENT, "Failed to load SA");
     constructing_ = true;
     auto waitStatus = proxyConVar_.wait_for(lock, std::chrono::milliseconds(LOADSA_TIMEOUT_MS), [this]() {

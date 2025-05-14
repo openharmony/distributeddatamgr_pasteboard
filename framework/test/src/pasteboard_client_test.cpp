@@ -523,7 +523,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
 
 /**
  * @tc.name: DetectPatterns003
- * @tc.desc: Outlier force cast uint32_t to unsurportted Pattern
+ * @tc.desc: Outlier force cast uint32_t to unsupportted Pattern
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
@@ -561,7 +561,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
 
 /**
  * @tc.name: DetectPatterns004
- * @tc.desc: Outlier force cast uint32_t 0xffffffff to unsurportted Pattern
+ * @tc.desc: Outlier force cast uint32_t 0xffffffff to unsupportted Pattern
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:

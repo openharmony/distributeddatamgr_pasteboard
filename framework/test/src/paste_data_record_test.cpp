@@ -265,7 +265,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest001, TestSize.Level0)
 
 /**
  * @tc.name: GetEntries001
- * @tc.desc: convert to palinText;
+ * @tc.desc: convert to plainText;
  * @tc.type: FUNC
  * @tc.require:entries
  * @tc.author: tarowang

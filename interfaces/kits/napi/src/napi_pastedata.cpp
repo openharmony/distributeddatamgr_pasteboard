@@ -509,7 +509,7 @@ bool PasteDataNapi::SetStringProp(
 {
     std::string propValue;
     bool ret = GetValue(env, propValueNapi, propValue);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "ret is flase");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_CLIENT, "ret is false");
     if ((propName == "mimeType") && (propValue.size() <= MIMETYPE_MAX_SIZE)) {
         builder.SetMimeType(propValue);
     } else if ((propName == "htmlText") && (propValue.size() <= MAX_TEXT_LEN)) {

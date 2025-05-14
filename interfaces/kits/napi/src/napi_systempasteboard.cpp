@@ -1135,14 +1135,14 @@ void SystemPasteboardNapi::CallJsProgressNotify(napi_env env, napi_value jsFunct
 
 bool SystemPasteboardNapi::CreateThreadSafeFunc(napi_env env, const std::shared_ptr<ProgressListenerFn> listenerFn)
 {
-    #define MAX_LINTENER_LEN 20
+    #define MAX_LISTENER_LEN 20
     napi_value name = nullptr;
     if (listenerFn->jsCallback == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "jsCallback is null!");
         return false;
     }
 
-    NAPI_CALL_BASE(env, napi_create_string_utf8(env, "progressNotify", MAX_LINTENER_LEN, &name), false);
+    NAPI_CALL_BASE(env, napi_create_string_utf8(env, "progressNotify", MAX_LISTENER_LEN, &name), false);
     napi_status status = napi_create_threadsafe_function(env, listenerFn->jsCallback, NULL, name, 0, 1, NULL,
         NULL, NULL, CallJsProgressNotify, &listenerFn->tsFunction);
     if (status != napi_ok) {
@@ -1176,7 +1176,7 @@ bool SystemPasteboardNapi::CheckParamsType(napi_env env, napi_value in, napi_val
     napi_valuetype type = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, in, &type), false);
     if (type != expectedType) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid parametrs!");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "invalid parameters!");
         return false;
     }
     return true;

@@ -91,7 +91,7 @@ HWTEST_F(PasteboardCopyTest, IsFileTest, TestSize.Level0)
 
 /**
  * @tc.name: OnProgressNotifyTest
- * @tc.desc: Test progress notity
+ * @tc.desc: Test progress notify
  * @tc.type: FUNC
  * @tc.require:
  */

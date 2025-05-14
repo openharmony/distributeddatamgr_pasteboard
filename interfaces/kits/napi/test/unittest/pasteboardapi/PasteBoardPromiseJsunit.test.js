@@ -1838,10 +1838,10 @@ describe('PasteBoardJSTest', function () {
     console.log('actual outTypes1: ' + outTypes.toString());
     expect(outTypes.toString()).assertEqual(allTypes.toString());
 
-    const partilyTypes = [pasteboard.MIMETYPE_TEXT_HTML, myType];
-    outTypes = outRecord.getValidTypes(partilyTypes);
+    const partlyTypes = [pasteboard.MIMETYPE_TEXT_HTML, myType];
+    outTypes = outRecord.getValidTypes(partlyTypes);
     console.log('actual outTypes2: ' + outTypes.toString());
-    expect(outTypes.toString()).assertEqual(partilyTypes.toString());
+    expect(outTypes.toString()).assertEqual(partlyTypes.toString());
 
     outTypes = outRecord.getValidTypes([]);
     console.log('actual outTypes3: ' + outTypes.toString());
@@ -1871,8 +1871,8 @@ describe('PasteBoardJSTest', function () {
       return '';
     }
     let pasteRecord = outData.getRecord(0);
-    let valieMimeType = pasteRecord.getValidTypes([mimeType]);
-    return await pasteRecord.getData(valieMimeType.pop());
+    let validMimeType = pasteRecord.getValidTypes([mimeType]);
+    return await pasteRecord.getData(validMimeType.pop());
   }
 
   async function buildPixelMap() {
