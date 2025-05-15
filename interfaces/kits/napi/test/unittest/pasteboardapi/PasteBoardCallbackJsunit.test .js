@@ -434,7 +434,7 @@ describe('PasteBoardJSTest', function () {
             expect(data.getRecordCount()).assertEqual(3);
             expect(data.removeRecordAt(0)).assertEqual(true);
             expect(data.getRecordCount()).assertEqual(2);
-            systemPasteboard.setPasteData(data, (err, newdata) => {
+            systemPasteboard.setPasteData(data, (err, newData) => {
               if (err) {
                 console.error('f_test9: systemPasteboard.setPasteData callback error:' + err);
                 return;
@@ -496,7 +496,7 @@ describe('PasteBoardJSTest', function () {
               expect(data.removeRecordAt(0)).assertEqual(true);
             }
             expect(data.getRecordCount()).assertEqual(0);
-            systemPasteboard.setPasteData(data, (err, newdata) => {
+            systemPasteboard.setPasteData(data, (err, newData) => {
               if (err) {
                 console.error('f_test10: systemPasteboard.setPasteData callback error:' + err);
                 return;
@@ -518,7 +518,7 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_callback_test11
-   * @tc.desc      Replcae textRecord
+   * @tc.desc      Replace textRecord
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
@@ -563,7 +563,7 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_callback_test12
-   * @tc.desc      Replcae htmlRecord
+   * @tc.desc      Replace htmlRecord
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */
@@ -609,7 +609,7 @@ describe('PasteBoardJSTest', function () {
 
   /**
    * @tc.name      pasteboard_callback_test13
-   * @tc.desc      Replcae wantRecord
+   * @tc.desc      Replace wantRecord
    * @tc.type      Function
    * @tc.require   AR000H5GKU
    */

@@ -132,7 +132,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_005, TestSize.Level1)
     auto htmlRecord = pasteData->GetRecordAt(0);
     htmlRecord->SetFrom(htmlRecord->GetRecordId());
 
-    const char *execptHtml = "<img data-ohos='clipboard' src='file:///data/storage/el2/distributedfiles/temp.png'><img "
+    const char *expectHtml = "<img data-ohos='clipboard' src='file:///data/storage/el2/distributedfiles/temp.png'><img "
                              "data-ohos='clipboard' "
                              "src='https://data/storage/el2/distributedfiles/202305301.png'>";
     auto records = webClipboardController.SplitHtml2Records(html, htmlRecord->GetRecordId());
@@ -156,7 +156,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_005, TestSize.Level1)
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(newPasteData);
     EXPECT_EQ(newPasteData->GetRecordCount(), 1);
     const char *newHtmlStr = newHtml.get()->c_str();
-    EXPECT_STREQ(newHtmlStr, execptHtml);
+    EXPECT_STREQ(newHtmlStr, expectHtml);
 }
 
 /**
@@ -178,7 +178,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
     auto htmlRecord = pasteData->GetRecordAt(0);
     htmlRecord->SetFrom(htmlRecord->GetRecordId());
 
-    const char *execptHtml = "<img data-ohos='clipboard' src='file:///data/storage/el2/distributedfiles/temp.png'><img "
+    const char *expectHtml = "<img data-ohos='clipboard' src='file:///data/storage/el2/distributedfiles/temp.png'><img "
                              "data-ohos='clipboard' "
                              "src=\"file:///data/storage/el2/distributedfiles/temp.png\"><img data-ohos='clipboard' "
                              "src='https://data/storage/el2/distributedfiles/202305301.png'>";
@@ -210,7 +210,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
     auto recordGet = newPasteData->GetRecordAt(0);
     auto newHtmlStr = recordGet->GetHtmlText();
     ASSERT_NE(newHtmlStr, nullptr);
-    EXPECT_STREQ(newHtmlStr->c_str(), execptHtml);
+    EXPECT_STREQ(newHtmlStr->c_str(), expectHtml);
 }
 
 /**
@@ -263,7 +263,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_009, TestSize.Level1)
     std::shared_ptr<std::string> html(
         new std::string("<img src='file:///file1.jpg'><img src=\"file2.jpg\"><img "
                         "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
-    const char *execptHtml = "<img src='file:///data/storage/el2/distributedfiles/temp.png'><img "
+    const char *expectHtml = "<img src='file:///data/storage/el2/distributedfiles/temp.png'><img "
                              ""
                              "src=\"file:///data/storage/el2/distributedfiles/temp.png\"><img "
                              "src='https://data/storage/el2/distributedfiles/202305301.png'>";
@@ -292,7 +292,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_009, TestSize.Level1)
     std::shared_ptr<std::string> newHtml = webClipboardController.RebuildHtml(newPasteData);
     EXPECT_EQ(newPasteData->GetRecordCount(), 1);
     const char *newHtmlStr = newHtml.get()->c_str();
-    EXPECT_STREQ(newHtmlStr, execptHtml);
+    EXPECT_STREQ(newHtmlStr, expectHtml);
 }
 
 /**
@@ -309,7 +309,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_010, TestSize.Level1)
     std::shared_ptr<std::string> html(
         new std::string("<img src='file:///file1.jpg'><img src=\"file2.jpg\"><img "
                         "src='https://data/storage/el2/distributedfiles/202305301.png'>"));
-    const char *execptHtml = "<img src='file:///data/storage/el2/distributedfiles/temp.png'><img "
+    const char *expectHtml = "<img src='file:///data/storage/el2/distributedfiles/temp.png'><img "
                              "src=\"file:///data/storage/el2/distributedfiles/temp.png\"><img "
                              "src='https://data/storage/el2/distributedfiles/202305301.png'>";
     auto pasteData = PasteboardClient::GetInstance()->CreateHtmlData(*html);
@@ -344,7 +344,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_010, TestSize.Level1)
     auto recordGet = newPasteData->GetRecordAt(0);
     auto newHtmlStr = recordGet->GetHtmlText();
     ASSERT_NE(newHtmlStr, nullptr);
-    EXPECT_STREQ(newHtmlStr->c_str(), execptHtml);
+    EXPECT_STREQ(newHtmlStr->c_str(), expectHtml);
 }
 
 /**

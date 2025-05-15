@@ -832,7 +832,7 @@ void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<Paste
 {
     PASTEBOARD_CHECK_AND_RETURN_LOGE(value != nullptr, PASTEBOARD_MODULE_CLIENT, "Entry value is null");
     if (utdType != value->GetUtdId()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "type is diff. utdtype:%{public}s, UtdId:%{public}s",
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Type is diff, UtdType:%{public}s, UtdId:%{public}s",
             utdType.c_str(), value->GetUtdId().c_str());
         return;
     }

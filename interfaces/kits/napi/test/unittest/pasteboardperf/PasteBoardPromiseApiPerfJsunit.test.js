@@ -26,7 +26,7 @@ describe('PasteBoardPerfJSTest', function () {
         console.info('afterAll');
     })
 
-    const BASE_CONUT = 20;
+    const BASE_COUNT = 20;
     const htmlText = '<html><head></head><body>Hello!</body></html>';
 
 
@@ -43,10 +43,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function clearDataPromisePerfTest(index) {
             systemPasteboard.clearData().then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     clearDataPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "clearData_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "clearData_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -66,10 +66,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function clearPromisePerfTest(index) {
             systemPasteboard.clearData().then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     clearPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "clear_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "clear_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -90,10 +90,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function setDataPromisePerfTest(index) {
             systemPasteboard.setData(pasteData).then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     setDataPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "setData_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "setData_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -114,10 +114,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function setPasteDataPromisePerfTest(index) {
             systemPasteboard.setPasteData(pasteData).then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     setPasteDataPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "setPasteData_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "setPasteData_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -137,10 +137,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function hasDataPromisePerfTest(index) {
             systemPasteboard.hasData().then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     hasDataPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "hasData_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "hasData_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -160,10 +160,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function hasPasteDataPromisePerfTest(index) {
             systemPasteboard.hasPasteData().then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     hasPasteDataPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "hasPasteData_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "hasPasteData_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -186,10 +186,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function getDataPromisePerfTest(index) {
             systemPasteboard.getData().then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     getDataPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "getData_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "getData_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -212,10 +212,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function getPasteDataPromisePerfTest(index) {
             systemPasteboard.getData().then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     getPasteDataPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "getPasteData_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "getPasteData_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -235,10 +235,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function convertToTextPromisePerfTest(index) {
             pasteDataRecord.convertToText().then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     convertToTextPromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "convertToText_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "convertToText_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });
@@ -258,10 +258,10 @@ describe('PasteBoardPerfJSTest', function () {
 
         function convertToTextV9PromisePerfTest(index) {
             pasteDataRecord.convertToTextV9().then(() => {
-                if (index < BASE_CONUT) {
+                if (index < BASE_COUNT) {
                     convertToTextV9PromisePerfTest(index + 1);
                 } else {
-                    computeAverageTime(startTime, BASE_CONUT, "convertToTextV9_Promise_performance_test_001 averageTime:");
+                    computeAverageTime(startTime, BASE_COUNT, "convertToTextV9_Promise_performance_test_001 averageTime:");
                     done();
                 }
             });

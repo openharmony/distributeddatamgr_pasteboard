@@ -51,7 +51,7 @@ struct PasteDataFromServiceInfo {
     std::string currentId;
 };
 
-struct ProgressReportLintener {
+struct ProgressReportListener {
     void (*OnProgressFail)(int32_t result);
 };
 
@@ -81,7 +81,7 @@ public:
 
     /**
      * CreateHtmlTextRecord
-     * @descrition Create Html Text Record.
+     * @description Create Html Text Record.
      * @param std::string text.
      * @return PasteDataRecord.
      */
@@ -89,7 +89,7 @@ public:
 
     /**
      * CreatePlainTextRecord
-     * @descrition Create Plaint Text Record.
+     * @description Create Plaint Text Record.
      * @param std::string text.
      * @return PasteDataRecord.
      */
@@ -97,7 +97,7 @@ public:
 
     /**
      * CreatePixelMapRecord
-     * @descrition Create PixelMap Record.
+     * @description Create PixelMap Record.
      * @param OHOS::Media::PixelMap pixelMap.
      * @return PasteDataRecord.
      */
@@ -105,7 +105,7 @@ public:
 
     /**
      * CreateUriRecord
-     * @descrition Create Uri Text Record.
+     * @description Create Uri Text Record.
      * @param OHOS::Uri uri.
      * @return PasteDataRecord.
      */
@@ -113,7 +113,7 @@ public:
 
     /**
      * CreateWantRecord
-     * @descrition Create Plaint Want Record.
+     * @description Create Plaint Want Record.
      * @param OHOS::AAFwk::Want want.
      * @return PasteDataRecord.
      */
@@ -121,7 +121,7 @@ public:
 
     /**
      * CreateKvRecord
-     * @descrition Create Kv Record.
+     * @description Create Kv Record.
      * @param std::string mimeType
      * @param std::vector<uint8_t> arrayBuffer
      * @return PasteDataRecord.
@@ -131,7 +131,7 @@ public:
 
     /**
      * CreateMultiDelayRecord
-     * @descrition Create Multi DelayRecord.
+     * @description Create Multi DelayRecord.
      * @param std::vector<std::string> mimeTypes
      * @param std::shared_ptr<UDMF::EntryGetter> entryGetter
      * @return PasteDataRecord.
@@ -141,7 +141,7 @@ public:
 
     /**
      * CreateHtmlData
-     * @descrition Create Html Paste Data.
+     * @description Create Html Paste Data.
      * @param std::string text  .
      * @return PasteData.
      */
@@ -149,7 +149,7 @@ public:
 
     /**
      * CreatePlainTextData
-     * @descritionCreate Plain Text Paste Data.
+     * @description Create Plain Text Paste Data.
      * @param std::string text .
      * @return PasteData.
      */
@@ -157,7 +157,7 @@ public:
 
     /**
      * CreatePixelMapData
-     * @descrition Create PixelMap Paste Data.
+     * @description Create PixelMap Paste Data.
      * @param OHOS::Media::PixelMap pixelMap .
      * @return PasteData.
      */
@@ -165,7 +165,7 @@ public:
 
     /**
      * CreateUriData
-     * @descrition Create Uri Paste Data.
+     * @description Create Uri Paste Data.
      * @param OHOS::Uri uri .
      * @return PasteData.
      */
@@ -173,7 +173,7 @@ public:
 
     /**
      * CreateWantData
-     * @descrition Create Want Paste Data.
+     * @description Create Want Paste Data.
      * @param OHOS::AAFwk::Want want .
      * @return PasteData.
      */
@@ -181,7 +181,7 @@ public:
 
     /**
      * CreateKvData
-     * @descrition Create Kv Paste Data.
+     * @description Create Kv Paste Data.
      * @param std::string mimeType
      * @param std::vector<uint8_t> arrayBuffer
      * @return PasteData.
@@ -190,7 +190,7 @@ public:
 
     /**
      * CreateMultiTypeData
-     * @descrition Create multi-type Data.
+     * @description Create multi-type Data.
      * @param std::map<std::string, EntryValue> typeValueMap
      * @param recordMimeType record's default mimeType
      * @return PasteData.
@@ -201,7 +201,7 @@ public:
 
     /**
      * CreateMultiTypeDelayData
-     * @descrition Create delayed multi-type Data.
+     * @description Create delayed multi-type Data.
      * @param std::vector<std::string> utdTypes
      * @param std::shared_ptr<UDMF::EntryGetter> entryGetter
      * @return PasteData.
@@ -211,7 +211,7 @@ public:
 
     /**
      * GetChangeCount
-     * @descrition get clip changed count from the pasteboard.
+     * @description get clip changed count from the pasteboard.
      * @param changeCount the changeCount of the PasteData.
      * @return int32_t.
      */
@@ -241,7 +241,7 @@ public:
 
     /**
      * GetRecordValueByType
-     * @descrition get entry value from the pasteboard.
+     * @description get entry value from the pasteboard.
      * @param dataId the dataId of the PasteData.
      * @param recordId the recordId of the PasteRecord.
      * @param value the value of the PasteDataEntry.
@@ -251,7 +251,7 @@ public:
 
     /**
      * GetPasteData
-     * @descrition get paste data from the pasteboard.
+     * @description get paste data from the pasteboard.
      * @param pasteData the object of the PasteDate.
      * @return int32_t.
      */
@@ -259,28 +259,28 @@ public:
 
     /**
      * GetMimeTypes
-     * @descrition get mime types from the pasteboard.
+     * @description get mime types from the pasteboard.
      * @return Returns MimeTypes
      */
     std::vector<std::string> GetMimeTypes();
 
     /**
      * HasPasteData
-     * @descrition check paste data exist in the pasteboard.
+     * @description check paste data exist in the pasteboard.
      * @return bool. True exists, false does not exist
      */
     bool HasPasteData();
 
     /**
      * Clear
-     * @descrition Clear Current pasteboard data.
+     * @description Clear Current pasteboard data.
      * @return void.
      */
     void Clear();
 
     /**
      * SetPasteData
-     * @descrition set paste data to the pasteboard.
+     * @description set paste data to the pasteboard.
      * @param pasteData the object of the PasteData.
      * @param pasteData the object of the PasteboardDelayGetter.
      * @param pasteData the map of the EntryGetter.
@@ -291,7 +291,7 @@ public:
 
     /**
      * SetPasteData
-     * @descrition set paste data to the pasteboard.
+     * @description set paste data to the pasteboard.
      * @param unifiedData the object of the PasteDate.
      * @return int32_t.
      */
@@ -300,7 +300,7 @@ public:
 
     /**
      * SetPasteData
-     * @descrition set paste data to the pasteboard.
+     * @description set paste data to the pasteboard.
      * @param unifiedData the object of the PasteDate.
      * @return int32_t.
      */
@@ -308,7 +308,7 @@ public:
 
     /**
      * SetUdsdData
-     * @descrition set unified data with uds entries to the pasteboard.
+     * @description set unified data with uds entries to the pasteboard.
      * @param unifiedData the object of the PasteDate.
      * @return int32_t.
      */
@@ -316,7 +316,7 @@ public:
 
     /**
      * GetUnifiedDataWithEntry
-     * @descrition get unified data with uds entries from the pasteboard.
+     * @description get unified data with uds entries from the pasteboard.
      * @param unifiedData the object of the PasteDate.
      * @return int32_t.
      */
@@ -324,14 +324,14 @@ public:
 
     /**
      * IsRemoteData
-     * @descrition check if remote data.
+     * @description check if remote data.
      * @return bool. True is remote data, else false.
      */
     bool IsRemoteData();
 
     /**
      * GetDataSource
-     * @descrition Obtain the package name of the data source application.
+     * @description Obtain the package name of the data source application.
      * @param std::string bundleName The package name of the application.
      * @return int32_t.
      */
@@ -339,7 +339,7 @@ public:
 
     /**
      * HasDataType
-     * @descrition Check if there is data of the specified type in the pasteboard.
+     * @description Check if there is data of the specified type in the pasteboard.
      * @param std::string mimeType Specified mimetype.
      * @return bool. True exists, false does not exist
      */
@@ -355,7 +355,7 @@ public:
 
     /**
      * Subscribe
-     * @descrition
+     * @description
      * @param type observer type
      * @param observer pasteboard change callback.
      * @return void.
@@ -364,7 +364,7 @@ public:
 
     /**
      * AddPasteboardChangedObserver
-     * @descrition
+     * @description
      * @param observer pasteboard change callback.
      * @return void.
      */
@@ -372,7 +372,7 @@ public:
 
     /**
      * AddPasteboardEventObserver
-     * @descrition
+     * @description
      * @param observer pasteboard event(read or change) callback.
      * @return void.
      */
@@ -380,7 +380,7 @@ public:
 
     /**
      * Unsubscribe
-     * @descrition
+     * @description
      * @param type observer type
      * @param observer pasteboard change callback.
      * @return void.
@@ -389,7 +389,7 @@ public:
 
     /**
      * RemovePasteboardChangedObserver
-     * @descrition
+     * @description
      * @param observer pasteboard change callback.
      * @return void.
      */
@@ -397,7 +397,7 @@ public:
 
     /**
      * RemovePasteboardEventObserver
-     * @descrition
+     * @description
      * @param observer pasteboard event callback.
      * @return void.
      */
@@ -405,7 +405,7 @@ public:
 
     /**
      * SetGlobalShareOption
-     * @descrition Set globalShareOptions.
+     * @description Set globalShareOptions.
      * @param globalShareOption globalShareOptions
      * @return int32_t
      */
@@ -413,7 +413,7 @@ public:
 
     /**
      * RemoveGlobalShareOption
-     * @descrition Remove globalShareOptions.
+     * @description Remove globalShareOptions.
      * @param tokenId tokenIds
      * @return int32_t
      */
@@ -421,7 +421,7 @@ public:
 
     /**
      * GetGlobalShareOption
-     * @descrition Get globalShareOptions.
+     * @description Get globalShareOptions.
      * @param tokenId tokenIds
      * @return globalShareOptions
      */
@@ -444,7 +444,7 @@ public:
 
     /**
      * PasteStart
-     * @descrition Utilized to notify pasteboard service while reading PasteData, in this case, the service will help to
+     * @description Utilized to notify pasteboard service while reading PasteData, in this case, the service will help to
      *     preserve the context and resources
      * @return void.
      */
@@ -452,7 +452,7 @@ public:
 
     /**
      * PasteComplete
-     * @descrition Invoked to notify pasteboard service the utilization of PasteData has completed and occupied
+     * @description Invoked to notify pasteboard service the utilization of PasteData has completed and occupied
      *     resources can be released for further usage
      * @return void.
      */
@@ -460,7 +460,7 @@ public:
 
     /**
      * GetDataWithProgress
-     * @descrition Get pastedata from the system pasteboard with system progress indicator.
+     * @description Get paste data from the system pasteboard with system progress indicator.
      * @param pasteData the object of the PasteData.
      * @param params - Indicates the {@link GetDataParams}.
      * @returns int32_t
@@ -469,7 +469,7 @@ public:
 
     /**
      * GetUnifiedDataWithProgress
-     * @descrition Get pastedata from the system pasteboard with system progress indicator.
+     * @description Get paste data from the system pasteboard with system progress indicator.
      * @param unifiedData - the object of the PasteData.
      * @param params - Indicates the {@link GetDataParams}.
      * @returns int32_t
@@ -478,7 +478,7 @@ public:
 
     /**
      * GetRemoteDeviceName
-     * @descrition Obtain the remote device name.
+     * @description Obtain the remote device name.
      * @param std::string deviceName - the device name of the remote device.
      * @returns int32_t
      */
@@ -486,7 +486,7 @@ public:
 
     /**
      * HandleSignalValue
-     * @descrition Handle hap signal value.
+     * @description Handle hap signal value.
      * @param std::string signalValue - the value of hap ipc proxy.
      * @returns int32_t
      */

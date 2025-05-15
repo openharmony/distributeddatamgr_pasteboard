@@ -147,7 +147,7 @@ void PasteDataEntryTest::CheckPixelMapUds(const std::shared_ptr<PasteDataEntry> 
 
 /**
  * @tc.name: Convert001
- * @tc.desc: convert to palinText;
+ * @tc.desc: convert to plainText;
  * @tc.type: FUNC
  * @tc.require:entries
  * @tc.author: tarowang

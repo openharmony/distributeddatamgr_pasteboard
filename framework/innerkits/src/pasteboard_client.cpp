@@ -1025,7 +1025,7 @@ int32_t PasteboardClient::GetRemoteDeviceName(std::string &deviceName, bool &isR
 int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
 {
     int32_t progressStatusValue = 0;
-    std::shared_ptr<ProgressReportLintener> progressReport = std::make_shared<ProgressReportLintener>();
+    std::shared_ptr<ProgressReportListener> progressReport = std::make_shared<ProgressReportListener>();
     progressReport->OnProgressFail = OnProgressAbnormal;
 
     static const std::regex numberRegex(R"(^[+-]?\d+$)");

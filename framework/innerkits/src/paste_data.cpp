@@ -49,7 +49,7 @@ enum TAG_PROPERTY : uint16_t {
     TAG_ISREMOTE,
     TAG_BUNDLENAME,
     TAG_SETTIME,
-    TAG_SCREENSTATUS,
+    TAG_SCREEN_STATUS,
 };
 
 std::string PasteData::WEBVIEW_PASTEDATA_TAG = "WebviewPasteDataTag";
@@ -649,7 +649,7 @@ bool PasteDataProperty::EncodeTLV(WriteOnlyBuffer &buffer) const
     ret = ret && buffer.Write(TAG_ISREMOTE, isRemote);
     ret = ret && buffer.Write(TAG_BUNDLENAME, bundleName);
     ret = ret && buffer.Write(TAG_SETTIME, setTime);
-    ret = ret && buffer.Write(TAG_SCREENSTATUS, static_cast<int32_t>(screenStatus));
+    ret = ret && buffer.Write(TAG_SCREEN_STATUS, static_cast<int32_t>(screenStatus));
     return ret;
 }
 
@@ -682,7 +682,7 @@ bool PasteDataProperty::DecodeTLV(ReadOnlyBuffer &buffer)
             ret = buffer.ReadValue(bundleName, head);
         } else if (head.tag == TAG_SETTIME) {
             ret = buffer.ReadValue(setTime, head);
-        } else if (head.tag == TAG_SCREENSTATUS) {
+        } else if (head.tag == TAG_SCREEN_STATUS) {
             ret = buffer.ReadValue((int32_t &)screenStatus, head);
         } else {
             ret = buffer.Skip(head.len);

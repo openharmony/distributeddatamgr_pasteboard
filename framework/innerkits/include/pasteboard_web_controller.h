@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef WEB_CLIPBORD_CONTROLLER_H
-#define WEB_CLIPBORD_CONTROLLER_H
+#ifndef PASTEBOARD_WEB_CONTROLLER_H
+#define PASTEBOARD_WEB_CONTROLLER_H
 
 #include "paste_data.h"
 
@@ -58,4 +58,4 @@ private:
 } // namespace MiscServices
 } // namespace OHOS
 
-#endif // WEB_CLIPBORD_CONTROLLER_H
+#endif // PASTEBOARD_WEB_CONTROLLER_H

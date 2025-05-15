@@ -25,7 +25,7 @@ EXTERN_C_START
 static napi_value NapiInit(napi_env env, napi_value exports)
 {
 /*
-* Propertise define
+* Properties define
 */
     PasteDataRecordNapi::PasteDataRecordInit(env, exports);
     PasteDataNapi::PasteDataInit(env, exports);

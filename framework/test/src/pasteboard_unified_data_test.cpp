@@ -49,7 +49,7 @@ public:
     UDMF::UnifiedData InitFolderData();
     UDMF::UnifiedData InitSystemRecordData();
     UDMF::UnifiedData InitSystemAppItemData();
-    UDMF::UnifiedData InitSysteFormData();
+    UDMF::UnifiedData InitSystemFormData();
     UDMF::UnifiedData InitSystemPixelMapData();
     UDMF::UnifiedData InitAppDefinedData();
 
@@ -89,7 +89,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitTextData()
 UDMF::UnifiedData PasteboardUnifiedDataTest::InitPlainData()
 {
     text_ = "helloWorld_plainText";
-    extraText_ = "helloWorld_plainabstract";
+    extraText_ = "helloWorld_plainAbstract";
     UDMF::UnifiedData data;
     std::shared_ptr<UDMF::PlainText> plainTextRecord = std::make_shared<UDMF::PlainText>(text_, extraText_);
     plainTextRecord->SetDetails(details_);
@@ -100,7 +100,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitPlainData()
 UDMF::UnifiedData PasteboardUnifiedDataTest::InitHtmlData()
 {
     text_ = "<div class='disable'>helloWorld</div>";
-    extraText_ = "helloWorld_plainabstract";
+    extraText_ = "helloWorld_plainAbstract";
     UDMF::UnifiedData data;
     std::shared_ptr<UDMF::Html> htmlRecord = std::make_shared<UDMF::Html>(text_, extraText_);
     htmlRecord->SetDetails(details_);
@@ -212,7 +212,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitSystemAppItemData()
     data.AddRecord(systemDefinedAppItem1);
     return data;
 }
-UDMF::UnifiedData PasteboardUnifiedDataTest::InitSysteFormData()
+UDMF::UnifiedData PasteboardUnifiedDataTest::InitSystemFormData()
 {
     UDMF::UnifiedData data;
     std::shared_ptr<UDMF::SystemDefinedForm> form = std::make_shared<UDMF::SystemDefinedForm>();
@@ -728,7 +728,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppItem001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetForm001, TestSize.Level0)
 {
-    auto data = InitSysteFormData();
+    auto data = InitSystemFormData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
     PasteboardClient::GetInstance()->GetUnifiedData(newData);

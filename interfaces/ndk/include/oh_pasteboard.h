@@ -69,7 +69,7 @@ typedef enum Pasteboard_NotifyType {
 } Pasteboard_NotifyType;
 
 /**
- * @brief Enumerates the types of file confilct options when getting data from the Pastedboard.
+ * @brief Enumerates the types of file conflict options when getting data from the Pasteboard.
  *
  * @since 15
  */
@@ -85,7 +85,7 @@ typedef enum Pasteboard_FileConflictOptions {
 } Pasteboard_FileConflictOptions;
 
 /**
- * @brief Enumerates the types of progress indicator when getting data from the Pastedboard.
+ * @brief Enumerates the types of progress indicator when getting data from the Pasteboard.
  *
  * @since 15
  */
@@ -331,7 +331,7 @@ int OH_Pasteboard_ClearData(OH_Pasteboard* pasteboard);
  * @brief Obtains all MIME types of Pasteboard data.
  *
  * @param pasteboard Pointer to the {@link OH_Pasteboard} instance.
- * @param count Poniter to the count of MIME types.
+ * @param count Pointer to the count of MIME types.
  * @return Returns char array of MIME types in the Pasteboard.
  * Returns nullptr if the operation is failed.
  * @see OH_Pasteboard.

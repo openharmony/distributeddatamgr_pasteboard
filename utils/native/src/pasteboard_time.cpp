@@ -28,7 +28,6 @@ static constexpr int64_t NANO_TO_MILLI = NANO_TO_SEC / MILLI_TO_SEC;
 
 static int64_t GetTimeMsByClockId(clockid_t clockId)
 {
-    int64_t time = 0;
     struct timespec tv = { 0 };
     if (clock_gettime(clockId, &tv) < 0) {
         return -1;

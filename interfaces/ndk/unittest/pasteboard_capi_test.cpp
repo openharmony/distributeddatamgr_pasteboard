@@ -296,12 +296,12 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_Subscribe002, TestSize.Level1)
 }
 
 /**
- * @tc.name: OH_Pasteboard_Unsubcribe001
- * @tc.desc: OH_Pasteboard_Unsubcribe test valid
+ * @tc.name: OH_Pasteboard_Unsubscribe001
+ * @tc.desc: OH_Pasteboard_Unsubscribe test valid
  * @tc.type: FUNC
  * @tc.require: AROOOH5R5G
  */
-HWTEST_F(PasteboardCapiTest, OH_Pasteboard_Unsubcribe001, TestSize.Level1)
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_Unsubscribe001, TestSize.Level1)
 {
     OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
     OH_PasteboardObserver* observer = OH_PasteboardObserver_Create();
@@ -322,7 +322,7 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_Unsubcribe001, TestSize.Level1)
  * @tc.type: FUNC
  * @tc.require: AROOOH5R5G
  */
-HWTEST_F(PasteboardCapiTest, OH_Pasteboard_Unsubcribe002, TestSize.Level1)
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_Unsubscribe002, TestSize.Level1)
 {
     OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
     OH_PasteboardObserver* observer = OH_PasteboardObserver_Create();
@@ -361,12 +361,12 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_IsRemoteData001, TestSize.Level1)
 }
 
 /**
- * @tc.name: OH_Pasteboard_GetDataSrouce001
- * @tc.desc: OH_Pasteboard_GetDataSrouce test valid
+ * @tc.name: OH_Pasteboard_GetDataSource001
+ * @tc.desc: OH_Pasteboard_GetDataSource test valid
  * @tc.type: FUNC
  * @tc.require: AROOOH5R5G
  */
-HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataSrouce001, TestSize.Level1)
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataSource001, TestSize.Level1)
 {
     OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
     OH_UdmfData* setData = OH_UdmfData_Create();
