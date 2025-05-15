@@ -889,7 +889,13 @@ bool PasteboardService::IsDataAged()
     auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "copyTime = %{public}" PRIu64 ", curTime = %{public}" PRIu64,
         copyTime, curTime);
-    if (curTime > copyTime && curTime - copyTime > ONE_HOUR_MILLISECONDS) {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((curTime != 0 && copyTime != 0), false,
+        PASTEBOARD_MODULE_SERVICE, "Failed to get the time, data never aged."
+        "copyTime = %{public}" PRIu64 ", curtime = %{public}" PRIu64, copyTime, curTime);
+    static bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
+    int32_t agedTime = developerMode ? system::GetIntParameter("const.pasteboard.rd_test_aged_time",
+        ONE_HOUR_MINUTES, MIN_AGED_TIME, MAX_AGED_TIME) : ONE_HOUR_MINUTES;
+    if (curTime > copyTime && curTime - copyTime > agedTime * MINUTES_TO_MILLISECONDS) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
         auto data = clips_.Find(userId);
         if (data.first) {
@@ -1856,7 +1862,7 @@ std::pair<int32_t, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistribut
     }
 
     evt = events[0];
-    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId()) {
+    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId() || evt.expiration < currentEvent_.expiration) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data");
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DATA), evt);
     }
@@ -1880,6 +1886,10 @@ std::pair<int32_t, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistribut
     uint64_t curTime =
         static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     ret = evt.status == ClipPlugin::EVT_NORMAL ? ret : static_cast<int32_t>(PasteboardError::INVALID_EVENT_STATUS);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((curTime != 0 && evt.expiration != EXPIRATION_INTERVAL),
+        std::make_pair(static_cast<int32_t>(PasteboardError::GET_BOOTTIME_FAILED), evt),
+        PASTEBOARD_MODULE_SERVICE, "Failed to get the time."
+        "expiration = %{public}" PRIu64 ", curTime = %{public}" PRIu64, evt.expiration, curTime);
     ret = curTime < evt.expiration ? ret : static_cast<int32_t>(PasteboardError::DATA_EXPIRED_ERROR);
     return std::make_pair(ret, evt);
 }
@@ -3677,7 +3687,7 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) c
         std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
         windowPid_ = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
         actionTime_ =
-            static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
+            static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
         std::shared_ptr<BlockObject<bool>> block = nullptr;
         {
             std::unique_lock<std::shared_mutex> blockMapLock(blockMapMutex_);
@@ -3716,7 +3726,7 @@ bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, bool isFocused)
         block->GetValue();
     }
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
-    auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     auto ret = (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime >= actionTime_ &&
         curTime - actionTime_ < EVENT_TIME_OUT;
     if (!ret) {
