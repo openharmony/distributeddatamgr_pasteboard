@@ -3687,7 +3687,7 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) c
         std::unique_lock<std::shared_mutex> lock(inputEventMutex_);
         windowPid_ = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
         actionTime_ =
-            static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
+            static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
         std::shared_ptr<BlockObject<bool>> block = nullptr;
         {
             std::unique_lock<std::shared_mutex> blockMapLock(blockMapMutex_);
@@ -3726,7 +3726,7 @@ bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, bool isFocused)
         block->GetValue();
     }
     std::shared_lock<std::shared_mutex> lock(inputEventMutex_);
-    auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
     auto ret = (callingPid == static_cast<uint32_t>(windowPid_) || isFocused) && curTime >= actionTime_ &&
         curTime - actionTime_ < EVENT_TIME_OUT;
     if (!ret) {
