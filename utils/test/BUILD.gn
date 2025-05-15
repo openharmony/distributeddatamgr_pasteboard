@@ -39,6 +39,7 @@ ohos_unittest("PasteboardUtilsNativeTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "ipc:ipc_single",
+    "samgr:samgr_proxy",
   ]
 }
 
