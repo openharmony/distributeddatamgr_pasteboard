@@ -31,7 +31,7 @@ static int64_t GetTimeMsByClockId(clockid_t clockId)
     int64_t time = 0;
     struct timespec tv = { 0 };
     if (clock_gettime(clockId, &tv) < 0) {
-        return -1;
+        return 0;
     }
     return tv.tv_sec * MILLI_TO_SEC + tv.tv_nsec / NANO_TO_MILLI;
 }

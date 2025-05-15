@@ -90,6 +90,7 @@ enum class PasteboardError : int32_t {
     CHECK_DESCRIPTOR_ERROR,
     GET_SAME_REMOTE_DATA,
     DLOPEN_FAILED,
+    GET_BOOTTIME_FAILED,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {

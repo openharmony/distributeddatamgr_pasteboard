@@ -171,7 +171,10 @@ private:
     static constexpr uint32_t EXPIRATION_INTERVAL = 2 * 60 * 1000;
     static constexpr int MIN_TRANMISSION_TIME = 30 * 1000; // ms
     static constexpr uint32_t SET_DISTRIBUTED_DATA_INTERVAL = 40 * 1000; // 40 seconds
-    static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
+    static constexpr int32_t ONE_HOUR_MINUTES = 60;
+    static constexpr int32_t MAX_AGED_TIME = 24 * 60; // minute
+    static constexpr int32_t MIN_AGED_TIME = 1; // minute
+    static constexpr int32_t MINUTES_TO_MILLISECONDS = 60 * 1000;
     static constexpr uint32_t GET_REMOTE_DATA_WAIT_TIME = 30000;
     bool SetPasteboardHistory(HistoryInfo &info);
     bool IsFocusedApp(uint32_t tokenId);
