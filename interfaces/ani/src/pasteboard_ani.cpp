@@ -193,7 +193,7 @@ bool CheckMimeType(ani_env *env, std::string &mimeType)
     return true;
 }
 
-ani_enum_item GetEnumItem(ani_env *env, ani_int shareOption)
+static ani_enum_item GetEnumItem(ani_env *env, ani_int shareOption)
 {
     if (env == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] env is null.");
@@ -330,7 +330,7 @@ static void AddRecordByTypeValue([[maybe_unused]] ani_env *env, [[maybe_unused]]
     return;
 }
 
-void SetNamedPropertyByStr(ani_env *env, ani_class cls, const char *propertyName, std::string propertyValue,
+static void SetNamedPropertyByStr(ani_env *env, ani_class cls, const char *propertyName, std::string propertyValue,
     ani_object &obj)
 {
     if (env == nullptr || propertyName == nullptr) {
@@ -353,7 +353,7 @@ void SetNamedPropertyByStr(ani_env *env, ani_class cls, const char *propertyName
     }
 }
 
-void FillPasteDataRecordObject(ani_env *env, std::shared_ptr<PasteDataRecord> recordFromBottom, ani_object &obj)
+static void FillPasteDataRecordObject(ani_env *env, std::shared_ptr<PasteDataRecord> recordFromBottom, ani_object &obj)
 {
     if (env == nullptr || recordFromBottom == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataRecordObject] env or recordFromBottom is null.");
@@ -445,7 +445,7 @@ static void SetProperty([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_obje
     return;
 }
 
-void SetNamedPropertyByEnumInt(ani_env *env, ani_class cls, const char *propertyName, ani_int shareOpionValue,
+static void SetNamedPropertyByEnumInt(ani_env *env, ani_class cls, const char *propertyName, ani_int shareOpionValue,
     ani_object &obj)
 {
     if (env == nullptr || propertyName == nullptr) {
@@ -468,7 +468,7 @@ void SetNamedPropertyByEnumInt(ani_env *env, ani_class cls, const char *property
     }
 }
 
-void FillPasteDataPropertyObject(ani_env *env, PasteDataProperty &property, ani_object &obj)
+static void FillPasteDataPropertyObject(ani_env *env, PasteDataProperty &property, ani_object &obj)
 {
     if (env == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] env is null.");
