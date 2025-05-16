@@ -17,231 +17,561 @@
 #include "ohos.pasteboard.pasteboard.proj.hpp"
 #include "stdexcept"
 #include "taihe/runtime.hpp"
+#include <thread>
 
-using namespace taihe;
-using namespace ohos::pasteboard::pasteboard;
+#include "ani_common_want.h"
+#include "common/block_object.h"
+#include "image_ani_utils.h"
+#include "pasteboard_client.h"
+#include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
+#include "pasteboard_js_err.h"
+#include "pasteboard_taihe_utils.h"
+#include "uri.h"
+
+using namespace OHOS::MiscServices;
+using EntryValueMap = std::map<std::string, std::shared_ptr<EntryValue>>;
+namespace pasteboardTaihe = ohos::pasteboard::pasteboard;
+constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
 namespace {
-// To be implemented.
-
+constexpr uint32_t SYNC_TIMEOUT = 3500;
 class PasteDataRecordImpl {
 public:
     PasteDataRecordImpl()
     {
-        // Don't forget to implement the constructor.
+        this->record_ = std::make_shared<PasteDataRecord>();
     }
 
-    string GetmimeType()
+    taihe::string GetMimeType()
     {
-        TH_THROW(std::runtime_error, "GetmimeType not implemented");
+        return this->mimeType_;
     }
 
-    string GetplainText()
+    taihe::string GetPlainText()
     {
-        TH_THROW(std::runtime_error, "GetplainText not implemented");
+        return this->plainText_;
     }
 
-    string Geturi()
+    taihe::string GetUri()
     {
-        TH_THROW(std::runtime_error, "Geturi not implemented");
+        return this->uri_;
     }
 
-    uintptr_t GetpixelMap()
+    uintptr_t GetPixelMap()
     {
-        TH_THROW(std::runtime_error, "GetpixelMap not implemented");
+        return this->pixelMap_;
     }
 
-    ValueType GetRecordValueByType(string_view type)
+    taihe::optional<taihe::string> ToPlainText()
     {
-        TH_THROW(std::runtime_error, "GetDataSync not implemented");
+        if (this->record_ == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get ToPlainText object failed");
+            return taihe::optional<taihe::string>(std::nullopt);
+        }
+        taihe::string text(this->record_->ConvertToText());
+        return taihe::optional<taihe::string>(std::in_place_t {}, text);
     }
 
-    string ToPlainText()
+    taihe::optional<pasteboardTaihe::ValueType> GetRecordValueByType(taihe::string_view type)
     {
-        TH_THROW(std::runtime_error, "ToPlainText not implemented");
+        std::string mimeType(type);
+        if (mimeType.empty()) {
+            taihe::set_business_error(
+                static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
+            return taihe::optional<pasteboardTaihe::ValueType>(std::nullopt);
+        }
+        std::shared_ptr<PasteDataEntry> entry = this->record_->GetEntryByMimeType(mimeType);
+        if (entry == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "failed to find dataEntry");
+            return taihe::optional<pasteboardTaihe::ValueType>(std::nullopt);
+        }
+        auto strategy = StrategyFactory::CreateStrategyForEntry(mimeType);
+        if (strategy) {
+            pasteboardTaihe::ValueType valueType = strategy->ConvertToValueType(mimeType, entry);
+            return taihe::optional<pasteboardTaihe::ValueType>(std::in_place_t {}, valueType);
+        }
+        return taihe::optional<pasteboardTaihe::ValueType>(std::nullopt);
     }
 
     int64_t GetRecordImpl()
     {
-        TH_THROW(std::runtime_error, "GetRecordImpl not implemented");
+        return reinterpret_cast<int64_t>(this);
     }
+
+    void SetRecord(std::shared_ptr<PasteDataRecord> record)
+    {
+        this->record_ = record;
+    }
+
+    std::shared_ptr<PasteDataRecord> GetRecord()
+    {
+        return this->record_;
+    }
+
+private:
+    std::shared_ptr<PasteDataRecord> record_;
+    taihe::string mimeType_ {};
+    taihe::string plainText_ {};
+    taihe::string uri_ {};
+    uintptr_t pixelMap_ {};
 };
 
 class PasteDataImpl {
 public:
     PasteDataImpl()
     {
-        // Don't forget to implement the constructor.
+        this->pasteData_ = std::make_shared<PasteData>();
     }
 
-    void AddRecordData(weak::PasteDataRecord record)
+    void AddRecord(pasteboardTaihe::weak::PasteDataRecord record)
     {
-        TH_THROW(std::runtime_error, "AddRecordData not implemented");
+        PasteDataRecordImpl *implPtr = reinterpret_cast<PasteDataRecordImpl *>(record->GetRecordImpl());
+        std::shared_ptr<PasteDataRecord> pasteDataRecord = implPtr->GetRecord();
+        this->pasteData_->AddRecord(pasteDataRecord);
+        implPtr = nullptr;
     }
 
-    void AddRecordValue(string_view mimeType, ValueType const &value)
+    void CreateAndAddRecord(taihe::string_view mimeType, const pasteboardTaihe::ValueType &value)
     {
-        TH_THROW(std::runtime_error, "AddRecordValue not implemented");
+        std::string mimeTypeStr = std::string(mimeType);
+        auto strategy = StrategyFactory::CreateStrategyForRecord(value, mimeTypeStr);
+        if (strategy) {
+            strategy->AddRecord(mimeTypeStr, value, this->pasteData_);
+        }
     }
 
-    array<string> GetMimeTypes()
+    taihe::optional<taihe::array<taihe::string>> GetMimeTypes()
     {
-        TH_THROW(std::runtime_error, "GetMimeTypes not implemented");
+        std::vector<std::string> mimeTypesVec = this->pasteData_->GetMimeTypes();
+        if (mimeTypesVec.empty()) {
+            return taihe::optional<taihe::array<taihe::string>>(std::nullopt);
+        }
+        std::vector<taihe::string> mimeTypes;
+        for (auto mimeType : mimeTypesVec) {
+            mimeTypes.push_back(taihe::string(mimeType));
+        }
+        taihe::array<taihe::string> mimeTypeArr(mimeTypes);
+        return taihe::optional<taihe::array<taihe::string>>(std::in_place_t {}, mimeTypeArr);
     }
 
-    string GetPrimaryHtml()
+    taihe::optional<taihe::string> GetPrimaryHtml()
     {
-        TH_THROW(std::runtime_error, "GetPrimaryHtml not implemented");
+        std::shared_ptr<std::string> htmlPtr = this->pasteData_->GetPrimaryHtml();
+        if (htmlPtr == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryHtml failed");
+            return taihe::optional<taihe::string>(std::nullopt);
+        }
+        taihe::string result(*htmlPtr);
+        return taihe::optional<taihe::string>(std::in_place_t {}, result);
     }
 
-    uintptr_t GetPrimaryWant()
+    taihe::optional<uintptr_t> GetPrimaryWant()
     {
-        TH_THROW(std::runtime_error, "GetPrimaryWant not implemented");
+        std::shared_ptr<OHOS::AAFwk::Want> want = this->pasteData_->GetPrimaryWant();
+        if (want == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryWant want failed");
+            return taihe::optional<uintptr_t>(std::nullopt);
+        }
+        ani_object wantObj = OHOS::AppExecFwk::WrapWant(taihe::get_env(), *want);
+        uintptr_t wantPtr = reinterpret_cast<uintptr_t>(wantObj);
+        return taihe::optional<uintptr_t>(std::in_place_t {}, wantPtr);
     }
 
-    string GetPrimaryMimeType()
+    taihe::optional<taihe::string> GetPrimaryMimeType()
     {
-        TH_THROW(std::runtime_error, "GetPrimaryMimeType not implemented");
+        std::shared_ptr<std::string> mimeTypePtr = this->pasteData_->GetPrimaryMimeType();
+        if (mimeTypePtr == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryMimeType failed");
+            return taihe::optional<taihe::string>(std::nullopt);
+        }
+        taihe::string result(*mimeTypePtr);
+        return taihe::optional<taihe::string>(std::in_place_t {}, result);
     }
 
-    string GetPrimaryText()
+    taihe::optional<taihe::string> GetPrimaryText()
     {
-        TH_THROW(std::runtime_error, "GetPrimaryText not implemented");
+        std::shared_ptr<std::string> textPtr = this->pasteData_->GetPrimaryText();
+        if (textPtr == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryText failed");
+            return taihe::optional<taihe::string>(std::nullopt);
+        }
+        taihe::string result(*textPtr);
+        return taihe::optional<taihe::string>(std::in_place_t {}, result);
     }
 
-    string GetPrimaryUri()
+    taihe::optional<taihe::string> GetPrimaryUri()
     {
-        TH_THROW(std::runtime_error, "GetPrimaryUri not implemented");
+        std::shared_ptr<OHOS::Uri> uriPtr = this->pasteData_->GetPrimaryUri();
+        if (uriPtr == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryUri failed");
+            return taihe::optional<taihe::string>(std::nullopt);
+        }
+        taihe::string result(uriPtr->ToString());
+        return taihe::optional<taihe::string>(std::in_place_t {}, result);
     }
 
-    PasteDataProperty GetProperty()
+    pasteboardTaihe::PasteDataProperty GetProperty()
     {
-        TH_THROW(std::runtime_error, "GetProperty not implemented");
+        PasteDataProperty dataProperty = this->pasteData_->GetProperty();
+        pasteboardTaihe::ShareOption shareOption = ShareOptionAdapter::ToTaihe(dataProperty.shareOption);
+        pasteboardTaihe::PasteDataProperty property = { shareOption, dataProperty.timestamp,
+            taihe::string(dataProperty.tag) };
+        return property;
     }
 
-    void SetProperty(const PasteDataProperty &property)
+    void SetProperty(const pasteboardTaihe::PasteDataProperty &property)
     {
-        TH_THROW(std::runtime_error, "SetProperty not implemented");
+        PasteDataProperty dataProperty;
+        ShareOption shareOption = ShareOptionAdapter::FromTaihe(property.shareOption);
+        dataProperty.shareOption = shareOption;
+        dataProperty.timestamp = property.timestamp;
+        dataProperty.tag = std::string(property.tag);
+        this->pasteData_->SetProperty(dataProperty);
     }
 
-    PasteDataRecord GetRecord(uint32_t index)
+    taihe::optional<pasteboardTaihe::PasteDataRecord> GetRecord(int32_t index)
     {
-        // The parameters in the make_holder function should be of the same type
-        // as the parameters in the constructor of the actual implementation class.
-        return make_holder<PasteDataRecordImpl, PasteDataRecord>();
+        pasteboardTaihe::PasteDataRecord record =
+            taihe::make_holder<PasteDataRecordImpl, pasteboardTaihe::PasteDataRecord>();
+        if (index < 0 || index >= this->GetRecordCount()) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::OUT_OF_RANGE), "index out of range.");
+            return taihe::optional<pasteboardTaihe::PasteDataRecord>(std::nullopt);
+        }
+        std::shared_ptr<PasteDataRecord> dataRecord = this->pasteData_->GetRecordAt(index);
+        if (dataRecord == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "invalid parameter record");
+            return taihe::optional<pasteboardTaihe::PasteDataRecord>(std::nullopt);
+        }
+
+        PasteDataRecordImpl *recordImpl = reinterpret_cast<PasteDataRecordImpl *>(record->GetRecordImpl());
+        recordImpl->SetRecord(dataRecord);
+        recordImpl = nullptr;
+        return taihe::optional<pasteboardTaihe::PasteDataRecord>(std::in_place_t {}, record);
     }
 
-    uint32_t GetRecordCount()
+    int32_t GetRecordCount()
     {
-        TH_THROW(std::runtime_error, "GetRecordCount not implemented");
+        return static_cast<int32_t>(this->pasteData_->GetRecordCount());
     }
 
-    string GetTag()
+    taihe::string GetTag()
     {
-        TH_THROW(std::runtime_error, "GetTag not implemented");
+        taihe::string tag(this->pasteData_->GetTag());
+        return tag;
     }
 
     int64_t GetPasteDataImpl()
     {
-        TH_THROW(std::runtime_error, "GetPasteDataImpl not implemented");
+        return reinterpret_cast<int64_t>(this);
     }
+
+    void SetPasteData(std::shared_ptr<PasteData> pasteData)
+    {
+        this->pasteData_ = pasteData;
+    }
+
+    std::shared_ptr<PasteData> GetPasteData()
+    {
+        return this->pasteData_;
+    }
+
+private:
+    std::shared_ptr<PasteData> pasteData_;
 };
 
 class SystemPasteboardImpl {
 public:
-    SystemPasteboardImpl()
-    {
-        // Don't forget to implement the constructor.
-    }
+    SystemPasteboardImpl() { }
 
-    void OnUpdate(callback_view<void()> callback)
-    {
-        TH_THROW(std::runtime_error, "OnUpdate not implemented");
-    }
-
-    void OffUpdate(optional_view<callback<void()>> callback)
+    void OnUpdate(taihe::callback_view<void()> callback)
     {
         TH_THROW(std::runtime_error, "OffUpdate not implemented");
     }
 
+    void OffUpdate(taihe::optional_view<taihe::callback<void()>> callback)
+    {
+        TH_THROW(std::runtime_error, "OffUpdate not implemented");
+    }
+
+    taihe::optional<taihe::string> GetDataSource()
+    {
+        auto bundleName = std::make_shared<std::string>("");
+        auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
+        std::thread thread([block, &bundleName]() mutable {
+            int32_t ret = PasteboardClient::GetInstance()->GetDataSource(*bundleName);
+            auto value = std::make_shared<int32_t>(ret);
+            block->SetValue(value);
+        });
+        thread.detach();
+        std::shared_ptr<int32_t> value = block->GetValue();
+        if (value == nullptr) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
+            return taihe::optional<taihe::string>(std::nullopt);
+        }
+        if (*value != static_cast<int>(PasteboardError::E_OK)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetDataSource, failed, ret = %{public}d", *value);
+            return taihe::optional<taihe::string>(std::nullopt);
+        }
+        taihe::string bundleNameTH(*bundleName);
+        return taihe::optional<taihe::string>(std::in_place_t {}, bundleNameTH);
+    }
+
+    bool HasDataType(taihe::string_view mimeType)
+    {
+        std::string mimeTypeStr = std::string(mimeType);
+        auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<bool>>>(SYNC_TIMEOUT);
+        std::thread thread([block, mimeTypeStr]() mutable {
+            bool ret = PasteboardClient::GetInstance()->HasDataType(mimeTypeStr);
+            auto ptr = std::make_shared<bool>(ret);
+            block->SetValue(ptr);
+        });
+        thread.detach();
+        std::shared_ptr<bool> value = block->GetValue();
+        if (value == nullptr) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
+            return false;
+        }
+        return *value;
+    }
+
     void ClearDataSync()
     {
-        TH_THROW(std::runtime_error, "ClearDataSync not implemented");
+        auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+        std::thread thread([block]() {
+            PasteboardClient::GetInstance()->Clear();
+            auto ptr = std::make_shared<int>(0);
+            block->SetValue(ptr);
+        });
+        thread.detach();
+        auto value = block->GetValue();
+        if (value == nullptr) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
+        }
     }
 
-    PasteData GetDataSync()
+    void ClearDataImpl()
     {
-        // The parameters in the make_holder function should be of the same type
-        // as the parameters in the constructor of the actual implementation class.
-        return make_holder<PasteDataImpl, PasteData>();
+        PasteboardClient::GetInstance()->Clear();
     }
 
-    bool HasDataSync()
+    pasteboardTaihe::PasteData GetDataSync()
     {
-        TH_THROW(std::runtime_error, "HasDataSync not implemented");
+        auto pasteData = std::make_shared<PasteData>();
+        auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
+        std::thread thread([block, pasteData]() {
+            int32_t ret = PasteboardClient::GetInstance()->GetPasteData(*pasteData);
+            auto ptr = std::make_shared<int32_t>(ret);
+            block->SetValue(ptr);
+        });
+        thread.detach();
+        auto value = block->GetValue();
+        if (value == nullptr) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
+            return taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
+        }
+        pasteboardTaihe::PasteData pasteDataTH = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
+        int64_t implRawPtr = pasteDataTH->GetPasteDataImpl();
+        PasteDataImpl *implPtr = reinterpret_cast<PasteDataImpl *>(implRawPtr);
+        implPtr->SetPasteData(pasteData);
+        implPtr = nullptr;
+        return pasteDataTH;
     }
 
-    void SetDataSync(weak::PasteData data)
+    pasteboardTaihe::PasteData GetDataImpl()
     {
-        TH_THROW(std::runtime_error, "SetDataSync not implemented");
+        auto pasteData = std::make_shared<PasteData>();
+        int32_t ret = PasteboardClient::GetInstance()->GetPasteData(*pasteData);
+        if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
+            taihe::set_business_error(ret, "Another copy or paste operation is in progress.");
+            return taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
+        }
+        pasteboardTaihe::PasteData pasteDataTH = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
+        int64_t implRawPtr = pasteDataTH->GetPasteDataImpl();
+        PasteDataImpl *implPtr = reinterpret_cast<PasteDataImpl *>(implRawPtr);
+        implPtr->SetPasteData(pasteData);
+        implPtr = nullptr;
+        return pasteDataTH;
     }
 
-    array<string> GetMimeTypesSync()
+    taihe::optional<bool> HasDataSync()
     {
-        TH_THROW(std::runtime_error, "GetMimeTypesSync not implemented");
+        auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<bool>>>(SYNC_TIMEOUT);
+        std::thread thread([block]() {
+            bool ret = PasteboardClient::GetInstance()->HasPasteData();
+            auto ptr = std::make_shared<bool>(ret);
+            block->SetValue(ptr);
+        });
+        thread.detach();
+        std::shared_ptr<bool> value = block->GetValue();
+        if (value == nullptr) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
+            return taihe::optional<bool>(std::nullopt);
+        }
+        return taihe::optional<bool>(std::in_place_t {}, *value);
     }
 
-    string GetDataSource()
+    bool HasDataImpl()
     {
-        TH_THROW(std::runtime_error, "GetDataSource not implemented");
+        bool ret = PasteboardClient::GetInstance()->HasPasteData();
+        return ret;
     }
 
-    bool HasDataType(string_view mimeType)
+    void SetDataSync(pasteboardTaihe::weak::PasteData data)
     {
-        TH_THROW(std::runtime_error, "HasDataType not implemented");
+        PasteDataImpl *implPtr = reinterpret_cast<PasteDataImpl *>(data->GetPasteDataImpl());
+        std::shared_ptr<PasteData> pasteData = implPtr->GetPasteData();
+        implPtr = nullptr;
+        if (pasteData == nullptr) {
+            return;
+        }
+        auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
+        std::thread thread([block, pasteData]() {
+            int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);
+            auto ptr = std::make_shared<int32_t>(ret);
+            block->SetValue(ptr);
+        });
+        thread.detach();
+        std::shared_ptr<int32_t> value = block->GetValue();
+        if (value == nullptr) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
+        }
+    }
+
+    void SetDataImpl(pasteboardTaihe::weak::PasteData data)
+    {
+        PasteDataImpl *implPtr = reinterpret_cast<PasteDataImpl *>(data->GetPasteDataImpl());
+        std::shared_ptr<PasteData> pasteData = implPtr->GetPasteData();
+        implPtr = nullptr;
+        if (pasteData == nullptr) {
+            return;
+        }
+        std::map<uint32_t, std::shared_ptr<OHOS::UDMF::EntryGetter>> entryGetters;
+        for (auto record : pasteData->AllRecords()) {
+            if (record != nullptr && record->GetEntryGetter() != nullptr) {
+                entryGetters.emplace(record->GetRecordId(), record->GetEntryGetter());
+            }
+        }
+        int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData, nullptr, entryGetters);
+        if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
+            taihe::set_business_error(ret, "Another copy or paste operation is in progress.");
+        } else if (ret == static_cast<int>(PasteboardError::PROHIBIT_COPY)) {
+            taihe::set_business_error(ret, "Replication is prohibited.");
+        }
+    }
+
+    taihe::array<taihe::string> GetMimeTypesSync()
+    {
+        std::vector<std::string> mimeTypesVec = PasteboardClient::GetInstance()->GetMimeTypes();
+        std::vector<taihe::string> mimeTypes;
+        for (auto mimeType : mimeTypesVec) {
+            mimeTypes.push_back(taihe::string(mimeType));
+        }
+        taihe::array<taihe::string> mimeTypeArr(mimeTypes);
+        return mimeTypeArr;
     }
 };
 
-PasteDataRecord MakePasteDataRecord()
+pasteboardTaihe::PasteDataRecord MakePasteDataRecord()
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<PasteDataRecordImpl, PasteDataRecord>();
+    return taihe::make_holder<PasteDataRecordImpl, pasteboardTaihe::PasteDataRecord>();
 }
 
-PasteData CreatePasteData()
+pasteboardTaihe::PasteData CreatePasteData()
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<PasteDataImpl, PasteData>();
+    return taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
 }
 
-SystemPasteboard CreateSystemPasteboard()
+pasteboardTaihe::SystemPasteboard CreateSystemPasteboard()
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<SystemPasteboardImpl, SystemPasteboard>();
+    return taihe::make_holder<SystemPasteboardImpl, pasteboardTaihe::SystemPasteboard>();
 }
 
-PasteData CreateDataByValue(string_view mimeType, const ValueType &value)
+taihe::optional<pasteboardTaihe::PasteData> CreateDataByValue(
+    taihe::string_view mimeType, const pasteboardTaihe::ValueType &value)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<PasteDataImpl, PasteData>();
+    if (mimeType.empty()) {
+        taihe::set_business_error(
+            static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
+        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+    }
+    if (mimeType.size() > MIMETYPE_MAX_SIZE) {
+        taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
+            "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
+        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+    }
+    std::shared_ptr<PasteData> pasteData;
+    std::string mimeTypeStr = std::string(mimeType);
+    auto strategy = StrategyFactory::CreateStrategyForData(mimeTypeStr);
+    if (strategy) {
+        strategy->CreateData(mimeTypeStr, value, pasteData);
+    }
+    if (pasteData == nullptr) {
+        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+    }
+    pasteboardTaihe::PasteData data = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
+    PasteDataImpl *dataImpl = reinterpret_cast<PasteDataImpl *>(data->GetPasteDataImpl());
+    dataImpl->SetPasteData(pasteData);
+    dataImpl = nullptr;
+    return taihe::optional<pasteboardTaihe::PasteData>(std::in_place_t {}, data);
 }
 
-PasteData CreateDataByRecord(map_view<string, ValueType> data)
+taihe::optional<pasteboardTaihe::PasteData> CreateDataByRecord(
+    taihe::map_view<taihe::string, pasteboardTaihe::ValueType> typeValueMap)
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<PasteDataImpl, PasteData>();
+    if (typeValueMap.size() == 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "valueType is empty");
+        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+    }
+    std::shared_ptr<EntryValueMap> entryValueMap = std::make_shared<EntryValueMap>();
+    std::string primaryMimeType = "";
+    pasteboardTaihe::PasteData pasteDataTH = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
+    for (const auto &item : typeValueMap) {
+        if (item.first.empty()) {
+            taihe::set_business_error(
+                static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
+            return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        }
+        if (item.first.size() > MIMETYPE_MAX_SIZE) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
+                "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
+            return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        }
+        if (primaryMimeType.empty()) {
+            primaryMimeType = std::string(item.first);
+        }
+        std::string mimeTypeStr = std::string(item.first);
+        std::shared_ptr<EntryValue> entry;
+        auto strategy = StrategyFactory::CreateStrategyForRecord(item.second, mimeTypeStr);
+        if (!strategy) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
+                "data type or mimeType is not supported, mimeType is %{public}s", mimeTypeStr.c_str());
+            return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        }
+        EntryValue entryValue = strategy->ConvertFromValueType(mimeTypeStr, item.second);
+        if (std::holds_alternative<std::monostate>(entryValue)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "data type or mimeType is invalid, mimeType is %{public}s",
+                mimeTypeStr.c_str());
+            return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        }
+        entry = std::make_shared<EntryValue>(entryValue);
+        entryValueMap->emplace(std::make_pair(mimeTypeStr, entry));
+    }
+    std::shared_ptr<PasteData> pasteData =
+        PasteboardClient::GetInstance()->CreateMultiTypeData(entryValueMap, primaryMimeType);
+    if (pasteData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Create multiType data failed");
+        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+    }
+    PasteDataImpl *dataImpl = reinterpret_cast<PasteDataImpl *>(pasteDataTH->GetPasteDataImpl());
+    dataImpl->SetPasteData(pasteData);
+    dataImpl = nullptr;
+    return taihe::optional<pasteboardTaihe::PasteData>(std::in_place_t {}, pasteDataTH);
 }
 
-SystemPasteboard GetSystemPasteboard()
+pasteboardTaihe::SystemPasteboard GetSystemPasteboard()
 {
-    // The parameters in the make_holder function should be of the same type
-    // as the parameters in the constructor of the actual implementation class.
-    return make_holder<SystemPasteboardImpl, SystemPasteboard>();
+    return taihe::make_holder<SystemPasteboardImpl, pasteboardTaihe::SystemPasteboard>();
 }
 } // namespace
 
