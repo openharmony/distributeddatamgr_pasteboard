@@ -3652,6 +3652,10 @@ std::function<void(const OHOS::MiscServices::Event &)> PasteboardService::Remote
 
 int32_t PasteboardService::CallbackEnter(uint32_t code)
 {
+    if (!IPCSkeleton::IsLocalCalling()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid request, only support local, cmd:%{public}u", code);
+        return ERR_TRANSACTION_FAILED;
+    }
     if (code == static_cast<uint32_t>(IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA)) {
         return ERR_NONE;
     }
