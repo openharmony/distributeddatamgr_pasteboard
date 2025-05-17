@@ -151,6 +151,8 @@ public:
     void CloseDistributedStore(int32_t user, bool isNeedClear);
     PastedSwitch switch_;
     static int32_t GetCurrentAccountId();
+    void RevokeUriOnUninstall(int32_t tokenId);
+    void RevokeAndClearUri(std::shared_ptr<PasteData> pasteData);
 
 private:
     std::mutex saMutex_;
