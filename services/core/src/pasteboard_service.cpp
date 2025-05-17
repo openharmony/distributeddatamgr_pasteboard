@@ -3857,7 +3857,68 @@ void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEvent
         std::lock_guard<std::mutex> lock(mutex_);
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screen is unlocked");
         PasteboardService::currentScreenStatus = ScreenEvent::ScreenUnlocked;
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
+        auto tokenId = want.GetIntParam("accessTokenId", -1);
+        if (pasteboardService_ != nullptr) {
+            pasteboardService_->RevokeUriOnUninstall(tokenId);
+        }
     }
+}
+
+void PasteboardService::RevokeUriOnUninstall(int32_t tokenId)
+{
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(tokenId >= 0, PASTEBOARD_MODULE_SERVICE, "tokenId is invalids");
+    auto userId = GetCurrentAccountId();
+    clips_.ComputeIfPresent(userId, [this, tokenId, userId](auto, auto &pasteData) {
+        if (pasteData == nullptr) {
+            return true;
+        }
+        if (pasteData->GetTokenId() != static_cast<uint32_t>(tokenId)) {
+            return true;
+        }
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "revoke and clear uri tokenId: %{public}d", tokenId);
+        RevokeAndClearUri(pasteData);
+        delayGetters_.ComputeIfPresent(userId, [](auto, auto &delayGetter) {
+            if (delayGetter.first != nullptr && delayGetter.second != nullptr) {
+                delayGetter.first->AsObject()->RemoveDeathRecipient(delayGetter.second);
+            }
+            return false;
+        });
+        entryGetters_.ComputeIfPresent(userId, [](auto, auto &entryGetter) {
+            if (entryGetter.first != nullptr && entryGetter.second != nullptr) {
+                entryGetter.first->AsObject()->RemoveDeathRecipient(entryGetter.second);
+            }
+            return false;
+        });
+        return true;
+    });
+}
+
+void PasteboardService::RevokeAndClearUri(std::shared_ptr<PasteData> pasteData)
+{
+    std::set<std::string> bundles;
+    {
+        std::lock_guard<std::mutex> lock(readBundleMutex_);
+        bundles = std::move(readBundles_);
+    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteData != nullptr, PASTEBOARD_MODULE_SERVICE, "pasteData is null");
+    std::thread thread([pasteData, bundles]() {
+        auto &permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
+        for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
+            auto item = pasteData->GetRecordAt(i);
+            if (item == nullptr || item->GetOriginUri() == nullptr) {
+                continue;
+            }
+            Uri uri = *(item->GetOriginUri());
+            for (std::set<std::string>::iterator it = bundles.begin(); it != bundles.end(); it++) {
+                auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, *it);
+                PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
+            }
+            auto emptyUri = std::make_shared<OHOS::Uri>("");
+            item->SetUri(emptyUri);
+        }
+    });
+    thread.detach();
 }
 
 void PasteBoardAccountStateSubscriber::OnStateChanged(const AccountSA::OsAccountStateData &data)
