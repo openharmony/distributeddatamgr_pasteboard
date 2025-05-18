@@ -33,6 +33,7 @@ constexpr int DFS_CANCEL_SUCCESS = 204;
 
 static int32_t g_recordSize = 0;
 ProgressListener PasteBoardCopyFile::progressListener_;
+std::atomic_bool PasteBoardCopyFile::canCancel_{ true };
 
 PasteBoardCopyFile &PasteBoardCopyFile::GetInstance()
 {
@@ -241,11 +242,13 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t 
         return;
     }
 
-    if (ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
+    if (ProgressSignalClient::GetInstance().CheckCancelIfNeed() && canCancel_.load()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Cancel copy.");
         std::thread([&]() {
+            canCancel_.store(false);
             auto ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Cancel(info.srcUri, info.destUri);
             if (ret != ERRNO_NOERR) {
+                canCancel_.store(true);
                 PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Cancel failed. errno=%{public}d", ret);
             }
         }).detach();
@@ -264,6 +267,7 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t 
 int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
     g_recordSize = 0;
+    canCancel_.store(true);
     int32_t ret = CheckCopyParam(pasteData, dataParams);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
