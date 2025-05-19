@@ -37,9 +37,9 @@ ohos_shared_library("pasteboard_framework") {
     debug = false
   }
   sources = [
+    "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
     "clip/clip_plugin.cpp",
     "clip/default_clip.cpp",
-    "common/common_utils.cpp",
     "device/dev_profile.cpp",
     "device/device_profile_proxy.cpp",
     "device/distributed_module_config.cpp",
@@ -75,6 +75,7 @@ ohos_shared_library("pasteboard_framework") {
   include_dirs = [ "${pasteboard_root_path}/adapter/include" ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",
     "ffrt:libffrt",

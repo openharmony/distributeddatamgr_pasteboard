@@ -51,5 +51,16 @@ int32_t PasteBoardCommon::GetApiTargetVersionForSelf(void)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "Got target API version %{public}d.", targetApiVersion);
     return targetApiVersion;
 }
+
+std::string PasteBoardCommon::GetAnonymousString(const std::string &str)
+{
+    const int32_t ANONYMOUS_LEN_LIMIT = 8;
+    const int32_t TWO_TIMES = 2;
+    if (str.length() <= ANONYMOUS_LEN_LIMIT) {
+        return str;
+    }
+    int32_t printLen = ANONYMOUS_LEN_LIMIT / TWO_TIMES;
+    return str.substr(0, printLen) + "**" + str.substr(str.length() - printLen);
+}
 } // namespace MiscServices
 } // namespace OHOS

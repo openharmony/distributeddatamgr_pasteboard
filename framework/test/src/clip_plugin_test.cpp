@@ -184,6 +184,25 @@ HWTEST_F(ClipPluginTest, ChangeStoreStatusTest, TestSize.Level0)
 }
 
 /**
+ * @tc.name: NeedSyncTopEventTest
+ * @tc.desc: NeedSyncTopEvent.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(ClipPluginTest, NeedSyncTopEventTest, TestSize.Level0)
+{
+    CustomClipPlugin clipPlugin;
+    bool result = clipPlugin.NeedSyncTopEvent();
+    ASSERT_EQ(result, false);
+    ClipPlugin::PreSyncCallback preSyncCB;
+    clipPlugin.RegisterPreSyncCallback(preSyncCB);
+    ClipPlugin::PreSyncMonitorCallback preSyncMonitorCB;
+    clipPlugin.RegisterPreSyncMonitorCallback(preSyncMonitorCB);
+    clipPlugin.SendPreSyncEvent(0);
+}
+
+/**
  * @tc.name: RegCreatorTest001
  * @tc.desc: RegCreator.
  * @tc.type: FUNC
