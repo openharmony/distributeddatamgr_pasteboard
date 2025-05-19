@@ -2,136 +2,79 @@
     "string":[
         {
             "name":"progress_cancel_btn",
-            "value":"إلغاء",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"إلغاء"
         },
         {
             "name":"prompttext_udmf_import",
-            "value":"جارٍ الاستيراد...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"جارٍ الاستيراد..."
         },
         {
             "name":"prompttext_udmf_copy_error",
-            "value":"تعذر النسخ. يُرجى إعادة المحاولة لاحقًا.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"تعذر النسخ. يُرجى إعادة المحاولة لاحقًا."
         },
         {
             "name":"update_version_prompt",
-            "value":"يجب أن يعمل كلا الجهازين بنظام HarmonyOS NEXT.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"يجب أن يعمل كلا الجهازين بنظام HarmonyOS NEXT."
         },
         {
             "name":"pasteboard_desc_text",
-            "value":"يمكنك النسخ على جهاز، واللصق على جهاز آخر. يجب أن تكون الأجهزة قريبة من بعضها البعض، ومسجل الدخول إليها بنفس حساب هواوي، مع تشغيل WLAN والبلوتوث وتفعيل هذه الميزة على كلا الجهازين. %s",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"يمكنك النسخ على جهاز، واللصق على جهاز آخر. يجب أن تكون الأجهزة قريبة من بعضها البعض، ومسجل الدخول إليها بنفس حساب هواوي، مع تشغيل WLAN والبلوتوث وتفعيل هذه الميزة على كلا الجهازين. %s"
         },
         {
             "name":"prompttext_udmf_format_error",
-            "value":"تعذر تحويل التنسيق. يُرجى إعادة المحاولة لاحقًا.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"تعذر تحويل التنسيق. يُرجى إعادة المحاولة لاحقًا."
         },
         {
             "name":"prompttext_udmf_format",
-            "value":"جارٍ تحويل التنسيق...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"جارٍ تحويل التنسيق..."
         },
         {
             "name":"prompttext_udmf_download",
-            "value":"جارٍ التنزيل…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"جارٍ التنزيل…"
         },
         {
             "name":"prompttext_udmf_move_error",
-            "value":"تعذر النقل. يُرجى إعادة المحاولة لاحقًا.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"تعذر النقل. يُرجى إعادة المحاولة لاحقًا."
         },
         {
             "name":"prompttext_pasteboard_local",
-            "value":"جارٍ اللصق…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"جارٍ اللصق…"
         },
         {
             "name":"prompttext_udmf_copy",
-            "value":"جارٍ النسخ...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"جارٍ النسخ..."
         },
         {
             "name":"learn_more",
-            "value":"معرفة المزيد",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"معرفة المزيد"
         },
         {
             "name":"prompttext_udmf_import_error",
-            "value":"تعذر الاستيراد. يُرجى إعادة المحاولة لاحقًا.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"تعذر الاستيراد. يُرجى إعادة المحاولة لاحقًا."
         },
         {
             "name":"prompttext_udmf_download_error",
-            "value":"يتعذر التنزيل. يُرجى إعادة المحاولة لاحقًا.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"يتعذر التنزيل. يُرجى إعادة المحاولة لاحقًا."
         },
         {
             "name":"pasteboard_title",
-            "value":"الحافظة عبر الأجهزة",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"الحافظة عبر الأجهزة"
         },
         {
             "name":"prompttext_pasteboard_remote",
-            "value":"جارٍ اللصق من «\u202a%s\u202c»...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"جارٍ اللصق من «\u202a%s\u202c»..."
         },
         {
             "name":"prompttext_udmf_move",
-            "value":"جارٍ النقل…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"جارٍ النقل…"
         },
         {
             "name":"prompttext_pasteboard_error",
-            "value":"يتعذر اللصق. يُرجى إعادة المحاولة.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"يتعذر اللصق. يُرجى إعادة المحاولة."
         },
         {
             "name":"progress_completed_percentage",
-            "value":"%s",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"%s"
         }
     ]
 }

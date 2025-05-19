@@ -26,17 +26,11 @@
         },
         {
             "name":"pasteboard_title",
-            "value":"Cross-device clipboard",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Cross-device clipboard"
         },
         {
             "name":"pasteboard_desc_text",
-            "value":"Copy on one device, paste on another. Devices must be near each other, logged in to the same HUAWEI ID, and have WLAN, Bluetooth, and this feature enabled. %s",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Copy on one device, paste on another. Devices must be near each other, logged in to the same HUAWEI ID, and have WLAN, Bluetooth, and this feature enabled. %s"
         },
         {
             "name":"multi_device_collaboration",
@@ -44,17 +38,11 @@
         },
         {
             "name":"update_version_prompt",
-            "value":"Both devices must be running HarmonyOS NEXT",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Both devices must be running HarmonyOS NEXT"
         },
         {
             "name":"learn_more",
-            "value":"Learn more",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Learn more"
         },
         {
             "name":"PasteboardProgressAbility_desc",
@@ -66,108 +54,63 @@
         },
         {
             "name":"prompttext_pasteboard_remote",
-            "value":"Pasting from \"%s\"…",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Pasting from \"%s\"…"
         },
         {
             "name":"prompttext_pasteboard_local",
-            "value":"Pasting…",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Pasting…"
         },
         {
             "name":"prompttext_pasteboard_error",
-            "value":"Unable to paste. Please try again.",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Unable to paste. Please try again."
         },
         {
             "name":"progress_completed_percentage",
-            "value":"%s completed",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"%s completed"
         },
         {
             "name":"progress_cancel_btn",
-            "value":"Cancel",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Cancel"
         },
         {
             "name":"prompttext_udmf_import",
-            "value":"Importing…",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Importing…"
         },
         {
             "name":"prompttext_udmf_move",
-            "value":"Moving…",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Moving…"
         },
         {
             "name":"prompttext_udmf_copy",
-            "value":"Copying…",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Copying…"
         },
         {
             "name":"prompttext_udmf_download",
-            "value":"Downloading…",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Downloading…"
         },
         {
             "name":"prompttext_udmf_format",
-            "value":"Converting format…",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Converting format…"
         },
         {
             "name":"prompttext_udmf_import_error",
-            "value":"Import failed. Try again later.",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Import failed. Try again later."
         },
         {
             "name":"prompttext_udmf_move_error",
-            "value":"Move failed. Try again later.",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Move failed. Try again later."
         },
         {
             "name":"prompttext_udmf_copy_error",
-            "value":"Copy failed. Try again later.",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Copy failed. Try again later."
         },
         {
             "name":"prompttext_udmf_download_error",
-            "value":"Unable to download. Try again later.",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Unable to download. Try again later."
         },
         {
             "name":"prompttext_udmf_format_error",
-            "value":"Format conversion failed. Try again later.",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"Format conversion failed. Try again later."
         }
     ]
 }

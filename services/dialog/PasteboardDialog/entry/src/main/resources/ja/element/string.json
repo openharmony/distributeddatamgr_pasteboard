@@ -2,87 +2,51 @@
     "string":[
         {
             "name":"progress_cancel_btn",
-            "value":"キャンセル",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"キャンセル"
         },
         {
             "name":"prompttext_udmf_import",
-            "value":"インポート中...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"インポート中..."
         },
         {
             "name":"update_version_prompt",
-            "value":"両方のデバイスでHarmonyOS NEXTが実行されている必要があります",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"両方のデバイスでHarmonyOS NEXTが実行されている必要があります"
         },
         {
             "name":"prompttext_udmf_format",
-            "value":"形式を変換中...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"形式を変換中..."
         },
         {
             "name":"prompttext_udmf_download",
-            "value":"ダウンロード中…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"ダウンロード中…"
         },
         {
             "name":"prompttext_pasteboard_local",
-            "value":"貼り付け中…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"貼り付け中…"
         },
         {
             "name":"prompttext_udmf_copy",
-            "value":"コピー中...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"コピー中..."
         },
         {
             "name":"learn_more",
-            "value":"詳細",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"詳細"
         },
         {
             "name":"prompttext_udmf_download_error",
-            "value":"ダウンロードできません。後で再試行してください。",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"ダウンロードできません。後で再試行してください。"
         },
         {
             "name":"prompttext_udmf_move",
-            "value":"移動中...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"移動中..."
         },
         {
             "name":"prompttext_pasteboard_error",
-            "value":"貼り付けられません。再試行してください。",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"貼り付けられません。再試行してください。"
         },
         {
             "name":"progress_completed_percentage",
-            "value":"%s完了",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"%s完了"
         }
     ]
 }

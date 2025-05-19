@@ -2,87 +2,51 @@
     "string":[
         {
             "name":"progress_cancel_btn",
-            "value":"Cancelar",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Cancelar"
         },
         {
             "name":"prompttext_udmf_import",
-            "value":"Importando…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Importando…"
         },
         {
             "name":"update_version_prompt",
-            "value":"Ambos dispositivos deben ejecutar HarmonyOS NEXT",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Ambos dispositivos deben ejecutar HarmonyOS NEXT"
         },
         {
             "name":"prompttext_udmf_format",
-            "value":"Convirtiendo formato…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Convirtiendo formato…"
         },
         {
             "name":"prompttext_udmf_download",
-            "value":"Descargando…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Descargando…"
         },
         {
             "name":"prompttext_pasteboard_local",
-            "value":"Pegando…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Pegando…"
         },
         {
             "name":"prompttext_udmf_copy",
-            "value":"Copiando…",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Copiando…"
         },
         {
             "name":"learn_more",
-            "value":"Conocer más detalles",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Conocer más detalles"
         },
         {
             "name":"prompttext_udmf_download_error",
-            "value":"No se ha podido descargar. Inténtelo de nuevo más tarde.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"No se ha podido descargar. Inténtelo de nuevo más tarde."
         },
         {
             "name":"prompttext_udmf_move",
-            "value":"Moviendo...",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"Moviendo..."
         },
         {
             "name":"prompttext_pasteboard_error",
-            "value":"No se ha podido pegar. Vuelve a intentarlo.",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"No se ha podido pegar. Vuelve a intentarlo."
         },
         {
             "name":"progress_completed_percentage",
-            "value":"%s completado",
-            "attr":{
-                "priority":"translate"
-            }
+            "value":"%s completado"
         }
     ]
 }
