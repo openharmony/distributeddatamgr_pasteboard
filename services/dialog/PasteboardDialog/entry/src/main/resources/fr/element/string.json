@@ -1,0 +1,56 @@
+{
+    "string":[
+        {
+            "name":"progress_cancel_btn",
+            "value":"Annuler"
+        },
+        {
+            "name":"prompttext_udmf_import",
+            "value":"Importation en cours."
+        },
+        {
+            "name":"update_version_prompt",
+            "value":"Les deux appareils doivent fonctionner sous HarmonyOS NEXT."
+        },
+        {
+            "name":"prompttext_udmf_format",
+            "value":"Conversion du format en cours."
+        },
+        {
+            "name":"prompttext_udmf_download",
+            "value":"Téléchargement en cours."
+        },
+        {
+            "name":"prompttext_pasteboard_local",
+            "value":"Collage en cours."
+        },
+        {
+            "name":"prompttext_udmf_copy",
+            "value":"Copie en cours."
+        },
+        {
+            "name":"learn_more",
+            "value":"En savoir plus"
+        },
+        {
+            "name":"prompttext_udmf_import_error",
+            "value":"Échec de l'importation. Réessayez ultérieurement."
+        },
+        {
+            "name":"prompttext_udmf_download_error",
+            "value":"Le téléchargement a échoué. Veuillez réessayer ultérieurement."
+        },
+        {
+            "name":"prompttext_udmf_move",
+            "value":"Déplacement en cours"
+        },
+        {
+            "name":"prompttext_pasteboard_error",
+            "value":"L'élément ne peut pas être collé. Veuillez réessayer."
+        },
+        {
+            "name":"progress_completed_percentage",
+            "value":"Terminé : %s"
+        }
+    ]
+}

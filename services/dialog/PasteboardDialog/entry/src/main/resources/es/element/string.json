@@ -1,0 +1,52 @@
+{
+    "string":[
+        {
+            "name":"progress_cancel_btn",
+            "value":"Cancelar"
+        },
+        {
+            "name":"prompttext_udmf_import",
+            "value":"Importando…"
+        },
+        {
+            "name":"update_version_prompt",
+            "value":"Ambos dispositivos deben ejecutar HarmonyOS NEXT"
+        },
+        {
+            "name":"prompttext_udmf_format",
+            "value":"Convirtiendo formato…"
+        },
+        {
+            "name":"prompttext_udmf_download",
+            "value":"Descargando…"
+        },
+        {
+            "name":"prompttext_pasteboard_local",
+            "value":"Pegando…"
+        },
+        {
+            "name":"prompttext_udmf_copy",
+            "value":"Copiando…"
+        },
+        {
+            "name":"learn_more",
+            "value":"Conocer más detalles"
+        },
+        {
+            "name":"prompttext_udmf_download_error",
+            "value":"No se ha podido descargar. Inténtelo de nuevo más tarde."
+        },
+        {
+            "name":"prompttext_udmf_move",
+            "value":"Moviendo..."
+        },
+        {
+            "name":"prompttext_pasteboard_error",
+            "value":"No se ha podido pegar. Vuelve a intentarlo."
+        },
+        {
+            "name":"progress_completed_percentage",
+            "value":"%s completado"
+        }
+    ]
+}

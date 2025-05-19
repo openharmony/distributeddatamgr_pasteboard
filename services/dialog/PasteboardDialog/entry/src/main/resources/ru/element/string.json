@@ -1,0 +1,80 @@
+{
+    "string":[
+        {
+            "name":"progress_cancel_btn",
+            "value":"Отмена"
+        },
+        {
+            "name":"prompttext_udmf_import",
+            "value":"Импорт..."
+        },
+        {
+            "name":"prompttext_udmf_copy_error",
+            "value":"Сбой копирования. Повторите попытку позже."
+        },
+        {
+            "name":"update_version_prompt",
+            "value":"Оба устройства должны работать под управлением HarmonyOS NEXT"
+        },
+        {
+            "name":"pasteboard_desc_text",
+            "value":"Копируйте на одном устройстве, вставляйте на другом. Устройства должны быть рядом друг с другом, на них должен быть выполнен вход в один аккаунт HUAWEI и включены WLAN, Bluetooth и эта функция. %s"
+        },
+        {
+            "name":"prompttext_udmf_format_error",
+            "value":"Сбой при преобразовании. Повторите попытку позже."
+        },
+        {
+            "name":"prompttext_udmf_format",
+            "value":"Преобразование формата…"
+        },
+        {
+            "name":"prompttext_udmf_download",
+            "value":"Загрузка…"
+        },
+        {
+            "name":"prompttext_udmf_move_error",
+            "value":"Сбой перемещения. Повторите попытку позже."
+        },
+        {
+            "name":"prompttext_pasteboard_local",
+            "value":"Вставка…"
+        },
+        {
+            "name":"prompttext_udmf_copy",
+            "value":"Копирование…"
+        },
+        {
+            "name":"learn_more",
+            "value":"Подробнее"
+        },
+        {
+            "name":"prompttext_udmf_import_error",
+            "value":"Сбой импорта. Повторите попытку позже."
+        },
+        {
+            "name":"prompttext_udmf_download_error",
+            "value":"Невозможно загрузить. Повторите попытку позже."
+        },
+        {
+            "name":"pasteboard_title",
+            "value":"Общий буфер обмена"
+        },
+        {
+            "name":"prompttext_pasteboard_remote",
+            "value":"Вставка из \"%s\"…"
+        },
+        {
+            "name":"prompttext_udmf_move",
+            "value":"Перемещение…"
+        },
+        {
+            "name":"prompttext_pasteboard_error",
+            "value":"Сбой вставки. Повторите попытку."
+        },
+        {
+            "name":"progress_completed_percentage",
+            "value":"Выполнено: %s"
+        }
+    ]
+}
