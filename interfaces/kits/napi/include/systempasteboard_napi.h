@@ -24,36 +24,16 @@
 
 namespace OHOS {
 namespace MiscServicesNapi {
-class PasteboardObserverInstance : public std::enable_shared_from_this<PasteboardObserverInstance> {
+class PasteboardObserverInstance : public MiscServices::PasteboardObserver {
 public:
-    class PasteboardObserverImpl : public MiscServices::PasteboardObserver {
-    public:
-        explicit PasteboardObserverImpl() = default;
-        void OnPasteboardChanged() override;
-        void SetObserverWrapper(const std::shared_ptr<PasteboardObserverInstance> &observerInstance);
+    explicit PasteboardObserverInstance(napi_threadsafe_function callback);
 
-    private:
-        std::weak_ptr<PasteboardObserverInstance> wrapper_;
-    };
-
-    explicit PasteboardObserverInstance(const napi_env &env, const napi_ref &ref);
     ~PasteboardObserverInstance();
 
-    void OnPasteboardChanged();
-    napi_env GetEnv()
-    {
-        return env_;
-    }
-    napi_ref GetRef()
-    {
-        return ref_;
-    }
-    sptr<PasteboardObserverImpl> GetStub();
+    void OnPasteboardChanged() override;
 
 private:
-    napi_env env_ = nullptr;
-    napi_ref ref_ = nullptr;
-    sptr<PasteboardObserverImpl> stub_ = nullptr;
+    napi_threadsafe_function callback_ = nullptr;
 };
 
 class PasteboardDelayGetterInstance : public std::enable_shared_from_this<PasteboardDelayGetterInstance> {
@@ -92,10 +72,6 @@ private:
     napi_env env_ = nullptr;
     napi_ref ref_ = nullptr;
     std::shared_ptr<PasteboardDelayGetterImpl> stub_ = nullptr;
-};
-
-struct PasteboardDataWorker {
-    std::shared_ptr<PasteboardObserverInstance> observer = nullptr;
 };
 
 struct PasteboardDelayWorker {
@@ -291,7 +267,6 @@ public:
     static napi_value New(napi_env env, napi_callback_info info);
     static napi_status NewInstance(napi_env env, napi_value &instance);
     static void Destructor(napi_env env, void *nativeObject, void *finalize_hint);
-    static void DeleteObserver(const std::shared_ptr<PasteboardObserverInstance> &observer);
     SystemPasteboardNapi();
     ~SystemPasteboardNapi();
 
@@ -317,8 +292,9 @@ private:
     static napi_value SetDataSync(napi_env env, napi_callback_info info);
     static napi_value HasDataSync(napi_env env, napi_callback_info info);
     static bool CheckArgsOfOnAndOff(napi_env env, bool checkArgsCount, napi_value *argv, size_t argc);
-    static void SetObserver(napi_ref ref, std::shared_ptr<PasteboardObserverInstance> observer);
-    static std::shared_ptr<PasteboardObserverInstance> GetObserver(napi_env env, napi_value observer);
+    static sptr<PasteboardObserverInstance> GetObserver(napi_env env, napi_value jsCallback);
+    static void AddObserver(napi_env env, napi_value jsCallback);
+    static void DeleteObserver(napi_env env, const sptr<PasteboardObserverInstance> &observer);
     static void GetDataCommon(std::shared_ptr<GetContextInfo> &context);
     static void SetDataCommon(std::shared_ptr<SetContextInfo> &context);
 
@@ -348,7 +324,7 @@ private:
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
-    static thread_local std::map<napi_ref, std::shared_ptr<PasteboardObserverInstance>> observers_;
+    static thread_local std::map<napi_ref, sptr<PasteboardObserverInstance>> observers_;
     static std::shared_ptr<PasteboardDelayGetterInstance> delayGetter_;
 
     static std::recursive_mutex listenerMutex_;
