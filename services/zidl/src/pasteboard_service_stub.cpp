@@ -83,6 +83,10 @@ PasteboardServiceStub::PasteboardServiceStub()
 int32_t PasteboardServiceStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    if (!IPCSkeleton::IsLocalCalling()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid request, only support local, cmd:%{public}u", code);
+        return ERR_TRANSACTION_FAILED;
+    }
     std::u16string myDescriptor = PasteboardServiceStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (myDescriptor != remoteDescriptor) {
