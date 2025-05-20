@@ -4908,5 +4908,294 @@ HWTEST_F(PasteboardServiceTest, GetObserversSizeTest002, TestSize.Level0)
     auto result = tempPasteboard->GetObserversSize(userId, pid, observerMap);
     EXPECT_EQ(result, 0);
 }
+
+/**
+ * @tc.name: GetRecordValueByTypeTest001
+ * @tc.desc: GetRecordValueByTypeTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, GetRecordValueByTypeTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t dataId = 1;
+    uint32_t recordId = 1;
+    int64_t rawDataSize = -1;
+    std::vector<uint8_t> buffer;
+    int fd = 0;
+
+    int32_t result = tempPasteboard->GetRecordValueByType(dataId, recordId, rawDataSize, buffer, fd);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+}
+
+/**
+ * @tc.name: GetRecordValueByTypeTest002
+ * @tc.desc: GetRecordValueByTypeTest002
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, GetRecordValueByTypeTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t dataId = 1;
+    uint32_t recordId = 1;
+    int64_t rawDataSize = 1024;
+    std::vector<uint8_t> buffer;
+    int fd = 0;
+
+    int32_t result = tempPasteboard->GetRecordValueByType(dataId, recordId, rawDataSize, buffer, fd);
+}
+
+/**
+ * @tc.name: GetSdkVersionTest002
+ * @tc.desc: GetSdkVersionTest002
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, GetSdkVersionTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t tokenId = 123;
+
+    int32_t result = tempPasteboard->GetSdkVersion(tokenId);
+    EXPECT_EQ(result, -1);
+}
+
+/**
+ * @tc.name: IsPermissionGrantedTest001
+ * @tc.desc: IsPermissionGrantedTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, IsPermissionGrantedTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    std::string perm = "some_permission";
+    uint32_t tokenId = 12345;
+
+    int32_t result = tempPasteboard->IsPermissionGranted(perm, tokenId);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: WriteRawDataTest002
+ * @tc.desc: WriteRawDataTest002
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, WriteRawDataTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int serFd = 0;
+    int64_t size = 10;
+
+    bool result = tempPasteboard->WriteRawData(nullptr, size, serFd);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: WriteRawDataTest003
+ * @tc.desc: WriteRawDataTest003
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, WriteRawDataTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int serFd = 0;
+    char data[10];
+
+    bool result = tempPasteboard->WriteRawData(data, 0, serFd);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: GetRemoteDataTest002
+ * @tc.desc: GetRemoteDataTest002
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, GetRemoteDataTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t userId = 0x123456;
+    Event event;
+    PasteData data;
+    int32_t syncTime = 1000;
+
+    int32_t result = tempPasteboard->GetRemoteData(userId, event, data, syncTime);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: GetValidDistributeEventTest003
+ * @tc.desc: GetValidDistributeEventTest003
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, GetValidDistributeEventTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t user = 1234;
+
+    tempPasteboard->GetValidDistributeEvent(user);
+}
+
+/**
+ * @tc.name: AddObserverTest001
+ * @tc.desc: AddObserverTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, AddObserverTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    pastebpardService::ObserverMap observerMap;
+    int32_t user = 1234;
+
+    tempPasteboard->AddObserver(user, nullptr, observerMap);
+}
+
+/**
+ * @tc.name: AddObserverTest002
+ * @tc.desc: AddObserverTest002
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, AddObserverTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    sptr<IPasteboardChangedObserver> observer;
+    pastebpardService::ObserverMap observerMap;
+    int32_t user = 1234;
+
+    tempPasteboard->AddObserver(user, observer, observerMap);
+}
+
+/**
+ * @tc.name: RemoveSingleObserverddObserverTest001
+ * @tc.desc: RemoveSingleObserverddObserverTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, RemoveSingleObserverddObserverTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    pastebpardService::ObserverMap observerMap;
+    int32_t user = 1234;
+
+    tempPasteboard->RemoveSingleObserver(user, nullptr, observerMap);
+}
+
+/**
+ * @tc.name: CallbackEnterTest001
+ * @tc.desc: CallbackEnterTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, CallbackEnterTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t code = static_cast<uint32_t>(IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA);
+
+    int32_t res = tempPasteboard->CallbackEnter(code);
+
+    EXPECT_EQ(res, ERR_NONE);
+}
+
+/**
+ * @tc.name: CallbackEnterTest002
+ * @tc.desc: CallbackEnterTest002
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, CallbackEnterTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t code = static_cast<uint32_t>(IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA) + 1;
+
+    int32_t res = tempPasteboard->CallbackEnter(code);
+
+    EXPECT_EQ(res, ERR_NONE);
+}
+
+/**
+ * @tc.name: CallbackExitTest001
+ * @tc.desc: CallbackExitTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, CallbackExitTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t code = static_cast<uint32_t>(IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA);
+    int32_t result = 123;
+
+    int32_t res = tempPasteboard->CallbackExit(code, result);
+
+    EXPECT_EQ(res, ERR_NONE);
+}
+
+/**
+ * @tc.name: CallbackExitTest002
+ * @tc.desc: CallbackExitTest002
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, CallbackExitTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t code = static_cast<uint32_t>(IPasteboardServiceIpcCode::COMMAND_HAS_PASTE_DATA) + 1;
+    int32_t result = 456;
+
+    int32_t res = tempPasteboard->CallbackExit(code, result);
+
+    EXPECT_EQ(res, ERR_NONE);
+}
 } // namespace MiscServices
 } // namespace OHOS
