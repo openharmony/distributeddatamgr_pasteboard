@@ -1855,5 +1855,39 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_HasDataTest001, TestSize.Level2)
     bool ret = OH_Pasteboard_HasData(nullptr);
     EXPECT_FALSE(ret);
 }
+
+/**
+ * @tc.name: OH_Pasteboard_IsRemoteDataTest002
+ * @tc.desc: OH_Pasteboard_IsRemoteDataTest002
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_IsRemoteDataTest002, TestSize.Level2)
+{
+    OH_Pasteboard *pasteboard = OH_Pasteboard_Create();
+
+    bool res = OH_Pasteboard_IsRemoteData(nullptr);
+    EXPECT_EQ(res, ERR_INVALID_PARAMETER);
+
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataTest008
+ * @tc.desc: OH_Pasteboard_GetDataTest008
+ * @tc.type: FUNC
+ * @tc.require: AROOOH5R5G
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataTest008, TestSize.Level2)
+{
+    OH_Pasteboard pasteboard;
+    int status = 0;
+
+    OH_UdmfData* res1 = OH_Pasteboard_GetData(&pasteboard, nullptr);
+    EXPECT_EQ(res1, nullptr);
+
+    OH_UdmfData* res2 = OH_Pasteboard_GetData(nullptr, &status);
+    EXPECT_EQ(res2, nullptr);
+}
 } // namespace Test
 } // namespace OHOS

@@ -273,4 +273,22 @@ HWTEST_F(DevProfileTest, Watch, TestSize.Level0)
     DevProfile::GetInstance().Watch(observer);
     EXPECT_FALSE(observer);
 }
+
+/**
+ * @tc.name: OnProfileUpdateTest
+ * @tc.desc: OnProfileUpdateTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, OnProfileUpdateTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<DevProfile>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    std::string udid = "12345";
+    bool status = true;
+
+    tempPasteboard->OnProfileUpdate(udid, status);
+}
 } // namespace OHOS::MiscServices
