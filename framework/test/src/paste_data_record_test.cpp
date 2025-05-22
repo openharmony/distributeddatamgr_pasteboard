@@ -1141,8 +1141,7 @@ HWTEST_F(PasteDataRecordTest, AddUriEntryTest001, TestSize.Level2)
  */
 HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest002, TestSize.Level2)
 {
-
-    std::shard_ptr<std::map<std::string, std::shard_ptr<EntryValue>>>values = nullptr;
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>>values = nullptr;
     std::string recordMimeType = "text/pain";
 
     auto result = PasteDataRecord::NewMultiTypeRecord(values, recordMimeType);
@@ -1160,7 +1159,7 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest002, TestSize.Level2)
 HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest003, TestSize.Level2)
 {
 
-    auto values = std::make_shared<std::map<std::string, std::shard_ptr<EntryValue>>>();
+    auto values = std::make_shared<std::map<std::string, std::shared_ptr<EntryValue>>>();
     std::string recordMimeType = "";
 
     auto result = PasteDataRecord::NewMultiTypeRecord(values, recordMimeType);
