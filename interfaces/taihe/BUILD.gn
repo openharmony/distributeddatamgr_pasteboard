@@ -21,8 +21,6 @@ config("taihe_config") {
     "${pasteboard_framework_path}/include/common",
     "${pasteboard_innerkits_path}/include",
     "${pasteboard_interfaces_path}/kits/napi/include",
-    "${pasteboard_root_path}/framework/tlv",
-    "${pasteboard_root_path}/framework/uri",
     "${pasteboard_utils_path}/native/include",
     "include",
   ]
