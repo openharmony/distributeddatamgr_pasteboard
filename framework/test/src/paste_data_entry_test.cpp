@@ -537,7 +537,7 @@ HWTEST_F(PasteDataEntryTest, SetFileSizeTest001, TestSize.Level2)
     EXPECT_NE(tempPasteboard, nullptr);
 
     int64_t fileSize = 1024;
-    tempPasteboard->SetFileSize(fileSize );
+    tempPasteboard->SetFileSize(fileSize);
 }
 
 /**
