@@ -477,14 +477,6 @@ public:
     int32_t GetUnifiedDataWithProgress(UDMF::UnifiedData &unifiedData, std::shared_ptr<GetDataParams> params);
 
     /**
-     * GetRemoteDeviceName
-     * @description Obtain the remote device name.
-     * @param std::string deviceName - the device name of the remote device.
-     * @returns int32_t
-     */
-    int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote);
-
-    /**
      * HandleSignalValue
      * @description Handle hap signal value.
      * @param std::string signalValue - the value of hap ipc proxy.

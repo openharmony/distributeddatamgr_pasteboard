@@ -52,7 +52,6 @@ const std::vector<IPasteboardServiceIpcCode> CODE_LIST = {
     IPasteboardServiceIpcCode::COMMAND_DETECT_PATTERNS,
     IPasteboardServiceIpcCode::COMMAND_GET_RECORD_VALUE_BY_TYPE,
     IPasteboardServiceIpcCode::COMMAND_GET_MIME_TYPES,
-    IPasteboardServiceIpcCode::COMMAND_GET_REMOTE_DEVICE_NAME,
     IPasteboardServiceIpcCode::COMMAND_SHOW_PROGRESS,
     IPasteboardServiceIpcCode::COMMAND_GET_CHANGE_COUNT,
     IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_ENTITY_OBSERVER,
@@ -269,13 +268,6 @@ public:
 
     int32_t Clear() override
     {
-        return 0;
-    }
-
-    int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override
-    {
-        (void)deviceName;
-        (void)isRemote;
         return 0;
     }
 
