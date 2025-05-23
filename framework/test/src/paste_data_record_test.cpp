@@ -1116,4 +1116,54 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest006, TestSize.Level0)
     auto array2 = std::get<std::vector<uint8_t>>(entryValue);
     EXPECT_EQ(array2, array);
 }
+
+/**
+ * @tc.name: AddUriEntryTest001
+ * @tc.desc: AddUriEntryTest001
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tarowang
+ */
+HWTEST_F(PasteDataRecordTest, AddUriEntryTest001, TestSize.Level2)
+{
+    auto tempPasteboard = std::make_shared<PasteDataRecord>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    tempPasteboard->AddUriEntry();
+}
+
+/**
+ * @tc.name: NewMultiTypeRecordTest002
+ * @tc.desc: NewMultiTypeRecordTest002
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tarowang
+ */
+HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest002, TestSize.Level2)
+{
+    std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>>values = nullptr;
+    std::string recordMimeType = "text/pain";
+
+    auto result = PasteDataRecord::NewMultiTypeRecord(values, recordMimeType);
+    EXPECT_NE(result, nullptr);
+    EXPECT_TRUE(result->GetEntries().empty());
+}
+
+/**
+ * @tc.name: NewMultiTypeRecordTest003
+ * @tc.desc: NewMultiTypeRecordTest003
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tarowang
+ */
+HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest003, TestSize.Level2)
+{
+
+    auto values = std::make_shared<std::map<std::string, std::shared_ptr<EntryValue>>>();
+    std::string recordMimeType = "";
+
+    auto result = PasteDataRecord::NewMultiTypeRecord(values, recordMimeType);
+    EXPECT_NE(result, nullptr);
+    EXPECT_TRUE(result->GetEntries().empty());
+}
 } // namespace OHOS::MiscServices

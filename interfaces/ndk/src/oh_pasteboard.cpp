@@ -162,9 +162,6 @@ uint32_t OH_Pasteboard_GetChangeCount(OH_Pasteboard *pasteboard)
 
 bool OH_Pasteboard_IsRemoteData(OH_Pasteboard *pasteboard)
 {
-    if (!IsPasteboardValid(pasteboard)) {
-        return ERR_INVALID_PARAMETER;
-    }
     return PasteboardClient::GetInstance()->IsRemoteData();
 }
 
