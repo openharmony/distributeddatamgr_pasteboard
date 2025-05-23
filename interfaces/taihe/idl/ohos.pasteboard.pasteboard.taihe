@@ -61,9 +61,9 @@ interface PasteDataRecord {
     GetPixelMap(): @sts_type("image.PixelMap") Opaque;
 
     @gen_promise("getData")
-    GetRecordValueByType(type: String): Optional<ValueType>;
+    GetRecordValueByType(type: String): ValueType;
 
-    ToPlainText(): Optional<String>;
+    ToPlainText(): String;
     GetRecordImpl(): i64;
 }
 function MakePasteDataRecord(): PasteDataRecord;
@@ -74,15 +74,15 @@ interface PasteData {
     @overload("addRecord")
     CreateAndAddRecord(mimeType: String, value: ValueType);
 
-    GetMimeTypes(): Optional<Array<String>>;
-    GetPrimaryHtml(): Optional<String>;
-    GetPrimaryWant(): Optional<Opaque>;
-    GetPrimaryMimeType(): Optional<String>;
-    GetPrimaryText(): Optional<String>;
-    GetPrimaryUri(): Optional<String>;
+    GetMimeTypes(): Array<String>;
+    GetPrimaryHtml(): String;
+    GetPrimaryWant(): Opaque;
+    GetPrimaryMimeType(): String;
+    GetPrimaryText(): String;
+    GetPrimaryUri(): String;
     GetProperty(): PasteDataProperty;
     SetProperty(property: PasteDataProperty): void;
-    GetRecord(index: i32): Optional<PasteDataRecord>;
+    GetRecord(index: i32): PasteDataRecord;
     GetRecordCount(): i32;
     GetTag(): String;
 
@@ -116,18 +116,18 @@ interface SystemPasteboard {
     @gen_promise("getMimeTypes")
     GetMimeTypesSync(): Array<String>;
 
-    GetDataSource(): Optional<String>;
+    GetDataSource(): String;
     HasDataType(mimeType: String): bool;
     ClearDataSync(): void;
     GetDataSync(): PasteData;
-    HasDataSync(): Optional<bool>;
+    HasDataSync(): bool;
 }
 function CreateSystemPasteboard(): SystemPasteboard;
 
 @overload("createData")
-function CreateDataByValue(mimeType: String, value: ValueType): Optional<PasteData>;
+function CreateDataByValue(mimeType: String, value: ValueType): PasteData;
 
 @overload("createData")
-function CreateDataByRecord(data: @record Map<String, ValueType>): Optional<PasteData>;
+function CreateDataByRecord(data: @record Map<String, ValueType>): PasteData;
 
 function GetSystemPasteboard(): SystemPasteboard;

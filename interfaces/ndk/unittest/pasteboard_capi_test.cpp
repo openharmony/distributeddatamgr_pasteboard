@@ -1302,7 +1302,7 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetChangeCount001, TestSize.Level1)
     uint32_t changeCount = OH_Pasteboard_GetChangeCount(pasteboard);
     OH_Pasteboard_ClearData(pasteboard);
     uint32_t newCount = OH_Pasteboard_GetChangeCount(pasteboard);
-    EXPECT_EQ(newCount, changeCount);
+    EXPECT_TRUE(newCount == changeCount);
     OH_Pasteboard_Destroy(pasteboard);
 }
 

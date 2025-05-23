@@ -449,10 +449,8 @@ ShareOption ShareOptionAdapter::FromTaihe(pasteboardTaihe::ShareOption value)
     switch (value.get_key()) {
         case pasteboardTaihe::ShareOption::key_t::INAPP:
             return ShareOption::InApp;
-            break;
         default:
             return ShareOption::LocalDevice;
-            break;
     }
 }
 
@@ -461,10 +459,8 @@ pasteboardTaihe::ShareOption ShareOptionAdapter::ToTaihe(ShareOption value)
     switch (value) {
         case ShareOption::InApp:
             return pasteboardTaihe::ShareOption::key_t::INAPP;
-            break;
         default:
             return pasteboardTaihe::ShareOption::key_t::LOCALDEVICE;
-            break;
     }
 }
 } // namespace MiscServices

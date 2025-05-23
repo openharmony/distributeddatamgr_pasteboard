@@ -63,35 +63,34 @@ public:
         return this->pixelMap_;
     }
 
-    taihe::optional<taihe::string> ToPlainText()
+    taihe::string ToPlainText()
     {
         if (this->record_ == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get ToPlainText object failed");
-            return taihe::optional<taihe::string>(std::nullopt);
+            return taihe::string("");
         }
         taihe::string text(this->record_->ConvertToText());
-        return taihe::optional<taihe::string>(std::in_place_t {}, text);
+        return text;
     }
 
-    taihe::optional<pasteboardTaihe::ValueType> GetRecordValueByType(taihe::string_view type)
+    pasteboardTaihe::ValueType GetRecordValueByType(taihe::string_view type)
     {
         std::string mimeType(type);
         if (mimeType.empty()) {
             taihe::set_business_error(
                 static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
-            return taihe::optional<pasteboardTaihe::ValueType>(std::nullopt);
+            return pasteboardTaihe::ValueType::make_string("");
         }
         std::shared_ptr<PasteDataEntry> entry = this->record_->GetEntryByMimeType(mimeType);
         if (entry == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "failed to find dataEntry");
-            return taihe::optional<pasteboardTaihe::ValueType>(std::nullopt);
+            return pasteboardTaihe::ValueType::make_string("");
         }
         auto strategy = StrategyFactory::CreateStrategyForEntry(mimeType);
         if (strategy) {
-            pasteboardTaihe::ValueType valueType = strategy->ConvertToValueType(mimeType, entry);
-            return taihe::optional<pasteboardTaihe::ValueType>(std::in_place_t {}, valueType);
+            return strategy->ConvertToValueType(mimeType, entry);
         }
-        return taihe::optional<pasteboardTaihe::ValueType>(std::nullopt);
+        return pasteboardTaihe::ValueType::make_string("");
     }
 
     int64_t GetRecordImpl()
@@ -141,74 +140,74 @@ public:
         }
     }
 
-    taihe::optional<taihe::array<taihe::string>> GetMimeTypes()
+    taihe::array<taihe::string> GetMimeTypes()
     {
         std::vector<std::string> mimeTypesVec = this->pasteData_->GetMimeTypes();
         if (mimeTypesVec.empty()) {
-            return taihe::optional<taihe::array<taihe::string>>(std::nullopt);
+            return taihe::array<taihe::string>(nullptr, 0);
         }
         std::vector<taihe::string> mimeTypes;
         for (auto mimeType : mimeTypesVec) {
             mimeTypes.push_back(taihe::string(mimeType));
         }
         taihe::array<taihe::string> mimeTypeArr(mimeTypes);
-        return taihe::optional<taihe::array<taihe::string>>(std::in_place_t {}, mimeTypeArr);
+        return mimeTypeArr;
     }
 
-    taihe::optional<taihe::string> GetPrimaryHtml()
+    taihe::string GetPrimaryHtml()
     {
         std::shared_ptr<std::string> htmlPtr = this->pasteData_->GetPrimaryHtml();
         if (htmlPtr == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryHtml failed");
-            return taihe::optional<taihe::string>(std::nullopt);
+            return taihe::string("");
         }
         taihe::string result(*htmlPtr);
-        return taihe::optional<taihe::string>(std::in_place_t {}, result);
+        return result;
     }
 
-    taihe::optional<uintptr_t> GetPrimaryWant()
+    uintptr_t GetPrimaryWant()
     {
         std::shared_ptr<OHOS::AAFwk::Want> want = this->pasteData_->GetPrimaryWant();
         if (want == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryWant want failed");
-            return taihe::optional<uintptr_t>(std::nullopt);
+            return 0;
         }
         ani_object wantObj = OHOS::AppExecFwk::WrapWant(taihe::get_env(), *want);
         uintptr_t wantPtr = reinterpret_cast<uintptr_t>(wantObj);
-        return taihe::optional<uintptr_t>(std::in_place_t {}, wantPtr);
+        return wantPtr;
     }
 
-    taihe::optional<taihe::string> GetPrimaryMimeType()
+    taihe::string GetPrimaryMimeType()
     {
         std::shared_ptr<std::string> mimeTypePtr = this->pasteData_->GetPrimaryMimeType();
         if (mimeTypePtr == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryMimeType failed");
-            return taihe::optional<taihe::string>(std::nullopt);
+            return taihe::string("");
         }
         taihe::string result(*mimeTypePtr);
-        return taihe::optional<taihe::string>(std::in_place_t {}, result);
+        return result;
     }
 
-    taihe::optional<taihe::string> GetPrimaryText()
+    taihe::string GetPrimaryText()
     {
         std::shared_ptr<std::string> textPtr = this->pasteData_->GetPrimaryText();
         if (textPtr == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryText failed");
-            return taihe::optional<taihe::string>(std::nullopt);
+            return taihe::string("");
         }
         taihe::string result(*textPtr);
-        return taihe::optional<taihe::string>(std::in_place_t {}, result);
+        return result;
     }
 
-    taihe::optional<taihe::string> GetPrimaryUri()
+    taihe::string GetPrimaryUri()
     {
         std::shared_ptr<OHOS::Uri> uriPtr = this->pasteData_->GetPrimaryUri();
         if (uriPtr == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get GetPrimaryUri failed");
-            return taihe::optional<taihe::string>(std::nullopt);
+            return taihe::string("");
         }
         taihe::string result(uriPtr->ToString());
-        return taihe::optional<taihe::string>(std::in_place_t {}, result);
+        return result;
     }
 
     pasteboardTaihe::PasteDataProperty GetProperty()
@@ -230,24 +229,24 @@ public:
         this->pasteData_->SetProperty(dataProperty);
     }
 
-    taihe::optional<pasteboardTaihe::PasteDataRecord> GetRecord(int32_t index)
+    pasteboardTaihe::PasteDataRecord GetRecord(int32_t index)
     {
         pasteboardTaihe::PasteDataRecord record =
             taihe::make_holder<PasteDataRecordImpl, pasteboardTaihe::PasteDataRecord>();
         if (index < 0 || index >= this->GetRecordCount()) {
             taihe::set_business_error(static_cast<int>(JSErrorCode::OUT_OF_RANGE), "index out of range.");
-            return taihe::optional<pasteboardTaihe::PasteDataRecord>(std::nullopt);
+            return record;
         }
         std::shared_ptr<PasteDataRecord> dataRecord = this->pasteData_->GetRecordAt(index);
         if (dataRecord == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "invalid parameter record");
-            return taihe::optional<pasteboardTaihe::PasteDataRecord>(std::nullopt);
+            return record;
         }
 
         PasteDataRecordImpl *recordImpl = reinterpret_cast<PasteDataRecordImpl *>(record->GetRecordImpl());
         recordImpl->SetRecord(dataRecord);
         recordImpl = nullptr;
-        return taihe::optional<pasteboardTaihe::PasteDataRecord>(std::in_place_t {}, record);
+        return record;
     }
 
     int32_t GetRecordCount()
@@ -294,7 +293,7 @@ public:
         TH_THROW(std::runtime_error, "OffUpdate not implemented");
     }
 
-    taihe::optional<taihe::string> GetDataSource()
+    taihe::string GetDataSource()
     {
         auto bundleName = std::make_shared<std::string>("");
         auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
@@ -307,14 +306,14 @@ public:
         std::shared_ptr<int32_t> value = block->GetValue();
         if (value == nullptr) {
             taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
-            return taihe::optional<taihe::string>(std::nullopt);
+            return taihe::string("");
         }
         if (*value != static_cast<int>(PasteboardError::E_OK)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetDataSource, failed, ret = %{public}d", *value);
-            return taihe::optional<taihe::string>(std::nullopt);
+            return taihe::string("");
         }
         taihe::string bundleNameTH(*bundleName);
-        return taihe::optional<taihe::string>(std::in_place_t {}, bundleNameTH);
+        return bundleNameTH;
     }
 
     bool HasDataType(taihe::string_view mimeType)
@@ -394,7 +393,7 @@ public:
         return pasteDataTH;
     }
 
-    taihe::optional<bool> HasDataSync()
+    bool HasDataSync()
     {
         auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<bool>>>(SYNC_TIMEOUT);
         std::thread thread([block]() {
@@ -406,9 +405,9 @@ public:
         std::shared_ptr<bool> value = block->GetValue();
         if (value == nullptr) {
             taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
-            return taihe::optional<bool>(std::nullopt);
+            return false;
         }
-        return taihe::optional<bool>(std::in_place_t {}, *value);
+        return *value;
     }
 
     bool HasDataImpl()
@@ -487,18 +486,19 @@ pasteboardTaihe::SystemPasteboard CreateSystemPasteboard()
     return taihe::make_holder<SystemPasteboardImpl, pasteboardTaihe::SystemPasteboard>();
 }
 
-taihe::optional<pasteboardTaihe::PasteData> CreateDataByValue(
+pasteboardTaihe::PasteData CreateDataByValue(
     taihe::string_view mimeType, const pasteboardTaihe::ValueType &value)
 {
+    pasteboardTaihe::PasteData data = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
     if (mimeType.empty()) {
         taihe::set_business_error(
             static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
-        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        return data;
     }
     if (mimeType.size() > MIMETYPE_MAX_SIZE) {
         taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
             "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
-        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        return data;
     }
     std::shared_ptr<PasteData> pasteData;
     std::string mimeTypeStr = std::string(mimeType);
@@ -507,35 +507,34 @@ taihe::optional<pasteboardTaihe::PasteData> CreateDataByValue(
         strategy->CreateData(mimeTypeStr, value, pasteData);
     }
     if (pasteData == nullptr) {
-        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        return data;
     }
-    pasteboardTaihe::PasteData data = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
     PasteDataImpl *dataImpl = reinterpret_cast<PasteDataImpl *>(data->GetPasteDataImpl());
     dataImpl->SetPasteData(pasteData);
     dataImpl = nullptr;
-    return taihe::optional<pasteboardTaihe::PasteData>(std::in_place_t {}, data);
+    return data;
 }
 
-taihe::optional<pasteboardTaihe::PasteData> CreateDataByRecord(
+pasteboardTaihe::PasteData CreateDataByRecord(
     taihe::map_view<taihe::string, pasteboardTaihe::ValueType> typeValueMap)
 {
+    pasteboardTaihe::PasteData pasteDataTH = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
     if (typeValueMap.size() == 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "valueType is empty");
-        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        return pasteDataTH;
     }
     std::shared_ptr<EntryValueMap> entryValueMap = std::make_shared<EntryValueMap>();
     std::string primaryMimeType = "";
-    pasteboardTaihe::PasteData pasteDataTH = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
     for (const auto &item : typeValueMap) {
         if (item.first.empty()) {
             taihe::set_business_error(
                 static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
-            return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+            return pasteDataTH;
         }
         if (item.first.size() > MIMETYPE_MAX_SIZE) {
             taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
                 "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
-            return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+            return pasteDataTH;
         }
         if (primaryMimeType.empty()) {
             primaryMimeType = std::string(item.first);
@@ -546,13 +545,13 @@ taihe::optional<pasteboardTaihe::PasteData> CreateDataByRecord(
         if (!strategy) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI,
                 "data type or mimeType is not supported, mimeType is %{public}s", mimeTypeStr.c_str());
-            return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+            return pasteDataTH;
         }
         EntryValue entryValue = strategy->ConvertFromValueType(mimeTypeStr, item.second);
         if (std::holds_alternative<std::monostate>(entryValue)) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "data type or mimeType is invalid, mimeType is %{public}s",
                 mimeTypeStr.c_str());
-            return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+            return pasteDataTH;
         }
         entry = std::make_shared<EntryValue>(entryValue);
         entryValueMap->emplace(std::make_pair(mimeTypeStr, entry));
@@ -561,12 +560,12 @@ taihe::optional<pasteboardTaihe::PasteData> CreateDataByRecord(
         PasteboardClient::GetInstance()->CreateMultiTypeData(entryValueMap, primaryMimeType);
     if (pasteData == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Create multiType data failed");
-        return taihe::optional<pasteboardTaihe::PasteData>(std::nullopt);
+        return pasteDataTH;
     }
     PasteDataImpl *dataImpl = reinterpret_cast<PasteDataImpl *>(pasteDataTH->GetPasteDataImpl());
     dataImpl->SetPasteData(pasteData);
     dataImpl = nullptr;
-    return taihe::optional<pasteboardTaihe::PasteData>(std::in_place_t {}, pasteDataTH);
+    return pasteDataTH;
 }
 
 pasteboardTaihe::SystemPasteboard GetSystemPasteboard()
