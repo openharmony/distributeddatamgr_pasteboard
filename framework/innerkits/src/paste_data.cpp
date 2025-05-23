@@ -182,6 +182,23 @@ std::vector<std::string> PasteData::GetMimeTypes()
     return std::vector<std::string>(mimeTypes.begin(), mimeTypes.end());
 }
 
+std::vector<std::string> PasteData::GetReportMimeTypes()
+{
+    std::vector<std::string> mimeTypes;
+    uint32_t recordNum = records_.size();
+    uint32_t maxReportNum = recordNum > MAX_REPORT_RECORD_NUM ? ACTUAL_MAX_REPORT_RECORD_NUM : recordNum;
+    for (uint32_t i = 0; i < maxReportNum; ++i) {
+        auto &item = records_[i];
+        if (item->GetFrom() > 0 && item->GetRecordId() != item->GetFrom()) {
+            mimeTypes.emplace_back("web/uri");
+            continue;
+        }
+        auto itemTypes = item->GetMimeTypes();
+        mimeTypes.insert(mimeTypes.end(), itemTypes.begin(), itemTypes.end());
+    }
+    return mimeTypes;
+}
+
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
     for (const auto &item : records_) {
