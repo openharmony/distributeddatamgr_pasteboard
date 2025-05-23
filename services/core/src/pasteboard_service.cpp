@@ -83,15 +83,8 @@ constexpr const char *READ_PASTEBOARD_PERMISSION = "ohos.permission.READ_PASTEBO
 constexpr const char *TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.datafiles_trans_ctrl";
 constexpr const char *MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION =
     "ohos.permission.MANAGE_PASTEBOARD_APP_SHARE_OPTION";
-constexpr const char *SET_DATA_APP = "SET_DATA_APP";
 constexpr const char *GET_DATA_APP = "GET_DATA_APP";
-constexpr const char *GET_DATA_TYPE = "GET_DATA_TYPE";
-constexpr const char *LOCAL_DEV_TYPE = "LOCAL_DEV_TYPE";
 constexpr const char *COVER_DELAY_DATA = "COVER_DELAY_DATA";
-constexpr const char *PEER_NET_ID = "PEER_NET_ID";
-constexpr const char *PEER_UDID = "PEER_UDID";
-
-constexpr const char *CROSS_FLAG = "IS_DISTRIBUTED_PASTEBOARD";
 constexpr const char *UE_COPY = "DISTRIBUTED_PASTEBOARD_COPY";
 constexpr const char *UE_PASTE = "DISTRIBUTED_PASTEBOARD_PASTE";
 constexpr const char *NETWORK_DEV_NUM = "NETWORK_DEV_NUM";
@@ -320,12 +313,16 @@ void PasteboardService::NotifySaStatus()
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, PASTEBOARD_SERVICE_ID);
 }
 
-void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int32_t result)
+void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int64_t dataSize, int32_t result)
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     auto res = (result == static_cast<int32_t>(PasteboardError::E_OK)) ? E_OK_OPERATION : result;
-    UE_REPORT(UE_COPY, GenerateDataType(pasteData), appInfo.bundleName, res,
-        DMAdapter::GetInstance().GetLocalDeviceType());
+    UeReportInfo reportInfo;
+    reportInfo.ret = res;
+    reportInfo.bundleName = appInfo.bundleName;
+    reportInfo.description = GetDataDescription(pasteData);
+    reportInfo.commonInfo = GetCommonState(dataSize);
+    UE_REPORT(UE_COPY, reportInfo);
 }
 
 void PasteboardService::InitServiceHandler()
@@ -1035,8 +1032,84 @@ bool PasteboardService::WriteRawData(const void *data, int64_t size, int &serFd)
     return true;
 }
 
+CommonInfo PasteboardService::GetCommonState(int64_t dataSize)
+{
+    CommonInfo commonInfo;
+    commonInfo.currentAccountId = GetCurrentAccountId();
+    commonInfo.deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
+    commonInfo.dataSize = dataSize;
+    return commonInfo;
+}
+
+DataDescription PasteboardService::GetDataDescription(PasteData &data)
+{
+    DataDescription description;
+    description.recordNum = data.GetRecordCount();
+    description.mimeTypes = data.GetReportMimeTypes();
+    for (uint32_t i = 0; i < description.recordNum; i++) {
+        auto record = data.GetRecordAt(i);
+        auto entries = record->GetEntries();
+        description.entryNum.push_back(entries.size());
+    }
+    return description;
+}
+
+void PasteboardService::SetRadarEvent(const AppInfo &appInfo, PasteData &data, bool isPeerOnline,
+    RadarReportInfo &radarReportInfo, const std::string &peerNetId)
+{
+    DmDeviceInfo remoteDevice;
+    auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(peerNetId, remoteDevice);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        DeviceManager::GetInstance().GetNetworkTypeByNetworkId(PASTEBOARD_SERVICE_SA_NAME, peerNetId,
+            radarReportInfo.pasteInfo.networkType);
+    }
+    std::string peerUdid = DMAdapter::GetInstance().GetUdidByNetworkId(peerNetId);
+    radarReportInfo.stageRes = DFX_SUCCESS;
+    radarReportInfo.bundleName = appInfo.bundleName;
+    radarReportInfo.description = GetDataDescription(data);
+    radarReportInfo.pasteInfo.pasteId = data.GetPasteId();
+    radarReportInfo.pasteInfo.onlineDevNum = DMAdapter::GetInstance().GetNetworkIds().size();
+    radarReportInfo.pasteInfo.peerNetId = PasteboardDfxUntil::GetAnonymousID(peerNetId);
+    radarReportInfo.pasteInfo.peerUdid = PasteboardDfxUntil::GetAnonymousID(peerUdid);
+    radarReportInfo.pasteInfo.peerBundleName = data.GetOriginAuthority();
+    radarReportInfo.pasteInfo.isPeerOnline = isPeerOnline;
+}
+
+void PasteboardService::SetUeEvent(const AppInfo &appInfo, PasteData &data, bool isPeerOnline,
+    UeReportInfo &ueReportInfo, const std::string &peerNetId)
+{
+    DmDeviceInfo remoteDevice;
+    auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo(peerNetId, remoteDevice);
+    if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
+        DeviceManager::GetInstance().GetNetworkTypeByNetworkId(PASTEBOARD_SERVICE_SA_NAME, peerNetId,
+            ueReportInfo.pasteInfo.networkType);
+    }
+    ueReportInfo.bundleName = appInfo.bundleName;
+    ueReportInfo.pasteInfo.peerBundleName = data.GetOriginAuthority();
+    ueReportInfo.pasteInfo.isDistributed = data.IsRemote();
+    ueReportInfo.pasteInfo.isPeerOnline = isPeerOnline;
+    ueReportInfo.pasteInfo.onlineDevNum = DMAdapter::GetInstance().GetNetworkIds().size();
+    ueReportInfo.description = GetDataDescription(data);
+}
+
 int32_t PasteboardService::GetPasteData(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
     const std::string &pasteId, int32_t &syncTime)
+{
+    UeReportInfo ueReportInfo;
+    int32_t ret = GetPasteDataInner(fd, size, rawData, pasteId, syncTime, ueReportInfo);
+    ueReportInfo.ret = (ret == static_cast<int32_t>(PasteboardError::E_OK) ? E_OK_OPERATION : ret);
+    ueReportInfo.commonInfo = GetCommonState(size);
+    UE_REPORT(UE_PASTE, ueReportInfo,
+        "PEER_BUNDLE_NAME", ueReportInfo.pasteInfo.peerBundleName,
+        "IS_DISTRIBUTED", ueReportInfo.pasteInfo.isDistributed,
+        "IS_PEER_ONLINE", ueReportInfo.pasteInfo.isPeerOnline,
+        "ONLINE_DEV_NUM", ueReportInfo.pasteInfo.onlineDevNum,
+        "NETWORK_TYPE", ueReportInfo.pasteInfo.networkType);
+    return ret;
+}
+
+int32_t PasteboardService::GetPasteDataInner(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
+    const std::string &pasteId, int32_t &syncTime, UeReportInfo &ueReportInfo)
 {
     PasteboardTrace tracer("PasteboardService GetPasteData");
     PasteData data{};
@@ -1054,20 +1127,28 @@ int32_t PasteboardService::GetPasteData(int &fd, int64_t &size, std::vector<uint
             static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
         return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
     }
-    auto ret = GetData(tokenId, data, syncTime);
-    UE_REPORT(UE_PASTE, GenerateDataType(data), appInfo.bundleName,
-        (ret == static_cast<int32_t>(PasteboardError::E_OK)) ? E_OK_OPERATION : ret,
-        DMAdapter::GetInstance().GetLocalDeviceType(), CROSS_FLAG, data.IsRemote());
+    bool isPeerOnline = false;
+    std::string peerNetId = "";
+    std::string peerUdid = "";
+    auto ret = GetData(tokenId, data, syncTime, isPeerOnline, peerNetId, peerUdid);
+    SetUeEvent(appInfo, data, isPeerOnline, ueReportInfo, peerNetId);
+    RadarReportInfo radarReportInfo;
+    SetRadarEvent(appInfo, data, isPeerOnline, radarReportInfo, peerNetId);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "data is invalid, ret is %{public}d, callPid is %{public}d, tokenId is %{public}d", ret, callPid, tokenId);
         HiViewAdapter::ReportUseBehaviour(data, HiViewAdapter::PASTE_STATE, ret);
+        radarReportInfo.commonInfo = GetCommonState(-1);
+        PASTE_RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_DATA_INFO, radarReportInfo);
         return ret;
     }
     delayDataId_ = data.GetDataId();
     delayTokenId_ = tokenId;
 
-    return DealData(fd, size, rawData, data);
+    ret = DealData(fd, size, rawData, data);
+    radarReportInfo.commonInfo = GetCommonState(size);
+    PASTE_RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_DATA_INFO, radarReportInfo);
+    return ret;
 }
 
 int32_t PasteboardService::DealData(int &fd, int64_t &size, std::vector<uint8_t> &rawData, PasteData &data)
@@ -1150,13 +1231,12 @@ int32_t PasteboardService::CheckAndGrantRemoteUri(PasteData &data, const AppInfo
     return GrantUriPermission(grantUris, appInfo.bundleName, isRemoteData);
 }
 
-int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime)
+int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime, bool &isPeerOnline,
+    std::string &peerNetId, std::string &peerUdid)
 {
     CalculateTimeConsuming::SetBeginTime();
     auto appInfo = GetAppInfo(tokenId);
     int32_t result = static_cast<int32_t>(PasteboardError::E_OK);
-    std::string peerNetId = "";
-    std::string peerUdid = "";
     std::string pasteId = data.GetPasteId();
     std::shared_ptr<BlockObject<bool>> pasteBlock = nullptr;
     auto [distRet, distEvt] = GetValidDistributeEvent(appInfo.userId);
@@ -1164,6 +1244,10 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     if (distRet != static_cast<int32_t>(PasteboardError::E_OK) ||
         GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
         result = GetLocalData(appInfo, data);
+        if (distRet == static_cast<int32_t>(PasteboardError::GET_SAME_REMOTE_DATA)) {
+            peerNetId = currentEvent_.deviceId;
+            peerUdid = DMAdapter::GetInstance().GetUdidByNetworkId(peerNetId);
+        }
     } else {
         result = GetRemoteData(appInfo.userId, distEvt, data, syncTime);
         peerNetId = distEvt.deviceId;
@@ -1173,11 +1257,11 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         std::string targetBundleName = GetAppBundleName(appInfo);
         NotifyObservers(targetBundleName, PasteboardEventStatus::PASTEBOARD_READ);
     }
-
-    RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_GET_DATA_INFO, DFX_SUCCESS, CONCURRENT_ID, pasteId, GET_DATA_APP,
-        appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType(),
-        NETWORK_DEV_NUM, DMAdapter::GetInstance().GetNetworkIds().size(), PEER_NET_ID,
-        PasteboardDfxUntil::GetAnonymousID(peerNetId), PEER_UDID, PasteboardDfxUntil::GetAnonymousID(peerUdid));
+    if (!peerNetId.empty()) {
+        auto peerNetIds = DMAdapter::GetInstance().GetNetworkIds();
+        auto it = std::find(peerNetIds.begin(), peerNetIds.end(), peerNetId);
+        isPeerOnline = (it != peerNetIds.end());
+    }
 
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get local or remote data err:%{public}d", result);
@@ -1845,7 +1929,7 @@ bool PasteboardService::HasPasteData()
     return false;
 }
 
-int32_t PasteboardService::SaveData(PasteData &pasteData,
+int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     const sptr<IPasteboardDelayGetter> delayGetter, const sptr<IPasteboardEntryGetter> entryGetter)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
@@ -1883,10 +1967,12 @@ int32_t PasteboardService::SaveData(PasteData &pasteData,
     PasteboardWebController::GetInstance().CheckAppUriPermission(pasteData);
     clips_.InsertOrAssign(appInfo.userId, std::make_shared<PasteData>(pasteData));
     IncreaseChangeCount(appInfo.userId);
-    RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, static_cast<int>(pasteData.IsDelayData()),
-        SET_DATA_APP, appInfo.bundleName, LOCAL_DEV_TYPE, DMAdapter::GetInstance().GetLocalDeviceType(),
-        NETWORK_DEV_NUM, DMAdapter::GetInstance().GetNetworkIds().size()
-    );
+    RadarReportInfo radarReportInfo;
+    radarReportInfo.stageRes = static_cast<int32_t>(pasteData.IsDelayData());
+    radarReportInfo.bundleName = appInfo.bundleName;
+    radarReportInfo.description = GetDataDescription(pasteData);
+    radarReportInfo.commonInfo = GetCommonState(dataSize);
+    COPY_RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, radarReportInfo);
     HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
     auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     copyTime_.InsertOrAssign(appInfo.userId, curTime);
@@ -2194,11 +2280,11 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
-    auto ret = SaveData(pasteData, delayGetter, entryGetter);
+    auto ret = SaveData(pasteData, rawDataSize, delayGetter, entryGetter);
     if (entityObserverMap_.Size() != 0 && pasteData.HasMimeType(MIMETYPE_TEXT_PLAIN)) {
         RecognizePasteData(pasteData);
     }
-    ReportUeCopyEvent(pasteData, ret);
+    ReportUeCopyEvent(pasteData, rawDataSize, ret);
     HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::COPY_STATE, ret);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to save data, ret=%{public}d", ret);
@@ -3151,33 +3237,6 @@ bool PasteboardService::IsAllowSendData()
         return false;
     }
     return true;
-}
-
-uint8_t PasteboardService::GenerateDataType(PasteData &data)
-{
-    std::vector<std::string> mimeTypes = data.GetMimeTypes();
-    if (mimeTypes.empty()) {
-        return 0;
-    }
-    std::bitset<MAX_INDEX_LENGTH> dataType(0);
-    for (size_t i = 0; i < mimeTypes.size(); i++) {
-        auto it = typeMap_.find(mimeTypes[i]);
-        if (it == typeMap_.end()) {
-            continue;
-        }
-        auto index = it->second;
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "mimetype is exist index=%{public}d", index);
-        if (it->second == HTML_INDEX && data.GetTag() == PasteData::WEBVIEW_PASTEDATA_TAG) {
-            dataType.reset();
-            dataType.set(index);
-            break;
-        }
-        dataType.set(index);
-    }
-    auto types = dataType.to_ulong();
-    uint8_t value = types & 0xff;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "value = %{public}d", value);
-    return value;
 }
 
 bool PasteboardService::IsDisallowDistributed()

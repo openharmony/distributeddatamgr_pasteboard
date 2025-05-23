@@ -31,6 +31,7 @@
 #include "pasteboard_account_state_subscriber.h"
 #include "pasteboard_common_event_subscriber.h"
 #include "pasteboard_dump_helper.h"
+#include "pasteboard_event_common.h"
 #include "pasteboard_service_stub.h"
 #include "pasteboard_switch.h"
 #include "privacy_kit.h"
@@ -299,7 +300,7 @@ private:
     };
     DistributedMemory setDistributedMemory_;
 
-    int32_t SaveData(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
+    int32_t SaveData(PasteData &pasteData, int64_t dataSize, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         const sptr<IPasteboardEntryGetter> entryGetter = nullptr);
     void HandleDelayDataAndRecord(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
         const sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo);
@@ -310,8 +311,16 @@ private:
     bool IsPermissionGranted(const std::string &perm, uint32_t tokenId);
     int32_t CheckAndGrantRemoteUri(PasteData &data, const AppInfo &appInfo,
         const std::string &pasteId, const std::string &deviceId, std::shared_ptr<BlockObject<bool>> pasteBlock);
-    int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime);
-
+    int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime, bool &isPeerOnline, std::string &peerNetId,
+        std::string &peerUdid);
+    CommonInfo GetCommonState(int64_t dataSize);
+    DataDescription GetDataDescription(PasteData &data);
+    void SetRadarEvent(const AppInfo &appInfo, PasteData &data, bool isPeerOnline,
+        RadarReportInfo &radarReportInfo, const std::string &peerNetId);
+    void SetUeEvent(const AppInfo &appInfo, PasteData &data, bool isPeerOnline,
+        UeReportInfo &ueReportInfo, const std::string &peerNetId);
+    int32_t GetPasteDataInner(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
+        const std::string &pasteId, int32_t &syncTime, UeReportInfo &ueReportInfo);
     void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
     int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
     int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
@@ -336,7 +345,6 @@ private:
         const std::string &pasteId, const ClipPlugin::GlobalEvent &event);
     void ClearP2PEstablishTaskInfo();
     void CloseP2PLink(const std::string &networkId);
-    uint8_t GenerateDataType(PasteData &data);
     bool HasDistributedDataType(const std::string &mimeType);
 
     std::pair<std::shared_ptr<PasteData>, PasteDateResult> GetDistributedData(const Event &event, int32_t user);
@@ -374,7 +382,7 @@ private:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void DMAdapterInit();
     void NotifySaStatus();
-    void ReportUeCopyEvent(PasteData &pasteData, int32_t result);
+    void ReportUeCopyEvent(PasteData &pasteData, int64_t dataSize, int32_t result);
     bool HasDataType(const std::string &mimeType);
     bool HasPasteData();
     bool IsRemoteData();

@@ -61,6 +61,7 @@ public:
     void AddRecord(std::shared_ptr<PasteDataRecord> record);
     void AddRecord(const PasteDataRecord &record);
     std::vector<std::string> GetMimeTypes();
+    std::vector<std::string> GetReportMimeTypes();
     std::shared_ptr<std::string> GetPrimaryHtml();
     std::shared_ptr<OHOS::Media::PixelMap> GetPrimaryPixelMap();
     std::shared_ptr<std::string> GetPrimaryText();
@@ -133,6 +134,8 @@ public:
     static constexpr const char *SHARE_PATH_PREFIX_ACCOUNT = "/account/merge_view/services/";
     static constexpr const char *DOCS_LOCAL_TAG = "/docs/";
     static constexpr size_t URI_BATCH_SIZE = 10000;
+    static constexpr uint32_t MAX_REPORT_RECORD_NUM = 10;
+    static constexpr uint32_t ACTUAL_MAX_REPORT_RECORD_NUM = 3;
     std::string deviceId_;
 
 private:

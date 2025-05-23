@@ -17,6 +17,7 @@
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_EVENT_UE_H
 
 #include "hisysevent.h"
+#include "pasteboard_event_common.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -40,11 +41,15 @@ enum SwitchStatus : std::int32_t {
             UeReporter::VERSION, "SWITCH_STATUS", switchStatus, ##__VA_ARGS__);                                     \
     })
 
-#define UE_REPORT(eventName, dataType, bundleName, pasteResult, deviceType, ...)                                \
+#define UE_REPORT(eventName, reportInfo, ...)                                \
     ({                                                                                                          \
         HiSysEventWrite(UeReporter::UE_DOMAIN, eventName, UeReporter::UE_OPERATION_TYPE, "PNAMEID",             \
-            "pasteboard_service", "PVERSIONID", UeReporter::VERSION, "PASTEDATA_TYPE", dataType, "BUNDLE_NAME", \
-            bundleName, "PASTE_RESULT", pasteResult, "DEVICE_TYPE", deviceType, ##__VA_ARGS__);                 \
+            "pasteboard_service", "PVERSIONID", UeReporter::VERSION,                                            \
+            "RECORD_NUM", reportInfo.description.recordNum, "ENTRY_NUM", reportInfo.description.entryNum,       \
+            "PASTEDATA_TYPE", reportInfo.description.mimeTypes, "BUNDLE_NAME", reportInfo.bundleName,           \
+            "PASTE_RESULT", reportInfo.ret, "DEVICE_TYPE", reportInfo.commonInfo.deviceType,                    \
+            "DATA_SIZE", reportInfo.commonInfo.dataSize,                                                        \
+            "CURRENT_ACCOUNT_ID", reportInfo.commonInfo.currentAccountId, ##__VA_ARGS__);                       \
     })
 } // namespace UeReporter
 } // namespace MiscServices

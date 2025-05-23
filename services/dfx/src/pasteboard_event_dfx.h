@@ -17,6 +17,7 @@
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_EVENT_DFX_H
 
 #include "hisysevent.h"
+#include "pasteboard_event_common.h"
 namespace OHOS {
 namespace MiscServices {
 namespace RadarReporter {
@@ -120,6 +121,31 @@ constexpr HiviewDFX::HiSysEvent::EventType TYPE = HiviewDFX::HiSysEvent::EventTy
         HiSysEventWrite(RadarReporter::DOMAIN, RadarReporter::EVENT_NAME, RadarReporter::TYPE, "ORG_PKG",            \
             RadarReporter::ORG_PKG, "FUNC", __FUNCTION__, "BIZ_SCENE", bizScene, "BIZ_STAGE", bizStage, "STAGE_RES", \
             stageRes, ##__VA_ARGS__);                                                                                \
+    })
+
+#define COPY_RADAR_REPORT(bizScene, bizStage, reportInfo)                                                            \
+    ({                                                                                                               \
+        HiSysEventWrite(RadarReporter::DOMAIN, RadarReporter::EVENT_NAME, RadarReporter::TYPE, "ORG_PKG",            \
+            RadarReporter::ORG_PKG, "FUNC", __FUNCTION__, "BIZ_SCENE", bizScene, "BIZ_STAGE", bizStage,              \
+            "STAGE_RES", reportInfo.stageRes, "APP_CALLEE", reportInfo.bundleName,                                   \
+            "DEVICE_TYPE", reportInfo.commonInfo.deviceType, "RECORD_NUM", reportInfo.description.recordNum,         \
+            "ENTRY_NUM", reportInfo.description.entryNum, "PASTEDATA_TYPE", reportInfo.description.mimeTypes,        \
+            "DATA_SIZE", reportInfo.commonInfo.dataSize,                                                             \
+            "CURRENT_ACCOUNT_ID", reportInfo.commonInfo.currentAccountId);                                           \
+    })
+
+    #define PASTE_RADAR_REPORT(bizScene, bizStage, reportInfo)                                                       \
+    ({                                                                                                               \
+        HiSysEventWrite(RadarReporter::DOMAIN, RadarReporter::EVENT_NAME, RadarReporter::TYPE, "ORG_PKG",            \
+            RadarReporter::ORG_PKG, "FUNC", __FUNCTION__, "BIZ_SCENE", bizScene, "BIZ_STAGE", bizStage,              \
+            "STAGE_RES", reportInfo.stageRes, "CONCURRENT_ID", reportInfo.pasteInfo.pasteId,                         \
+            "APP_CALLEE", reportInfo.bundleName, "DEVICE_TYPE", reportInfo.commonInfo.deviceType,                    \
+            "ONLINE_DEV_NUM", reportInfo.pasteInfo.onlineDevNum, "RECORD_NUM", reportInfo.description.recordNum,     \
+            "ENTRY_NUM", reportInfo.description.entryNum, "PASTEDATA_TYPE", reportInfo.description.mimeTypes,        \
+            "IS_PEER_ONLINE", reportInfo.pasteInfo.isPeerOnline, "DATA_SIZE", reportInfo.commonInfo.dataSize,        \
+            "CURRENT_ACCOUNT_ID", reportInfo.commonInfo.currentAccountId,                                            \
+            "PEER_NET_ID", reportInfo.pasteInfo.peerNetId, "PEER_UDID", reportInfo.pasteInfo.peerUdid,               \
+            "NETWORK_TYPE", reportInfo.pasteInfo.networkType, "APP_CALLER", reportInfo.pasteInfo.peerBundleName);    \
     })
 } // namespace RadarReporter
 } // namespace MiscServices
