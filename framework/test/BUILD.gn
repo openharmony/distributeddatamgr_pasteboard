@@ -97,6 +97,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "libuv:uv",
     "samgr:samgr_proxy",
     "udmf:udmf_client",
   ]
@@ -272,6 +273,7 @@ ohos_unittest("PasteboardClientProxyMockTest") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "ipc:ipc_single",
+    "kv_store:distributeddata_mgr",
     "libuv:uv",
     "libxml2:libxml2",
     "samgr:samgr_proxy",
@@ -450,6 +452,7 @@ ohos_unittest("PasteboardClientMockTest") {
     "input:libmmi-client",
     "ipc:ipc_core",
     "ipc:ipc_single",
+    "libuv:uv",
     "libxml2:libxml2",
     "memmgr:memmgrclient",
     "os_account:os_account_innerkits",
