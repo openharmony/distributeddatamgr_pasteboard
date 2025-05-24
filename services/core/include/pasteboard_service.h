@@ -205,7 +205,10 @@ private:
             return l->AsObject() < r->AsObject();
         }
     };
-    using ObserverMap = std::map<int32_t, std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
+    using ObserverMap = std::map<std::pair<int32_t, pid_t>,
+        std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>>>;
+    uint32_t GetObserversSize(int32_t userId, pid_t pid, ObserverMap &observerMap);
+    uint32_t GetAllObserversSize(int32_t userId, pid_t pid);
     void AddSysAbilityListener();
     int32_t Init();
     void InitScreenStatus();
@@ -362,10 +365,12 @@ private:
         pid_t pid_;
     };
     int32_t AppExit(pid_t pid);
+    void RemoveObserverByPid(int32_t userId, pid_t pid, ObserverMap &observerMap);
     ConcurrentMap<pid_t, sptr<PasteboardDeathRecipient>> clients_;
     static constexpr pid_t INVALID_UID = -1;
     static constexpr pid_t INVALID_PID = -1;
     static constexpr uint32_t INVALID_TOKEN = 0;
+    static constexpr uint32_t MAX_OBSERVER_COUNT = 10;
 };
 } // namespace MiscServices
 } // namespace OHOS
