@@ -1,0 +1,254 @@
+diff --git a/framework/test/src/paste_data_test.cpp b/framework/test/src/paste_data_test.cpp
+index 2951807c..82ca63d4 100644
+--- a/framework/test/src/paste_data_test.cpp
++++ b/framework/test/src/paste_data_test.cpp
+@@ -1057,6 +1057,35 @@ HWTEST_F(PasteDataTest, GetMimeTypes, TestSize.Level0)
+             strcmp(MIMETYPE_TEXT_URI, mimeType.at(0).c_str()) == 0));
+ }
+ 
++/**
++ * @tc.name: GetReportMimeTypes
++ * @tc.desc: PasteData GetReportMimeTypes
++ * @tc.type: FUNC
++ * @tc.require:
++ * @tc.author:
++ */
++HWTEST_F(PasteDataTest, GetReportMimeTypes, TestSize.Level0)
++{
++    PasteData data;
++    std::string uriStr = FILE_URI;
++    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
++    auto uri = std::make_shared<OHOS::Uri>(uriStr);
++    auto record = builder.SetUri(uri).Build();
++    data.AddRecord(*record);
++
++    PasteDataRecord::Builder builder1(MIMETYPE_TEXT_PLAIN);
++    std::string plainText = "plain text";
++    auto text = std::make_shared<std::string>(plainText);
++    auto record1 = builder1.SetPlainText(text).Build();
++    data.AddRecord(*record1);
++
++    auto mimeType = data.GetReportMimeTypes();
++    EXPECT_TRUE((strcmp(MIMETYPE_TEXT_PLAIN, mimeType.at(0).c_str()) == 0 &&
++                    strcmp(MIMETYPE_TEXT_URI, mimeType.at(1).c_str()) == 0) ||
++        (strcmp(MIMETYPE_TEXT_PLAIN, mimeType.at(1).c_str()) == 0 &&
++            strcmp(MIMETYPE_TEXT_URI, mimeType.at(0).c_str()) == 0));
++}
++
+ /**
+  * @tc.name: GetDeviceId
+  * @tc.desc: Get DeviceId
+diff --git a/services/test/unittest/src/pasteboard_service_mock_test.cpp b/services/test/unittest/src/pasteboard_service_mock_test.cpp
+index 7c77a146..ca7f6a18 100644
+--- a/services/test/unittest/src/pasteboard_service_mock_test.cpp
++++ b/services/test/unittest/src/pasteboard_service_mock_test.cpp
+@@ -1003,6 +1003,30 @@ HWTEST_F(PasteboardServiceTest, GetPasteDataTest003, TestSize.Level0)
+     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
+ }
+ 
++/**
++ * @tc.name: GetPasteDataInnerTest001
++ * @tc.desc: test Func GetPasteDataInner
++ * @tc.type: FUNC
++ */
++HWTEST_F(PasteboardServiceTest, GetPasteDataInnerTest001, TestSize.Level0)
++{
++    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
++    EXPECT_CALL(mock, GetTokenTypeFlag).WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
++        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
++        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
++        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE));
++    EXPECT_CALL(mock, VerifyAccessToken).WillOnce(Return(PermissionState::PERMISSION_GRANTED))
++        .WillOnce(Return(PermissionState::PERMISSION_GRANTED));
++    PasteboardService service;
++    int fd;
++    int64_t size;
++    std::vector<uint8_t> rawData;
++    int32_t syncTime;
++    UeReportInfo ueReportInfo;
++    int32_t result = service.GetPasteDataInner(fd, size, rawData, "", syncTime, ueReportInfo);
++    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
++}
++
+ /**
+  * @tc.name: SetAppShareOptionsTest001
+  * @tc.desc: test Func SetAppShareOptions, it will be return INVALID_PARAM_ERROR.
+@@ -2470,67 +2494,6 @@ HWTEST_F(PasteboardServiceTest, GetFullDelayPasteDataTest004, TestSize.Level0)
+     g_recordValueByType = static_cast<int32_t>(PasteboardError::E_OK);
+ }
+ 
+-/**
+- * @tc.name: GenerateDataTypeTest002
+- * @tc.desc: test Func GenerateDataType when GetMimeTypes is return empty
+- * @tc.type: FUNC
+- */
+-HWTEST_F(PasteboardServiceTest, GenerateDataTypeTest002, TestSize.Level0)
+-{
+-    auto tempPasteboard = std::make_shared<PasteboardService>();
+-    EXPECT_NE(tempPasteboard, nullptr);
+-
+-    PasteData pasteData;
+-    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+-    std::vector<std::string> mimeTypes;
+-    EXPECT_CALL(ipcMock, GetMimeTypes()).WillOnce(testing::Return(mimeTypes));
+-
+-    uint8_t result = tempPasteboard->GenerateDataType(pasteData);
+-    EXPECT_EQ(result, 0);
+-}
+-
+-/**
+- * @tc.name: GenerateDataTypeTest003
+- * @tc.desc: test Func GenerateDataType when in tempPasteboard->typeMap_ not find mimeTypes data
+- * @tc.type: FUNC
+- */
+-HWTEST_F(PasteboardServiceTest, GenerateDataTypeTest003, TestSize.Level0)
+-{
+-    auto tempPasteboard = std::make_shared<PasteboardService>();
+-    EXPECT_NE(tempPasteboard, nullptr);
+-
+-    PasteData pasteData;
+-    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+-    std::vector<std::string> mimeTypes;
+-    mimeTypes.push_back(RANDOM_STRING);
+-    tempPasteboard->typeMap_.erase(RANDOM_STRING);
+-    EXPECT_CALL(ipcMock, GetMimeTypes()).WillOnce(testing::Return(mimeTypes));
+-
+-    uint8_t result = tempPasteboard->GenerateDataType(pasteData);
+-    EXPECT_EQ(result, 0);
+-}
+-
+-/**
+- * @tc.name: GenerateDataTypeTest004
+- * @tc.desc: test Func GenerateDataType when find mimeTypes and is MIMETYPE_TEXT_HTML
+- * @tc.type: FUNC
+- */
+-HWTEST_F(PasteboardServiceTest, GenerateDataTypeTest004, TestSize.Level0)
+-{
+-    auto tempPasteboard = std::make_shared<PasteboardService>();
+-    EXPECT_NE(tempPasteboard, nullptr);
+-
+-    PasteData pasteData;
+-    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
+-    std::vector<std::string> mimeTypes;
+-    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+-    mimeTypes.push_back(MIMETYPE_TEXT_HTML);
+-    EXPECT_CALL(ipcMock, GetMimeTypes()).WillOnce(testing::Return(mimeTypes));
+-
+-    uint8_t result = tempPasteboard->GenerateDataType(pasteData);
+-    EXPECT_EQ(result, INT32_TWO);
+-}
+-
+ /**
+  * @tc.name: GetDistributedData002
+  * @tc.desc: test Func GetDistributedData
+diff --git a/services/test/unittest/src/pasteboard_service_test.cpp b/services/test/unittest/src/pasteboard_service_test.cpp
+index e666e1d9..0bb13c3c 100644
+--- a/services/test/unittest/src/pasteboard_service_test.cpp
++++ b/services/test/unittest/src/pasteboard_service_test.cpp
+@@ -1107,9 +1107,10 @@ HWTEST_F(PasteboardServiceTest, ReportUeCopyEventTest001, TestSize.Level0)
+ {
+     constexpr int32_t result = 111;
+     PasteData pasteData;
++    int64_t dataSize = 0;
+     auto tempPasteboard = std::make_shared<PasteboardService>();
+     EXPECT_NE(tempPasteboard, nullptr);
+-    tempPasteboard->ReportUeCopyEvent(pasteData, result);
++    tempPasteboard->ReportUeCopyEvent(pasteData, dataSize, result);
+ }
+ 
+ /**
+@@ -1737,7 +1738,72 @@ HWTEST_F(PasteboardServiceTest, SaveData001, TestSize.Level0)
+     EXPECT_NE(delayGetter, nullptr);
+     sptr<PasteboardEntryGetterImpl> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
+     EXPECT_NE(entryGetter, nullptr);
+-    tempPasteboard->SaveData(pasteData, delayGetter, entryGetter);
++    int64_t dataSize = 0;
++    tempPasteboard->SaveData(pasteData, dataSize, delayGetter, entryGetter);
++}
++
++/**
++ * @tc.name: GetCommonState
++ * @tc.desc: GetCommonStateTest001
++ * @tc.type: FUNC
++ */
++HWTEST_F(PasteboardServiceTest, GetCommonStateTest001, TestSize.Level0)
++{
++    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
++    EXPECT_NE(tempPasteboard, nullptr);
++    int64_t dataSize = 0;
++    CommonInfo info = tempPasteboard->GetCommonState(dataSize);
++    EXPECT_EQ(info.deviceType, DMAdapter::GetInstance().GetLocalDeviceType());
++}
++
++/**
++ * @tc.name: GetDataDescription
++ * @tc.desc: GetDataDescriptionTest001
++ * @tc.type: FUNC
++ */
++HWTEST_F(PasteboardServiceTest, GetDataDescriptionTest001, TestSize.Level0)
++{
++    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
++    EXPECT_NE(tempPasteboard, nullptr);
++    PasteData pasteData;
++    DataDescription description = tempPasteboard->GetDataDescription(pasteData);
++    EXPECT_EQ(description.recordNum, 0);
++}
++
++/**
++ * @tc.name: SetRadarEvent
++ * @tc.desc: SetRadarEventTest001
++ * @tc.type: FUNC
++ */
++HWTEST_F(PasteboardServiceTest, SetRadarEventTest001, TestSize.Level0)
++{
++    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
++    EXPECT_NE(tempPasteboard, nullptr);
++    PasteData pasteData;
++    AppInfo appInfo;
++    bool isPeerOnline = false;
++    RadarReportInfo radarReportInfo;
++    std::string peerNetId = "";
++    tempPasteboard->SetRadarEvent(appInfo, pasteData, isPeerOnline, radarReportInfo, peerNetId);
++    EXPECT_EQ(radarReportInfo.stageRes, 1);
++}
++
++/**
++ * @tc.name: SetUeEvent
++ * @tc.desc: SetUeEventTest001
++ * @tc.type: FUNC
++ */
++HWTEST_F(PasteboardServiceTest, SetUeEventTest001, TestSize.Level0)
++{
++    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
++    EXPECT_NE(tempPasteboard, nullptr);
++    PasteData pasteData;
++    AppInfo appInfo;
++    bool isPeerOnline = false;
++    UeReportInfo ueReportInfo;
++    std::string peerNetId = "";
++    tempPasteboard->SetUeEvent(appInfo, pasteData, isPeerOnline, ueReportInfo, peerNetId);
++    EXPECT_EQ(ueReportInfo.pasteInfo.onlineDevNum, DMAdapter::GetInstance().GetNetworkIds().size());
+ }
+ 
+ /**
+@@ -2912,20 +2978,6 @@ HWTEST_F(PasteboardServiceTest, GetDistributedDelayDataTest001, TestSize.Level0)
+     tempPasteboard->GetDistributedDelayData(event, 0, rawData);
+ }
+ 
+-/**
+- * @tc.name: GenerateDataTypeTest001
+- * @tc.desc: test Func GenerateDataType
+- * @tc.type: FUNC
+- */
+-HWTEST_F(PasteboardServiceTest, GenerateDataTypeTest001, TestSize.Level0)
+-{
+-    auto tempPasteboard = std::make_shared<PasteboardService>();
+-    EXPECT_NE(tempPasteboard, nullptr);
+-
+-    PasteData pasteData;
+-    tempPasteboard->GenerateDataType(pasteData);
+-}
+-
+ /**
+  * @tc.name: IsFocusedAppTest001
+  * @tc.desc: test Func IsFocusedApp
