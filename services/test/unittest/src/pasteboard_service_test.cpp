@@ -1107,9 +1107,10 @@ HWTEST_F(PasteboardServiceTest, ReportUeCopyEventTest001, TestSize.Level0)
 {
     constexpr int32_t result = 111;
     PasteData pasteData;
+    int64_t dataSize = 0;
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->ReportUeCopyEvent(pasteData, result);
+    tempPasteboard->ReportUeCopyEvent(pasteData, dataSize, result);
 }
 
 /**
@@ -1737,7 +1738,72 @@ HWTEST_F(PasteboardServiceTest, SaveData001, TestSize.Level0)
     EXPECT_NE(delayGetter, nullptr);
     sptr<PasteboardEntryGetterImpl> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
     EXPECT_NE(entryGetter, nullptr);
-    tempPasteboard->SaveData(pasteData, delayGetter, entryGetter);
+    int64_t dataSize = 0;
+    tempPasteboard->SaveData(pasteData, dataSize, delayGetter, entryGetter);
+}
+
+/**
+ * @tc.name: GetCommonState
+ * @tc.desc: GetCommonStateTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetCommonStateTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int64_t dataSize = 0;
+    CommonInfo info = tempPasteboard->GetCommonState(dataSize);
+    EXPECT_EQ(info.deviceType, DMAdapter::GetInstance().GetLocalDeviceType());
+}
+
+/**
+ * @tc.name: GetDataDescription
+ * @tc.desc: GetDataDescriptionTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetDataDescriptionTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    PasteData pasteData;
+    DataDescription description = tempPasteboard->GetDataDescription(pasteData);
+    EXPECT_EQ(description.recordNum, 0);
+}
+
+/**
+ * @tc.name: SetRadarEvent
+ * @tc.desc: SetRadarEventTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetRadarEventTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    PasteData pasteData;
+    AppInfo appInfo;
+    bool isPeerOnline = false;
+    RadarReportInfo radarReportInfo;
+    std::string peerNetId = "";
+    tempPasteboard->SetRadarEvent(appInfo, pasteData, isPeerOnline, radarReportInfo, peerNetId);
+    EXPECT_EQ(radarReportInfo.stageRes, 1);
+}
+
+/**
+ * @tc.name: SetUeEvent
+ * @tc.desc: SetUeEventTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetUeEventTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    PasteData pasteData;
+    AppInfo appInfo;
+    bool isPeerOnline = false;
+    UeReportInfo ueReportInfo;
+    std::string peerNetId = "";
+    tempPasteboard->SetUeEvent(appInfo, pasteData, isPeerOnline, ueReportInfo, peerNetId);
+    EXPECT_EQ(ueReportInfo.pasteInfo.onlineDevNum, DMAdapter::GetInstance().GetNetworkIds().size());
 }
 
 /**
@@ -2910,20 +2976,6 @@ HWTEST_F(PasteboardServiceTest, GetDistributedDelayDataTest001, TestSize.Level0)
     TestEvent event;
     std::vector<uint8_t> rawData;
     tempPasteboard->GetDistributedDelayData(event, 0, rawData);
-}
-
-/**
- * @tc.name: GenerateDataTypeTest001
- * @tc.desc: test Func GenerateDataType
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GenerateDataTypeTest001, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    PasteData pasteData;
-    tempPasteboard->GenerateDataType(pasteData);
 }
 
 /**

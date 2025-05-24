@@ -1058,6 +1058,35 @@ HWTEST_F(PasteDataTest, GetMimeTypes, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetReportMimeTypes
+ * @tc.desc: PasteData GetReportMimeTypes
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteDataTest, GetReportMimeTypes, TestSize.Level0)
+{
+    PasteData data;
+    std::string uriStr = FILE_URI;
+    PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
+    auto uri = std::make_shared<OHOS::Uri>(uriStr);
+    auto record = builder.SetUri(uri).Build();
+    data.AddRecord(*record);
+
+    PasteDataRecord::Builder builder1(MIMETYPE_TEXT_PLAIN);
+    std::string plainText = "plain text";
+    auto text = std::make_shared<std::string>(plainText);
+    auto record1 = builder1.SetPlainText(text).Build();
+    data.AddRecord(*record1);
+
+    auto mimeType = data.GetReportMimeTypes();
+    EXPECT_TRUE((strcmp(MIMETYPE_TEXT_PLAIN, mimeType.at(0).c_str()) == 0 &&
+                    strcmp(MIMETYPE_TEXT_URI, mimeType.at(1).c_str()) == 0) ||
+        (strcmp(MIMETYPE_TEXT_PLAIN, mimeType.at(1).c_str()) == 0 &&
+            strcmp(MIMETYPE_TEXT_URI, mimeType.at(0).c_str()) == 0));
+}
+
+/**
  * @tc.name: GetDeviceId
  * @tc.desc: Get DeviceId
  * @tc.type: FUNC

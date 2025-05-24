@@ -1004,6 +1004,30 @@ HWTEST_F(PasteboardServiceTest, GetPasteDataTest003, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetPasteDataInnerTest001
+ * @tc.desc: test Func GetPasteDataInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetPasteDataInnerTest001, TestSize.Level0)
+{
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetTokenTypeFlag).WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE))
+        .WillOnce(Return(ATokenTypeEnum::TOKEN_NATIVE));
+    EXPECT_CALL(mock, VerifyAccessToken).WillOnce(Return(PermissionState::PERMISSION_GRANTED))
+        .WillOnce(Return(PermissionState::PERMISSION_GRANTED));
+    PasteboardService service;
+    int fd;
+    int64_t size;
+    std::vector<uint8_t> rawData;
+    int32_t syncTime;
+    UeReportInfo ueReportInfo;
+    int32_t result = service.GetPasteDataInner(fd, size, rawData, "", syncTime, ueReportInfo);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
+}
+
+/**
  * @tc.name: SetAppShareOptionsTest001
  * @tc.desc: test Func SetAppShareOptions, it will be return INVALID_PARAM_ERROR.
  * @tc.type: FUNC
@@ -2468,67 +2492,6 @@ HWTEST_F(PasteboardServiceTest, GetFullDelayPasteDataTest004, TestSize.Level0)
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
     tempPasteboard->securityLevel_.securityLevel_ = DATA_SEC_LEVEL0;
     g_recordValueByType = static_cast<int32_t>(PasteboardError::E_OK);
-}
-
-/**
- * @tc.name: GenerateDataTypeTest002
- * @tc.desc: test Func GenerateDataType when GetMimeTypes is return empty
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GenerateDataTypeTest002, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    PasteData pasteData;
-    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
-    std::vector<std::string> mimeTypes;
-    EXPECT_CALL(ipcMock, GetMimeTypes()).WillOnce(testing::Return(mimeTypes));
-
-    uint8_t result = tempPasteboard->GenerateDataType(pasteData);
-    EXPECT_EQ(result, 0);
-}
-
-/**
- * @tc.name: GenerateDataTypeTest003
- * @tc.desc: test Func GenerateDataType when in tempPasteboard->typeMap_ not find mimeTypes data
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GenerateDataTypeTest003, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    PasteData pasteData;
-    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
-    std::vector<std::string> mimeTypes;
-    mimeTypes.push_back(RANDOM_STRING);
-    tempPasteboard->typeMap_.erase(RANDOM_STRING);
-    EXPECT_CALL(ipcMock, GetMimeTypes()).WillOnce(testing::Return(mimeTypes));
-
-    uint8_t result = tempPasteboard->GenerateDataType(pasteData);
-    EXPECT_EQ(result, 0);
-}
-
-/**
- * @tc.name: GenerateDataTypeTest004
- * @tc.desc: test Func GenerateDataType when find mimeTypes and is MIMETYPE_TEXT_HTML
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GenerateDataTypeTest004, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    PasteData pasteData;
-    NiceMock<PasteboardServiceInterfaceMock> ipcMock;
-    std::vector<std::string> mimeTypes;
-    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
-    mimeTypes.push_back(MIMETYPE_TEXT_HTML);
-    EXPECT_CALL(ipcMock, GetMimeTypes()).WillOnce(testing::Return(mimeTypes));
-
-    uint8_t result = tempPasteboard->GenerateDataType(pasteData);
-    EXPECT_EQ(result, INT32_TWO);
 }
 
 /**
