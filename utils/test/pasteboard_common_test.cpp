@@ -68,4 +68,22 @@ HWTEST_F(PasteboardCommonTest, GetApiTargetVersionForSelf, TestSize.Level0)
     auto result = PasteBoardCommon::GetInstance().GetApiTargetVersionForSelf();
     EXPECT_TRUE(result >= 0);
 }
+
+/**
+ * @tc.name: GetAnonymousStringTest001
+ * @tc.desc: GetAnonymousString.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardCommonTest, GetAnonymousStringTest001, TestSize.Level0)
+{
+    std::string testStr = "anon";
+    std::string resultStr = PasteBoardCommon::GetAnonymousString(testStr);
+    EXPECT_EQ(resultStr, testStr);
+    testStr = "anon123456789";
+    resultStr = PasteBoardCommon::GetAnonymousString(testStr);
+    std::string anonStr = "anon**6789";
+    EXPECT_EQ(resultStr, anonStr);
+}
 } // namespace OHOS::MiscServices

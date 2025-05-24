@@ -18,7 +18,9 @@
 #include <gmock/gmock.h>
 #include <variant>
 #include "accesstoken_kit.h"
+#include "default_clip.h"
 #include "dev_profile.h"
+#include "distributed_file_daemon_manager.h"
 #include "input_method_controller.h"
 #include "input_method_property.h"
 #include "ipc_skeleton.h"
@@ -36,6 +38,7 @@ using namespace OHOS::MiscServices;
 using namespace std::chrono;
 using namespace OHOS::Security::AccessToken;
 using namespace OHOS::AppFileService::ModuleRemoteFileShare;
+using namespace OHOS::Storage::DistributedFile;
 namespace OHOS {
 namespace {
     const int32_t INT32_TEN = 10;
@@ -3087,6 +3090,307 @@ HWTEST_F(PasteboardServiceTest, CloseP2PLinkTest001, TestSize.Level0)
         .WillOnce(Return(static_cast<int32_t>(PasteboardError::E_OK)));
 
     tempPasteboard->CloseP2PLink(networkld);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: PreSyncRemotePasteboardDataTest
+ * @tc.desc: PreSyncRemotePasteboardData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PreSyncRemotePasteboardDataTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, IsOn()).WillRepeatedly(testing::Return(true));
+    EXPECT_CALL(mock, GetDeviceSecurityLevel())
+        .WillOnce(testing::Return(DATA_SEC_LEVEL1))
+        .WillOnce(testing::Return(DATA_SEC_LEVEL3))
+        .WillOnce(testing::Return(DATA_SEC_LEVEL3));
+    tempPasteboard->securityLevel_.securityLevel_ = DATA_SEC_LEVEL1;
+    tempPasteboard->PreSyncRemotePasteboardData();
+    tempPasteboard->securityLevel_.securityLevel_ = DATA_SEC_LEVEL3;
+    std::string PLUGIN_NAME_VAL = "distributed_clip";
+    auto release = [&PLUGIN_NAME_VAL, this](ClipPlugin *plugin) {
+        ClipPlugin::DestroyPlugin(PLUGIN_NAME_VAL, plugin);
+    };
+    std::shared_ptr<ClipPlugin> clipPlugin =
+        std::shared_ptr<ClipPlugin>(ClipPlugin::CreatePlugin(PLUGIN_NAME_VAL), release);
+    EXPECT_NE(clipPlugin, nullptr);
+    tempPasteboard->clipPlugin_ = clipPlugin;
+    EXPECT_NE(tempPasteboard->GetClipPlugin(), nullptr);
+    tempPasteboard->PreSyncRemotePasteboardData();
+}
+
+/**
+ * @tc.name: ClearP2PEstablishTaskInfoTest
+ * @tc.desc: ClearP2PEstablishTaskInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, ClearP2PEstablishTaskInfoTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->ClearP2PEstablishTaskInfo();
+}
+
+/**
+ * @tc.name: RegisterPreSyncCallbackTest
+ * @tc.desc: RegisterPreSyncCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, RegisterPreSyncCallbackTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->RegisterPreSyncCallback(nullptr);
+    auto clipPlugin = std::make_shared<DefaultClip>();
+    EXPECT_NE(clipPlugin, nullptr);
+    tempPasteboard->RegisterPreSyncCallback(clipPlugin);
+}
+
+/**
+ * @tc.name: PreEstablishP2PLinkCallbackTest
+ * @tc.desc: PreEstablishP2PLinkCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PreEstablishP2PLinkCallbackTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string networkId;
+    auto clipPlugin = std::make_shared<DefaultClip>();
+    EXPECT_NE(clipPlugin, nullptr);
+    tempPasteboard->PreEstablishP2PLinkCallback(networkId, clipPlugin.get());
+    networkId = "TestNetworkId";
+    tempPasteboard->PreEstablishP2PLinkCallback(networkId, clipPlugin.get());
+}
+
+/**
+ * @tc.name: PreSyncSwitchMonitorCallbackTest
+ * @tc.desc: PreSyncSwitchMonitorCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PreSyncSwitchMonitorCallbackTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->PreSyncSwitchMonitorCallback();
+}
+
+/**
+ * @tc.name: RegisterPreSyncMonitorTest
+ * @tc.desc: RegisterPreSyncMonitor
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, RegisterPreSyncMonitorTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->RegisterPreSyncMonitor();
+    tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
+    EXPECT_NE(tempPasteboard->ffrtTimer_, nullptr);
+    tempPasteboard->RegisterPreSyncMonitor();
+    tempPasteboard->subscribeActiveId_ = 0;
+    tempPasteboard->RegisterPreSyncMonitor();
+}
+
+/**
+ * @tc.name: UnRegisterPreSyncMonitorTest
+ * @tc.desc: UnRegisterPreSyncMonitor
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, UnRegisterPreSyncMonitorTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->subscribeActiveId_ = -1;
+    tempPasteboard->UnRegisterPreSyncMonitor();
+}
+
+/**
+ * @tc.name: DeletePreSyncP2pFromP2pMapTest
+ * @tc.desc: DeletePreSyncP2pFromP2pMap
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, DeletePreSyncP2pFromP2pMapTest, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string networkId = "TestNetworkId";
+    tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
+    EXPECT_NE(tempPasteboard->ffrtTimer_, nullptr);
+    tempPasteboard->DeletePreSyncP2pFromP2pMap(networkId);
+}
+
+/**
+ * @tc.name: CheckAndReuseP2PLinkTest001
+ * @tc.desc: CheckAndReuseP2PLink
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, CheckAndReuseP2PLinkTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string networkId = "TestNetworkId";
+    std::string pasteId = "P2pPreSyncId_";
+    auto result = tempPasteboard->CheckAndReuseP2PLink(networkId, pasteId);
+    EXPECT_EQ(result, nullptr);
+    tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
+    EXPECT_NE(tempPasteboard->ffrtTimer_, nullptr);
+    int32_t pid = 123;
+    ConcurrentMap<std::string, int32_t> p2pMap;
+    p2pMap.Insert(pasteId, pid);
+    tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
+    std::shared_ptr<BlockObject<bool>> block = std::make_shared<BlockObject<bool>>(2000);
+    EXPECT_NE(block, nullptr);
+    tempPasteboard->preSyncP2pMap_.insert(std::make_pair(networkId, block));
+    result = tempPasteboard->CheckAndReuseP2PLink(networkId, pasteId);
+    EXPECT_NE(result, nullptr);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: EstablishP2PLinkTaskTest001
+ * @tc.desc: EstablishP2PLinkTask
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTaskTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    TestEvent event;
+    std::string pasteId = "P2pPreSyncId_";
+    auto result = tempPasteboard->EstablishP2PLinkTask(pasteId, event);
+    EXPECT_EQ(result, nullptr);
+    event.deviceId = DMAdapter::GetInstance().GetLocalNetworkId();
+    result = tempPasteboard->EstablishP2PLinkTask(pasteId, event);
+    EXPECT_EQ(result, nullptr);
+    event.deviceId = "TestNetworkId";
+    std::string uriType = "text/plain";
+    event.dataType.push_back(uriType);
+    result = tempPasteboard->EstablishP2PLinkTask(pasteId, event);
+    EXPECT_EQ(result, nullptr);
+    uriType = "text/uri";
+    event.dataType.push_back(uriType);
+    result = tempPasteboard->EstablishP2PLinkTask(pasteId, event);
+    EXPECT_EQ(result, nullptr);
+    int32_t pid = 123;
+    ConcurrentMap<std::string, int32_t> p2pMap;
+    p2pMap.Insert(pasteId, pid);
+    tempPasteboard->p2pMap_.Insert(event.deviceId, p2pMap);
+    std::shared_ptr<BlockObject<bool>> block = std::make_shared<BlockObject<bool>>(2000);
+    EXPECT_NE(block, nullptr);
+    tempPasteboard->preSyncP2pMap_.insert(std::make_pair(event.deviceId, block));
+    result = tempPasteboard->EstablishP2PLinkTask(pasteId, event);
+    EXPECT_NE(result, nullptr);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: OpenP2PLinkForPreEstablishTest001
+ * @tc.desc: OpenP2PLinkForPreEstablish
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, OpenP2PLinkForPreEstablishTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string networkId = "TestNetworkId";
+    auto clipPlugin = std::make_shared<DefaultClip>();
+    EXPECT_NE(clipPlugin, nullptr);
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetRemoteDeviceInfo(testing::_, testing::_))
+        .WillOnce(Return(static_cast<int32_t>(PasteboardError::OTHER_ERROR)));
+    tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
+    EXPECT_NE(tempPasteboard->ffrtTimer_, nullptr);
+    auto result = tempPasteboard->OpenP2PLinkForPreEstablish(networkId, clipPlugin.get());
+    EXPECT_EQ(result, false);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: PreEstablishP2PLinkTest001
+ * @tc.desc: PreEstablishP2PLink
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PreEstablishP2PLinkTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
+    EXPECT_NE(tempPasteboard->ffrtTimer_, nullptr);
+    tempPasteboard->p2pEstablishInfo_.pasteBlock = std::make_shared<BlockObject<bool>>(2000);
+    EXPECT_NE(tempPasteboard->p2pEstablishInfo_.pasteBlock, nullptr);
+    std::string networkId = "TestNetworkId";
+    tempPasteboard->p2pEstablishInfo_.networkId = networkId;
+    auto clipPlugin = std::make_shared<DefaultClip>();
+    EXPECT_NE(clipPlugin, nullptr);
+    tempPasteboard->PreEstablishP2PLink(networkId, clipPlugin.get());
+    tempPasteboard->p2pEstablishInfo_.pasteBlock = nullptr;
+    std::string p2pPresyncId = "P2pPreSyncId_";
+    int32_t pid = 123;
+    ConcurrentMap<std::string, int32_t> p2pMap;
+    p2pMap.Insert(p2pPresyncId, pid);
+    tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
+    tempPasteboard->PreEstablishP2PLink(networkId, clipPlugin.get());
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: AddPreSyncP2pTimeoutTaskTest001
+ * @tc.desc: AddPreSyncP2pTimeoutTask
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, AddPreSyncP2pTimeoutTaskTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string networkId = "TestNetworkId";
+    tempPasteboard->AddPreSyncP2pTimeoutTask(networkId);
+    tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
+    EXPECT_NE(tempPasteboard->ffrtTimer_, nullptr);
+    tempPasteboard->AddPreSyncP2pTimeoutTask(networkId);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: CheckAndGrantRemoteUriTest001
+ * @tc.desc: CheckAndGrantRemoteUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, CheckAndGrantRemoteUriTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    PasteData data;
+    data.SetRemote(true);
+    AppInfo appInfo;
+    std::string pasteId = "TestPasteId";
+    std::string networkId = "TestNetworkId";
+    std::shared_ptr<BlockObject<bool>> block = std::make_shared<BlockObject<bool>>(2000);
+    EXPECT_NE(block, nullptr);
+    int32_t result = tempPasteboard->CheckAndGrantRemoteUri(data, appInfo, pasteId, networkId, block);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
 #else
     ASSERT_TRUE(true);
 #endif

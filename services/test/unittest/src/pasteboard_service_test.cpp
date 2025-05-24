@@ -2836,6 +2836,30 @@ HWTEST_F(PasteboardServiceTest, OnInputEventTest003, TestSize.Level0)
 }
 
 /**
+ * @tc.name: OnInputEventTest004
+ * @tc.desc: test Func OnInputEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, OnInputEventTest004, TestSize.Level0)
+{
+    auto pasteboardServer = std::make_shared<PasteboardService>();
+    EXPECT_NE(pasteboardServer, nullptr);
+    auto inputCB = std::make_shared<InputEventCallback>(InputEventCallback::INPUTTYPE_PRESYNC, pasteboardServer.get());
+    EXPECT_NE(inputCB, nullptr);
+    MMI::KeyEvent::KeyItem keyItem1;
+    keyItem1.SetKeyCode(MMI::KeyEvent::KEYCODE_CTRL_LEFT);
+    std::vector<MMI::KeyEvent::KeyItem> keys = {keyItem1};
+    auto keyEvent = std::make_shared<MMI::KeyEvent>(0);
+    EXPECT_NE(keyEvent, nullptr);
+    keyEvent->SetKeyItem(keys);
+    keyEvent->SetAction(MMI::KeyEvent::KEY_ACTION_DOWN);
+    inputCB->OnInputEvent(keyEvent);
+    auto pointerEvent = MMI::PointerEvent::Create();
+    EXPECT_NE(pointerEvent, nullptr);
+    inputCB->OnInputEvent(pointerEvent);
+}
+
+/**
  * @tc.name: ClearTest002
  * @tc.desc: Clear function.
  * @tc.type: FUNC

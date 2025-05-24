@@ -2934,7 +2934,9 @@ bool PasteboardService::IsFocusedApp(uint32_t tokenId)
 void PasteboardService::DeletePreSyncP2pFromP2pMap(const std::string &networkId)
 {
     std::string taskName = P2P_PRESYNC_ID + networkId;
-    ffrtTimer_->CancelTimer(taskName);
+    if (ffrtTimer_) {
+        ffrtTimer_->CancelTimer(taskName);
+    }
     std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
     p2pMap_.ComputeIfPresent(networkId, [this](const auto &key, auto &value) {
         value.ComputeIfPresent(P2P_PRESYNC_ID, [](const auto &key, auto &value) {
@@ -2999,9 +3001,11 @@ bool PasteboardService::OpenP2PLinkForPreEstablish(const std::string &networkId,
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "open p2p error, status:%{public}d", status);
         return false;
     }
-    status = clipPlugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
-    if (status != RESULT_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
+    if (clipPlugin) {
+        status = clipPlugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
+        if (status != RESULT_OK) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
+        }
     }
     AddPreSyncP2pTimeoutTask(networkId);
     return true;
@@ -3056,6 +3060,10 @@ void PasteboardService::PreEstablishP2PLinkCallback(const std::string &networkId
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PreEstablishP2PLinkCallback failed, networkId is null");
         return;
     }
+    if (!clipPlugin) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin is null");
+        return;
+    }
     if (!ffrtTimer_) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
         return;
@@ -3103,6 +3111,10 @@ void PasteboardService::RegisterPreSyncMonitor()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
         return;
     }
+    if (!MMI::InputManager::GetInstance()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "MMI::InputManager is null");
+        return;
+    }
     FFRTTask monitorTask = [this] {
         ffrt_this_task_set_legacy_mode(true);
         UnRegisterPreSyncMonitor();
@@ -3119,9 +3131,9 @@ void PasteboardService::RegisterPreSyncMonitor()
     }
     subscribeActiveId_ = MMI::InputManager::GetInstance()->SubscribeInputActive(
         std::static_pointer_cast<MMI::IInputEventConsumer>(preSyncMonitor), PRESYNC_MONITOR_INTERVAL_MILLISECONDS);
-    if  (subscribeActiveId_ < 0) {
+    if (subscribeActiveId_ < 0) {
         subscribeActiveId_ = INVALID_SUBSCRIBE_ID;
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SubscirbeInputActive failed");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "SubscribeInputActive failed");
         return;
     }
     ffrtTimer_->SetTimer(UNREGISTER_PRESYNC_MONITOR, monitorTask, PRESYNC_MONITOR_TIME);
@@ -3129,6 +3141,10 @@ void PasteboardService::RegisterPreSyncMonitor()
 
 void PasteboardService::UnRegisterPreSyncMonitor()
 {
+    if (!MMI::InputManager::GetInstance()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "MMI::InputManager is null");
+        return;
+    }
     if (subscribeActiveId_ != INVALID_SUBSCRIBE_ID) {
         MMI::InputManager::GetInstance()->UnsubscribeInputActive(subscribeActiveId_);
         subscribeActiveId_ = INVALID_SUBSCRIBE_ID;
