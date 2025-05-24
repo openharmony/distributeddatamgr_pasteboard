@@ -1661,6 +1661,24 @@ void PasteboardService::UnsubscribeAllObserver(PasteboardObserverType type)
     }
 }
 
+uint32_t PasteboardService::GetAllObserversSize(int32_t userId, pid_t pid)
+{
+    auto localObserverSize = GetObserversSize(userId, pid, observerLocalChangedMap_);
+    auto remoteObserverSize = GetObserversSize(userId, pid, observerRemoteChangedMap_);
+    auto eventObserverSize = GetObserversSize(COMMON_USERID, pid, observerEventMap_);
+    return localObserverSize + remoteObserverSize + eventObserverSize;
+}
+
+uint32_t PasteboardService::GetObserversSize(int32_t userId, pid_t pid, ObserverMap &observerMap)
+{
+    auto countKey = std::make_pair(userId, pid);
+    auto it = observerMap.find(countKey);
+    if (it != observerMap.end()) {
+        return it->second->size();
+    }
+    return 0;
+}
+
 void PasteboardService::AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer,
     ObserverMap &observerMap)
 {
@@ -1669,35 +1687,45 @@ void PasteboardService::AddObserver(int32_t userId, const sptr<IPasteboardChange
         return;
     }
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(userId);
+    auto callPid = IPCSkeleton::GetCallingPid();
+    auto callObserverKey = std::make_pair(userId, callPid);
+    auto it = observerMap.find(callObserverKey);
     std::shared_ptr<std::set<sptr<IPasteboardChangedObserver>, classcomp>> observers;
     if (it != observerMap.end()) {
         observers = it->second;
     } else {
         observers = std::make_shared<std::set<sptr<IPasteboardChangedObserver>, classcomp>>();
-        observerMap.insert(std::make_pair(userId, observers));
+        observerMap.insert(std::make_pair(callObserverKey, observers));
+    }
+    auto allObserverCount = GetAllObserversSize(userId, callPid);
+    if (allObserverCount >= MAX_OBSERVER_COUNT) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer count over limit. callPid:%{public}d", callPid);
+        return;
     }
     observers->insert(observer);
     RADAR_REPORT(DFX_OBSERVER, DFX_ADD_OBSERVER, DFX_SUCCESS);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "observers->size = %{public}u.",
-        static_cast<unsigned int>(observers->size()));
+    PASTEBOARD_HILOGI(
+        PASTEBOARD_MODULE_SERVICE, "observers->size = %{public}u.", static_cast<unsigned int>(observers->size()));
 }
 
-void PasteboardService::RemoveSingleObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer,
-    ObserverMap &observerMap)
+void PasteboardService::RemoveSingleObserver(
+    int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap)
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
         return;
     }
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(userId);
+    auto callPid = IPCSkeleton::GetCallingPid();
+    auto callObserverKey = std::make_pair(userId, callPid);
+    auto it = observerMap.find(callObserverKey);
     if (it == observerMap.end()) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "user id not found userId is %{public}d", userId);
         return;
     }
     auto observers = it->second;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
-        static_cast<unsigned int>(observers->size()));
+    PASTEBOARD_HILOGD(
+        PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.", static_cast<unsigned int>(observers->size()));
     auto eraseNum = observers->erase(observer);
     RADAR_REPORT(DFX_OBSERVER, DFX_REMOVE_SINGLE_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
@@ -1707,18 +1735,14 @@ void PasteboardService::RemoveSingleObserver(int32_t userId, const sptr<IPastebo
 void PasteboardService::RemoveAllObserver(int32_t userId, ObserverMap &observerMap)
 {
     std::lock_guard<std::mutex> lock(observerMutex_);
-    auto it = observerMap.find(userId);
-    if (it == observerMap.end()) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observer empty.");
-        return;
+    for (auto it = observerMap.begin(); it != observerMap.end();) {
+        if (it->first.first == userId) {
+            it = observerMap.erase(it);
+        } else {
+            ++it;
+        }
     }
-    auto observers = it->second;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size: %{public}u.",
-        static_cast<unsigned int>(observers->size()));
-    auto eraseNum = observerMap.erase(userId);
     RADAR_REPORT(DFX_OBSERVER, DFX_REMOVE_ALL_OBSERVER, DFX_SUCCESS);
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "observers size = %{public}u, eraseNum = %{public}zu",
-        static_cast<unsigned int>(observers->size()), eraseNum);
 }
 
 int32_t PasteboardService::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)
@@ -2476,9 +2500,24 @@ void PasteboardService::CommonEventSubscriber()
     EventFwk::CommonEventManager::SubscribeCommonEvent(commonEventSubscriber_);
 }
 
+void PasteboardService::RemoveObserverByPid(int32_t userId, pid_t pid, ObserverMap &observerMap)
+{
+    std::lock_guard<std::mutex> lock(observerMutex_);
+    auto callObserverKey = std::make_pair(userId, pid);
+    auto it = observerMap.find(callObserverKey);
+    if (it == observerMap.end()) {
+        return;
+    }
+    observerMap.erase(callObserverKey);
+}
+
 int32_t PasteboardService::AppExit(pid_t pid)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid %{public}d exit.", pid);
+    int32_t userId = GetCurrentAccountId();
+    RemoveObserverByPid(userId, pid, observerLocalChangedMap_);
+    RemoveObserverByPid(userId, pid, observerRemoteChangedMap_);
+    RemoveObserverByPid(COMMON_USERID, pid, observerEventMap_);
     std::vector<std::string> networkIds;
     p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
         pidMap.EraseIf([pid, this](auto &key, auto &value) {
