@@ -439,3 +439,84 @@ HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_002, TestSize.Level1)
 
     tempPasteboard->CheckAppUriPermission(pasteData);
 }
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_002.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_002, TestSize.Level1)
+{
+    PasteData pasteData;
+    PasteDataRecord record;
+    record.SetRecordId(1);
+    record.SetFrom(1);
+    pasteData.AddRecord(std::make_shared<PasteDataRecord>(record));
+    bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_003.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_003, TestSize.Level1)
+{
+    PasteData pasteData;
+    PasteDataRecord record;
+    record.SetRecordId(1);
+    record.SetFrom(2);
+    pasteData.AddRecord(std::make_shared<PasteDataRecord>(record));
+    bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_004.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_004, TestSize.Level1)
+{
+    PasteData pasteData;
+    pasteData.AddHtmlRecord("");
+    bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_005.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_005, TestSize.Level1)
+{
+    PasteData pasteData;
+    pasteData.AddHtmlRecord("<p>Hello world!<img src=\">file:///storage/local/files/Images/hello.png\"/><p>");
+    bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_006.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_006, TestSize.Level1)
+{
+    PasteData pasteData;
+    pasteData.AddHtmlRecord("<p>Hello world!<img src=\">https://storage/local/files/Images/hello.png\"/><p>");
+    bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+}
