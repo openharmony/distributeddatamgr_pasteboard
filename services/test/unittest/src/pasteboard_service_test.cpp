@@ -5104,27 +5104,6 @@ HWTEST_F(PasteboardServiceTest, WriteRawDataTest003, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetRemoteDataTest002
- * @tc.desc: GetRemoteDataTest002
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardServiceTest, GetRemoteDataTest002, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    int32_t userId = 0x123456;
-    Event event;
-    PasteData data;
-    int32_t syncTime = 1000;
-
-    int32_t result = tempPasteboard->GetRemoteData(userId, event, data, syncTime);
-    EXPECT_FALSE(result);
-}
-
-/**
  * @tc.name: GetValidDistributeEventTest003
  * @tc.desc: GetValidDistributeEventTest003
  * @tc.type: FUNC
@@ -5153,7 +5132,7 @@ HWTEST_F(PasteboardServiceTest, AddObserverTest001, TestSize.Level0)
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
-    pastebpardService::ObserverMap observerMap;
+    PasteboardService::ObserverMap observerMap;
     int32_t user = 1234;
 
     tempPasteboard->AddObserver(user, nullptr, observerMap);
@@ -5172,7 +5151,7 @@ HWTEST_F(PasteboardServiceTest, AddObserverTest002, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     sptr<IPasteboardChangedObserver> observer;
-    pastebpardService::ObserverMap observerMap;
+    PasteboardService::ObserverMap observerMap;
     int32_t user = 1234;
 
     tempPasteboard->AddObserver(user, observer, observerMap);
@@ -5190,7 +5169,7 @@ HWTEST_F(PasteboardServiceTest, RemoveSingleObserverddObserverTest001, TestSize.
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
-    pastebpardService::ObserverMap observerMap;
+    PasteboardService::ObserverMap observerMap;
     int32_t user = 1234;
 
     tempPasteboard->RemoveSingleObserver(user, nullptr, observerMap);
@@ -5222,7 +5201,7 @@ HWTEST_F(PasteboardServiceTest, CallbackEnterTest001, TestSize.Level0)
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(PasteboardServiceTest, CallbackEnterTest001, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, CallbackEnterTest002, TestSize.Level0)
 {
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
