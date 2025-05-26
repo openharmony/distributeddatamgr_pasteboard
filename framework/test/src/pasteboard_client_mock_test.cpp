@@ -268,24 +268,6 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode004, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetRemoteDeviceName001
- * @tc.desc: GetRemoteDeviceName001
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardClientMockTest, GetRemoteDeviceName001, TestSize.Level0)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetRemoteDeviceName001  enter-----");
-    std::string deviceName = "";
-    bool isRemote = false;
-    int32_t expect = static_cast<int32_t>(PasteboardError::E_OK);
-    int32_t ret = PasteboardClient::GetInstance()->GetRemoteDeviceName(deviceName, isRemote);
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetRemoteDeviceName001  end-----");
-}
-
-/**
  * @tc.name: RemoveAppShareOptions001
  * @tc.desc: RemoveAppShareOptions001
  * @tc.type: FUNC

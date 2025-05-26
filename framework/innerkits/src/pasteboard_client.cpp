@@ -1013,15 +1013,6 @@ void PasteboardClient::PasteComplete(const std::string &deviceId, const std::str
     proxyService->PasteComplete(deviceId, pasteId);
 }
 
-int32_t PasteboardClient::GetRemoteDeviceName(std::string &deviceName, bool &isRemote)
-{
-    auto proxyService = GetPasteboardService();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
-        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
-        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    return ConvertErrCode(proxyService->GetRemoteDeviceName(deviceName, isRemote));
-}
-
 int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
 {
     int32_t progressStatusValue = 0;

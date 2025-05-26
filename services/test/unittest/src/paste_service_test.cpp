@@ -1523,19 +1523,4 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
     PasteboardServiceTest::RestoreSelfTokenId();
 }
 
-/**
- * @tc.name: GetRemoteDeviceNameTest
- * @tc.desc: Get Remote Device Name
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetRemoteDeviceNameTest, TestSize.Level0)
-{
-    std::string deviceName = "deviceName";
-    bool isRemote = false;
-    int32_t ret = PasteboardClient::GetInstance()->GetRemoteDeviceName(deviceName, isRemote);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-    isRemote = true;
-    ret = PasteboardClient::GetInstance()->GetRemoteDeviceName(deviceName, isRemote);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-}
 } // namespace OHOS::MiscServices

@@ -153,7 +153,7 @@ public:
     virtual void OnStop() override;
     virtual int32_t PasteStart(const std::string &pasteId) override;
     virtual int32_t PasteComplete(const std::string &deviceId, const std::string &pasteId) override;
-    virtual int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote) override;
+    int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote);
     virtual int32_t ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override;
     virtual int32_t RegisterClientDeathObserver(const sptr<IRemoteObject> &observer) override;
     static int32_t currentUserId_;
