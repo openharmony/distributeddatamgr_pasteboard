@@ -76,20 +76,20 @@ taihe_shared_library("pasteboard_taihe_native") {
   ]
 }
 
-generate_static_abc("pasteboard_ani") {
+generate_static_abc("pasteboard_taihe_ani") {
   base_url = "$taihe_generated_file_path"
   files = [ "$taihe_generated_file_path/@ohos.pasteboard.ets" ]
   is_boot_abc = "True"
-  device_dst_file = "/system/framework/pasteboard_ani.abc"
+  device_dst_file = "/system/framework/pasteboard_taihe_ani.abc"
   dependencies = [ ":run_pasteboard_taihe" ]
 }
 
 ohos_prebuilt_etc("pasteboard_abc_etc") {
-  source = "$target_out_dir/pasteboard_ani.abc"
+  source = "$target_out_dir/pasteboard_taihe_ani.abc"
   module_install_dir = "framework"
   subsystem_name = "$subsystem_name"
   part_name = "$part_name"
-  deps = [ ":pasteboard_ani" ]
+  deps = [ ":pasteboard_taihe_ani" ]
 }
 
 group("pasteboard_taihe") {
