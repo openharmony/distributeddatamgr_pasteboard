@@ -29,8 +29,10 @@
 #include "image_ani_utils.h"
 #include "pasteboard_ani_utils.h"
 #include "unified_meta.h"
+#include <ani_signature_builder.h>
 
 using namespace OHOS::MiscServices;
+using namespace arkts::ani_signature;
 
 constexpr size_t SYNC_TIMEOUT = 3500;
 constexpr size_t MIMETYPE_MAX_LEN = 1024;
@@ -399,16 +401,16 @@ static void FillPasteDataRecordObject(ani_env *env, std::shared_ptr<PasteDataRec
     }
 
     auto mimeType = recordFromBottom->GetMimeType();
-    SetNamedPropertyByStr(env, cls, "<set>mimeType", mimeType, obj);
+    SetNamedPropertyByStr(env, cls, Builder::BuildSetterName("mimeType").c_str(), mimeType, obj);
 
     auto plainTextPtr = recordFromBottom->GetPlainText();
     if (plainTextPtr != nullptr) {
-        SetNamedPropertyByStr(env, cls, "<set>plainText", *plainTextPtr.get(), obj);
+        SetNamedPropertyByStr(env, cls, Builder::BuildSetterName("plainText").c_str(), *plainTextPtr.get(), obj);
     }
 
     auto uriPtr = recordFromBottom->GetUri();
     if (uriPtr != nullptr) {
-        SetNamedPropertyByStr(env, cls, "<set>uri", uriPtr->ToString(), obj);
+        SetNamedPropertyByStr(env, cls, Builder::BuildSetterName("uri").c_str(), uriPtr->ToString(), obj);
     }
 }
 
@@ -520,12 +522,13 @@ static void FillPasteDataPropertyObject(ani_env *env, PasteDataProperty &propert
     }
 
     ani_int shareOpionValue = property.shareOption;
-    SetNamedPropertyByEnumInt(env, cls, "<set>shareOption", shareOpionValue, obj);
-    SetNamedPropertyByStr(env, cls, "<set>tag", property.tag, obj);
+    SetNamedPropertyByEnumInt(env, cls, Builder::BuildSetterName("shareOption").c_str(), shareOpionValue, obj);
+    SetNamedPropertyByStr(env, cls, Builder::BuildSetterName("tag").c_str(), property.tag, obj);
 
     ani_double timestampValue = property.timestamp;
     ani_method timestampSetter;
-    if (ANI_OK != env->Class_FindMethod(cls, "<set>timestamp", nullptr, &timestampSetter)) {
+    if (ANI_OK != env->Class_FindMethod(cls, Builder::BuildSetterName("timestamp").c_str(),
+        nullptr, &timestampSetter)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[FillPasteDataPropertyObject] Class_FindMethod failed.");
         return;
     }
