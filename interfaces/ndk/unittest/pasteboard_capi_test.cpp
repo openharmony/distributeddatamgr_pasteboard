@@ -1503,6 +1503,62 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress006, TestSize.Leve
 }
 
 /**
+ * @tc.name: OH_Pasteboard_GetDataWithProgress007
+ * @tc.desc: should get html & text when set html & text with https uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress007, TestSize.Level1)
+{
+    std::string htmlText = "<div><span>test</span><img src='./text.jpg'></div>";
+    auto newData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    EXPECT_NE(g_params, nullptr);
+    const char *uri = "/data/storage/el2/base/haps/entry/files/";
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri, strlen(uri));
+    OH_Pasteboard_GetDataParams_SetProgressIndicator(g_params, PASTEBOARD_DEFAULT);
+    OH_Pasteboard_GetDataParams_SetFileConflictOptions(g_params, PASTEBOARD_SKIP);
+    OH_Pasteboard_GetDataParams_SetProgressListener(g_params, OH_Pasteboard_ProgressListener);
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
+    EXPECT_EQ(status, ERR_OK);
+    EXPECT_NE(getData, nullptr);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_GetDataWithProgress008
+ * @tc.desc: should get html & text when set html & text with https uri and tag
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataWithProgress008, TestSize.Level1)
+{
+    OHOS::Uri uri("./text.jpg");
+    auto newData = PasteboardClient::GetInstance()->CreateUriData(uri);
+    auto ret = PasteboardClient::GetInstance()->SetPasteData(*newData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    g_params = OH_Pasteboard_GetDataParams_Create();
+    EXPECT_NE(g_params, nullptr);
+    const char *uri2 = "/data/storage/el2/base/haps/entry/files/";
+    OH_Pasteboard_GetDataParams_SetDestUri(g_params, uri2, strlen(uri2));
+    OH_Pasteboard_GetDataParams_SetProgressIndicator(g_params, PASTEBOARD_NONE);
+    OH_Pasteboard_GetDataParams_SetFileConflictOptions(g_params, PASTEBOARD_SKIP);
+    OH_Pasteboard_GetDataParams_SetProgressListener(g_params, OH_Pasteboard_ProgressListener);
+    int status = -1;
+    OH_UdmfData* getData = OH_Pasteboard_GetDataWithProgress(pasteboard, g_params, &status);
+    EXPECT_EQ(status, ERR_PASTEBOARD_COPY_FILE_ERROR);
+    EXPECT_EQ(getData, nullptr);
+    OH_Pasteboard_Destroy(pasteboard);
+    OH_Pasteboard_GetDataParams_Destroy(g_params);
+}
+
+/**
  * @tc.name: OH_Pasteboard_GetDataParams_Destroy001
  * @tc.desc: handle data params destroy
  * @tc.type: FUNC

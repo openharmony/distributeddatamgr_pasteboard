@@ -26,7 +26,6 @@ struct CopyInfo {
     std::string destUri;
     std::string srcPath;
     std::string destPath;
-    bool isExist = false;
     bool operator==(const CopyInfo &infos) const
     {
         return (srcUri == infos.srcUri && destUri == infos.destUri);
@@ -62,6 +61,7 @@ private:
         std::shared_ptr<GetDataParams> dataParams);
     static ProgressListener progressListener_;
     static std::atomic_bool canCancel_;
+    static bool ShouldKeepRecord(int32_t &ret, const std::string &destUri, std::shared_ptr<PasteDataRecord> record);
 };
 } // namespace MiscServices
 } // namespace OHOS
