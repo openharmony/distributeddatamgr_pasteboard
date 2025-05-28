@@ -55,6 +55,7 @@ taihe_shared_library("pasteboard_taihe_native") {
     "src/ani_constructor.cpp",
     "src/ohos.pasteboard.pasteboard.impl.cpp",
     "src/pasteboard_taihe_utils.cpp",
+    "src/pasteboard_taihe_observer.cpp",
   ]
   deps = [
     ":run_pasteboard_taihe",
