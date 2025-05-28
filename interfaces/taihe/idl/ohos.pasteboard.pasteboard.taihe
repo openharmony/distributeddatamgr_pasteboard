@@ -16,7 +16,7 @@
 @!namespace("@ohos.pasteboard", "pasteboard")
 
 @!sts_inject_into_module("import Want from '@ohos.app.ability.Want';")
- 
+
 @!sts_inject_into_module("import image from '@ohos.multimedia.image';")
 
 @!sts_inject("const MIMETYPE_TEXT_HTML: String = 'text/html'")
@@ -50,13 +50,13 @@ struct PasteDataProperty {
 interface PasteDataRecord {      
     @get("mimeType")
     GetMimeType(): String;
-    
+
     @get("plainText")
     GetPlainText(): String;
-    
+
     @get("uri")
     GetUri(): String;
-    
+
     @get("pixelMap")
     GetPixelMap(): @sts_type("image.PixelMap") Opaque;
 
@@ -92,19 +92,34 @@ function CreatePasteData(): PasteData;
 
 interface SystemPasteboard {
 
-    @on_off("update")
-    OnUpdate(callback: () => void): void;
-    @on_off("update")
-    OffUpdate(callback: Optional<() => void>): void;
+    @!sts_inject_into_interface("""
+        on(type: string, callback: () => void): void;
+        off(type: string, callback?: () => void): void;
+    """)
+    @!sts_inject_into_class("""
+        on(type: string, cb: object) {
+            switch(type) {
+                case "update": return this.onUpdate(cb as () => void, cb);
+                default: throw new BusinessError(401, new Error("Parameter error. The value of type must be update."));
+            }
+        }
+        off(type: string, cb?: object) {
+            switch(type) {
+                case "update": return this.offUpdate(cb);
+                default: throw new BusinessError(401, new Error("Parameter error. The value of type must be update."));
+            }
+        }
+    """)
+    OnUpdate(callback: () => void, cb: Opaque);
+    OffUpdate(cb: Optional<Opaque>);
 
-    
     @gen_promise("clearData")
     ClearDataImpl(): void;
-    
+
     @gen_async("getData")
     @gen_promise("getData")
     GetDataImpl(): PasteData;
-    
+
     @gen_async("hasData")
     @gen_promise("hasData")
     HasDataImpl(): bool;
