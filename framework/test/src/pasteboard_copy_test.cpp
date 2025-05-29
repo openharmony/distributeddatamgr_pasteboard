@@ -340,4 +340,20 @@ HWTEST_F(PasteboardCopyTest, CopyPasteDataTest002, TestSize.Level0)
     delete dataParams->info;
     dataParams->info = nullptr;
 }
+
+/**
+ * @tc.name: ShouldKeepRecordTest001
+ * @tc.desc: Test should keep record
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(PasteboardCopyTest, ShouldKeepRecordTest001, TestSize.Level0)
+{
+    PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
+    int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
+    std::string destUri = "file:///destination/path";
+    std::shared_ptr<PasteDataRecord> record = nullptr;
+    int32_t result = pasteBoardCopyFile.ShouldKeepRecord(ret, destUri, record);
+    EXPECT_FALSE(result);
+}
 } // namespace OHOS::MiscServices

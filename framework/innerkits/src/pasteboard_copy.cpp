@@ -154,7 +154,6 @@ int32_t PasteBoardCopyFile::InitCopyInfo(const std::string srcUri, std::shared_p
     if (std::filesystem::exists(copyInfo->destPath, errCode) && errCode.value() == ERRNO_NOERR &&
         dataParams->fileConflictOption == FILE_SKIP) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File has existed.");
-        copyInfo->isExist = true;
         return E_EXIST;
     }
     FileUri realFileUri(realSrc);
@@ -205,18 +204,35 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
             HandleProgress(recordProcessedIndex, info, processSize, totalSize, dataParams);
         };
         ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Copy(srcUri, copyInfo->destUri, listener);
-        if ((ret == static_cast<int32_t>(PasteboardError::E_OK) || ret == ERRNO_NOERR) && !copyInfo->isExist &&
-            !ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
-            auto sharedUri = std::make_shared<OHOS::Uri>(copyInfo->destUri);
-            record->SetUri(sharedUri);
-            record->SetConvertUri("");
-            index++;
-        } else {
+        if (!ShouldKeepRecord(ret, copyInfo->destUri, record)) {
             pasteData.RemoveRecordAt(index);
+        } else {
+            index++;
         }
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DFS copy ret: %{public}d", ret);
     }
     return (ret == ERRNO_NOERR || ret == DFS_CANCEL_SUCCESS) ? static_cast<int32_t>(PasteboardError::E_OK) : ret;
+}
+
+bool PasteBoardCopyFile::ShouldKeepRecord(
+    int32_t &ret, const std::string &destUri, std::shared_ptr<PasteDataRecord> record)
+{
+    if (record == nullptr) {
+        return false;
+    }
+    if ((ret == static_cast<int32_t>(PasteboardError::E_OK) || ret == ERRNO_NOERR) &&
+        !ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
+        auto sharedUri = std::make_shared<OHOS::Uri>(destUri);
+        record->SetUri(sharedUri);
+        record->SetConvertUri("");
+        return true;
+    } else if (record->GetFrom() > 0 && record->GetRecordId() != record->GetFrom() &&
+        !ProgressSignalClient::GetInstance().CheckCancelIfNeed()) {
+        ret = ERRNO_NOERR;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize,
