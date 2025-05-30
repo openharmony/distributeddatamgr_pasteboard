@@ -520,3 +520,19 @@ HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_006, TestSize.Level1)
     bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
     EXPECT_FALSE(result);
 }
+
+/**
+* @tc.name: SplitWebviewPasteDataTest_007.
+* @tc.desc:SplitWebviewPasteData_ShouldReturnTrue_WhenHtmlEntryIsValid
+* @tc.type: FUNC.
+* @tc.require:
+* @tc.author:
+*/
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_007, TestSize.Level1)
+{
+    PasteData pasteData;
+    pasteData.AddHtmlRecord("<p>Hello world!<img src=\"file:///storage/local/files/Images/hello.png\"/><p>");
+    bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
+}
