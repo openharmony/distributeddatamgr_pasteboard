@@ -14,7 +14,7 @@
         },
         {
             "name":"prompttext_udmf_format",
-            "value":"形式を変換中..."
+            "value":"形式を変換中…"
         },
         {
             "name":"prompttext_udmf_download",
@@ -26,11 +26,11 @@
         },
         {
             "name":"prompttext_udmf_copy",
-            "value":"コピー中..."
+            "value":"コピー中…"
         },
         {
             "name":"learn_more",
-            "value":"詳細"
+            "value":"詳細を確認"
         },
         {
             "name":"prompttext_udmf_download_error",
@@ -47,6 +47,34 @@
         {
             "name":"progress_completed_percentage",
             "value":"%s完了"
+        },
+        {
+            "name":"prompttext_udmf_copy_error",
+            "value":"コピーに失敗しました。後で再試行してください。"
+        },
+        {
+            "name":"pasteboard_desc_text",
+            "value":"一方のデバイスからコピーし、もう一方のデバイスに貼り付けます。デバイスは互いの近くにあり、同じHUAWEI IDでログインしており、WLAN、Bluetooth、およびこの機能が有効になっている必要があります。%s"
+        },
+        {
+            "name":"prompttext_udmf_format_error",
+            "value":"形式の変換に失敗しました。後で再試行してください。"
+        },
+        {
+            "name":"prompttext_udmf_move_error",
+            "value":"移動できません。後で再試行してください。"
+        },
+        {
+            "name":"prompttext_udmf_import_error",
+            "value":"インポートに失敗しました。後で再試行してください。"
+        },
+        {
+            "name":"pasteboard_title",
+            "value":"クロスデバイスクリップボード"
+        },
+        {
+            "name":"prompttext_pasteboard_remote",
+            "value":"「%s」から貼り付け中…"
         }
     ]
 }

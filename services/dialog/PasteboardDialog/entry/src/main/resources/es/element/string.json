@@ -10,11 +10,11 @@
         },
         {
             "name":"update_version_prompt",
-            "value":"Ambos dispositivos deben ejecutar HarmonyOS NEXT"
+            "value":"Ambos dispositivos deben tener HarmonyOS NEXT"
         },
         {
             "name":"prompttext_udmf_format",
-            "value":"Convirtiendo formato…"
+            "value":"Convirtiendo formato..."
         },
         {
             "name":"prompttext_udmf_download",
@@ -26,7 +26,7 @@
         },
         {
             "name":"prompttext_udmf_copy",
-            "value":"Copiando…"
+            "value":"Copiando..."
         },
         {
             "name":"learn_more",
@@ -34,7 +34,7 @@
         },
         {
             "name":"prompttext_udmf_download_error",
-            "value":"No se ha podido descargar. Inténtelo de nuevo más tarde."
+            "value":"No se puede descargar. Vuelve a intentarlo más tarde."
         },
         {
             "name":"prompttext_udmf_move",
@@ -42,11 +42,39 @@
         },
         {
             "name":"prompttext_pasteboard_error",
-            "value":"No se ha podido pegar. Vuelve a intentarlo."
+            "value":"No se puede pegar. Vuelve a intentarlo."
         },
         {
             "name":"progress_completed_percentage",
             "value":"%s completado"
+        },
+        {
+            "name":"prompttext_udmf_copy_error",
+            "value":"Error al copiar. Vuelve a intentarlo más tarde."
+        },
+        {
+            "name":"pasteboard_desc_text",
+            "value":"Copia en un dispositivo y pega en otro. Los dispositivos deben estar cerca el uno del otro, haber iniciado sesión en el mismo ID de HUAWEI y tener la WLAN, el Bluetooth y esta función habilitados. %s"
+        },
+        {
+            "name":"prompttext_udmf_format_error",
+            "value":"Error al convertir el formato. Vuelve a intentarlo más tarde."
+        },
+        {
+            "name":"prompttext_udmf_move_error",
+            "value":"Error al mover. Vuelve a intentarlo más tarde."
+        },
+        {
+            "name":"prompttext_udmf_import_error",
+            "value":"Error al importar. Vuelve a intentarlo más tarde."
+        },
+        {
+            "name":"pasteboard_title",
+            "value":"Portapapeles entre dispositivos"
+        },
+        {
+            "name":"prompttext_pasteboard_remote",
+            "value":"Pegando desde \"%s\"…"
         }
     ]
 }

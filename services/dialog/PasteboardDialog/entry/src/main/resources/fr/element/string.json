@@ -10,7 +10,7 @@
         },
         {
             "name":"update_version_prompt",
-            "value":"Les deux appareils doivent fonctionner sous HarmonyOS NEXT."
+            "value":"Les deux appareils doivent fonctionner sous HarmonyOS NEXT"
         },
         {
             "name":"prompttext_udmf_format",
@@ -34,7 +34,7 @@
         },
         {
             "name":"prompttext_udmf_import_error",
-            "value":"Échec de l'importation. Réessayez ultérieurement."
+            "value":"L'importation a échoué. Veuillez réessayer ultérieurement."
         },
         {
             "name":"prompttext_udmf_download_error",
@@ -46,11 +46,35 @@
         },
         {
             "name":"prompttext_pasteboard_error",
-            "value":"L'élément ne peut pas être collé. Veuillez réessayer."
+            "value":"Le collage a échoué. Veuillez réessayer."
         },
         {
             "name":"progress_completed_percentage",
             "value":"Terminé : %s"
+        },
+        {
+            "name":"prompttext_udmf_copy_error",
+            "value":"La copie a échoué. Veuillez réessayer ultérieurement."
+        },
+        {
+            "name":"pasteboard_desc_text",
+            "value":"Copier sur un appareil, coller sur un autre. Les appareils doivent être proches les uns des autres et connectés au même Compte HUAWEI. De plus, le WLAN, le Bluetooth et cette fonctionnalité doivent être activés sur ces appareils. %s"
+        },
+        {
+            "name":"prompttext_udmf_format_error",
+            "value":"La conversion du format a échoué. Veuillez réessayer ultérieurement."
+        },
+        {
+            "name":"prompttext_udmf_move_error",
+            "value":"Le déplacement a échoué. Veuillez réessayer ultérieurement."
+        },
+        {
+            "name":"pasteboard_title",
+            "value":"Presse-papier multi-appareils"
+        },
+        {
+            "name":"prompttext_pasteboard_remote",
+            "value":"Collage depuis \"%s\" en cours."
         }
     ]
 }
