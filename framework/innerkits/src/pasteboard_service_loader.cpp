@@ -191,6 +191,7 @@ int32_t PasteboardServiceLoader::ProcessPasteData(PasteDataEntry &data, int64_t 
     }
     bool result = false;
     MessageParcel parcelData;
+    PasteDataEntry entryValue;
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         parcelData.WriteInt64(rawDataSize);
         parcelData.WriteFileDescriptor(fd);
@@ -202,15 +203,16 @@ int32_t PasteboardServiceLoader::ProcessPasteData(PasteDataEntry &data, int64_t 
             return ret;
         }
         std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
-        result = data.Decode(pasteDataTlv);
+        result = entryValue.Decode(pasteDataTlv);
     } else {
-        result = data.Decode(recvTLV);
+        result = entryValue.Decode(recvTLV);
         close(fd);
     }
     if (!result) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Failed to decode pastedata in TLV");
         return ret;
     }
+    data = std::move(entryValue);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
