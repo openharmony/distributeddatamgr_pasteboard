@@ -105,6 +105,7 @@ private:
 #ifdef PB_DEVICE_MANAGER_ENABLE
     std::shared_mutex dmMutex_;
     std::vector<DmDeviceInfo> devices_;
+    std::atomic<int32_t> deviceType_;
 #endif
 };
 } // namespace OHOS::MiscServices

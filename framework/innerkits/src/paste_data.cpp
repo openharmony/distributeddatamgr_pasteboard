@@ -199,6 +199,21 @@ std::vector<std::string> PasteData::GetReportMimeTypes()
     return mimeTypes;
 }
 
+DataDescription PasteData::GetReportDescription()
+{
+    DataDescription description;
+    description.recordNum = records_.size();
+    description.mimeTypes = GetReportMimeTypes();
+    for (uint32_t i = 0; i < description.recordNum; i++) {
+        auto record = GetRecordAt(i);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, description, PASTEBOARD_MODULE_COMMON,
+            "GetRecordAt is nullptr");
+        auto entries = record->GetEntries();
+        description.entryNum.push_back(entries.size());
+    }
+    return description;
+}
+
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
     for (const auto &item : records_) {

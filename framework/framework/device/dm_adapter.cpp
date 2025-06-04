@@ -237,10 +237,15 @@ std::vector<std::string> DMAdapter::GetNetworkIds()
 int32_t DMAdapter::GetLocalDeviceType()
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
+    if (deviceType_.load() != DmDeviceType::DEVICE_TYPE_UNKNOWN) {
+        return deviceType_.load();
+    }
     int32_t deviceType = DmDeviceType::DEVICE_TYPE_UNKNOWN;
     int32_t ret = DeviceManager::GetInstance().GetLocalDeviceType(PKG_NAME, deviceType);
     if (ret != 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get type failed, ret is %{public}d!", ret);
+    } else {
+        deviceType_.store(deviceType);
     }
     return deviceType;
 #else

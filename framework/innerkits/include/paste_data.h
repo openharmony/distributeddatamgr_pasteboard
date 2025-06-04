@@ -16,6 +16,7 @@
 #define PASTE_BOARD_DATA_H
 
 #include "paste_data_record.h"
+#include "pasteboard_event_common.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -62,6 +63,7 @@ public:
     void AddRecord(const PasteDataRecord &record);
     std::vector<std::string> GetMimeTypes();
     std::vector<std::string> GetReportMimeTypes();
+    DataDescription GetReportDescription();
     std::shared_ptr<std::string> GetPrimaryHtml();
     std::shared_ptr<OHOS::Media::PixelMap> GetPrimaryPixelMap();
     std::shared_ptr<std::string> GetPrimaryText();

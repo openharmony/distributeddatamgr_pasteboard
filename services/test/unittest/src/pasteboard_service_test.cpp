@@ -1757,20 +1757,6 @@ HWTEST_F(PasteboardServiceTest, GetCommonStateTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetDataDescription
- * @tc.desc: GetDataDescriptionTest001
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetDataDescriptionTest001, TestSize.Level0)
-{
-    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    PasteData pasteData;
-    DataDescription description = tempPasteboard->GetDataDescription(pasteData);
-    EXPECT_EQ(description.recordNum, 0);
-}
-
-/**
  * @tc.name: SetRadarEvent
  * @tc.desc: SetRadarEventTest001
  * @tc.type: FUNC
