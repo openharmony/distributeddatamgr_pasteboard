@@ -314,7 +314,6 @@ private:
     int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime, bool &isPeerOnline, std::string &peerNetId,
         std::string &peerUdid);
     CommonInfo GetCommonState(int64_t dataSize);
-    DataDescription GetDataDescription(PasteData &data);
     void SetRadarEvent(const AppInfo &appInfo, PasteData &data, bool isPeerOnline,
         RadarReportInfo &radarReportInfo, const std::string &peerNetId);
     void SetUeEvent(const AppInfo &appInfo, PasteData &data, bool isPeerOnline,

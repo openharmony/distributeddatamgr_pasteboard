@@ -276,6 +276,42 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceType001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetLocalDeviceType002
+ * @tc.desc: GetLocalDeviceType.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterMockTest, GetLocalDeviceType002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    EXPECT_CALL(*deviceManagerMock_, GetLocalDeviceType(testing::_, testing::_))
+        .Times(1)
+        .WillRepeatedly(testing::Return(0));
+    int32_t deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
+    ASSERT_NE(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: GetLocalDeviceType003
+ * @tc.desc: GetLocalDeviceType.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterMockTest, GetLocalDeviceType003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    int32_t deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
+    ASSERT_NE(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+/**
  * @tc.name: SetDevices001
  * @tc.desc: SetDevices.
  * @tc.type: FUNC

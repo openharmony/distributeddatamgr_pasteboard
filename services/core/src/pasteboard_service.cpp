@@ -320,7 +320,7 @@ void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int64_t dataSize
     UeReportInfo reportInfo;
     reportInfo.ret = res;
     reportInfo.bundleName = appInfo.bundleName;
-    reportInfo.description = GetDataDescription(pasteData);
+    reportInfo.description = pasteData.GetReportDescription();
     reportInfo.commonInfo = GetCommonState(dataSize);
     UE_REPORT(UE_COPY, reportInfo);
 }
@@ -898,7 +898,7 @@ bool PasteboardService::IsDataAged()
     static bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
     int32_t agedTime = developerMode ? system::GetIntParameter("const.pasteboard.rd_test_aged_time",
         ONE_HOUR_MINUTES, MIN_AGED_TIME, MAX_AGED_TIME) : ONE_HOUR_MINUTES;
-    if (curTime > copyTime && curTime - copyTime > agedTime * MINUTES_TO_MILLISECONDS) {
+    if (curTime > copyTime && curTime - copyTime > static_cast<uint64_t>(agedTime * MINUTES_TO_MILLISECONDS)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
         auto data = clips_.Find(userId);
         if (data.first) {
@@ -1041,19 +1041,6 @@ CommonInfo PasteboardService::GetCommonState(int64_t dataSize)
     return commonInfo;
 }
 
-DataDescription PasteboardService::GetDataDescription(PasteData &data)
-{
-    DataDescription description;
-    description.recordNum = data.GetRecordCount();
-    description.mimeTypes = data.GetReportMimeTypes();
-    for (uint32_t i = 0; i < description.recordNum; i++) {
-        auto record = data.GetRecordAt(i);
-        auto entries = record->GetEntries();
-        description.entryNum.push_back(entries.size());
-    }
-    return description;
-}
-
 void PasteboardService::SetRadarEvent(const AppInfo &appInfo, PasteData &data, bool isPeerOnline,
     RadarReportInfo &radarReportInfo, const std::string &peerNetId)
 {
@@ -1066,8 +1053,7 @@ void PasteboardService::SetRadarEvent(const AppInfo &appInfo, PasteData &data, b
     std::string peerUdid = DMAdapter::GetInstance().GetUdidByNetworkId(peerNetId);
     radarReportInfo.stageRes = DFX_SUCCESS;
     radarReportInfo.bundleName = appInfo.bundleName;
-    radarReportInfo.description = GetDataDescription(data);
-    radarReportInfo.pasteInfo.pasteId = data.GetPasteId();
+    radarReportInfo.description = data.GetReportDescription();
     radarReportInfo.pasteInfo.onlineDevNum = DMAdapter::GetInstance().GetNetworkIds().size();
     radarReportInfo.pasteInfo.peerNetId = PasteboardDfxUntil::GetAnonymousID(peerNetId);
     radarReportInfo.pasteInfo.peerUdid = PasteboardDfxUntil::GetAnonymousID(peerUdid);
@@ -1089,7 +1075,7 @@ void PasteboardService::SetUeEvent(const AppInfo &appInfo, PasteData &data, bool
     ueReportInfo.pasteInfo.isDistributed = data.IsRemote();
     ueReportInfo.pasteInfo.isPeerOnline = isPeerOnline;
     ueReportInfo.pasteInfo.onlineDevNum = DMAdapter::GetInstance().GetNetworkIds().size();
-    ueReportInfo.description = GetDataDescription(data);
+    ueReportInfo.description = data.GetReportDescription();
 }
 
 int32_t PasteboardService::GetPasteData(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
@@ -1130,9 +1116,10 @@ int32_t PasteboardService::GetPasteDataInner(int &fd, int64_t &size, std::vector
     bool isPeerOnline = false;
     std::string peerNetId = "";
     std::string peerUdid = "";
+    RadarReportInfo radarReportInfo;
+    radarReportInfo.pasteInfo.pasteId = data.GetPasteId();
     auto ret = GetData(tokenId, data, syncTime, isPeerOnline, peerNetId, peerUdid);
     SetUeEvent(appInfo, data, isPeerOnline, ueReportInfo, peerNetId);
-    RadarReportInfo radarReportInfo;
     SetRadarEvent(appInfo, data, isPeerOnline, radarReportInfo, peerNetId);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
@@ -1970,7 +1957,7 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     RadarReportInfo radarReportInfo;
     radarReportInfo.stageRes = static_cast<int32_t>(pasteData.IsDelayData());
     radarReportInfo.bundleName = appInfo.bundleName;
-    radarReportInfo.description = GetDataDescription(pasteData);
+    radarReportInfo.description = pasteData.GetReportDescription();
     radarReportInfo.commonInfo = GetCommonState(dataSize);
     COPY_RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, radarReportInfo);
     HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
