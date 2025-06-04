@@ -449,7 +449,6 @@ private:
     ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
     std::map<std::string, std::shared_ptr<BlockObject<bool>>> preSyncP2pMap_;
     int32_t subscribeActiveId_ = INVALID_SUBSCRIBE_ID;
-    int32_t localDeviceType_ = 0;
     enum GlobalShareOptionSource {
         MDM = 0,
         APP = 1,
