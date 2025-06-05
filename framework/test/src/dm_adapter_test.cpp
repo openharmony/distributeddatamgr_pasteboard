@@ -614,6 +614,25 @@ HWTEST_F(DMAdapterTest, GetDevices, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetLocalDeviceType002
+ * @tc.desc: GetLocalDeviceType
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DMAdapterTest, GetLocalDeviceType002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    int32_t deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
+    ASSERT_NE(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
+    deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
+    ASSERT_NE(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
+#else
+    ASSERT_TRUE(true);
+#endif
+}
+
+/**
  * @tc.name: GetDeviceName001
  * @tc.desc: Get Local Device Type
  * @tc.type: FUNC

@@ -23,7 +23,7 @@
 namespace OHOS {
 struct DataDescription {
     uint32_t recordNum = 0;
-    std::vector<uint32_t> entryNum;
+    std::vector<int32_t> entryNum;
     std::vector<std::string> mimeTypes;
 };
 
