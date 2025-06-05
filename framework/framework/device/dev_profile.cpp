@@ -75,16 +75,18 @@ void DevProfile::PutDeviceStatus(bool status)
     UE_SWITCH(UE_SWITCH_OPERATION, UeReporter::UE_OPERATION_TYPE, status ?
         UeReporter::SwitchStatus::SWITCH_OPEN : UeReporter::SwitchStatus::SWITCH_CLOSE);
 
-    std::lock_guard lock(proxyMutex_);
-    PostDelayReleaseProxy();
-    if (proxy_ == nullptr) {
-        proxy_ = std::make_shared<DeviceProfileProxy>();
+    {
+        std::lock_guard lock(proxyMutex_);
+        PostDelayReleaseProxy();
+        if (proxy_ == nullptr) {
+            proxy_ = std::make_shared<DeviceProfileProxy>();
+        }
+        auto adapter = proxy_->GetAdapter();
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+        int32_t ret = adapter->PutDeviceStatus(udid, status);
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), PASTEBOARD_MODULE_SERVICE,
+            "put dp status failed, ret=%{public}d", ret);
     }
-    auto adapter = proxy_->GetAdapter();
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
-    int32_t ret = adapter->PutDeviceStatus(udid, status);
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), PASTEBOARD_MODULE_SERVICE,
-        "put dp status failed, ret=%{public}d", ret);
 
     Notify(status);
 }
@@ -104,17 +106,19 @@ int32_t DevProfile::GetDeviceStatus(const std::string &networkId, bool &status)
         return static_cast<int32_t>(PasteboardError::E_OK);
     }
 
-    std::lock_guard lock(proxyMutex_);
-    PostDelayReleaseProxy();
-    if (proxy_ == nullptr) {
-        proxy_ = std::make_shared<DeviceProfileProxy>();
+    {
+        std::lock_guard lock(proxyMutex_);
+        PostDelayReleaseProxy();
+        if (proxy_ == nullptr) {
+            proxy_ = std::make_shared<DeviceProfileProxy>();
+        }
+        auto adapter = proxy_->GetAdapter();
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(adapter != nullptr, static_cast<int32_t>(PasteboardError::DLOPEN_FAILED),
+            PASTEBOARD_MODULE_SERVICE, "adapter is null");
+        int32_t ret = adapter->GetDeviceStatus(udid, status);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
+            PASTEBOARD_MODULE_SERVICE, "get dp status failed, udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
     }
-    auto adapter = proxy_->GetAdapter();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(adapter != nullptr, static_cast<int32_t>(PasteboardError::DLOPEN_FAILED),
-        PASTEBOARD_MODULE_SERVICE, "adapter is null");
-    int32_t ret = adapter->GetDeviceStatus(udid, status);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
-        PASTEBOARD_MODULE_SERVICE, "get dp status failed, udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
 
     UpdateEnabledStatus(udid, status);
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -126,16 +130,18 @@ bool DevProfile::GetDeviceVersion(const std::string &networkId, uint32_t &versio
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!udid.empty(), false,
         PASTEBOARD_MODULE_SERVICE, "get udid failed, netId=%{public}.5s", networkId.c_str());
 
-    std::lock_guard lock(proxyMutex_);
-    PostDelayReleaseProxy();
-    if (proxy_ == nullptr) {
-        proxy_ = std::make_shared<DeviceProfileProxy>();
+    {
+        std::lock_guard lock(proxyMutex_);
+        PostDelayReleaseProxy();
+        if (proxy_ == nullptr) {
+            proxy_ = std::make_shared<DeviceProfileProxy>();
+        }
+        auto adapter = proxy_->GetAdapter();
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(adapter != nullptr, false, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+        bool ret = adapter->GetDeviceVersion(udid, versionId);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false,
+            PASTEBOARD_MODULE_SERVICE, "get dp version failed, udid=%{public}.5s", udid.c_str());
     }
-    auto adapter = proxy_->GetAdapter();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(adapter != nullptr, false, PASTEBOARD_MODULE_SERVICE, "adapter is null");
-    bool ret = adapter->GetDeviceVersion(udid, versionId);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false,
-        PASTEBOARD_MODULE_SERVICE, "get dp version failed, udid=%{public}.5s", udid.c_str());
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "netid=%{public}.5s, udid=%{public}.5s, version=%{public}u",
         networkId.c_str(), udid.c_str(), versionId);
