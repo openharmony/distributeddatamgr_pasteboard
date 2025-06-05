@@ -1247,4 +1247,19 @@ HWTEST_F(PasteDataTest, GetReportDescriptionTest002, TestSize.Level0)
     DataDescription description = pasteData.GetReportDescription();
     EXPECT_EQ(description.recordNum, 0);
 }
+
+/**
+ * @tc.name: GetReportDescriptionTest003
+ * @tc.desc: GetReportDescription
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetReportDescriptionTest003, TestSize.Level0)
+{
+    std::shared_ptr<PasteDataRecord> record1 = nullptr;
+    std::shared_ptr<PasteDataRecord> record2 = std::make_shared<PasteDataRecord>();
+    std::vector<std::shared_ptr<PasteDataRecord>> records = {record1, record2};
+    PasteData pasteData(records);
+    DataDescription description = pasteData.GetReportDescription();
+    EXPECT_EQ(description.recordNum, 2);
+}
 } // namespace OHOS::MiscServices

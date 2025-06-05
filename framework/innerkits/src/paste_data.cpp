@@ -79,6 +79,7 @@ PasteData::PasteData(const PasteData &data)
 PasteData::PasteData(std::vector<std::shared_ptr<PasteDataRecord>> records) : records_{ std::move(records) }
 {
     for (const auto &item : records_) {
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(item != nullptr, PASTEBOARD_MODULE_CLIENT, "record is null");
         item->SetRecordId(++recordId_);
     }
     props_.timestamp = steady_clock::now().time_since_epoch().count();
@@ -189,6 +190,11 @@ std::vector<std::string> PasteData::GetReportMimeTypes()
     uint32_t maxReportNum = recordNum > MAX_REPORT_RECORD_NUM ? ACTUAL_MAX_REPORT_RECORD_NUM : recordNum;
     for (uint32_t i = 0; i < maxReportNum; ++i) {
         auto &item = records_[i];
+        if (item == nullptr) {
+            {PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "record is nullptr.");}
+            mimeTypes.emplace_back("NULL");
+            continue;
+        }
         if (item->GetFrom() > 0 && item->GetRecordId() != item->GetFrom()) {
             mimeTypes.emplace_back("web/uri");
             continue;
@@ -206,8 +212,11 @@ DataDescription PasteData::GetReportDescription()
     description.mimeTypes = GetReportMimeTypes();
     for (uint32_t i = 0; i < description.recordNum; i++) {
         auto record = GetRecordAt(i);
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, description, PASTEBOARD_MODULE_COMMON,
-            "GetRecordAt is nullptr");
+        if (record == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetRecordAt(%{public}d) failed.", i);
+            description.entryNum.push_back(-1);
+            continue;
+        }
         auto entries = record->GetEntries();
         description.entryNum.push_back(entries.size());
     }
