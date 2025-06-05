@@ -15,7 +15,7 @@
 
 #include "pasteboard_taihe_utils.h"
 #include "ani_common_want.h"
-#include "image_ani_utils.h"
+#include "pixel_map_taihe_ani.h"
 #include "pasteboard_client.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
@@ -94,7 +94,7 @@ void PixelMapStrategy::AddRecord(
     }
     uintptr_t ptr = value.get_pixelMapOrWant_ref();
     ani_object obj = reinterpret_cast<ani_object>(ptr);
-    auto pixelMap = OHOS::Media::ImageAniUtils::GetPixelMapFromEnvSp(taihe::get_env(), obj);
+    auto pixelMap = OHOS::Media::PixelMapTaiheAni::GetNativePixelMap(taihe::get_env(), obj);
     if (pixelMap == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get pixelMap failed");
     }
@@ -112,7 +112,7 @@ void PixelMapStrategy::CreateData(
     uintptr_t pixelMapPtr = value.get_pixelMapOrWant_ref();
     ani_object pixelMapObj = reinterpret_cast<ani_object>(pixelMapPtr);
     std::shared_ptr<Media::PixelMap> pixelMap =
-        OHOS::Media::ImageAniUtils::GetPixelMapFromEnvSp(taihe::get_env(), pixelMapObj);
+        OHOS::Media::PixelMapTaiheAni::GetNativePixelMap(taihe::get_env(), pixelMapObj);
     if (pixelMap == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get pixelMap failed");
         pasteData = nullptr;
@@ -135,7 +135,7 @@ pasteboardTaihe::ValueType PixelMapStrategy::ConvertToValueType(
             static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. pixelMap get failed");
         return pasteboardTaihe::ValueType::make_pixelMapOrWant(pixelMapPtr);
     }
-    ani_object pixelMapObj = OHOS::Media::PixelMapAni::CreatePixelMap(taihe::get_env(), pixelMap);
+    ani_object pixelMapObj = OHOS::Media::PixelMapTaiheAni::CreateEtsPixelMap(taihe::get_env(), pixelMap);
     pixelMapPtr = reinterpret_cast<uintptr_t>(pixelMapObj);
     return pasteboardTaihe::ValueType::make_pixelMapOrWant(pixelMapPtr);
 }
@@ -149,7 +149,7 @@ EntryValue PixelMapStrategy::ConvertFromValueType(const std::string &mimeType, c
     uintptr_t pixelMapPtr = value.get_pixelMapOrWant_ref();
     ani_object pixelMapObj = reinterpret_cast<ani_object>(pixelMapPtr);
     std::shared_ptr<Media::PixelMap> pixelMap =
-        OHOS::Media::ImageAniUtils::GetPixelMapFromEnvSp(taihe::get_env(), pixelMapObj);
+        OHOS::Media::PixelMapTaiheAni::GetNativePixelMap(taihe::get_env(), pixelMapObj);
     if (pixelMap == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get pixelMap failed");
     }

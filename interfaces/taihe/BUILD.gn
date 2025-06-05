@@ -70,7 +70,7 @@ taihe_shared_library("pasteboard_taihe_native") {
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
-    "image_framework:image_ani",
+    "image_framework:image_taihe",
     "ipc:ipc_core",
     "napi:ace_napi",
     "runtime_core:ani",

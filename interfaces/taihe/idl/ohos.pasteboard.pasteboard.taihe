@@ -76,7 +76,7 @@ interface PasteData {
 
     GetMimeTypes(): Array<String>;
     GetPrimaryHtml(): String;
-    GetPrimaryWant(): Opaque;
+    GetPrimaryWant(): @sts_type("Want") Opaque;
     GetPrimaryMimeType(): String;
     GetPrimaryText(): String;
     GetPrimaryUri(): String;
