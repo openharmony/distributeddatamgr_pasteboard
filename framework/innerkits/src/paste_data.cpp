@@ -191,7 +191,7 @@ std::vector<std::string> PasteData::GetReportMimeTypes()
     for (uint32_t i = 0; i < maxReportNum; ++i) {
         auto &item = records_[i];
         if (item == nullptr) {
-            {PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "record is nullptr.");}
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "record is nullptr.");
             mimeTypes.emplace_back("NULL");
             continue;
         }
@@ -213,7 +213,7 @@ DataDescription PasteData::GetReportDescription()
     for (uint32_t i = 0; i < description.recordNum; i++) {
         auto record = GetRecordAt(i);
         if (record == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetRecordAt(%{public}d) failed.", i);
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "GetRecordAt(%{public}u) failed.", i);
             description.entryNum.push_back(-1);
             continue;
         }
