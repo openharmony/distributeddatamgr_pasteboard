@@ -330,19 +330,19 @@ HWTEST_F(PasteboardClientMockTest, ProcessRadarReport001, TestSize.Level0)
     ret = static_cast<int32_t>(PasteboardError::E_OK);
     pasteData.deviceId_ = "";
     PasteboardClient::GetInstance()->ProcessRadarReport(
-        ret, pasteData, pasteDataFromServiceInfo, syncTime);
+        ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
     EXPECT_EQ(pasteData.deviceId_.length(), 0);
     pasteData.deviceId_ = "deviceId_";
     PasteboardClient::GetInstance()->ProcessRadarReport(
-        ret, pasteData, pasteDataFromServiceInfo, syncTime);
+        ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
 
     ret = static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     PasteboardClient::GetInstance()->ProcessRadarReport(
-        ret, pasteData, pasteDataFromServiceInfo, syncTime);
+        ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
 
     ret = static_cast<int32_t>(PasteboardError::TASK_PROCESSING);
     PasteboardClient::GetInstance()->ProcessRadarReport(
-        ret, pasteData, pasteDataFromServiceInfo, syncTime);
+        ret, pasteData, pasteDataFromServiceInfo, syncTime, pasteDataInfoSummary);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessRadarReport001  end-----");
 }
 
