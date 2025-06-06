@@ -1523,4 +1523,284 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptions, TestSize.Level0)
     PasteboardServiceTest::RestoreSelfTokenId();
 }
 
+/**
+ * @tc.name: PasteRecordTest005
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ * @tc.require: AR000H5GKU
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    auto newPixelMap = pasteDataRecord->GetPixelMap();
+    ASSERT_TRUE(newPixelMap != nullptr);
+    ImageInfo imageInfo = {};
+    newPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == opts.size.height);
+    ASSERT_TRUE(imageInfo.size.width == opts.size.width);
+    ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
+    pasteDataRecord->ClearPixelMap();
+    ASSERT_TRUE(pasteDataRecord->GetPixelMap() == nullptr);
+}
+
+/**
+ * @tc.name: PasteRecordTest006
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ * @tc.require: AR000H5GKU
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest006, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888, PixelFormat::ARGB_8888 };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    InitializationOptions opts1 = { { 6, 9 }, PixelFormat::RGB_565, PixelFormat::RGB_565 };
+    std::unique_ptr<PixelMap> pixelMap1 = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts1);
+    std::shared_ptr<PixelMap> pixelMapIn1 = move(pixelMap1);
+    pasteDataRecord = pasteDataRecord->NewPixelMapRecord(pixelMapIn1);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    auto newPixelMap = pasteDataRecord->GetPixelMap();
+    ASSERT_TRUE(newPixelMap != nullptr);
+    ImageInfo imageInfo = {};
+    newPixelMap->GetImageInfo(imageInfo);
+    ASSERT_TRUE(imageInfo.size.height == opts1.size.height);
+    ASSERT_TRUE(imageInfo.size.width == opts1.size.width);
+    ASSERT_TRUE(imageInfo.pixelFormat == opts1.pixelFormat);
+}
+
+/**
+ * @tc.name: PasteRecordTest007
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ * @tc.require: AR000HEECD
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest007, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    auto customData = pasteDataRecord->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    auto itemData = customData->GetItemData();
+    ASSERT_TRUE(itemData.size() == 1);
+    auto item = itemData.find(mimeType);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer);
+}
+
+/**
+ * @tc.name: PasteRecordTest008
+ * @tc.desc: Create paste board record test.
+ * @tc.type: FUNC
+ * @tc.require: AR000HEECD
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest008, TestSize.Level0)
+{
+    std::vector<uint8_t> arrayBuffer(46);
+    arrayBuffer = { 2, 7, 6, 8, 9 };
+    std::string mimeType = "image/jpg";
+    auto pasteDataRecord = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, arrayBuffer);
+    ASSERT_TRUE(pasteDataRecord != nullptr);
+    std::string mimeType1 = "img/png";
+    std::vector<uint8_t> arrayBuffer1(46);
+    arrayBuffer1 = { 2, 7, 6, 8, 9 };
+    pasteDataRecord = pasteDataRecord->NewKvRecord(mimeType1, arrayBuffer1);
+    auto customData = pasteDataRecord->GetCustomData();
+    ASSERT_TRUE(customData != nullptr);
+    auto itemData = customData->GetItemData();
+    ASSERT_TRUE(itemData.size() == 1);
+    auto item = itemData.find(mimeType1);
+    ASSERT_TRUE(item != itemData.end());
+    ASSERT_TRUE(item->second == arrayBuffer1);
+}
+
+/**
+ * @tc.name: PasteRecordTest009
+ * @tc.desc: Create paste board html local url
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest009, TestSize.Level0)
+{
+    std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
+                           "src='file:///com.example.webview/data/storage/el1/base/test.png'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(data != nullptr);
+    data->SetTag(g_webviewPastedataTag);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+}
+
+/**
+ * @tc.name: PasteRecordTest0010
+ * @tc.desc: Create paste board html distributed uri.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0010, TestSize.Level0)
+{
+    std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
+                           "src='file://com.byy.testdpb/data/storage/el2/distributedfiles/"
+                           ".remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(data != nullptr);
+    data->SetTag(g_webviewPastedataTag);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData2;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData2);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData2.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_TRUE(*record == htmlText);
+}
+
+/**
+ * @tc.name: PasteRecordTest0011
+ * @tc.desc: Create paste board html distributed uri.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0011, TestSize.Level0)
+{
+    std::string htmlText = "<div class='item'><img "
+                           "src='file://com.byy.testdpb/data/storage/el2/distributedfiles/"
+                           ".remote_share/data/storage/el2/base/haps/entry/cache/t1.jpg'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(data != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData2;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData2);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData2.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_TRUE(*record == htmlText);
+}
+
+/**
+ * @tc.name: PasteRecordTest0012
+ * @tc.desc: Create paste board html local url
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0012, TestSize.Level0)
+{
+    std::string htmlText = "<div class='item'><img data-ohos='clipboard' "
+                           "src='file:///com.example.webview/data/storage/el1/base/test.png'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
+    ASSERT_TRUE(data != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+}
+
+/**
+ * @tc.name: PasteRecordTest0013
+ * @tc.desc: Create paste board html local docs uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0013, TestSize.Level0)
+{
+    std::string htmlTextIn = "<div class='item'><img data-ohos='clipboard' "
+                             "src='file:///docs/storage/Users/currentUser/VMDocs/test.png'></div>";
+    std::string htmlTextOut = "<div class='item'><img data-ohos='clipboard' "
+                              "src='file:///storage/Users/currentUser/VMDocs/test.png'></div>";
+    std::string rk3568Out = "<div class='item'><img data-ohos='clipboard' "
+                            "src='file:///data/storage/el2/share/r/docs/"
+                            "storage/Users/currentUser/VMDocs/test.png'></div>";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlTextIn);
+    ASSERT_TRUE(data != nullptr);
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*data);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    PasteData newPasteData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(newPasteData);
+    ASSERT_TRUE(ret == static_cast<int32_t>(PasteboardError::E_OK));
+    auto record = newPasteData.GetPrimaryHtml();
+    ASSERT_TRUE(record != nullptr);
+    ASSERT_TRUE(*record == htmlTextOut || *record == rk3568Out);
+}
+
+/**
+ * @tc.name: PasteRecordTest0014
+ * @tc.desc: Create paste board html local docs uri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, PasteRecordTest0014, TestSize.Level0)
+{
+    std::string htmlTextIn = "<div class='item'><img data-ohos='clipboard' "
+                             "src='file:///docs/storage/Users/currentUser/VMDocs/test.png'></div>";
+    std::string htmlUriOut = "file://docs/storage/Users/currentUser/VMDocs/test.png";
+    auto data = PasteboardClient::GetInstance()->CreateHtmlData(htmlTextIn);
+    ASSERT_TRUE(data != nullptr);
+    ASSERT_TRUE(PasteboardClient::GetInstance()->SetPasteData(*data) == static_cast<int32_t>(PasteboardError::E_OK));
+    auto has = PasteboardClient::GetInstance()->HasPasteData();
+    ASSERT_TRUE(has == true);
+    sptr<IPasteboardService> pasteboardServiceProxy_;
+    sptr<ISystemAbilityManager> samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    ASSERT_TRUE(samgrProxy != nullptr);
+    const int32_t pasteboardServiceId = 3701;
+    sptr<IRemoteObject> remoteObject = samgrProxy->CheckSystemAbility(pasteboardServiceId);
+    ASSERT_TRUE(remoteObject != nullptr);
+    pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
+    ASSERT_TRUE(pasteboardServiceProxy_ != nullptr);
+    PasteData pasteData;
+    int32_t syncTime = 0;
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> recvTLV(0);
+    int32_t res = pasteboardServiceProxy_->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
+    ASSERT_TRUE(res == ERR_OK);
+    ASSERT_TRUE(rawDataSize > 0 && rawDataSize < MessageParcelWarp().GetRawDataSize());
+    bool result = false;
+    MessageParcelWarp messageReply;
+    MessageParcel parcelData;
+    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        parcelData.WriteInt64(rawDataSize);
+        parcelData.WriteFileDescriptor(fd);
+        const uint8_t *rawData = reinterpret_cast<const uint8_t *>(messageReply.ReadRawData(parcelData, rawDataSize));
+        ASSERT_TRUE(rawData != nullptr);
+        std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
+        result = pasteData.Decode(pasteDataTlv);
+    } else {
+        result = pasteData.Decode(recvTLV);
+    }
+    ASSERT_TRUE(result);
+    std::string htmlUriConvert = "";
+    for (auto &item : pasteData.AllRecords()) {
+        if (item != nullptr) {
+            std::shared_ptr<Uri> uri = item->GetUri();
+            if (uri != nullptr) {
+                htmlUriConvert = uri->ToString();
+            }
+        }
+    }
+    ASSERT_TRUE(htmlUriConvert == htmlUriOut);
+}
+
 } // namespace OHOS::MiscServices
