@@ -15,6 +15,10 @@
 
 @!namespace("@ohos.pasteboard", "pasteboard")
 
+@!sts_inject("""
+static { loadLibrary("pasteboard_taihe_native.z") }
+""")
+
 @!sts_inject_into_module("import Want from '@ohos.app.ability.Want';")
 
 @!sts_inject_into_module("import image from '@ohos.multimedia.image';")
