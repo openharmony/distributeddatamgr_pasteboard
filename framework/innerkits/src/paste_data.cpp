@@ -187,7 +187,7 @@ std::vector<std::string> PasteData::GetReportMimeTypes()
 {
     std::vector<std::string> mimeTypes;
     uint32_t recordNum = records_.size();
-    uint32_t maxReportNum = recordNum > MAX_REPORT_RECORD_NUM ? ACTUAL_MAX_REPORT_RECORD_NUM : recordNum;
+    uint32_t maxReportNum = recordNum > MAX_REPORT_RECORD_NUM ? MAX_REPORT_RECORD_NUM : recordNum;
     for (uint32_t i = 0; i < maxReportNum; ++i) {
         auto &item = records_[i];
         if (item == nullptr) {
