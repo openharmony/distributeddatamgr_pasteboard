@@ -65,7 +65,8 @@
           "udmf",
           "window_manager",
           "ffrt",
-          "vixl"
+          "vixl",
+          "runtime_core"
         ]
         },
       "build": {
@@ -79,7 +80,8 @@
                 "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_data",
                 "//foundation/distributeddatamgr/pasteboard/interfaces/cj:cj_pasteboard_ffi",
                 "//foundation/distributeddatamgr/pasteboard/interfaces/kits:pasteboard_napi",
-                "//foundation/distributeddatamgr/pasteboard/services/dialog:pasteboard_dialog_hap"
+                "//foundation/distributeddatamgr/pasteboard/services/dialog:pasteboard_dialog_hap",
+                "//foundation/distributeddatamgr/pasteboard/interfaces/ani:pasteboard_ani_package"
             ],
             "service_group": [
                 "//foundation/distributeddatamgr/pasteboard/etc/init:pasteboardservice.cfg",
