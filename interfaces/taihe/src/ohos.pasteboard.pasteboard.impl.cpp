@@ -21,7 +21,7 @@
 
 #include "ani_common_want.h"
 #include "common/block_object.h"
-#include "image_ani_utils.h"
+#include "pixel_map_taihe_ani.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
@@ -46,22 +46,44 @@ public:
 
     taihe::string GetMimeType()
     {
-        return this->mimeType_;
+        std::string mimeType = "";
+        if (this->record_ != nullptr) {
+            mimeType = this->record_->GetMimeType();
+        }
+        return taihe::string(mimeType);
     }
 
     taihe::string GetPlainText()
     {
-        return this->plainText_;
+        std::shared_ptr<std::string> plainText = std::make_shared<std::string>("");
+        if (this->record_ != nullptr) {
+            plainText = this->record_->GetPlainText();
+        }
+        return taihe::string(*plainText);
     }
 
     taihe::string GetUri()
     {
-        return this->uri_;
+        std::string uriStr = "";
+        std::shared_ptr<OHOS::Uri> uri = nullptr;
+        if (this->record_ != nullptr) {
+            uri = this->record_->GetUri();
+        }
+        if (uri != nullptr) {
+            uriStr = uri->ToString();
+        }
+        return taihe::string(uriStr);
     }
 
     uintptr_t GetPixelMap()
     {
-        return this->pixelMap_;
+        uintptr_t pixelMapPtr = 0;
+        if (this->record_ != nullptr) {
+            std::shared_ptr<OHOS::Media::PixelMap> pixelMap = this->record_->GetPixelMap();
+            ani_object pixelMapObj = OHOS::Media::PixelMapTaiheAni::CreateEtsPixelMap(taihe::get_env(), pixelMap);
+            pixelMapPtr = reinterpret_cast<uintptr_t>(pixelMapObj);
+        }
+        return pixelMapPtr;
     }
 
     taihe::string ToPlainText()
@@ -111,10 +133,6 @@ public:
 
 private:
     std::shared_ptr<PasteDataRecord> record_;
-    taihe::string mimeType_ {};
-    taihe::string plainText_ {};
-    taihe::string uri_ {};
-    uintptr_t pixelMap_ {};
 };
 
 class PasteDataImpl {
