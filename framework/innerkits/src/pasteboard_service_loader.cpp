@@ -124,7 +124,7 @@ void PasteboardServiceLoader::SetPasteboardServiceProxy(const sptr<IRemoteObject
     }
     pasteboardServiceProxy_ = iface_cast<IPasteboardService>(remoteObject);
     if (clientDeathObserverPtr_ == nullptr) {
-        clientDeathObserverPtr_ = new (std::nothrow) PasteboardClientDeathObserverStub();
+        clientDeathObserverPtr_ = sptr<PasteboardClientDeathObserverStub>::MakeSptr();
     }
     if (clientDeathObserverPtr_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "clientDeathObserverPtr_ is null.");
