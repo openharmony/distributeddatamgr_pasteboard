@@ -81,6 +81,7 @@ ohos_shared_library("pasteboard_service") {
     "../adapter/security_level/security_level.cpp",
     "account/src/account_manager.cpp",
     "core/src/pasteboard_dialog.cpp",
+    "core/src/pasteboard_disposable_manager.cpp",
     "core/src/pasteboard_lib_guard.cpp",
     "core/src/pasteboard_pattern.cpp",
     "core/src/pasteboard_service.cpp",
@@ -99,6 +100,7 @@ ohos_shared_library("pasteboard_service") {
     "switch/pasteboard_switch.cpp",
     "zidl/src/entity_recognition_observer_proxy.cpp",
     "zidl/src/pasteboard_delay_getter_proxy.cpp",
+    "zidl/src/pasteboard_disposable_observer_proxy.cpp",
     "zidl/src/pasteboard_entry_getter_proxy.cpp",
     "zidl/src/pasteboard_observer_proxy.cpp",
   ]

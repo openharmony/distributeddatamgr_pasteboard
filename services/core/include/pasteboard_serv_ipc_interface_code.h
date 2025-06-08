@@ -54,8 +54,12 @@ enum PasteboardObserverInterfaceCode {
     ON_PASTE_BOARD_EVENT = 1,
 };
 
+enum PasteboardDisposableInterfaceCode {
+    ON_TEXT_RECEIVED = 0,
+};
+
 enum EntityObserverInterfaceCode {
-    ON_RECOGNITION_EVENT = 0
+    ON_RECOGNITION_EVENT = 0,
 };
 
 enum PasteboardEntryGetterInterfaceCode {

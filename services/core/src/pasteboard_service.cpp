@@ -38,6 +38,7 @@
 #include "os_account_manager.h"
 #include "parameters.h"
 #include "pasteboard_dialog.h"
+#include "pasteboard_disposable_manager.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_event_dfx.h"
@@ -46,6 +47,7 @@
 #include "pasteboard_time.h"
 #include "pasteboard_trace.h"
 #include "pasteboard_web_controller.h"
+#include "permission/permission_utils.h"
 #include "remote_file_share.h"
 #include "res_sched_client.h"
 #include "reporter.h"
@@ -205,7 +207,7 @@ void PasteboardService::OnStart()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     EventCenter::GetInstance().Subscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE, RemotePasteboardChange());
     HiViewAdapter::StartTimerThread();
-    ffrtTimer_ = std::make_shared<FFRTTimer>("pasteboard_service");
+    ffrtTimer_ = FFRTPool::GetTimer("pasteboard_service");
     return;
 }
 
@@ -784,8 +786,8 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
             "get hap version failed, callPid is %{public}d, tokenId is %{public}d", callPid, tokenId);
         return false;
     }
-    auto isReadGrant = IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
-    auto isSecureGrant = IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
+    auto isReadGrant = PermissionUtils::IsPermissionGranted(READ_PASTEBOARD_PERMISSION, tokenId);
+    auto isSecureGrant = PermissionUtils::IsPermissionGranted(SECURE_PASTE_PERMISSION, tokenId);
     AddPermissionRecord(tokenId, isReadGrant, isSecureGrant);
     if (isSecureGrant || isReadGrant) {
         return true;
@@ -863,17 +865,6 @@ int32_t PasteboardService::GetSdkVersion(uint32_t tokenId)
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "ver:%{public}d.", hapTokenInfo.apiVersion);
     return hapTokenInfo.apiVersion;
-}
-
-bool PasteboardService::IsPermissionGranted(const std::string &perm, uint32_t tokenId)
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check grant permission, perm=%{public}s", perm.c_str());
-    int32_t result = AccessTokenKit::VerifyAccessToken(tokenId, perm);
-    if (result == PermissionState::PERMISSION_DENIED) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "permission denied");
-        return false;
-    }
-    return true;
 }
 
 bool PasteboardService::IsDataAged()
@@ -2228,6 +2219,23 @@ void PasteboardService::CloseSharedMemFd(int fd)
     }
 }
 
+int32_t PasteboardService::SubscribeDisposableObserver(const sptr<IPasteboardDisposableObserver> &observer,
+    const std::string &targetBundleName, DisposableType type, uint32_t maxLength)
+{
+    constexpr pid_t SELECTION_SERVICE_UID = 1080;
+    pid_t uid = IPCSkeleton::GetCallingUid();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(uid == SELECTION_SERVICE_UID,
+        static_cast<int32_t>(PasteboardError::NOT_SUPPORT), PASTEBOARD_MODULE_SERVICE, "not support");
+
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    DisposableInfo info(pid, tokenId, targetBundleName, type, maxLength, observer);
+    int32_t ret = DisposableManager::GetInstance().AddDisposableInfo(info);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
+        PASTEBOARD_MODULE_SERVICE, "add observer info failed, ret=%{public}d", ret);
+    return ERR_OK;
+}
+
 int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::vector<uint8_t> &buffer,
     const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter)
 {
@@ -2262,9 +2270,13 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
         result = pasteData.Decode(buffer);
     }
     CloseSharedMemFd(fd);
-    if (!result) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to decode paste data in TLV");
-        return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "Failed to decode paste data in TLV");
+
+    auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
+    std::string bundleName = GetAppBundleName(appInfo);
+    if (DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, delayGetter, entryGetter)) {
+        return ERR_OK;
     }
     PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
     auto ret = SaveData(pasteData, rawDataSize, delayGetter, entryGetter);
@@ -2273,10 +2285,8 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
     }
     ReportUeCopyEvent(pasteData, rawDataSize, ret);
     HiViewAdapter::ReportUseBehaviour(pasteData, HiViewAdapter::COPY_STATE, ret);
-    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to save data, ret=%{public}d", ret);
-        return ret;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
+        PASTEBOARD_MODULE_SERVICE, "Failed to save data, ret=%{public}d", ret);
     return ERR_OK;
 }
 
@@ -2630,7 +2640,8 @@ int32_t PasteboardService::SetAppShareOptions(int32_t shareOptions)
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "param is invalid");
             return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
         }
-        auto isManageGrant = IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION, tokenId);
+        auto isManageGrant = PermissionUtils::IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION,
+            tokenId);
         if (!isManageGrant) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "No permission, token id: 0x%{public}x.", tokenId);
             return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
@@ -2654,7 +2665,8 @@ int32_t PasteboardService::RemoveAppShareOptions()
     auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsSystemAppByFullTokenID(fullTokenId)) {
-        auto isManageGrant = IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION, tokenId);
+        auto isManageGrant = PermissionUtils::IsPermissionGranted(MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION,
+            tokenId);
         if (!isManageGrant) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "No permission, token id: 0x%{public}x.", tokenId);
             return static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR);
@@ -4077,6 +4089,7 @@ int32_t PasteboardService::AppExit(pid_t pid)
     RemoveObserverByPid(userId, pid, observerRemoteChangedMap_);
     RemoveObserverByPid(COMMON_USERID, pid, observerEventMap_);
     entityObserverMap_.Erase(pid);
+    DisposableManager::GetInstance().RemoveDisposableInfo(pid, false);
     std::vector<std::string> networkIds;
     {
         std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);

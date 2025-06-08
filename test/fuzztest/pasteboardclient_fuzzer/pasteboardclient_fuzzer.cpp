@@ -15,10 +15,12 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <fuzzer/FuzzedDataProvider.h>
 #include <map>
 
 #include "entity_recognition_observer.h"
 #include "pasteboard_client.h"
+#include "pasteboard_delay_getter.h"
 #include "pasteboard_observer.h"
 #include "pasteboard_service_loader.h"
 #include "paste_data.h"
@@ -43,6 +45,30 @@ uint32_t ConvertToUint32(const uint8_t *ptr)
     uint32_t bigVar = (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | (ptr[3]);
     return bigVar;
 }
+
+class EntryGetterImpl : public UDMF::EntryGetter {
+public:
+    UDMF::ValueType GetValueByType(const std::string &utdId) override
+    {
+        (void)utdId;
+        return nullptr;
+    }
+};
+
+class DelayGetterImpl : public PasteboardDelayGetter {
+public:
+    void GetPasteData(const std::string &type, PasteData &data) override
+    {
+        (void)type;
+        (void)data;
+    }
+
+    void GetUnifiedData(const std::string &type, UDMF::UnifiedData &data) override
+    {
+        (void)type;
+        (void)data;
+    }
+};
 
 void FuzzPasteboardclient(const uint8_t *rawData, size_t size)
 {
@@ -118,6 +144,49 @@ void FuzzPasteboardclient002(const uint8_t *rawData, size_t size)
     PasteboardClient::GetInstance()->Clear();
     uint32_t changeCount = 0;
     PasteboardClient::GetInstance()->GetChangeCount(changeCount);
+}
+
+void FuzzPasteboardClient003(const uint8_t *rawData, size_t size)
+{
+    constexpr uint32_t enumValueMax = 5;
+    FuzzedDataProvider fdp(rawData, size);
+
+    uint32_t dataId = fdp.ConsumeIntegral<uint32_t>();
+    uint32_t recordId = fdp.ConsumeIntegral<uint32_t>();
+    std::string utdId = fdp.ConsumeRandomLengthString();
+    PasteDataEntry entry;
+    entry.SetUtdId(utdId);
+    PasteboardClient::GetInstance()->GetRecordValueByType(0, 0, entry);
+
+    PasteData pasteData;
+    uint32_t index = fdp.ConsumeIntegral<uint32_t>();
+    std::shared_ptr<PasteboardDelayGetter> delayGetter = std::make_shared<DelayGetterImpl>();
+    std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> entryGetters;
+    entryGetters.emplace(index, std::make_shared<EntryGetterImpl>());
+    PasteboardClient::GetInstance()->SetPasteData(pasteData, nullptr, entryGetters);
+    PasteboardClient::GetInstance()->SetPasteData(pasteData, delayGetter);
+    PasteboardClient::GetInstance()->SetPasteData(pasteData, delayGetter, entryGetters);
+
+    uint32_t type = fdp.ConsumeIntegralInRange<uint32_t>(0, enumValueMax);
+    PasteboardClient::GetInstance()->Unsubscribe(static_cast<PasteboardObserverType>(type), nullptr);
+
+    uint32_t tokenId = fdp.ConsumeIntegral<uint32_t>();
+    uint32_t shareOption = fdp.ConsumeIntegralInRange<uint32_t>(0, enumValueMax);
+    std::map<uint32_t, ShareOption> settings = {{ tokenId, static_cast<ShareOption>(shareOption) }};
+    PasteboardClient::GetInstance()->SetGlobalShareOption(settings);
+
+    PasteboardClient::GetInstance()->RemoveAppShareOptions();
+
+    std::string pasteId = fdp.ConsumeRandomLengthString();
+    std::string deviceId = fdp.ConsumeRandomLengthString();
+    PasteboardClient::GetInstance()->PasteStart(pasteId);
+    PasteboardClient::GetInstance()->PasteComplete(deviceId, pasteId);
+
+    auto dispObserver = fdp.ConsumeBool() ? nullptr : sptr<PasteboardDisposableObserver>::MakeSptr();
+    std::string bundle = fdp.ConsumeRandomLengthString();
+    DisposableType dispType = static_cast<DisposableType>(fdp.ConsumeIntegralInRange<uint32_t>(0, enumValueMax));
+    uint32_t maxLen = fdp.ConsumeIntegral<uint32_t>();
+    PasteboardClient::GetInstance()->SubscribeDisposableObserver(dispObserver, bundle, dispType, maxLen);
 }
 
 void FuzzPasteboard(const uint8_t *rawData, size_t size)
@@ -383,6 +452,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     /* Run your code on data */
     OHOS::FuzzPasteboardclient(data, size);
     OHOS::FuzzPasteboardclient002(data, size);
+    OHOS::FuzzPasteboardClient003(data, size);
     OHOS::FuzzPasteboard(data, size);
     OHOS::FuzzPastedata(data, size);
     OHOS::FuzzPasteData002(data, size);
