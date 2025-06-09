@@ -98,8 +98,8 @@ public:
 
 private:
     static constexpr uint32_t WAIT_TIME_OUT = 100;
-    mutable int32_t windowPid_;
-    mutable uint64_t actionTime_;
+    mutable int32_t windowPid_ = -1;
+    mutable uint64_t actionTime_ = 0;
     mutable std::shared_mutex inputEventMutex_;
     mutable std::shared_mutex blockMapMutex_;
     mutable std::map<uint32_t, std::shared_ptr<BlockObject<bool>>> blockMap_;
