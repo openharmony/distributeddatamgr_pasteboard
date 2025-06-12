@@ -413,24 +413,25 @@ public:
 
     taihe::string GetDataSource()
     {
-        auto bundleName = std::make_shared<std::string>("");
-        auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
-        std::thread thread([block, &bundleName]() mutable {
-            int32_t ret = PasteboardClient::GetInstance()->GetDataSource(*bundleName);
-            auto value = std::make_shared<int32_t>(ret);
+        auto block =
+            std::make_shared<OHOS::BlockObject<std::shared_ptr<std::pair<int32_t, std::string>>>>(SYNC_TIMEOUT);
+        std::thread thread([block]() mutable {
+            std::string bundleName;
+            int32_t ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
+            auto value = std::make_shared<std::pair<int32_t, std::string>>(ret, bundleName);
             block->SetValue(value);
         });
         thread.detach();
-        std::shared_ptr<int32_t> value = block->GetValue();
+        auto value = block->GetValue();
         if (value == nullptr) {
             taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
             return taihe::string("");
         }
-        if (*value != static_cast<int>(PasteboardError::E_OK)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetDataSource, failed, ret = %{public}d", *value);
+        if (value->first != static_cast<int>(PasteboardError::E_OK)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetDataSource, failed, ret = %{public}d", value->first);
             return taihe::string("");
         }
-        taihe::string bundleNameTH(*bundleName);
+        taihe::string bundleNameTH(value->second);
         return bundleNameTH;
     }
 
