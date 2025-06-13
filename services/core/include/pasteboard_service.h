@@ -421,7 +421,7 @@ private:
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
     std::shared_ptr<PasteBoardAccountStateSubscriber> accountStateSubscriber_ = nullptr;
 
-    std::recursive_mutex mutex;
+    std::mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint16_t> sequenceId_ = 0;
     std::atomic<uint32_t> dataId_ = 0;

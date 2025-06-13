@@ -3891,6 +3891,7 @@ void PasteboardService::ChangeStoreStatus(int32_t userId)
 
 void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
+    ffrt_this_task_set_legacy_mode(true);
     auto want = data.GetWant();
     std::string action = want.GetAction();
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {

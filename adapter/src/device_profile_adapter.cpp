@@ -15,6 +15,7 @@
 
 #include "device_profile_adapter.h"
 
+#include "c/ffrt_ipc.h"
 #include "cJSON.h"
 #include "distributed_device_profile_client.h"
 #include "i_static_capability_collector.h"
@@ -128,6 +129,7 @@ public:
     int32_t OnCharacteristicProfileUpdate(const CharacteristicProfile &oldProfile,
         const CharacteristicProfile &newProfile) override
     {
+        ffrt_this_task_set_legacy_mode(true);
         std::string udid = newProfile.GetDeviceId();
         std::string status = newProfile.GetCharacteristicValue();
         if (g_onProfileUpdateCallback != nullptr) {
