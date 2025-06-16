@@ -206,8 +206,8 @@ private:
     bool SetPasteboardHistory(HistoryInfo &info);
     bool IsFocusedApp(uint32_t tokenId);
     void InitBundles(Loader &loader);
-    void SetInputMethodPid(pid_t callPid);
-    void ClearInputMethodPidByPid(pid_t callPid);
+    void SetInputMethodPid(int32_t userId, pid_t callPid);
+    void ClearInputMethodPidByPid(int32_t userId, pid_t callPid);
     void ClearInputMethodPid(void);
     bool IsSystemAppByFullTokenID(uint64_t tokenId);
     FocusedAppInfo GetFocusedAppInfo(void) const;
@@ -277,7 +277,7 @@ private:
     static ScreenEvent GetCurrentScreenStatus();
     std::string DumpHistory() const;
     std::string DumpData();
-    void ThawInputMethod(void);
+    void ThawInputMethod(pid_t imePid);
     bool IsNeedThaw(void);
     int32_t ExtractEntity(const std::string &entity, std::string &location);
     int32_t GetAllEntryPlainText(uint32_t dataId, uint32_t recordId,
@@ -285,12 +285,11 @@ private:
     std::string GetAllPrimaryText(const PasteData &pasteData);
     void NotifyEntityObservers(std::string &entity, EntityType entityType, uint32_t dataLength);
     void UnsubscribeAllEntityObserver();
-    void NotifyObservers(std::string bundleName, PasteboardEventStatus status);
+    void NotifyObservers(std::string bundleName, int32_t userId, PasteboardEventStatus status);
     void InitServiceHandler();
     bool IsCopyable(uint32_t tokenId) const;
     std::mutex imeMutex_;
-    pid_t imePid_ = -1;
-    bool hasImeObserver_ = false;
+    ConcurrentMap<int32_t, pid_t> imeMap_;
 
     struct DistributedMemory {
         std::mutex mutex;
