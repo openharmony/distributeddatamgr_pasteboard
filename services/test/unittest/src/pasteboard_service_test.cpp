@@ -2255,6 +2255,48 @@ HWTEST_F(PasteboardServiceTest, GenerateDistributedUriTest001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GenerateDistributedUriTest002
+ * @tc.desc: test Func GenerateDistributedUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GenerateDistributedUriTest002, TestSize.Level0)
+{
+    PasteData pasteData;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
+    pasteData.AddTextRecord("testRecord");
+    pasteData.AddTextRecord(TEST_ENTITY_TEXT);
+    pasteData.AddTextRecord("testRecord");
+    OHOS::Uri uri("/");
+    pasteData.AddUriRecord(uri);
+    pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
+
+    tempPasteboard->GenerateDistributedUri(pasteData);
+}
+
+/**
+ * @tc.name: GenerateDistributedUriTest003
+ * @tc.desc: test Func GenerateDistributedUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GenerateDistributedUriTest003, TestSize.Level0)
+{
+    PasteData pasteData;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
+    pasteData.AddTextRecord("testRecord");
+    pasteData.AddTextRecord(TEST_ENTITY_TEXT);
+    pasteData.AddTextRecord("testRecord");
+    pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
+
+    tempPasteboard->GenerateDistributedUri(pasteData);
+}
+
+/**
  * @tc.name: CloseDistributedStoreTest001
  * @tc.desc: test Func CloseDistributedStore
  * @tc.type: FUNC
