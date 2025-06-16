@@ -153,6 +153,16 @@ public:
     void CreateAndAddRecord(taihe::string_view mimeType, const pasteboardTaihe::ValueType &value)
     {
         std::string mimeTypeStr = std::string(mimeType);
+        if (mimeTypeStr.empty()) {
+            taihe::set_business_error(
+                static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
+            return;
+        }
+        if (mimeTypeStr.size() > MIMETYPE_MAX_SIZE) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
+                "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
+            return;
+        }
         auto strategy = StrategyFactory::CreateStrategyForRecord(value, mimeTypeStr);
         if (strategy) {
             strategy->AddRecord(mimeTypeStr, value, this->pasteData_);
@@ -613,18 +623,18 @@ pasteboardTaihe::PasteData CreateDataByValue(
     taihe::string_view mimeType, const pasteboardTaihe::ValueType &value)
 {
     pasteboardTaihe::PasteData data = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
-    if (mimeType.empty()) {
+    std::string mimeTypeStr = std::string(mimeType);
+    if (mimeTypeStr.empty()) {
         taihe::set_business_error(
             static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
         return data;
     }
-    if (mimeType.size() > MIMETYPE_MAX_SIZE) {
+    if (mimeTypeStr.size() > MIMETYPE_MAX_SIZE) {
         taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
             "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
         return data;
     }
     std::shared_ptr<PasteData> pasteData;
-    std::string mimeTypeStr = std::string(mimeType);
     auto strategy = StrategyFactory::CreateStrategyForData(mimeTypeStr);
     if (strategy) {
         strategy->CreateData(mimeTypeStr, value, pasteData);
@@ -649,20 +659,20 @@ pasteboardTaihe::PasteData CreateDataByRecord(
     std::shared_ptr<EntryValueMap> entryValueMap = std::make_shared<EntryValueMap>();
     std::string primaryMimeType = "";
     for (const auto &item : typeValueMap) {
-        if (item.first.empty()) {
+        std::string mimeTypeStr = std::string(item.first);
+        if (mimeTypeStr.empty()) {
             taihe::set_business_error(
                 static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
             return pasteDataTH;
         }
-        if (item.first.size() > MIMETYPE_MAX_SIZE) {
+        if (mimeTypeStr.size() > MIMETYPE_MAX_SIZE) {
             taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
                 "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
             return pasteDataTH;
         }
         if (primaryMimeType.empty()) {
-            primaryMimeType = std::string(item.first);
+            primaryMimeType = mimeTypeStr;
         }
-        std::string mimeTypeStr = std::string(item.first);
         std::shared_ptr<EntryValue> entry;
         auto strategy = StrategyFactory::CreateStrategyForRecord(item.second, mimeTypeStr);
         if (!strategy) {
