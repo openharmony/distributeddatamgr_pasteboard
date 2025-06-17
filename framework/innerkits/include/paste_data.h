@@ -38,6 +38,7 @@ struct API_EXPORT PasteDataProperty : public TLVWriteable, public TLVReadable {
     std::string bundleName;
     std::string setTime;
     ScreenEvent screenStatus = ScreenEvent::Default;
+    int32_t appIndex = 0;
 
     bool EncodeTLV(WriteOnlyBuffer &buffer) const override;
     bool DecodeTLV(ReadOnlyBuffer &buffer) override;
@@ -88,10 +89,11 @@ public:
     bool IsLocalPaste() const;
     void SetLocalPasteFlag(bool isLocalPaste);
 
-    void SetBundleName(const std::string &bundleName);
+    void SetBundleInfo(const std::string &bundleName, int32_t appIndex = 0);
     std::string GetBundleName() const;
-    void SetOriginAuthority(const std::string &bundleName);
-    std::string GetOriginAuthority() const;
+    int32_t GetAppIndex() const;
+    void SetOriginAuthority(const std::pair<std::string, int32_t> &bundleIndex);
+    std::pair<std::string, int32_t> GetOriginAuthority() const;
     void SetRemote(bool isRemote);
     bool IsRemote() const;
     void SetTime(const std::string &time);
@@ -149,7 +151,7 @@ private:
     uint32_t recordId_ = 0;
     PasteDataProperty props_;
     std::vector<std::shared_ptr<PasteDataRecord>> records_;
-    std::string originAuthority_;
+    std::pair<std::string, int32_t> originAuthority_;
     std::string pasteId_;
  
     void RefreshMimeProp();

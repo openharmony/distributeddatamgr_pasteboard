@@ -32,8 +32,10 @@ public:
         return getuid() == PASTEBOARD_SERVICE_UID;
     }
     static std::string GetAnonymousString(const std::string &str);
-    sptr<AppExecFwk::IBundleMgr> GetAppBundleManager(void);
+    static sptr<AppExecFwk::IBundleMgr> GetAppBundleManager(void);
     int32_t GetApiTargetVersionForSelf(void);
+    static int32_t GetDirByBundleNameAndAppIndex(const std::string &bundleName, int32_t appIndex,
+        std::string &dataDir);
 
 private:
     int32_t apiTargetVersion_ = 0;

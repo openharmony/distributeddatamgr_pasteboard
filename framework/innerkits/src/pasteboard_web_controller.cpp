@@ -87,7 +87,8 @@ bool PasteboardWebController::SplitWebviewPasteData(PasteData &pasteData)
     return hasExtraRecord;
 }
 
-void PasteboardWebController::SetWebviewPasteData(PasteData &pasteData, const std::string &bundleName)
+void PasteboardWebController::SetWebviewPasteData(PasteData &pasteData,
+    const std::pair<std::string, int32_t> &bundleIndex)
 {
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG) {
         return;
@@ -107,7 +108,10 @@ void PasteboardWebController::SetWebviewPasteData(PasteData &pasteData, const st
                 newUriStr += path.substr(DOCS_LOCAL_PATH_SUBSTR_START_INDEX);
             } else {
                 newUriStr = FILE_SCHEME_PREFIX;
-                newUriStr += bundleName + path;
+                std::string bundleIndexName;
+                PasteBoardCommon::GetDirByBundleNameAndAppIndex(bundleIndex.first,
+                    bundleIndex.second, bundleIndexName);
+                newUriStr += bundleIndexName + path;
             }
             item->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri: %{private}s -> %{private}s", puri.c_str(),
@@ -163,8 +167,11 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "leave");
 }
 
-void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &record, const std::string &targetBundle)
+void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &record, const std::string &targetBundle,
+    int32_t appIndex)
 {
+    std::string bundleIndex;
+    PasteBoardCommon::GetDirByBundleNameAndAppIndex(targetBundle, appIndex, bundleIndex);
     PASTEBOARD_CHECK_AND_RETURN_LOGD(record->GetUri() != nullptr, PASTEBOARD_MODULE_COMMON,
         "id=%{public}u, uri is null", record->GetRecordId());
     PASTEBOARD_CHECK_AND_RETURN_LOGD(record->GetFrom() != 0 && record->GetFrom() != record->GetRecordId(),
@@ -175,7 +182,7 @@ void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &recor
     std::string realUri = puri;
     if (puri.substr(0, strlen(FILE_SCHEME_PREFIX)) == FILE_SCHEME_PREFIX) {
         AppFileService::ModuleFileUri::FileUri fileUri(puri);
-        std::string realPath = PasteBoardCommon::IsPasteboardService() ? fileUri.GetRealPathBySA(targetBundle) :
+        std::string realPath = PasteBoardCommon::IsPasteboardService() ? fileUri.GetRealPathBySA(bundleIndex) :
             fileUri.GetRealPath();
         PASTEBOARD_CHECK_AND_RETURN_LOGE(!realPath.empty(), PASTEBOARD_MODULE_COMMON,
             "file not exist, id=%{public}u, uri=%{public}s", record->GetRecordId(), puri.c_str());
@@ -206,7 +213,8 @@ void PasteboardWebController::RetainUri(PasteData &pasteData)
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "end");
 }
 
-void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData, const std::string &targetBundle)
+void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData, const std::string &targetBundle,
+    int32_t appIndex)
 {
     if (pasteData.GetTag() != PasteData::WEBVIEW_PASTEDATA_TAG) {
         return;
@@ -215,7 +223,7 @@ void PasteboardWebController::RebuildWebviewPasteData(PasteData &pasteData, cons
     auto justSplitHtml = false;
     for (auto &item : pasteData.AllRecords()) {
         justSplitHtml = justSplitHtml || item->GetFrom() > 0;
-        RefreshUri(item, targetBundle);
+        RefreshUri(item, targetBundle, appIndex);
     }
     if (justSplitHtml) {
         MergeExtraUris2Html(pasteData);

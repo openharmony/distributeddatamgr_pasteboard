@@ -402,9 +402,10 @@ bool PasteData::IsRemote() const
     return props_.isRemote;
 }
 
-void PasteData::SetBundleName(const std::string &bundleName)
+void PasteData::SetBundleInfo(const std::string &bundleName, int32_t appIndex)
 {
     props_.bundleName = bundleName;
+    props_.appIndex = appIndex;
 }
 
 std::string PasteData::GetBundleName() const
@@ -412,12 +413,17 @@ std::string PasteData::GetBundleName() const
     return props_.bundleName;
 }
 
-void PasteData::SetOriginAuthority(const std::string &bundleName)
+int32_t PasteData::GetAppIndex() const
 {
-    originAuthority_ = bundleName;
+    return props_.appIndex;
 }
 
-std::string PasteData::GetOriginAuthority() const
+void PasteData::SetOriginAuthority(const std::pair<std::string, int32_t> &bundleIndex)
+{
+    originAuthority_ = bundleIndex;
+}
+
+std::pair<std::string, int32_t> PasteData::GetOriginAuthority() const
 {
     return originAuthority_;
 }

@@ -1200,7 +1200,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0020, TestSize.Level0)
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(text);
     ASSERT_TRUE(pasteData != nullptr);
     std::string bundleName = "ohos.acts.distributeddatamgr.pasteboard";
-    pasteData->SetBundleName(bundleName);
+    pasteData->SetBundleInfo(bundleName, 0);
     std::string time = GetTime();
     pasteData->SetTime(time);
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(*pasteData);

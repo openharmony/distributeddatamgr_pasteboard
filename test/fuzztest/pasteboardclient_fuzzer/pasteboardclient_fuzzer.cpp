@@ -159,12 +159,13 @@ void FuzzPasteboard(const uint8_t *rawData, size_t size)
 void FuzzPastedata(const uint8_t *rawData, size_t size)
 {
     std::string str(reinterpret_cast<const char *>(rawData), size);
+    int32_t appIndex = 0;
     PasteData pasteData2;
     pasteData2.SetRemote(static_cast<bool>(*rawData));
     pasteData2.SetLocalPasteFlag(static_cast<bool>(*rawData));
     pasteData2.SetDraggedDataFlag(static_cast<bool>(*rawData));
-    pasteData2.SetOriginAuthority(str);
-    pasteData2.SetBundleName(str);
+    pasteData2.SetOriginAuthority({ str, appIndex});
+    pasteData2.SetBundleInfo(str, appIndex);
     pasteData2.SetTag(str);
     pasteData2.SetTime(str);
     pasteData2.SetDelayData(false);
@@ -183,10 +184,11 @@ void FuzzPastedata(const uint8_t *rawData, size_t size)
     pasteData2.SetScreenStatus(screenStatus);
     pasteData2.GetScreenStatus();
     pasteData2.GetTime();
-    pasteData2.SetOriginAuthority(str);
+    pasteData2.SetOriginAuthority({ str, appIndex});
     pasteData2.GetOriginAuthority();
-    pasteData2.SetBundleName(str);
+    pasteData2.SetBundleInfo(str, appIndex);
     pasteData2.GetBundleName();
+    pasteData2.GetAppIndex();
     pasteData2.GetDeviceId();
     pasteData2.IsDraggedData();
     pasteData2.GetLocalOnly();
