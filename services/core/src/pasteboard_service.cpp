@@ -3225,6 +3225,10 @@ std::pair<std::shared_ptr<PasteData>, PasteDateResult> PasteboardService::GetDis
         if (item == nullptr || item->GetConvertUri().empty()) {
             continue;
         }
+        if (item->GetOriginUri() == nullptr) {
+            item->SetConvertUri("");
+            continue;
+        }
         item->isConvertUriFromRemote = true;
     }
     pasteDateResult.syncTime = result.second;
@@ -3730,6 +3734,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         if (item == nullptr) {
             continue;
         }
+        item->SetConvertUri("");
         const auto &uri = item->GetOriginUri();
         if (uri == nullptr) {
             continue;
