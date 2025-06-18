@@ -23,6 +23,7 @@ import mediaQuery from '@ohos.mediaquery';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import CommonConstants, { FontSizeScale } from '../common/constants/CommonConstants';
 import { TipsJumpUtils } from '../utils/TipsJumpUtils';
+import { IS_PC, IS_PAD } from '../utils/CommonUtils';
 import { LengthMetrics } from '@ohos.arkui.node';
 import systemParameterEnhance from '@ohos.systemParameterEnhance';
 
@@ -341,9 +342,11 @@ struct PasteboardSwitch {
         }
         .margin({
           bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
-          top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP,
-          left: '8vp',
-          right: '8vp'
+          top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
+        })
+        .padding({
+          left: (IS_PAD || IS_PC) ? 0 : '8vp',
+          right: (IS_PAD || IS_PC) ? 0 : '8vp',
         })
         .textAlign(TextAlign.Center)
         .width('100%')
