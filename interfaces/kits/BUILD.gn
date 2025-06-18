@@ -69,6 +69,7 @@ ohos_shared_library("pasteboard_napi") {
     "hilog:libhilog",
     "image_framework:image",
     "ipc:ipc_single",
+    "json:nlohmann_json_static",
     "libuv:uv",
     "napi:ace_napi",
     "udmf:udmf_client",
