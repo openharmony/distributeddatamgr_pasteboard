@@ -19,23 +19,12 @@
 #include "common/block_object.h"
 #include "pasteboard_error.h"
 #include "pastedata_napi.h"
+#include "pasteboard_observer_napi.h"
 #include "pastedata_record_napi.h"
 #include "unified_data_napi.h"
 
 namespace OHOS {
 namespace MiscServicesNapi {
-class PasteboardObserverInstance : public MiscServices::PasteboardObserver {
-public:
-    explicit PasteboardObserverInstance(napi_threadsafe_function callback);
-
-    ~PasteboardObserverInstance();
-
-    void OnPasteboardChanged() override;
-
-private:
-    napi_threadsafe_function callback_ = nullptr;
-};
-
 class PasteboardDelayGetterInstance : public std::enable_shared_from_this<PasteboardDelayGetterInstance> {
 public:
     class PasteboardDelayGetterImpl : public MiscServices::PasteboardDelayGetter {
@@ -324,7 +313,7 @@ private:
     std::shared_ptr<PasteDataNapi> value_;
     std::shared_ptr<MiscServices::PasteData> pasteData_;
     napi_env env_;
-    static thread_local std::map<napi_ref, sptr<PasteboardObserverInstance>> observers_;
+    static std::map<napi_ref, sptr<PasteboardObserverInstance>> observers_;
     static std::shared_ptr<PasteboardDelayGetterInstance> delayGetter_;
 
     static std::recursive_mutex listenerMutex_;
