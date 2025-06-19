@@ -117,6 +117,7 @@ interface SystemPasteboard {
     OnUpdate(callback: () => void, cb: Opaque);
     OffUpdate(cb: Optional<Opaque>);
 
+    @gen_async("clearData")
     @gen_promise("clearData")
     ClearDataImpl(): void;
 
