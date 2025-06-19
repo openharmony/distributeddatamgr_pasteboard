@@ -12,34 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package OHOS.MiscServices;
 
-enum PasteboardEventStatus : unsigned char {
-    PASTEBOARD_CLEAR = 1,
-    PASTEBOARD_READ = 2,
-    PASTEBOARD_WRITE = 3
-};
+#ifndef PASTEBOARD_PERMISSION_UTILS_H
+#define PASTEBOARD_PERMISSION_UTILS_H
 
-enum PasteboardObserverType : unsigned char {
-    OBSERVER_LOCAL = 1,
-    OBSERVER_REMOTE = 2,
-    OBSERVER_ALL = 3,
-    OBSERVER_EVENT = 4
-};
+#include <cstdint>
+#include <string>
 
-enum Pattern : unsigned int {
-    URL = 0,
-    NUMBER,
-    EMAIL_ADDRESS,
-    COUNT
-};
+#include "api/visibility.h"
 
-enum EntityType : unsigned int {
-    ADDRESS = 0,
-    MAX
-};
+namespace OHOS {
+namespace MiscServices {
+class API_EXPORT PermissionUtils {
+public:
+    static bool IsPermissionGranted(const std::string &perm, uint32_t tokenId);
 
-enum DisposableType : unsigned int {
-    PLAIN_TEXT = 0,
-    MAX
+    static inline const char *PERMISSION_READ_PASTEBOARD = "ohos.permission.READ_PASTEBOARD";
 };
+} // namespace MiscServices
+} // namespace OHOS
+#endif // PASTEBOARD_PERMISSION_UTILS_H

@@ -67,7 +67,7 @@ int FFRTUtils::CancelTask(FFRTHandle &handle, std::shared_ptr<FFRTQueue> &queue)
 
 FFRTTimer::FFRTTimer() : queue_("ffrt_timer") {}
 
-FFRTTimer::FFRTTimer(const char *timer_name) : queue_(timer_name) {}
+FFRTTimer::FFRTTimer(const std::string &timer_name) : queue_(timer_name.c_str()) {}
 
 FFRTTimer::~FFRTTimer()
 {

@@ -41,4 +41,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_OBSERVER_STUB_H
+#endif // ENTITY_RECOGNITION_OBSERVER_STUB_H

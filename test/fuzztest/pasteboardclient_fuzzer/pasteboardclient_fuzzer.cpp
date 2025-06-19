@@ -181,6 +181,12 @@ void FuzzPasteboardClient003(const uint8_t *rawData, size_t size)
     std::string deviceId = fdp.ConsumeRandomLengthString();
     PasteboardClient::GetInstance()->PasteStart(pasteId);
     PasteboardClient::GetInstance()->PasteComplete(deviceId, pasteId);
+
+    auto dispObserver = fdp.ConsumeBool() ? nullptr : sptr<PasteboardDisposableObserver>::MakeSptr();
+    std::string bundle = fdp.ConsumeRandomLengthString();
+    DisposableType dispType = static_cast<DisposableType>(fdp.ConsumeIntegralInRange<uint32_t>(0, enumValueMax));
+    uint32_t maxLen = fdp.ConsumeIntegral<uint32_t>();
+    PasteboardClient::GetInstance()->SubscribeDisposableObserver(dispObserver, bundle, dispType, maxLen);
 }
 
 void FuzzPasteboard(const uint8_t *rawData, size_t size)

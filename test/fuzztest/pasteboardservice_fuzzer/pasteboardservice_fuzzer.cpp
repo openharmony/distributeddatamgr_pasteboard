@@ -38,6 +38,7 @@ const std::vector<IPasteboardServiceIpcCode> CODE_LIST = {
     IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_ALL_OBSERVER,
+    IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_DISPOSABLE_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_IS_REMOTE_DATA,
     IPasteboardServiceIpcCode::COMMAND_GET_DATA_SOURCE,
     IPasteboardServiceIpcCode::COMMAND_HAS_DATA_TYPE,
@@ -275,6 +276,16 @@ public:
     {
         (void)progressKey;
         (void)observer;
+        return 0;
+    }
+
+    int32_t SubscribeDisposableObserver(const sptr<IPasteboardDisposableObserver> &observer,
+        const std::string &targetBundleName, DisposableType type, uint32_t maxLength) override
+    {
+        (void)observer;
+        (void)targetBundleName;
+        (void)type;
+        (void)maxLength;
         return 0;
     }
 };
