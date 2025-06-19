@@ -38,6 +38,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     debug = false
     blocklist = "./cfi_blocklist.txt"
   }
+  use_exceptions = true
   resource_config_file = "//foundation/distributeddatamgr/pasteboard/framework/test/resource/ohos_test.xml"
   module_out_path = module_output_path
 
@@ -390,7 +391,6 @@ ohos_unittest("PasteboardClientMockTest") {
     "${pasteboard_service_path}/core/src/pasteboard_dialog.cpp",
     "${pasteboard_service_path}/core/src/pasteboard_lib_guard.cpp",
     "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
-    "${pasteboard_service_path}/core/src/pasteboard_service.cpp",
     "${pasteboard_service_path}/dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
     "${pasteboard_service_path}/dfx/src/calculate_time_consuming.cpp",
     "${pasteboard_service_path}/dfx/src/command.cpp",

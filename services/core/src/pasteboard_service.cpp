@@ -54,6 +54,7 @@
 #include "distributed_module_config.h"
 #ifdef PB_SCREENLOCK_MGR_ENABLE
 #include "screenlock_manager.h"
+#include "file_mount_manager.h"
 #endif // PB_SCREENLOCK_MGR_ENABLE
 #include "tokenid_kit.h"
 #include "uri_permission_manager_client.h"
@@ -3236,6 +3237,10 @@ std::pair<std::shared_ptr<PasteData>, PasteDateResult> PasteboardService::GetDis
         if (item == nullptr || item->GetConvertUri().empty()) {
             continue;
         }
+        if (item->GetOriginUri() == nullptr) {
+            item->SetConvertUri("");
+            continue;
+        }
         item->isConvertUriFromRemote = true;
     }
     pasteDateResult.syncTime = result.second;
@@ -3741,6 +3746,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
         if (item == nullptr) {
             continue;
         }
+        item->SetConvertUri("");
         const auto &uri = item->GetOriginUri();
         if (uri == nullptr) {
             continue;
@@ -3758,7 +3764,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
     size_t fileSize = 0;
     std::unordered_map<std::string, HmdfsUriInfo> dfsUris;
     if (!uris.empty()) {
-        int ret = RemoteFileShare::GetDfsUrisFromLocal(uris, userId, dfsUris);
+        int ret = Storage::DistributedFile::FileMountManager::GetDfsUrisDirFromLocal(uris, userId, dfsUris);
         PASTEBOARD_CHECK_AND_RETURN_LOGE((ret == 0 && !dfsUris.empty()), PASTEBOARD_MODULE_SERVICE,
             "Get remoteUri failed, ret:%{public}d, userId:%{public}d, uri size:%{public}zu.", ret, userId, uris.size());
         for (size_t i = 0; i < indexes.size(); i++) {
@@ -3903,6 +3909,7 @@ void PasteboardService::ChangeStoreStatus(int32_t userId)
 
 void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
+    ffrt_this_task_set_legacy_mode(true);
     auto want = data.GetWant();
     std::string action = want.GetAction();
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {

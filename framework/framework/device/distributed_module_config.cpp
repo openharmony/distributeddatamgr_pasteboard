@@ -14,6 +14,7 @@
  */
 #include "device/distributed_module_config.h"
 
+#include "c/ffrt_ipc.h"
 #include <thread>
 #include "device/dev_profile.h"
 #include "pasteboard_error.h"
@@ -40,6 +41,7 @@ void DistributedModuleConfig::Watch(const Observer &observer)
 
 void DistributedModuleConfig::Notify()
 {
+    ffrt_this_task_set_legacy_mode(true);
     auto status = GetEnabledStatus();
     if (status == static_cast<int32_t>(PasteboardError::DP_LOAD_SERVICE_ERROR)) {
         if (!retrying_.exchange(true)) {
