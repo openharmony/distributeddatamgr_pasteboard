@@ -23,7 +23,7 @@ namespace OHOS {
 namespace MiscServicesNapi {
 static thread_local napi_ref g_systemPasteboard = nullptr;
 static thread_local napi_ref g_systemPasteboard_instance = nullptr;
-thread_local std::map<napi_ref, sptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
+std::map<napi_ref, sptr<PasteboardObserverInstance>> SystemPasteboardNapi::observers_;
 std::shared_ptr<PasteboardDelayGetterInstance> SystemPasteboardNapi::delayGetter_;
 std::mutex SystemPasteboardNapi::delayMutex_;
 constexpr int ARGC_TYPE_SET1 = 1;
@@ -33,41 +33,6 @@ constexpr size_t DELAY_TIMEOUT = 2;
 const std::string STRING_UPDATE = "update";
 std::recursive_mutex SystemPasteboardNapi::listenerMutex_;
 std::map<std::string, std::shared_ptr<ProgressListenerFn>> SystemPasteboardNapi::listenerMap_;
-
-PasteboardObserverInstance::PasteboardObserverInstance(napi_threadsafe_function callback) : callback_(callback)
-{
-}
-
-PasteboardObserverInstance::~PasteboardObserverInstance()
-{
-    napi_status status = napi_release_threadsafe_function(callback_, napi_tsfn_release);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "release callback failed, status=%{public}d", status);
-    }
-}
-
-void PasteboardObserverInstance::OnPasteboardChanged()
-{
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "enter");
-
-    napi_status status = napi_acquire_threadsafe_function(callback_);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "acquire callback failed, status=%{public}d", status);
-        return;
-    }
-
-    status = napi_call_threadsafe_function(callback_, nullptr, napi_tsfn_blocking);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "call callback failed, status=%{public}d", status);
-    }
-
-    status = napi_release_threadsafe_function(callback_, napi_tsfn_release);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "release callback failed, status=%{public}d", status);
-    }
-
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exit");
-}
 
 PasteboardDelayGetterInstance::PasteboardDelayGetterInstance(const napi_env &env, const napi_ref &ref)
     : env_(env), ref_(ref)
@@ -233,10 +198,7 @@ napi_value SystemPasteboardNapi::On(napi_env env, napi_callback_info info)
 
     napi_value jsCallback = argv[1];
     auto observer = GetObserver(env, jsCallback);
-    if (observer != nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "observer exist");
-        return result;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(observer == nullptr, result, PASTEBOARD_MODULE_JS_NAPI, "observer exist");
 
     AddObserver(env, jsCallback);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi on() is end!");
@@ -266,10 +228,8 @@ napi_value SystemPasteboardNapi::Off(napi_env env, napi_callback_info info)
             return result;
         }
         observer = GetObserver(env, argv[1]);
-        if (observer == nullptr) {
-            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_JS_NAPI, "observer not find");
-            return result;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(observer != nullptr, result,
+            PASTEBOARD_MODULE_JS_NAPI, "observer not find");
     }
 
     DeleteObserver(env, observer);
@@ -1359,7 +1319,6 @@ napi_status SystemPasteboardNapi::NewInstance(napi_env env, napi_value &instance
 
 sptr<PasteboardObserverInstance> SystemPasteboardNapi::GetObserver(napi_env env, napi_value jsCallback)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetObserver start");
     for (const auto &[refKey, observerValue] : observers_) {
         napi_value callback = nullptr;
         napi_get_reference_value(env, refKey, &callback);
@@ -1374,19 +1333,17 @@ sptr<PasteboardObserverInstance> SystemPasteboardNapi::GetObserver(napi_env env,
 
 void SystemPasteboardNapi::AddObserver(napi_env env, napi_value jsCallback)
 {
+    PasteboardNapiScope scope(env);
+
     napi_value name = nullptr;
     napi_status status = napi_create_string_utf8(env, "pasteboardChanged", NAPI_AUTO_LENGTH, &name);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "create string failed, status=%{public}d", status);
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(status == napi_ok, PASTEBOARD_MODULE_JS_NAPI,
+        "create string failed, status=%{public}d", status);
 
     napi_ref ref = nullptr;
     status = napi_create_reference(env, jsCallback, 1, &ref);
-    if (status != napi_ok) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "create reference failed, status=%{public}d", status);
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(status == napi_ok, PASTEBOARD_MODULE_JS_NAPI,
+        "create reference failed, status=%{public}d", status);
 
     napi_threadsafe_function napiCallback = nullptr;
     status = napi_create_threadsafe_function(env, jsCallback, nullptr, name, 0, 1, nullptr, nullptr, nullptr,
@@ -1397,7 +1354,7 @@ void SystemPasteboardNapi::AddObserver(napi_env env, napi_value jsCallback)
         return;
     }
 
-    auto observer = sptr<PasteboardObserverInstance>::MakeSptr(napiCallback);
+    auto observer = sptr<PasteboardObserverInstance>::MakeSptr(napiCallback, env);
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "malloc observer failed");
         napi_release_threadsafe_function(napiCallback, napi_tsfn_release);
@@ -1405,7 +1362,13 @@ void SystemPasteboardNapi::AddObserver(napi_env env, napi_value jsCallback)
         return;
     }
 
-    PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, observer);
+    bool ret = PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, observer);
+    if (!ret) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "subscribe observer failed");
+        napi_delete_reference(env, ref);
+        return;
+    }
+
     observers_[ref] = observer;
 }
 
@@ -1419,13 +1382,13 @@ void SystemPasteboardNapi::DeleteObserver(napi_env env, const sptr<PasteboardObs
         if (it->second == observer) {
             refs.push_back(it->first);
             observers.push_back(observer);
-            observers_.erase(it++);
+            it = observers_.erase(it);
             break;
         }
         if (observer == nullptr) {
             refs.push_back(it->first);
             observers.push_back(it->second);
-            observers_.erase(it++);
+            it = observers_.erase(it);
         } else {
             it++;
         }

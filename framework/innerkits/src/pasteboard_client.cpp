@@ -790,16 +790,17 @@ int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
     return ret;
 }
 
-void PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
+bool PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (callback == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
-        return;
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "callback is null");
+        return false;
     }
     auto proxyService = GetPasteboardService();
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    proxyService->SubscribeObserver(type, callback);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false, PASTEBOARD_MODULE_CLIENT,
+        "proxyService is null");
+    return proxyService->SubscribeObserver(type, callback) == ERR_OK;
 }
 
 void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)
