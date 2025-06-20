@@ -51,6 +51,7 @@ struct AppInfo {
     int32_t tokenType = -1;
     int32_t userId = ERROR_USERID;
     uint32_t tokenId;
+    int32_t appIndex = 0;
 };
 
 struct HistoryInfo {
@@ -304,6 +305,7 @@ private:
 
     int32_t SaveData(PasteData &pasteData, int64_t dataSize, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         const sptr<IPasteboardEntryGetter> entryGetter = nullptr);
+    void SetPasteDataInfo(PasteData &pasteData, const AppInfo &appInfo, uint32_t tokenId);
     void HandleDelayDataAndRecord(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
         const sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
@@ -328,11 +330,11 @@ private:
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     int32_t GetDelayPasteRecord(int32_t userId, PasteData &data);
     void GetDelayPasteData(int32_t userId, PasteData &data);
-    int32_t ProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
-    int32_t PostProcessDelayHtmlEntry(PasteData &data, const std::string &targetBundle, PasteDataEntry &entry);
-    std::vector<Uri> CheckUriPermission(PasteData &data, const std::string &targetBundleName);
+    int32_t ProcessDelayHtmlEntry(PasteData &data, const AppInfo &targetAppInfo, PasteDataEntry &entry);
+    int32_t PostProcessDelayHtmlEntry(PasteData &data, const AppInfo &targetInfo, PasteDataEntry &entry);
+    std::vector<Uri> CheckUriPermission(PasteData &data, const std::pair<std::string, int32_t> &targetBundleAppIndex);
     int32_t GrantUriPermission(const std::vector<Uri> &grantUris, const std::string &targetBundleName,
-        bool isRemoteData);
+        bool isRemoteData, int32_t appIndex);
     void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
     bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
@@ -358,7 +360,7 @@ private:
     int32_t ProcessDistributedDelayEntry(PasteDataEntry &entry, std::vector<uint8_t> &rawData);
     int32_t GetRemoteEntryValue(const AppInfo &appInfo, PasteData &data, PasteDataRecord &record,
         PasteDataEntry &entry);
-    int32_t ProcessRemoteDelayHtml(const std::string &remoteDeviceId, const std::string &bundleName,
+    int32_t ProcessRemoteDelayHtml(const std::string &remoteDeviceId, const AppInfo &appInfo,
         const std::vector<uint8_t> &rawData, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
     int32_t GetLocalEntryValue(int32_t userId, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
@@ -419,7 +421,7 @@ private:
     ConcurrentMap<int32_t, std::pair<sptr<IPasteboardEntryGetter>, sptr<EntryGetterDeathRecipient>>> entryGetters_;
     ConcurrentMap<int32_t, std::pair<sptr<IPasteboardDelayGetter>, sptr<DelayGetterDeathRecipient>>> delayGetters_;
     ConcurrentMap<int32_t, uint64_t> copyTime_;
-    std::set<std::string> readBundles_;
+    std::set<std::pair<std::string, int32_t>> readBundles_;
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
     std::shared_ptr<PasteBoardAccountStateSubscriber> accountStateSubscriber_ = nullptr;
 

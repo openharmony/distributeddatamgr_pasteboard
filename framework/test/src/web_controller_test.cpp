@@ -419,7 +419,8 @@ HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_001, TestSize.Level1)
     PasteData pasteData;
     pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
     std::string bundleName = "testBundle";
-    pasteboardWebController.SetWebviewPasteData(pasteData, bundleName);
+    int32_t appIndex = 0;
+    pasteboardWebController.SetWebviewPasteData(pasteData, { bundleName, appIndex });
     ASSERT_EQ(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
 }
 

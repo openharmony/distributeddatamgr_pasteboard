@@ -5258,5 +5258,33 @@ HWTEST_F(PasteboardServiceTest, CallbackExitTest002, TestSize.Level0)
 
     EXPECT_EQ(res, ERR_NONE);
 }
+
+/**
+ * @tc.name: SetPasteDataInfoTest001
+ * @tc.desc: SetPasteDataInfoTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, SetPasteDataInfoTest001, TestSize.Level0)
+{
+    std::string bundleName = "com.pastboard.test";
+    int32_t appIndex = 1;
+    PastData pasteData;
+    Appinfo appInfo;
+    appInfo.bundleName = bundleName;
+    appInfo.appIndex = appIndex;
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    tempPasteboard->SetPasteDataInfo(pasteData, appInfo, tokenId);
+
+    EXPECT_EQ(pasteData.GetBundleName(), bundleName);
+    EXPECT_EQ(pasteData.GetAppIndex(), appIndex);
+    EXPECT_EQ(pasteData.GetOriginAuthority(), {bundleName, appIndex});
+    EXPECT_EQ(pasteData.GetTokenId(), tokenId);
+    EXPECT_EQ(pasteData.GetDataId(), 1);
+}
 } // namespace MiscServices
 } // namespace OHOS
