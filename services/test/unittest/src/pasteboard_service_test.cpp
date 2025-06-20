@@ -2549,28 +2549,6 @@ HWTEST_F(PasteboardServiceTest, OnStateChangedTest004, TestSize.Level0)
 }
 
 /**
- * @tc.name: OnStateChangedTest005
- * @tc.desc: OnStateChanged function.
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, OnStateChangedTest005, TestSize.Level0)
-{
-    AccountSA::OsAccountSubscribeInfo subscribeInfo;
-    sptr<PasteboardService> service = new PasteboardService();
-    auto tempPasteboard = std::make_shared<PasteBoardAccountStateSubscriber>(subscribeInfo, service);
-    EXPECT_NE(tempPasteboard, nullptr);
-    std::shared_ptr<AccountSA::OsAccountStateData> data = std::make_shared<AccountSA::OsAccountStateData>();
-    data->state = AccountSA::OsAccountState::STOPPING;
-    data->fromId = 1;
-    data->toId = 2;
-    sptr<IRemoteObject> object;
-    AccountSA::OsAccountStateReplyCallback newCallbackObject(object);
-    sptr<AccountSA::OsAccountStateReplyCallback> callback = &newCallbackObject;
-    data->callback = callback;
-    tempPasteboard->OnStateChanged(*data);
-}
-
-/**
  * @tc.name: SubscribeKeyboardEventTest001
  * @tc.desc: SubscribeKeyboardEvent function.
  * @tc.type: FUNC

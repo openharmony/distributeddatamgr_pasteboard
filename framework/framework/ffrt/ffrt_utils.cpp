@@ -19,6 +19,9 @@
 
 namespace OHOS {
 namespace MiscServices {
+std::unordered_map<std::string, std::shared_ptr<FFRTTimer>> FFRTPool::ffrtPool_;
+std::mutex FFRTPool::mutex_;
+
 void FFRTUtils::SubmitTask(const FFRTTask &task)
 {
     ffrt::submit(task);
@@ -69,7 +72,7 @@ int FFRTUtils::CancelTask(FFRTHandle &handle, std::shared_ptr<FFRTQueue> &queue)
 
 FFRTTimer::FFRTTimer() : queue_("ffrt_timer") {}
 
-FFRTTimer::FFRTTimer(const char *timer_name) : queue_(timer_name) {}
+FFRTTimer::FFRTTimer(const std::string &timerName) : queue_(timerName.c_str()) {}
 
 FFRTTimer::~FFRTTimer()
 {
@@ -143,6 +146,25 @@ void FFRTTimer::CancelTimerInner(const std::string &timerId)
         FFRTUtils::CancelTask(handleMap_[timerId], queue_);
         handleMap_[timerId] = nullptr;
     }
+}
+
+std::shared_ptr<FFRTTimer> FFRTPool::GetTimer(const std::string &name)
+{
+    std::lock_guard lock(mutex_);
+    auto iter = ffrtPool_.find(name);
+    if (iter != ffrtPool_.end()) {
+        return iter->second;
+    }
+
+    std::shared_ptr<FFRTTimer> timer = std::make_shared<FFRTTimer>(name);
+    ffrtPool_[name] = timer;
+    return timer;
+}
+
+void FFRTPool::Clear()
+{
+    std::lock_guard lock(mutex_);
+    ffrtPool_.clear();
 }
 } // namespace MiscServices
 } // namespace OHOS

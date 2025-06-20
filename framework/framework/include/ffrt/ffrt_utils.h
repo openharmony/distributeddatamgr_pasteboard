@@ -15,6 +15,8 @@
 #ifndef DISTRIBUTEDDATAMGR_PASTEBOARD_FFRT_UTILS_H
 #define DISTRIBUTEDDATAMGR_PASTEBOARD_FFRT_UTILS_H
 
+#include <unordered_map>
+
 #include "api/visibility.h"
 #include "ffrt_inner.h"
 
@@ -117,7 +119,7 @@ public:
 class API_EXPORT FFRTTimer {
 public:
     FFRTTimer();
-    FFRTTimer(const char *timer_name);
+    FFRTTimer(const std::string &timerName);
     ~FFRTTimer();
     void Clear();
     void CancelAllTimer();
@@ -134,6 +136,16 @@ private:
     FFRTQueue queue_;
     std::unordered_map<std::string, FFRTHandle> handleMap_;
     std::unordered_map<std::string, uint32_t> taskId_;
+};
+
+class API_EXPORT FFRTPool {
+public:
+   static std::shared_ptr<FFRTTimer> GetTimer(const std::string &name);
+   static void Clear();
+
+private:
+   static std::unordered_map<std::string, std::shared_ptr<FFRTTimer>> ffrtPool_;
+   static std::mutex mutex_;
 };
 } // namespace MiscServices
 } // namespace OHOS

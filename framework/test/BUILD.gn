@@ -38,6 +38,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     debug = false
     blocklist = "./cfi_blocklist.txt"
   }
+  use_exceptions = true
   resource_config_file = "//foundation/distributeddatamgr/pasteboard/framework/test/resource/ohos_test.xml"
   module_out_path = module_output_path
 
@@ -68,6 +69,7 @@ ohos_unittest("PasteboardFrameworkTest") {
     "src/pasteboard_client_test.cpp",
     "src/pasteboard_client_udmf_delay_test.cpp",
     "src/pasteboard_copy_test.cpp",
+    "src/pasteboard_disposable_test.cpp",
     "src/pasteboard_event_test.cpp",
     "src/pasteboard_multi_type_unified_data_delay_test.cpp",
     "src/pasteboard_unified_data_test.cpp",
@@ -83,6 +85,8 @@ ohos_unittest("PasteboardFrameworkTest") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtoken_setproc",
     "app_file_service:fileuri_native",
     "cJSON:cjson",
     "c_utils:utils",

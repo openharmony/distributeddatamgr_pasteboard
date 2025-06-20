@@ -52,6 +52,7 @@
           "imf",
           "ipc",
           "image_framework",
+          "json",
           "libuv",
           "libxml2",
           "memmgr",
