@@ -12,34 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package OHOS.MiscServices;
 
-enum PasteboardEventStatus : unsigned char {
-    PASTEBOARD_CLEAR = 1,
-    PASTEBOARD_READ = 2,
-    PASTEBOARD_WRITE = 3
-};
+#ifndef ACCESSTOKEN_KIT_H
+#define ACCESSTOKEN_KIT_H
 
-enum PasteboardObserverType : unsigned char {
-    OBSERVER_LOCAL = 1,
-    OBSERVER_REMOTE = 2,
-    OBSERVER_ALL = 3,
-    OBSERVER_EVENT = 4
-};
+#include <cstdint>
+#include <string>
 
-enum Pattern : unsigned int {
-    URL = 0,
-    NUMBER,
-    EMAIL_ADDRESS,
-    COUNT
-};
+namespace OHOS {
+namespace Security {
+namespace AccessToken {
+typedef uint64_t AccessTokenID;
 
-enum EntityType : unsigned int {
-    ADDRESS = 0,
-    MAX
-};
+typedef enum TypePermissionState {
+    PERMISSION_DENIED = -1,
+    PERMISSION_GRANTED = 0,
+} PermissionState;
 
-enum DisposableType : unsigned int {
-    PLAIN_TEXT = 0,
-    MAX
+class AccessTokenKit {
+public:
+    static int32_t VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName);
 };
+} // namespace AccessToken
+} // namespace Security
+} // namespace OHOS
+#endif // ACCESSTOKEN_KIT_H

@@ -21,6 +21,7 @@
 #include "entity_recognition_observer.h"
 #include "message_parcel_warp.h"
 #include "pasteboard_delay_getter_client.h"
+#include "pasteboard_disposable_observer.h"
 #include "pasteboard_entry_getter_client.h"
 #include "pasteboard_observer.h"
 #include "pasteboard_progress_signal.h"
@@ -402,6 +403,18 @@ public:
      * @return void.
      */
     void RemovePasteboardEventObserver(sptr<PasteboardObserver> callback);
+
+    /**
+     * SubscribeDisposableObserver
+     * @description Subscribe the PasteboardDisposableObserver
+     * @param observer disposable observer which implements data received callback
+     * @param targetBundleName bundle name of subscribed app
+     * @param type type of subscribed data
+     * @param maxLength max length of subscribed data
+     * @return int32_t
+     */
+    int32_t SubscribeDisposableObserver(const sptr<PasteboardDisposableObserver> &observer,
+        const std::string &targetBundleName, DisposableType type, uint32_t maxLength);
 
     /**
      * SetGlobalShareOption

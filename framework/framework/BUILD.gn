@@ -48,6 +48,7 @@ ohos_shared_library("pasteboard_framework") {
     "eventcenter/event_center.cpp",
     "eventcenter/pasteboard_event.cpp",
     "ffrt/ffrt_utils.cpp",
+    "permission/permission_utils.cpp",
     "serializable/serializable.cpp",
   ]
   ldflags = [ "-Wl,--gc-sections" ]
@@ -75,6 +76,7 @@ ohos_shared_library("pasteboard_framework") {
   include_dirs = [ "${pasteboard_root_path}/adapter/include" ]
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_core",
     "cJSON:cjson",
     "c_utils:utils",

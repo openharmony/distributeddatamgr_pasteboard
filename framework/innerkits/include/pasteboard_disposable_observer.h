@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,34 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package OHOS.MiscServices;
 
-enum PasteboardEventStatus : unsigned char {
-    PASTEBOARD_CLEAR = 1,
-    PASTEBOARD_READ = 2,
-    PASTEBOARD_WRITE = 3
-};
+#ifndef PASTEBOARD_DISPOSABLE_OBSERVER_H
+#define PASTEBOARD_DISPOSABLE_OBSERVER_H
 
-enum PasteboardObserverType : unsigned char {
-    OBSERVER_LOCAL = 1,
-    OBSERVER_REMOTE = 2,
-    OBSERVER_ALL = 3,
-    OBSERVER_EVENT = 4
-};
+#include "pasteboard_disposable_observer_stub.h"
 
-enum Pattern : unsigned int {
-    URL = 0,
-    NUMBER,
-    EMAIL_ADDRESS,
-    COUNT
+namespace OHOS {
+namespace MiscServices {
+class API_EXPORT PasteboardDisposableObserver : public PasteboardDisposableObserverStub {
+public:
+    void OnTextReceived(const std::string &text, int32_t errCode) override;
 };
-
-enum EntityType : unsigned int {
-    ADDRESS = 0,
-    MAX
-};
-
-enum DisposableType : unsigned int {
-    PLAIN_TEXT = 0,
-    MAX
-};
+} // namespace MiscServices
+} // namespace OHOS
+#endif // PASTEBOARD_DISPOSABLE_OBSERVER_H

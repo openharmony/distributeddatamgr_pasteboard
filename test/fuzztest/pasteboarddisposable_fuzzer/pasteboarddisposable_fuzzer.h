@@ -12,34 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package OHOS.MiscServices;
 
-enum PasteboardEventStatus : unsigned char {
-    PASTEBOARD_CLEAR = 1,
-    PASTEBOARD_READ = 2,
-    PASTEBOARD_WRITE = 3
-};
+#ifndef PASTEBOARD_DISPOSABLE_FUZZER_H
+#define PASTEBOARD_DISPOSABLE_FUZZER_H
 
-enum PasteboardObserverType : unsigned char {
-    OBSERVER_LOCAL = 1,
-    OBSERVER_REMOTE = 2,
-    OBSERVER_ALL = 3,
-    OBSERVER_EVENT = 4
-};
+#define FUZZ_PROJECT_NAME "pasteboarddisposable_fuzzer"
 
-enum Pattern : unsigned int {
-    URL = 0,
-    NUMBER,
-    EMAIL_ADDRESS,
-    COUNT
-};
-
-enum EntityType : unsigned int {
-    ADDRESS = 0,
-    MAX
-};
-
-enum DisposableType : unsigned int {
-    PLAIN_TEXT = 0,
-    MAX
-};
+#endif // PASTEBOARD_DISPOSABLE_FUZZER_H
