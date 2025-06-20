@@ -38,3 +38,8 @@ enum EntityType : unsigned int {
     ADDRESS = 0,
     MAX
 };
+
+enum DisposableType : unsigned int {
+    PLAIN_TEXT = 0,
+    MAX
+};

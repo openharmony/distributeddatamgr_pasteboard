@@ -19,6 +19,7 @@
 #include <system_ability_definition.h>
 
 #include "pasteboard_hilog.h"
+#include "pasteboard_error.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -61,6 +62,22 @@ std::string PasteBoardCommon::GetAnonymousString(const std::string &str)
     }
     int32_t printLen = ANONYMOUS_LEN_LIMIT / TWO_TIMES;
     return str.substr(0, printLen) + "**" + str.substr(str.length() - printLen);
+}
+
+int32_t PasteBoardCommon::GetDirByBundleNameAndAppIndex(const std::string &bundleName, int32_t appIndex,
+    std::string &dataDir)
+{
+    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy = PasteBoardCommon::GetAppBundleManager();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(bundleMgrProxy != nullptr,
+        static_cast<int32_t>(PasteboardError::GET_BUNDLE_MGR_FAILED), PASTEBOARD_MODULE_SERVICE,
+        "Get bunlde manager failed, bundleName:%{public}s, appIndex:%{public}d",
+        bundleName.c_str(), appIndex);
+    auto ret = bundleMgrProxy->GetDirByBundleNameAndAppIndex(bundleName, appIndex, dataDir);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == ERR_OK,
+        static_cast<int32_t>(ret), PASTEBOARD_MODULE_SERVICE,
+        "Get dir failed, bundleName:%{public}s, appIndex:%{public}d, ret:%{public}d",
+        bundleName.c_str(), appIndex, ret);
+    return ERR_OK;
 }
 } // namespace MiscServices
 } // namespace OHOS

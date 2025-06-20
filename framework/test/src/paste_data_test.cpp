@@ -599,13 +599,17 @@ HWTEST_F(PasteDataTest, SetOriginAuthority001, TestSize.Level0)
 {
     std::string plainText = "plain text";
     std::string bundleName = "com.example.myapplication";
+    int32_t appIndex = 1;
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
-    pasteData->SetBundleName(bundleName);
-    pasteData->SetOriginAuthority(bundleName);
+    auto bundleIndex = std::make_pair(bundleName, appIndex);
+    pasteData->SetBundleInfo(bundleName, appIndex);
+    pasteData->SetOriginAuthority(bundleIndex);
     std::string getBundleName = pasteData->GetBundleName();
-    std::string getOriginAuthority = pasteData->GetOriginAuthority();
+    int32_t getAppIndex = pasteData->GetAppIndex();
+    auto getOriginAuthority = pasteData->GetOriginAuthority();
     ASSERT_TRUE(getBundleName == bundleName);
-    ASSERT_TRUE(getOriginAuthority == bundleName);
+    ASSERT_TRUE(getAppIndex == appIndex);
+    ASSERT_TRUE(getOriginAuthority == bundleIndex);
     std::string time = "2023-08-09";
     pasteData->SetTime(time);
     std::string getTime = pasteData->GetTime();
@@ -856,7 +860,8 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     auto record1 = builder1.Build();
     data1.AddRecord(record1);
     std::string bundleName1 = "com.example.myapplication";
-    data1.SetOriginAuthority(bundleName1);
+    int32_t appIndex1 = 1;
+    data1.SetOriginAuthority({bundleName1, appIndex1});
     PasteData data2;
     PasteDataRecord::Builder builder2(MIMETYPE_TEXT_URI);
     std::string uriStr2 = FILE_URI;
@@ -865,8 +870,10 @@ HWTEST_F(PasteDataTest, PasteDataOperator001, TestSize.Level0)
     auto record2 = builder2.Build();
     data2.AddRecord(record2);
     std::string bundleName2 = "com.example.myapplication";
-    data2.SetOriginAuthority(bundleName2);
+    int32_t appIndex2 = 1;
+    data2.SetOriginAuthority({bundleName2, appIndex2});
     ASSERT_TRUE(data1.GetBundleName() == data2.GetBundleName());
+    ASSERT_TRUE(data1.GetAppIndex() == data2.GetAppIndex());
 }
 
 /**

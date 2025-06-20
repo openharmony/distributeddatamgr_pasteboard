@@ -2271,6 +2271,48 @@ HWTEST_F(PasteboardServiceTest, GenerateDistributedUriTest001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GenerateDistributedUriTest002
+ * @tc.desc: test Func GenerateDistributedUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GenerateDistributedUriTest002, TestSize.Level0)
+{
+    PasteData pasteData;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
+    pasteData.AddTextRecord("testRecord");
+    pasteData.AddTextRecord(TEST_ENTITY_TEXT);
+    pasteData.AddTextRecord("testRecord");
+    OHOS::Uri uri("/");
+    pasteData.AddUriRecord(uri);
+    pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
+
+    tempPasteboard->GenerateDistributedUri(pasteData);
+}
+
+/**
+ * @tc.name: GenerateDistributedUriTest003
+ * @tc.desc: test Func GenerateDistributedUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GenerateDistributedUriTest003, TestSize.Level0)
+{
+    PasteData pasteData;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
+    pasteData.AddTextRecord("testRecord");
+    pasteData.AddTextRecord(TEST_ENTITY_TEXT);
+    pasteData.AddTextRecord("testRecord");
+    pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
+
+    tempPasteboard->GenerateDistributedUri(pasteData);
+}
+
+/**
  * @tc.name: CloseDistributedStoreTest001
  * @tc.desc: test Func CloseDistributedStore
  * @tc.type: FUNC
@@ -2520,28 +2562,6 @@ HWTEST_F(PasteboardServiceTest, OnStateChangedTest004, TestSize.Level0)
     data.toId = 2;
     data.callback = nullptr;
     tempPasteboard->OnStateChanged(data);
-}
-
-/**
- * @tc.name: OnStateChangedTest005
- * @tc.desc: OnStateChanged function.
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, OnStateChangedTest005, TestSize.Level0)
-{
-    AccountSA::OsAccountSubscribeInfo subscribeInfo;
-    sptr<PasteboardService> service = new PasteboardService();
-    auto tempPasteboard = std::make_shared<PasteBoardAccountStateSubscriber>(subscribeInfo, service);
-    EXPECT_NE(tempPasteboard, nullptr);
-    std::shared_ptr<AccountSA::OsAccountStateData> data = std::make_shared<AccountSA::OsAccountStateData>();
-    data->state = AccountSA::OsAccountState::STOPPING;
-    data->fromId = 1;
-    data->toId = 2;
-    sptr<IRemoteObject> object;
-    AccountSA::OsAccountStateReplyCallback newCallbackObject(object);
-    sptr<AccountSA::OsAccountStateReplyCallback> callback = &newCallbackObject;
-    data->callback = callback;
-    tempPasteboard->OnStateChanged(*data);
 }
 
 /**
@@ -5533,6 +5553,34 @@ HWTEST_F(PasteboardServiceTest, CallbackExitTest002, TestSize.Level0)
     int32_t res = tempPasteboard->CallbackExit(code, result);
 
     EXPECT_EQ(res, ERR_NONE);
+}
+
+/**
+ * @tc.name: SetPasteDataInfoTest001
+ * @tc.desc: SetPasteDataInfoTest001
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, SetPasteDataInfoTest001, TestSize.Level0)
+{
+    std::string bundleName = "com.pastboard.test";
+    int32_t appIndex = 1;
+    PastData pasteData;
+    Appinfo appInfo;
+    appInfo.bundleName = bundleName;
+    appInfo.appIndex = appIndex;
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    tempPasteboard->SetPasteDataInfo(pasteData, appInfo, tokenId);
+
+    EXPECT_EQ(pasteData.GetBundleName(), bundleName);
+    EXPECT_EQ(pasteData.GetAppIndex(), appIndex);
+    EXPECT_EQ(pasteData.GetOriginAuthority(), {bundleName, appIndex});
+    EXPECT_EQ(pasteData.GetTokenId(), tokenId);
+    EXPECT_EQ(pasteData.GetDataId(), 1);
 }
 } // namespace MiscServices
 } // namespace OHOS

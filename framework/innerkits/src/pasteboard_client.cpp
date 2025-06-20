@@ -790,16 +790,17 @@ int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
     return ret;
 }
 
-void PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
+bool PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (callback == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
-        return;
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "callback is null");
+        return false;
     }
     auto proxyService = GetPasteboardService();
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
-    proxyService->SubscribeObserver(type, callback);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false, PASTEBOARD_MODULE_CLIENT,
+        "proxyService is null");
+    return proxyService->SubscribeObserver(type, callback) == ERR_OK;
 }
 
 void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)
@@ -835,6 +836,28 @@ void PasteboardClient::RemovePasteboardChangedObserver(sptr<PasteboardObserver> 
 void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> callback)
 {
     Unsubscribe(PasteboardObserverType::OBSERVER_EVENT, callback);
+}
+
+int32_t PasteboardClient::SubscribeDisposableObserver(const sptr<PasteboardDisposableObserver> &observer,
+    const std::string &targetBundleName, DisposableType type, uint32_t maxLength)
+{
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(observer != nullptr,
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_CLIENT,
+        "param invalid, observer is null");
+    int32_t typeInt = static_cast<int32_t>(type);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(typeInt >= 0 && typeInt < static_cast<int32_t>(DisposableType::MAX),
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_CLIENT,
+        "param invalid, type=%{public}d", typeInt);
+
+    auto proxyService = GetPasteboardService();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR), PASTEBOARD_MODULE_CLIENT,
+        "proxyService is null");
+
+    int32_t ret = proxyService->SubscribeDisposableObserver(observer, targetBundleName, type, maxLength);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == ERR_OK, ret, PASTEBOARD_MODULE_CLIENT,
+        "subscribe failed, ret=%{public}d", ret);
+    return ERR_OK;
 }
 
 int32_t PasteboardClient::SetGlobalShareOption(const std::map<uint32_t, ShareOption> &globalShareOptions)

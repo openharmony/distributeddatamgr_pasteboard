@@ -16,6 +16,7 @@ sequenceable OHOS.IRemoteObject;
 interface OHOS.MiscServices.IPasteboardDelayGetter;
 interface OHOS.MiscServices.IPasteboardEntryGetter;
 interface OHOS.MiscServices.IPasteboardChangedObserver;
+interface OHOS.MiscServices.IPasteboardDisposableObserver;
 interface OHOS.MiscServices.IEntityRecognitionObserver;
 import PasteboardTypes;
 option_stub_hooks on;
@@ -29,6 +30,8 @@ interface OHOS.MiscServices.IPasteboardService {
         [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
     [ipccode 6] void UnsubscribeEntityObserver(
         [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
+    [ipccode 7] void SubscribeDisposableObserver([in] IPasteboardDisposableObserver observer,
+        [in] String targetBundleName, [in] DisposableType type, [in] unsigned int maxLength);
 
     [ipccode 100] void Clear();
     [ipccode 101] void SetPasteDataOnly([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer);

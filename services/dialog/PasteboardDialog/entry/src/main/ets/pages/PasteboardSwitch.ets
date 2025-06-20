@@ -18,17 +18,18 @@ import settings from '@ohos.settings';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import deviceInfo from '@ohos.deviceInfo';
 import { BusinessError } from '@ohos.base';
-import { EditableLeftIconType, EditableTitleBar } from '@ohos.arkui.advanced.EditableTitleBar';
 import mediaQuery from '@ohos.mediaquery';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import CommonConstants, { FontSizeScale } from '../common/constants/CommonConstants';
 import { TipsJumpUtils } from '../utils/TipsJumpUtils';
+import { IS_PC, IS_PAD } from '../utils/CommonUtils';
 import { LengthMetrics } from '@ohos.arkui.node';
 import systemParameterEnhance from '@ohos.systemParameterEnhance';
 
 const TAG = '[PasteboardSwitch_Page] : ';
 let context = getContext(this) as common.UIAbilityContext;
 let localStorage = LocalStorage.getShared();
+const SETTING_NORMAL_PAGE_NAME: string = 'pasteboard_switch_normal_page';
 
 interface switchStatus {
   open: string;
@@ -81,6 +82,8 @@ struct PasteboardSwitch {
   private startReason?: string = '';
   private learnMore: ResourceStr = $r('app.string.learn_more');
   private pasteboardDesc: ResourceStr = $r('app.string.pasteboard_desc_text', '');
+  private pageInfos: NavPathStack = new NavPathStack();
+  private transitionType: NavigationSystemTransitionType = NavigationSystemTransitionType.TITLE;
 
   onPortrait(mediaQueryResult: mediaQuery.MediaQueryResult) {
     console.log(TAG + 'onPortrait in');
@@ -257,9 +260,58 @@ struct PasteboardSwitch {
   }
 
   @Builder
+  PageMap(name: string) {
+    if (name === SETTING_NORMAL_PAGE_NAME) {
+      this.NormalRootContent();
+    }
+  }
+
+  @Builder
+  RootContent() {
+    Navigation(this.pageInfos) {
+    }
+    .mode(NavigationMode.Stack)
+    .onAppear(() => {
+      this.pageInfos.pushPathByName(SETTING_NORMAL_PAGE_NAME, undefined);
+    })
+    .navDestination(this.PageMap);
+  }
+
+  @Builder
   NormalRootContent() {
-    this.titleBar();
-    this.ContentBuilder();
+    NavDestination() {
+      this.ContentBuilder();
+    }
+    .onShown(() => {
+      this.transitionType = NavigationSystemTransitionType.DEFAULT;
+    })
+    .hideTitleBar(false)
+    .title($r('app.string.pasteboard_title'), {
+      paddingStart: IS_PC ? this.paddingStartPc : this.paddingStartNormal,
+    })
+    .backgroundColor($r('sys.color.ohos_id_color_titlebar_sub_bg'))
+    .systemTransition(this.transitionType)
+    .onBackPressed(() => {
+      if (this.isBacked) {
+        console.info(`${TAG} onBackPressed: The back button has been clicked.`);
+        return true;
+      }
+      this.transitionType = NavigationSystemTransitionType.TITLE;
+      this.pageInfos.pop(true);
+      try {
+        if (this.pasteboardSession && this.pasteboardSession.sendData) {
+          this.isBacked = true;
+          this.pasteboardSession.sendData({ 'action': 'pop' })
+        } else {
+          console.error(TAG + 'pasteboardSession is undefined');
+        }
+      } catch (error) {
+        let code: number = (error as BusinessError).code;
+        let message: string = (error as BusinessError).message;
+        console.error(`${TAG} call onBackPressed failed, error code: ${code}, message: ${message}.`);
+      }
+      return false;
+    })
   }
 
   @Builder
@@ -269,39 +321,9 @@ struct PasteboardSwitch {
     }
     .hideTitleBar(false)
     .title($r('app.string.pasteboard_title'), {
-      paddingStart: this.is2in1 ? this.paddingStartPc : this.paddingStartNormal,
+      paddingStart: IS_PC ? this.paddingStartPc : this.paddingStartNormal,
     })
     .backgroundColor($r('sys.color.ohos_id_color_titlebar_sub_bg'))
-  }
-
-  @Builder
-  titleBar() {
-    Column() {
-      EditableTitleBar({
-        leftIconStyle: EditableLeftIconType.Back,
-        title: $r('app.string.pasteboard_title'),
-        isSaveIconRequired: false,
-        contentMargin: this.is2in1 ? this.titleBarMarginPc : this.titleBarMarginNormal,
-        onCancel: () => {
-          if (this.isBacked) {
-            console.info(`${TAG} onCancel: The back button has been clicked.`);
-            return;
-          }
-          try {
-            if (this.pasteboardSession && this.pasteboardSession.sendData) {
-              this.isBacked = true;
-              this.pasteboardSession.sendData({ 'action': 'pop' })
-            } else {
-              console.error(TAG + 'pasteboardSession is undefined');
-            }
-          } catch (error) {
-            let code: number = (error as BusinessError).code;
-            let message: string = (error as BusinessError).message;
-            console.error(`${TAG} call onCancel failed, error code: ${code}, message: ${message}.`);
-          }
-        }
-      })
-    }
   }
 
   @Builder
@@ -341,9 +363,11 @@ struct PasteboardSwitch {
         }
         .margin({
           bottom: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_BOTTOM,
-          top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP,
-          left: '8vp',
-          right: '8vp'
+          top: CommonConstants.PASTEBOARD_DESC_TEXT_MARGIN_TOP
+        })
+        .padding({
+          left: (IS_PAD || IS_PC) ? 0 : '8vp',
+          right: (IS_PAD || IS_PC) ? 0 : '8vp',
         })
         .textAlign(TextAlign.Center)
         .width('100%')
@@ -437,33 +461,30 @@ struct PasteboardSwitch {
       }
       .width('100%')
       .padding({ left: this.gapLength, right: this.gapLength })
-      .margin({ bottom: this.contentHeight * 0.09 })
+      .margin({ bottom: '44vp' })
       .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
     }
     .width('100%')
-    .height(this.screenHeight)
+    .height('100%')
     .scrollable(ScrollDirection.Vertical)
+    .scrollBar(BarState.Off)
     .align(Alignment.TopStart)
     .friction(0.6)
     .edgeEffect(EdgeEffect.Spring)
-    .onWillScroll((xOffset: number, yOffset: number) => {
-      console.info(TAG + 'onScroll : xOffset:' + xOffset + ' ; yOffset' + yOffset);
+
+    ScrollBar({
+      scroller: this.scroller,
+      direction: ScrollBarDirection.Vertical,
+      state: BarState.Auto
     })
-    .onScrollEdge(() => {
-      console.info('To the edge');
-    })
-    .onScrollStop(() => {
-      console.info('Scroll Stop');
-    })
-    .onAreaChange((oldArea: Area, newArea: Area) => {
-      console.log(TAG + 'Scroll, oldArea.height = ' + oldArea.height + ', newArea.height = ' + newArea.height);
-    })
+    .position({ end: LengthMetrics.vp(0) })
+    .margin({ bottom: 28 })
   }
 
   build() {
     Column() {
       if (this.isShowBack) {
-        this.NormalRootContent();
+        this.RootContent();
       } else {
         this.SearchRootContent();
       }
@@ -477,7 +498,6 @@ struct PasteboardSwitch {
       console.info(TAG + 'this.shortSideSize = ' + this.shortSideSize + ', this.imageAnimatorWidth = ' +
       this.imageAnimatorWidth + ', this.imageAnimatorHeight = ' + this.imageAnimatorHeight);
     })
-    .padding({ bottom: '16vp' })
   }
 
   private getContentVisibility(): Visibility {

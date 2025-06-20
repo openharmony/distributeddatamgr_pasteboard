@@ -28,13 +28,14 @@ public:
 
     static PasteboardWebController &GetInstance();
     bool SplitWebviewPasteData(PasteData &pasteData);
-    void SetWebviewPasteData(PasteData &pasteData, const std::string &bundleName);
+    void SetWebviewPasteData(PasteData &pasteData, const std::pair<std::string, int32_t> &bundleIndex);
     void CheckAppUriPermission(PasteData &pasteData);
     void RetainUri(PasteData &pasteData);
-    void RebuildWebviewPasteData(PasteData &pasteData, const std::string &targetBundle = "");
+    void RebuildWebviewPasteData(PasteData &pasteData, const std::string &targetBundle = "",
+        int32_t appIndex = 0);
 
 private:
-    void RefreshUri(std::shared_ptr<PasteDataRecord> &record, const std::string &targetBundle);
+    void RefreshUri(std::shared_ptr<PasteDataRecord> &record, const std::string &targetBundle, int32_t appInedx);
     std::shared_ptr<std::string> RebuildHtml(std::shared_ptr<PasteData> pasteData) noexcept;
     std::vector<std::shared_ptr<PasteDataRecord>> SplitHtml2Records(const std::shared_ptr<std::string> &html,
         uint32_t recordId) noexcept;

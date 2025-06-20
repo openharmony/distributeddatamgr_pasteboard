@@ -90,7 +90,10 @@ enum class PasteboardError : int32_t {
     CHECK_DESCRIPTOR_ERROR,
     GET_SAME_REMOTE_DATA,
     DLOPEN_FAILED,
+    GET_BUNDLE_MGR_FAILED,
     GET_BOOTTIME_FAILED,
+    ADD_OBSERVER_FAILED,
+    NOT_SUPPORT,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -158,6 +161,10 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::CHECK_DESCRIPTOR_ERROR, "CHECK_DESCRIPTOR_ERROR"},
     {PasteboardError::GET_SAME_REMOTE_DATA, "GET_SAME_REMOTE_DATA"},
     {PasteboardError::DLOPEN_FAILED, "DLOPEN_FAILED"},
+    {PasteboardError::GET_BUNDLE_MGR_FAILED, "GET_BUNDLE_MGR_FAILED"},
+    {PasteboardError::GET_BOOTTIME_FAILED, "GET_BOOTTIME_FAILED"},
+    {PasteboardError::ADD_OBSERVER_FAILED, "ADD_OBSERVER_FAILED"},
+    {PasteboardError::NOT_SUPPORT, "NOT_SUPPORT"},
 };
 
 } // namespace MiscServices
