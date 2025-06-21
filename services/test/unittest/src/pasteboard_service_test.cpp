@@ -67,6 +67,21 @@ class MyTestEntityRecognitionObserver : public IEntityRecognitionObserver {
     }
 };
 
+class MyTestPasteboardChangedObserver : public IPasteboardChangedObserver {
+    void OnPasteboardChanged()
+    {
+        return;
+    }
+    void OnPasteboardEvent(std::string bundleName, int32_t status)
+    {
+        return;
+    }
+    sptr<IRemoteObject> AsObject()
+    {
+        return nullptr;
+    }
+};
+
 class PasteboardEntryGetterImpl : public IPasteboardEntryGetter {
 public:
     PasteboardEntryGetterImpl() {};
@@ -1959,7 +1974,8 @@ HWTEST_F(PasteboardServiceTest, ThawInputMethodTest001, TestSize.Level0)
 {
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->ThawInputMethod();
+    pid_t callPid = 1;
+    tempPasteboard->ThawInputMethod(callPid);
 }
 
 /**
@@ -3104,8 +3120,9 @@ HWTEST_F(PasteboardServiceTest, ClearInputMethodPidByPidTest001, TestSize.Level0
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
+    auto userId = tempPasteboard->GetCurrentAccountId();
     pid_t callPid = 1;
-    tempPasteboard->ClearInputMethodPidByPid(callPid);
+    tempPasteboard->ClearInputMethodPidByPid(userId, callPid);
 }
 
 /**
@@ -3118,8 +3135,287 @@ HWTEST_F(PasteboardServiceTest, SetInputMethodPidTest001, TestSize.Level0)
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
+    auto userId = tempPasteboard->GetCurrentAccountId();
     pid_t callPid = 1;
-    tempPasteboard->SetInputMethodPid(callPid);
+    tempPasteboard->SetInputMethodPid(userId, callPid);
+}
+
+/**
+ * @tc.name: SetInputMethodPidTest002
+ * @tc.desc: test Func SetInputMethodPid
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetInputMethodPidTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 1;
+    tempPasteboard->SetInputMethodPid(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId);
+    auto hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+}
+
+/**
+ * @tc.name: SetInputMethodPidTest003
+ * @tc.desc: test Func SetInputMethodPid
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetInputMethodPidTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 0;
+    tempPasteboard->SetInputMethodPid(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId);
+    auto hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+
+    tempPasteboard->ClearInputMethodPidByPid(userId + 1, callPid);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+}
+
+/**
+ * @tc.name: SetInputMethodPidTest004
+ * @tc.desc: test Func SetInputMethodPid
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetInputMethodPidTest004, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 0;
+    tempPasteboard->SetInputMethodPid(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId);
+    auto hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+
+    tempPasteboard->ClearInputMethodPidByPid(userId, callPid + 1);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+}
+
+/**
+ * @tc.name: SetInputMethodPidTest005
+ * @tc.desc: test Func SetInputMethodPid
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetInputMethodPidTest005, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 0;
+    tempPasteboard->SetInputMethodPid(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId);
+    auto hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+
+    tempPasteboard->ClearInputMethodPidByPid(userId + 1, callPid + 1);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+}
+
+/**
+ * @tc.name: SetInputMethodPidTest006
+ * @tc.desc: test Func SetInputMethodPid
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetInputMethodPidTest006, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 0;
+    tempPasteboard->SetInputMethodPid(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId);
+    auto hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+
+    tempPasteboard->ClearInputMethodPidByPid(userId, callPid);
+    it = tempPasteboard->imeMap_.Find(userId);
+    hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+}
+
+/**
+ * @tc.name: NotifyObserversTest001
+ * @tc.desc: test Func NotifyObservers
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, NotifyObserversTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 1;
+    AppInfo appInfo;
+    tempPasteboard->GetAppBundleName(appInfo);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId);
+    auto hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+
+    tempPasteboard->NotifyObservers(appInfo.bundleName, userId, PasteboardEventStatus::PASTEBOARD_WRITE);
+}
+
+/**
+ * @tc.name: NotifyObserversTest002
+ * @tc.desc: test Func NotifyObservers
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, NotifyObserversTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 1;
+    AppInfo appInfo;
+    tempPasteboard->GetAppBundleName(appInfo);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId + 1);
+    auto hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+
+    tempPasteboard->NotifyObservers(appInfo.bundleName, userId + 1, PasteboardEventStatus::PASTEBOARD_WRITE);
+}
+
+/**
+ * @tc.name: NotifyObserversTest003
+ * @tc.desc: test Func NotifyObservers
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, NotifyObserversTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 1;
+    AppInfo appInfo;
+    tempPasteboard->GetAppBundleName(appInfo);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId + 1);
+    auto hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+
+    const sptr<IPasteboardChangedObserver> observer = sptr<MyTestPasteboardChangedObserver>::MakeSptr();
+    EXPECT_NE(observer, nullptr);
+    tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
+
+    tempPasteboard->NotifyObservers(appInfo.bundleName, userId, PasteboardEventStatus::PASTEBOARD_WRITE);
+}
+
+/**
+ * @tc.name: NotifyObserversTest004
+ * @tc.desc: test Func NotifyObservers
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, NotifyObserversTest004, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 1;
+    AppInfo appInfo;
+    tempPasteboard->GetAppBundleName(appInfo);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId);
+    auto hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+
+    const sptr<IPasteboardChangedObserver> observer = sptr<MyTestPasteboardChangedObserver>::MakeSptr();
+    EXPECT_NE(observer, nullptr);
+    tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
+
+    tempPasteboard->NotifyObservers(appInfo.bundleName, userId + 1, PasteboardEventStatus::PASTEBOARD_WRITE);
+}
+
+/**
+ * @tc.name: NotifyObserversTest005
+ * @tc.desc: test Func NotifyObservers
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, NotifyObserversTest005, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 1;
+    AppInfo appInfo;
+    tempPasteboard->GetAppBundleName(appInfo);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId + 1);
+    auto hasPid = it.first;
+    EXPECT_NE(hasPid, true);
+
+    const sptr<IPasteboardChangedObserver> observer = sptr<MyTestPasteboardChangedObserver>::MakeSptr();
+    EXPECT_NE(observer, nullptr);
+    tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
+
+    tempPasteboard->NotifyObservers(appInfo.bundleName, userId, PasteboardEventStatus::PASTEBOARD_READ);
+}
+
+/**
+ * @tc.name: NotifyObserversTest006
+ * @tc.desc: test Func NotifyObservers
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, NotifyObserversTest006, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = 1;
+    pid_t callPid = 1;
+    AppInfo appInfo;
+    tempPasteboard->GetAppBundleName(appInfo);
+    tempPasteboard->imeMap_.InsertOrAssign(userId, callPid);
+    auto it = tempPasteboard->imeMap_.Find(userId);
+    auto hasPid = it.first;
+    EXPECT_EQ(hasPid, true);
+
+    const sptr<IPasteboardChangedObserver> observer = sptr<MyTestPasteboardChangedObserver>::MakeSptr();
+    EXPECT_NE(observer, nullptr);
+    tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
+
+    tempPasteboard->NotifyObservers(appInfo.bundleName, userId + 1, PasteboardEventStatus::PASTEBOARD_READ);
 }
 
 /**
