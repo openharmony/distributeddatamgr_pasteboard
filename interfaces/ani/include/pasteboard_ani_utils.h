@@ -161,13 +161,13 @@ private:
 template<>
 bool UnionAccessor::TryConvert<ani_boolean>(ani_boolean &value)
 {
-    return ANI_OK == env_->Object_CallMethodByName_Boolean(obj_, "booleanValue", nullptr, &value);
+    return ANI_OK == env_->Object_CallMethodByName_Boolean(obj_, "unboxed", nullptr, &value);
 }
 
 template<>
 bool UnionAccessor::TryConvert<ani_double>(ani_double &value)
 {
-    return ANI_OK == env_->Object_CallMethodByName_Double(obj_, "doubleValue", nullptr, &value);
+    return ANI_OK == env_->Object_CallMethodByName_Double(obj_, "unboxed", nullptr, &value);
 }
 
 template<>
