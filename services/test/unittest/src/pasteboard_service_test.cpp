@@ -1509,9 +1509,9 @@ HWTEST_F(PasteboardServiceTest, PostProcessDelayHtmlEntryTest001, TestSize.Level
     std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
     PasteData pasteData;
-    std::string targetBundle = "targetBundle";
+    AppInfo targetAppInfo;
     PasteDataEntry entry;
-    tempPasteboard->PostProcessDelayHtmlEntry(pasteData, targetBundle, entry);
+    tempPasteboard->PostProcessDelayHtmlEntry(pasteData, targetAppInfo, entry);
 }
 
 /**
@@ -1525,10 +1525,10 @@ HWTEST_F(PasteboardServiceTest, PostProcessDelayHtmlEntryTest002, TestSize.Level
     EXPECT_NE(tempPasteboard, nullptr);
     PasteData pasteData;
     pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
-    std::string targetBundle = "targetBundle";
+    AppInfo targetAppInfo;
     PasteDataEntry entry;
     entry.SetValue("test");
-    tempPasteboard->PostProcessDelayHtmlEntry(pasteData, targetBundle, entry);
+    tempPasteboard->PostProcessDelayHtmlEntry(pasteData, targetAppInfo, entry);
 }
 
 /**
@@ -1542,12 +1542,12 @@ HWTEST_F(PasteboardServiceTest, PostProcessDelayHtmlEntryTest003, TestSize.Level
     EXPECT_NE(tempPasteboard, nullptr);
     PasteData pasteData;
     pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
-    std::string targetBundle = "targetBundle";
+    AppInfo targetAppInfo;
     PasteDataEntry entry;
     auto object = std::make_shared<Object>();
     object->value_[UDMF::HTML_CONTENT] = "<div class='disable'>helloWorld</div>";
     entry.SetValue(object);
-    tempPasteboard->PostProcessDelayHtmlEntry(pasteData, targetBundle, entry);
+    tempPasteboard->PostProcessDelayHtmlEntry(pasteData, targetAppInfo, entry);
 }
 
 /**
@@ -1561,10 +1561,10 @@ HWTEST_F(PasteboardServiceTest, PostProcessDelayHtmlEntryTest004, TestSize.Level
     EXPECT_NE(tempPasteboard, nullptr);
     PasteData pasteData;
     pasteData.AddHtmlRecord("<div class='disable'>helloWorld</div>");
-    std::string targetBundle = "targetBundle";
+    AppInfo targetAppInfo;
     PasteDataEntry entry;
     entry.SetValue(1);
-    tempPasteboard->PostProcessDelayHtmlEntry(pasteData, targetBundle, entry);
+    tempPasteboard->PostProcessDelayHtmlEntry(pasteData, targetAppInfo, entry);
 }
 
 /**
@@ -2233,14 +2233,14 @@ HWTEST_F(PasteboardServiceTest, ProcessDistributedDelayEntryTest001, TestSize.Le
 HWTEST_F(PasteboardServiceTest, ProcessRemoteDelayHtmlTest001, TestSize.Level0)
 {
     std::string remoteDeviceId;
-    const std::string bundleName;
+    AppInfo appInfo;
     const std::vector<uint8_t> rawData;
     PasteData data;
     PasteDataRecord record;
     PasteDataEntry entry;
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->ProcessRemoteDelayHtml(remoteDeviceId, bundleName, rawData, data, record, entry);
+    tempPasteboard->ProcessRemoteDelayHtml(remoteDeviceId, appInfo, rawData, data, record, entry);
 }
 
 /**
@@ -4972,7 +4972,8 @@ HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest001, TestSize.Level1)
     PasteboardService service;
     std::vector<Uri> emptyUris;
     std::string targetBundleName = "com.example.app";
-    int32_t result = service.GrantUriPermission(emptyUris, targetBundleName, false);
+    int32_t appIndex = 1;
+    int32_t result = service.GrantUriPermission(emptyUris, targetBundleName, false, appIndex);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
@@ -5349,25 +5350,6 @@ HWTEST_F(PasteboardServiceTest, GetSdkVersionTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: IsPermissionGrantedTest001
- * @tc.desc: IsPermissionGrantedTest001
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardServiceTest, IsPermissionGrantedTest001, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    std::string perm = "some_permission";
-    uint32_t tokenId = 12345;
-
-    int32_t result = tempPasteboard->IsPermissionGranted(perm, tokenId);
-    EXPECT_FALSE(result);
-}
-
-/**
  * @tc.name: WriteRawDataTest002
  * @tc.desc: WriteRawDataTest002
  * @tc.type: FUNC
@@ -5566,8 +5548,8 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataInfoTest001, TestSize.Level0)
 {
     std::string bundleName = "com.pastboard.test";
     int32_t appIndex = 1;
-    PastData pasteData;
-    Appinfo appInfo;
+    PasteData pasteData;
+    AppInfo appInfo;
     appInfo.bundleName = bundleName;
     appInfo.appIndex = appIndex;
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -5575,10 +5557,12 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataInfoTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->SetPasteDataInfo(pasteData, appInfo, tokenId);
-
+    std::pair<std::string, int32_t> originAuthority;
+    originAuthority.first = bundleName;
+    originAuthority.second = appIndex;
     EXPECT_EQ(pasteData.GetBundleName(), bundleName);
     EXPECT_EQ(pasteData.GetAppIndex(), appIndex);
-    EXPECT_EQ(pasteData.GetOriginAuthority(), {bundleName, appIndex});
+    EXPECT_EQ(pasteData.GetOriginAuthority(), originAuthority);
     EXPECT_EQ(pasteData.GetTokenId(), tokenId);
     EXPECT_EQ(pasteData.GetDataId(), 1);
 }

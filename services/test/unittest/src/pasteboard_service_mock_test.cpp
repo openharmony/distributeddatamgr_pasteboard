@@ -2736,11 +2736,12 @@ HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest001, TestSize.Level0)
 
     std::vector<Uri> grantUris;
     std::string targetBundleName = "com.example.app";
+    int32_t appIndex = 1;
     std::string uriStr = URI_STRING;
     auto uri = OHOS::Uri(uriStr);
     grantUris.push_back(uri);
 
-    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, false);
+    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, false, appIndex);
     EXPECT_NE(result, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
@@ -2758,11 +2759,12 @@ HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest002, TestSize.Level0)
 
     std::vector<Uri> grantUris;
     std::string targetBundleName = "com.example.app";
+    int32_t appIndex = 1;
     std::string uriStr = URI_STRING;
     auto uri = OHOS::Uri(uriStr);
     grantUris.push_back(uri);
 
-    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, false);
+    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, false, appIndex);
     EXPECT_NE(result, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
@@ -2780,11 +2782,12 @@ HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest003, TestSize.Level0)
 
     std::vector<Uri> grantUris;
     std::string targetBundleName = "com.example.app";
+    int32_t appIndex = 1;
     std::string uriStr = URI_STRING;
     auto uri = OHOS::Uri(uriStr);
     grantUris.push_back(uri);
 
-    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, true);
+    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, true, appIndex);
     EXPECT_NE(result, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
@@ -2802,11 +2805,12 @@ HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest004, TestSize.Level0)
 
     std::vector<Uri> grantUris;
     std::string targetBundleName = "com.example.app";
+    int32_t appIndex = 1;
     std::string uriStr = URI_STRING;
     auto uri = OHOS::Uri(uriStr);
     grantUris.push_back(uri);
 
-    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, true);
+    auto result = tempPasteboard->GrantUriPermission(grantUris, targetBundleName, true, appIndex);
     EXPECT_NE(result, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
@@ -3106,10 +3110,6 @@ HWTEST_F(PasteboardServiceTest, PreSyncRemotePasteboardDataTest, TestSize.Level0
     EXPECT_NE(tempPasteboard, nullptr);
     testing::NiceMock<PasteboardServiceInterfaceMock> mock;
     EXPECT_CALL(mock, IsOn()).WillRepeatedly(testing::Return(true));
-    EXPECT_CALL(mock, GetDeviceSecurityLevel())
-        .WillOnce(testing::Return(DATA_SEC_LEVEL1))
-        .WillOnce(testing::Return(DATA_SEC_LEVEL3))
-        .WillOnce(testing::Return(DATA_SEC_LEVEL3));
     tempPasteboard->securityLevel_.securityLevel_ = DATA_SEC_LEVEL1;
     tempPasteboard->PreSyncRemotePasteboardData();
     tempPasteboard->securityLevel_.securityLevel_ = DATA_SEC_LEVEL3;
