@@ -15,6 +15,10 @@
 
 @!namespace("@ohos.pasteboard", "pasteboard")
 
+@!sts_inject("""
+static { loadLibrary("pasteboard_taihe_native.z") }
+""")
+
 @!sts_inject_into_module("import Want from '@ohos.app.ability.Want';")
 
 @!sts_inject_into_module("import image from '@ohos.multimedia.image';")
@@ -76,7 +80,7 @@ interface PasteData {
 
     GetMimeTypes(): Array<String>;
     GetPrimaryHtml(): String;
-    GetPrimaryWant(): Opaque;
+    GetPrimaryWant(): @sts_type("Want") Opaque;
     GetPrimaryMimeType(): String;
     GetPrimaryText(): String;
     GetPrimaryUri(): String;
@@ -113,6 +117,7 @@ interface SystemPasteboard {
     OnUpdate(callback: () => void, cb: Opaque);
     OffUpdate(cb: Optional<Opaque>);
 
+    @gen_async("clearData")
     @gen_promise("clearData")
     ClearDataImpl(): void;
 

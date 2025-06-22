@@ -21,7 +21,7 @@
 
 #include "ani_common_want.h"
 #include "common/block_object.h"
-#include "image_ani_utils.h"
+#include "pixel_map_taihe_ani.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
@@ -46,22 +46,44 @@ public:
 
     taihe::string GetMimeType()
     {
-        return this->mimeType_;
+        std::string mimeType = "";
+        if (this->record_ != nullptr) {
+            mimeType = this->record_->GetMimeType();
+        }
+        return taihe::string(mimeType);
     }
 
     taihe::string GetPlainText()
     {
-        return this->plainText_;
+        std::shared_ptr<std::string> plainText = std::make_shared<std::string>("");
+        if (this->record_ != nullptr) {
+            plainText = this->record_->GetPlainText();
+        }
+        return taihe::string(*plainText);
     }
 
     taihe::string GetUri()
     {
-        return this->uri_;
+        std::string uriStr = "";
+        std::shared_ptr<OHOS::Uri> uri = nullptr;
+        if (this->record_ != nullptr) {
+            uri = this->record_->GetUri();
+        }
+        if (uri != nullptr) {
+            uriStr = uri->ToString();
+        }
+        return taihe::string(uriStr);
     }
 
     uintptr_t GetPixelMap()
     {
-        return this->pixelMap_;
+        uintptr_t pixelMapPtr = 0;
+        if (this->record_ != nullptr) {
+            std::shared_ptr<OHOS::Media::PixelMap> pixelMap = this->record_->GetPixelMap();
+            ani_object pixelMapObj = OHOS::Media::PixelMapTaiheAni::CreateEtsPixelMap(taihe::get_env(), pixelMap);
+            pixelMapPtr = reinterpret_cast<uintptr_t>(pixelMapObj);
+        }
+        return pixelMapPtr;
     }
 
     taihe::string ToPlainText()
@@ -111,10 +133,6 @@ public:
 
 private:
     std::shared_ptr<PasteDataRecord> record_;
-    taihe::string mimeType_ {};
-    taihe::string plainText_ {};
-    taihe::string uri_ {};
-    uintptr_t pixelMap_ {};
 };
 
 class PasteDataImpl {
@@ -135,6 +153,16 @@ public:
     void CreateAndAddRecord(taihe::string_view mimeType, const pasteboardTaihe::ValueType &value)
     {
         std::string mimeTypeStr = std::string(mimeType);
+        if (mimeTypeStr.empty()) {
+            taihe::set_business_error(
+                static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
+            return;
+        }
+        if (mimeTypeStr.size() > MIMETYPE_MAX_SIZE) {
+            taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
+                "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
+            return;
+        }
         auto strategy = StrategyFactory::CreateStrategyForRecord(value, mimeTypeStr);
         if (strategy) {
             strategy->AddRecord(mimeTypeStr, value, this->pasteData_);
@@ -395,24 +423,25 @@ public:
 
     taihe::string GetDataSource()
     {
-        auto bundleName = std::make_shared<std::string>("");
-        auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
-        std::thread thread([block, &bundleName]() mutable {
-            int32_t ret = PasteboardClient::GetInstance()->GetDataSource(*bundleName);
-            auto value = std::make_shared<int32_t>(ret);
+        auto block =
+            std::make_shared<OHOS::BlockObject<std::shared_ptr<std::pair<int32_t, std::string>>>>(SYNC_TIMEOUT);
+        std::thread thread([block]() mutable {
+            std::string bundleName;
+            int32_t ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
+            auto value = std::make_shared<std::pair<int32_t, std::string>>(ret, bundleName);
             block->SetValue(value);
         });
         thread.detach();
-        std::shared_ptr<int32_t> value = block->GetValue();
+        auto value = block->GetValue();
         if (value == nullptr) {
             taihe::set_business_error(static_cast<int>(JSErrorCode::REQUEST_TIME_OUT), "Request timed out.");
             return taihe::string("");
         }
-        if (*value != static_cast<int>(PasteboardError::E_OK)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetDataSource, failed, ret = %{public}d", *value);
+        if (value->first != static_cast<int>(PasteboardError::E_OK)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetDataSource, failed, ret = %{public}d", value->first);
             return taihe::string("");
         }
-        taihe::string bundleNameTH(*bundleName);
+        taihe::string bundleNameTH(value->second);
         return bundleNameTH;
     }
 
@@ -594,18 +623,18 @@ pasteboardTaihe::PasteData CreateDataByValue(
     taihe::string_view mimeType, const pasteboardTaihe::ValueType &value)
 {
     pasteboardTaihe::PasteData data = taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
-    if (mimeType.empty()) {
+    std::string mimeTypeStr = std::string(mimeType);
+    if (mimeTypeStr.empty()) {
         taihe::set_business_error(
             static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
         return data;
     }
-    if (mimeType.size() > MIMETYPE_MAX_SIZE) {
+    if (mimeTypeStr.size() > MIMETYPE_MAX_SIZE) {
         taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
             "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
         return data;
     }
     std::shared_ptr<PasteData> pasteData;
-    std::string mimeTypeStr = std::string(mimeType);
     auto strategy = StrategyFactory::CreateStrategyForData(mimeTypeStr);
     if (strategy) {
         strategy->CreateData(mimeTypeStr, value, pasteData);
@@ -630,20 +659,20 @@ pasteboardTaihe::PasteData CreateDataByRecord(
     std::shared_ptr<EntryValueMap> entryValueMap = std::make_shared<EntryValueMap>();
     std::string primaryMimeType = "";
     for (const auto &item : typeValueMap) {
-        if (item.first.empty()) {
+        std::string mimeTypeStr = std::string(item.first);
+        if (mimeTypeStr.empty()) {
             taihe::set_business_error(
                 static_cast<int>(JSErrorCode::INVALID_PARAMETERS), "Parameter error. mimeType cannot be empty.");
             return pasteDataTH;
         }
-        if (item.first.size() > MIMETYPE_MAX_SIZE) {
+        if (mimeTypeStr.size() > MIMETYPE_MAX_SIZE) {
             taihe::set_business_error(static_cast<int>(JSErrorCode::INVALID_PARAMETERS),
                 "Parameter error. The length of mimeType cannot be greater than 1024 bytes.");
             return pasteDataTH;
         }
         if (primaryMimeType.empty()) {
-            primaryMimeType = std::string(item.first);
+            primaryMimeType = mimeTypeStr;
         }
-        std::string mimeTypeStr = std::string(item.first);
         std::shared_ptr<EntryValue> entry;
         auto strategy = StrategyFactory::CreateStrategyForRecord(item.second, mimeTypeStr);
         if (!strategy) {
