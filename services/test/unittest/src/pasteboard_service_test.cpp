@@ -843,9 +843,7 @@ HWTEST_F(PasteboardServiceTest, IsBasicTypeTest003, TestSize.Level0)
 {
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
-    
-    tempPasteboard->RevokeUriPermission(nullptr);
-    
+
     bool ret = tempPasteboard->IsBasicType(MIMETYPE_TEXT_URI);
     EXPECT_TRUE(ret);
 }
@@ -3457,20 +3455,6 @@ HWTEST_F(PasteboardServiceTest, ShowHintToastTest001, TestSize.Level0)
     uint32_t tokenId = UINT32_ONE;
     uint32_t pid = 0;
     tempPasteboard->ShowHintToast(tokenId, pid);
-}
-
-/**
- * @tc.name: RevokeUriPermissionTest001
- * @tc.desc: test Func RevokeUriPermission
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, RevokeUriPermissionTest001, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
-    tempPasteboard->RevokeUriPermission(pasteData);
 }
 
 /**
