@@ -30,8 +30,6 @@ EntityRecognitionObserverProxy::EntityRecognitionObserverProxy(const sptr<IRemot
 
 void EntityRecognitionObserverProxy::OnRecognitionEvent(EntityType entityType, std::string &entity)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE,
-        "callback, type=%{public}u, entity=%{private}s", static_cast<uint32_t>(entityType), entity.c_str());
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
