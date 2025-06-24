@@ -25,7 +25,6 @@ ohos_fuzztest("PasteboardDisposableFuzzTest") {
   cflags = [
     "-g",
     "-O0",
-    "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
     "-fno-access-control",
   ]
@@ -47,9 +46,8 @@ ohos_fuzztest("PasteboardDisposableFuzzTest") {
   ]
 
   deps = [
-    "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_innerkits_path}:pasteboard_client",
   ]
 
   external_deps = [
@@ -57,11 +55,8 @@ ohos_fuzztest("PasteboardDisposableFuzzTest") {
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
-    "ipc:ipc_single",
-    "samgr:samgr_proxy",
-    "udmf:udmf_client",
     "init:libbegetutil",
+    "ipc:ipc_single",
   ]
 }
 

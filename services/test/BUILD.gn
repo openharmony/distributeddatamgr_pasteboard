@@ -580,9 +580,8 @@ ohos_unittest("PasteboardDisposableManagerTest") {
   ]
 
   deps = [
-    "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_framework_path}:pasteboard_framework",
+    "${pasteboard_innerkits_path}:pasteboard_client",
   ]
 
   external_deps = [
@@ -592,11 +591,8 @@ ohos_unittest("PasteboardDisposableManagerTest") {
     "googletest:gmock",
     "googletest:gtest_main",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
-    "ipc:ipc_single",
-    "samgr:samgr_proxy",
-    "udmf:udmf_client",
     "init:libbegetutil",
+    "ipc:ipc_single",
   ]
 }
 

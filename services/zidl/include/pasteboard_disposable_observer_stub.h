@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef PASTEBOARD_DISPOSBALE_OBSERVER_STUB_H
-#define PASTEBOARD_DISPOSBALE_OBSERVER_STUB_H
+#ifndef PASTEBOARD_DISPOSABLE_OBSERVER_STUB_H
+#define PASTEBOARD_DISPOSABLE_OBSERVER_STUB_H
 
 #include <unordered_map>
 
@@ -41,4 +41,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTEBOARD_DISPOSBALE_OBSERVER_STUB_H
+#endif // PASTEBOARD_DISPOSABLE_OBSERVER_STUB_H

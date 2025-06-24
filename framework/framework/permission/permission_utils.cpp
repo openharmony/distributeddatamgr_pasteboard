@@ -23,11 +23,9 @@ namespace MiscServices {
 bool PermissionUtils::IsPermissionGranted(const std::string &perm, uint32_t tokenId)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "check permission, perm=%{public}s", perm.c_str());
-    int32_t result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId, perm);
-    if (result == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "permission denied, perm=%{public}s", perm.c_str());
-        return false;
-    }
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId, perm);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == Security::AccessToken::PermissionState::PERMISSION_GRANTED,
+        false, PASTEBOARD_MODULE_SERVICE, "permission denied, perm=%{public}s", perm.c_str());
     return true;
 }
 } // namespace MiscServices
