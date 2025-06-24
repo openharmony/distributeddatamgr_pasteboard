@@ -12,8 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PASTEBOARD_DISPOSBALE_OBSERVER_PROXY_H
-#define PASTEBOARD_DISPOSBALE_OBSERVER_PROXY_H
+
+#ifndef PASTEBOARD_DISPOSABLE_OBSERVER_PROXY_H
+#define PASTEBOARD_DISPOSABLE_OBSERVER_PROXY_H
 
 #include "ipasteboard_disposable_observer.h"
 #include "iremote_broker.h"
@@ -36,4 +37,4 @@ private:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTEBOARD_DISPOSBALE_OBSERVER_PROXY_H
+#endif // PASTEBOARD_DISPOSABLE_OBSERVER_PROXY_H

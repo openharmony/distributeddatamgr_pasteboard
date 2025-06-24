@@ -17,9 +17,9 @@
 
 #include <fuzzer/FuzzedDataProvider.h>
 
+#include "pasteboard_disposable_manager.h"
 #include "pasteboard_error.h"
 #include "ffrt/ffrt_utils.h"
-#include "pasteboard_disposable_manager.h"
 
 namespace {
 using namespace OHOS::MiscServices;

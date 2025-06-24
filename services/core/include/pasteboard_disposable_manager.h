@@ -41,7 +41,6 @@ public:
     static DisposableManager &GetInstance();
     bool TryProcessDisposableData(const std::string &bundleName, PasteData &pasteData,
         const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter);
-
     int32_t AddDisposableInfo(const DisposableInfo &info);
     void RemoveDisposableInfo(pid_t pid, bool needNotify);
 
@@ -52,7 +51,7 @@ private:
         const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter);
     void ProcessNoMatchInfo(const std::vector<DisposableInfo> &noMatchInfoList);
 
-    static constexpr int32_t DISPOSABLE_EXPIRATION_DEFAULT = 200; // ms
+    static constexpr int32_t DISPOSABLE_EXPIRATION_DEFAULT = 100; // ms
     static constexpr int32_t DISPOSABLE_EXPIRATION_MIN = 1; // ms
     static constexpr int32_t DISPOSABLE_EXPIRATION_MAX = 200; // ms
     std::mutex disposableInfoMutex_;

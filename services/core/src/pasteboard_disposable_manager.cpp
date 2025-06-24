@@ -50,17 +50,25 @@ void DisposableManager::ProcessMatchedInfo(const std::vector<DisposableInfo> &ma
     for (const auto &item : matchedInfoList) {
         if (item.observer == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer is null, pid=%{public}d", item.pid);
-        } else if (item.type != DisposableType::PLAIN_TEXT) {
-            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_TYPE_NOT_SUPPORT);
-        } else if (!PermissionUtils::IsPermissionGranted(PermissionUtils::PERMISSION_READ_PASTEBOARD, item.tokenId)) {
-            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_NO_PERMISSION);
-        } else if (text.empty()) {
-            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_NO_TEXT);
-        } else if (text.length() > item.maxLen) {
-            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_LENGTH_MISMATCH);
-        } else {
-            item.observer->OnTextReceived(text, IPasteboardDisposableObserver::ERR_OK);
+            continue;
         }
+        if (item.type != DisposableType::PLAIN_TEXT) {
+            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_TYPE_NOT_SUPPORT);
+            continue;
+        }
+        if (!PermissionUtils::IsPermissionGranted(PermissionUtils::PERMISSION_READ_PASTEBOARD, item.tokenId)) {
+            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_NO_PERMISSION);
+            continue;
+        }
+        if (text.empty()) {
+            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_NO_TEXT);
+            continue;
+        }
+        if (text.length() > item.maxLen) {
+            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_LENGTH_MISMATCH);
+            continue;
+        }
+        item.observer->OnTextReceived(text, IPasteboardDisposableObserver::ERR_OK);
     }
 }
 

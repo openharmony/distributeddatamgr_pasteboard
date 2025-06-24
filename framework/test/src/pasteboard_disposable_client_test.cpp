@@ -16,13 +16,10 @@
 #include <gtest/gtest.h>
 #include <thread>
 
-#include "access_token.h"
 #include "accesstoken_kit.h"
-#include "hap_token_info.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
-#include "permission_state_full.h"
 #include "permission/permission_utils.h"
 #include "token_setproc.h"
 
@@ -41,6 +38,7 @@ public:
     void TearDown();
 
     static void AllocTestAppTokenId();
+    static inline pid_t selfUid_ = 0;
     static inline uint64_t selfTokenId_ = 0;
     static inline uint64_t testAppTokenId_ = 0;
 };
@@ -49,6 +47,7 @@ void PasteboardDisposableTest::SetUpTestCase()
 {
     selfTokenId_ = GetSelfTokenID();
     AllocTestAppTokenId();
+    selfUid_ = getuid();
     setuid(SELECTION_SERVICE_UID);
 }
 
@@ -56,6 +55,7 @@ void PasteboardDisposableTest::TearDownTestCase()
 {
     AccessTokenKit::DeleteToken(testAppTokenId_);
     SetSelfTokenID(selfTokenId_);
+    setuid(selfUid_);
 }
 
 void PasteboardDisposableTest::SetUp()
