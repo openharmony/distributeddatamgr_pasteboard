@@ -354,7 +354,6 @@ int32_t PasteboardService::Clear()
     RADAR_REPORT(DFX_CLEAR_PASTEBOARD, DFX_MANUAL_CLEAR, DFX_SUCCESS);
     auto it = clips_.Find(userId);
     if (it.first) {
-        RevokeUriPermission(it.second);
         clips_.Erase(userId);
         delayDataId_ = 0;
         delayTokenId_ = 0;
@@ -899,7 +898,6 @@ bool PasteboardService::IsDataAged()
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
         auto data = clips_.Find(userId);
         if (data.first) {
-            RevokeUriPermission(data.second);
             clips_.Erase(userId);
             delayDataId_ = 0;
             delayTokenId_ = 0;
@@ -1838,39 +1836,6 @@ std::vector<Uri> PasteboardService::CheckUriPermission(PasteData &data,
     return grantUris;
 }
 
-void PasteboardService::RevokeUriPermission(std::shared_ptr<PasteData> pasteData)
-{
-    std::set<std::pair<std::string, int32_t>> bundleIndexs;
-    {
-        std::lock_guard<std::mutex> lock(readBundleMutex_);
-        bundleIndexs = std::move(readBundles_);
-    }
-    if (pasteData == nullptr) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "pasteData is null");
-        return;
-    }
-    if (bundleIndexs.empty()) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "bundles empty");
-        return;
-    }
-    std::thread thread([pasteData, bundleIndexs]() {
-        auto &permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-        for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
-            auto item = pasteData->GetRecordAt(i);
-            if (item == nullptr || item->GetOriginUri() == nullptr) {
-                continue;
-            }
-            Uri uri = *(item->GetOriginUri());
-            for (std::set<std::pair<std::string, int32_t>>::iterator it = bundleIndexs.begin();
-                it != bundleIndexs.end(); it++) {
-                auto permissionCode = permissionClient.RevokeUriPermissionManually(uri, it->first, it->second);
-                PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "permissionCode is %{public}d", permissionCode);
-            }
-        }
-    });
-    thread.detach();
-}
-
 bool PasteboardService::IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri)
 {
     return (bundleName.compare(uri.GetAuthority()) == 0);
@@ -2326,10 +2291,6 @@ int32_t PasteboardService::SetPasteDataOnly(int fd, int64_t rawDataSize, const s
 
 void PasteboardService::RemovePasteData(const AppInfo &appInfo)
 {
-    clips_.ComputeIfPresent(appInfo.userId, [this](auto, auto &clip) {
-        RevokeUriPermission(clip);
-        return false;
-    });
     delayGetters_.ComputeIfPresent(appInfo.userId, [](auto, auto &delayGetter) {
         RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_DELAY_COPY, DFX_SUCCESS, COVER_DELAY_DATA, DFX_SUCCESS);
         if (delayGetter.first != nullptr && delayGetter.second != nullptr) {

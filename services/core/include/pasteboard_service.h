@@ -334,7 +334,6 @@ private:
     std::vector<Uri> CheckUriPermission(PasteData &data, const std::pair<std::string, int32_t> &targetBundleAppIndex);
     int32_t GrantUriPermission(const std::vector<Uri> &grantUris, const std::string &targetBundleName,
         bool isRemoteData, int32_t appIndex);
-    void RevokeUriPermission(std::shared_ptr<PasteData> pasteData);
     void GenerateDistributedUri(PasteData &data);
     bool IsBundleOwnUriPermission(const std::string &bundleName, Uri &uri);
     std::string GetAppLabel(uint32_t tokenId);
