@@ -19,6 +19,7 @@
 #include "convert_utils.h"
 #include "ffrt/ffrt_utils.h"
 #include "hitrace_meter.h"
+#include "system_ability_status_change_stub.h"
 #include "pasteboard_copy.h"
 #include "pasteboard_deduplicate_memory.h"
 #include "pasteboard_error.h"
@@ -31,6 +32,7 @@
 #include "pasteboard_time.h"
 #include "pasteboard_utils.h"
 #include "pasteboard_web_controller.h"
+#include "pasteboard_sa_callback.h"
 #include "pasteboard_service_loader.h"
 #include "system_ability_definition.h"
 #include "nlohmann/json.hpp"
@@ -40,6 +42,7 @@ using json = nlohmann::json;
 namespace OHOS {
 namespace MiscServices {
 constexpr const int32_t HITRACE_GETPASTEDATA = 0;
+constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 std::string g_progressKey;
 constexpr int32_t PASTEBOARD_PROGRESS_UPDATE_PERCENT = 5;
 constexpr int32_t UPDATE_PERCENT_WITHOUT_FILE = 10;
@@ -53,6 +56,7 @@ constexpr uint32_t JSON_INDENT = 4;
 constexpr uint32_t RECORD_DISPLAY_UPPERBOUND = 3;
 static constexpr int32_t HAP_PULL_UP_TIME = 500; // ms
 static constexpr int32_t HAP_MIN_SHOW_TIME = 300; // ms
+static sptr<SystemAbilityListener> saCallback_ = nullptr;
 constexpr const char *ERROR_CODE = "ERROR_CODE";
 constexpr const char *DIS_SYNC_TIME = "DIS_SYNC_TIME";
 constexpr const char *PACKAGE_NAME = "PACKAGE_NAME";
@@ -73,6 +77,8 @@ bool operator==(const RadarReportIdentity &lhs, const RadarReportIdentity &rhs)
     return lhs.pid == rhs.pid && lhs.errorCode == rhs.errorCode;
 }
 
+std::set<std::pair<PasteboardObserverType, sptr<PasteboardObserver>>,
+    PasteboardClient::classcomp> PasteboardClient::observerSet_;
 PasteboardClient::PasteboardClient()
 {
     auto proxyService = GetPasteboardService();
@@ -790,6 +796,50 @@ int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
     return ret;
 }
 
+void PasteboardClient::SubscribePasteboardSA()
+{
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(samgrProxy != nullptr, PASTEBOARD_MODULE_CLIENT, "get samgr fail.");
+    std::lock_guard<std::mutex> lock(saListenerMutex_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(!isSubscribeSa_, PASTEBOARD_MODULE_CLIENT, "already subscribe sa.");
+    if (saCallback_ == nullptr) {
+        saCallback_ = sptr<SystemAbilityListener>(new SystemAbilityListener());
+    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(saCallback_ != nullptr, PASTEBOARD_MODULE_CLIENT, "Create saCallback failed!");
+    auto ret = samgrProxy->SubscribeSystemAbility(PASTEBOARD_SA_ID, saCallback_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(
+        ret == 0, PASTEBOARD_MODULE_CLIENT, "subscribe pasteboard sa failed! ret %{public}d.", ret);
+    isSubscribeSa_ = true;
+}
+
+void PasteboardClient::UnSubscribePasteboardSA()
+{
+    std::lock_guard<std::mutex> lock(saListenerMutex_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(saCallback_ != nullptr, PASTEBOARD_MODULE_CLIENT, "saCallback is nullptr");
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "get samgr fail.");
+        saCallback_ = nullptr;
+        isSubscribeSa_ = false;
+        return;
+    }
+    int32_t ret = samgrProxy->UnSubscribeSystemAbility(PASTEBOARD_SA_ID, saCallback_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(
+        ret == 0, PASTEBOARD_MODULE_CLIENT, "unSubscribe pasteboard sa failed! ret %{public}d.", ret);
+    isSubscribeSa_ = false;
+}
+
+void PasteboardClient::Resubscribe()
+{
+    auto proxyService = GetPasteboardService();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT,
+        "proxyService is null");
+    std::lock_guard<std::mutex> lock(observerSetMutex_);
+    for (auto it = observerSet_.begin(); it != observerSet_.end(); ++it) {
+        proxyService->ResubscribeObserver(it->first, it->second);
+    }
+}
+
 bool PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
@@ -798,9 +848,15 @@ bool PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObs
         return false;
     }
     auto proxyService = GetPasteboardService();
+    {
+        std::lock_guard<std::mutex> lock(observerSetMutex_);
+        observerSet_.insert(std::make_pair(type, callback));
+    }
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false, PASTEBOARD_MODULE_CLIENT,
         "proxyService is null");
-    return proxyService->SubscribeObserver(type, callback) == ERR_OK;
+    auto ret = proxyService->SubscribeObserver(type, callback) == ERR_OK;
+    SubscribePasteboardSA();
+    return ret;
 }
 
 void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)
@@ -820,9 +876,21 @@ void PasteboardClient::Unsubscribe(PasteboardObserverType type, sptr<PasteboardO
     PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
     if (callback == nullptr) {
         PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "remove all.");
+        {
+            std::lock_guard<std::mutex> lock(observerSetMutex_);
+            observerSet_.clear();
+        }
         proxyService->UnsubscribeAllObserver(type);
+        UnSubscribePasteboardSA();
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");
         return;
+    }
+    {
+        std::lock_guard<std::mutex> lock(observerSetMutex_);
+        observerSet_.erase(std::make_pair(type, callback));
+        if (observerSet_.size() == 0) {
+            UnSubscribePasteboardSA();
+        }
     }
     proxyService->UnsubscribeObserver(type, callback);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "end.");

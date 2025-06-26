@@ -44,6 +44,7 @@ public:
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
     void LoadSystemAbilityFail();
     void LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
+    void ClearPasteboardServiceProxy();
 
 private:
     PasteboardServiceLoader();
