@@ -97,6 +97,9 @@ public:
 private:
     void WriteHead(uint16_t type, size_t tagCursor, uint32_t len)
     {
+        if (tagCursor + sizeof(TLVHead) > data_.size()) {
+            return;
+        }
         auto *tlvHead = reinterpret_cast<TLVHead *>(data_.data() + tagCursor);
         tlvHead->tag = HostToNet(type);
         tlvHead->len = HostToNet(len);

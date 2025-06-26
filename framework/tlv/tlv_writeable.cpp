@@ -116,7 +116,7 @@ bool WriteOnlyBuffer::Write(uint16_t type, const RawMem &value)
     tlvHead->len = HostToNet(static_cast<uint32_t>(value.bufferLen));
     cursor_ += sizeof(TLVHead);
 
-    if (value.bufferLen != 0 && value.buffer != 0) {
+    if (value.bufferLen != 0 && reinterpret_cast<const void *>(value.buffer) != nullptr) {
         auto err = memcpy_s(data_.data() + cursor_, total_ - cursor_,
             reinterpret_cast<const void *>(value.buffer), value.bufferLen);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(err == EOK, false, PASTEBOARD_MODULE_COMMON,
