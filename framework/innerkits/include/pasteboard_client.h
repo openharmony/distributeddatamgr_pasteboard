@@ -497,6 +497,10 @@ public:
      */
     int32_t HandleSignalValue(const std::string &signalValue);
 
+protected:
+    friend class SystemAbilityListener;
+    void Resubscribe();
+
 private:
     sptr<IPasteboardService> GetPasteboardService();
     static void GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params);
@@ -530,10 +534,27 @@ private:
         const std::vector<uint8_t> &recvTLV);
     void GetDataReport(PasteData &pasteData, int32_t syncTime, const std::string &currentId,
         const std::string &currentPid, int32_t ret);
+    void SubscribePasteboardSA();
+    void UnSubscribePasteboardSA();
     static std::mutex instanceLock_;
     std::atomic<uint32_t> getSequenceId_ = 0;
     static std::atomic<bool> remoteTask_;
     static std::atomic<bool> isPasting_;
+    std::mutex observerSetMutex_;
+    std::mutex saListenerMutex_;
+    bool isSubscribeSa_ = false;
+
+    struct classcomp {
+        bool operator()(const std::pair<PasteboardObserverType, sptr<PasteboardObserver>> &l,
+            const std::pair<PasteboardObserverType, sptr<PasteboardObserver>> &r) const
+        {
+            if (l.first == r.first) {
+                return l.second->AsObject() < r.second->AsObject();
+            }
+            return l.first < r.first;
+        }
+    };
+    static std::set<std::pair<PasteboardObserverType, sptr<PasteboardObserver>>, classcomp> observerSet_;
 };
 } // namespace MiscServices
 } // namespace OHOS

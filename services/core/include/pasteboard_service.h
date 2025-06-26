@@ -141,6 +141,8 @@ public:
         EntityType entityType, uint32_t expectedDataLength, const sptr<IEntityRecognitionObserver> &observer) override;
     virtual int32_t SubscribeObserver(
         PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
+    virtual int32_t ResubscribeObserver(
+        PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
     virtual int32_t UnsubscribeObserver(
         PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
     virtual int32_t UnsubscribeAllObserver(PasteboardObserverType type) override;

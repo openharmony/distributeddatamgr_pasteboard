@@ -2403,6 +2403,16 @@ int32_t PasteboardService::SubscribeObserver(PasteboardObserverType type,
     return addSucc ? ERR_OK : static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED);
 }
 
+int32_t PasteboardService::ResubscribeObserver(
+    PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer)
+{
+    auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
+    if (appInfo.tokenType == ATokenTypeEnum::TOKEN_HAP) {
+        return SubscribeObserver(type, observer);
+    }
+    return ERR_OK;
+}
+
 int32_t PasteboardService::UnsubscribeObserver(
     PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer)
 {

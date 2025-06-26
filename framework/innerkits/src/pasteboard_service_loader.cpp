@@ -109,6 +109,13 @@ sptr<IPasteboardService> PasteboardServiceLoader::GetPasteboardServiceProxy()
     return pasteboardServiceProxy_;
 }
 
+void PasteboardServiceLoader::ClearPasteboardServiceProxy()
+{
+    std::lock_guard<std::mutex> lock(instanceLock_);
+    pasteboardServiceProxy_ = nullptr;
+    return;
+}
+
 void PasteboardServiceLoader::SetPasteboardServiceProxy(const sptr<IRemoteObject> &remoteObject)
 {
     PASTEBOARD_CHECK_AND_RETURN_LOGE(remoteObject != nullptr, PASTEBOARD_MODULE_CLIENT, "remoteObject is null.");

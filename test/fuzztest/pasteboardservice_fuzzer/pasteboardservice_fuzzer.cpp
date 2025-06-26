@@ -36,6 +36,7 @@ const std::vector<IPasteboardServiceIpcCode> CODE_LIST = {
     IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_ENTRY_DATA,
     IPasteboardServiceIpcCode::COMMAND_CLEAR,
     IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_OBSERVER,
+    IPasteboardServiceIpcCode::COMMAND_RESUBSCRIBE_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_ALL_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_DISPOSABLE_OBSERVER,
@@ -235,6 +236,13 @@ public:
     }
 
     int32_t SubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override
+    {
+        (void)type;
+        (void)observer;
+        return 0;
+    }
+
+    int32_t ResubscribeObserver(PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override
     {
         (void)type;
         (void)observer;
