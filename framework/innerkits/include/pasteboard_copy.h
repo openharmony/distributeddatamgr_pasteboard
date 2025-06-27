@@ -57,7 +57,7 @@ private:
     static void OnProgressNotify(std::shared_ptr<GetDataParams> params);
     static int32_t CopyFileData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams);
 
-    static void HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize,
+    static void HandleProgress(int32_t index, const CopyInfo &info, uint64_t processSize, uint64_t totalSize,
         std::shared_ptr<GetDataParams> dataParams);
     static ProgressListener progressListener_;
     static std::atomic_bool canCancel_;
