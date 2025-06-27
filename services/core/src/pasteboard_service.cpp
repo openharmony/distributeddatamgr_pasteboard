@@ -480,7 +480,8 @@ int32_t PasteboardService::ExtractEntity(const std::string &entity, std::string 
         entityJson["entity"]["location"].is_array()) {
         nlohmann::json locationJson = entityJson["entity"]["location"].get<nlohmann::json>();
         location = locationJson.dump();
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "location dump finished, location=%{private}s", location.c_str());
+        PASTEBOARD_HILOGI(
+            PASTEBOARD_MODULE_SERVICE, "location dump finished, location size=%{public}zu", location.size());
         return static_cast<int32_t>(PasteboardError::E_OK);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteData did not contain entity");
