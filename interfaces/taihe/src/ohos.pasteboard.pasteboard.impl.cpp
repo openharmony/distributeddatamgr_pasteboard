@@ -59,6 +59,10 @@ public:
         if (this->record_ != nullptr) {
             plainText = this->record_->GetPlainText();
         }
+        if (plainText == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "record get plainText get nullptr");
+            return taihe::string("");
+        }
         return taihe::string(*plainText);
     }
 
