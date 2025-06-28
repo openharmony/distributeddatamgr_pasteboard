@@ -200,7 +200,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         recordCount++;
         CopyInfo info = *copyInfo;
         using ProcessCallBack = std::function<void(uint64_t processSize, uint64_t totalSize)>;
-        ProcessCallBack listener = [&](uint64_t processSize, uint64_t totalSize) {
+        ProcessCallBack listener = [=](uint64_t processSize, uint64_t totalSize) {
             HandleProgress(recordProcessedIndex, info, processSize, totalSize, dataParams);
         };
         ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Copy(srcUri, copyInfo->destUri, listener);
@@ -235,7 +235,7 @@ bool PasteBoardCopyFile::ShouldKeepRecord(
     }
 }
 
-void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t processSize, uint64_t totalSize,
+void PasteBoardCopyFile::HandleProgress(int32_t index, const CopyInfo &info, uint64_t processSize, uint64_t totalSize,
     std::shared_ptr<GetDataParams> dataParams)
 {
     if (dataParams == nullptr) {
@@ -260,7 +260,7 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, CopyInfo &info, uint64_t 
 
     if (ProgressSignalClient::GetInstance().CheckCancelIfNeed() && canCancel_.load()) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Cancel copy.");
-        std::thread([&]() {
+        std::thread([info]() {
             canCancel_.store(false);
             auto ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Cancel(info.srcUri, info.destUri);
             if (ret != ERRNO_NOERR) {
