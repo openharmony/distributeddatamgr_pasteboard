@@ -103,6 +103,7 @@ constexpr uint64_t SYSTEM_APP_MASK = (static_cast<uint64_t>(1) << 32);
 constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;
 constexpr int64_t MIN_ASHMEM_DATA_SIZE = 32 * 1024;
 constexpr int32_t E_OK_OPERATION = 0;
+constexpr int32_t SET_VALUE_SUCCESS = 1;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -1192,7 +1193,7 @@ void PasteboardService::AddPermissionRecord(uint32_t tokenId, bool isReadGrant, 
 }
 
 int32_t PasteboardService::CheckAndGrantRemoteUri(PasteData &data, const AppInfo &appInfo,
-    const std::string &pasteId, const std::string &deviceId, std::shared_ptr<BlockObject<bool>> pasteBlock)
+    const std::string &pasteId, const std::string &deviceId, std::shared_ptr<BlockObject<int32_t>> pasteBlock)
 {
     int64_t fileSize = data.GetFileSize();
     bool isRemoteData = data.IsRemote();
@@ -1223,7 +1224,7 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     auto appInfo = GetAppInfo(tokenId);
     int32_t result = static_cast<int32_t>(PasteboardError::E_OK);
     std::string pasteId = data.GetPasteId();
-    std::shared_ptr<BlockObject<bool>> pasteBlock = nullptr;
+    std::shared_ptr<BlockObject<int32_t>> pasteBlock = nullptr;
     auto [distRet, distEvt] = GetValidDistributeEvent(appInfo.userId);
     pasteBlock = EstablishP2PLinkTask(pasteId, distEvt);
     if (distRet != static_cast<int32_t>(PasteboardError::E_OK) ||
@@ -1573,7 +1574,7 @@ void PasteboardService::EstablishP2PLink(const std::string &networkId, const std
 #endif
 }
 
-std::shared_ptr<BlockObject<bool>> PasteboardService::CheckAndReuseP2PLink(
+std::shared_ptr<BlockObject<int32_t>> PasteboardService::CheckAndReuseP2PLink(
     const std::string &networkId, const std::string &pasteId)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
@@ -1606,7 +1607,7 @@ std::shared_ptr<BlockObject<bool>> PasteboardService::CheckAndReuseP2PLink(
             return true;
         });
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "No Need P2pEstablish");
-        std::shared_ptr<BlockObject<bool>> result = nullptr;
+        std::shared_ptr<BlockObject<int32_t>> result = nullptr;
         auto p2pIter = preSyncP2pMap_.find(networkId);
         if (p2pIter != preSyncP2pMap_.end()) {
             result = p2pIter->second;
@@ -1631,7 +1632,7 @@ bool PasteboardService::IsContainUri(const std::vector<std::string> &dataType)
     return result;
 }
 
-std::shared_ptr<BlockObject<bool>> PasteboardService::EstablishP2PLinkTask(
+std::shared_ptr<BlockObject<int32_t>> PasteboardService::EstablishP2PLinkTask(
     const std::string &pasteId, const ClipPlugin::GlobalEvent &event)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
@@ -1645,24 +1646,27 @@ std::shared_ptr<BlockObject<bool>> PasteboardService::EstablishP2PLinkTask(
         return nullptr;
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "EstablishP2PLinkTask enter");
-    std::shared_ptr<BlockObject<bool>> result = CheckAndReuseP2PLink(networkId, pasteId);
+    std::shared_ptr<BlockObject<int32_t>> result = CheckAndReuseP2PLink(networkId, pasteId);
     if (result) {
         return result;
     }
     if (!ffrtTimer_) {
         return nullptr;
     }
-    std::shared_ptr<BlockObject<bool>> pasteBlock = std::make_shared<BlockObject<bool>>(MIN_TRANMISSION_TIME);
+    std::shared_ptr<BlockObject<int32_t>> pasteBlock = std::make_shared<BlockObject<int32_t>>(MIN_TRANMISSION_TIME, 0);
     if (!pasteBlock) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to alloc BlockObject");
         return nullptr;
     }
-    p2pEstablishInfo_.networkId = networkId;
-    p2pEstablishInfo_.pasteBlock = pasteBlock;
+    {
+        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+        p2pEstablishInfo_.networkId = networkId;
+        p2pEstablishInfo_.pasteBlock = pasteBlock;
+    }
     FFRTTask p2pTask = [networkId, pasteBlock, this] {
         ffrt_this_task_set_legacy_mode(true);
         OpenP2PLink(networkId);
-        pasteBlock->SetValue(true);
+        pasteBlock->SetValue(SET_VALUE_SUCCESS);
         std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         auto findResult = p2pMap_.Find(networkId);
         if (!findResult.first || findResult.second.Empty()) {
@@ -2941,7 +2945,7 @@ void PasteboardService::DeletePreSyncP2pMap(const std::string &networkId)
     auto p2pIter = preSyncP2pMap_.find(networkId);
     if (p2pIter != preSyncP2pMap_.end()) {
         if (p2pIter->second) {
-            p2pIter->second->SetValue(true);
+            p2pIter->second->SetValue(SET_VALUE_SUCCESS);
         }
         preSyncP2pMap_.erase(networkId);
     }
@@ -3007,7 +3011,7 @@ void PasteboardService::PreEstablishP2PLink(const std::string &networkId, ClipPl
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PreEstablishP2PLink enter");
-    std::shared_ptr<BlockObject<bool>> pasteBlock = nullptr;
+    std::shared_ptr<BlockObject<int32_t>> pasteBlock = nullptr;
     {
         std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         if (p2pEstablishInfo_.pasteBlock && p2pEstablishInfo_.networkId == networkId) {
@@ -3019,7 +3023,7 @@ void PasteboardService::PreEstablishP2PLink(const std::string &networkId, ClipPl
             AddPreSyncP2pTimeoutTask(networkId);
             return;
         }
-        pasteBlock = std::make_shared<BlockObject<bool>>(MIN_TRANMISSION_TIME);
+        pasteBlock = std::make_shared<BlockObject<int32_t>>(MIN_TRANMISSION_TIME, 0);
         if (!pasteBlock) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "failed to alloc BlockObject");
             return;
@@ -3038,7 +3042,7 @@ void PasteboardService::PreEstablishP2PLink(const std::string &networkId, ClipPl
     } else {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "PreEstablishP2PLink failed");
     }
-    pasteBlock->SetValue(true);
+    pasteBlock->SetValue(SET_VALUE_SUCCESS);
 #endif
 }
 
@@ -4190,19 +4194,19 @@ void InputEventCallback::OnKeyInputEventForPaste(std::shared_ptr<MMI::KeyEvent> 
         windowPid_ = MMI::InputManager::GetInstance()->GetWindowPid(windowId);
         actionTime_ =
             static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-        std::shared_ptr<BlockObject<bool>> block = nullptr;
+        std::shared_ptr<BlockObject<int32_t>> block = nullptr;
         {
             std::unique_lock<std::shared_mutex> blockMapLock(blockMapMutex_);
             auto it = blockMap_.find(windowPid_);
             if (it != blockMap_.end()) {
                 block = it->second;
             } else {
-                block = std::make_shared<BlockObject<bool>>(WAIT_TIME_OUT, false);
+                block = std::make_shared<BlockObject<int32_t>>(WAIT_TIME_OUT, 0);
                 blockMap_.insert(std::make_pair(windowPid_, block));
             }
         }
         if (block != nullptr) {
-            block->SetValue(true);
+            block->SetValue(SET_VALUE_SUCCESS);
         }
     }
 }
@@ -4235,14 +4239,14 @@ void InputEventCallback::OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent)
 
 bool InputEventCallback::IsCtrlVProcess(uint32_t callingPid, bool isFocused)
 {
-    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    std::shared_ptr<BlockObject<int32_t>> block = nullptr;
     {
         std::unique_lock<std::shared_mutex> blockMapLock(blockMapMutex_);
         auto it = blockMap_.find(callingPid);
         if (it != blockMap_.end()) {
             block = it->second;
         } else {
-            block = std::make_shared<BlockObject<bool>>(WAIT_TIME_OUT, false);
+            block = std::make_shared<BlockObject<int32_t>>(WAIT_TIME_OUT, 0);
             blockMap_.insert(std::make_pair(callingPid, block));
         }
     }

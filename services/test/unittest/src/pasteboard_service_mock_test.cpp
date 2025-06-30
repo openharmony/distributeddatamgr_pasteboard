@@ -3246,7 +3246,7 @@ HWTEST_F(PasteboardServiceTest, CheckAndReuseP2PLinkTest001, TestSize.Level0)
     ConcurrentMap<std::string, int32_t> p2pMap;
     p2pMap.Insert(pasteId, pid);
     tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
-    std::shared_ptr<BlockObject<bool>> block = std::make_shared<BlockObject<bool>>(2000);
+    std::shared_ptr<BlockObject<int32_t>> block = std::make_shared<BlockObject<int32_t>>(2000, 0);
     EXPECT_NE(block, nullptr);
     tempPasteboard->preSyncP2pMap_.insert(std::make_pair(networkId, block));
     result = tempPasteboard->CheckAndReuseP2PLink(networkId, pasteId);
@@ -3286,7 +3286,7 @@ HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTaskTest001, TestSize.Level0)
     ConcurrentMap<std::string, int32_t> p2pMap;
     p2pMap.Insert(pasteId, pid);
     tempPasteboard->p2pMap_.Insert(event.deviceId, p2pMap);
-    std::shared_ptr<BlockObject<bool>> block = std::make_shared<BlockObject<bool>>(2000);
+    std::shared_ptr<BlockObject<int32_t>> block = std::make_shared<BlockObject<int32_t>>(2000, 0);
     EXPECT_NE(block, nullptr);
     tempPasteboard->preSyncP2pMap_.insert(std::make_pair(event.deviceId, block));
     result = tempPasteboard->EstablishP2PLinkTask(pasteId, event);
@@ -3333,7 +3333,7 @@ HWTEST_F(PasteboardServiceTest, PreEstablishP2PLinkTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
     EXPECT_NE(tempPasteboard->ffrtTimer_, nullptr);
-    tempPasteboard->p2pEstablishInfo_.pasteBlock = std::make_shared<BlockObject<bool>>(2000);
+    tempPasteboard->p2pEstablishInfo_.pasteBlock = std::make_shared<BlockObject<int32_t>>(2000, 0);
     EXPECT_NE(tempPasteboard->p2pEstablishInfo_.pasteBlock, nullptr);
     std::string networkId = "TestNetworkId";
     tempPasteboard->p2pEstablishInfo_.networkId = networkId;
@@ -3387,7 +3387,7 @@ HWTEST_F(PasteboardServiceTest, CheckAndGrantRemoteUriTest001, TestSize.Level0)
     AppInfo appInfo;
     std::string pasteId = "TestPasteId";
     std::string networkId = "TestNetworkId";
-    std::shared_ptr<BlockObject<bool>> block = std::make_shared<BlockObject<bool>>(2000);
+    std::shared_ptr<BlockObject<int32_t>> block = std::make_shared<BlockObject<int32_t>>(2000, 0);
     EXPECT_NE(block, nullptr);
     int32_t result = tempPasteboard->CheckAndGrantRemoteUri(data, appInfo, pasteId, networkId, block);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));

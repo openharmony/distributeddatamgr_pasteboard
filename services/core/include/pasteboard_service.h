@@ -74,7 +74,7 @@ struct PasteDateResult {
 
 struct PasteP2pEstablishInfo {
     std::string networkId;
-    std::shared_ptr<BlockObject<bool>> pasteBlock;
+    std::shared_ptr<BlockObject<int32_t>> pasteBlock;
 };
 
 struct FocusedAppInfo {
@@ -103,7 +103,7 @@ private:
     mutable uint64_t actionTime_ = 0;
     mutable std::shared_mutex inputEventMutex_;
     mutable std::shared_mutex blockMapMutex_;
-    mutable std::map<uint32_t, std::shared_ptr<BlockObject<bool>>> blockMap_;
+    mutable std::map<uint32_t, std::shared_ptr<BlockObject<int32_t>>> blockMap_;
     int32_t inputType_ = INPUTTYPE_PASTE;
     PasteboardService *pasteboardService_ = nullptr;
 };
@@ -315,7 +315,7 @@ private:
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string &perm, uint32_t tokenId);
     int32_t CheckAndGrantRemoteUri(PasteData &data, const AppInfo &appInfo,
-        const std::string &pasteId, const std::string &deviceId, std::shared_ptr<BlockObject<bool>> pasteBlock);
+        const std::string &pasteId, const std::string &deviceId, std::shared_ptr<BlockObject<int32_t>> pasteBlock);
     int32_t GetData(uint32_t tokenId, PasteData &data, int32_t &syncTime, bool &isPeerOnline, std::string &peerNetId,
         std::string &peerUdid);
     CommonInfo GetCommonState(int64_t dataSize);
@@ -341,10 +341,11 @@ private:
     std::string GetAppLabel(uint32_t tokenId);
     sptr<OHOS::AppExecFwk::IBundleMgr> GetAppBundleManager();
     void OpenP2PLink(const std::string &networkId);
-    std::shared_ptr<BlockObject<bool>> CheckAndReuseP2PLink(const std::string &networkId, const std::string &pasteId);
+    std::shared_ptr<BlockObject<int32_t>> CheckAndReuseP2PLink(const std::string &networkId,
+        const std::string &pasteId);
     void EstablishP2PLink(const std::string &networkId, const std::string &pasteId);
     bool IsContainUri(const std::vector<std::string> &dataType);
-    std::shared_ptr<BlockObject<bool>> EstablishP2PLinkTask(
+    std::shared_ptr<BlockObject<int32_t>> EstablishP2PLinkTask(
         const std::string &pasteId, const ClipPlugin::GlobalEvent &event);
     void ClearP2PEstablishTaskInfo();
     void CloseP2PLink(const std::string &networkId);
@@ -451,7 +452,7 @@ private:
     std::mutex p2pMapMutex_;
     PasteP2pEstablishInfo p2pEstablishInfo_;
     ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
-    std::map<std::string, std::shared_ptr<BlockObject<bool>>> preSyncP2pMap_;
+    std::map<std::string, std::shared_ptr<BlockObject<int32_t>>> preSyncP2pMap_;
     int32_t subscribeActiveId_ = INVALID_SUBSCRIBE_ID;
     enum GlobalShareOptionSource {
         MDM = 0,
