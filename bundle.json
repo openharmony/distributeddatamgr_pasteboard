@@ -44,6 +44,7 @@
           "dlp_permission_service",
           "eventhandler",
           "file_api",
+          "hiappevent",
           "hisysevent",
           "hitrace",
           "hilog",

@@ -42,10 +42,12 @@ ohos_unittest("PasteboardServiceTest") {
     cfi_cross_dso = true
     debug = false
   }
+  cflags = [ "-fno-access-control" ]
   sources = [
     "${pasteboard_service_path}/dfx/src/behaviour/pasteboard_behaviour_reporter_impl.cpp",
     "${pasteboard_service_path}/dfx/src/fault/pasteboard_fault_impl.cpp",
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
+    "${pasteboard_service_path}/dfx/src/pasteboard_app_event_dfx.cpp",
     "${pasteboard_service_path}/dfx/src/reporter.cpp",
     "${pasteboard_service_path}/dfx/src/statistic/time_consuming_statistic_impl.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_client.cpp",
@@ -65,6 +67,7 @@ ohos_unittest("PasteboardServiceTest") {
     "c_utils:utils",
     "ffrt:libffrt",
     "googletest:gtest_main",
+    "hiappevent:hiappevent_innerapi",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "image_framework:image_native",

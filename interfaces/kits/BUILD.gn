@@ -54,6 +54,7 @@ ohos_shared_library("pasteboard_napi") {
     "napi/src/napi_pastedata.cpp",
     "napi/src/napi_pastedata_record.cpp",
     "napi/src/napi_systempasteboard.cpp",
+    "${pasteboard_service_path}/dfx/src/pasteboard_app_event_dfx.cpp",
   ]
 
   deps = [
@@ -67,6 +68,7 @@ ohos_shared_library("pasteboard_napi") {
     "ability_runtime:napi_common",
     "c_utils:utils",
     "ffrt:libffrt",
+    "hiappevent:hiappevent_innerapi",
     "hilog:libhilog",
     "image_framework:image",
     "ipc:ipc_single",
