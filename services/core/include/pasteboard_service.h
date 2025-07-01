@@ -465,7 +465,7 @@ private:
 
     ConcurrentMap<uint32_t, GlobalShareOption> globalShareOptions_;
 
-    bool AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
+    void AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveSingleObserver(
         int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveAllObserver(int32_t userId, ObserverMap &observerMap);
