@@ -49,7 +49,6 @@ ohos_shared_library("pasteboard_napi") {
     "napi/src/napi_init.cpp",
     "napi/src/napi_pasteboard.cpp",
     "napi/src/napi_pasteboard_common.cpp",
-    "napi/src/napi_pasteboard_observer.cpp",
     "napi/src/napi_pasteboard_progress_signal.cpp",
     "napi/src/napi_pastedata.cpp",
     "napi/src/napi_pastedata_record.cpp",

@@ -840,23 +840,21 @@ void PasteboardClient::Resubscribe()
     }
 }
 
-bool PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
+void PasteboardClient::Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "start.");
     if (callback == nullptr) {
-        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "callback is null");
-        return false;
+        PASTEBOARD_HILOGW(PASTEBOARD_MODULE_CLIENT, "input nullptr.");
+        return;
     }
     auto proxyService = GetPasteboardService();
     {
         std::lock_guard<std::mutex> lock(observerSetMutex_);
         observerSet_.insert(std::make_pair(type, callback));
     }
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr, false, PASTEBOARD_MODULE_CLIENT,
-        "proxyService is null");
-    auto ret = proxyService->SubscribeObserver(type, callback) == ERR_OK;
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(proxyService != nullptr, PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
+    proxyService->SubscribeObserver(type, callback);
     SubscribePasteboardSA();
-    return ret;
 }
 
 void PasteboardClient::AddPasteboardChangedObserver(sptr<PasteboardObserver> callback)

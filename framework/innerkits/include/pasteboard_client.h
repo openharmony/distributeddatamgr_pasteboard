@@ -359,9 +359,9 @@ public:
      * @description
      * @param type observer type
      * @param observer pasteboard change callback.
-     * @return bool. True: subscribe success, false: subscribe failed.
+     * @return void.
      */
-    bool Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback);
+    void Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback);
 
     /**
      * AddPasteboardChangedObserver
