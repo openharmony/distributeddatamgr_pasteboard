@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "hiview_adapter.h"
+#include "pasteboard_app_event_dfx.h"
 #include "pasteboard_behaviour_reporter_impl.h"
 #include "pasteboard_fault_impl.h"
 #include "pasteboard_hilog.h"
@@ -24,6 +25,7 @@
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
+const int32_t NOT_APP_PROCESSORID = -200;
 class DFXTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -188,6 +190,38 @@ HWTEST_F(DFXTest, DFXTest006, TestSize.Level0)
     behaviourMsg = { .pasteboardState = BPS_INVALID_STATE, .bundleName = "com.paste.test" };
     status = Reporter::GetInstance().PasteboardBehaviour().Report(behaviourMsg);
     ASSERT_EQ(status, ReportStatus::SUCCESS);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+}
+
+/**
+ * @tc.name: DFXTest007
+ * @tc.desc: test DfxAppEvent SetEvent.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DFXTest, DFXTest007, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
+    processorEvent->SetEvent(std::string("test"), 0, 0);
+    ASSERT_TRUE(DfxAppEvent::processorId_ != -1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+}
+
+/**
+ * @tc.name: DFXTest008
+ * @tc.desc: test ~DfxAppEvent.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DFXTest, DFXTest008, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
+    DfxAppEvent::processorId_ = NOT_APP_PROCESSORID;
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
+    DfxAppEvent::processorId_ = NOT_APP_PROCESSORID;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
 }
 } // namespace OHOS::MiscServices

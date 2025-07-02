@@ -15,6 +15,7 @@
 #include <thread>
 
 #include "napi_pasteboard_common.h"
+#include "pasteboard_app_event_dfx.h"
 #include "pasteboard_hilog.h"
 using namespace OHOS::MiscServices;
 using namespace OHOS::Media;
@@ -395,12 +396,13 @@ napi_value SystemPasteboardNapi::GetPasteData(napi_env env, napi_callback_info i
 napi_value SystemPasteboardNapi::GetData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
 
     auto context = std::make_shared<GetContextInfo>();
     context->pasteData = std::make_shared<PasteData>();
     GetDataCommon(context);
 
-    auto exec = [context](AsyncCall::Context *ctx) {
+    auto exec = [context, processorEvent](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetPasteData(*context->pasteData);
         if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
@@ -409,6 +411,10 @@ napi_value SystemPasteboardNapi::GetData(napi_env env, napi_callback_info info)
             context->status = napi_ok;
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetData End");
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(processorEvent != nullptr, PASTEBOARD_MODULE_JS_NAPI,
+            "processorEvent is null");
+        processorEvent->SetEvent("getData", ret, ret == static_cast<int32_t>(PasteboardError::E_OK) ?
+            EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     };
     // 0: the AsyncCall at the first position;
     AsyncCall asyncCall(env, info, context, 0);
@@ -462,10 +468,11 @@ napi_value SystemPasteboardNapi::SetPasteData(napi_env env, napi_callback_info i
 napi_value SystemPasteboardNapi::SetData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SetData is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
     auto context = std::make_shared<SetContextInfo>();
     SetDataCommon(context);
 
-    auto exec = [context](AsyncCall::Context *ctx) {
+    auto exec = [context, processorEvent](AsyncCall::Context *ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
         int32_t ret = static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
         if (context->obj != nullptr) {
@@ -478,14 +485,18 @@ napi_value SystemPasteboardNapi::SetData(napi_env env, napi_callback_info info)
             ret = PasteboardClient::GetInstance()->SetPasteData(*(context->obj), nullptr, entryGetters);
             context->obj = nullptr;
         }
-        if (ret == static_cast<int>(PasteboardError::E_OK)) {
+        if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
             context->status = napi_ok;
-        } else if (ret == static_cast<int>(PasteboardError::PROHIBIT_COPY)) {
+        } else if (ret == static_cast<int32_t>(PasteboardError::PROHIBIT_COPY)) {
             context->SetErrInfo(ret, "The system prohibits copying");
-        } else if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
+        } else if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
             context->SetErrInfo(ret, "Another setData is being processed");
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec context->status[%{public}d]", context->status);
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(processorEvent != nullptr, PASTEBOARD_MODULE_JS_NAPI,
+            "processorEvent is null");
+        processorEvent->SetEvent("setData", ret, ret == static_cast<int32_t>(PasteboardError::E_OK) ?
+            EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     };
     // 1: the AsyncCall at the second position
     AsyncCall asyncCall(env, info, context, 1);
@@ -495,10 +506,11 @@ napi_value SystemPasteboardNapi::SetData(napi_env env, napi_callback_info info)
 napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SetUnifiedData is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
     auto context = std::make_shared<SetUnifiedContextInfo>();
     SetDataCommon(context);
 
-    auto exec = [context](AsyncCall::Context* ctx) {
+    auto exec = [context, processorEvent](AsyncCall::Context* ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec SetPasteData");
         int32_t ret = static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
         if (context->obj != nullptr) {
@@ -509,14 +521,18 @@ napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info
             }
             context->obj = nullptr;
         }
-        if (ret == static_cast<int>(PasteboardError::E_OK)) {
+        if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
             context->status = napi_ok;
-        } else if (ret == static_cast<int>(PasteboardError::PROHIBIT_COPY)) {
+        } else if (ret == static_cast<int32_t>(PasteboardError::PROHIBIT_COPY)) {
             context->SetErrInfo(ret, "The system prohibits copying");
-        } else if (ret == static_cast<int>(PasteboardError::TASK_PROCESSING)) {
+        } else if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
             context->SetErrInfo(ret, "Another setData is being processed");
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "exec context->status[%{public}d]", context->status);
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(processorEvent != nullptr, PASTEBOARD_MODULE_JS_NAPI,
+            "processorEvent is null");
+        processorEvent->SetEvent("setUnifiedData", ret, ret == static_cast<int32_t>(PasteboardError::E_OK) ?
+            EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     };
     // 1: the AsyncCall at the second position
     AsyncCall asyncCall(env, info, context, 1);
@@ -526,12 +542,13 @@ napi_value SystemPasteboardNapi::SetUnifiedData(napi_env env, napi_callback_info
 napi_value SystemPasteboardNapi::GetUnifiedData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
 
     auto context = std::make_shared<GetUnifiedContextInfo>();
     context->unifiedData = std::make_shared<UDMF::UnifiedData>();
     GetDataCommon(context);
 
-    auto exec = [context](AsyncCall::Context* ctx) {
+    auto exec = [context, processorEvent](AsyncCall::Context* ctx) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetUnifiedData(*context->unifiedData);
         if (ret == static_cast<int32_t>(PasteboardError::TASK_PROCESSING)) {
@@ -540,6 +557,10 @@ napi_value SystemPasteboardNapi::GetUnifiedData(napi_env env, napi_callback_info
             context->status = napi_ok;
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedData End");
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(processorEvent != nullptr, PASTEBOARD_MODULE_JS_NAPI,
+            "processorEvent is null");
+        processorEvent->SetEvent("getUnifiedData", ret, ret == static_cast<int32_t>(PasteboardError::E_OK) ?
+            EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     };
     // 0: the AsyncCall at the first position;
     AsyncCall asyncCall(env, info, context, 0);
@@ -549,6 +570,7 @@ napi_value SystemPasteboardNapi::GetUnifiedData(napi_env env, napi_callback_info
 napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetUnifiedDataSync is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
     napi_value instance = nullptr;
     std::shared_ptr<UDMF::UnifiedData> unifiedData = std::make_shared<UDMF::UnifiedData>();
 
@@ -557,6 +579,8 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void**>(&obj));
     if ((status != napi_ok) || (obj == nullptr) || obj->value_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetUnifiedDataSync get obj failed.");
+        processorEvent->SetEvent("getUnifiedDataSync", static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
     auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
@@ -571,12 +595,15 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
                          "Excessive processing time for internal data.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetUnifiedDataSync failed.");
     }
+    processorEvent->SetEvent("getUnifiedDataSync", *value, *value == static_cast<int32_t>(PasteboardError::E_OK) ?
+        EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     return instance;
 }
 
 napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi SetUnifiedDataSync is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[ARGC_TYPE_SET1] = {0};
     napi_value thisVar = nullptr;
@@ -584,12 +611,16 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, NULL));
     if (!CheckExpression(
         env, argc > 0, JSErrorCode::INVALID_PARAMETERS, "Parameter error. Wrong number of arguments.")) {
+        processorEvent->SetEvent("setUnifiedDataSync", static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
     UDMF::UnifiedDataNapi* unifiedDataNapi = nullptr;
     napi_unwrap(env, argv[0], reinterpret_cast<void**>(&unifiedDataNapi));
     if (!CheckExpression(env, (unifiedDataNapi != nullptr && unifiedDataNapi->value_ != nullptr),
         JSErrorCode::INVALID_PARAMETERS, "Parameter error. The Type of data must be unifiedData.")) {
+        processorEvent->SetEvent("setUnifiedDataSync", static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
     auto properties = unifiedDataNapi->GetPropertiesNapi(env);
@@ -600,13 +631,13 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
         delayGetter->GetStub()->SetDelayGetterWrapper(delayGetter);
         isDelay = true;
     }
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
     std::shared_ptr<UDMF::UnifiedData> unifiedData = unifiedDataNapi->value_;
     std::thread thread([block, unifiedData, isDelay, delayGetter]() mutable {
         int32_t ret = isDelay ?
             PasteboardClient::GetInstance()->SetUnifiedData(*unifiedData, delayGetter->GetStub()) :
             PasteboardClient::GetInstance()->SetUnifiedData(*unifiedData);
-        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(ret);
         block->SetValue(value);
     });
     thread.detach();
@@ -614,16 +645,22 @@ napi_value SystemPasteboardNapi::SetUnifiedDataSync(napi_env env, napi_callback_
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT,
                          "Excessive processing time for internal data.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, SetUnifiedDataSync failed.");
+        processorEvent->SetEvent("setUnifiedDataSync", static_cast<int32_t>(JSErrorCode::REQUEST_TIME_OUT),
+            EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
     if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, SetUnifiedDataSync failed");
+        processorEvent->SetEvent("setUnifiedDataSync", *value, *value == static_cast<int32_t>(PasteboardError::E_OK) ?
+            EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
     {
         std::lock_guard<std::mutex> lck(delayMutex_);
         delayGetter_ = delayGetter;
     }
+    processorEvent->SetEvent("setUnifiedDataSync", *value, *value == static_cast<int32_t>(PasteboardError::E_OK) ?
+        EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     return nullptr;
 }
 
@@ -745,11 +782,11 @@ void SystemPasteboardNapi::GetDataCommon(std::shared_ptr<GetUnifiedContextInfo>&
 napi_value SystemPasteboardNapi::IsRemoteData(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi IsRemoteData() is called!");
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
     std::thread thread([block]() {
         auto ret = PasteboardClient::GetInstance()->IsRemoteData();
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "value=%{public}d", ret);
-        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(static_cast<int32_t>(ret));
         block->SetValue(value);
     });
     thread.detach();
@@ -768,10 +805,10 @@ napi_value SystemPasteboardNapi::GetDataSource(napi_env env, napi_callback_info 
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetDataSource() is called!");
     std::string bundleName;
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
     std::thread thread([block, &bundleName]() mutable {
         auto ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
-        std::shared_ptr<int> value = std::make_shared<int>(ret);
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(ret);
         block->SetValue(value);
     });
     thread.detach();
@@ -782,7 +819,7 @@ napi_value SystemPasteboardNapi::GetDataSource(napi_env env, napi_callback_info 
         return nullptr;
     }
 
-    if (*value != static_cast<int>(PasteboardError::E_OK)) {
+    if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetDataSource, failed, ret = %{public}d", *value);
         return nullptr;
     }
@@ -844,11 +881,11 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue!");
         return nullptr;
     }
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
     std::thread thread([block, mimeType]() {
         auto ret = PasteboardClient::GetInstance()->HasDataType(mimeType);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ret = %{public}d", ret);
-        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(static_cast<int32_t>(ret));
         block->SetValue(value);
     });
     thread.detach();
@@ -896,10 +933,10 @@ napi_value SystemPasteboardNapi::DetectPatterns(napi_env env, napi_callback_info
 napi_value SystemPasteboardNapi::ClearDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi ClearDataSync() is called!");
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
     std::thread thread([block]() {
         PasteboardClient::GetInstance()->Clear();
-        std::shared_ptr<int> value = std::make_shared<int>(0);
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(0);
         block->SetValue(value);
     });
     thread.detach();
@@ -914,12 +951,15 @@ napi_value SystemPasteboardNapi::ClearDataSync(napi_env env, napi_callback_info 
 napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetDataSync() is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
     napi_value instance = nullptr;
     NAPI_CALL(env, PasteDataNapi::NewInstance(env, instance));
     PasteDataNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
     if ((status != napi_ok) || (obj == nullptr) || obj->value_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetDataSync napi_unwrap failed");
+        processorEvent->SetEvent("getDataSync", static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
     auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
@@ -934,12 +974,15 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
                          "Excessive processing time for internal data.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed.");
     }
+    processorEvent->SetEvent("getDataSync", *value, *value == static_cast<int32_t>(PasteboardError::E_OK) ?
+        EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     return instance;
 }
 
 napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi SetDataSync() is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
     size_t argc = ARGC_TYPE_SET1;
     napi_value argv[ARGC_TYPE_SET1] = {0};
     napi_value thisVar = nullptr;
@@ -949,6 +992,8 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
         "Parameter error. The number of arguments must be one.") ||
         !CheckExpression(env, PasteDataNapi::IsPasteData(env, argv[0]), JSErrorCode::INVALID_PARAMETERS,
         "Parameter error. The Type of data must be pasteData.")) {
+        processorEvent->SetEvent("setDataSync", static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
 
@@ -956,13 +1001,15 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
     napi_unwrap(env, argv[0], reinterpret_cast<void **>(&pasteData));
     if (pasteData == nullptr || pasteData->value_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Failed to GetValue!");
+        processorEvent->SetEvent("setDataSync", static_cast<int32_t>(JSErrorCode::INVALID_PARAMETERS),
+            EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
     std::shared_ptr<PasteData> data = pasteData->value_;
     std::thread thread([block, data]() {
         auto ret = PasteboardClient::GetInstance()->SetPasteData(*data);
-        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(ret);
         block->SetValue(value);
     });
     thread.detach();
@@ -970,23 +1017,27 @@ napi_value SystemPasteboardNapi::SetDataSync(napi_env env, napi_callback_info in
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT,
                          "Excessive processing time for internal data.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, SetDataSync failed.");
+        processorEvent->SetEvent("setDataSync", static_cast<int32_t>(JSErrorCode::REQUEST_TIME_OUT),
+            EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
 
     if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "operate invalid, SetDataSync failed");
+        processorEvent->SetEvent("setDataSync", *value, EventReportResult::EVENT_REPORT_FAIL);
         return nullptr;
     }
+    processorEvent->SetEvent("setDataSync", *value, EventReportResult::EVENT_REPORT_SUCCESS);
     return nullptr;
 }
 
 napi_value SystemPasteboardNapi::HasDataSync(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi HasDataSync() is called!");
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
     std::thread thread([block]() {
         auto ret = PasteboardClient::GetInstance()->HasPasteData();
-        std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
+        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(static_cast<int32_t>(ret));
         block->SetValue(value);
     });
     thread.detach();
@@ -1206,13 +1257,14 @@ void SystemPasteboardNapi::GetDataWithProgressParam(std::shared_ptr<GetDataParam
 napi_value SystemPasteboardNapi::GetDataWithProgress(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress is called!");
+    std::shared_ptr<DfxAppEvent> processorEvent = std::make_shared<DfxAppEvent>();
 
     auto context = std::make_shared<GetDataParamsContextInfo>();
     context->pasteData = std::make_shared<PasteData>();
     context->getDataParams = std::make_shared<GetDataParams>();
     GetDataWithProgressParam(context);
 
-    auto exec = [context](AsyncCall::Context *ctx) {
+    auto exec = [context, processorEvent](AsyncCall::Context *ctx) {
         context->getDataParams->info = new (std::nothrow)ProgressInfo();
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress Begin");
         int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(*context->pasteData,
@@ -1234,6 +1286,10 @@ napi_value SystemPasteboardNapi::GetDataWithProgress(napi_env env, napi_callback
             context->getDataParams->info = nullptr;
         }
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "GetDataWithProgress End");
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(processorEvent != nullptr, PASTEBOARD_MODULE_JS_NAPI,
+            "processorEvent is null");
+        processorEvent->SetEvent("getDataWithProgress", ret, ret == static_cast<int32_t>(PasteboardError::E_OK) ?
+            EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     };
     // 0: the AsyncCall at the first position;
     AsyncCall asyncCall(env, info, context, 0);
