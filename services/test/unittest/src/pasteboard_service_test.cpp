@@ -2704,7 +2704,7 @@ HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest002, TestSize.Level0)
     tempPasteboard->windowPid_ = callingPid;
     tempPasteboard->actionTime_ = static_cast<uint64_t>(
         duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
-    std::shared_ptr<BlockObject<bool>> block = std::make_shared<BlockObject<bool>>(100, false);
+    std::shared_ptr<BlockObject<int32_t>> block = std::make_shared<BlockObject<int32_t>>(100, 0);
     tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
     auto result = tempPasteboard->IsCtrlVProcess(callingPid, isFocused);
     EXPECT_EQ(result, true);
@@ -2721,7 +2721,7 @@ HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest003, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     uint32_t callingPid = 1;
     bool isFocused = true;
-    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    std::shared_ptr<BlockObject<int32_t>> block = nullptr;
     tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
     tempPasteboard->windowPid_ = 2;
     tempPasteboard->actionTime_ = static_cast<uint64_t>(
@@ -2741,7 +2741,7 @@ HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest004, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     uint32_t callingPid = 1;
     bool isFocused = false;
-    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    std::shared_ptr<BlockObject<int32_t>> block = nullptr;
     tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
     tempPasteboard->windowPid_ = 2;
     auto result = tempPasteboard->IsCtrlVProcess(callingPid, isFocused);
@@ -2759,7 +2759,7 @@ HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest005, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     uint32_t callingPid = 1;
     bool isFocused = true;
-    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    std::shared_ptr<BlockObject<int32_t>> block = nullptr;
     tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
     tempPasteboard->actionTime_ = static_cast<uint64_t>(
         duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) + 2000;
@@ -2778,7 +2778,7 @@ HWTEST_F(PasteboardServiceTest, IsCtrlVProcessTest006, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     uint32_t callingPid = 1;
     bool isFocused = true;
-    std::shared_ptr<BlockObject<bool>> block = nullptr;
+    std::shared_ptr<BlockObject<int32_t>> block = nullptr;
     tempPasteboard->blockMap_.insert(std::make_pair(callingPid, block));
     tempPasteboard->actionTime_ = static_cast<uint64_t>(
         duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
