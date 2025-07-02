@@ -40,12 +40,7 @@ group("unittest") {
       pasteboard_device_manager_part_enabled &&
       pasteboard_screenlock_mgr_part_enabled) {
     deps += [
-      "${pasteboard_root_path}/framework/test:MessageParcelWarpTest",
-      "${pasteboard_root_path}/framework/test:PasteboardClientMockTest",
-      "${pasteboard_root_path}/framework/test:PasteboardClientProxyMockTest",
-      "${pasteboard_root_path}/framework/test:PasteboardFrameworkMockTest",
-      "${pasteboard_root_path}/framework/test:PasteboardFrameworkTest",
-      "${pasteboard_root_path}/framework/test:PasteboardServiceLoaderTest",
+      "${pasteboard_root_path}/framework/test:unittest",
       "${pasteboard_root_path}/interfaces/kits/napi/test/unittest/pasteboardapi:unittest",
       "${pasteboard_root_path}/interfaces/kits/napi/test/unittest/pasteboardperf:unittest",
       "${pasteboard_root_path}/interfaces/ndk/unittest:unittest",

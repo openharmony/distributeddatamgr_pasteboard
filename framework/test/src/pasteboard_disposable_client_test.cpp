@@ -70,7 +70,7 @@ void PasteboardDisposableTest::TearDown()
 void PasteboardDisposableTest::AllocTestAppTokenId()
 {
     HapInfoParams infoParams = {
-        .userID = 0,
+        .userID = 100,
         .bundleName = BUNDLE_NAME,
         .instIndex = 0,
         .appIDDesc = "desc",

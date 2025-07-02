@@ -230,9 +230,9 @@ void PasteboardService::OnStop()
     switch_.DeInit();
     DATASL_OnStop();
     EventCenter::GetInstance().Unsubscribe(PasteboardEvent::DISCONNECT);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
     EventCenter::GetInstance().Unsubscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE);
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, PASTEBOARD_SERVICE_ID);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }
 
 void PasteboardService::AddSysAbilityListener()
