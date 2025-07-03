@@ -225,16 +225,10 @@ static ani_enum_item GetEnumItem(ani_env *env, ani_int shareOption)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] env is null.");
         return nullptr;
     }
-    ani_namespace ns;
-    const char *nameSpaceName = "L@ohos/pasteboard/pasteboard;";
-    if (ANI_OK != env->FindNamespace(nameSpaceName, &ns)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Not found namespace: %{public}s", nameSpaceName);
-        return nullptr;
-    }
 
     ani_enum enumType;
-    const char *enumName = "LShareOption;";
-    if (ANI_OK != env->Namespace_FindEnum(ns, enumName, &enumType)) {
+    const char *enumName = "@ohos.pasteboard.pasteboard.ShareOption";
+    if (ANI_OK != env->FindEnum(enumName, &enumType)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetEnumItem] Find Enum failed: %{public}s", enumName);
         return nullptr;
     }
