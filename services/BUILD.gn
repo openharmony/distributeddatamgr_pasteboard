@@ -76,6 +76,7 @@ ohos_shared_library("pasteboard_service") {
   version_script = "pasteboard_service_map"
   output_values = get_target_outputs(":pasteboard_service_interface")
   sources = [
+    "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "../adapter/data_share/datashare_delegate.cpp",
     "../adapter/security_level/security_level.cpp",

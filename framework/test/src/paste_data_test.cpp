@@ -1269,4 +1269,114 @@ HWTEST_F(PasteDataTest, GetReportDescriptionTest003, TestSize.Level0)
     DataDescription description = pasteData.GetReportDescription();
     EXPECT_EQ(description.recordNum, 2);
 }
+
+/**
+ * @tc.name: IsValidShareOptionTest001
+ * @tc.desc: IsValidShareOption
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidShareOptionTest001, TestSize.Level0)
+{
+    int32_t shareOption = -1;
+    auto isValid = PasteData::IsValidShareOption(shareOption);
+    EXPECT_FALSE(isValid);
+}
+
+/**
+ * @tc.name: IsValidShareOptionTest002
+ * @tc.desc: IsValidShareOption
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidShareOptionTest002, TestSize.Level0)
+{
+    int32_t shareOption = 0;
+    auto isValid = PasteData::IsValidShareOption(shareOption);
+    EXPECT_TRUE(isValid);
+}
+
+/**
+ * @tc.name: IsValidShareOptionTest003
+ * @tc.desc: IsValidShareOption
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidShareOptionTest003, TestSize.Level0)
+{
+    int32_t shareOption = 1;
+    auto isValid = PasteData::IsValidShareOption(shareOption);
+    EXPECT_TRUE(isValid);
+}
+
+/**
+ * @tc.name: IsValidShareOptionTest004
+ * @tc.desc: IsValidShareOption
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidShareOptionTest004, TestSize.Level0)
+{
+    int32_t shareOption = 2;
+    auto isValid = PasteData::IsValidShareOption(shareOption);
+    EXPECT_TRUE(isValid);
+}
+
+/**
+ * @tc.name: IsValidShareOptionTest005
+ * @tc.desc: IsValidShareOption
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidShareOptionTest005, TestSize.Level0)
+{
+    int32_t shareOption = 3;
+    auto isValid = PasteData::IsValidShareOption(shareOption);
+    EXPECT_FALSE(isValid);
+}
+
+/**
+ * @tc.name: IsValidPasteIdTest001
+ * @tc.desc: IsValidPasteId
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidPasteIdTest001, TestSize.Level0)
+{
+    std::string pasteId = "";
+    auto isValid = PasteData::IsValidPasteId(pasteId);
+    EXPECT_FALSE(isValid);
+}
+
+/**
+ * @tc.name: IsValidPasteIdTest002
+ * @tc.desc: IsValidPasteId
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidPasteIdTest002, TestSize.Level0)
+{
+    std::string pasteId = "test";
+    auto isValid = PasteData::IsValidPasteId(pasteId);
+    EXPECT_FALSE(isValid);
+}
+
+/**
+ * @tc.name: IsValidPasteIdTest003
+ * @tc.desc: IsValidPasteId
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidPasteIdTest003, TestSize.Level0)
+{
+    std::string pasteId = "test_test_test";
+    auto isValid = PasteData::IsValidPasteId(pasteId);
+    EXPECT_FALSE(isValid);
+}
+
+/**
+ * @tc.name: IsValidPasteIdTest004
+ * @tc.desc: IsValidPasteId
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, IsValidPasteIdTest004, TestSize.Level0)
+{
+    pid_t pid = getpid();
+    std::string currentPid = std::to_string(pid);
+    std::string pasteId = "test_" + currentPid + "_001";
+    auto isValid = PasteData::IsValidPasteId(pasteId);
+    EXPECT_TRUE(isValid);
+}
 } // namespace OHOS::MiscServices

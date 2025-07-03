@@ -110,6 +110,7 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_service_path}/switch/pasteboard_switch.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_proxy.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_proxy.cpp",
+    "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
     "unittest/src/pasteboard_service_test.cpp",
   ]
@@ -162,6 +163,7 @@ ohos_unittest("PasteServInterfaceTest") {
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "hitrace:libhitracechain",
+    "image_framework:image_native",
     "imf:inputmethod_client",
     "input:libmmi-client",
     "ipc:ipc_single",
