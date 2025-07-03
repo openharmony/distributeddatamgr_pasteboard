@@ -1166,4 +1166,22 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest003, TestSize.Level2)
     EXPECT_NE(result, nullptr);
     EXPECT_TRUE(result->GetEntries().empty());
 }
+
+/**
+ * @tc.name: DecodeTLVTest001
+ * @tc.desc: DecodeTLVTest001
+ * @tc.type: FUNC
+ * @tc.require:entries
+ * @tarowang
+ */
+HWTEST_F(PasteDataRecordTest, DecodeTLVTest001, TestSize.Level2)
+{
+    std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
+    EXPECT_NE(record, nullptr);
+    std::vector<std::uint8_t> buffer;
+    ReadOnlyBuffer buff(buffer);
+    bool ret = record->DecodeTLV(buff);
+
+    EXPECT_EQ(ret, true);
+}
 } // namespace OHOS::MiscServices
