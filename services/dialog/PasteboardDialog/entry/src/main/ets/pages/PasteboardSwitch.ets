@@ -463,6 +463,7 @@ struct PasteboardSwitch {
       .padding({ left: this.gapLength, right: this.gapLength })
       .margin({ bottom: '44vp' })
       .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
+      .visibility(this.getContentVisibility())
     }
     .width('100%')
     .height('100%')
