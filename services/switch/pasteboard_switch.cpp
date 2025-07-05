@@ -30,8 +30,10 @@ constexpr const char *UE_SWITCH_STATUS = "PASTEBOARD_SWITCH_STATUS";
 PastedSwitch::PastedSwitch() : userId_(ERROR_USERID)
 {
     switchObserver_ = new (std::nothrow) PastedSwitchObserver([this]() -> void {
-        SetSwitch(userId_);
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteSwitch SetSwitch %{public}d", userId_);
+        std::thread thread([=]() {
+            SetSwitch(userId_);
+        });
+        thread.detach();
     });
 }
 
@@ -55,11 +57,11 @@ void PastedSwitch::SetSwitch(int32_t userId)
     DataShareDelegate::GetInstance().SetUserId(userId);
     DataShareDelegate::GetInstance().GetValue(DISTRIBUTED_PASTEBOARD_SWITCH, value);
     if (value.empty()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "empty switch, set status enable");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "empty switch, set status enable, userId=%{public}d", userId);
         DevProfile::GetInstance().PutDeviceStatus(true);
         return;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "set switch status to %{public}s.", value.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "switch status=%{public}s, userId=%{public}d", value.c_str(), userId);
     DevProfile::GetInstance().PutDeviceStatus(value == SUPPORT_STATUS);
 }
 

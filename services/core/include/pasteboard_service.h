@@ -371,6 +371,7 @@ private:
     bool SetCurrentData(Event event, PasteData &data);
     void CleanDistributedData(int32_t user);
     void OnConfigChange(bool isOn);
+    void OnConfigChangeInner(bool isOn);
     std::shared_ptr<ClipPlugin> GetClipPlugin();
     void IncreaseChangeCount(int32_t userId);
 

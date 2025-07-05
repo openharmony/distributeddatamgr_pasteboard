@@ -34,6 +34,8 @@ public:
     void OnStateChanged(const AccountSA::OsAccountStateData &data) override;
 
 private:
+    void OnStateChangedInner(const AccountSA::OsAccountStateData &data);
+
     std::mutex mutex_;
     sptr<PasteboardService> pasteboardService_ = nullptr;
 };
