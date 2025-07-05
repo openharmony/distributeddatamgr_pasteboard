@@ -3791,7 +3791,6 @@ std::shared_ptr<ClipPlugin> PasteboardService::GetClipPlugin()
     Loader loader;
     loader.LoadComponents();
     auto release = [this](ClipPlugin *plugin) {
-        std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
     };
 
@@ -3822,6 +3821,14 @@ void PasteboardService::CloseDistributedStore(int32_t user, bool isNeedClear)
 
 void PasteboardService::OnConfigChange(bool isOn)
 {
+    std::thread thread([=]() {
+        OnConfigChangeInner(isOn);
+    });
+    thread.detach();
+}
+
+void PasteboardService::OnConfigChangeInner(bool isOn)
+{
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ConfigChange isOn: %{public}d.", isOn);
     {
         std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
@@ -3847,7 +3854,6 @@ void PasteboardService::OnConfigChange(bool isOn)
     Loader loader;
     loader.LoadComponents();
     auto release = [this](ClipPlugin *plugin) {
-        std::lock_guard<decltype(mutex)> lockGuard(mutex);
         ClipPlugin::DestroyPlugin(PLUGIN_NAME, plugin);
     };
 
@@ -3995,6 +4001,14 @@ void PasteboardService::RevokeAndClearUri(std::shared_ptr<PasteData> pasteData)
 }
 
 void PasteBoardAccountStateSubscriber::OnStateChanged(const AccountSA::OsAccountStateData &data)
+{
+    std::thread thread([=]() {
+        OnStateChangedInner(data);
+    });
+    thread.detach();
+}
+
+void PasteBoardAccountStateSubscriber::OnStateChangedInner(const AccountSA::OsAccountStateData &data)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "state: %{public}d, fromId: %{public}d, toId: %{public}d,"
         "callback is nullptr: %{public}d", data.state, data.fromId, data.toId, data.callback == nullptr);
