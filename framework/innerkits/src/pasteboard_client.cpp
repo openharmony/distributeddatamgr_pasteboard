@@ -66,6 +66,7 @@ std::atomic<bool> PasteboardClient::remoteTask_(false);
 std::atomic<bool> PasteboardClient::isPasting_(false);
 std::atomic<uint64_t> PasteboardClient::progressStartTime_;
 constexpr int64_t MIN_ASHMEM_DATA_SIZE = 32 * 1024; // 32K
+constexpr uid_t ANCO_SERVICE_BROKER_UID = 5557;
 
 struct RadarReportIdentity {
     pid_t pid;
@@ -798,6 +799,8 @@ int32_t PasteboardClient::SetUdsdData(const UDMF::UnifiedData &unifiedData)
 
 void PasteboardClient::SubscribePasteboardSA()
 {
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(
+        getuid() != ANCO_SERVICE_BROKER_UID, PASTEBOARD_MODULE_CLIENT, "ignore,uid:%{public}u.", getuid());
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     PASTEBOARD_CHECK_AND_RETURN_LOGE(samgrProxy != nullptr, PASTEBOARD_MODULE_CLIENT, "get samgr fail.");
     std::lock_guard<std::mutex> lock(saListenerMutex_);
@@ -814,6 +817,8 @@ void PasteboardClient::SubscribePasteboardSA()
 
 void PasteboardClient::UnSubscribePasteboardSA()
 {
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(
+        getuid() != ANCO_SERVICE_BROKER_UID, PASTEBOARD_MODULE_CLIENT, "ignore,uid:%{public}u.", getuid());
     std::lock_guard<std::mutex> lock(saListenerMutex_);
     PASTEBOARD_CHECK_AND_RETURN_LOGD(saCallback_ != nullptr, PASTEBOARD_MODULE_CLIENT, "saCallback is nullptr");
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();

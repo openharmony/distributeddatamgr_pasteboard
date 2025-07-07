@@ -3396,5 +3396,41 @@ HWTEST_F(PasteboardServiceTest, CheckAndGrantRemoteUriTest001, TestSize.Level0)
 #endif
 }
 
+/**
+ * @tc.name: ResubscribeObserver001
+ * @tc.desc: ResubscribeObserver001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, ResubscribeObserver001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto type = PasteboardObserverType::OBSERVER_LOCAL;
+    auto observer = std::make_shared<IPasteboardChangedObserver>();
+
+    int32_t res = tempPasteboard->ResubscribeObserver(type, observer);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: ResubscribeObserver002
+ * @tc.desc: ResubscribeObserver002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, ResubscribeObserver002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto type = PasteboardObserverType::OBSERVER_LOCAL;
+    auto observer = std::make_shared<IPasteboardChangedObserver>();
+
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetTokenTypeFlag).WillRepeatedly(Return(ATokenTypeEnum::TOKEN_HAP));
+    int32_t res = tempPasteboard->ResubscribeObserver(type, observer);
+    EXPECT_EQ(res, ERR_OK);
+}
+
 }
 } // namespace OHOS::MiscServices
