@@ -15,7 +15,6 @@
 
 #include "pasteboard_switch.h"
 
-#include "c/ffrt_ipc.h"
 #include "datashare_delegate.h"
 #include "dev_profile.h"
 #include "pasteboard_event_ue.h"
@@ -80,7 +79,6 @@ void PastedSwitch::ReportUeSwitchEvent()
 
 void PastedSwitchObserver::OnChange()
 {
-    ffrt_this_task_set_legacy_mode(true);
     if (func_ != nullptr) {
         func_();
     }
