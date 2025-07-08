@@ -595,7 +595,8 @@ napi_value SystemPasteboardNapi::GetUnifiedDataSync(napi_env env, napi_callback_
                          "Excessive processing time for internal data.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetUnifiedDataSync failed.");
     }
-    processorEvent->SetEvent("getUnifiedDataSync", *value, *value == static_cast<int32_t>(PasteboardError::E_OK) ?
+    int32_t ret = (value != nullptr) ? *value : static_cast<int32_t>(PasteboardError::TIMEOUT_ERROR);
+    processorEvent->SetEvent("getUnifiedDataSync", ret, ret == static_cast<int32_t>(PasteboardError::E_OK) ?
         EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     return instance;
 }
@@ -974,7 +975,8 @@ napi_value SystemPasteboardNapi::GetDataSync(napi_env env, napi_callback_info in
                          "Excessive processing time for internal data.")) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "time out, GetDataSync failed.");
     }
-    processorEvent->SetEvent("getDataSync", *value, *value == static_cast<int32_t>(PasteboardError::E_OK) ?
+    int32_t ret = (value != nullptr) ? *value : static_cast<int32_t>(PasteboardError::TIMEOUT_ERROR);
+    processorEvent->SetEvent("getDataSync", ret, ret == static_cast<int32_t>(PasteboardError::E_OK) ?
         EventReportResult::EVENT_REPORT_SUCCESS : EventReportResult::EVENT_REPORT_FAIL);
     return instance;
 }
