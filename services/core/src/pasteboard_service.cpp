@@ -37,6 +37,7 @@
 #include "message_parcel_warp.h"
 #include "os_account_manager.h"
 #include "parameters.h"
+#include "pasteboard_common.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_disposable_manager.h"
 #include "pasteboard_error.h"
@@ -622,6 +623,10 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
     bool ret = false;
     PasteDataEntry entryValue;
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        auto actualSize = AshmemGetSize(fd);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(actualSize >= 0 && rawDataSize <= actualSize,
+            static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+            "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
         void *ptr = ::mmap(nullptr, rawDataSize, PROT_READ, MAP_SHARED, fd, 0);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ptr != MAP_FAILED,
             static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR),
@@ -1080,6 +1085,9 @@ void PasteboardService::SetUeEvent(const AppInfo &appInfo, PasteData &data, bool
 int32_t PasteboardService::GetPasteData(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
     const std::string &pasteId, int32_t &syncTime)
 {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(PasteData::IsValidPasteId(pasteId),
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "Parameter error. invalid pasteId=%{public}s", pasteId.c_str());
     UeReportInfo ueReportInfo;
     int32_t ret = GetPasteDataInner(fd, size, rawData, pasteId, syncTime, ueReportInfo);
     ueReportInfo.ret = (ret == static_cast<int32_t>(PasteboardError::E_OK) ? E_OK_OPERATION : ret);
@@ -1996,6 +2004,9 @@ int32_t PasteboardService::GetMimeTypes(std::vector<std::string> &funcResult)
 
 int32_t PasteboardService::HasDataType(const std::string &mimeType, bool &funcResult)
 {
+    auto ret = PasteBoardCommon::IsValidMimeType(mimeType);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "Parameter error. MimeType size=%{public}zu.", mimeType.size());
     funcResult = HasDataType(mimeType);
     return ERR_OK;
 }
@@ -2206,6 +2217,37 @@ void PasteboardService::CloseSharedMemFd(int fd)
     }
 }
 
+int32_t PasteboardService::WritePasteData(
+    int fd, int64_t rawDataSize, const std::vector<uint8_t> &buffer, PasteData &pasteData, bool &hasData)
+{
+    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        auto actualSize = AshmemGetSize(fd);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(actualSize >= 0 && rawDataSize <= actualSize,
+            static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+            "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
+        void *ptr = ::mmap(nullptr, rawDataSize, PROT_READ, MAP_SHARED, fd, 0);
+        if (ptr == MAP_FAILED) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mmap failed, size:%{public}" PRId64, rawDataSize);
+            CloseSharedMemFd(fd);
+            return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
+        }
+        const uint8_t *rawData = reinterpret_cast<const uint8_t *>(ptr);
+        if (rawData == nullptr) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "rawData is nullptr, size:%{public}" PRId64, rawDataSize);
+            ::munmap(ptr, rawDataSize);
+            CloseSharedMemFd(fd);
+            return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
+        }
+        std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
+        hasData = pasteData.Decode(pasteDataTlv);
+        ::munmap(ptr, rawDataSize);
+    } else {
+        hasData = pasteData.Decode(buffer);
+    }
+    CloseSharedMemFd(fd);
+    return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
 int32_t PasteboardService::SubscribeDisposableObserver(const sptr<IPasteboardDisposableObserver> &observer,
     const std::string &targetBundleName, DisposableType type, uint32_t maxLength)
 {
@@ -2226,6 +2268,8 @@ int32_t PasteboardService::SubscribeDisposableObserver(const sptr<IPasteboardDis
 int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::vector<uint8_t> &buffer,
     const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter)
 {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        fd >= 0, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE, "fd invalid");
     MessageParcelWarp messageData;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fd=%{public}d, rawDataSize=%{public}" PRId64, fd, rawDataSize);
     if (rawDataSize <= 0 || rawDataSize > messageData.GetRawDataSize()) {
@@ -2235,28 +2279,10 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
     }
     PasteData pasteData{};
     bool result = false;
-    MessageParcel parcelPata;
-    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
-        void *ptr = ::mmap(nullptr, rawDataSize, PROT_READ, MAP_SHARED, fd, 0);
-        if (ptr == MAP_FAILED) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mmap failed, size:%{public}" PRId64, rawDataSize);
-            CloseSharedMemFd(fd);
-            return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
-        }
-        const uint8_t *rawData = reinterpret_cast<const uint8_t *>(ptr);
-        if (rawData == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "rawData is nullptr, size:%{public}" PRId64, rawDataSize);
-            ::munmap(ptr, rawDataSize);
-            CloseSharedMemFd(fd);
-            return static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR);
-        }
-        std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
-        result = pasteData.Decode(pasteDataTlv);
-        ::munmap(ptr, rawDataSize);
-    } else {
-        result = pasteData.Decode(buffer);
-    }
-    CloseSharedMemFd(fd);
+    auto ret = WritePasteData(fd, rawDataSize, buffer, pasteData, result);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK),
+        static_cast<int32_t>(PasteboardError::INVALID_DATA_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "Failed to write paste data");
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR),
         PASTEBOARD_MODULE_SERVICE, "Failed to decode paste data in TLV");
 
@@ -2266,7 +2292,7 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
         return ERR_OK;
     }
     PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
-    auto ret = SaveData(pasteData, rawDataSize, delayGetter, entryGetter);
+    ret = SaveData(pasteData, rawDataSize, delayGetter, entryGetter);
     if (entityObserverMap_.Size() != 0 && pasteData.HasMimeType(MIMETYPE_TEXT_PLAIN)) {
         RecognizePasteData(pasteData);
     }
@@ -2628,6 +2654,9 @@ bool PasteboardService::IsSystemAppByFullTokenID(uint64_t tokenId)
 
 int32_t PasteboardService::SetAppShareOptions(int32_t shareOptions)
 {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(PasteData::IsValidShareOption(shareOptions),
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+        "shareOptions invalid, shareOptions=%{public}d", shareOptions);
     auto fullTokenId = IPCSkeleton::GetCallingFullTokenID();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     if (!IsSystemAppByFullTokenID(fullTokenId)) {

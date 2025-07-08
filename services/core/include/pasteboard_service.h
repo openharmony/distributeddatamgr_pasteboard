@@ -396,6 +396,8 @@ private:
         const PasteDataEntry &entryValue);
     int32_t DealData(int &fd, int64_t &size, std::vector<uint8_t> &rawData, PasteData &data);
     bool WriteRawData(const void *data, int64_t size, int &serFd);
+    int32_t WritePasteData(
+        int fd, int64_t rawDataSize, const std::vector<uint8_t> &buffer, PasteData &pasteData, bool &hasData);
     void CloseSharedMemFd(int fd);
 
     void RegisterPreSyncCallback(std::shared_ptr<ClipPlugin> clipPlugin);

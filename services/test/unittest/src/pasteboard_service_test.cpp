@@ -33,6 +33,7 @@ namespace OHOS {
 namespace {
 const int INT_ONE = 1;
 const int32_t INT32_NEGATIVE_NUMBER = -1;
+const int INT_THREETHREETHREE = 333;
 const uint32_t MAX_RECOGNITION_LENGTH = 1000;
 const int32_t ACCOUNT_IDS_RANDOM = 1121;
 const uint32_t UINT32_ONE = 1;
@@ -54,6 +55,7 @@ const std::string TEST_ENTITY_TEXT =
     "湖滨路到南山路，再到杨公堤、北山街，最后回到杭州市中心，整个行程大约需要一天时间。沿着这条路线，你可以领略西湖的自"
     "然风光和文化底蕴，感受人间天堂的独特魅力。";
 const int64_t DEFAULT_MAX_RAW_DATA_SIZE = 128 * 1024 * 1024;
+constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 } // namespace
 
 class MyTestEntityRecognitionObserver : public IEntityRecognitionObserver {
@@ -892,6 +894,38 @@ HWTEST_F(PasteboardServiceTest, HasDataTypeTest002, TestSize.Level0)
     bool funcResult;
     int32_t res = tempPasteboard->HasDataType(MIMETYPE_TEXT_PLAIN, funcResult);
     EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: HasDataTypeTest003
+ * @tc.desc: HasDataType
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, HasDataTypeTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    std::string mimeType = "";
+    bool hasType = false;
+    auto ret = tempPasteboard->HasDataType(mimeType, hasType);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
+}
+
+/**
+ * @tc.name: HasDataTypeTest004
+ * @tc.desc: HasDataType
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, HasDataTypeTest004, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    std::string mimeType(MIMETYPE_MAX_SIZE + 1, 'x');
+    bool hasType = false;
+    auto ret = tempPasteboard->HasDataType(mimeType, hasType);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
 }
 
 /**
@@ -3048,6 +3082,21 @@ HWTEST_F(PasteboardServiceTest, SetAppShareOptionsTest001, TestSize.Level0)
 
     int32_t shareOptions = 0;
     tempPasteboard->SetAppShareOptions(shareOptions);
+}
+
+/**
+ * @tc.name: SetAppShareOptionsTest002
+ * @tc.desc: SetAppShareOptionsTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, SetAppShareOptionsTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    int32_t shareOptions = 3;
+    auto ret = tempPasteboard->SetAppShareOptions(shareOptions);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
 }
 
 /**
@@ -5549,6 +5598,178 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataInfoTest001, TestSize.Level0)
     EXPECT_EQ(pasteData.GetOriginAuthority(), originAuthority);
     EXPECT_EQ(pasteData.GetTokenId(), tokenId);
     EXPECT_EQ(pasteData.GetDataId(), 1);
+}
+
+/**
+ * @tc.name: GetPasteDataTest001
+ * @tc.desc: GetPasteDataTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, GetPasteDataTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    int32_t syncTime = 0;
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> recvTLV;
+    std::string pasteId = "GetPasteData_001";
+    auto ret = tempPasteboard->GetPasteData(fd, rawDataSize, recvTLV, pasteId, syncTime);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
+}
+
+/**
+ * @tc.name: GetPasteDataTest002
+ * @tc.desc: GetPasteDataTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, GetPasteDataTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    int32_t syncTime = 0;
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> recvTLV;
+    std::string pasteId = "GetPasteData_test_002";
+    auto ret = tempPasteboard->GetPasteData(fd, rawDataSize, recvTLV, pasteId, syncTime);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
+}
+
+/**
+ * @tc.name: SetPasteDataTest001
+ * @tc.desc: SetPasteDataTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, SetPasteDataTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    int32_t syncTime = 0;
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> recvTLV;
+    auto ret = tempPasteboard->SetPasteData(fd, rawDataSize, recvTLV, nullptr, nullptr);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
+}
+
+/**
+ * @tc.name: WritePasteDataTest001
+ * @tc.desc: WritePasteDataTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, WritePasteDataTest001, TestSize.Level0)
+{
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> buffer;
+    PasteData output;
+    bool hasData = false;
+
+    PasteData input;
+    input.AddTextRecord("test");
+    bool result = input.Encode(buffer);
+    ASSERT_TRUE(result);
+    rawDataSize = static_cast<int64_t>(buffer.size());
+    MessageParcelWarp messageData;
+    MessageParcel parcelData;
+    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        result = messageData.WriteRawData(parcelData, buffer.data(), buffer.size());
+        ASSERT_TRUE(result);
+        fd = messageData.GetWriteDataFd();
+        buffer.clear();
+    } else {
+        fd = messageData.CreateTmpFd();
+        ASSERT_TRUE(FD >= 0);
+    }
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    auto ret = tempPasteboard->WritePasteData(fd, rawDataSize, buffer, output, hasData);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
+}
+
+/**
+ * @tc.name: WritePasteDataTest002
+ * @tc.desc: WritePasteDataTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
+{
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> buffer;
+    PasteData output;
+    bool hasData = false;
+
+    PasteData input;
+    std::string text = "test";
+    for (int i = 0; i< INT_THREETHREETHREE; ++i) {
+        text += TEST_ENTITY_TEXT;
+    }
+    input.AddTextRecord(text);
+    bool result = input.Encode(buffer);
+    ASSERT_TRUE(result);
+    rawDataSize = static_cast<int64_t>(buffer.size());
+    MessageParcelWarp messageData;
+    MessageParcel parcelData;
+    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        result = messageData.WriteRawData(parcelData, buffer.data(), buffer.size());
+        ASSERT_TRUE(result);
+        fd = messageData.GetWriteDataFd();
+        buffer.clear();
+    } else {
+        fd = messageData.CreateTmpFd();
+        ASSERT_TRUE(FD >= 0);
+    }
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    auto ret = tempPasteboard->WritePasteData(fd, rawDataSize, buffer, output, hasData);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
+}
+
+/**
+ * @tc.name: WritePasteDataTest002
+ * @tc.desc: WritePasteDataTest
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
+{
+    int fd = -1;
+    int64_t rawDataSize = 0;
+    std::vector<uint8_t> buffer;
+    PasteData output;
+    bool hasData = false;
+
+    PasteData input;
+    std::string text = "test";
+    for (int i = 0; i< INT_THREETHREETHREE; ++i) {
+        text += TEST_ENTITY_TEXT;
+    }
+    input.AddTextRecord(text);
+    bool result = input.Encode(buffer);
+    ASSERT_TRUE(result);
+    rawDataSize = static_cast<int64_t>(buffer.size() + 1);
+    MessageParcelWarp messageData;
+    MessageParcel parcelData;
+    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
+        result = messageData.WriteRawData(parcelData, buffer.data(), buffer.size());
+        ASSERT_TRUE(result);
+        fd = messageData.GetWriteDataFd();
+        buffer.clear();
+    } else {
+        fd = messageData.CreateTmpFd();
+        ASSERT_TRUE(FD >= 0);
+    }
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    auto ret = tempPasteboard->WritePasteData(fd, rawDataSize, buffer, output, hasData);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
 }
 } // namespace MiscServices
 } // namespace OHOS

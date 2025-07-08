@@ -273,8 +273,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "enter");
     pid_t pid = getpid();
     std::string currentPid = std::to_string(pid);
-    uint32_t tmpSequenceId = getSequenceId_++;
-    std::string currentId = "GetPasteData_" + currentPid + "_" + std::to_string(tmpSequenceId);
+    std::string currentId = PasteData::CreatePasteId("GetPasteData", getSequenceId_++);
     pasteData.SetPasteId(currentId);
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
         RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
@@ -540,9 +539,7 @@ void PasteboardClient::ProgressRadarReport(PasteData &pasteData, PasteDataFromSe
 {
     pasteDataFromServiceInfo.pid = getpid();
     pasteDataFromServiceInfo.currentPid = std::to_string(pasteDataFromServiceInfo.pid);
-    uint32_t tmpSequenceId = getSequenceId_++;
-    pasteDataFromServiceInfo.currentId = "GetDataWithProgress_" + pasteDataFromServiceInfo.currentPid
-        + "_" + std::to_string(tmpSequenceId);
+    pasteDataFromServiceInfo.currentId = PasteData::CreatePasteId("GetDataWithProgress", getSequenceId_++);
     pasteData.SetPasteId(pasteDataFromServiceInfo.currentId);
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
         RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN,

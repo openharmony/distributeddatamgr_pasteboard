@@ -534,6 +534,9 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0014, TestSize.Level0)
     int fd = -1;
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV(0);
+    std::string currentPid = std::to_string(getpid());
+    std::string currentId = "GetPasteData_" + currentPid + "_001";
+    pasteData.SetPasteId(currentId);
     int32_t res = pasteboardServiceProxy_->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(rawDataSize > 0 && rawDataSize < MessageParcelWarp().GetRawDataSize());
