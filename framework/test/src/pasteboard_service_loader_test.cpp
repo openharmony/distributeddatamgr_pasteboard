@@ -215,6 +215,23 @@ HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest003, TestSize
 }
 
 /**
+ * @tc.name: ReleaseDeathRecipientTest001
+ * @tc.desc: Release DeathRecipient
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceLoaderTest, ReleaseDeathRecipientTest001, TestSize.Level0)
+{
+    sptr<ISystemAbilityManager> saMgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    EXPECT_NE(saMgrProxy, nullptr);
+    sptr<IRemoteObject> remoteObject = saMgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
+    EXPECT_NE(remoteObject, nullptr);
+    PasteboardServiceLoader::GetInstance().ReleaseDeathRecipient();
+    EXPECT_TRUE(PasteboardServiceLoader::GetInstance().deathRecipient_ == nullptr);
+}
+
+/**
  * @tc.name: GetRecordValueByTypeTest001
  * @tc.desc: GetRecordValueByType is return SERIALIZATION_ERROR
  * @tc.type: FUNC

@@ -146,6 +146,17 @@ void PasteboardServiceLoader::SetPasteboardServiceProxy(const sptr<IRemoteObject
     }
 }
 
+void PasteboardServiceLoader::ReleaseDeathRecipient()
+{
+    std::lock_guard<std::mutex> lock(instanceLock_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(deathRecipient_ != nullptr, PASTEBOARD_MODULE_CLIENT, "deathRecipient is null.");
+    bool notNull = pasteboardServiceProxy_ != nullptr && pasteboardServiceProxy_->AsObject() != nullptr;
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(notNull, PASTEBOARD_MODULE_CLIENT, "pasteboardServiceProxy is null.");
+    pasteboardServiceProxy_->AsObject()->RemoveDeathRecipient(deathRecipient_);
+    deathRecipient_ = nullptr;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReleaseDeathRecipient end.");
+}
+
 int32_t PasteboardServiceLoader::GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry &value)
 {
     auto proxyService = GetPasteboardService();
