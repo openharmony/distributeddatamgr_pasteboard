@@ -55,6 +55,27 @@ PasteboardServiceLoader::~PasteboardServiceLoader()
     remoteObject->RemoveDeathRecipient(deathRecipient_);
 }
 
+void PasteboardServiceLoader::CleanupResource()
+{
+    if (staticDestroyMonitor_.IsDestroyed()) {
+        return;
+    }
+    auto pasteboardServiceProxy = GetPasteboardService();
+    if (pasteboardServiceProxy == nullptr) {
+        return;
+    }
+    auto remoteObject = pasteboardServiceProxy->AsObject();
+    if (remoteObject == nullptr) {
+        return;
+    }
+    remoteObject->RemoveDeathRecipient(deathRecipient_);
+}
+
+extern "C" __attribute__((destructor)) void CleanUp()
+{
+    PasteboardServiceLoader::GetInstance().CleanupResource();
+}
+
 PasteboardServiceLoader &PasteboardServiceLoader::GetInstance()
 {
     static PasteboardServiceLoader serviceLoader;
@@ -135,12 +156,14 @@ void PasteboardServiceLoader::SetPasteboardServiceProxy(const sptr<IRemoteObject
     }
     if (clientDeathObserverPtr_ == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "clientDeathObserverPtr_ is null.");
+        remoteObject->RemoveDeathRecipient(deathRecipient_);
         deathRecipient_ = nullptr;
         return;
     }
     auto ret = pasteboardServiceProxy_->RegisterClientDeathObserver(clientDeathObserverPtr_);
     if (ret != ERR_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "RegisterClientDeathObserver failed.");
+        remoteObject->RemoveDeathRecipient(deathRecipient_);
         deathRecipient_ = nullptr;
         clientDeathObserverPtr_ = nullptr;
     }
