@@ -831,6 +831,13 @@ void PasteboardClient::UnSubscribePasteboardSA()
     isSubscribeSa_ = false;
 }
 
+void PasteboardClient::ReleaseSaListener()
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start.");
+    UnSubscribePasteboardSA();
+    PasteboardServiceLoader::GetInstance().ReleaseDeathRecipient();
+}
+
 void PasteboardClient::Resubscribe()
 {
     auto proxyService = GetPasteboardService();

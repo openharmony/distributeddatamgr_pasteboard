@@ -1098,8 +1098,22 @@ HWTEST_F(PasteboardClientTest, UnsubscribeEntityObserverTest005, TestSize.Level0
  */
 HWTEST_F(PasteboardClientTest, UpdateProgressTest001, TestSize.Level0)
 {
-    PasteboardClient::GetInstance()->UpdateProgress(nullptr, 50);
-    EXPECT_TRUE(true);
+    std::shared_ptr<GetDataParams> params = nullptr;
+    PasteboardClient::GetInstance()->UpdateProgress(params, 50);
+    EXPECT_TRUE(params == nullptr);
+}
+
+/**
+ * @tc.name: ReleaseSaListenerTest001
+ * @tc.desc: Release Sa Listener
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, ReleaseSaListenerTest001, TestSize.Level0)
+{
+    PasteboardClient::GetInstance()->ReleaseSaListener();
+    EXPECT_TRUE(PasteboardClient::GetInstance()->isSubscribeSa_ == false);
 }
 
 /**
