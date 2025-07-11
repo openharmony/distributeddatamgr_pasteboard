@@ -52,7 +52,6 @@
           "imf",
           "ipc",
           "image_framework",
-          "json",
           "libuv",
           "libxml2",
           "memmgr",
@@ -78,11 +77,10 @@
                 "//foundation/distributeddatamgr/pasteboard/adapter:pasteboard_adapter",
                 "//foundation/distributeddatamgr/pasteboard/framework/framework:pasteboard_framework",
                 "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_client",
-                "//foundation/distributeddatamgr/pasteboard/framework/innerkits:pasteboard_data",
                 "//foundation/distributeddatamgr/pasteboard/interfaces/cj:cj_pasteboard_ffi",
                 "//foundation/distributeddatamgr/pasteboard/interfaces/kits:pasteboard_napi",
                 "//foundation/distributeddatamgr/pasteboard/services/dialog:pasteboard_dialog_hap",
-                "//foundation/distributeddatamgr/pasteboard/interfaces/ani:pasteboard_ani_package"
+                "//foundation/distributeddatamgr/pasteboard/interfaces/taihe:pasteboard_taihe"
             ],
             "service_group": [
                 "//foundation/distributeddatamgr/pasteboard/etc/init:pasteboardservice.cfg",
@@ -129,6 +127,9 @@
               "header_files": [],
               "header_base":"//foundation/distributeddatamgr/pasteboard/interfaces/cj/include"
             }
+          },
+          {
+            "name": "//foundation/distributeddatamgr/pasteboard/interfaces/taihe:copy_pasteboard"
           }
         ],
         "test": [
