@@ -36,7 +36,10 @@ ohos_shared_library("pasteboard_adapter") {
   external_deps = []
 
   if (pasteboard_device_info_manager_part_enabled) {
-    sources += [ "src/device_profile_adapter.cpp" ]
+    sources += [
+      "src/device_profile_adapter.cpp",
+      "src/device_profile_client.cpp",
+    ]
 
     external_deps += [
       "cJSON:cjson",

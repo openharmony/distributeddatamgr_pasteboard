@@ -13,17 +13,14 @@
  * limitations under the License.
  */
 
-#include "accesstoken_kit.h"
+#ifndef UTILS_SYSTEM_ABILITY_DEFINITION_H
+#define UTILS_SYSTEM_ABILITY_DEFINITION_H
 
 namespace OHOS {
-namespace Security {
-namespace AccessToken {
-int32_t AccessTokenKit::VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName)
-{
-    (void)tokenID;
-    (void)permissionName;
-    return PERMISSION_GRANTED;
-}
-} // namespace AccessToken
-} // namespace Security
+enum {
+    PASTEBOARD_SERVICE_ID = 3701,
+    DISTRIBUTED_DEVICE_PROFILE_SA_ID = 6001,
+};
 } // namespace OHOS
+
+#endif // UTILS_SYSTEM_ABILITY_DEFINITION_H

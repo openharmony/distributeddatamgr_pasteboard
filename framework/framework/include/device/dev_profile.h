@@ -36,6 +36,8 @@ public:
     void SubscribeProfileEvent(const std::string &networkId);
     void UnSubscribeProfileEvent(const std::string &networkId);
     void UnSubscribeAllProfileEvents();
+    void SendSubscribeInfos();
+    void ClearDeviceProfileService();
     void Watch(Observer observer);
     void UpdateEnabledStatus(const std::string &udid, bool status);
     void EraseEnabledStatus(const std::string &udid);

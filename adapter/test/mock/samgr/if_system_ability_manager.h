@@ -13,17 +13,23 @@
  * limitations under the License.
  */
 
-#include "accesstoken_kit.h"
+#ifndef INTERFACES_INNERKITS_SAMGR_INCLUDE_IF_SYSTEM_ABILITY_MANAGER_H
+#define INTERFACES_INNERKITS_SAMGR_INCLUDE_IF_SYSTEM_ABILITY_MANAGER_H
+
+#include "iremote_object.h"
+#include "system_ability_load_callback_stub.h"
 
 namespace OHOS {
-namespace Security {
-namespace AccessToken {
-int32_t AccessTokenKit::VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName)
-{
-    (void)tokenID;
-    (void)permissionName;
-    return PERMISSION_GRANTED;
-}
-} // namespace AccessToken
-} // namespace Security
+class ISystemAbilityManager : public IRemoteBroker {
+public:
+    virtual sptr<IRemoteObject> CheckSystemAbility(int32_t systemAbilityId) = 0;
+    virtual int32_t LoadSystemAbility(int32_t systemAbilityId, const sptr<ISystemAbilityLoadCallback> &callback) = 0;
+
+    sptr<IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
 } // namespace OHOS
+
+#endif // INTERFACES_INNERKITS_SAMGR_INCLUDE_IF_SYSTEM_ABILITY_MANAGER_H

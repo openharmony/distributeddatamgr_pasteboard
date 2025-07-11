@@ -13,29 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef PASTEBOARD_DEV_PROFILE_MOCK_TEST_H
-#define PASTEBOARD_DEV_PROFILE_MOCK_TEST_H
-
-#include "device_manager_mock.h"
-#include "distributed_device_profile_client_mock.h"
-#include <gtest/gtest.h>
+#include "device/device_profile_proxy.h"
+#include "device_profile_adapter.h"
 
 namespace OHOS {
 namespace MiscServices {
-using namespace testing::ext;
-using testing::NiceMock;
+DeviceProfileProxy::DeviceProfileProxy()
+{
+}
 
-class DevProfileMockTest : public testing::Test {
-public:
-    static void SetUpTestCase(void);
-    static void TearDownTestCase(void);
-    void SetUp();
-    void TearDown();
+DeviceProfileProxy::~DeviceProfileProxy()
+{
+}
 
-    static inline std::shared_ptr<NiceMock<DistributedHardware::DeviceManagerMock>> deviceManagerMock_ =
-        std::make_shared<NiceMock<DistributedHardware::DeviceManagerMock>>();
-};
-
+IDeviceProfileAdapter *DeviceProfileProxy::GetAdapter()
+{
+    return GetDeviceProfileAdapter();
+}
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTEBOARD_DEV_PROFILE_MOCK_TEST_H

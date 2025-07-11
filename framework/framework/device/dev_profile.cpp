@@ -207,6 +207,34 @@ void DevProfile::UnSubscribeAllProfileEvents()
     subscribeUdidList_.clear();
 }
 
+void DevProfile::SendSubscribeInfos()
+{
+    std::lock_guard lock(proxyMutex_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(!subscribeUdidList_.empty(), PASTEBOARD_MODULE_SERVICE, "udid list empty");
+
+    PostDelayReleaseProxy();
+    if (proxy_ == nullptr) {
+        proxy_ = std::make_shared<DeviceProfileProxy>();
+    }
+    auto adapter = proxy_->GetAdapter();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+
+    adapter->SendSubscribeInfos();
+}
+
+void DevProfile::ClearDeviceProfileService()
+{
+    std::lock_guard lock(proxyMutex_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(proxy_ != nullptr, PASTEBOARD_MODULE_SERVICE, "not need clear");
+
+    enabledStatusCache_.Clear();
+    PostDelayReleaseProxy();
+    auto adapter = proxy_->GetAdapter();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(adapter != nullptr, PASTEBOARD_MODULE_SERVICE, "adapter is null");
+
+    adapter->ClearDeviceProfileService();
+}
+
 void DevProfile::Watch(Observer observer)
 {
     observer_ = std::move(observer);

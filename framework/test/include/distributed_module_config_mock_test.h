@@ -22,8 +22,8 @@
 
 namespace OHOS {
 namespace MiscServices {
-
 using namespace testing::ext;
+using testing::NiceMock;
 
 class DistributedModuleConfigMockTest : public testing::Test {
 public:
@@ -32,11 +32,8 @@ public:
     void SetUp();
     void TearDown();
 
-    static inline std::shared_ptr<DistributedDeviceProfile::DistributedDeviceProfileClientMock>
-        distributedDeviceProfileClientMock_ =
-            std::make_shared<DistributedDeviceProfile::DistributedDeviceProfileClientMock>();
-    static inline std::shared_ptr<DistributedHardware::DeviceManagerMock> deviceManagerMock_ =
-        std::make_shared<DistributedHardware::DeviceManagerMock>();
+    static inline std::shared_ptr<NiceMock<DistributedHardware::DeviceManagerMock>> deviceManagerMock_ =
+        std::make_shared<NiceMock<DistributedHardware::DeviceManagerMock>>();
 };
 
 } // namespace MiscServices

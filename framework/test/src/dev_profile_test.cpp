@@ -31,7 +31,10 @@ public:
 
 void DevProfileTest::SetUpTestCase(void) { }
 
-void DevProfileTest::TearDownTestCase(void) { }
+void DevProfileTest::TearDownTestCase(void)
+{
+    DevProfile::GetInstance().ClearDeviceProfileService();
+}
 
 void DevProfileTest::SetUp(void) { }
 
@@ -90,6 +93,7 @@ HWTEST_F(DevProfileTest, PostDelayReleaseProxy001, TestSize.Level0)
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     DevProfile::GetInstance().proxy_ = nullptr;
     std::string uuid = "PostDelayReleaseProxy001";
+    DevProfile::GetInstance().SendSubscribeInfos();
     DevProfile::GetInstance().subscribeUdidList_.emplace(uuid);
     DevProfile::GetInstance().UnSubscribeAllProfileEvents();
     EXPECT_TRUE(true);
@@ -190,6 +194,7 @@ HWTEST_F(DevProfileTest, SubscribeProfileEventTest003, TestSize.Level0)
     std::string bundleName = "com.pro.proEvent";
     bool res = DMAdapter::GetInstance().Initialize(bundleName);
     DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
+    DevProfile::GetInstance().SendSubscribeInfos();
     DevProfile::GetInstance().SubscribeProfileEvent(bundleName);
     EXPECT_TRUE(true);
 #else

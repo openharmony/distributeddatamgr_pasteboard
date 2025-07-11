@@ -125,9 +125,6 @@ PasteboardService::PasteboardService()
     : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
-    ServiceListenerFuncs_[static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID)] =
-        &PasteboardService::DMAdapterInit;
-    ServiceListenerFuncs_[static_cast<int32_t>(MEMORY_MANAGER_SA_ID)] = &PasteboardService::NotifySaStatus;
     p2pEstablishInfo_.pasteBlock = nullptr;
 }
 
@@ -253,13 +250,35 @@ void PasteboardService::AddSysAbilityListener()
 
 void PasteboardService::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "systemAbilityId = %{public}d added!", systemAbilityId);
-    auto itFunc = ServiceListenerFuncs_.find(systemAbilityId);
-    if (itFunc != ServiceListenerFuncs_.end()) {
-        auto ServiceListenerFunc = itFunc->second;
-        if (ServiceListenerFunc != nullptr) {
-            (this->*ServiceListenerFunc)();
-        }
+    (void)deviceId;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "systemAbilityId=%{public}d", systemAbilityId);
+
+    switch (systemAbilityId) {
+        case DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID:
+            OnAddDeviceManager();
+            break;
+        case MEMORY_MANAGER_SA_ID:
+            OnAddMemoryManager();
+            break;
+        case DISTRIBUTED_DEVICE_PROFILE_SA_ID:
+            OnAddDeviceProfile();
+            break;
+        default:
+            break;
+    }
+}
+
+void PasteboardService::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+{
+    (void)deviceId;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "systemAbilityId=%{public}d", systemAbilityId);
+
+    switch (systemAbilityId) {
+        case DISTRIBUTED_DEVICE_PROFILE_SA_ID:
+            OnRemoveDeviceProfile();
+            break;
+        default:
+            break;
     }
 }
 
@@ -307,15 +326,25 @@ void PasteboardService::NotifyEntryGetterDied(int32_t userId)
     entryGetters_.Erase(userId);
 }
 
-void PasteboardService::DMAdapterInit()
+void PasteboardService::OnAddDeviceManager()
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     DMAdapter::GetInstance().Initialize(appInfo.bundleName);
 }
 
-void PasteboardService::NotifySaStatus()
+void PasteboardService::OnAddMemoryManager()
 {
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, PASTEBOARD_SERVICE_ID);
+}
+
+void PasteboardService::OnAddDeviceProfile()
+{
+    DevProfile::GetInstance().SendSubscribeInfos();
+}
+
+void PasteboardService::OnRemoveDeviceProfile()
+{
+    DevProfile::GetInstance().ClearDeviceProfileService();
 }
 
 void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int64_t dataSize, int32_t result)
