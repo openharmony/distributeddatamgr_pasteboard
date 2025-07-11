@@ -2422,18 +2422,19 @@ int32_t PasteboardService::SubscribeObserver(PasteboardObserverType type,
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR);
     }
+    bool addSucc = false;
     if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_LOCAL)) {
-        AddObserver(userId, observer, observerLocalChangedMap_);
+        addSucc = AddObserver(userId, observer, observerLocalChangedMap_) || addSucc;
     }
 
     if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_REMOTE)) {
-        AddObserver(userId, observer, observerRemoteChangedMap_);
+        addSucc = AddObserver(userId, observer, observerRemoteChangedMap_) || addSucc;
     }
 
     if (isEventType && IsCallerUidValid()) {
-        AddObserver(userId, observer, observerEventMap_);
+        addSucc = AddObserver(userId, observer, observerEventMap_) || addSucc;
     }
-    return ERR_OK;
+    return addSucc ? ERR_OK : static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED);
 }
 
 int32_t PasteboardService::ResubscribeObserver(
@@ -2513,12 +2514,12 @@ uint32_t PasteboardService::GetObserversSize(int32_t userId, pid_t pid, Observer
     return 0;
 }
 
-void PasteboardService::AddObserver(
+bool PasteboardService::AddObserver(
     int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap)
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
-        return;
+        return false;
     }
     std::lock_guard<std::mutex> lock(observerMutex_);
     auto callPid = IPCSkeleton::GetCallingPid();
@@ -2534,12 +2535,13 @@ void PasteboardService::AddObserver(
     auto allObserverCount = GetAllObserversSize(userId, callPid);
     if (allObserverCount >= MAX_OBSERVER_COUNT) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer count over limit. callPid:%{public}d", callPid);
-        return;
+        return false;
     }
     observers->insert(observer);
     RADAR_REPORT(DFX_OBSERVER, DFX_ADD_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGI(
         PASTEBOARD_MODULE_SERVICE, "observers->size = %{public}u.", static_cast<unsigned int>(observers->size()));
+    return true;
 }
 
 void PasteboardService::RemoveSingleObserver(

@@ -94,6 +94,7 @@ enum class PasteboardError : int32_t {
     GET_BOOTTIME_FAILED,
     NOT_SUPPORT,
     INVALID_DATA_SIZE,
+    ADD_OBSERVER_FAILED,
 };
 
 const std::map<PasteboardError, const char *> PasteboardErrorMap = {
@@ -164,7 +165,8 @@ const std::map<PasteboardError, const char *> PasteboardErrorMap = {
     {PasteboardError::GET_BUNDLE_MGR_FAILED, "GET_BUNDLE_MGR_FAILED"},
     {PasteboardError::GET_BOOTTIME_FAILED, "GET_BOOTTIME_FAILED"},
     {PasteboardError::NOT_SUPPORT, "NOT_SUPPORT"},
-    {PasteboardError::INVALID_DATA_SIZE, "INVALID_DATA_SIZE"}
+    {PasteboardError::INVALID_DATA_SIZE, "INVALID_DATA_SIZE"},
+    {PasteboardError::ADD_OBSERVER_FAILED, "ADD_OBSERVER_FAILED"},
 };
 
 } // namespace MiscServices
