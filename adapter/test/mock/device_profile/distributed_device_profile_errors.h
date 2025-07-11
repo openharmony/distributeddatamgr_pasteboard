@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#include "accesstoken_kit.h"
+#ifndef OHOS_DP_DISTRIBUTED_DEVICE_PROFILE_ERRORS_H
+#define OHOS_DP_DISTRIBUTED_DEVICE_PROFILE_ERRORS_H
 
 namespace OHOS {
-namespace Security {
-namespace AccessToken {
-int32_t AccessTokenKit::VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName)
-{
-    (void)tokenID;
-    (void)permissionName;
-    return PERMISSION_GRANTED;
-}
-} // namespace AccessToken
-} // namespace Security
+namespace DistributedDeviceProfile {
+constexpr int32_t DP_SUCCESS = 0;
+constexpr int32_t DP_GET_SERVICE_FAILED = 98566147;
+constexpr int32_t DP_CACHE_EXIST = 98566164;
+constexpr int32_t DP_EXCEED_MAX_SIZE_FAIL = 98566201;
+constexpr int32_t MAX_SUBSCRIBE_INFO_SIZE = 500;
+const std::string SEPARATOR = "#";
+} // namespace DistributedDeviceProfile
 } // namespace OHOS
+#endif // OHOS_DP_DISTRIBUTED_DEVICE_PROFILE_ERRORS_H

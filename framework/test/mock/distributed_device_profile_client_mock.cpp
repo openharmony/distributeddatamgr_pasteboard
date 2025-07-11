@@ -17,20 +17,79 @@
 
 namespace OHOS {
 namespace DistributedDeviceProfile {
-IMPLEMENT_SINGLE_INSTANCE(DistributedDeviceProfileClient);
 
-int32_t DistributedDeviceProfileClient::GetCharacteristicProfile(const std::string &deviceId,
-    const std::string &serviceName, const std::string &characteristicId, CharacteristicProfile &characteristicProfile)
+DeviceProfileClientMock::DeviceProfileClientMock()
 {
-    return PasteDistributedDeviceProfileClient::pasteDistributedDeviceProfileClient->GetCharacteristicProfile(
-        deviceId, serviceName, characteristicId, characteristicProfile);
+    DeviceProfileClientMock::mock_ = this;
 }
 
-int32_t DistributedDeviceProfileClient::PutCharacteristicProfile(const CharacteristicProfile &characteristicProfile)
+DeviceProfileClientMock::~DeviceProfileClientMock()
 {
-    return PasteDistributedDeviceProfileClient::pasteDistributedDeviceProfileClient->PutCharacteristicProfile(
+    DeviceProfileClientMock::mock_ = nullptr;
+}
+
+DeviceProfileClientMock *DeviceProfileClientMock::GetMock()
+{
+    return DeviceProfileClientMock::mock_;
+}
+
+void DeviceProfileLoadCb::OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
+{
+    (void)systemAbilityId;
+    DeviceProfileClient::GetInstance().LoadSystemAbilitySuccess(remoteObject);
+}
+
+void DeviceProfileLoadCb::OnLoadSystemAbilityFail(int32_t systemAbilityId)
+{
+    (void)systemAbilityId;
+    DeviceProfileClient::GetInstance().LoadSystemAbilityFail();
+}
+
+DeviceProfileClient &DeviceProfileClient::GetInstance()
+{
+    static DeviceProfileClient instance;
+    return instance;
+}
+
+sptr<IDistributedDeviceProfile> DeviceProfileClient::GetDeviceProfileService()
+{
+    return nullptr;
+}
+
+sptr<IDistributedDeviceProfile> DeviceProfileClient::LoadDeviceProfileService()
+{
+    return nullptr;
+}
+
+void DeviceProfileClient::ClearDeviceProfileService()
+{
+}
+
+void DeviceProfileClient::SendSubscribeInfos()
+{
+    DeviceProfileClientMock::GetMock()->SendSubscribeInfos();
+}
+
+int32_t DeviceProfileClient::PutCharacteristicProfile(const CharacteristicProfile &characteristicProfile)
+{
+    return DeviceProfileClientMock::GetMock()->PutCharacteristicProfile(characteristicProfile);
+}
+
+int32_t DeviceProfileClient::GetCharacteristicProfile(const std::string &deviceId, const std::string &serviceName,
+    const std::string &characteristicId, CharacteristicProfile &characteristicProfile)
+{
+    return DeviceProfileClientMock::GetMock()->GetCharacteristicProfile(deviceId, serviceName, characteristicId,
         characteristicProfile);
 }
 
+int32_t DeviceProfileClient::SubscribeDeviceProfile(const SubscribeInfo &subscribeInfo)
+{
+    return DeviceProfileClientMock::GetMock()->SubscribeDeviceProfile(subscribeInfo);
+}
+
+int32_t DeviceProfileClient::UnSubscribeDeviceProfile(const SubscribeInfo &subscribeInfo)
+{
+    return DeviceProfileClientMock::GetMock()->UnSubscribeDeviceProfile(subscribeInfo);
+}
 } // namespace DistributedDeviceProfile
 } // namespace OHOS

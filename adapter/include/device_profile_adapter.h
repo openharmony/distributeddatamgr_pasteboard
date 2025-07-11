@@ -35,6 +35,8 @@ public:
     virtual bool GetDeviceVersion(const std::string &udid, uint32_t &versionId) = 0;
     virtual int32_t SubscribeProfileEvent(const std::string &udid) = 0;
     virtual int32_t UnSubscribeProfileEvent(const std::string &udid) = 0;
+    virtual void SendSubscribeInfos() = 0;
+    virtual void ClearDeviceProfileService() = 0;
 };
 
 extern "C" {

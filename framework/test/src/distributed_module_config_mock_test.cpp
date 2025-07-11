@@ -18,6 +18,7 @@
 #include "device/dev_profile.h"
 #include "device/distributed_module_config.h"
 #include "device/dm_adapter.h"
+#include "distributed_device_profile_errors.h"
 #include "pasteboard_error.h"
 
 using namespace testing;
@@ -28,15 +29,12 @@ namespace MiscServices {
 
 void DistributedModuleConfigMockTest::SetUpTestCase(void)
 {
-    DistributedDeviceProfile::PasteDistributedDeviceProfileClient::pasteDistributedDeviceProfileClient =
-        distributedDeviceProfileClientMock_;
     DistributedHardware::PasteDeviceManager::pasteDeviceManager = deviceManagerMock_;
 }
 
 void DistributedModuleConfigMockTest::TearDownTestCase(void)
 {
-    DistributedDeviceProfile::PasteDistributedDeviceProfileClient::pasteDistributedDeviceProfileClient = nullptr;
-    distributedDeviceProfileClientMock_ = nullptr;
+    DevProfile::GetInstance().ClearDeviceProfileService();
     DistributedHardware::PasteDeviceManager::pasteDeviceManager = nullptr;
     deviceManagerMock_ = nullptr;
 }
@@ -45,7 +43,6 @@ void DistributedModuleConfigMockTest::SetUp(void) { }
 
 void DistributedModuleConfigMockTest::TearDown(void)
 {
-    testing::Mock::VerifyAndClear(distributedDeviceProfileClientMock_.get());
     testing::Mock::VerifyAndClear(deviceManagerMock_.get());
 }
 
@@ -58,9 +55,8 @@ void DistributedModuleConfigMockTest::TearDown(void)
  */
 HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest001, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly(testing::Return(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR)));
     DMAdapter::GetInstance().devices_.clear();
     DevProfile::GetInstance().enabledStatusCache_.Clear();
@@ -73,9 +69,6 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest001, TestSize.Leve
     DistributedModuleConfig config;
     int32_t ret = config.GetEnabledStatus();
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON), ret);
-#else
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON), ret);
-#endif
 }
 
 /**
@@ -87,9 +80,8 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest001, TestSize.Leve
  */
 HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest002, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .Times(2)
         .WillOnce([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "1";
@@ -123,9 +115,6 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest002, TestSize.Leve
     int32_t ret = config.GetEnabledStatus();
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), ret);
     DMAdapter::GetInstance().devices_.clear();
-#else
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON), ret);
-#endif
 }
 
 /**
@@ -137,9 +126,8 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest002, TestSize.Leve
  */
 HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest003, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "1";
             return DistributedDeviceProfile::DP_SUCCESS;
@@ -164,9 +152,6 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest003, TestSize.Leve
     int32_t ret = config.GetEnabledStatus();
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
     DMAdapter::GetInstance().devices_.clear();
-#else
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::LOCAL_SWITCH_NOT_TURNED_ON), ret);
-#endif
 }
 
 /**
@@ -178,9 +163,8 @@ HWTEST_F(DistributedModuleConfigMockTest, GetEnabledStatusTest003, TestSize.Leve
  */
 HWTEST_F(DistributedModuleConfigMockTest, Notify001, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "1";
             return DistributedDeviceProfile::DP_SUCCESS;
@@ -205,9 +189,6 @@ HWTEST_F(DistributedModuleConfigMockTest, Notify001, TestSize.Level0)
     config.Notify();
     ASSERT_TRUE(true);
     DMAdapter::GetInstance().devices_.clear();
-#else
-    ASSERT_TRUE(true);
-#endif
 }
 
 /**
@@ -219,9 +200,8 @@ HWTEST_F(DistributedModuleConfigMockTest, Notify001, TestSize.Level0)
  */
 HWTEST_F(DistributedModuleConfigMockTest, Notify002, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "1";
             return DistributedDeviceProfile::DP_SUCCESS;
@@ -250,9 +230,6 @@ HWTEST_F(DistributedModuleConfigMockTest, Notify002, TestSize.Level0)
     config.Notify();
     ASSERT_TRUE(true);
     DMAdapter::GetInstance().devices_.clear();
-#else
-    ASSERT_TRUE(true);
-#endif
 }
 
 /**
@@ -264,9 +241,8 @@ HWTEST_F(DistributedModuleConfigMockTest, Notify002, TestSize.Level0)
  */
 HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion001, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "0";
             return static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR);
@@ -290,9 +266,6 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion001, TestSize
     uint32_t minVersion = config.GetRemoteDeviceMinVersion();
     ASSERT_EQ(UINT_MAX, minVersion);
     DMAdapter::GetInstance().devices_.clear();
-#else
-    EXPECT_TRUE(true);
-#endif
 }
 
 /**
@@ -304,9 +277,8 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion001, TestSize
  */
 HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion002, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "0";
             return static_cast<int32_t>(DistributedDeviceProfile::DP_SUCCESS);
@@ -330,9 +302,6 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion002, TestSize
     uint32_t minVersion = config.GetRemoteDeviceMinVersion();
     ASSERT_EQ(UINT_MAX, minVersion);
     DMAdapter::GetInstance().devices_.clear();
-#else
-    EXPECT_TRUE(true);
-#endif
 }
 
 /**
@@ -344,9 +313,8 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion002, TestSize
  */
 HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion003, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "1";
             return static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR);
@@ -370,9 +338,6 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion003, TestSize
     uint32_t minVersion = config.GetRemoteDeviceMinVersion();
     ASSERT_EQ(UINT_MAX, minVersion);
     DMAdapter::GetInstance().devices_.clear();
-#else
-    EXPECT_TRUE(true);
-#endif
 }
 
 /**
@@ -384,9 +349,8 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion003, TestSize
  */
 HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion004, TestSize.Level0)
 {
-#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
-    EXPECT_CALL(
-        *distributedDeviceProfileClientMock_, GetCharacteristicProfile(testing::_, testing::_, testing::_, testing::_))
+    NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
+    EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
             characteristicProfile.characteristicValue_ = "1";
             return static_cast<int32_t>(DistributedDeviceProfile::DP_SUCCESS);
@@ -410,9 +374,6 @@ HWTEST_F(DistributedModuleConfigMockTest, GetRemoteDeviceMinVersion004, TestSize
     uint32_t minVersion = config.GetRemoteDeviceMinVersion();
     ASSERT_EQ(UINT_MAX, minVersion);
     DMAdapter::GetInstance().devices_.clear();
-#else
-    EXPECT_TRUE(true);
-#endif
 }
 
 } // namespace MiscServices

@@ -13,17 +13,22 @@
  * limitations under the License.
  */
 
-#include "accesstoken_kit.h"
+#include "iservice_registry.h"
 
 namespace OHOS {
-namespace Security {
-namespace AccessToken {
-int32_t AccessTokenKit::VerifyAccessToken(AccessTokenID tokenID, const std::string &permissionName)
+SystemAbilityManagerClient &SystemAbilityManagerClient::GetInstance()
 {
-    (void)tokenID;
-    (void)permissionName;
-    return PERMISSION_GRANTED;
+    static SystemAbilityManagerClient instance;
+    return instance;
 }
-} // namespace AccessToken
-} // namespace Security
+
+sptr<ISystemAbilityManager> SystemAbilityManagerClient::GetSystemAbilityManager()
+{
+    return systemAbilityManager_;
+}
+
+void SystemAbilityManagerClient::SetSystemAbilityManager(sptr<ISystemAbilityManager> samgr)
+{
+    systemAbilityManager_ = samgr;
+}
 } // namespace OHOS

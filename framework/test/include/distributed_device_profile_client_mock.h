@@ -19,31 +19,44 @@
 #include <gmock/gmock.h>
 #include <string>
 
-#include "distributed_device_profile_client.h"
+#include "device_profile_client.h"
 
 namespace OHOS {
 namespace DistributedDeviceProfile {
 
-class PasteDistributedDeviceProfileClient {
+class IDeviceProfileClient {
 public:
-    virtual ~PasteDistributedDeviceProfileClient() = default;
-
-public:
+    virtual ~IDeviceProfileClient() = default;
+    virtual int32_t PutCharacteristicProfile(const CharacteristicProfile &characteristicProfile) = 0;
     virtual int32_t GetCharacteristicProfile(const std::string &deviceId, const std::string &serviceName,
         const std::string &characteristicId, CharacteristicProfile &characteristicProfile) = 0;
-    virtual int32_t PutCharacteristicProfile(const CharacteristicProfile &characteristicProfile) = 0;
-
-public:
-    static inline std::shared_ptr<PasteDistributedDeviceProfileClient> pasteDistributedDeviceProfileClient = nullptr;
+    virtual int32_t SubscribeDeviceProfile(const SubscribeInfo &subscribeInfo) = 0;
+    virtual int32_t UnSubscribeDeviceProfile(const SubscribeInfo &subscribeInfo) = 0;
+    virtual void SendSubscribeInfos() = 0;
+    virtual void ClearDeviceProfileService() = 0;
+    virtual void LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject) = 0;
+    virtual void LoadSystemAbilityFail() = 0;
 };
 
-class DistributedDeviceProfileClientMock : public PasteDistributedDeviceProfileClient {
+class DeviceProfileClientMock : public IDeviceProfileClient {
 public:
-    MOCK_METHOD(int32_t, GetCharacteristicProfile,
-        (const std::string &, const std::string &, const std::string &, CharacteristicProfile &));
-    MOCK_METHOD(int32_t, PutCharacteristicProfile, (const CharacteristicProfile &));
-};
+    DeviceProfileClientMock();
+    ~DeviceProfileClientMock();
+    static DeviceProfileClientMock *GetMock();
 
+    MOCK_METHOD(int32_t, PutCharacteristicProfile, (const CharacteristicProfile &characteristicProfile), (override));
+    MOCK_METHOD(int32_t, GetCharacteristicProfile, (const std::string &deviceId, const std::string &serviceName,
+        const std::string &characteristicId, CharacteristicProfile &characteristicProfile), (override));
+    MOCK_METHOD(int32_t, SubscribeDeviceProfile, (const SubscribeInfo &subscribeInfo), (override));
+    MOCK_METHOD(int32_t, UnSubscribeDeviceProfile, (const SubscribeInfo &subscribeInfo), (override));
+    MOCK_METHOD(void, SendSubscribeInfos, (), (override));
+    MOCK_METHOD(void, ClearDeviceProfileService, (), (override));
+    MOCK_METHOD(void, LoadSystemAbilitySuccess, (const sptr<IRemoteObject> &remoteObject), (override));
+    MOCK_METHOD(void, LoadSystemAbilityFail, (), (override));
+
+private:
+    static inline DeviceProfileClientMock *mock_ = nullptr;
+};
 } // namespace DistributedDeviceProfile
 } // namespace OHOS
 

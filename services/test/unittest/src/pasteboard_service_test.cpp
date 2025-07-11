@@ -1004,6 +1004,36 @@ HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest003, TestSize.Level0)
 }
 
 /**
+ * @tc.name: OnAddSystemAbilityTest004
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest004, TestSize.Level0)
+{
+    auto pbs = std::make_shared<PasteboardService>();
+    EXPECT_NE(pbs, nullptr);
+    pbs->OnAddSystemAbility(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID, "");
+    pbs->OnAddSystemAbility(MEMORY_MANAGER_SA_ID, "");
+    pbs->OnAddSystemAbility(DISTRIBUTED_DEVICE_PROFILE_SA_ID, "");
+    pbs->OnAddSystemAbility(PASTEBOARD_SERVICE_ID, "");
+}
+
+/**
+ * @tc.name: OnRemoveSystemAbilityTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, OnRemoveSystemAbilityTest001, TestSize.Level0)
+{
+    auto pbs = std::make_shared<PasteboardService>();
+    EXPECT_NE(pbs, nullptr);
+    pbs->OnRemoveSystemAbility(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID, "");
+    pbs->OnRemoveSystemAbility(MEMORY_MANAGER_SA_ID, "");
+    pbs->OnRemoveSystemAbility(DISTRIBUTED_DEVICE_PROFILE_SA_ID, "");
+    pbs->OnRemoveSystemAbility(PASTEBOARD_SERVICE_ID, "");
+}
+
+/**
  * @tc.name: OnRemoteDiedTest001
  * @tc.desc:
  * @tc.type: FUNC
@@ -1086,29 +1116,29 @@ HWTEST_F(PasteboardServiceTest, NotifyEntryGetterDiedTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: DMAdapterInitTest001
+ * @tc.name: OnAddDeviceManagerTest001
  * @tc.desc:
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardServiceTest, DMAdapterInitTest001, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, OnAddDeviceManagerTest001, TestSize.Level0)
 {
     constexpr int32_t userId = 111;
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->DMAdapterInit();
+    tempPasteboard->OnAddDeviceManager();
 }
 
 /**
- * @tc.name: NotifySaStatusTest001
+ * @tc.name: OnAddMemoryManagerTest001
  * @tc.desc:
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardServiceTest, NotifySaStatusTest001, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, OnAddMemoryManagerTest001, TestSize.Level0)
 {
     constexpr int32_t userId = 111;
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->NotifySaStatus();
+    tempPasteboard->OnAddMemoryManager();
 }
 
 /**

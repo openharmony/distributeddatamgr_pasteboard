@@ -179,10 +179,9 @@ public:
 private:
     std::mutex saMutex_;
     using Event = ClipPlugin::GlobalEvent;
-    using ServiceListenerFunc = void (PasteboardService::*)();
     using GetProcessorFunc = IPasteDataProcessor& (*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
-        WINDOW_MANAGER_SERVICE_ID, MEMORY_MANAGER_SA_ID };
+        WINDOW_MANAGER_SERVICE_ID, MEMORY_MANAGER_SA_ID, DISTRIBUTED_DEVICE_PROFILE_SA_ID };
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
     static constexpr uint32_t PLAIN_INDEX = 0;
     static constexpr uint32_t HTML_INDEX = 1;
@@ -385,8 +384,11 @@ private:
     void RecognizePasteData(PasteData &pasteData);
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
-    void DMAdapterInit();
-    void NotifySaStatus();
+    void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void OnAddDeviceManager();
+    void OnAddMemoryManager();
+    void OnAddDeviceProfile();
+    void OnRemoveDeviceProfile();
     void ReportUeCopyEvent(PasteData &pasteData, int64_t dataSize, int32_t result);
     bool HasDataType(const std::string &mimeType);
     bool HasPasteData();
@@ -440,7 +442,6 @@ private:
     static std::shared_ptr<Command> copyHistory;
     static std::shared_ptr<Command> copyData;
     std::atomic<bool> setting_ = false;
-    std::map<int32_t, ServiceListenerFunc> ServiceListenerFuncs_;
     std::map<std::string, int> typeMap_ = {
         {MIMETYPE_TEXT_PLAIN, PLAIN_INDEX   },
         { MIMETYPE_TEXT_HTML, HTML_INDEX    },

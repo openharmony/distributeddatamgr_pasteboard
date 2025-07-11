@@ -15,20 +15,22 @@
 
 #include "device_profile_adapter.h"
 
-#include "c/ffrt_ipc.h"
+#include <thread>
+
 #include "cJSON.h"
-#include "distributed_device_profile_client.h"
+#include "device_profile_client.h"
+#include "distributed_device_profile_errors.h"
 #include "i_static_capability_collector.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "profile_change_listener_stub.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace MiscServices {
 using namespace OHOS::DistributedDeviceProfile;
 
 constexpr const int32_t ERR_OK = 0;
-constexpr const int32_t PASTEBOARD_SA_ID = 3701;
 
 constexpr const char *STATUS_ENABLE = "1";
 constexpr const char *STATUS_DISABLE = "0";
@@ -134,6 +136,8 @@ public:
         std::string status = newProfile.GetCharacteristicValue();
         if (g_onProfileUpdateCallback != nullptr) {
             g_onProfileUpdateCallback(udid, status == STATUS_ENABLE);
+            std::thread thread(g_onProfileUpdateCallback, udid, status == STATUS_ENABLE);
+            thread.detach();
         }
         return ERR_OK;
     }
@@ -147,6 +151,8 @@ public:
     bool GetDeviceVersion(const std::string &udid, uint32_t &versionId) override;
     int32_t SubscribeProfileEvent(const std::string &udid) override;
     int32_t UnSubscribeProfileEvent(const std::string &udid) override;
+    void SendSubscribeInfos() override;
+    void ClearDeviceProfileService() override;
 
 private:
     std::mutex mutex_;
@@ -171,7 +177,7 @@ int32_t DeviceProfileAdapter::PutDeviceStatus(const std::string &udid, bool stat
     profile.SetCharacteristicKey(CHARACTER_ID);
     profile.SetCharacteristicValue(enabledStatus);
 
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().PutCharacteristicProfile(profile);
+    int32_t ret = DeviceProfileClient::GetInstance().PutCharacteristicProfile(profile);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == DistributedDeviceProfile::DP_SUCCESS ||
         ret == DistributedDeviceProfile::DP_CACHE_EXIST, ret, PASTEBOARD_MODULE_COMMON,
         "failed, udid=%{public}.5s, status=%{public}d, ret=%{public}d", udid.c_str(), status, ret);
@@ -182,7 +188,7 @@ int32_t DeviceProfileAdapter::PutDeviceStatus(const std::string &udid, bool stat
 int32_t DeviceProfileAdapter::GetDeviceStatus(const std::string &udid, bool &status)
 {
     CharacteristicProfile profile;
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid,
+    int32_t ret = DeviceProfileClient::GetInstance().GetCharacteristicProfile(udid,
         SWITCH_ID, CHARACTER_ID, profile);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == DistributedDeviceProfile::DP_SUCCESS, ret, PASTEBOARD_MODULE_COMMON,
         "failed, udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
@@ -196,7 +202,7 @@ int32_t DeviceProfileAdapter::GetDeviceStatus(const std::string &udid, bool &sta
 bool DeviceProfileAdapter::GetDeviceVersion(const std::string &udid, uint32_t &versionId)
 {
     CharacteristicProfile profile;
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().GetCharacteristicProfile(udid,
+    int32_t ret = DeviceProfileClient::GetInstance().GetCharacteristicProfile(udid,
         SERVICE_ID, STATIC_CHARACTER_ID, profile);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == DistributedDeviceProfile::DP_SUCCESS, false, PASTEBOARD_MODULE_COMMON,
         "get profile failed, udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
@@ -228,7 +234,7 @@ int32_t DeviceProfileAdapter::SubscribeProfileEvent(const std::string &udid)
         "already exists, udid=%{public}.5s", udid.c_str());
 
     SubscribeInfo subscribeInfo;
-    subscribeInfo.SetSaId(PASTEBOARD_SA_ID);
+    subscribeInfo.SetSaId(PASTEBOARD_SERVICE_ID);
     subscribeInfo.SetSubscribeKey(udid, SWITCH_ID, CHARACTER_ID, CHARACTERISTIC_VALUE);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_ADD);
     subscribeInfo.AddProfileChangeType(ProfileChangeType::CHAR_PROFILE_UPDATE);
@@ -241,7 +247,7 @@ int32_t DeviceProfileAdapter::SubscribeProfileEvent(const std::string &udid)
     subscribeInfo.SetListener(subscribeDPChangeListener);
     subscribeInfoCache_[udid] = subscribeInfo;
 
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().SubscribeDeviceProfile(subscribeInfo);
+    int32_t ret = DeviceProfileClient::GetInstance().SubscribeDeviceProfile(subscribeInfo);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == DistributedDeviceProfile::DP_SUCCESS, ret, PASTEBOARD_MODULE_COMMON,
         "failed, udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "success, udid=%{public}.5s", udid.c_str());
@@ -256,13 +262,28 @@ int32_t DeviceProfileAdapter::UnSubscribeProfileEvent(const std::string &udid)
         static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_COMMON,
         "not find, udid=%{public}.5s", udid.c_str());
 
-    int32_t ret = DistributedDeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(it->second);
+    int32_t ret = DeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(it->second);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == DistributedDeviceProfile::DP_SUCCESS, ret, PASTEBOARD_MODULE_COMMON,
         "failed, udid=%{public}.5s, ret=%{public}d", udid.c_str(), ret);
 
     subscribeInfoCache_.erase(it);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "success, udid=%{public}.5s", udid.c_str());
     return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void DeviceProfileAdapter::SendSubscribeInfos()
+{
+    std::lock_guard lock(mutex_);
+    PASTEBOARD_CHECK_AND_RETURN_LOGI(!subscribeInfoCache_.empty(), PASTEBOARD_MODULE_COMMON,
+        "no subscribe info");
+
+    DeviceProfileClient::GetInstance().SendSubscribeInfos();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "success, size=%{public}zu", subscribeInfoCache_.size());
+}
+
+void DeviceProfileAdapter::ClearDeviceProfileService()
+{
+    DeviceProfileClient::GetInstance().ClearDeviceProfileService();
 }
 
 IDeviceProfileAdapter *GetDeviceProfileAdapter()
@@ -273,8 +294,8 @@ IDeviceProfileAdapter *GetDeviceProfileAdapter()
 
 void DeinitDeviceProfileAdapter()
 {
+    DeviceProfileClient::GetInstance().ClearDeviceProfileService();
     g_onProfileUpdateCallback = nullptr;
-    DistributedDeviceProfileClient::GetInstance().ReleaseResource();
 }
 
 class PasteboardStaticCapability : public IStaticCapabilityCollector {
