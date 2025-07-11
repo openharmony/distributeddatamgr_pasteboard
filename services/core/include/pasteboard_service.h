@@ -398,6 +398,8 @@ private:
         const PasteDataEntry &entryValue);
     int32_t DealData(int &fd, int64_t &size, std::vector<uint8_t> &rawData, PasteData &data);
     bool WriteRawData(const void *data, int64_t size, int &serFd);
+    int32_t WritePasteData(
+        int fd, int64_t rawDataSize, const std::vector<uint8_t> &buffer, PasteData &pasteData, bool &hasData);
     void CloseSharedMemFd(int fd);
 
     void RegisterPreSyncCallback(std::shared_ptr<ClipPlugin> clipPlugin);
@@ -429,7 +431,7 @@ private:
     std::shared_ptr<PasteBoardCommonEventSubscriber> commonEventSubscriber_ = nullptr;
     std::shared_ptr<PasteBoardAccountStateSubscriber> accountStateSubscriber_ = nullptr;
 
-    std::mutex mutex;
+    std::recursive_mutex mutex;
     std::shared_ptr<ClipPlugin> clipPlugin_ = nullptr;
     std::atomic<uint16_t> sequenceId_ = 0;
     std::atomic<uint32_t> dataId_ = 0;

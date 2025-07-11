@@ -31,6 +31,7 @@ public:
         constexpr uid_t PASTEBOARD_SERVICE_UID = 3816;
         return getuid() == PASTEBOARD_SERVICE_UID;
     }
+    static bool IsValidMimeType(const std::string &mimeType);
     static std::string GetAnonymousString(const std::string &str);
     static sptr<AppExecFwk::IBundleMgr> GetAppBundleManager(void);
     int32_t GetApiTargetVersionForSelf(void);

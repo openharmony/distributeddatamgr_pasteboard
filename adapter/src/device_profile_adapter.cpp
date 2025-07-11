@@ -131,7 +131,6 @@ public:
     int32_t OnCharacteristicProfileUpdate(const CharacteristicProfile &oldProfile,
         const CharacteristicProfile &newProfile) override
     {
-        ffrt_this_task_set_legacy_mode(true);
         std::string udid = newProfile.GetDeviceId();
         std::string status = newProfile.GetCharacteristicValue();
         if (g_onProfileUpdateCallback != nullptr) {

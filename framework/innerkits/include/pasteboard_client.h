@@ -497,6 +497,13 @@ public:
      */
     int32_t HandleSignalValue(const std::string &signalValue);
 
+    /**
+     * ReleaseSaListener
+     * @description Release Sa Listener.
+     * @returns void
+     */
+    void ReleaseSaListener();
+
 protected:
     friend class SystemAbilityListener;
     void Resubscribe();

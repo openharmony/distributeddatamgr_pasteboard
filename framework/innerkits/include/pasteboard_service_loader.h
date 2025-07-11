@@ -40,6 +40,7 @@ public:
     sptr<IPasteboardService> GetPasteboardService();
     sptr<IPasteboardService> GetPasteboardServiceProxy();
     void SetPasteboardServiceProxy(const sptr<IRemoteObject> &remoteObject);
+    void ReleaseDeathRecipient();
     int32_t GetRecordValueByType(uint32_t dataId, uint32_t recordId, PasteDataEntry& value);
     void OnRemoteSaDied(const wptr<IRemoteObject> &object);
     void LoadSystemAbilityFail();

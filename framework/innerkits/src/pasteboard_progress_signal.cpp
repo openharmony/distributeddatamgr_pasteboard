@@ -19,21 +19,14 @@
 
 namespace OHOS {
 namespace MiscServices {
-std::mutex ProgressSignalClient::mutex_;
-ProgressSignalClient *ProgressSignalClient::instance_ = nullptr;
-
 ProgressSignalClient &ProgressSignalClient::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        instance_ = new ProgressSignalClient();
-    }
-    return *instance_;
+    static ProgressSignalClient instance;
+    return instance;
 }
 
 void ProgressSignalClient::Init()
 {
-    instance_ = nullptr;
     needCancel_.store(false);
     remoteTask_.store(false);
 }

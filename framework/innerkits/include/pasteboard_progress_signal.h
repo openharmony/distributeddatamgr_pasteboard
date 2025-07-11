@@ -35,8 +35,6 @@ private:
     DISALLOW_COPY_AND_MOVE(ProgressSignalClient);
     std::atomic_bool needCancel_{ false };
     std::atomic_bool remoteTask_{ false };
-    static std::mutex mutex_;
-    static ProgressSignalClient *instance_;
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -17,6 +17,7 @@
 #include "paste_data.h"
 
 #include "int_wrapper.h"
+#include "ipc_skeleton.h"
 #include "long_wrapper.h"
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
@@ -55,6 +56,8 @@ enum TAG_PROPERTY : uint16_t {
 std::string PasteData::WEBVIEW_PASTEDATA_TAG = "WebviewPasteDataTag";
 const char *REMOTE_FILE_SIZE = "remoteFileSize";
 const char *REMOTE_FILE_SIZE_LONG = "remoteFileSizeLong";
+constexpr int32_t SUB_PASTEID_NUM = 3;
+constexpr int32_t PASTEID_MAX_SIZE = 1024;
 
 PasteData::PasteData()
 {
@@ -766,6 +769,52 @@ void PasteData::ShareOptionToString(ShareOption shareOption, std::string &out)
     } else {
         out = "CrossDevice";
     }
+}
+
+std::string PasteData::CreatePasteId(const std::string &name, uint32_t sequence)
+{
+    std::string currentId = name + "_" + std::to_string(getpid()) + "_" + std::to_string(sequence);
+    return currentId;
+}
+
+bool PasteData::IsValidShareOption(int32_t shareOption)
+{
+    switch (static_cast<ShareOption>(shareOption)) {
+        case ShareOption::InApp:
+            [[fallthrough]];
+        case ShareOption::LocalDevice:
+            [[fallthrough]];
+        case ShareOption::CrossDevice:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool PasteData::IsValidPasteId(const std::string &pasteId)
+{
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!pasteId.empty() && pasteId.size() < PASTEID_MAX_SIZE, false,
+        PASTEBOARD_MODULE_SERVICE, "calling pid mismatch");
+    std::vector<std::string> subStrs;
+    size_t pos = 0;
+    size_t delimiterPos;
+    while ((delimiterPos = pasteId.find('_', pos)) != std::string::npos) {
+        subStrs.push_back(pasteId.substr(pos, delimiterPos - pos));
+        pos = delimiterPos + 1;
+    }
+    subStrs.push_back(pasteId.substr(pos));
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(subStrs.size() == SUB_PASTEID_NUM, false, PASTEBOARD_MODULE_SERVICE,
+        "pasteId pattern mismatch, pasteId=%{public}s", pasteId.c_str());
+    std::string callPid = std::to_string(IPCSkeleton::GetCallingPid());
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        callPid == subStrs[1], false, PASTEBOARD_MODULE_SERVICE, "calling pid mismatch");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        !subStrs[SUB_PASTEID_NUM - 1].empty(), false, PASTEBOARD_MODULE_SERVICE, "suffix is empty");
+    for (const char &character : subStrs[SUB_PASTEID_NUM - 1]) {
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(character >= '0' && character <= '9', false, PASTEBOARD_MODULE_SERVICE,
+            "pasteId pattern mismatch, pasteId=%{public}s", pasteId.c_str());
+    }
+    return true;
 }
 
 std::string PasteData::GetDeviceId() const

@@ -23,6 +23,7 @@
 
 namespace OHOS {
 namespace MiscServices {
+constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 sptr<AppExecFwk::IBundleMgr> PasteBoardCommon::GetAppBundleManager(void)
 {
     auto sysAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -78,6 +79,13 @@ int32_t PasteBoardCommon::GetDirByBundleNameAndAppIndex(const std::string &bundl
         "Get dir failed, bundleName:%{public}s, appIndex:%{public}d, ret:%{public}d",
         bundleName.c_str(), appIndex, ret);
     return ERR_OK;
+}
+
+bool PasteBoardCommon::IsValidMimeType(const std::string &mimeType)
+{
+    const bool isNonEmpty = !mimeType.empty();
+    const bool withinSizeLimit = mimeType.size() <= MIMETYPE_MAX_SIZE;
+    return isNonEmpty && withinSizeLimit;
 }
 } // namespace MiscServices
 } // namespace OHOS
