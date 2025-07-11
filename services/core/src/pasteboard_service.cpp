@@ -625,7 +625,7 @@ int32_t PasteboardService::GetRecordValueByType(uint32_t dataId, uint32_t record
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         auto actualSize = AshmemGetSize(fd);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(actualSize >= 0 && rawDataSize <= actualSize,
-            static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+            static_cast<int32_t>(PasteboardError::INVALID_DATA_SIZE), PASTEBOARD_MODULE_SERVICE,
             "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
         void *ptr = ::mmap(nullptr, rawDataSize, PROT_READ, MAP_SHARED, fd, 0);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ptr != MAP_FAILED,
@@ -2222,9 +2222,12 @@ int32_t PasteboardService::WritePasteData(
 {
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         auto actualSize = AshmemGetSize(fd);
-        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(actualSize >= 0 && rawDataSize <= actualSize,
-            static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
-            "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
+        if (actualSize < 0 || rawDataSize > actualSize) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
+            CloseSharedMemFd(fd);
+            return static_cast<int32_t>(PasteboardError::INVALID_DATA_SIZE);
+        }
         void *ptr = ::mmap(nullptr, rawDataSize, PROT_READ, MAP_SHARED, fd, 0);
         if (ptr == MAP_FAILED) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mmap failed, size:%{public}" PRId64, rawDataSize);

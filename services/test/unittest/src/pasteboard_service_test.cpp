@@ -5677,16 +5677,9 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest001, TestSize.Level0)
     ASSERT_TRUE(result);
     rawDataSize = static_cast<int64_t>(buffer.size());
     MessageParcelWarp messageData;
-    MessageParcel parcelData;
-    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
-        result = messageData.WriteRawData(parcelData, buffer.data(), buffer.size());
-        ASSERT_TRUE(result);
-        fd = messageData.GetWriteDataFd();
-        buffer.clear();
-    } else {
-        fd = messageData.CreateTmpFd();
-        ASSERT_TRUE(FD >= 0);
-    }
+    ASSERT_TRUE(rawDataSize <= MIN_ASHMEM_DATA_SIZE);
+    fd = messageData.CreateTmpFd();
+    ASSERT_TRUE(FD >= 0);
     auto tempPasteboard = std::make_shared<PasteboardService>();
     auto ret = tempPasteboard->WritePasteData(fd, rawDataSize, buffer, output, hasData);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
@@ -5709,7 +5702,7 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
 
     PasteData input;
     std::string text = "test";
-    for (int i = 0; i< INT_THREETHREETHREE; ++i) {
+    for (int i = 0; i < INT_THREETHREETHREE; ++i) {
         text += TEST_ENTITY_TEXT;
     }
     input.AddTextRecord(text);
@@ -5718,15 +5711,11 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
     rawDataSize = static_cast<int64_t>(buffer.size());
     MessageParcelWarp messageData;
     MessageParcel parcelData;
-    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
-        result = messageData.WriteRawData(parcelData, buffer.data(), buffer.size());
-        ASSERT_TRUE(result);
-        fd = messageData.GetWriteDataFd();
-        buffer.clear();
-    } else {
-        fd = messageData.CreateTmpFd();
-        ASSERT_TRUE(FD >= 0);
-    }
+    ASSERT_TRUE(rawDataSize > MIN_ASHMEM_DATA_SIZE);
+    result = messageData.WriteRawData(parcelData, buffer.data(), buffer.size());
+    ASSERT_TRUE(result);
+    fd = messageData.GetWriteDataFd();
+    buffer.clear();
     auto tempPasteboard = std::make_shared<PasteboardService>();
     auto ret = tempPasteboard->WritePasteData(fd, rawDataSize, buffer, output, hasData);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
@@ -5749,7 +5738,7 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
 
     PasteData input;
     std::string text = "test";
-    for (int i = 0; i< INT_THREETHREETHREE; ++i) {
+    for (int i = 0; i < INT_THREETHREETHREE; ++i) {
         text += TEST_ENTITY_TEXT;
     }
     input.AddTextRecord(text);
@@ -5758,18 +5747,14 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
     rawDataSize = static_cast<int64_t>(buffer.size() + 1);
     MessageParcelWarp messageData;
     MessageParcel parcelData;
-    if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
-        result = messageData.WriteRawData(parcelData, buffer.data(), buffer.size());
-        ASSERT_TRUE(result);
-        fd = messageData.GetWriteDataFd();
-        buffer.clear();
-    } else {
-        fd = messageData.CreateTmpFd();
-        ASSERT_TRUE(FD >= 0);
-    }
+    ASSERT_TRUE(rawDataSize > MIN_ASHMEM_DATA_SIZE);
+    result = messageData.WriteRawData(parcelData, buffer.data(), buffer.size());
+    ASSERT_TRUE(result);
+    fd = messageData.GetWriteDataFd();
+    buffer.clear();
     auto tempPasteboard = std::make_shared<PasteboardService>();
     auto ret = tempPasteboard->WritePasteData(fd, rawDataSize, buffer, output, hasData);
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_DATA_SIZE), ret);
 }
 } // namespace MiscServices
 } // namespace OHOS

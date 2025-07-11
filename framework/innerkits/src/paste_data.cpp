@@ -808,7 +808,9 @@ bool PasteData::IsValidPasteId(const std::string &pasteId)
     std::string callPid = std::to_string(IPCSkeleton::GetCallingPid());
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
         callPid == subStrs[1], false, PASTEBOARD_MODULE_SERVICE, "calling pid mismatch");
-    for (const char &character : subStrs[2]) {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        !subStrs[SUB_PASTEID_NUM - 1].empty(), false, PASTEBOARD_MODULE_SERVICE, "suffix is empty");
+    for (const char &character : subStrs[SUB_PASTEID_NUM - 1]) {
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(character >= '0' && character <= '9', false, PASTEBOARD_MODULE_SERVICE,
             "pasteId pattern mismatch, pasteId=%{public}s", pasteId.c_str());
     }
