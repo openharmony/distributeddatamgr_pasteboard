@@ -77,6 +77,21 @@ class MyTestEntityRecognitionObserver : public IEntityRecognitionObserver {
     }
 };
 
+class MyTestPasteboardChangedObserver : public IPasteboardChangedObserver {
+    void OnPasteboardChanged()
+    {
+        return;
+    }
+    void OnPasteboardEvent(std::string bundleName, int32_t status)
+    {
+        return;
+    }
+    sptr<IRemoteObject> AsObject()
+    {
+        return nullptr;
+    }
+};
+
 static int g_recordValueByType = static_cast<int32_t>(PasteboardError::E_OK);
 class PasteboardEntryGetterImpl : public IPasteboardEntryGetter {
     public:
@@ -3407,7 +3422,7 @@ HWTEST_F(PasteboardServiceTest, ResubscribeObserver001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     auto type = PasteboardObserverType::OBSERVER_LOCAL;
-    auto observer = std::make_shared<IPasteboardChangedObserver>();
+    const sptr<IPasteboardChangedObserver> observer = sptr<MyTestPasteboardChangedObserver>::MakeSptr();
 
     int32_t res = tempPasteboard->ResubscribeObserver(type, observer);
     EXPECT_EQ(res, ERR_OK);
@@ -3424,7 +3439,7 @@ HWTEST_F(PasteboardServiceTest, ResubscribeObserver002, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     auto type = PasteboardObserverType::OBSERVER_LOCAL;
-    auto observer = std::make_shared<IPasteboardChangedObserver>();
+    const sptr<IPasteboardChangedObserver> observer = sptr<MyTestPasteboardChangedObserver>::MakeSptr();
 
     NiceMock<PasteboardServiceInterfaceMock> mock;
     EXPECT_CALL(mock, GetTokenTypeFlag).WillRepeatedly(Return(ATokenTypeEnum::TOKEN_HAP));

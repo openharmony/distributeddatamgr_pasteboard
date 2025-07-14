@@ -177,12 +177,14 @@ public:
     void RevokeAndClearUri(std::shared_ptr<PasteData> pasteData);
 
 private:
+    bool isCritical_ = false;
     std::mutex saMutex_;
     using Event = ClipPlugin::GlobalEvent;
     using GetProcessorFunc = IPasteDataProcessor& (*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
         WINDOW_MANAGER_SERVICE_ID, MEMORY_MANAGER_SA_ID, DISTRIBUTED_DEVICE_PROFILE_SA_ID };
     static constexpr const char *PLUGIN_NAME = "distributed_clip";
+    static constexpr const char *SET_CRITICAL_ID = "pasteboard_service_set_critical_id";
     static constexpr uint32_t PLAIN_INDEX = 0;
     static constexpr uint32_t HTML_INDEX = 1;
     static constexpr uint32_t URI_INDEX = 2;
@@ -207,6 +209,7 @@ private:
     static const std::string UNREGISTER_PRESYNC_MONITOR;
     static const std::string P2P_ESTABLISH_STR;
     static const std::string P2P_PRESYNC_ID;
+    int32_t agedTime_ = ONE_HOUR_MINUTES * MINUTES_TO_MILLISECONDS; // 1 hour
     bool SetPasteboardHistory(HistoryInfo &info);
     bool IsFocusedApp(uint32_t tokenId);
     void InitBundles(Loader &loader);
@@ -385,6 +388,9 @@ private:
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+    void UpdateAgedTime();
+    void CancelCriticalTimer();
+    void SetCriticalTimer();
     void OnAddDeviceManager();
     void OnAddMemoryManager();
     void OnAddDeviceProfile();

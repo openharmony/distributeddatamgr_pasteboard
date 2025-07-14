@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <unistd.h>
 #include "ipc_skeleton.h"
 #include "message_parcel_warp.h"
 #include "pasteboard_error.h"
@@ -56,6 +57,7 @@ const std::string TEST_ENTITY_TEXT =
     "然风光和文化底蕴，感受人间天堂的独特魅力。";
 const int64_t DEFAULT_MAX_RAW_DATA_SIZE = 128 * 1024 * 1024;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
+static constexpr uint64_t ONE_HOUR_MILLISECONDS = 60 * 60 * 1000;
 } // namespace
 
 class MyTestEntityRecognitionObserver : public IEntityRecognitionObserver {
@@ -146,6 +148,7 @@ public:
     int32_t WritePasteData(PasteData &pasteData, std::vector<uint8_t> &buffer, int &fd,
         int64_t &tlvSize, MessageParcelWarp &messageData, MessageParcel &parcelPata);
     using TestEvent = ClipPlugin::GlobalEvent;
+    using TaskContext = PasteboardService::RemoteDataTaskManager::TaskContext;
 };
 
 void PasteboardServiceTest::SetUpTestCase(void) { }
@@ -1016,12 +1019,10 @@ HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest002, TestSize.Level0)
 {
-    int32_t systemAbilityId = 1;
-    const std::string deviceId = "test_string";
     auto tempPasteboard = std::make_shared<PasteboardService>();
-    tempPasteboard->ServiceListenerFuncs_[systemAbilityId] = nullptr;
     EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->OnAddSystemAbility(systemAbilityId, deviceId);
+    const std::string deviceId = "test_string";
+    tempPasteboard->OnAddSystemAbility(static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID), deviceId);
 }
 
 /**
@@ -1030,19 +1031,6 @@ HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest002, TestSize.Level0)
  * @tc.type: FUNC
  */
 HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest003, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    const std::string deviceId = "test_string";
-    tempPasteboard->OnAddSystemAbility(static_cast<int32_t>(DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID), deviceId);
-}
-
-/**
- * @tc.name: OnAddSystemAbilityTest004
- * @tc.desc:
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest004, TestSize.Level0)
 {
     auto pbs = std::make_shared<PasteboardService>();
     EXPECT_NE(pbs, nullptr);
@@ -1175,6 +1163,103 @@ HWTEST_F(PasteboardServiceTest, OnAddMemoryManagerTest001, TestSize.Level0)
     tempPasteboard->OnAddMemoryManager();
 }
 
+/**
+ * @tc.name: SetCriticalTimerTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetCriticalTimerTest001, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetCriticalTimerTest001 start");
+    constexpr int32_t userId = 111;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->OnAddMemoryManager();
+    tempPasteboard->SetCriticalTimer();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetCriticalTimerTest001 end");
+}
+
+/**
+ * @tc.name: SetCriticalTimerTest002
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetCriticalTimerTest002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetCriticalTimerTest002 start");
+    constexpr int32_t userId = 111;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->ffrtTimer_ = nullptr;
+    tempPasteboard->SetCriticalTimer();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetCriticalTimerTest002 end");
+}
+
+/**
+ * @tc.name: SetCriticalTimerTest003
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetCriticalTimerTest003, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetCriticalTimerTest003 start");
+    constexpr int32_t userId = 111;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->OnAddMemoryManager();
+    tempPasteboard->isCritical_ = true;
+    tempPasteboard->SetCriticalTimer();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetCriticalTimerTest003 end");
+}
+
+/**
+ * @tc.name: SetCriticalTimerTest004
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetCriticalTimerTest004, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetCriticalTimerTest004 start");
+    constexpr int32_t userId = 111;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->OnAddMemoryManager();
+    tempPasteboard->isCritical_ = false;
+    tempPasteboard->SetCriticalTimer();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetCriticalTimerTest004 end");
+}
+
+/**
+ * @tc.name: CancelCriticalTimerTest001
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, CancelCriticalTimerTest001, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CancelCriticalTimerTest001 start");
+    constexpr int32_t userId = 111;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->OnAddMemoryManager();
+    tempPasteboard->CancelCriticalTimer();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CancelCriticalTimerTest001 end");
+}
+
+/**
+ * @tc.name: CancelCriticalTimerTest002
+ * @tc.desc:
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, CancelCriticalTimerTest002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CancelCriticalTimerTest002 start");
+    constexpr int32_t userId = 111;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->ffrtTimer_ = nullptr;
+    tempPasteboard->CancelCriticalTimer();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CancelCriticalTimerTest002 end");
+}
 /**
  * @tc.name: ReportUeCopyEventTest001
  * @tc.desc:
@@ -1646,7 +1731,7 @@ HWTEST_F(PasteboardServiceTest, SetLocalPasteFlag001, TestSize.Level0)
 
 /**
  * @tc.name: GetRemoteDataTask001
- * @tc.desc: GetRemoteDataTask001
+ * @tc.desc: test Func GetRemoteDataTask
  * @tc.type: FUNC
  */
 HWTEST_F(PasteboardServiceTest, GetRemoteDataTask001, TestSize.Level0)
@@ -1659,8 +1744,29 @@ HWTEST_F(PasteboardServiceTest, GetRemoteDataTask001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetRemoteDataTask002
+ * @tc.desc: test Func GetRemoteDataTask
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetRemoteDataTask002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService::RemoteDataTaskManager> remoteDataTaskManager =
+        std::make_shared<PasteboardService::RemoteDataTaskManager>();
+    EXPECT_NE(remoteDataTaskManager, nullptr);
+    TestEvent event;
+    event.deviceId = "12345";
+    event.seqId = 1;
+
+    auto key = event.deviceId + std::to_string(event.seqId);
+    auto it = remoteDataTaskManager->dataTasks_.find(key);
+    it = remoteDataTaskManager->dataTasks_.emplace(key, std::make_shared<TaskContext>()).first;
+
+    remoteDataTaskManager->GetRemoteDataTask(event);
+}
+
+/**
  * @tc.name: Notify001
- * @tc.desc: Notify001
+ * @tc.desc: test Func Notify
  * @tc.type: FUNC
  */
 HWTEST_F(PasteboardServiceTest, Notify001, TestSize.Level0)
@@ -1669,12 +1775,35 @@ HWTEST_F(PasteboardServiceTest, Notify001, TestSize.Level0)
         std::make_shared<PasteboardService::RemoteDataTaskManager>();
     EXPECT_NE(remoteDataTaskManager, nullptr);
     TestEvent event;
-    remoteDataTaskManager->GetRemoteDataTask(event);
+    std::shared_ptr<PasteDateTime> data;
+    remoteDataTaskManager->Notify(event, data);
+}
+
+/**
+ * @tc.name: Notify002
+ * @tc.desc: test Func Notify
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, Notify002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService::RemoteDataTaskManager> remoteDataTaskManager =
+        std::make_shared<PasteboardService::RemoteDataTaskManager>();
+    EXPECT_NE(remoteDataTaskManager, nullptr);
+    TestEvent event;
+    event.deviceId = "12345";
+    event.seqId = 1;
+
+    auto key = event.deviceId + std::to_string(event.seqId);
+    auto it = remoteDataTaskManager->dataTasks_.find(key);
+    it = remoteDataTaskManager->dataTasks_.emplace(key, std::make_shared<TaskContext>()).first;
+
+    std::shared_ptr<PasteDateTime> data;
+    remoteDataTaskManager->Notify(event, data);
 }
 
 /**
  * @tc.name: WaitRemoteData001
- * @tc.desc: WaitRemoteData001
+ * @tc.desc: test Func WaitRemoteData
  * @tc.type: FUNC
  */
 HWTEST_F(PasteboardServiceTest, WaitRemoteData001, TestSize.Level0)
@@ -1683,6 +1812,27 @@ HWTEST_F(PasteboardServiceTest, WaitRemoteData001, TestSize.Level0)
         std::make_shared<PasteboardService::RemoteDataTaskManager>();
     EXPECT_NE(remoteDataTaskManager, nullptr);
     TestEvent event;
+    remoteDataTaskManager->WaitRemoteData(event);
+}
+
+/**
+ * @tc.name: WaitRemoteData002
+ * @tc.desc: test Func WaitRemoteData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, WaitRemoteData002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService::RemoteDataTaskManager> remoteDataTaskManager =
+        std::make_shared<PasteboardService::RemoteDataTaskManager>();
+    EXPECT_NE(remoteDataTaskManager, nullptr);
+    TestEvent event;
+    event.deviceId = "12345";
+    event.seqId = 1;
+
+    auto key = event.deviceId + std::to_string(event.seqId);
+    auto it = remoteDataTaskManager->dataTasks_.find(key);
+    it = remoteDataTaskManager->dataTasks_.emplace(key, std::make_shared<TaskContext>()).first;
+
     remoteDataTaskManager->WaitRemoteData(event);
 }
 
@@ -1702,7 +1852,7 @@ HWTEST_F(PasteboardServiceTest, ClearRemoteDataTask001, TestSize.Level0)
 
 /**
  * @tc.name: GetRemoteData001
- * @tc.desc: GetRemoteData001
+ * @tc.desc: test Func GetRemoteData
  * @tc.type: FUNC
  */
 HWTEST_F(PasteboardServiceTest, GetRemoteData001, TestSize.Level0)
@@ -1713,7 +1863,51 @@ HWTEST_F(PasteboardServiceTest, GetRemoteData001, TestSize.Level0)
     TestEvent event;
     PasteData data;
     int32_t syncTime = 1000;
-    tempPasteboard->GetRemoteData(userId, event, data, syncTime);
+    auto ret = tempPasteboard->GetRemoteData(userId, event, data, syncTime);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PLUGIN_IS_NULL));
+}
+
+/**
+ * @tc.name: GetRemoteData002
+ * @tc.desc: test Func GetRemoteData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetRemoteData002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t userId = 0x123456;
+    TestEvent event;
+    PasteData data;
+    int32_t syncTime = 1000;
+
+    PasteData pasteData;
+    tempPasteboard->clips_.InsertOrAssign(userId, std::make_shared<PasteData>(pasteData));
+    auto ret = tempPasteboard->GetRemoteData(userId, event, data, syncTime);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: GetRemoteData003
+ * @tc.desc: test Func GetRemoteData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetRemoteData003, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t userId = 0x123456;
+    TestEvent event;
+    PasteData data;
+    int32_t syncTime = 1000;
+    event.seqId = 1;
+
+    PasteData pasteData;
+    tempPasteboard->clips_.InsertOrAssign(userId, std::make_shared<PasteData>(pasteData));
+    auto ret = tempPasteboard->GetRemoteData(userId, event, data, syncTime);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
 /**
@@ -3577,7 +3771,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest002, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3612,7 +3806,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest003, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3647,7 +3841,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest004, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3682,7 +3876,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest005, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3718,7 +3912,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest006, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3754,7 +3948,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest007, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3790,7 +3984,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest008, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3826,7 +4020,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest009, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3862,7 +4056,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0010, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3898,7 +4092,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0011, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3935,7 +4129,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0012, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -3972,7 +4166,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0013, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4009,7 +4203,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0014, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4046,7 +4240,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0015, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4083,7 +4277,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0016, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4120,7 +4314,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0017, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4157,7 +4351,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0018, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4194,7 +4388,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0019, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4231,7 +4425,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0020, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4268,7 +4462,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0021, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4305,7 +4499,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0022, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4342,7 +4536,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0023, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4380,7 +4574,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0024, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4418,7 +4612,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0025, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4456,7 +4650,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0026, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4494,7 +4688,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0027, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4532,7 +4726,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0028, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4570,7 +4764,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0029, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4608,7 +4802,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0030, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4646,7 +4840,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0031, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4684,7 +4878,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0032, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4722,7 +4916,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0033, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4760,7 +4954,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0034, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4798,7 +4992,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0035, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4830,7 +5024,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0036, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4866,7 +5060,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0037, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4902,7 +5096,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0038, TestSize.Level0)
     sptr<IPasteboardEntryGetter> entryGetter = nullptr;
 
     int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(fd, tlvSize, pasteDataTlv, delayGetter, entryGetter);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
 
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
@@ -4943,6 +5137,40 @@ HWTEST_F(PasteboardServiceTest, GetAppBundleNameTest001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: GetAppBundleNameTest002
+ * @tc.desc: test Func GetAppBundleName
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetAppBundleNameTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = 0;
+    appInfo.bundleName = "test";
+    auto ret = tempPasteboard->GetAppBundleName(appInfo);
+    EXPECT_EQ(ret, appInfo.bundleName);
+}
+
+/**
+ * @tc.name: GetAppBundleNameTest003
+ * @tc.desc: test Func GetAppBundleName
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetAppBundleNameTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = ERROR_USERID;
+    appInfo.bundleName = "test";
+    auto ret = tempPasteboard->GetAppBundleName(appInfo);
+    EXPECT_EQ(ret, "error");
+}
+
+/**
  * @tc.name: GetAppInfoTest001
  * @tc.desc: test Func GetAppInfo
  * @tc.type: FUNC
@@ -4966,7 +5194,106 @@ HWTEST_F(PasteboardServiceTest, IsDataAgedTest001, TestSize.Level0)
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
-    tempPasteboard->IsDataAged();
+    bool ret = tempPasteboard->IsDataAged();
+    EXPECT_EQ(ret, true);
+}
+
+/**
+ * @tc.name: IsDataAgedTest002
+ * @tc.desc: test Func IsDataAged
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsDataAgedTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = tempPasteboard->GetCurrentAccountId();
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto copyTime = curTime;
+    tempPasteboard->copyTime_.InsertOrAssign(userId, copyTime);
+
+    bool ret = tempPasteboard->IsDataAged();
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: IsDataAgedTest003
+ * @tc.desc: test Func IsDataAged
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsDataAgedTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = tempPasteboard->GetCurrentAccountId();
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto copyTime = curTime - ONE_HOUR_MILLISECONDS;
+    tempPasteboard->copyTime_.InsertOrAssign(userId, copyTime);
+
+    bool ret = tempPasteboard->IsDataAged();
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: IsDataAgedTest004
+ * @tc.desc: test Func IsDataAged
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsDataAgedTest004, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = tempPasteboard->GetCurrentAccountId();
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto copyTime = curTime - ONE_HOUR_MILLISECONDS - ONE_HOUR_MILLISECONDS;
+    tempPasteboard->copyTime_.InsertOrAssign(userId, copyTime);
+
+    bool ret = tempPasteboard->IsDataAged();
+    EXPECT_EQ(ret, true);
+}
+
+/**
+ * @tc.name: IsDataAgedTest005
+ * @tc.desc: test Func IsDataAged
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsDataAgedTest005, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = tempPasteboard->GetCurrentAccountId();
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto copyTime = curTime + ONE_HOUR_MILLISECONDS;
+    tempPasteboard->copyTime_.InsertOrAssign(userId, copyTime);
+
+    bool ret = tempPasteboard->IsDataAged();
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: IsDataAgedTest006
+ * @tc.desc: test Func IsDataAged
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsDataAgedTest006, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto userId = tempPasteboard->GetCurrentAccountId();
+    auto curTime = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+    auto copyTime = curTime - ONE_HOUR_MILLISECONDS - ONE_HOUR_MILLISECONDS;
+    tempPasteboard->copyTime_.InsertOrAssign(userId, copyTime);
+
+    PasteData pasteData;
+    tempPasteboard->clips_.InsertOrAssign(userId, std::make_shared<PasteData>(pasteData));
+
+    bool ret = tempPasteboard->IsDataAged();
+    EXPECT_EQ(ret, true);
 }
 
 /**
@@ -4995,7 +5322,79 @@ HWTEST_F(PasteboardServiceTest, IsDataValidTest001, TestSize.Level0)
 
     PasteData pasteData;
     uint32_t tokenId = 0x123456;
-    tempPasteboard->IsDataValid(pasteData, tokenId);
+    int32_t ret = tempPasteboard->IsDataValid(pasteData, tokenId);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::DATA_EXPIRED_ERROR));
+}
+
+/**
+ * @tc.name: IsDataValidTest002
+ * @tc.desc: test Func IsDataValid
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsDataValidTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+    ScreenEvent screenEvent = ScreenEvent::ScreenUnlocked;
+    pasteData.SetScreenStatus(screenEvent);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    uint32_t tokenId = 0x123456;
+    ret = tempPasteboard->IsDataValid(pasteData, tokenId);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::CROSS_BORDER_ERROR));
+}
+
+/**
+ * @tc.name: IsDataValidTest003
+ * @tc.desc: test Func IsDataValid
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, IsDataValidTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::InApp;
+    pasteData.SetShareOption(shareOption);
+
+    uint32_t tokenId = 0x123456;
+    pasteData.SetTokenId(tokenId);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    ret = tempPasteboard->IsDataValid(pasteData, tokenId);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 }
 
 /**
@@ -5669,24 +6068,6 @@ HWTEST_F(PasteboardServiceTest, GetPasteDataTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: SetPasteDataTest001
- * @tc.desc: SetPasteDataTest
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardServiceTest, SetPasteDataTest001, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    int32_t syncTime = 0;
-    int fd = -1;
-    int64_t rawDataSize = 0;
-    std::vector<uint8_t> recvTLV;
-    auto ret = tempPasteboard->SetPasteData(fd, rawDataSize, recvTLV, nullptr, nullptr);
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
-}
-
-/**
  * @tc.name: WritePasteDataTest001
  * @tc.desc: WritePasteDataTest
  * @tc.type: FUNC
@@ -5709,7 +6090,7 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest001, TestSize.Level0)
     MessageParcelWarp messageData;
     ASSERT_TRUE(rawDataSize <= MIN_ASHMEM_DATA_SIZE);
     fd = messageData.CreateTmpFd();
-    ASSERT_TRUE(FD >= 0);
+    ASSERT_TRUE(fd >= 0);
     auto tempPasteboard = std::make_shared<PasteboardService>();
     auto ret = tempPasteboard->WritePasteData(fd, rawDataSize, buffer, output, hasData);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
@@ -5752,13 +6133,13 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: WritePasteDataTest002
+ * @tc.name: WritePasteDataTest003
  * @tc.desc: WritePasteDataTest
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, WritePasteDataTest003, TestSize.Level0)
 {
     int fd = -1;
     int64_t rawDataSize = 0;
