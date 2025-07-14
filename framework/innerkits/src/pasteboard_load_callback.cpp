@@ -14,6 +14,7 @@
  */
 
 #include "pasteboard_load_callback.h"
+#include "pasteboard_client.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_service_loader.h"
 

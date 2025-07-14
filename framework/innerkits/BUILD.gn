@@ -147,7 +147,7 @@ ohos_shared_library("pasteboard_client") {
     "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
     "src/pasteboard_progress_signal.cpp",
-    "src/pasteboard_sa_callback.cpp",
+    "src/pasteboard_samgr_listener.cpp",
     "src/pasteboard_service_loader.cpp",
     "src/pasteboard_signal_callback.cpp",
     "src/pasteboard_utils.cpp",

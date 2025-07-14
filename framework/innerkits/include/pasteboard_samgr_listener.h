@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace MiscServices {
-class SystemAbilityListener : public SystemAbilityStatusChangeStub {
+class PasteboardSamgrListener : public SystemAbilityStatusChangeStub {
 public:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;

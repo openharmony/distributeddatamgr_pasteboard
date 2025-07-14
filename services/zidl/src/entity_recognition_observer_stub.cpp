@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,15 +39,14 @@ int32_t EntityRecognitionObserverStub::OnRemoteRequest(
         return static_cast<int32_t>(PasteboardError::CHECK_DESCRIPTOR_ERROR);
     }
     auto itFunc = memberFuncMap_.find(code);
-    if (itFunc != memberFuncMap_.end()) {
-        auto memberFunc = itFunc->second;
-        if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
-        }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(itFunc != memberFuncMap_.end(),
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "Not found error, code=%{public}u", code);
+    auto memberFunc = itFunc->second;
+    if (memberFunc != nullptr) {
+        return (this->*memberFunc)(data, reply);
     }
-    int ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end##ret = %{public}d", ret);
-    return ret;
+    return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
 }
 
 int32_t EntityRecognitionObserverStub::OnRecognitionEventStub(MessageParcel &data, MessageParcel &reply)

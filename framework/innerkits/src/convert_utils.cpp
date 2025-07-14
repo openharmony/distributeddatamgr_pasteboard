@@ -173,7 +173,11 @@ std::shared_ptr<std::vector<std::pair<std::string, UDMF::ValueType>>> ConvertUti
         if (udmfEntryMap.find(entry->GetUtdId()) == udmfEntryMap.end()) {
             entryUtdIds.emplace_back(entry->GetUtdId());
         }
-        udmfEntryMap.insert_or_assign(entry->GetUtdId(), Convert(entry, record));
+        auto udmfEntry = Convert(entry, record);
+        if (std::holds_alternative<nullptr_t>(udmfEntry)) {
+            continue;
+        }
+        udmfEntryMap.insert_or_assign(entry->GetUtdId(), udmfEntry);
     }
     for (auto const &utdId : entryUtdIds) {
         auto item = udmfEntryMap.find(utdId);
