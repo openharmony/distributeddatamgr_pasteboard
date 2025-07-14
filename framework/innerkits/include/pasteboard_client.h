@@ -74,12 +74,10 @@ struct GetDataParams {
     ProgressInfo *info;
 };
 
-class API_EXPORT PasteboardClient : public DelayedSingleton<PasteboardClient> {
-    DECLARE_DELAYED_SINGLETON(PasteboardClient);
-
+class API_EXPORT PasteboardClient {
 public:
     DISALLOW_COPY_AND_MOVE(PasteboardClient);
-
+    static PasteboardClient *GetInstance();
     /**
      * CreateHtmlTextRecord
      * @description Create Html Text Record.
@@ -509,6 +507,8 @@ protected:
     void Resubscribe();
 
 private:
+    PasteboardClient();
+    ~PasteboardClient();
     sptr<IPasteboardService> GetPasteboardService();
     static void GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params);
     static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
@@ -561,7 +561,7 @@ private:
             return l.first < r.first;
         }
     };
-    static std::set<std::pair<PasteboardObserverType, sptr<PasteboardObserver>>, classcomp> observerSet_;
+    std::set<std::pair<PasteboardObserverType, sptr<PasteboardObserver>>, classcomp> observerSet_;
 };
 } // namespace MiscServices
 } // namespace OHOS

@@ -78,8 +78,6 @@ bool operator==(const RadarReportIdentity &lhs, const RadarReportIdentity &rhs)
     return lhs.pid == rhs.pid && lhs.errorCode == rhs.errorCode;
 }
 
-std::set<std::pair<PasteboardObserverType, sptr<PasteboardObserver>>,
-    PasteboardClient::classcomp> PasteboardClient::observerSet_;
 PasteboardClient::PasteboardClient()
 {
     auto proxyService = GetPasteboardService();
@@ -90,6 +88,12 @@ PasteboardClient::PasteboardClient()
 
 PasteboardClient::~PasteboardClient()
 {
+}
+
+PasteboardClient *PasteboardClient::GetInstance()
+{
+    static PasteboardClient instance;
+    return &instance;
 }
 
 std::shared_ptr<PasteDataRecord> PasteboardClient::CreateHtmlTextRecord(const std::string &htmlText)
