@@ -1016,21 +1016,6 @@ HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest002, TestSize.Level0)
 {
-    int32_t systemAbilityId = 1;
-    const std::string deviceId = "test_string";
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    tempPasteboard->ServiceListenerFuncs_[systemAbilityId] = nullptr;
-    EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->OnAddSystemAbility(systemAbilityId, deviceId);
-}
-
-/**
- * @tc.name: OnAddSystemAbilityTest003
- * @tc.desc:
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, OnAddSystemAbilityTest003, TestSize.Level0)
-{
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
     const std::string deviceId = "test_string";

@@ -105,8 +105,7 @@ sptr<IDistributedDeviceProfile> DeviceProfileClient::LoadDeviceProfileService()
 
 void DeviceProfileClient::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject)
 {
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(remoteObject != nullptr, PASTEBOARD_MODULE_COMMON,
-        "remoteObject is null");
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(remoteObject != nullptr, PASTEBOARD_MODULE_COMMON, "remoteObject is null");
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "enter");
     std::lock_guard lock(serviceLock_);
@@ -132,11 +131,9 @@ void DeviceProfileClient::ClearDeviceProfileService()
 void DeviceProfileClient::SendSubscribeInfos()
 {
     auto dpService = GetDeviceProfileService();
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(dpService != nullptr, PASTEBOARD_MODULE_COMMON,
-        "get dp service failed");
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(dpService != nullptr, PASTEBOARD_MODULE_COMMON, "get dp service failed");
     std::lock_guard lock(subscribeLock_);
-    PASTEBOARD_CHECK_AND_RETURN_LOGI(!subscribeInfos_.empty(), PASTEBOARD_MODULE_COMMON,
-        "no subscribe info");
+    PASTEBOARD_CHECK_AND_RETURN_LOGI(!subscribeInfos_.empty(), PASTEBOARD_MODULE_COMMON, "no subscribe info");
     dpService->SendSubscribeInfos(subscribeInfos_);
 }
 
