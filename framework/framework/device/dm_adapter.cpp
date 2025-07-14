@@ -53,6 +53,10 @@ void DmStateObserver::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
 void DmStateObserver::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
 {
     // authForm not valid use networkId
+    if (online_ == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "online_ is null");
+        return;
+    }
     if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
         ffrt_this_task_set_legacy_mode(true);
         online_(deviceInfo);

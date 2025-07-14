@@ -74,6 +74,9 @@ public:
         }
 
         ListNode<T> *newNode = new ListNode<T>(value);
+        if (newNode == nullptr) {
+            return;
+        }
         newNode->next = head_->next;
         head_->next = newNode;
     }
