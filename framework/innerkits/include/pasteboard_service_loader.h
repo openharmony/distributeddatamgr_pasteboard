@@ -46,6 +46,7 @@ public:
     void LoadSystemAbilityFail();
     void LoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
     void ClearPasteboardServiceProxy();
+    void CleanupResource();
 
 private:
     PasteboardServiceLoader();
