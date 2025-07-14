@@ -956,6 +956,7 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
             HapTokenInfo hapInfo;
             if (AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo) != 0) {
                 PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get hap token info fail.");
+                info.userId = -1;
                 return info;
             }
             info.bundleName = hapInfo.bundleName;
