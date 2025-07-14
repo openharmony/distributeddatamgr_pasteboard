@@ -42,7 +42,7 @@ public:
     template<typename T>
     bool ReadValue(std::vector<T> &value, const TLVHead &head)
     {
-        if (cursor_ > UINT_MAX - head.len) {
+        if (cursor_ > UINT8_MAX - head.len) {
             return false;
         }
         auto vectorEnd = cursor_ + head.len;
