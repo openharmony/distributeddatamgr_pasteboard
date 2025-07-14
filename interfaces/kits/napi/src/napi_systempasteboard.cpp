@@ -889,7 +889,7 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ret = %{public}d", ret);
         std::shared_ptr<int32_t> value = std::make_shared<int32_t>(static_cast<int32_t>(ret));
         block->SetValue(value);
-        }, {}, {}, ffrt::task_attr().qos(static_cast<int32_t>(ffrt::qos_user_initiated)));
+        }, {}, {}, ffrt::task_attr().qos(static_cast<int32_t>(ffrt::qos_user_interactive)));
     auto value = block->GetValue();
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT,
                          "Excessive processing time for internal data.")) {
