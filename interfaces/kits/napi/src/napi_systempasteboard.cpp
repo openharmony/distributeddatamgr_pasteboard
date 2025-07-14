@@ -14,6 +14,7 @@
  */
 #include <thread>
 
+#include "ffrt/ffrt_utils.h"
 #include "napi_pasteboard_common.h"
 #include "pasteboard_app_event_dfx.h"
 #include "pasteboard_hilog.h"
@@ -883,13 +884,12 @@ napi_value SystemPasteboardNapi::HasDataType(napi_env env, napi_callback_info in
         return nullptr;
     }
     auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
-    std::thread thread([block, mimeType]() {
+    ffrt::submit([block, mimeType]() {
         auto ret = PasteboardClient::GetInstance()->HasDataType(mimeType);
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "ret = %{public}d", ret);
         std::shared_ptr<int32_t> value = std::make_shared<int32_t>(static_cast<int32_t>(ret));
         block->SetValue(value);
-    });
-    thread.detach();
+        }, {}, {}, ffrt::task_attr().qos(static_cast<int32_t>(ffrt::qos_user_interactive)));
     auto value = block->GetValue();
     if (!CheckExpression(env, value != nullptr, JSErrorCode::REQUEST_TIME_OUT,
                          "Excessive processing time for internal data.")) {
