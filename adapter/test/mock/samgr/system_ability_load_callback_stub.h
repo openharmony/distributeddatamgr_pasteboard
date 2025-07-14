@@ -38,7 +38,7 @@ public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ISystemAbilityLoadCallback");
 };
 
-class SystemAbilityCallbackStub : public IRemoteStub<ISystemAbilityLoadCallback> {
+class SystemAbilityLoadCallbackStub : public IRemoteStub<ISystemAbilityLoadCallback> {
 public:
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override
     {

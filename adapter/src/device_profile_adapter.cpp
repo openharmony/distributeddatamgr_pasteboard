@@ -134,7 +134,6 @@ public:
         std::string udid = newProfile.GetDeviceId();
         std::string status = newProfile.GetCharacteristicValue();
         if (g_onProfileUpdateCallback != nullptr) {
-            g_onProfileUpdateCallback(udid, status == STATUS_ENABLE);
             std::thread thread(g_onProfileUpdateCallback, udid, status == STATUS_ENABLE);
             thread.detach();
         }

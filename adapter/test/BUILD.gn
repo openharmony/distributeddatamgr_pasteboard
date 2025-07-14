@@ -14,9 +14,10 @@
 import("//build/test.gni")
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
-module_out_path = "pasteboard/pasteboard"
+module_output_path = "pasteboard/pasteboard"
 
 ohos_unittest("AdapterDeviceProfileClientTest") {
+  module_out_path = module_output_path
 
   cflags = [ "-fno-access-control" ]
 
@@ -46,5 +47,5 @@ ohos_unittest("AdapterDeviceProfileClientTest") {
 group("unittest") {
   testonly = true
 
-  deps = [ "AdapterDeviceProfileClientTest" ]
+  deps = [ ":AdapterDeviceProfileClientTest" ]
 }

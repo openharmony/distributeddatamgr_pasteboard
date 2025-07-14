@@ -32,7 +32,7 @@ class AdapterDeviceProfileClientTest : public testing::Test {
 public:
     static void SetUpTestCase()
     {
-        sptr<ISystemAbilityManager> samgr = sptr<ISystemAbilityManager>::MakeSptr();
+        sptr<ISystemAbilityManager> samgr = sptr<SystemAbilityManager>::MakeSptr();
         SystemAbilityManagerClient::GetInstance().SetSystemAbilityManager(samgr);
     }
 
@@ -79,8 +79,9 @@ public:
         return ERR_OK;
     }
 
-    void SendSubscribeInfos() override
+    int32_t SendSubscribeInfos(std::map<std::string, SubscribeInfo> listenerMap) override
     {
+        (void)listenerMap;
         return ERR_OK;
     }
 };
@@ -104,7 +105,7 @@ int32_t LoadSystemAbilitySuccImpl(int32_t systemAbilityId, const sptr<ISystemAbi
             return;
         }
         sptr<IRemoteObject> remoteObject = new DistributedDeviceProfileStub();
-        callback->OnLoadSystemAbilitySuccess(systemAbilityId, remote);
+        callback->OnLoadSystemAbilitySuccess(systemAbilityId, remoteObject);
     });
     thread.detach();
     return ERR_OK;
@@ -132,7 +133,7 @@ HWTEST_F(AdapterDeviceProfileClientTest, TestGetDeviceProfileService001, TestSiz
     EXPECT_CALL(mock, CheckSystemAbility).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(mock, LoadSystemAbility).WillRepeatedly(LoadSystemAbilityFailImpl);
 
-    auto proxy = DeviceProfileClient::GetInstance().ClearDeviceProfileService();
+    auto proxy = DeviceProfileClient::GetInstance().GetDeviceProfileService();
     EXPECT_EQ(proxy, nullptr);
 }
 
@@ -147,7 +148,7 @@ HWTEST_F(AdapterDeviceProfileClientTest, TestGetDeviceProfileService002, TestSiz
     EXPECT_CALL(mock, CheckSystemAbility).WillRepeatedly(testing::Return(nullptr));
     EXPECT_CALL(mock, LoadSystemAbility).WillRepeatedly(LoadSystemAbilitySuccImpl);
 
-    auto proxy = DeviceProfileClient::GetInstance().ClearDeviceProfileService();
+    auto proxy = DeviceProfileClient::GetInstance().GetDeviceProfileService();
     EXPECT_NE(proxy, nullptr);
 }
 
@@ -187,7 +188,7 @@ HWTEST_F(AdapterDeviceProfileClientTest, TestGetCharacteristicProfile001, TestSi
 
 /**
  * @tc.name: TestSubscribeDeviceProfile001
- * @tc.desc: test SubscribeDeviceProfile
+ * @tc.desc: test SubscribeDeviceProfile, SendSubscribeInfos, UnSubscribeDeviceProfile
  * @tc.type: FUNC
  */
 HWTEST_F(AdapterDeviceProfileClientTest, TestSubscribeDeviceProfile001, TestSize.Level1)
@@ -204,20 +205,8 @@ HWTEST_F(AdapterDeviceProfileClientTest, TestSubscribeDeviceProfile001, TestSize
 
     DeviceProfileClient::GetInstance().SendSubscribeInfos();
     EXPECT_EQ(DeviceProfileClient::GetInstance().subscribeInfos_.size(), 1);
-}
 
-/**
- * @tc.name: TestUnSubscribeDeviceProfile001
- * @tc.desc: test UnSubscribeDeviceProfile
- * @tc.type: FUNC
- */
-HWTEST_F(AdapterDeviceProfileClientTest, TestUnSubscribeDeviceProfile001, TestSize.Level1)
-{
-    int32_t saId = PASTEBOARD_SERVICE_ID;
-    std::string subscribeKey = "UDID#SWITCH_ID#CHARACTER_ID#CHARACTERISTIC_VALUE";
-    SubscribeInfo subscribeInfo(saId, subscribeKey);
-
-    int32_t ret = DeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(subscribeInfo);
+    ret = DeviceProfileClient::GetInstance().UnSubscribeDeviceProfile(subscribeInfo);
     EXPECT_EQ(ret, DP_SUCCESS);
     EXPECT_EQ(DeviceProfileClient::GetInstance().subscribeInfos_.size(), 0);
 }
