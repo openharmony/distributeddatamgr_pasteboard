@@ -435,10 +435,10 @@ int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
         return ERR_INVALID_INSTANCE_CODE;
     }
 
-    PasteDataProperty property = pasteData->GetProperty();
     if (retPtr == nullptr) {
         return ERR_CODE_PARAM_INVALID;
     }
+    PasteDataProperty property = pasteData->GetProperty();
     retPtr->tag = PasteBoardMallocCString(property.tag);
     if (retPtr->tag == nullptr) {
         return ERR_CODE_PARAM_INVALID;

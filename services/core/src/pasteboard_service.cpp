@@ -154,7 +154,7 @@ void PasteboardService::InitScreenStatus()
     auto screenLockManager = OHOS::ScreenLock::ScreenLockManager::GetInstance();
     if (screenLockManager == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ScreenLockManager instance is null.");
-    return;
+        return;
     }
     auto isScreenLocked = screenLockManager->IsScreenLocked();
     PasteboardService::currentScreenStatus = isScreenLocked ? ScreenEvent::ScreenLocked : ScreenEvent::ScreenUnlocked;
