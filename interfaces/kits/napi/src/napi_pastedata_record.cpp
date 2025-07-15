@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "entry_getter.h"
 #include "pasteboard_hilog.h"
 #include "pastedata_record_napi.h"
@@ -35,8 +36,8 @@ PasteDataRecordNapi::~PasteDataRecordNapi() {}
 bool PasteDataRecordNapi::NewInstanceByRecord(
     napi_env env, napi_value &instance, const std::shared_ptr<MiscServices::PasteDataRecord> &record)
 {
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, false,
-        PASTEBOARD_MODULE_CLIENT, "invalid parameter record");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, false, PASTEBOARD_MODULE_CLIENT,
+        "invalid parameter record");
     NAPI_CALL_BASE(env, PasteDataRecordNapi::NewInstance(env, instance), false);
     PasteDataRecordNapi *obj = nullptr;
     napi_status status = napi_unwrap(env, instance, reinterpret_cast<void **>(&obj));
@@ -374,6 +375,7 @@ napi_value PasteDataRecordNapi::AddEntry(napi_env env, napi_callback_info info)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "Get AddEntry object failed");
         return nullptr;
     }
+    
     EntryValue entryValue;
     if (!GetNativeValue(env, mimeType, argv[1], entryValue)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetNativeValue failed");

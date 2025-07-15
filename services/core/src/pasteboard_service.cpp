@@ -88,10 +88,10 @@ constexpr const char *TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.dat
 constexpr const char *MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION =
     "ohos.permission.MANAGE_PASTEBOARD_APP_SHARE_OPTION";
 constexpr const char *GET_DATA_APP = "GET_DATA_APP";
+constexpr const char *NETWORK_DEV_NUM = "NETWORK_DEV_NUM";
 constexpr const char *COVER_DELAY_DATA = "COVER_DELAY_DATA";
 constexpr const char *UE_COPY = "DISTRIBUTED_PASTEBOARD_COPY";
 constexpr const char *UE_PASTE = "DISTRIBUTED_PASTEBOARD_PASTE";
-constexpr const char *NETWORK_DEV_NUM = "NETWORK_DEV_NUM";
 
 constexpr int32_t INVALID_VERSION = -1;
 constexpr int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
@@ -926,7 +926,7 @@ bool PasteboardService::IsDataAged()
         copyTime, curTime);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((curTime != 0 && copyTime != 0), false,
         PASTEBOARD_MODULE_SERVICE, "Failed to get the time, data never aged."
-        "copyTime = %{public}" PRIu64 ", curtime = %{public}" PRIu64, copyTime, curTime);
+        "copyTime = %{public}" PRIu64 ", curTime = %{public}" PRIu64, copyTime, curTime);
     static bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
     int32_t agedTime = developerMode ? system::GetIntParameter("const.pasteboard.rd_test_aged_time",
         ONE_HOUR_MINUTES, MIN_AGED_TIME, MAX_AGED_TIME) : ONE_HOUR_MINUTES;
@@ -1002,7 +1002,7 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 int32_t PasteboardService::ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer)
 {
     if (!HasPasteData()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not paste data, no need to show progress.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not pastedata, no need to show progress.");
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -1179,7 +1179,7 @@ int32_t PasteboardService::DealData(int &fd, int64_t &size, std::vector<uint8_t>
 {
     std::vector<uint8_t> pasteDataTlv(0);
     if (!data.Encode(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode paste data in TLV");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode pastedata in TLV");
         HiViewAdapter::ReportUseBehaviour(data, HiViewAdapter::PASTE_STATE, ERR_INVALID_VALUE);
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
@@ -2252,12 +2252,9 @@ int32_t PasteboardService::WritePasteData(
 {
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         auto actualSize = AshmemGetSize(fd);
-        if (actualSize < 0 || rawDataSize > actualSize) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
-            CloseSharedMemFd(fd);
-            return static_cast<int32_t>(PasteboardError::INVALID_DATA_SIZE);
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(actualSize >= 0 && rawDataSize <= actualSize,
+            static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+            "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
         void *ptr = ::mmap(nullptr, rawDataSize, PROT_READ, MAP_SHARED, fd, 0);
         if (ptr == MAP_FAILED) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mmap failed, size:%{public}" PRId64, rawDataSize);

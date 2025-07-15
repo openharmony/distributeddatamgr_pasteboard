@@ -73,7 +73,11 @@ static void ThrowBusinessError(ani_env *env, int errCode, std::string&& errMsg)
         return;
     }
     ani_status flag = env->ThrowError(static_cast<ani_error>(errorObject));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_ANI, "flag: %{public}d.", flag);
+    if (flag != ANI_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "ThrowError failed, flag: %{public}d.", flag);
+    } else {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_JS_ANI, "flag: %{public}d.", flag);
+    }
     return;
 }
 

@@ -136,7 +136,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitFileData()
 {
     UDMF::UnifiedData data;
     auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE);
-    uri_ = "file:/uri";
+    uri_ = "file://uri";
     std::shared_ptr<UDMF::File> fileRecord = std::make_shared<UDMF::File>(uri_);
     fileRecord->SetDetails(details_);
     data.AddRecord(fileRecord);
@@ -146,7 +146,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitImageData()
 {
     UDMF::UnifiedData data;
     auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::IMAGE);
-    uri_ = "file:/image";
+    uri_ = "file://image";
     std::shared_ptr<UDMF::Image> imageRecord = std::make_shared<UDMF::Image>(uri_);
     imageRecord->SetDetails(details_);
     data.AddRecord(imageRecord);
@@ -156,7 +156,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitVideoData()
 {
     UDMF::UnifiedData data;
     auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::VIDEO);
-    uri_ = "file:/Video";
+    uri_ = "file://Video";
     std::shared_ptr<UDMF::Video> videoRecord = std::make_shared<UDMF::Video>(uri_);
     videoRecord->SetDetails(details_);
     data.AddRecord(videoRecord);
@@ -167,7 +167,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitAudioData()
 {
     UDMF::UnifiedData data;
     auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::AUDIO);
-    uri_ = "file:/Audio";
+    uri_ = "file://Audio";
     std::shared_ptr<UDMF::Audio> audioRecord = std::make_shared<UDMF::Audio>(uri_);
     audioRecord->SetDetails(details_);
     data.AddRecord(audioRecord);
@@ -177,7 +177,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitFolderData()
 {
     UDMF::UnifiedData data;
     auto typeStr = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FOLDER);
-    uri_ = "file:/Folder";
+    uri_ = "file://Folder";
     std::shared_ptr<UDMF::Folder> folderRecord = std::make_shared<UDMF::Folder>(uri_);
     folderRecord->SetDetails(details_);
     data.AddRecord(folderRecord);

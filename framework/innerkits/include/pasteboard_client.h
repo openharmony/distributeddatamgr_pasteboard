@@ -455,8 +455,8 @@ public:
 
     /**
      * PasteStart
-     * @description Utilized to notify pasteboard service while reading PasteData, in this case, the service will help to
-     *     preserve the context and resources
+     * @description Utilized to notify pasteboard service while reading PasteData, in this case, the service will help
+     *     to preserve the context and resources
      * @return void.
      */
     void PasteStart(const std::string &pasteId);
@@ -503,7 +503,7 @@ public:
     void ReleaseSaListener();
 
 protected:
-    friend class SystemAbilityListener;
+    friend class PasteboardSamgrListener;
     void Resubscribe();
 
 private:
@@ -532,7 +532,7 @@ private:
         std::shared_ptr<PasteboardDelayGetter> &delayGetter, sptr<PasteboardEntryGetterClient> &entryGetterAgent,
         std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> &entryGetters, PasteData &pasteData);
     void ProcessRadarReport(int32_t ret, PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo,
-        int32_t syncTime, const std::string &pasteDataInfoSummary);
+        int32_t syncTime);
     void CloseSharedMemFd(int fd);
     template<typename T>
     int32_t ProcessPasteData(T &data, int64_t rawDataSize, int fd,

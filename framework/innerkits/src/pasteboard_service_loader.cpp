@@ -134,7 +134,6 @@ void PasteboardServiceLoader::ClearPasteboardServiceProxy()
 {
     std::lock_guard<std::mutex> lock(instanceLock_);
     pasteboardServiceProxy_ = nullptr;
-    return;
 }
 
 void PasteboardServiceLoader::SetPasteboardServiceProxy(const sptr<IRemoteObject> &remoteObject)

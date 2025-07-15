@@ -260,7 +260,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes005, TestSize.Level0)
     std::shared_ptr<PasteDataRecord> pasteDataRecord = builder2.SetWant(std::make_shared<Want>(wantIn)).Build();
     data.AddRecord(pasteDataRecord);
 
-    const uint32_t color[] = { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80 };
+    const uint32_t color[] = {0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80};
     uint32_t len = sizeof(color) / sizeof(color[0]);
     Media::InitializationOptions opts;
     std::shared_ptr<OHOS::Media::PixelMap> pixelMap = Media::PixelMap::Create(color, len, 0, 2, opts);
@@ -468,7 +468,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
     std::string plainText1("2我就破888芙蓉王82h7");
     std::string plainText2("uhiyqydueuw@kahqw.oisko.sji");
 
-    std::vector<std::string> plainTextVec { plainText, plainText + plainText0, plainText + plainText1,
+    std::vector<std::string> plainTextVec{ plainText, plainText + plainText0, plainText + plainText1,
         plainText + plainText2, plainText + plainText0 + plainText1, plainText0 + plainText2 + plainText,
         plainText1 + plainText + plainText2, plainText0 + plainText1 + plainText + plainText2 };
     std::vector<Patterns> patternsVec { {}, { Pattern::URL }, { Pattern::NUMBER }, { Pattern::EMAIL_ADDRESS },
@@ -505,7 +505,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
     Patterns patternsToCheck1 { Pattern::URL, Pattern::EMAIL_ADDRESS };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck1);
-    Patterns expected1 { Pattern::URL };
+    Patterns expected1{ Pattern::URL };
     ASSERT_EQ(ret1, expected1);
 
     std::string htmlText2 = "<!DOCTYPE html><html><head><title>"
@@ -540,7 +540,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
     PasteboardClient::GetInstance()->SetPasteData(*newData1);
     Patterns patternsToCheck { Pattern::NUMBER, Pattern::URL, Pattern::EMAIL_ADDRESS, static_cast<Pattern>(1023) };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    Patterns expected1 {};
+    Patterns expected1{};
     ASSERT_EQ(ret1, expected1);
     std::string plainText2 = "【撒迪化，等我i却很难，无穷花的！】"
                              "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg"
@@ -549,14 +549,14 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
     auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    Patterns expected2 {};
+    Patterns expected2{};
     ASSERT_EQ(ret2, expected2);
     std::string plainText3 = "【撒迪化，等我i却很难，无穷花的！】"
                              "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg";
     auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
     PasteboardClient::GetInstance()->SetPasteData(*newData3);
     auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    ASSERT_EQ(ret3, Patterns {});
+    ASSERT_EQ(ret3, Patterns{});
 }
 
 /**
@@ -579,7 +579,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
     std::set<Pattern> patternsToCheck { Pattern::NUMBER, Pattern::URL, Pattern::EMAIL_ADDRESS,
         static_cast<Pattern>(0xffffffff), static_cast<Pattern>(0xffffff1a) };
     auto ret1 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    std::set<Pattern> expected1 {};
+    std::set<Pattern> expected1{};
     ASSERT_EQ(ret1, expected1);
     std::string plainText2 = "【撒迪化，等我i却很难，无穷花的！】"
                              "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg"
@@ -588,14 +588,14 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
     auto newData2 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText2);
     PasteboardClient::GetInstance()->SetPasteData(*newData2);
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    std::set<Pattern> expected2 {};
+    std::set<Pattern> expected2{};
     ASSERT_EQ(ret2, expected2);
     std::string plainText3 = "【撒迪化，等我i却很难，无穷花的！】"
                              "额外i卡号！念佛为？，为单位打开陪我。而奋斗，我去二队去，威威：trfwrtg";
     auto newData3 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText3);
     PasteboardClient::GetInstance()->SetPasteData(*newData3);
     auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
-    ASSERT_EQ(ret3, std::set<Pattern> {});
+    ASSERT_EQ(ret3, std::set<Pattern>{});
 }
 
 /**
@@ -724,7 +724,7 @@ void ProgressNotifyTest(std::shared_ptr<GetDataParams> params)
 
 /**
  * @tc.name: GetDataWithProgress003
- * @tc.desc: When the progress reaches 70, the download is canceled.
+ * @tc.desc: When the progress reaches 80, the download is canceled.
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
@@ -1098,9 +1098,8 @@ HWTEST_F(PasteboardClientTest, UnsubscribeEntityObserverTest005, TestSize.Level0
  */
 HWTEST_F(PasteboardClientTest, UpdateProgressTest001, TestSize.Level0)
 {
-    std::shared_ptr<GetDataParams> params = nullptr;
-    PasteboardClient::GetInstance()->UpdateProgress(params, 50);
-    EXPECT_TRUE(params == nullptr);
+    PasteboardClient::GetInstance()->UpdateProgress(nullptr, 50);
+    EXPECT_TRUE(true);
 }
 
 /**

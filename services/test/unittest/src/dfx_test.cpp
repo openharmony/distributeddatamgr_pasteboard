@@ -79,8 +79,9 @@ HWTEST_F(DFXTest, DFXTest002, TestSize.Level0)
     status = Reporter::GetInstance().TimeConsumingStatistic().Report(timeConsumingStat);
     ASSERT_EQ(status, ReportStatus::SUCCESS);
 
-    timeConsumingStat = {
-        .pasteboardState = SPS_COPY_STATE, .dataSize = DATA_LEVEL_ONE, .timeConsuming = TCS_TIME_CONSUMING_LEVEL_ONE
+    timeConsumingStat = { .pasteboardState = SPS_COPY_STATE,
+        .dataSize = DATA_LEVEL_ONE,
+        .timeConsuming = TCS_TIME_CONSUMING_LEVEL_ONE
     };
     status = Reporter::GetInstance().TimeConsumingStatistic().Report(timeConsumingStat);
     ASSERT_EQ(status, ReportStatus::SUCCESS);
@@ -105,9 +106,9 @@ HWTEST_F(DFXTest, DFXTest003, TestSize.Level0)
     status = Reporter::GetInstance().TimeConsumingStatistic().Report(timeConsumingStat);
     ASSERT_EQ(status, ReportStatus::SUCCESS);
 
-    timeConsumingStat = {
-        .pasteboardState = SPS_PASTE_STATE, .dataSize = DATA_LEVEL_ONE, .timeConsuming = TCS_TIME_CONSUMING_LEVEL_ONE
-    };
+    timeConsumingStat = { .pasteboardState = SPS_PASTE_STATE,
+        .dataSize = DATA_LEVEL_ONE,
+        .timeConsuming = TCS_TIME_CONSUMING_LEVEL_ONE };
     status = Reporter::GetInstance().TimeConsumingStatistic().Report(timeConsumingStat);
     ASSERT_EQ(status, ReportStatus::SUCCESS);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
@@ -123,9 +124,9 @@ HWTEST_F(DFXTest, DFXTest003, TestSize.Level0)
 HWTEST_F(DFXTest, DFXTest004, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
-    TimeConsumingStat timeConsumingStat = {
-        .pasteboardState = SPS_REMOTE_PASTE_STATE, .dataSize = -1, .timeConsuming = -1
-    };
+    TimeConsumingStat timeConsumingStat = { .pasteboardState = SPS_REMOTE_PASTE_STATE,
+        .dataSize = -1,
+        .timeConsuming = -1 };
     auto status = Reporter::GetInstance().TimeConsumingStatistic().Report(timeConsumingStat);
     ASSERT_EQ(status, ReportStatus::SUCCESS);
 
@@ -151,9 +152,9 @@ HWTEST_F(DFXTest, DFXTest004, TestSize.Level0)
 HWTEST_F(DFXTest, DFXTest005, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
-    TimeConsumingStat timeConsumingStat = {
-        .pasteboardState = SPS_INVALID_STATE, .dataSize = DATA_LEVEL_ONE, .timeConsuming = TCS_TIME_CONSUMING_LEVEL_ONE
-    };
+    TimeConsumingStat timeConsumingStat = { .pasteboardState = SPS_INVALID_STATE,
+        .dataSize = DATA_LEVEL_ONE,
+        .timeConsuming = TCS_TIME_CONSUMING_LEVEL_ONE };
     auto status = Reporter::GetInstance().TimeConsumingStatistic().Report(timeConsumingStat);
     ASSERT_EQ(status, ReportStatus::SUCCESS);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");

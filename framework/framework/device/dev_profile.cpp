@@ -42,6 +42,7 @@ void DevProfile::OnProfileUpdate(const std::string &udid, bool status)
 
 void DevProfile::PostDelayReleaseProxy()
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "post delay task start");
     constexpr uint32_t DELAY_TIME = 60 * 1000; // 60s
     static FFRTTimer ffrtTimer("release_dp_proxy");
 
@@ -61,7 +62,7 @@ void DevProfile::PostDelayReleaseProxy()
     };
 
     ffrtTimer.SetTimer("release_dp_proxy", task, DELAY_TIME);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "post delay task");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "post delay task end");
 }
 
 void DevProfile::PutDeviceStatus(bool status)

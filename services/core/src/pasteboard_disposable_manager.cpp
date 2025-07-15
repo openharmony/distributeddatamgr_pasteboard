@@ -180,7 +180,7 @@ void DisposableManager::RemoveDisposableInfo(pid_t pid, bool needNotify)
     std::lock_guard lock(disposableInfoMutex_);
     auto iter = std::find_if(disposableInfoList_.begin(), disposableInfoList_.end(),
         [pid](const DisposableInfo &info) { return info.pid == pid; });
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(iter != disposableInfoList_.end(), PASTEBOARD_MODULE_SERVICE,
+    PASTEBOARD_CHECK_AND_RETURN_LOGI(iter != disposableInfoList_.end(), PASTEBOARD_MODULE_SERVICE,
         "disposable info not find, pid=%{public}d", pid);
 
     if (needNotify) {

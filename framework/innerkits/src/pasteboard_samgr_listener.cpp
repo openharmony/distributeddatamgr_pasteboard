@@ -15,13 +15,13 @@
 
 #include "pasteboard_client.h"
 #include "pasteboard_hilog.h"
-#include "pasteboard_sa_callback.h"
+#include "pasteboard_samgr_listener.h"
 #include "pasteboard_service_loader.h"
 
 
 namespace OHOS {
 namespace MiscServices {
-void SystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId,
+void PasteboardSamgrListener::OnAddSystemAbility(int32_t systemAbilityId,
     const std::string &deviceId)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "pasteboard service started");
@@ -32,7 +32,7 @@ void SystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId,
     hasDied_ = false;
 }
 
-void SystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId,
+void PasteboardSamgrListener::OnRemoveSystemAbility(int32_t systemAbilityId,
     const std::string &deviceId)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "remove sa: %{public}d.", systemAbilityId);
