@@ -182,7 +182,7 @@ void PasteboardService::OnStart()
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
     if (Init() != ERR_OK&& serviceHandler_ != nullptr) {
-        auto callback = this {
+        auto callback = [this]() {
             Init();
         };
         serviceHandler_->PostTask(callback, INIT_INTERVAL);
