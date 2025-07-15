@@ -179,7 +179,7 @@ void PasteboardService::OnStart()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", status);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
-    if (Init() != ERR_OK&& serviceHandler_ != nullptr) {
+    if (Init() != ERR_OK && serviceHandler_ != nullptr) {
         auto callback = [this]() {
             Init();
         };
