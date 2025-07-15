@@ -181,13 +181,11 @@ void PasteboardService::OnStart()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", status);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
-    if (Init() != ERR_OK) {
-        if (serviceHandler_ != nullptr) {
-            auto callback = this {
-                Init();
-            };
-            serviceHandler_->PostTask(callback, INIT_INTERVAL);
-        }
+    if (Init() != ERR_OK&& serviceHandler_ != nullptr) {
+        auto callback = this {
+            Init();
+        };
+        serviceHandler_->PostTask(callback, INIT_INTERVAL);
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Init failed. Try again 10s later.");
         return;
     }
