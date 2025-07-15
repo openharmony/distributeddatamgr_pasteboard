@@ -431,14 +431,13 @@ int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
         LOGE("[PasteData] GetProperty: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
-
-    if (retPtr == nullptr) {
-        return ERR_CODE_PARAM_INVALID;
-    }
     PasteDataProperty property = pasteData->GetProperty();
-    retPtr->tag = PasteBoardMallocCString(property.tag);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(retPtr != nullptr, ERR_CODE_PARAM_INVALID,
         PASTEBOARD_MODULE_SERVICE, "retPtr is null");
+    retPtr->tag = PasteBoardMallocCString(property.tag);
+    if (retPtr->tag == nullptr) {
+        return ERR_CODE_PARAM_INVALID;
+    }
     retPtr->mimeTypes.head = VectorToCArrString(property.mimeTypes);
     if (retPtr->mimeTypes.head == nullptr) {
         free(retPtr->tag);

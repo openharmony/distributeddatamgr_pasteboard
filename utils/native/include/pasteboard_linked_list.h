@@ -18,6 +18,7 @@
 
 #include <functional>
 #include <mutex>
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
