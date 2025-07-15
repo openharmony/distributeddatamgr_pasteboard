@@ -251,10 +251,7 @@ RetDataCString FfiOHOSPasteDataRecordToPlainText(int64_t id)
     }
 
     auto realRecord = instance->GetRealPasteDataRecord();
-    if (realRecord == nullptr) {
-        LOGE("[PasteRecord] ToPlainText: GetRealPasteDataRecord() returns nullptr %{public}" PRId64, id);
-        return ret;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(realRecord != nullptr, ret, PASTEBOARD_MODULE_SERVICE, "realRecord is null");
     std::string res = realRecord->ConvertToText();
     ret.data = PasteBoardMallocCString(res);
     if (ret.data == nullptr) {
@@ -440,9 +437,8 @@ int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
     }
     PasteDataProperty property = pasteData->GetProperty();
     retPtr->tag = PasteBoardMallocCString(property.tag);
-    if (retPtr->tag == nullptr) {
-        return ERR_CODE_PARAM_INVALID;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(retPtr != nullptr, ERR_CODE_PARAM_INVALID,
+        PASTEBOARD_MODULE_SERVICE, "retPtr is null");
     retPtr->mimeTypes.head = VectorToCArrString(property.mimeTypes);
     if (retPtr->mimeTypes.head == nullptr) {
         free(retPtr->tag);

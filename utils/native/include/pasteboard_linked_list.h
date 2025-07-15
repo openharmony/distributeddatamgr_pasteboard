@@ -74,9 +74,7 @@ public:
         }
 
         ListNode<T> *newNode = new ListNode<T>(value);
-        if (newNode == nullptr) {
-            return;
-        }
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(newNode != nullptr, PASTEBOARD_MODULE_SERVICE, "newNode is null");
         newNode->next = head_->next;
         head_->next = newNode;
     }
