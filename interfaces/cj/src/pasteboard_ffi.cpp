@@ -253,7 +253,6 @@ RetDataCString FfiOHOSPasteDataRecordToPlainText(int64_t id)
     auto realRecord = instance->GetRealPasteDataRecord();
     if (realRecord == nullptr) {
         LOGE("[PasteRecord] ToPlainText: GetRealPasteDataRecord() returns nullptr %{public}" PRId64, id);
-        ret.code = ERR_CODE_NULL_POINTER;
         return ret;
     }
     std::string res = realRecord->ConvertToText();
