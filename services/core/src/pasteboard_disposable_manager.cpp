@@ -14,8 +14,8 @@
  */
 
 #include "pasteboard_disposable_manager.h"
+#include <thread>
 
-#include "c/ffrt_ipc.h"
 #include "ffrt/ffrt_utils.h"
 #include "ipc_skeleton.h"
 #include "parameters.h"
@@ -155,8 +155,10 @@ int32_t DisposableManager::AddDisposableInfo(const DisposableInfo &info)
         "maxLen=%{public}u", info.pid, info.targetBundleName.c_str(), typeInt, info.maxLen);
 
     FFRTTask expirationTask = [this, pid = info.pid] {
-        ffrt_this_task_set_legacy_mode(true);
-        RemoveDisposableInfo(pid, true);
+        std::thread thread([=]() {
+            RemoveDisposableInfo(pid, true);
+        });
+        thread.detach();
     };
     std::string taskName = "disposable_expiration[pid=" + std::to_string(info.pid) + "]";
     int32_t timeout = system::GetIntParameter("pasteboard.disposable_expiration", DISPOSABLE_EXPIRATION_DEFAULT,

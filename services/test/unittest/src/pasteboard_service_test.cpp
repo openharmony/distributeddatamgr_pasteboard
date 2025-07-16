@@ -1547,6 +1547,36 @@ HWTEST_F(PasteboardServiceTest, RecognizePasteDataTest001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: OnEstablishP2PLinkTaskTest001
+ * @tc.desc: test Func OnEstablishP2PLinkTask
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, OnEstablishP2PLinkTaskTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    std::string networkId = "networkId";
+    std::shared_ptr<BlockObject<int32_t>> block = std::make_shared<BlockObject<int32_t>>(2000, SET_VALUE_SUCCESS);
+    tempPasteboard->OnEstablishP2PLinkTask(networkId, block);
+}
+
+/**
+ * @tc.name: EstablishP2PLinkTaskTest001
+ * @tc.desc: test Func EstablishP2PLinkTask
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTaskTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    std::string pasteId;
+    ClipPlugin::GlobalEvent event{};
+    tempPasteboard->EstablishP2PLinkTask(pasteId, event);
+}
+
+/**
  * @tc.name: PostProcessDelayHtmlEntryTest001
  * @tc.desc: PostProcessDelayHtmlEntry
  * @tc.type: FUNC

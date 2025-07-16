@@ -64,7 +64,6 @@
 #else
 #include "window_manager.h"
 #endif // SCENE_BOARD_ENABLE
-#include "c/ffrt_ipc.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -519,6 +518,36 @@ int32_t PasteboardService::ExtractEntity(const std::string &entity, std::string 
     return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
 }
 
+void PasteboardService::OnRecognizePasteData(const std::string &primaryText)
+{
+    pthread_setname_np(pthread_self(), "PasteDataRecognize");
+    auto handle = dlopen(NLU_SO_PATH, RTLD_NOW);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(handle != nullptr, PASTEBOARD_MODULE_SERVICE, "Can not get AIEngine handle");
+    GetProcessorFunc GetProcessor = reinterpret_cast<GetProcessorFunc>(dlsym(handle, GET_PASTE_DATA_PROCESSOR));
+    if (GetProcessor == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Can not get ProcessorFunc");
+        dlclose(handle);
+        return;
+    }
+    IPasteDataProcessor &processor = GetProcessor();
+    std::string entity = "";
+    int32_t result = processor.Process(primaryText, entity);
+    if (result != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "AI Process failed, result=%{public}d", result);
+        dlclose(handle);
+        return;
+    }
+    std::string location = "";
+    int32_t ret = ExtractEntity(entity, location);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ExtractEntity failed, ret=%{public}d", ret);
+        dlclose(handle);
+        return;
+    }
+    NotifyEntityObservers(location, EntityType::ADDRESS, static_cast<uint32_t>(primaryText.size()));
+    dlclose(handle);
+}
+
 void PasteboardService::RecognizePasteData(PasteData &pasteData)
 {
     if (pasteData.GetShareOption() == ShareOption::InApp) {
@@ -530,32 +559,10 @@ void PasteboardService::RecognizePasteData(PasteData &pasteData)
         return;
     }
     FFRTTask task = [this, primaryText]() {
-        pthread_setname_np(pthread_self(), "PasteDataRecognize");
-        auto handle = dlopen(NLU_SO_PATH, RTLD_NOW);
-        PASTEBOARD_CHECK_AND_RETURN_LOGE(handle != nullptr, PASTEBOARD_MODULE_SERVICE, "Can not get AIEngine handle");
-        GetProcessorFunc GetProcessor = reinterpret_cast<GetProcessorFunc>(dlsym(handle, GET_PASTE_DATA_PROCESSOR));
-        if (GetProcessor == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Can not get ProcessorFunc");
-            dlclose(handle);
-            return;
-        }
-        IPasteDataProcessor &processor = GetProcessor();
-        std::string entity = "";
-        int32_t result = processor.Process(primaryText, entity);
-        if (result != ERR_OK) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "AI Process failed, result=%{public}d", result);
-            dlclose(handle);
-            return;
-        }
-        std::string location = "";
-        int32_t ret = ExtractEntity(entity, location);
-        if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ExtractEntity failed, ret=%{public}d", ret);
-            dlclose(handle);
-            return;
-        }
-        NotifyEntityObservers(location, EntityType::ADDRESS, static_cast<uint32_t>(primaryText.size()));
-        dlclose(handle);
+        std::thread thread([=]() {
+            OnRecognizePasteData(primaryText);
+        });
+        thread.detach();
     };
     FFRTUtils::SubmitTask(task);
 }
@@ -1603,8 +1610,10 @@ void PasteboardService::EstablishP2PLink(const std::string &networkId, const std
     }
     if (ffrtTimer_) {
         FFRTTask task = [this, networkId, pasteId] {
-            ffrt_this_task_set_legacy_mode(true);
-            PasteComplete(networkId, pasteId);
+            std::thread thread([=]() {
+                PasteComplete(networkId, pasteId);
+            });
+            thread.detach();
         };
         ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
     }
@@ -1627,8 +1636,10 @@ std::shared_ptr<BlockObject<int32_t>> PasteboardService::CheckAndReuseP2PLink(
     });
     if (ffrtTimer_) {
         FFRTTask task = [this, networkId, pasteId] {
-            ffrt_this_task_set_legacy_mode(true);
-            PasteComplete(networkId, pasteId);
+            std::thread thread([=]() {
+                PasteComplete(networkId, pasteId);
+            });
+            thread.detach();
         };
         ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
     }
@@ -1670,6 +1681,20 @@ bool PasteboardService::IsContainUri(const std::vector<std::string> &dataType)
     return result;
 }
 
+void PasteboardService::OnEstablishP2PLinkTask(const std::string &networkId,
+    std::shared_ptr<BlockObject<int32_t>> pasteBlock)
+{
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteBlock != nullptr, PASTEBOARD_MODULE_SERVICE, "block is nullptr");
+    OpenP2PLink(networkId);
+    pasteBlock->SetValue(SET_VALUE_SUCCESS);
+    std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+    auto findResult = p2pMap_.Find(networkId);
+    if (!findResult.first || findResult.second.Empty()) {
+        CloseP2PLink(networkId);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "P2pEstablish Finish");
+}
+
 std::shared_ptr<BlockObject<int32_t>> PasteboardService::EstablishP2PLinkTask(
     const std::string &pasteId, const ClipPlugin::GlobalEvent &event)
 {
@@ -1702,15 +1727,10 @@ std::shared_ptr<BlockObject<int32_t>> PasteboardService::EstablishP2PLinkTask(
         p2pEstablishInfo_.pasteBlock = pasteBlock;
     }
     FFRTTask p2pTask = [networkId, pasteBlock, this] {
-        ffrt_this_task_set_legacy_mode(true);
-        OpenP2PLink(networkId);
-        pasteBlock->SetValue(SET_VALUE_SUCCESS);
-        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
-        auto findResult = p2pMap_.Find(networkId);
-        if (!findResult.first || findResult.second.Empty()) {
-            CloseP2PLink(networkId);
-        }
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "P2pEstablish Finish");
+        std::thread thread([=]() {
+            OnEstablishP2PLinkTask(networkId, pasteBlock);
+        });
+        thread.detach();
     };
     std::string taskName = pasteId + P2P_ESTABLISH_STR;
     ffrtTimer_->SetTimer(taskName, p2pTask);
@@ -3017,10 +3037,12 @@ void PasteboardService::AddPreSyncP2pTimeoutTask(const std::string &networkId)
     std::string taskName = P2P_PRESYNC_ID + networkId;
     ffrtTimer_->CancelTimer(taskName);
     FFRTTask p2pTask = [this, networkId] {
-        ffrt_this_task_set_legacy_mode(true);
-        PasteComplete(networkId, P2P_PRESYNC_ID);
-        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
-        DeletePreSyncP2pMap(networkId);
+        std::thread thread([=]() {
+            PasteComplete(networkId, P2P_PRESYNC_ID);
+            std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+            DeletePreSyncP2pMap(networkId);
+        });
+        thread.detach();
     };
     ffrtTimer_->SetTimer(taskName, p2pTask, PRE_ESTABLISH_P2P_LINK_TIME);
 }
@@ -3120,8 +3142,10 @@ void PasteboardService::PreEstablishP2PLinkCallback(const std::string &networkId
     }
 #ifdef PB_DEVICE_MANAGER_ENABLE
     FFRTTask p2pTask = [this, networkId, clipPlugin] {
-        ffrt_this_task_set_legacy_mode(true);
-        PreEstablishP2PLink(networkId, clipPlugin);
+        std::thread thread([=]() {
+            PreEstablishP2PLink(networkId, clipPlugin);
+        });
+        thread.detach();
     };
     std::string taskName = "PreEstablishP2PLink_";
     taskName += networkId;
@@ -3149,8 +3173,10 @@ void PasteboardService::PreSyncSwitchMonitorCallback()
         return;
     }
     FFRTTask monitorTask = [this] {
-        ffrt_this_task_set_legacy_mode(true);
-        RegisterPreSyncMonitor();
+        std::thread thread([=]() {
+            RegisterPreSyncMonitor();
+        });
+        thread.detach();
     };
     ffrtTimer_->SetTimer(REGISTER_PRESYNC_MONITOR, monitorTask);
 }
@@ -3166,8 +3192,10 @@ void PasteboardService::RegisterPreSyncMonitor()
         return;
     }
     FFRTTask monitorTask = [this] {
-        ffrt_this_task_set_legacy_mode(true);
-        UnRegisterPreSyncMonitor();
+        std::thread thread([=]() {
+            UnRegisterPreSyncMonitor();
+        });
+        thread.detach();
     };
     if (subscribeActiveId_ != INVALID_SUBSCRIBE_ID) {
         ffrtTimer_->SetTimer(UNREGISTER_PRESYNC_MONITOR, monitorTask, PRESYNC_MONITOR_TIME);
