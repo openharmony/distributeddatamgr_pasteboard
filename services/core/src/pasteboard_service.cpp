@@ -151,7 +151,10 @@ int32_t PasteboardService::Init()
 void PasteboardService::InitScreenStatus()
 {
 #ifdef PB_SCREENLOCK_MGR_ENABLE
-    auto isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
+    auto screenLockManager = OHOS::ScreenLock::ScreenLockManager::GetInstance();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(screenLockManager != nullptr, PASTEBOARD_MODULE_SERVICE,
+        "ScreenLockManager instance is null.");
+    auto isScreenLocked = screenLockManager->IsScreenLocked();
     PasteboardService::currentScreenStatus = isScreenLocked ? ScreenEvent::ScreenLocked : ScreenEvent::ScreenUnlocked;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screen status is %{public}d", PasteboardService::currentScreenStatus);
 #else
@@ -176,7 +179,7 @@ void PasteboardService::OnStart()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", status);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
     AddSysAbilityListener();
-    if (Init() != ERR_OK) {
+    if (Init() != ERR_OK && serviceHandler_ != nullptr) {
         auto callback = [this]() {
             Init();
         };

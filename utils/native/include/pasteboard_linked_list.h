@@ -18,6 +18,7 @@
 
 #include <functional>
 #include <mutex>
+#include "pasteboard_hilog.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -74,6 +75,7 @@ public:
         }
 
         ListNode<T> *newNode = new ListNode<T>(value);
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(newNode != nullptr, PASTEBOARD_MODULE_SERVICE, "newNode is null");
         newNode->next = head_->next;
         head_->next = newNode;
     }
