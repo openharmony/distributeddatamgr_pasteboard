@@ -610,7 +610,7 @@ HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_010, TestSize.Level1)
 
     bool result = webClipboardController.SplitWebviewPasteData(pasteData);
     EXPECT_FALSE(result);
-    EXPECT_EN(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
+    EXPECT_NE(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
 }
