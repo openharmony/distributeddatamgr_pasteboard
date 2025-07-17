@@ -15,6 +15,7 @@
 
 #include "pasteboard_client.h"
 #include "pasteboard_web_controller.h"
+#include "pasteboard_hilog.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
@@ -37,6 +38,11 @@ void WebControllerTest::TearDownTestCase(void) { }
 void WebControllerTest::SetUp(void) { }
 
 void WebControllerTest::TearDown(void) { }
+
+EntryValue GetHtmlValue()
+{
+    return EntryValue(std::in_place_type<std::string>, "<html><body>Test</body></html>");
+}
 
 /**
  * @tc.name: SplitHtmlTest_001.
@@ -360,10 +366,19 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_010, TestSize.Level1)
  */
 HWTEST_F(WebControllerTest, UpdateHtmlRecordTest_001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
     std::shared_ptr<PasteDataRecord> htmlRecord = nullptr;
-    auto htmlData = std::make_shared<std::string>("<html>Test</html>");
-    auto ret = PasteboardWebController::GetInstance();
-    EXPECT_NO_THROW(ret.UpdateHtmlRecord(htmlRecord, htmlData));
+    std::shared_ptr<std::string> htmlData = std::make_shared<std::string>("test data");
+
+    webClipboardController.UpdateHtmlRecord(htmlRecord, htmlData);
+    ASSERT_EQ(htmlRecord, nullptr);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
 }
 
 /**
@@ -375,11 +390,18 @@ HWTEST_F(WebControllerTest, UpdateHtmlRecordTest_001, TestSize.Level1)
  */
 HWTEST_F(WebControllerTest, UpdateHtmlRecordTest_002, TestSize.Level1)
 {
-    auto htmlRecord = std::shared_ptr<PasteDataRecord>();
-    std::shared_ptr<std::string> htmlData = nullptr;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
 
-    auto ret = PasteboardWebController::GetInstance();
-    EXPECT_NO_THROW(ret.UpdateHtmlRecord(htmlRecord, htmlData));
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    std::shared_ptr<PasteDataRecord> htmlRecord = std::make_shared<PasteDataRecord>();
+    std::shared_ptr<std::string> htmlData = nullptr;
+    webClipboardController.UpdateHtmlRecord(htmlRecord, htmlData);
+    ASSERT_EQ(htmlData, nullptr);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
 }
 
 /**
@@ -391,58 +413,14 @@ HWTEST_F(WebControllerTest, UpdateHtmlRecordTest_002, TestSize.Level1)
  */
 HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
     PasteData pasteData;
-    bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
+    bool result = webClipboardController.SplitWebviewPasteData(pasteData);
     EXPECT_FALSE(result);
-}
 
-/**
- * @tc.name: CheckAppUriPermissionTest_001.
- * @tc.desc:
- * @tc.type: FUNC.
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_001, TestSize.Level1)
-{
-    PasteData pasteData;
-    auto result = PasteboardWebController::GetInstance();
-    EXPECT_NO_THROW(result.CheckAppUriPermission(pasteData));
-}
-
-/**
- * @tc.name: SetWebviewPasteDataTest_001.
- * @tc.desc:
- * @tc.type: FUNC.
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_001, TestSize.Level1)
-{
-    PasteboardWebController pasteboardWebController;
-    PasteData pasteData;
-    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
-    std::string bundleName = "testBundle";
-    int32_t appIndex = 0;
-    pasteboardWebController.SetWebviewPasteData(pasteData, { bundleName, appIndex });
-    ASSERT_EQ(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
-}
-
-/**
- * @tc.name: CheckAppUriPermissionTest_002.
- * @tc.desc:
- * @tc.type: FUNC.
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_002, TestSize.Level1)
-{
-    auto tempPasteboard = std::make_shared<PasteboardWebController>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    PasteData pasteData;
-
-    tempPasteboard->CheckAppUriPermission(pasteData);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
 }
 
 /**
@@ -540,4 +518,380 @@ HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_007, TestSize.Level1)
     bool result = PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);
     EXPECT_TRUE(result);
     EXPECT_EQ(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
+}
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_008.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_008, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    auto record = std::make_shared<PasteDataRecord>();
+    record->SetFrom(1);
+    record->SetRecordId(1);
+    pasteData.AddRecord(record);
+    bool result = webClipboardController.SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_009.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_009, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    auto record = std::make_shared<PasteDataRecord>();
+    record->SetFrom(1);
+    record->SetRecordId(1);
+    auto htmlEntry = std::make_shared<PasteDataEntry>();
+    htmlEntry->SetMimeType(MIMETYPE_TEXT_HTML);
+
+    EntryValue htmlValue(std::in_place_index<4>, "<html><body>Hello</body></html>");
+    htmlEntry->SetValue(htmlValue);
+
+    record->AddEntry("text/html", htmlEntry);
+    pasteData.AddRecord(record);
+
+    bool result = webClipboardController.SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SplitWebviewPasteDataTest_010.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SplitWebviewPasteDataTest_010, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    auto record = std::make_shared<PasteDataRecord>();
+    record->SetFrom(1);
+    record->SetRecordId(1);
+    auto htmlEntry = std::make_shared<PasteDataEntry>();
+    htmlEntry->SetMimeType(MIMETYPE_TEXT_HTML);
+
+    EntryValue htmlValue(std::in_place_index<4>, "");
+    htmlEntry->SetValue(htmlValue);
+
+    record->AddEntry("text/html", htmlEntry);
+    pasteData.AddRecord(record);
+
+    bool result = webClipboardController.SplitWebviewPasteData(pasteData);
+    EXPECT_FALSE(result);
+    EXPECT_NE(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SetWebviewPasteDataTest_001.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_001, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    std::string bundleName = "testBundle";
+    int32_t appIndex = 0;
+    webClipboardController.SetWebviewPasteData(pasteData, { bundleName, appIndex });
+    ASSERT_EQ(pasteData.GetTag(), PasteData::WEBVIEW_PASTEDATA_TAG);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SetWebviewPasteDataTest_002.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    std::pair<std::string, int32_t> bundleIndex = std::make_pair("bundleName", 1);
+    webClipboardController.SetWebviewPasteData(pasteData, bundleIndex);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SetWebviewPasteDataTest_003.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_003, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    pasteData.SetTag("INVALID_TAG");
+    std::pair<std::string, int32_t> bundleIndex = std::make_pair("bundleName", 1);
+    webClipboardController.SetWebviewPasteData(pasteData, bundleIndex);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SetWebviewPasteDataTest_004.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_004, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    auto record = std::make_shared<PasteDataRecord>();
+    record->SetUri(nullptr);
+    pasteData.AddRecord(record);
+    std::pair<std::string, int32_t> bundleIndex = std::make_pair("bundleName", 1);
+    webClipboardController.SetWebviewPasteData(pasteData, bundleIndex);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SetWebviewPasteDataTest_005.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_005, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    auto record = std::make_shared<PasteDataRecord>();
+    record->SetUri(std::make_shared<OHOS::Uri>("content://local/image.jpg"));
+    record->SetFrom(1);
+    record->SetRecordId(2);
+
+    pasteData.AddRecord(record);
+    std::pair<std::string, int32_t> bundleIndex = std::make_pair("bundleName", 1);
+    webClipboardController.SetWebviewPasteData(pasteData, bundleIndex);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SetWebviewPasteDataTest_006.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_006, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    auto record = std::make_shared<PasteDataRecord>();
+    record->SetUri(std::make_shared<OHOS::Uri>("content://local/docs/image.jpg"));
+    record->SetFrom(1);
+    record->SetRecordId(2);
+
+    pasteData.AddRecord(record);
+    std::pair<std::string, int32_t> bundleIndex = std::make_pair("bundleName", 1);
+    webClipboardController.SetWebviewPasteData(pasteData, bundleIndex);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: SetWebviewPasteDataTest_007.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, SetWebviewPasteDataTest_007, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    pasteData.SetTag(PasteData::WEBVIEW_PASTEDATA_TAG);
+    auto record = std::make_shared<PasteDataRecord>();
+    record->SetUri(std::make_shared<OHOS::Uri>("content://local/images/image.jpg"));
+    record->SetFrom(1);
+    record->SetRecordId(2);
+
+    pasteData.AddRecord(record);
+    std::pair<std::string, int32_t> bundleIndex = std::make_pair("bundleName", 1);
+    webClipboardController.SetWebviewPasteData(pasteData, bundleIndex);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: CheckAppUriPermissionTest_001.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_001, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    webClipboardController.CheckAppUriPermission(pasteData);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: CheckAppUriPermissionTest_002.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    pasteData.AddRecord(nullptr);
+    webClipboardController.CheckAppUriPermission(pasteData);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: CheckAppUriPermissionTest_003.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_003, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    auto record = std::make_shared<PasteDataRecord>();
+    auto fileUri = std::make_shared<OHOS::Uri>("file://test");
+    record->SetUri(fileUri);
+    pasteData.AddRecord(record);
+    webClipboardController.CheckAppUriPermission(pasteData);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: CheckAppUriPermissionTest_004.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_004, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    auto validRecord = std::make_shared<PasteDataRecord>();
+    auto fileUri = std::make_shared<OHOS::Uri>("file://test1");
+    validRecord->SetUri(fileUri);
+    pasteData.AddRecord(validRecord);
+
+    auto invaliRecord = std::make_shared<PasteDataRecord>();
+    validRecord->SetUri(nullptr);
+    pasteData.AddRecord(invaliRecord);
+    webClipboardController.CheckAppUriPermission(pasteData);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
 }
