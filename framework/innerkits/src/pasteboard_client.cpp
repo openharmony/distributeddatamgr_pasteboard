@@ -583,6 +583,7 @@ int32_t PasteboardClient::CheckProgressParam(std::shared_ptr<GetDataParams> para
 
 int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_ptr<GetDataParams> params)
 {
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress start.");
     int32_t ret = CheckProgressParam(params);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         return ret;
