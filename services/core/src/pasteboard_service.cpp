@@ -837,7 +837,7 @@ bool PasteboardService::VerifyPermission(uint32_t tokenId)
         return true;
     }
     auto tokenType = AccessTokenKit::GetTokenTypeFlag(tokenId);
-    auto isAllowTokenAccess = tokenType != ATokenTypeEnum::TOKEN_HAP ? true : false;
+    bool isAllowTokenAccess = (tokenType == ATokenTypeEnum::TOKEN_NATIVE || tokenType == ATokenTypeEnum::TOKEN_SHELL);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE,
         "isReadGrant is %{public}d, isSecureGrant is %{public}d, isAllowTokenAccess is %{public}d", isReadGrant,
         isSecureGrant, isAllowTokenAccess);
