@@ -62,7 +62,7 @@ sptr<IDistributedDeviceProfile> DeviceProfileClient::GetDeviceProfileService()
         auto object = samgr->CheckSystemAbility(DISTRIBUTED_DEVICE_PROFILE_SA_ID);
         if (object != nullptr) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "get dp service success");
-            dpProxy_ = iface_cast<IDistributedDeviceProfile>(object);
+            dpProxy_ = new DistributedDeviceProfileProxy(object);
             return dpProxy_;
         }
     }
@@ -109,7 +109,7 @@ void DeviceProfileClient::LoadSystemAbilitySuccess(const sptr<IRemoteObject> &re
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "enter");
     std::lock_guard lock(serviceLock_);
-    dpProxy_ = iface_cast<IDistributedDeviceProfile>(remoteObject);
+    dpProxy_ = new DistributedDeviceProfileProxy(remoteObject);
     proxyConVar_.notify_one();
 }
 
