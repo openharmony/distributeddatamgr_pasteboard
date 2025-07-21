@@ -583,7 +583,8 @@ int32_t PasteboardClient::CheckProgressParam(std::shared_ptr<GetDataParams> para
 
 int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_ptr<GetDataParams> params)
 {
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress called start.Params: %p, isPasting=%{public}d.", params.get(), isPasting_.laod());
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress called start.Params: %p, isPasting=%{public}d.",
+        params.get(), isPasting_.load());
     int32_t ret = CheckProgressParam(params);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         return ret;
@@ -629,7 +630,6 @@ int32_t PasteboardClient::GetDataWithProgress(PasteData &pasteData, std::shared_
     }
     isPasting_.store(false);
     return ret;
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress end.Ret: %{public}d", ret);
 }
 
 int32_t PasteboardClient::GetUnifiedDataWithProgress(UDMF::UnifiedData &unifiedData,
