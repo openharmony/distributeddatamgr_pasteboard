@@ -389,6 +389,44 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest003, TestS
 }
 
 /**
+ * @tc.name: TryProcessDisposableDataTest004
+ * @tc.desc: should callback ERR_DATA_IN_APP without text when paste data with ShareOption::InApp
+ *           should callback ERR_OK with text when paste data with ShareOption::LocalDevice
+ *           should callback ERR_OK with text when paste data with ShareOption::CrossDevice
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest004, TestSize.Level0)
+{
+    NiceMock<Security::AccessToken::AccessTokenKitMock> accessTokenMock;
+    EXPECT_CALL(accessTokenMock, VerifyAccessToken)
+        .WillRepeatedly(testing::Return(Security::AccessToken::PermissionState::PERMISSION_GRANTED));
+
+    std::string bundleName = "1";
+    std::string text = "123456";
+    PasteData pasteData;
+    pasteData.AddTextRecord(text);
+
+    size_t loopCnt = 3;
+    ShareOption shareOptions[] = {ShareOption::InApp, ShareOption::LocalDevice, ShareOption::CrossDevice};
+    int32_t errCodes[] = {IPasteboardDisposableObserver::ERR_DATA_IN_APP, IPasteboardDisposableObserver::ERR_OK,
+        IPasteboardDisposableObserver::ERR_OK};
+    std::string texts[] = {"", text, text};
+
+    for (size_t i = 0; i < loopCnt; ++i) {
+        pasteData.SetShareOption(shareOptions[i]);
+
+        sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
+        DisposableInfo info(1, 1, bundleName, DisposableType::PLAIN_TEXT, text.length(), observer);
+
+        DisposableManager::GetInstance().disposableInfoList_ = {info};
+        bool ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
+        EXPECT_TRUE(ret);
+        EXPECT_EQ(observer->errCode_, errCodes[i]);
+        EXPECT_STREQ(observer->text_.c_str(), texts[i].c_str());
+    }
+}
+
+/**
  * @tc.name: GetPlainTextTest001
  * @tc.desc: get text from delay getter
  * @tc.type: FUNC

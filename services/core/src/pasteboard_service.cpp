@@ -1953,7 +1953,6 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     setPasteDataUId_ = IPCSkeleton::GetCallingUid();
     RemovePasteData(appInfo);
     SetPasteDataInfo(pasteData, appInfo, tokenId);
-    UpdateShareOption(pasteData);
     PasteboardWebController::GetInstance().SetWebviewPasteData(pasteData,
         std::make_pair(appInfo.bundleName, appInfo.appIndex));
     PasteboardWebController::GetInstance().CheckAppUriPermission(pasteData);
@@ -2321,6 +2320,7 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
 
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     std::string bundleName = GetAppBundleName(appInfo);
+    UpdateShareOption(pasteData);
     if (DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, delayGetter, entryGetter)) {
         return ERR_OK;
     }

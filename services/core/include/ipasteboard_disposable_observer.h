@@ -31,6 +31,7 @@ public:
         ERR_TARGET_MISMATCH,
         ERR_LENGTH_MISMATCH,
         ERR_NO_TEXT,
+        ERR_DATA_IN_APP,
     };
 
     virtual void OnTextReceived(const std::string &text, int32_t errCode) = 0;

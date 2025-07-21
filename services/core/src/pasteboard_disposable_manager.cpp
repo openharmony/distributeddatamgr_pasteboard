@@ -52,6 +52,10 @@ void DisposableManager::ProcessMatchedInfo(const std::vector<DisposableInfo> &ma
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer is null, pid=%{public}d", item.pid);
             continue;
         }
+        if (pasteData.GetShareOption() == ShareOption::InApp) {
+            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_DATA_IN_APP);
+            continue;
+        }
         if (item.type != DisposableType::PLAIN_TEXT) {
             item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_TYPE_NOT_SUPPORT);
             continue;
@@ -180,7 +184,7 @@ void DisposableManager::RemoveDisposableInfo(pid_t pid, bool needNotify)
     std::lock_guard lock(disposableInfoMutex_);
     auto iter = std::find_if(disposableInfoList_.begin(), disposableInfoList_.end(),
         [pid](const DisposableInfo &info) { return info.pid == pid; });
-    PASTEBOARD_CHECK_AND_RETURN_LOGI(iter != disposableInfoList_.end(), PASTEBOARD_MODULE_SERVICE,
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(iter != disposableInfoList_.end(), PASTEBOARD_MODULE_SERVICE,
         "disposable info not find, pid=%{public}d", pid);
 
     if (needNotify) {
