@@ -125,14 +125,15 @@ int OH_Pasteboard_Subscribe(OH_Pasteboard *pasteboard, int type, const OH_Pasteb
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "observer exist.");
         return ERR_OK;
     }
-    OHOS::sptr<PasteboardObserverCapiImpl> observerBox = new (std::nothrow) PasteboardObserverCapiImpl();
+    OHOS::sptr<PasteboardObserverCapiImpl> observerBox = OHOS::sptr<PasteboardObserverCapiImpl>::MakeSptr();
     if (observerBox == nullptr) {
         return ERR_INNER_ERROR;
     }
     observerBox->SetInnerObserver(observer);
     observerBox->SetType(static_cast<Pasteboard_NotifyType>(type));
+    bool ret = PasteboardClient::GetInstance()->Subscribe(static_cast<PasteboardObserverType>(type), observerBox);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, ERR_OK, PASTEBOARD_MODULE_CAPI, "subscribe observer failed");
     pasteboard->observers_[observer] = observerBox;
-    PasteboardClient::GetInstance()->Subscribe(static_cast<PasteboardObserverType>(type), observerBox);
     return ERR_OK;
 }
 

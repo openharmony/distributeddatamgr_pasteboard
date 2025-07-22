@@ -3333,6 +3333,45 @@ HWTEST_F(PasteboardServiceTest, SetInputMethodPidTest006, TestSize.Level0)
 }
 
 /**
+ * @tc.name: SubscribeObserverTest001
+ * @tc.desc: test Func SubscribeObserver
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    const sptr<IPasteboardChangedObserver> observer = nullptr;
+    auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
+}
+
+/**
+ * @tc.name: SubscribeObserverTest002
+ * @tc.desc: test Func SubscribeObserver
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    const sptr<IPasteboardChangedObserver> observer = nullptr;
+    auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_REMOTE, observer);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
+}
+
+/**
+ * @tc.name: SubscribeObserverTest003
+ * @tc.desc: test Func SubscribeObserver
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    const sptr<IPasteboardChangedObserver> observer = nullptr;
+    auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_EVENT, observer);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
+}
+
+/**
  * @tc.name: NotifyObserversTest001
  * @tc.desc: test Func NotifyObservers
  * @tc.type: FUNC
@@ -5694,7 +5733,7 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest001, TestSize.Level0)
     MessageParcelWarp messageData;
     ASSERT_TRUE(rawDataSize <= MIN_ASHMEM_DATA_SIZE);
     fd = messageData.CreateTmpFd();
-    ASSERT_TRUE(FD >= 0);
+    ASSERT_TRUE(fd >= 0);
     auto tempPasteboard = std::make_shared<PasteboardService>();
     auto ret = tempPasteboard->WritePasteData(fd, rawDataSize, buffer, output, hasData);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
@@ -5737,13 +5776,13 @@ HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
 }
 
 /**
- * @tc.name: WritePasteDataTest002
+ * @tc.name: WritePasteDataTest003
  * @tc.desc: WritePasteDataTest
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(PasteboardServiceTest, WritePasteDataTest002, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, WritePasteDataTest003, TestSize.Level0)
 {
     int fd = -1;
     int64_t rawDataSize = 0;
