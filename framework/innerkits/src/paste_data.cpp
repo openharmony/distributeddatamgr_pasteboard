@@ -580,33 +580,6 @@ size_t PasteData::CountTLV() const
     return expectSize;
 }
 
-bool PasteData::Marshalling(Parcel &parcel) const
-{
-    std::vector<uint8_t> pasteDataTlv(0);
-    bool ret = Encode(pasteDataTlv);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "encode failed");
-
-    ret = parcel.WriteUInt8Vector(pasteDataTlv);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "write vector failed");
-    return true;
-}
-
-PasteData *PasteData::Unmarshalling(Parcel &parcel)
-{
-    std::vector<uint8_t> pasteDataTlv(0);
-    bool ret = parcel.ReadUInt8Vector(&pasteDataTlv);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, nullptr, PASTEBOARD_MODULE_COMMON, "read vector failed");
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!pasteDataTlv.empty(), nullptr, PASTEBOARD_MODULE_COMMON, "vector empty");
-
-    PasteData *pasteData = new (std::nothrow) PasteData();
-    if (!pasteData->Decode(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "decode failed");
-        delete pasteData;
-        pasteData = nullptr;
-    }
-    return pasteData;
-}
-
 bool PasteData::IsValid() const
 {
     return valid_;
@@ -650,6 +623,33 @@ uint32_t PasteData::GetDataId() const
 uint32_t PasteData::GetRecordId() const
 {
     return recordId_;
+}
+
+bool PasteData::Marshalling(Parcel &parcel) const
+{
+    std::vector<uint8_t> pasteDataTlv(0);
+    bool ret = Encode(pasteDataTlv);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "encode failed");
+
+    ret = parcel.WriteUInt8Vector(pasteDataTlv);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "write vector failed");
+    return true;
+}
+
+PasteData *PasteData::Unmarshalling(Parcel &parcel)
+{
+    std::vector<uint8_t> pasteDataTlv(0);
+    bool ret = parcel.ReadUInt8Vector(&pasteDataTlv);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, nullptr, PASTEBOARD_MODULE_COMMON, "read vector failed");
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!pasteDataTlv.empty(), nullptr, PASTEBOARD_MODULE_COMMON, "vector empty");
+
+    PasteData *pasteData = new (std::nothrow) PasteData();
+    if (!pasteData->Decode(pasteDataTlv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "decode failed");
+        delete pasteData;
+        pasteData = nullptr;
+    }
+    return pasteData;
 }
 
 PasteDataProperty::PasteDataProperty(const PasteDataProperty &property)

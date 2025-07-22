@@ -64,7 +64,6 @@
 #else
 #include "window_manager.h"
 #endif // SCENE_BOARD_ENABLE
-#include "c/ffrt_ipc.h"
 
 namespace OHOS {
 namespace MiscServices {
@@ -88,10 +87,10 @@ constexpr const char *TRANSMIT_CONTROL_PROP_KEY = "persist.distributed_scene.dat
 constexpr const char *MANAGE_PASTEBOARD_APP_SHARE_OPTION_PERMISSION =
     "ohos.permission.MANAGE_PASTEBOARD_APP_SHARE_OPTION";
 constexpr const char *GET_DATA_APP = "GET_DATA_APP";
+constexpr const char *NETWORK_DEV_NUM = "NETWORK_DEV_NUM";
 constexpr const char *COVER_DELAY_DATA = "COVER_DELAY_DATA";
 constexpr const char *UE_COPY = "DISTRIBUTED_PASTEBOARD_COPY";
 constexpr const char *UE_PASTE = "DISTRIBUTED_PASTEBOARD_PASTE";
-constexpr const char *NETWORK_DEV_NUM = "NETWORK_DEV_NUM";
 
 constexpr int32_t INVALID_VERSION = -1;
 constexpr int32_t ADD_PERMISSION_CHECK_SDK_VERSION = 12;
@@ -151,7 +150,10 @@ int32_t PasteboardService::Init()
 void PasteboardService::InitScreenStatus()
 {
 #ifdef PB_SCREENLOCK_MGR_ENABLE
-    auto isScreenLocked = OHOS::ScreenLock::ScreenLockManager::GetInstance()->IsScreenLocked();
+    auto screenLockManager = OHOS::ScreenLock::ScreenLockManager::GetInstance();
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(screenLockManager != nullptr, PASTEBOARD_MODULE_SERVICE,
+        "ScreenLockManager instance is null.");
+    auto isScreenLocked = screenLockManager->IsScreenLocked();
     PasteboardService::currentScreenStatus = isScreenLocked ? ScreenEvent::ScreenLocked : ScreenEvent::ScreenUnlocked;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "screen status is %{public}d", PasteboardService::currentScreenStatus);
 #else
@@ -178,7 +180,7 @@ void PasteboardService::OnStart()
     ffrtTimer_ = FFRTPool::GetTimer("pasteboard_service");
     UpdateAgedTime();
     AddSysAbilityListener();
-    if (Init() != ERR_OK) {
+    if (Init() != ERR_OK && serviceHandler_ != nullptr) {
         auto callback = [this]() {
             Init();
         };
@@ -563,6 +565,36 @@ int32_t PasteboardService::ExtractEntity(const std::string &entity, std::string 
     return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
 }
 
+void PasteboardService::OnRecognizePasteData(const std::string &primaryText)
+{
+    pthread_setname_np(pthread_self(), "PasteDataRecognize");
+    auto handle = dlopen(NLU_SO_PATH, RTLD_NOW);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(handle != nullptr, PASTEBOARD_MODULE_SERVICE, "Can not get AIEngine handle");
+    GetProcessorFunc GetProcessor = reinterpret_cast<GetProcessorFunc>(dlsym(handle, GET_PASTE_DATA_PROCESSOR));
+    if (GetProcessor == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Can not get ProcessorFunc");
+        dlclose(handle);
+        return;
+    }
+    IPasteDataProcessor &processor = GetProcessor();
+    std::string entity = "";
+    int32_t result = processor.Process(primaryText, entity);
+    if (result != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "AI Process failed, result=%{public}d", result);
+        dlclose(handle);
+        return;
+    }
+    std::string location = "";
+    int32_t ret = ExtractEntity(entity, location);
+    if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ExtractEntity failed, ret=%{public}d", ret);
+        dlclose(handle);
+        return;
+    }
+    NotifyEntityObservers(location, EntityType::ADDRESS, static_cast<uint32_t>(primaryText.size()));
+    dlclose(handle);
+}
+
 void PasteboardService::RecognizePasteData(PasteData &pasteData)
 {
     if (pasteData.GetShareOption() == ShareOption::InApp) {
@@ -574,32 +606,10 @@ void PasteboardService::RecognizePasteData(PasteData &pasteData)
         return;
     }
     FFRTTask task = [this, primaryText]() {
-        pthread_setname_np(pthread_self(), "PasteDataRecognize");
-        auto handle = dlopen(NLU_SO_PATH, RTLD_NOW);
-        PASTEBOARD_CHECK_AND_RETURN_LOGE(handle != nullptr, PASTEBOARD_MODULE_SERVICE, "Can not get AIEngine handle");
-        GetProcessorFunc GetProcessor = reinterpret_cast<GetProcessorFunc>(dlsym(handle, GET_PASTE_DATA_PROCESSOR));
-        if (GetProcessor == nullptr) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Can not get ProcessorFunc");
-            dlclose(handle);
-            return;
-        }
-        IPasteDataProcessor &processor = GetProcessor();
-        std::string entity = "";
-        int32_t result = processor.Process(primaryText, entity);
-        if (result != ERR_OK) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "AI Process failed, result=%{public}d", result);
-            dlclose(handle);
-            return;
-        }
-        std::string location = "";
-        int32_t ret = ExtractEntity(entity, location);
-        if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ExtractEntity failed, ret=%{public}d", ret);
-            dlclose(handle);
-            return;
-        }
-        NotifyEntityObservers(location, EntityType::ADDRESS, static_cast<uint32_t>(primaryText.size()));
-        dlclose(handle);
+        std::thread thread([=]() {
+            OnRecognizePasteData(primaryText);
+        });
+        thread.detach();
     };
     FFRTUtils::SubmitTask(task);
 }
@@ -998,6 +1008,7 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
             HapTokenInfo hapInfo;
             if (AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo) != 0) {
                 PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get hap token info fail.");
+                info.userId = -1;
                 return info;
             }
             info.bundleName = hapInfo.bundleName;
@@ -1043,7 +1054,7 @@ void PasteboardService::SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, P
 int32_t PasteboardService::ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer)
 {
     if (!HasPasteData()) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not paste data, no need to show progress.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not pastedata, no need to show progress.");
         return static_cast<int32_t>(PasteboardError::NO_DATA_ERROR);
     }
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -1220,7 +1231,7 @@ int32_t PasteboardService::DealData(int &fd, int64_t &size, std::vector<uint8_t>
 {
     std::vector<uint8_t> pasteDataTlv(0);
     if (!data.Encode(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode paste data in TLV");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode pastedata in TLV");
         HiViewAdapter::ReportUseBehaviour(data, HiViewAdapter::PASTE_STATE, ERR_INVALID_VALUE);
         return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
     }
@@ -1644,8 +1655,10 @@ void PasteboardService::EstablishP2PLink(const std::string &networkId, const std
     }
     if (ffrtTimer_) {
         FFRTTask task = [this, networkId, pasteId] {
-            ffrt_this_task_set_legacy_mode(true);
-            PasteComplete(networkId, pasteId);
+            std::thread thread([=]() {
+                PasteComplete(networkId, pasteId);
+            });
+            thread.detach();
         };
         ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
     }
@@ -1668,8 +1681,10 @@ std::shared_ptr<BlockObject<int32_t>> PasteboardService::CheckAndReuseP2PLink(
     });
     if (ffrtTimer_) {
         FFRTTask task = [this, networkId, pasteId] {
-            ffrt_this_task_set_legacy_mode(true);
-            PasteComplete(networkId, pasteId);
+            std::thread thread([=]() {
+                PasteComplete(networkId, pasteId);
+            });
+            thread.detach();
         };
         ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
     }
@@ -1711,6 +1726,20 @@ bool PasteboardService::IsContainUri(const std::vector<std::string> &dataType)
     return result;
 }
 
+void PasteboardService::OnEstablishP2PLinkTask(const std::string &networkId,
+    std::shared_ptr<BlockObject<int32_t>> pasteBlock)
+{
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteBlock != nullptr, PASTEBOARD_MODULE_SERVICE, "block is nullptr");
+    OpenP2PLink(networkId);
+    pasteBlock->SetValue(SET_VALUE_SUCCESS);
+    std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+    auto findResult = p2pMap_.Find(networkId);
+    if (!findResult.first || findResult.second.Empty()) {
+        CloseP2PLink(networkId);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "P2pEstablish Finish");
+}
+
 std::shared_ptr<BlockObject<int32_t>> PasteboardService::EstablishP2PLinkTask(
     const std::string &pasteId, const ClipPlugin::GlobalEvent &event)
 {
@@ -1743,15 +1772,10 @@ std::shared_ptr<BlockObject<int32_t>> PasteboardService::EstablishP2PLinkTask(
         p2pEstablishInfo_.pasteBlock = pasteBlock;
     }
     FFRTTask p2pTask = [networkId, pasteBlock, this] {
-        ffrt_this_task_set_legacy_mode(true);
-        OpenP2PLink(networkId);
-        pasteBlock->SetValue(SET_VALUE_SUCCESS);
-        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
-        auto findResult = p2pMap_.Find(networkId);
-        if (!findResult.first || findResult.second.Empty()) {
-            CloseP2PLink(networkId);
-        }
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "P2pEstablish Finish");
+        std::thread thread([=]() {
+            OnEstablishP2PLinkTask(networkId, pasteBlock);
+        });
+        thread.detach();
     };
     std::string taskName = pasteId + P2P_ESTABLISH_STR;
     ffrtTimer_->SetTimer(taskName, p2pTask);
@@ -1991,7 +2015,6 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     setPasteDataUId_ = IPCSkeleton::GetCallingUid();
     RemovePasteData(appInfo);
     SetPasteDataInfo(pasteData, appInfo, tokenId);
-    UpdateShareOption(pasteData);
     PasteboardWebController::GetInstance().SetWebviewPasteData(pasteData,
         std::make_pair(appInfo.bundleName, appInfo.appIndex));
     PasteboardWebController::GetInstance().CheckAppUriPermission(pasteData);
@@ -2293,12 +2316,9 @@ int32_t PasteboardService::WritePasteData(
 {
     if (rawDataSize > MIN_ASHMEM_DATA_SIZE) {
         auto actualSize = AshmemGetSize(fd);
-        if (actualSize < 0 || rawDataSize > actualSize) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
-            CloseSharedMemFd(fd);
-            return static_cast<int32_t>(PasteboardError::INVALID_DATA_SIZE);
-        }
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(actualSize >= 0 && rawDataSize <= actualSize,
+            static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
+            "rawDataSize invalid, actualSize=%{public}d, rawDataSize:%{public}" PRId64, actualSize, rawDataSize);
         void *ptr = ::mmap(nullptr, rawDataSize, PROT_READ, MAP_SHARED, fd, 0);
         if (ptr == MAP_FAILED) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "mmap failed, size:%{public}" PRId64, rawDataSize);
@@ -2364,6 +2384,7 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
 
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
     std::string bundleName = GetAppBundleName(appInfo);
+    UpdateShareOption(pasteData);
     if (DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, delayGetter, entryGetter)) {
         return ERR_OK;
     }
@@ -2495,18 +2516,19 @@ int32_t PasteboardService::SubscribeObserver(PasteboardObserverType type,
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "userId invalid.");
         return static_cast<int32_t>(PasteboardError::INVALID_USERID_ERROR);
     }
+    bool addSucc = false;
     if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_LOCAL)) {
-        AddObserver(userId, observer, observerLocalChangedMap_);
+        addSucc = AddObserver(userId, observer, observerLocalChangedMap_) || addSucc;
     }
 
     if (static_cast<uint32_t>(type) & static_cast<uint32_t>(PasteboardObserverType::OBSERVER_REMOTE)) {
-        AddObserver(userId, observer, observerRemoteChangedMap_);
+        addSucc = AddObserver(userId, observer, observerRemoteChangedMap_) || addSucc;
     }
 
     if (isEventType && IsCallerUidValid()) {
-        AddObserver(userId, observer, observerEventMap_);
+        addSucc = AddObserver(userId, observer, observerEventMap_) || addSucc;
     }
-    return ERR_OK;
+    return addSucc ? ERR_OK : static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED);
 }
 
 int32_t PasteboardService::ResubscribeObserver(
@@ -2586,12 +2608,12 @@ uint32_t PasteboardService::GetObserversSize(int32_t userId, pid_t pid, Observer
     return 0;
 }
 
-void PasteboardService::AddObserver(
+bool PasteboardService::AddObserver(
     int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap)
 {
     if (observer == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer null.");
-        return;
+        return false;
     }
     std::lock_guard<std::mutex> lock(observerMutex_);
     auto callPid = IPCSkeleton::GetCallingPid();
@@ -2607,12 +2629,13 @@ void PasteboardService::AddObserver(
     auto allObserverCount = GetAllObserversSize(userId, callPid);
     if (allObserverCount >= MAX_OBSERVER_COUNT) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer count over limit. callPid:%{public}d", callPid);
-        return;
+        return false;
     }
     observers->insert(observer);
     RADAR_REPORT(DFX_OBSERVER, DFX_ADD_OBSERVER, DFX_SUCCESS);
     PASTEBOARD_HILOGI(
         PASTEBOARD_MODULE_SERVICE, "observers->size = %{public}u.", static_cast<unsigned int>(observers->size()));
+    return true;
 }
 
 void PasteboardService::RemoveSingleObserver(
@@ -3063,10 +3086,12 @@ void PasteboardService::AddPreSyncP2pTimeoutTask(const std::string &networkId)
     std::string taskName = P2P_PRESYNC_ID + networkId;
     ffrtTimer_->CancelTimer(taskName);
     FFRTTask p2pTask = [this, networkId] {
-        ffrt_this_task_set_legacy_mode(true);
-        PasteComplete(networkId, P2P_PRESYNC_ID);
-        std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
-        DeletePreSyncP2pMap(networkId);
+        std::thread thread([=]() {
+            PasteComplete(networkId, P2P_PRESYNC_ID);
+            std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+            DeletePreSyncP2pMap(networkId);
+        });
+        thread.detach();
     };
     ffrtTimer_->SetTimer(taskName, p2pTask, PRE_ESTABLISH_P2P_LINK_TIME);
 }
@@ -3166,8 +3191,10 @@ void PasteboardService::PreEstablishP2PLinkCallback(const std::string &networkId
     }
 #ifdef PB_DEVICE_MANAGER_ENABLE
     FFRTTask p2pTask = [this, networkId, clipPlugin] {
-        ffrt_this_task_set_legacy_mode(true);
-        PreEstablishP2PLink(networkId, clipPlugin);
+        std::thread thread([=]() {
+            PreEstablishP2PLink(networkId, clipPlugin);
+        });
+        thread.detach();
     };
     std::string taskName = "PreEstablishP2PLink_";
     taskName += networkId;
@@ -3195,8 +3222,10 @@ void PasteboardService::PreSyncSwitchMonitorCallback()
         return;
     }
     FFRTTask monitorTask = [this] {
-        ffrt_this_task_set_legacy_mode(true);
-        RegisterPreSyncMonitor();
+        std::thread thread([=]() {
+            RegisterPreSyncMonitor();
+        });
+        thread.detach();
     };
     ffrtTimer_->SetTimer(REGISTER_PRESYNC_MONITOR, monitorTask);
 }
@@ -3212,8 +3241,10 @@ void PasteboardService::RegisterPreSyncMonitor()
         return;
     }
     FFRTTask monitorTask = [this] {
-        ffrt_this_task_set_legacy_mode(true);
-        UnRegisterPreSyncMonitor();
+        std::thread thread([=]() {
+            UnRegisterPreSyncMonitor();
+        });
+        thread.detach();
     };
     if (subscribeActiveId_ != INVALID_SUBSCRIBE_ID) {
         ffrtTimer_->SetTimer(UNREGISTER_PRESYNC_MONITOR, monitorTask, PRESYNC_MONITOR_TIME);

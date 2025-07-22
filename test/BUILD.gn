@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//build/test.gni")
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
 group("fuzztest") {
@@ -38,8 +39,10 @@ group("unittest") {
   if (pasteboard_dlp_part_enabled &&
       pasteboard_device_info_manager_part_enabled &&
       pasteboard_device_manager_part_enabled &&
-      pasteboard_screenlock_mgr_part_enabled) {
+      pasteboard_screenlock_mgr_part_enabled &&
+      !use_libfuzzer) {
     deps += [
+      "${pasteboard_root_path}/adapter/test:unittest",
       "${pasteboard_root_path}/framework/test:unittest",
       "${pasteboard_root_path}/interfaces/kits/napi/test/unittest/pasteboardapi:unittest",
       "${pasteboard_root_path}/interfaces/kits/napi/test/unittest/pasteboardperf:unittest",

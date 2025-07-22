@@ -30,7 +30,7 @@ using namespace OHOS::Security::AccessToken;
 constexpr pid_t SELECTION_SERVICE_UID = 1080;
 const std::string BUNDLE_NAME = "com.pasteboard.disposableTest";
 
-class PasteboardDisposableTest : public testing::Test {
+class PasteboardDisposableClientTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -43,7 +43,7 @@ public:
     static inline uint64_t testAppTokenId_ = 0;
 };
 
-void PasteboardDisposableTest::SetUpTestCase()
+void PasteboardDisposableClientTest::SetUpTestCase()
 {
     selfTokenId_ = GetSelfTokenID();
     AllocTestAppTokenId();
@@ -51,23 +51,23 @@ void PasteboardDisposableTest::SetUpTestCase()
     setuid(SELECTION_SERVICE_UID);
 }
 
-void PasteboardDisposableTest::TearDownTestCase()
+void PasteboardDisposableClientTest::TearDownTestCase()
 {
     AccessTokenKit::DeleteToken(testAppTokenId_);
     SetSelfTokenID(selfTokenId_);
     setuid(selfUid_);
 }
 
-void PasteboardDisposableTest::SetUp()
+void PasteboardDisposableClientTest::SetUp()
 {
     PasteboardClient::GetInstance()->Clear();
 }
 
-void PasteboardDisposableTest::TearDown()
+void PasteboardDisposableClientTest::TearDown()
 {
 }
 
-void PasteboardDisposableTest::AllocTestAppTokenId()
+void PasteboardDisposableClientTest::AllocTestAppTokenId()
 {
     HapInfoParams infoParams = {
         .userID = 100,
@@ -114,7 +114,7 @@ public:
  * @tc.desc: should callback text when set paste data with disposable observer
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardDisposableTest, TestDisposable001, TestSize.Level0)
+HWTEST_F(PasteboardDisposableClientTest, TestDisposable001, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
@@ -128,6 +128,8 @@ HWTEST_F(PasteboardDisposableTest, TestDisposable001, TestSize.Level0)
     setData.AddTextRecord(setText);
     ret = PasteboardClient::GetInstance()->SetPasteData(setData);
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer->errCode_, IPasteboardDisposableObserver::ERR_OK);
     EXPECT_STREQ(observer->text_.c_str(), setText.c_str());
 }
@@ -137,7 +139,7 @@ HWTEST_F(PasteboardDisposableTest, TestDisposable001, TestSize.Level0)
  * @tc.desc: should callback timeout when subscribe disposable observer but not set paste data
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardDisposableTest, TestDisposable002, TestSize.Level0)
+HWTEST_F(PasteboardDisposableClientTest, TestDisposable002, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
@@ -156,7 +158,7 @@ HWTEST_F(PasteboardDisposableTest, TestDisposable002, TestSize.Level0)
  * @tc.desc: should get paste data failed when set paste data with disposable observer
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardDisposableTest, TestDisposable003, TestSize.Level0)
+HWTEST_F(PasteboardDisposableClientTest, TestDisposable003, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
@@ -170,6 +172,8 @@ HWTEST_F(PasteboardDisposableTest, TestDisposable003, TestSize.Level0)
     setData.AddTextRecord(setText);
     ret = PasteboardClient::GetInstance()->SetPasteData(setData);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer->errCode_, IPasteboardDisposableObserver::ERR_OK);
     EXPECT_STREQ(observer->text_.c_str(), setText.c_str());
 
@@ -183,7 +187,7 @@ HWTEST_F(PasteboardDisposableTest, TestDisposable003, TestSize.Level0)
  * @tc.desc: should get paste data success when set paste data without disposable observer
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardDisposableTest, TestDisposable004, TestSize.Level0)
+HWTEST_F(PasteboardDisposableClientTest, TestDisposable004, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
@@ -197,6 +201,8 @@ HWTEST_F(PasteboardDisposableTest, TestDisposable004, TestSize.Level0)
     setData.AddTextRecord(setText);
     ret = PasteboardClient::GetInstance()->SetPasteData(setData);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer->errCode_, IPasteboardDisposableObserver::ERR_OK);
     EXPECT_STREQ(observer->text_.c_str(), setText.c_str());
 
@@ -209,5 +215,31 @@ HWTEST_F(PasteboardDisposableTest, TestDisposable004, TestSize.Level0)
     std::shared_ptr<std::string> getText = getData.GetPrimaryText();
     ASSERT_TRUE(getText != nullptr);
     EXPECT_STREQ(getText->c_str(), setText.c_str());
+}
+
+/**
+ * @tc.name: TestDisposable005
+ * @tc.desc: should callback ERR_DATA_IN_APP when set paste data with ShareOption::InApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardDisposableClientTest, TestDisposable005, TestSize.Level0)
+{
+    DisposableType type = DisposableType::PLAIN_TEXT;
+    uint32_t maxLen = 100;
+    std::string bundleName = BUNDLE_NAME;
+    sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
+    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, bundleName, type, maxLen);
+    ASSERT_EQ(ret, ERR_OK);
+
+    std::string setText = "123456";
+    PasteData setData;
+    setData.AddTextRecord(setText);
+    setData.SetShareOption(ShareOption::InApp);
+    ret = PasteboardClient::GetInstance()->SetPasteData(setData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    EXPECT_EQ(observer->errCode_, IPasteboardDisposableObserver::ERR_DATA_IN_APP);
+    EXPECT_STREQ(observer->text_.c_str(), "");
 }
 } // namespace OHOS::MiscServices

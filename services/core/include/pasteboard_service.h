@@ -349,6 +349,7 @@ private:
     bool IsContainUri(const std::vector<std::string> &dataType);
     std::shared_ptr<BlockObject<int32_t>> EstablishP2PLinkTask(
         const std::string &pasteId, const ClipPlugin::GlobalEvent &event);
+    void OnEstablishP2PLinkTask(const std::string &networkId, std::shared_ptr<BlockObject<int32_t>> pasteBlock);
     void ClearP2PEstablishTaskInfo();
     void CloseP2PLink(const std::string &networkId);
     bool HasDistributedDataType(const std::string &mimeType);
@@ -385,6 +386,7 @@ private:
     static std::string GetAppBundleName(const AppInfo &appInfo);
     static void SetLocalPasteFlag(bool isCrossPaste, uint32_t tokenId, PasteData &pasteData);
     void RecognizePasteData(PasteData &pasteData);
+    void OnRecognizePasteData(const std::string &primaryText);
     void ShowHintToast(uint32_t tokenId, uint32_t pid);
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
@@ -476,7 +478,7 @@ private:
 
     ConcurrentMap<uint32_t, GlobalShareOption> globalShareOptions_;
 
-    void AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
+    bool AddObserver(int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveSingleObserver(
         int32_t userId, const sptr<IPasteboardChangedObserver> &observer, ObserverMap &observerMap);
     void RemoveAllObserver(int32_t userId, ObserverMap &observerMap);

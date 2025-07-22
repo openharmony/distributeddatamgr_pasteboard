@@ -14,8 +14,8 @@
  */
 
 #include "pasteboard_disposable_manager.h"
+#include <thread>
 
-#include "c/ffrt_ipc.h"
 #include "ffrt/ffrt_utils.h"
 #include "ipc_skeleton.h"
 #include "parameters.h"
@@ -50,6 +50,10 @@ void DisposableManager::ProcessMatchedInfo(const std::vector<DisposableInfo> &ma
     for (const auto &item : matchedInfoList) {
         if (item.observer == nullptr) {
             PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "observer is null, pid=%{public}d", item.pid);
+            continue;
+        }
+        if (pasteData.GetShareOption() == ShareOption::InApp) {
+            item.observer->OnTextReceived("", IPasteboardDisposableObserver::ERR_DATA_IN_APP);
             continue;
         }
         if (item.type != DisposableType::PLAIN_TEXT) {
@@ -155,8 +159,10 @@ int32_t DisposableManager::AddDisposableInfo(const DisposableInfo &info)
         "maxLen=%{public}u", info.pid, info.targetBundleName.c_str(), typeInt, info.maxLen);
 
     FFRTTask expirationTask = [this, pid = info.pid] {
-        ffrt_this_task_set_legacy_mode(true);
-        RemoveDisposableInfo(pid, true);
+        std::thread thread([=]() {
+            RemoveDisposableInfo(pid, true);
+        });
+        thread.detach();
     };
     std::string taskName = "disposable_expiration[pid=" + std::to_string(info.pid) + "]";
     int32_t timeout = system::GetIntParameter("pasteboard.disposable_expiration", DISPOSABLE_EXPIRATION_DEFAULT,
@@ -180,7 +186,7 @@ void DisposableManager::RemoveDisposableInfo(pid_t pid, bool needNotify)
     std::lock_guard lock(disposableInfoMutex_);
     auto iter = std::find_if(disposableInfoList_.begin(), disposableInfoList_.end(),
         [pid](const DisposableInfo &info) { return info.pid == pid; });
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(iter != disposableInfoList_.end(), PASTEBOARD_MODULE_SERVICE,
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(iter != disposableInfoList_.end(), PASTEBOARD_MODULE_SERVICE,
         "disposable info not find, pid=%{public}d", pid);
 
     if (needNotify) {

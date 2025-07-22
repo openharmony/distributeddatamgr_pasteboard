@@ -74,12 +74,10 @@ struct GetDataParams {
     ProgressInfo *info;
 };
 
-class API_EXPORT PasteboardClient : public DelayedSingleton<PasteboardClient> {
-    DECLARE_DELAYED_SINGLETON(PasteboardClient);
-
+class API_EXPORT PasteboardClient {
 public:
     DISALLOW_COPY_AND_MOVE(PasteboardClient);
-
+    static PasteboardClient *GetInstance();
     /**
      * CreateHtmlTextRecord
      * @description Create Html Text Record.
@@ -359,9 +357,9 @@ public:
      * @description
      * @param type observer type
      * @param observer pasteboard change callback.
-     * @return void.
+     * @return bool. True: subscribe success, false: subscribe failed.
      */
-    void Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback);
+    bool Subscribe(PasteboardObserverType type, sptr<PasteboardObserver> callback);
 
     /**
      * AddPasteboardChangedObserver
@@ -457,8 +455,8 @@ public:
 
     /**
      * PasteStart
-     * @description Utilized to notify pasteboard service while reading PasteData, in this case, the service will help to
-     *     preserve the context and resources
+     * @description Utilized to notify pasteboard service while reading PasteData, in this case, the service will help
+     *     to preserve the context and resources
      * @return void.
      */
     void PasteStart(const std::string &pasteId);
@@ -505,10 +503,12 @@ public:
     void ReleaseSaListener();
 
 protected:
-    friend class SystemAbilityListener;
+    friend class PasteboardSamgrListener;
     void Resubscribe();
 
 private:
+    PasteboardClient();
+    ~PasteboardClient();
     sptr<IPasteboardService> GetPasteboardService();
     static void GetProgressByProgressInfo(std::shared_ptr<GetDataParams> params);
     static int32_t SetProgressWithoutFile(std::string &progressKey, std::shared_ptr<GetDataParams> params);
@@ -532,7 +532,7 @@ private:
         std::shared_ptr<PasteboardDelayGetter> &delayGetter, sptr<PasteboardEntryGetterClient> &entryGetterAgent,
         std::map<uint32_t, std::shared_ptr<UDMF::EntryGetter>> &entryGetters, PasteData &pasteData);
     void ProcessRadarReport(int32_t ret, PasteData &pasteData, PasteDataFromServiceInfo &pasteDataFromServiceInfo,
-        int32_t syncTime, const std::string &pasteDataInfoSummary);
+        int32_t syncTime);
     void CloseSharedMemFd(int fd);
     template<typename T>
     int32_t ProcessPasteData(T &data, int64_t rawDataSize, int fd,
@@ -561,7 +561,7 @@ private:
             return l.first < r.first;
         }
     };
-    static std::set<std::pair<PasteboardObserverType, sptr<PasteboardObserver>>, classcomp> observerSet_;
+    std::set<std::pair<PasteboardObserverType, sptr<PasteboardObserver>>, classcomp> observerSet_;
 };
 } // namespace MiscServices
 } // namespace OHOS

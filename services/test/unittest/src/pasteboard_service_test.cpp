@@ -1647,6 +1647,36 @@ HWTEST_F(PasteboardServiceTest, RecognizePasteDataTest001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: OnEstablishP2PLinkTaskTest001
+ * @tc.desc: test Func OnEstablishP2PLinkTask
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, OnEstablishP2PLinkTaskTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    std::string networkId = "networkId";
+    std::shared_ptr<BlockObject<int32_t>> block = std::make_shared<BlockObject<int32_t>>(2000, SET_VALUE_SUCCESS);
+    tempPasteboard->OnEstablishP2PLinkTask(networkId, block);
+}
+
+/**
+ * @tc.name: EstablishP2PLinkTaskTest001
+ * @tc.desc: test Func EstablishP2PLinkTask
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTaskTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    std::string pasteId;
+    ClipPlugin::GlobalEvent event{};
+    tempPasteboard->EstablishP2PLinkTask(pasteId, event);
+}
+
+/**
  * @tc.name: PostProcessDelayHtmlEntryTest001
  * @tc.desc: PostProcessDelayHtmlEntry
  * @tc.type: FUNC
@@ -3539,6 +3569,45 @@ HWTEST_F(PasteboardServiceTest, SetInputMethodPidTest006, TestSize.Level0)
     it = tempPasteboard->imeMap_.Find(userId);
     hasPid = it.first;
     EXPECT_NE(hasPid, true);
+}
+
+/**
+ * @tc.name: SubscribeObserverTest001
+ * @tc.desc: test Func SubscribeObserver
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest001, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    const sptr<IPasteboardChangedObserver> observer = nullptr;
+    auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
+}
+
+/**
+ * @tc.name: SubscribeObserverTest002
+ * @tc.desc: test Func SubscribeObserver
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest002, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    const sptr<IPasteboardChangedObserver> observer = nullptr;
+    auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_REMOTE, observer);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
+}
+
+/**
+ * @tc.name: SubscribeObserverTest003
+ * @tc.desc: test Func SubscribeObserver
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SubscribeObserverTest003, TestSize.Level0)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    const sptr<IPasteboardChangedObserver> observer = nullptr;
+    auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_EVENT, observer);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
 }
 
 /**

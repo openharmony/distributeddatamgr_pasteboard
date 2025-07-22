@@ -115,5 +115,39 @@ HWTEST_F(PasteboardClientMockTest, SetPasteData001, TestSize.Level0)
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
 }
 
+/**
+ * @tc.name: SubscribeTest001
+ * @tc.desc: SubscribeTest.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientMockTest, SubscribeTest001, TestSize.Level0)
+{
+    EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
+    PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
+    PasteboardServiceLoader::GetInstance().constructing_ = false;
+    sptr<PasteboardObserver> callback = nullptr;
+    auto ret = PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, callback);
+    ASSERT_EQ(ret, false);
+}
+
+/**
+ * @tc.name: SubscribeTest002
+ * @tc.desc: SubscribeTest.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientMockTest, SubscribeTest002, TestSize.Level0)
+{
+    EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
+    PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
+    PasteboardServiceLoader::GetInstance().constructing_ = false;
+    sptr<PasteboardObserver> callback = sptr<PasteboardObserver>::MakeSptr();
+    auto ret = PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, callback);
+    ASSERT_EQ(ret, false);
+}
+
 } // namespace MiscServices
 } // namespace OHOS

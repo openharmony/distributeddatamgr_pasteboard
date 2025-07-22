@@ -14,15 +14,14 @@
  */
 
 #include "device/dev_profile.h"
+#include <thread>
 
-#include "c/ffrt_ipc.h"
 #include "device/device_profile_proxy.h"
 #include "device/dm_adapter.h"
 #include "ffrt/ffrt_utils.h"
 #include "pasteboard_error.h"
 #include "pasteboard_event_ue.h"
 #include "pasteboard_hilog.h"
-
 namespace OHOS {
 namespace MiscServices {
 constexpr const char *UE_SWITCH_OPERATION = "PASTEBOARD_SWITCH_OPERATION";
@@ -42,26 +41,28 @@ void DevProfile::OnProfileUpdate(const std::string &udid, bool status)
 
 void DevProfile::PostDelayReleaseProxy()
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "post delay task start");
     constexpr uint32_t DELAY_TIME = 60 * 1000; // 60s
     static FFRTTimer ffrtTimer("release_dp_proxy");
 
     FFRTTask task = [this]() {
-        ffrt_this_task_set_legacy_mode(true);
+        std::thread thread([=]() {
+            std::lock_guard lock(proxyMutex_);
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "execute delay task");
+            if (proxy_ == nullptr) {
+                return;
+            }
 
-        std::lock_guard lock(proxyMutex_);
-        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "execute delay task");
-        if (proxy_ == nullptr) {
-            return;
-        }
-
-        if (subscribeUdidList_.empty()) {
-            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deinit dp proxy");
-            proxy_ = nullptr;
-        }
+            if (subscribeUdidList_.empty()) {
+                PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "deinit dp proxy");
+                proxy_ = nullptr;
+            }
+        });
+        thread.detach();
     };
 
     ffrtTimer.SetTimer("release_dp_proxy", task, DELAY_TIME);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "post delay task");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "post delay task end");
 }
 
 void DevProfile::PutDeviceStatus(bool status)

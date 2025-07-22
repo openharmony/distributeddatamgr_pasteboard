@@ -389,7 +389,10 @@ ohos_unittest("PasteboardLinkedListTest") {
   module_out_path = module_output_path
   include_dirs = [ "${pasteboard_utils_path}/native/include" ]
   sources = [ "unittest/src/pasteboard_linked_list_test.cpp" ]
-  external_deps = [ "googletest:gtest_main" ]
+  external_deps = [ 
+    "googletest:gtest_main",
+    "hilog:libhilog",
+  ]
 }
 
 ohos_unittest("PasteboardDeduplicateMemoryTest") {

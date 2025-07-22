@@ -94,7 +94,7 @@ char *PasteBoardMallocCString(const std::string &origin)
 
 void FillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRecord> record)
 {
-    if (record == nullptr) {
+    if (retPtr == nullptr || record == nullptr) {
         return;
     }
     retPtr->htmlText = nullptr;
@@ -250,7 +250,9 @@ RetDataCString FfiOHOSPasteDataRecordToPlainText(int64_t id)
         return ret;
     }
 
-    std::string res = instance->GetRealPasteDataRecord()->ConvertToText();
+    auto realRecord = instance->GetRealPasteDataRecord();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(realRecord != nullptr, ret, PASTEBOARD_MODULE_SERVICE, "realRecord is null");
+    std::string res = realRecord->ConvertToText();
     ret.data = PasteBoardMallocCString(res);
     if (ret.data == nullptr) {
         ret.code = ERR_CODE_PARAM_INVALID;
@@ -429,8 +431,9 @@ int32_t FfiOHOSPasteDataGetProperty(int64_t id, CPasteDataProperty *retPtr)
         LOGE("[PasteData] GetProperty: pasteData not exist");
         return ERR_INVALID_INSTANCE_CODE;
     }
-
     PasteDataProperty property = pasteData->GetProperty();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(retPtr != nullptr, ERR_CODE_PARAM_INVALID,
+        PASTEBOARD_MODULE_SERVICE, "retPtr is null");
     retPtr->tag = PasteBoardMallocCString(property.tag);
     if (retPtr->tag == nullptr) {
         return ERR_CODE_PARAM_INVALID;

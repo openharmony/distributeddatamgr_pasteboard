@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -90,36 +90,34 @@ void PatternDetection::DetectPlainText(
 
 std::string PatternDetection::ExtractHtmlContent(const std::string &html_str)
 {
-    LibGuard libxmlGuard{ LIBXML_SO_PATH };
-    if (!libxmlGuard.Ready()) {
-        return "";
-    }
+    LibGuard libxmlGuard{ LIBXML_SO_PATH};
     void *libHandle = libxmlGuard.GetLibHandle();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(libHandle != nullptr, "", PASTEBOARD_MODULE_SERVICE,
+        "dlopen libxml2 failed");
+
     auto htmlReadMemory = reinterpret_cast<htmlReadMemoryFuncPtr>(dlsym(libHandle, "htmlReadMemory"));
     auto xmlDocGetRootElement = reinterpret_cast<xmlNode *(*)(xmlDoc *)>(dlsym(libHandle, "xmlDocGetRootElement"));
     auto xmlNodeGetContent = reinterpret_cast<xmlChar *(*)(xmlNode *)>(dlsym(libHandle, "xmlNodeGetContent"));
     auto xmlFreeDoc = reinterpret_cast<void (*)(xmlDoc *)>(dlsym(libHandle, "xmlFreeDoc"));
-    if (!htmlReadMemory || !xmlDocGetRootElement || !xmlNodeGetContent || !xmlFreeDoc) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "dlsym libxml2 function failed.");
-        return "";
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(htmlReadMemory != nullptr && xmlDocGetRootElement != nullptr &&
+        xmlNodeGetContent != nullptr && xmlFreeDoc != nullptr, "", PASTEBOARD_MODULE_SERVICE,
+        "dlsym libxml2 failed");
     xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
-    if (doc == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed! doc nullptr.");
-        return "";
-    }
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(doc != nullptr, "", PASTEBOARD_MODULE_SERVICE,
+        "Parse html failed! doc nullptr");
     xmlNode *rootNode = xmlDocGetRootElement(doc);
     if (rootNode == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed! rootNode nullptr.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "parse html failed, rootNode is null");
         xmlFreeDoc(doc);
         return "";
     }
     xmlChar *xmlStr = xmlNodeGetContent(rootNode);
     if (xmlStr == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Parse html failed! xmlStr nullptr.");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "parse html failed, xmlStr is null");
         xmlFreeDoc(doc);
         return "";
     }
+
     std::string result(reinterpret_cast<const char *>(xmlStr));
     free(xmlStr);
     xmlFreeDoc(doc);
