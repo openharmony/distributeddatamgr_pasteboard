@@ -197,7 +197,7 @@ bool CheckArgs(napi_env env, napi_value *argv, size_t argc, std::string &mimeTyp
     }
 
     if (mimeType == MIMETYPE_TEXT_URI || mimeType == MIMETYPE_TEXT_PLAIN || mimeType == MIMETYPE_TEXT_HTML) {
-        if (!CheckArgsType(env, argv[1], napi_string, "Parameter error. The type of mimeType must be string.")) {
+        if (!CheckArgsType(env, argv[1], napi_string, "Parameter error. The type of value must be string.")) {
             return false;
         }
     } else if (mimeType == MIMETYPE_PIXELMAP) {
