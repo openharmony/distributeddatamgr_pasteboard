@@ -19,6 +19,8 @@
 static { loadLibrary("pasteboard_taihe_native.z") }
 """)
 
+@!sts_inject_into_module("import { BusinessError } from '@ohos.base';")
+
 @!sts_inject_into_module("import Want from '@ohos.app.ability.Want';")
 
 @!sts_inject_into_module("import image from '@ohos.multimedia.image';")
