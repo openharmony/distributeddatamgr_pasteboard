@@ -177,6 +177,8 @@ void PasteboardService::OnStart()
     auto status = DATASL_OnStart();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "datasl on start ret:%{public}d", status);
     moduleConfig_.Watch(std::bind(&PasteboardService::OnConfigChange, this, std::placeholders::_1));
+    ffrtTimer_ = FFRTPool::GetTimer("pasteboard_service");
+    UpdateAgedTime();
     AddSysAbilityListener();
     if (Init() != ERR_OK && serviceHandler_ != nullptr) {
         auto callback = [this]() {
@@ -209,7 +211,6 @@ void PasteboardService::OnStart()
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Start PasteboardService success.");
     EventCenter::GetInstance().Subscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE, RemotePasteboardChange());
     HiViewAdapter::StartTimerThread();
-    ffrtTimer_ = FFRTPool::GetTimer("pasteboard_service");
     return;
 }
 
@@ -231,6 +232,7 @@ void PasteboardService::OnStop()
     DATASL_OnStop();
     EventCenter::GetInstance().Unsubscribe(PasteboardEvent::DISCONNECT);
     EventCenter::GetInstance().Unsubscribe(OHOS::MiscServices::Event::EVT_REMOTE_CHANGE);
+    CancelCriticalTimer();
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 0, PASTEBOARD_SERVICE_ID);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop End.");
 }
@@ -328,6 +330,46 @@ void PasteboardService::NotifyEntryGetterDied(int32_t userId)
     entryGetters_.Erase(userId);
 }
 
+void PasteboardService::UpdateAgedTime()
+{
+    static bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
+    int32_t agedTime = developerMode ? system::GetIntParameter("const.pasteboard.rd_test_aged_time",
+        ONE_HOUR_MINUTES, MIN_AGED_TIME, MAX_AGED_TIME) : ONE_HOUR_MINUTES;
+    agedTime_ = agedTime * MINUTES_TO_MILLISECONDS;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "agedTime_: %{public}d", agedTime_);
+}
+
+void PasteboardService::CancelCriticalTimer()
+{
+    if (!ffrtTimer_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
+        return;
+    }
+    ffrtTimer_->CancelTimer(SET_CRITICAL_ID);
+    Memory::MemMgrClient::GetInstance().SetCritical(getpid(), false, PASTEBOARD_SERVICE_ID);
+    isCritical_ = false;
+}
+
+void PasteboardService::SetCriticalTimer()
+{
+    if (!ffrtTimer_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
+        return;
+    }
+    if (!isCritical_) {
+        Memory::MemMgrClient::GetInstance().SetCritical(getpid(), true, PASTEBOARD_SERVICE_ID);
+        isCritical_ = true;
+    }
+    FFRTTask task = [this] {
+        std::thread thread([=]() {
+            Memory::MemMgrClient::GetInstance().SetCritical(getpid(), false, PASTEBOARD_SERVICE_ID);
+            isCritical_ = false;
+        });
+        thread.detach();
+    };
+    ffrtTimer_->SetTimer(SET_CRITICAL_ID, task, static_cast<uint32_t>(agedTime_));
+}
+
 void PasteboardService::OnAddDeviceManager()
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
@@ -337,6 +379,7 @@ void PasteboardService::OnAddDeviceManager()
 void PasteboardService::OnAddMemoryManager()
 {
     Memory::MemMgrClient::GetInstance().NotifyProcessStatus(getpid(), 1, 1, PASTEBOARD_SERVICE_ID);
+    SetCriticalTimer();
 }
 
 void PasteboardService::OnAddDeviceProfile()
@@ -394,6 +437,7 @@ int32_t PasteboardService::Clear()
         NotifyObservers(bundleName, userId, PasteboardEventStatus::PASTEBOARD_CLEAR);
     }
     CleanDistributedData(userId);
+    CancelCriticalTimer();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "leave, clips_.Size=%{public}zu, appInfo.userId = %{public}d",
         clips_.Size(), userId);
     return ERR_OK;
@@ -936,11 +980,9 @@ bool PasteboardService::IsDataAged()
         copyTime, curTime);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((curTime != 0 && copyTime != 0), false,
         PASTEBOARD_MODULE_SERVICE, "Failed to get the time, data never aged."
-        "copyTime = %{public}" PRIu64 ", curTime = %{public}" PRIu64, copyTime, curTime);
-    static bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
-    int32_t agedTime = developerMode ? system::GetIntParameter("const.pasteboard.rd_test_aged_time",
-        ONE_HOUR_MINUTES, MIN_AGED_TIME, MAX_AGED_TIME) : ONE_HOUR_MINUTES;
-    if (curTime > copyTime && curTime - copyTime > static_cast<uint64_t>(agedTime * MINUTES_TO_MILLISECONDS)) {
+        "copyTime = %{public}" PRIu64 ", curtime = %{public}" PRIu64, copyTime, curTime);
+
+    if (curTime > copyTime && curTime - copyTime > static_cast<uint64_t>(agedTime_)) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
         auto data = clips_.Find(userId);
         if (data.first) {
@@ -2323,7 +2365,9 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
         fd >= 0, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE, "fd invalid");
     MessageParcelWarp messageData;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fd=%{public}d, rawDataSize=%{public}" PRId64, fd, rawDataSize);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fd=%{public}d, agedTime_ = %{public}d,"
+        "rawDataSize=%{public}" PRId64, fd, agedTime_, rawDataSize);
+    SetCriticalTimer();
     if (rawDataSize <= 0 || rawDataSize > messageData.GetRawDataSize()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Invalid raw data size:%{public}" PRId64, rawDataSize);
         CloseSharedMemFd(fd);
@@ -3934,6 +3978,7 @@ void PasteboardService::OnConfigChangeInner(bool isOn)
         clipPlugin_ = nullptr;
         return;
     }
+    SetCriticalTimer();
     auto securityLevel = securityLevel_.GetDeviceSecurityLevel();
     if (securityLevel < DATA_SEC_LEVEL3) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "device sec level is %{public}u less than 3.", securityLevel);
