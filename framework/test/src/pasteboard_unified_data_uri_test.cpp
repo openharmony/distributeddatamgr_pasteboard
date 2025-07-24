@@ -261,7 +261,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetFile001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::FILE);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -301,7 +301,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetFile002, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::FILE);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -341,7 +341,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetFile003, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::FILE);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -380,7 +380,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetImage001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::IMAGE);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -419,7 +419,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetImage002, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::IMAGE);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -458,7 +458,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetImage003, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::IMAGE);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -497,7 +497,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetAudio001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::AUDIO);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -536,7 +536,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetAudio002, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::AUDIO);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -575,7 +575,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetAudio003, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::AUDIO);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -614,7 +614,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetVideo001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::VIDEO);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -653,7 +653,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetVideo002, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::VIDEO);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -692,7 +692,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetVideo003, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::VIDEO);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -731,7 +731,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetFolder001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::FOLDER);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -770,7 +770,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetFolder002, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::FOLDER);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -809,7 +809,7 @@ HWTEST_F(PasteboardUnifiedDataUriTest, SetFolder003, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::FOLDER);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);

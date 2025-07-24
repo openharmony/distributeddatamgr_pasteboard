@@ -344,14 +344,14 @@ void FuzzPastedataRecord(const uint8_t *rawData, size_t size)
     pasteDataRecord.NewWantRecord(want);
     pasteDataRecord.NewPlainTextRecord(str);
     pasteDataRecord.NewPixelMapRecord(pixelMap);
-    pasteDataRecord.GetHtmlText();
+    pasteDataRecord.GetHtmlTextV0();
     pasteDataRecord.GetMimeType();
-    pasteDataRecord.GetPlainText();
-    pasteDataRecord.GetPixelMap();
+    pasteDataRecord.GetPlainTextV0();
+    pasteDataRecord.GetPixelMapV0();
     pasteDataRecord.GetOriginUri();
     pasteDataRecord.GetWant();
     pasteDataRecord.GetCustomData();
-    pasteDataRecord.GetUri();
+    pasteDataRecord.GetUriV0();
     pasteDataRecord.ClearPixelMap();
     pasteDataRecord.ConvertToText();
     pasteDataRecord.Encode(buffer);

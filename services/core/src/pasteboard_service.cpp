@@ -516,7 +516,7 @@ std::string PasteboardService::GetAllPrimaryText(const PasteData &pasteData)
             primaryText = "";
             break;
         }
-        std::shared_ptr<std::string> plainTextPtr = record->GetPlainText();
+        std::shared_ptr<std::string> plainTextPtr = record->GetPlainTextV0();
         if (plainTextPtr != nullptr) {
             primaryText += *plainTextPtr;
             PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "primaryText in record");

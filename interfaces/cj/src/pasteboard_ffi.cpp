@@ -102,23 +102,23 @@ void FillCPasteDataRecord(CPasteDataRecord *retPtr, std::shared_ptr<PasteDataRec
     retPtr->plainText = nullptr;
     retPtr->uri = nullptr;
     retPtr->pixelMap = ERR_INVALID_INSTANCE_CODE;
-    if (record->GetHtmlText() != nullptr) {
-        std::string resHtmlText = *(record->GetHtmlText());
+    if (record->GetHtmlTextV0() != nullptr) {
+        std::string resHtmlText = *(record->GetHtmlTextV0());
         retPtr->htmlText = PasteBoardMallocCString(resHtmlText);
     }
     if (!record->GetMimeType().empty()) {
         std::string resMimeType = record->GetMimeType();
         retPtr->mimeType = PasteBoardMallocCString(resMimeType);
     }
-    if (record->GetPlainText() != nullptr) {
-        std::string resPlainText = *(record->GetPlainText());
+    if (record->GetPlainTextV0() != nullptr) {
+        std::string resPlainText = *(record->GetPlainTextV0());
         retPtr->plainText = PasteBoardMallocCString(resPlainText);
     }
-    if (record->GetUri() != nullptr) {
-        std::string resUri = record->GetUri()->ToString();
+    if (record->GetUriV0() != nullptr) {
+        std::string resUri = record->GetUriV0()->ToString();
         retPtr->uri = PasteBoardMallocCString(resUri);
     }
-    std::shared_ptr<PixelMap> pixelMap = record->GetPixelMap();
+    std::shared_ptr<PixelMap> pixelMap = record->GetPixelMapV0();
     auto nativeImage = FFIData::Create<PixelMapImpl>(move(pixelMap));
     if (!nativeImage) {
         retPtr->pixelMap = 0;

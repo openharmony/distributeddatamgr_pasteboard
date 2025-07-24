@@ -1007,7 +1007,7 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData005, TestSize.Level1)
     auto mimeType = record1->GetMimeType();
     EXPECT_EQ(mimeType, MIMETYPE_TEXT_PLAIN);
 
-    auto text = record1->GetPlainText();
+    auto text = record1->GetPlainTextV0();
     EXPECT_EQ(strcmp(text->c_str(), PLAINTEXT_CONTENT), 0);
 
     OH_Pasteboard_Destroy(pasteboard);
@@ -1052,7 +1052,7 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetData006, TestSize.Level1)
     auto mimeType = record1->GetMimeType();
     EXPECT_EQ(mimeType, MIMETYPE_TEXT_HTML);
 
-    auto html1 = record1->GetHtmlText();
+    auto html1 = record1->GetHtmlTextV0();
     EXPECT_EQ(strcmp(html1->c_str(), HTML_TEXT), 0);
 
     OH_Pasteboard_Destroy(pasteboard);

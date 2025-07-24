@@ -445,7 +445,7 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2File(const std::shar
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "record2 file record is null.");
-    auto uri = record->GetUri();
+    auto uri = record->GetUriV0();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(uri != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "get uri from paste record to file failed.");
     auto unifiedRecord = std::make_shared<UDMF::File>(uri->ToString());
@@ -471,7 +471,7 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Image(const std::sha
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "record2 iamge record is null.");
-    auto uri = record->GetUri();
+    auto uri = record->GetUriV0();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(uri != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "get uri from paste record to image failed.");
     auto unifiedRecord = std::make_shared<UDMF::Image>(uri->ToString());
@@ -497,7 +497,7 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Video(const std::sha
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "record2 video record is null.");
-    auto uri = record->GetUri();
+    auto uri = record->GetUriV0();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(uri != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "get uri from paste record to video failed.");
     auto unifiedRecord = std::make_shared<UDMF::Video>(uri->ToString());
@@ -523,7 +523,7 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Audio(const std::sha
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "record2 audio record is null.");
-    auto uri = record->GetUri();
+    auto uri = record->GetUriV0();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(uri != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "get uri from paste record to audio failed.");
     auto unifiedRecord = std::make_shared<UDMF::Audio>(uri->ToString());
@@ -549,7 +549,7 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2Folder(const std::sh
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "record2 folder record is null.");
-    auto uri = record->GetUri();
+    auto uri = record->GetUriV0();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(uri != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "get uri from paste record to folder failed.");
     auto unifiedRecord = std::make_shared<UDMF::Folder>(uri->ToString());
@@ -578,7 +578,7 @@ std::shared_ptr<UnifiedRecord> PasteboardUtils::PasteRecord2PixelMap(const std::
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(record != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "pixel map record is null.");
-    auto pixelMapRecord = record->GetPixelMap();
+    auto pixelMapRecord = record->GetPixelMapV0();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(pixelMapRecord != nullptr, nullptr,
         PASTEBOARD_MODULE_CLIENT, "get pixelMap from paste record failed.");
     return std::make_shared<UDMF::UnifiedRecord>(UDMF::SYSTEM_DEFINED_PIXEL_MAP, pixelMapRecord);

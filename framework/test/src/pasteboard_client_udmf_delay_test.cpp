@@ -459,7 +459,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetHtmlDataTest001, TestSize.Level1)
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
     ASSERT_EQ(pasteRecord->GetMimeType(), MIMETYPE_TEXT_HTML);
-    auto htmlText = pasteRecord->GetHtmlText();
+    auto htmlText = pasteRecord->GetHtmlTextV0();
     ASSERT_NE(htmlText, nullptr);
     ASSERT_EQ(*htmlText, "htmlContent");
 }
@@ -491,7 +491,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetFileDataTest001, TestSize.Level1)
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
     ASSERT_EQ(pasteRecord->GetMimeType(), MIMETYPE_TEXT_URI);
-    auto uri = pasteRecord->GetUri();
+    auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
 }
@@ -525,7 +525,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetImageDataTest001, TestSize.Level1)
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
     ASSERT_EQ(pasteRecord->GetMimeType(), MIMETYPE_TEXT_URI);
-    auto uri = pasteRecord->GetUri();
+    auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
 }
@@ -559,7 +559,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetVideoDataTest001, TestSize.Level1)
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
     ASSERT_EQ(pasteRecord->GetMimeType(), MIMETYPE_TEXT_URI);
-    auto uri = pasteRecord->GetUri();
+    auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
 }
@@ -593,7 +593,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetAudioDataTest001, TestSize.Level1)
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
     ASSERT_EQ(pasteRecord->GetMimeType(), MIMETYPE_TEXT_URI);
-    auto uri = pasteRecord->GetUri();
+    auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
 }
@@ -627,7 +627,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetFolderDataTest001, TestSize.Level1)
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
     ASSERT_EQ(pasteRecord->GetMimeType(), MIMETYPE_TEXT_URI);
-    auto uri = pasteRecord->GetUri();
+    auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
 }

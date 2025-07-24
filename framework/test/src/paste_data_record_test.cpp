@@ -330,7 +330,7 @@ HWTEST_F(PasteDataRecordTest, BuilderTest001, TestSize.Level0)
 
 /**
  * @tc.name: SetUriTest001
- * @tc.desc: SetUri & GetUri
+ * @tc.desc: SetUri & GetUriV0
  * @tc.type: FUNC
  */
 HWTEST_F(PasteDataRecordTest, SetUriTest001, TestSize.Level0)
@@ -338,7 +338,7 @@ HWTEST_F(PasteDataRecordTest, SetUriTest001, TestSize.Level0)
     PasteDataRecord record;
     record.SetUri(nullptr);
 
-    auto uri = record.GetUri();
+    auto uri = record.GetUriV0();
     EXPECT_EQ(uri, nullptr);
 }
 
@@ -425,7 +425,7 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeDelayRecordTest001, TestSize.Level0)
 
 /**
  * @tc.name: ClearPixelMapTest001
- * @tc.desc: ClearPixelMap & GetPixelMap
+ * @tc.desc: ClearPixelMap & GetPixelMapV0
  * @tc.type: FUNC
  */
 HWTEST_F(PasteDataRecordTest, ClearPixelMapTest001, TestSize.Level0)
@@ -434,12 +434,268 @@ HWTEST_F(PasteDataRecordTest, ClearPixelMapTest001, TestSize.Level0)
     auto record = PasteDataRecord::NewPixelMapRecord(pixelMap);
     ASSERT_NE(record, nullptr);
 
-    pixelMap = record->GetPixelMap();
+    pixelMap = record->GetPixelMapV0();
     EXPECT_NE(pixelMap, nullptr);
 
     record->ClearPixelMap();
-    pixelMap = record->GetPixelMap();
+    pixelMap = record->GetPixelMapV0();
     EXPECT_EQ(pixelMap, nullptr);
+}
+
+/**
+ * @tc.name: GetHtmlTextV0Test001
+ * @tc.desc: GetHtmlTextV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test001, TestSize.Level0)
+{
+    std::string html = html_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
+    ASSERT_NE(record, nullptr);
+
+    auto htmlText = record->GetHtmlTextV0();
+    EXPECT_NE(htmlText, nullptr);
+}
+
+/**
+ * @tc.name: GetHtmlTextV0Test002
+ * @tc.desc: GetHtmlTextV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test002, TestSize.Level0)
+{
+    std::string text = text_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
+    ASSERT_NE(record, nullptr);
+
+    auto htmlText = record->GetHtmlTextV0();
+    EXPECT_EQ(htmlText, nullptr);
+}
+
+/**
+ * @tc.name: GetHtmlTextV0Test003
+ * @tc.desc: GetHtmlTextV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test003, TestSize.Level0)
+{
+    std::string html = nullptr;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
+    ASSERT_NE(record, nullptr);
+
+    auto htmlText = record->GetHtmlTextV0();
+    EXPECT_EQ(htmlText, nullptr);
+}
+
+/**
+ * @tc.name: GetHtmlTextTest001
+ * @tc.desc: GetHtmlText
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetHtmlTextTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+
+    auto htmlText = record.GetHtmlText();
+    EXPECT_EQ(htmlText, nullptr);
+}
+
+/**
+ * @tc.name: GetHtmlTextTest002
+ * @tc.desc: GetHtmlText
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetHtmlTextTest002, TestSize.Level0)
+{
+    std::string html = html_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
+    ASSERT_NE(record, nullptr);
+
+    auto htmlText = record->GetHtmlText();
+    EXPECT_NE(htmlText, nullptr);
+}
+
+/**
+ * @tc.name: GetPlainTextV0Test001
+ * @tc.desc: GetPlainTextV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test001, TestSize.Level0)
+{
+    std::string text = text_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
+    ASSERT_NE(record, nullptr);
+
+    auto plainText = record->GetPlainTextV0();
+    EXPECT_NE(plainText, nullptr);
+}
+
+/**
+ * @tc.name: GetPlainTextV0Test002
+ * @tc.desc: GetPlainTextV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test002, TestSize.Level0)
+{
+    std::string html = html_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
+    ASSERT_NE(record, nullptr);
+
+    auto plainText = record->GetPlainTextV0();
+    EXPECT_EQ(plainText, nullptr);
+}
+
+/**
+ * @tc.name: GetPlainTextV0Test003
+ * @tc.desc: GetPlainTextV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test003, TestSize.Level0)
+{
+    std::string text = nullptr;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
+    ASSERT_NE(record, nullptr);
+
+    auto plainText = record->GetPlainTextV0();
+    EXPECT_EQ(plainText, nullptr);
+}
+
+/**
+ * @tc.name: GetPlainTextTest001
+ * @tc.desc: GetPlainText
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetPlainTextTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+
+    auto plainText = record.GetPlainText();
+    EXPECT_EQ(plainText, nullptr);
+}
+
+/**
+ * @tc.name: GetPlainTextTest002
+ * @tc.desc: GetPlainText
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetPlainTextTest002, TestSize.Level0)
+{
+    std::string text = text_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
+    ASSERT_NE(record, nullptr);
+
+    auto plainText = record->GetPlainText();
+    EXPECT_NE(plainText, nullptr);
+}
+
+/**
+ * @tc.name: GetPixelMapTest001
+ * @tc.desc: GetPixelMap
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetPixelMapTest001, TestSize.Level0)
+{
+    PasteDataRecord record;
+
+    auto pixelMap = record.GetPixelMap();
+    EXPECT_EQ(pixelMap, nullptr);
+}
+
+/**
+ * @tc.name: GetPixelMapTest002
+ * @tc.desc: GetPixelMap
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetPixelMapTest002, TestSize.Level0)
+{
+    const uint32_t color[] = { 0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08 };
+    uint32_t len = sizeof(color) / sizeof(color[0]);
+    Media::InitializationOptions opts;
+    opts.size.width = 2;
+    opts.size.height = 3;
+    opts.pixelFormat = Media::PixelFormat::UNKNOWN;
+    opts.alphaType = Media::AlphaType::IMAGE_ALPHA_TYPE_OPAQUE;
+    std::shared_ptr<Media::PixelMap> pixelMap = Media::PixelMap::Create(color, len, 0, opts.size.width, opts);
+
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPixelMapRecord(pixelMap);
+    ASSERT_NE(record, nullptr);
+
+    pixelMap = record->GetPixelMap();
+    EXPECT_NE(pixelMap, nullptr);
+}
+
+/**
+ * @tc.name: GetUriV0Test001
+ * @tc.desc: GetUriV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUriV0Test001, TestSize.Level0)
+{
+    OHOS::Uri uri(uri_);
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewUriRecord(uri);
+    ASSERT_NE(record, nullptr);
+
+    auto tempUri = record->GetUriV0();
+    EXPECT_NE(tempUri, nullptr);
+}
+
+/**
+ * @tc.name: GetUriV0Test002
+ * @tc.desc: GetUriV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUriV0Test002, TestSize.Level0)
+{
+    std::string html = html_;
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
+    ASSERT_NE(record, nullptr);
+
+    auto tempUri = record->GetUriV0();
+    EXPECT_EQ(tempUri, nullptr);
+}
+
+/**
+ * @tc.name: GetUriV0Test003
+ * @tc.desc: GetUriV0
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUriV0Test003, TestSize.Level0)
+{
+    OHOS::Uri uri(uri_);
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewUriRecord(uri);
+    ASSERT_NE(record, nullptr);
+
+    auto tempUri = record->GetUriV0();
+    EXPECT_EQ(tempUri, nullptr);
+}
+
+/**
+ * @tc.name: GetUriTest001
+ * @tc.desc: GetUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUriTest001, TestSize.Level0)
+{
+    OHOS::Uri uri(uri_);
+    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewUriRecord(uri);
+    ASSERT_NE(record, nullptr);
+
+    auto tempUri = record->GetUri();
+    EXPECT_NE(tempUri, nullptr);
+}
+
+/**
+ * @tc.name: GetUriTest002
+ * @tc.desc: GetUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataRecordTest, GetUriTest002, TestSize.Level0)
+{
+    PasteDataRecord record;
+    record.SetUri(nullptr);
+
+    auto tempUri = record.GetUri();
+    EXPECT_NE(tempUri, nullptr);
 }
 
 /**
@@ -450,7 +706,7 @@ HWTEST_F(PasteDataRecordTest, ClearPixelMapTest001, TestSize.Level0)
 HWTEST_F(PasteDataRecordTest, ConstructorTest001, TestSize.Level0)
 {
     PasteDataRecord record("", nullptr, nullptr, nullptr, nullptr);
-    auto pixelMap = record.GetPixelMap();
+    auto pixelMap = record.GetPixelMapV0();
     EXPECT_EQ(pixelMap, nullptr);
 }
 

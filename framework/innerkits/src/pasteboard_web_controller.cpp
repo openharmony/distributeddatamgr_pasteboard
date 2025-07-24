@@ -94,10 +94,10 @@ void PasteboardWebController::SetWebviewPasteData(PasteData &pasteData,
         return;
     }
     for (auto &item : pasteData.AllRecords()) {
-        if (item->GetUri() == nullptr || item->GetFrom() == 0 || item->GetRecordId() == item->GetFrom()) {
+        if (item->GetUriV0() == nullptr || item->GetFrom() == 0 || item->GetRecordId() == item->GetFrom()) {
             continue;
         }
-        std::shared_ptr<Uri> uri = item->GetUri();
+        std::shared_ptr<Uri> uri = item->GetUriV0();
         std::string puri = uri->ToString();
         if (puri.substr(0, strlen(IMG_LOCAL_URI)) == PasteData::IMG_LOCAL_URI &&
             puri.find(std::string(FILE_SCHEME_PREFIX) + PasteData::PATH_SHARE) == std::string::npos) {
@@ -172,12 +172,12 @@ void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &recor
 {
     std::string bundleIndex;
     PasteBoardCommon::GetDirByBundleNameAndAppIndex(targetBundle, appIndex, bundleIndex);
-    PASTEBOARD_CHECK_AND_RETURN_LOGD(record->GetUri() != nullptr, PASTEBOARD_MODULE_COMMON,
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(record->GetUriV0() != nullptr, PASTEBOARD_MODULE_COMMON,
         "id=%{public}u, uri is null", record->GetRecordId());
     PASTEBOARD_CHECK_AND_RETURN_LOGD(record->GetFrom() != 0 && record->GetFrom() != record->GetRecordId(),
         PASTEBOARD_MODULE_COMMON, "id=%{public}u, from=%{public}u", record->GetRecordId(), record->GetFrom());
 
-    std::shared_ptr<Uri> uri = record->GetUri();
+    std::shared_ptr<Uri> uri = record->GetUriV0();
     std::string puri = uri->ToString();
     std::string realUri = puri;
     if (puri.substr(0, strlen(FILE_SCHEME_PREFIX)) == FILE_SCHEME_PREFIX) {
@@ -266,11 +266,11 @@ std::shared_ptr<std::string> PasteboardWebController::RebuildHtml(std::shared_pt
     for (const auto &item : pasteDataRecords) {
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(item != nullptr, nullptr,
                                              PASTEBOARD_MODULE_COMMON, "item is null");
-        std::shared_ptr<std::string> html = item->GetHtmlText();
+        std::shared_ptr<std::string> html = item->GetHtmlTextV0();
         if (html != nullptr) {
             htmlData = html;
         }
-        std::shared_ptr<OHOS::Uri> uri = item->GetUri();
+        std::shared_ptr<OHOS::Uri> uri = item->GetUriV0();
         std::shared_ptr<MiscServices::MineCustomData> customData = item->GetCustomData();
         if (uri == nullptr || customData == nullptr) {
             continue;
@@ -445,7 +445,7 @@ void PasteboardWebController::ReplaceHtmlRecordContentByExtraUris(
                 continue;
             }
         }
-        std::shared_ptr<OHOS::Uri> uri = item->GetUri();
+        std::shared_ptr<OHOS::Uri> uri = item->GetUriV0();
         std::shared_ptr<MiscServices::MineCustomData> customData = item->GetCustomData();
         if (!uri || !customData) {
             continue;

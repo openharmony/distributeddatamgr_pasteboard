@@ -247,19 +247,19 @@ void PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
     auto mimeType = value_->GetMimeType();
     SetNamedPropertyByStr(env, instance, "mimeType", mimeType.c_str());
 
-    auto plainText = value_->GetPlainText();
+    auto plainText = value_->GetPlainTextV0();
     if (plainText != nullptr) {
         SetNamedPropertyByStr(env, instance, "plainText", plainText->c_str());
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill plainText.");
     }
 
-    auto htmlText = value_->GetHtmlText();
+    auto htmlText = value_->GetHtmlTextV0();
     if (htmlText != nullptr) {
         SetNamedPropertyByStr(env, instance, "htmlText", htmlText->c_str());
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill htmlText.");
     }
 
-    auto uri = value_->GetUri();
+    auto uri = value_->GetUriV0();
     if (uri != nullptr) {
         SetNamedPropertyByStr(env, instance, "uri", uri->ToString().c_str());
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill uri.");
@@ -272,7 +272,7 @@ void PasteDataRecordNapi::JSFillInstance(napi_env env, napi_value &instance)
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "fill want.");
     }
 
-    auto pixelMap = value_->GetPixelMap();
+    auto pixelMap = value_->GetPixelMapV0();
     if (pixelMap != nullptr) {
         napi_value jsPixelMap = OHOS::Media::PixelMapNapi::CreatePixelMap(env, pixelMap);
         napi_set_named_property(env, instance, "pixelMap", jsPixelMap);

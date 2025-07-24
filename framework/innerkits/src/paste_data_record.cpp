@@ -265,7 +265,7 @@ PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
     this->isConvertUriFromRemote = record.isConvertUriFromRemote;
 }
 
-std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
+std::shared_ptr<std::string> PasteDataRecord::GetHtmlTextV0() const
 {
     for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_TEXT_HTML) {
@@ -273,6 +273,15 @@ std::shared_ptr<std::string> PasteDataRecord::GetHtmlText() const
         }
     }
     return htmlText_;
+}
+
+std::shared_ptr<std::string> PasteDataRecord::GetHtmlText()
+{
+    auto entry = GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+    if (entry == nullptr) {
+        return htmlText_;
+    }
+    return entry->ConvertToHtml();
 }
 
 std::string PasteDataRecord::GetMimeType() const
@@ -286,7 +295,7 @@ std::string PasteDataRecord::GetMimeType() const
     return this->mimeType_;
 }
 
-std::shared_ptr<std::string> PasteDataRecord::GetPlainText() const
+std::shared_ptr<std::string> PasteDataRecord::GetPlainTextV0() const
 {
     for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_TEXT_PLAIN) {
@@ -296,7 +305,16 @@ std::shared_ptr<std::string> PasteDataRecord::GetPlainText() const
     return plainText_;
 }
 
-std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
+std::shared_ptr<std::string> PasteDataRecord::GetPlainText()
+{
+    auto entry = GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
+    if (entry == nullptr) {
+        return plainText_;
+    }
+    return entry->ConvertToPlainText();
+}
+
+std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMapV0() const
 {
     for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_PIXELMAP) {
@@ -306,12 +324,30 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap() const
     return pixelMap_;
 }
 
-std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri() const
+std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap()
+{
+    auto entry = GetEntryByMimeType(MIMETYPE_PIXELMAP);
+    if (entry == nullptr) {
+        return pixelMap_;
+    }
+    return entry->ConvertToPixelMap();
+}
+
+std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUriV0() const
 {
     if (convertUri_.empty()) {
         return GetOriginUri();
     }
     return std::make_shared<OHOS::Uri>(convertUri_);
+}
+
+std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri()
+{
+    auto entry = GetEntryByMimeType(MIMETYPE_TEXT_URI);
+    if (entry == nullptr) {
+        return GetUriV0();
+    }
+    return entry->ConvertToUri();
 }
 
 void PasteDataRecord::ClearPixelMap()
@@ -393,11 +429,11 @@ std::shared_ptr<MineCustomData> PasteDataRecord::GetCustomData() const
 
 std::string PasteDataRecord::ConvertToText() const
 {
-    auto htmlText = GetHtmlText();
+    auto htmlText = GetHtmlTextV0();
     if (htmlText != nullptr) {
         return *htmlText;
     }
-    auto plainText = GetPlainText();
+    auto plainText = GetPlainTextV0();
     if (plainText != nullptr) {
         return *plainText;
     }
@@ -537,7 +573,7 @@ bool PasteDataRecord::DecodeTLV(ReadOnlyBuffer &buffer)
         entries_.insert(entries_.begin(), std::move(entry));
     }
     udmfValue_ = nullptr;
-    plainText_ = (getuid() == ANCO_SERVICE_BROKER_UID) ? GetPlainText() : nullptr;
+    plainText_ = (getuid() == ANCO_SERVICE_BROKER_UID) ? GetPlainTextV0() : nullptr;
     htmlText_ = nullptr;
     pixelMap_ = nullptr;
     want_ = nullptr;
@@ -886,8 +922,8 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
                     "recordId=%{public}u, type=%{public}s", dataId_, recordId_, utdType.c_str());
                 PasteboardServiceLoader::GetInstance().GetRecordValueByType(dataId_, recordId_, *entry);
             }
-            if (CommonUtils::IsFileUri(utdType) && GetUri() != nullptr) {
-                return std::make_shared<PasteDataEntry>(utdType, GetUri()->ToString());
+            if (CommonUtils::IsFileUri(utdType) && GetUriV0() != nullptr) {
+                return std::make_shared<PasteDataEntry>(utdType, GetUriV0()->ToString());
             }
             return entry;
         }
