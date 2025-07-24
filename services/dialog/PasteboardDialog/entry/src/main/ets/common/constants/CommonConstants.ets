@@ -56,6 +56,8 @@ export default class CommonConstants {
   public static readonly COMP_DIALOG_CALLBACK:string = 'ohos.miscservices.dialog.callback';
   // IPC callback descriptor idl
   public static readonly COMP_DIALOG_CALLBACK_IDL:string = 'OHOS.MiscServices.IPasteboardSignal';
+  //isMirrorLanguages
+  public static readonly MIRROR_LANGUAGES:Array<string> = ['ar','ug'];
 }
 
 export enum FontSizeScale {

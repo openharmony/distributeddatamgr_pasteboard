@@ -25,6 +25,7 @@ import { TipsJumpUtils } from '../utils/TipsJumpUtils';
 import { IS_PC, IS_PAD } from '../utils/CommonUtils';
 import { LengthMetrics } from '@ohos.arkui.node';
 import systemParameterEnhance from '@ohos.systemParameterEnhance';
+import i18n from '@ohos.i18n';
 
 const TAG = '[PasteboardSwitch_Page] : ';
 let context = getContext(this) as common.UIAbilityContext;
@@ -443,7 +444,8 @@ struct PasteboardSwitch {
               .fontWeight(FontWeight.Medium)
               .fontSize(CommonConstants.SYMBOL_INFO_CIRCLE)
               .fontColor([$r('sys.color.ohos_id_color_activated')])
-              .margin({ right: CommonConstants.SYMBOL_MARGIN_RIGHT })
+              .margin(this.isMirrorLanguages() ? { left: CommonConstants.SYMBOL_MARGIN_LEFT } :
+                { right: CommonConstants.SYMBOL_MARGIN_RIGHT })
 
             Text($r('app.string.update_version_prompt'))
               .fontSize($r('sys.float.ohos_id_text_size_body3'))
@@ -572,5 +574,10 @@ struct PasteboardSwitch {
     } catch (err) {
       console.error(`${TAG} Register failed. exception: ${err.message}`);
     }
+  }
+
+  private isMirrorLanguages(): boolean {
+    let locale = new Intl.Locale(i18n.getSystemLanguage()).toString();
+    return CommonConstants.MIRROR_LANGUAGES.includes(locale);
   }
 }
