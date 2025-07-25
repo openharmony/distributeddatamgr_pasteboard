@@ -899,7 +899,7 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataOnlyTest001, TestSize.Level0)
     int32_t result = service->SetPasteDataOnly(fd, rawDataSize, buffer);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
     mpw->writeRawDataFd_ = -1;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataOnlyTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataOnlyTest001 end");
 }
 
 /**
@@ -1467,7 +1467,7 @@ HWTEST_F(PasteboardServiceTest, SubscribeObserverTest001, TestSize.Level0)
     const sptr<IPasteboardChangedObserver> observer = nullptr;
     auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeObserverTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeObserverTest001 end");
 }
 
 /**
@@ -1484,7 +1484,7 @@ HWTEST_F(PasteboardServiceTest, SubscribeObserverTest002, TestSize.Level0)
     const sptr<IPasteboardChangedObserver> observer = nullptr;
     auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_REMOTE, observer);
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeObserverTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeObserverTest002 end");
 }
 
 /**
@@ -1501,7 +1501,7 @@ HWTEST_F(PasteboardServiceTest, SubscribeObserverTest003, TestSize.Level0)
     const sptr<IPasteboardChangedObserver> observer = nullptr;
     auto ret = tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_EVENT, observer);
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::ADD_OBSERVER_FAILED));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeObserverTest003 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeObserverTest003 end");
 }
 
 /**
@@ -1798,7 +1798,7 @@ HWTEST_F(PasteboardServiceTest, NotifyDelayGetterDiedTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->NotifyDelayGetterDied(userId);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyDelayGetterDiedTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyDelayGetterDiedTest001 end");
 }
 
 /**
@@ -1814,7 +1814,7 @@ HWTEST_F(PasteboardServiceTest, NotifyDelayGetterDiedTest002, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->NotifyDelayGetterDied(userId);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyDelayGetterDiedTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyDelayGetterDiedTest002 end");
 }
 
 /**
@@ -1863,7 +1863,7 @@ HWTEST_F(PasteboardServiceTest, GetChangeCountTest001, TestSize.Level0)
     uint32_t changeCount = 0;
     int32_t result = service->GetChangeCount(changeCount);
     EXPECT_EQ(result, ERR_OK);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetChangeCountTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetChangeCountTest001 end");
 }
 
 /**
@@ -1879,7 +1879,7 @@ HWTEST_F(PasteboardServiceTest, ChangeStoreStatusTest001, TestSize.Level0)
 
     int32_t userId = 1;
     tempPasteboard->ChangeStoreStatus(userId);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ChangeStoreStatusTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ChangeStoreStatusTest001 end");
 }
 
 /**
@@ -1896,7 +1896,7 @@ HWTEST_F(PasteboardServiceTest, CloseDistributedStoreTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->CloseDistributedStore(user, isNeedClear);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseDistributedStoreTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseDistributedStoreTest001 end");
 }
 
 /**
@@ -2206,7 +2206,7 @@ HWTEST_F(PasteboardServiceTest, GetFocusedAppInfoTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->GetFocusedAppInfo();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetFocusedAppInfoTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetFocusedAppInfoTest001 end");
 }
 
 /**
@@ -2224,7 +2224,7 @@ HWTEST_F(PasteboardServiceTest, OnRemoteDiedTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->OnRemoteDied(deadRemote);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnRemoteDiedTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnRemoteDiedTest001 end");
 }
 
 /**
@@ -2242,7 +2242,7 @@ HWTEST_F(PasteboardServiceTest, OnRemoteDiedTest002, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->OnRemoteDied(deadRemote);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnRemoteDiedTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnRemoteDiedTest002 end");
 }
 
 /**
@@ -2259,7 +2259,7 @@ HWTEST_F(PasteboardServiceTest, OnRemoteDiedTest003, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->OnRemoteDied(nullptr);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnRemoteDiedTest003 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnRemoteDiedTest003 end");
 }
 
 /**
@@ -2276,7 +2276,7 @@ HWTEST_F(PasteboardServiceTest, GetRemoteDataTask001, TestSize.Level0)
 
     TestEvent event;
     remoteDataTaskManager->GetRemoteDataTask(event);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetRemoteDataTask001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetRemoteDataTask001 end");
 }
 
 /**
@@ -2300,7 +2300,7 @@ HWTEST_F(PasteboardServiceTest, GetRemoteDataTask002, TestSize.Level0)
     it = remoteDataTaskManager->dataTasks_.emplace(key, std::make_shared<TaskContext>()).first;
 
     remoteDataTaskManager->GetRemoteDataTask(event);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetRemoteDataTask002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetRemoteDataTask002 end");
 }
 
 /**
@@ -2318,7 +2318,7 @@ HWTEST_F(PasteboardServiceTest, Notify001, TestSize.Level0)
     TestEvent event;
     std::shared_ptr<PasteDateTime> data;
     remoteDataTaskManager->Notify(event, data);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Notify001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Notify001 end");
 }
 
 /**
@@ -2343,7 +2343,7 @@ HWTEST_F(PasteboardServiceTest, Notify002, TestSize.Level0)
 
     std::shared_ptr<PasteDateTime> data;
     remoteDataTaskManager->Notify(event, data);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Notify002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Notify002 end");
 }
 
 /**
@@ -2360,7 +2360,7 @@ HWTEST_F(PasteboardServiceTest, ClearRemoteDataTask001, TestSize.Level0)
 
     TestEvent event;
     remoteDataTaskManager->ClearRemoteDataTask(event);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ClearRemoteDataTask001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ClearRemoteDataTask001 end");
 }
 
 /**
@@ -2377,7 +2377,7 @@ HWTEST_F(PasteboardServiceTest, WaitRemoteData001, TestSize.Level0)
 
     TestEvent event;
     remoteDataTaskManager->WaitRemoteData(event);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "WaitRemoteData001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "WaitRemoteData001 end");
 }
 
 /**
@@ -2401,7 +2401,7 @@ HWTEST_F(PasteboardServiceTest, WaitRemoteData002, TestSize.Level0)
     it = remoteDataTaskManager->dataTasks_.emplace(key, std::make_shared<TaskContext>()).first;
 
     remoteDataTaskManager->WaitRemoteData(event);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "WaitRemoteData002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "WaitRemoteData002 end");
 }
 
 /**
@@ -2419,7 +2419,7 @@ HWTEST_F(PasteboardServiceTest, GetObserversSizeTest001, TestSize.Level0)
     pid_t pid = 1;
     PasteboardService::ObserverMap observerMap;
     tempPasteboard->GetObserversSize(userId, pid, observerMap);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetObserversSizeTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetObserversSizeTest001 end");
 }
 
 /**
@@ -2438,7 +2438,7 @@ HWTEST_F(PasteboardServiceTest, GetObserversSizeTest002, TestSize.Level0)
     PasteboardService::ObserverMap observerMap;
     auto result = tempPasteboard->GetObserversSize(userId, pid, observerMap);
     EXPECT_EQ(result, 0);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetObserversSizeTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetObserversSizeTest002 end");
 }
 
 /**
@@ -2455,7 +2455,7 @@ HWTEST_F(PasteboardServiceTest, GetAllObserversSizeTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->GetAllObserversSize(userId, tokenId);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllObserversSizeTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllObserversSizeTest001 end");
 }
 
 /**
@@ -2470,7 +2470,7 @@ HWTEST_F(PasteboardServiceTest, AddSysAbilityListenerTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->AddSysAbilityListener();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "AddSysAbilityListenerTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "AddSysAbilityListenerTest001 end");
 }
 
 /**
@@ -2485,7 +2485,7 @@ HWTEST_F(PasteboardServiceTest, InitScreenStatusTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->InitScreenStatus();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "InitScreenStatusTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "InitScreenStatusTest001 end");
 }
 
 /**
@@ -2500,7 +2500,7 @@ HWTEST_F(PasteboardServiceTest, GetCurrentScreenStatusTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->GetCurrentScreenStatus();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetCurrentScreenStatusTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetCurrentScreenStatusTest001 end");
 }
 
 /**
@@ -2515,7 +2515,7 @@ HWTEST_F(PasteboardServiceTest, DumpHistoryTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->DumpHistory();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpHistoryTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpHistoryTest001 end");
 }
 
 /**
@@ -2530,7 +2530,7 @@ HWTEST_F(PasteboardServiceTest, DumpDataTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->DumpData();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpDataTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpDataTest001 end");
 }
 
 /**
@@ -2546,7 +2546,7 @@ HWTEST_F(PasteboardServiceTest, ThawInputMethodTest001, TestSize.Level0)
 
     pid_t callPid = 1;
     tempPasteboard->ThawInputMethod(callPid);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ThawInputMethodTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ThawInputMethodTest001 end");
 }
 
 /**
@@ -2561,7 +2561,7 @@ HWTEST_F(PasteboardServiceTest, IsNeedThawTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->IsNeedThaw();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "IsNeedThawTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "IsNeedThawTest001 end");
 }
 
 /**
@@ -2578,7 +2578,7 @@ HWTEST_F(PasteboardServiceTest, ExtractEntityTest001, TestSize.Level0)
     std::string entity = "{\"code\": \"0\"}";
     std::string location = "location";
     tempPasteboard->ExtractEntity(entity, location);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest001 end");
 }
 
 /**
@@ -2595,7 +2595,7 @@ HWTEST_F(PasteboardServiceTest, ExtractEntityTest002, TestSize.Level0)
     std::string entity = R"({"code": 0})";
     std::string location = "";
     tempPasteboard->ExtractEntity(entity, location);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest002 end");
 }
 
 /**
@@ -2612,7 +2612,7 @@ HWTEST_F(PasteboardServiceTest, ExtractEntityTest003, TestSize.Level0)
     std::string entity = R"({"code": 0, "entity": {"name": "example"}})";
     std::string location = "";
     tempPasteboard->ExtractEntity(entity, location);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest003 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest003 end");
 }
 
 /**
@@ -2629,7 +2629,7 @@ HWTEST_F(PasteboardServiceTest, ExtractEntityTest004, TestSize.Level0)
     std::string entity = R"({"code": 0,"entity": {"location": "room1"}})";
     std::string location = "";
     tempPasteboard->ExtractEntity(entity, location);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest004 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest004 end");
 }
 
 /**
@@ -2646,7 +2646,7 @@ HWTEST_F(PasteboardServiceTest, ExtractEntityTest005, TestSize.Level0)
     std::string entity = R"({"code": 0,"entity": {"location": ["room1", "room2"]}})";
     std::string location = "";
     tempPasteboard->ExtractEntity(entity, location);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest005 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "ExtractEntityTest005 end");
 }
 
 /**
@@ -2666,7 +2666,7 @@ HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest001, TestSize.Level0)
 
     auto ret = tempPasteboard->GetAllEntryPlainText(dataId, recordId, tempEntries, primaryText);
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest001 end");
 }
 
 /**
@@ -2697,7 +2697,7 @@ HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest002, TestSize.Level0)
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::EXCEEDING_LIMIT_EXCEPTION));
 
     tempPasteboard->clips_.Clear();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest002 end");
 }
 
 /**
@@ -2732,7 +2732,7 @@ HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest003, TestSize.Level0)
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 
     tempPasteboard->clips_.Clear();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest003 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest003 end");
 }
 
 /**
@@ -2766,7 +2766,7 @@ HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest004, TestSize.Level0)
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 
     tempPasteboard->clips_.Clear();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest004 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest004 end");
 }
 
 /**
@@ -2802,7 +2802,7 @@ HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest005, TestSize.Level0)
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 
     tempPasteboard->clips_.Clear();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest005 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest005 end");
 }
 
 /**
@@ -2836,7 +2836,7 @@ HWTEST_F(PasteboardServiceTest, GetAllEntryPlainTextTest006, TestSize.Level0)
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
 
     tempPasteboard->clips_.Clear();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest006 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllEntryPlainTextTest006 end");
 }
 
 /**
@@ -2853,7 +2853,7 @@ HWTEST_F(PasteboardServiceTest, GetAllPrimaryTextTest001, TestSize.Level0)
     auto ret = tempPasteboard->GetAllPrimaryText(pasteData);
 
     EXPECT_EQ(ret, "");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllPrimaryTextTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllPrimaryTextTest001 end");
 }
 
 /**
@@ -2875,7 +2875,7 @@ HWTEST_F(PasteboardServiceTest, GetAllPrimaryTextTest002, TestSize.Level0)
 
     auto ret = tempPasteboard->GetAllPrimaryText(pasteData);
     EXPECT_EQ(ret, "");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllPrimaryTextTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetAllPrimaryTextTest002 end");
 }
 
 /**
@@ -2892,7 +2892,7 @@ HWTEST_F(PasteboardServiceTest, NotifyEntityObserversTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->NotifyEntityObservers(entity, EntityType::ADDRESS, dataLength);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest001 end");
 }
 
 /**
@@ -2915,7 +2915,7 @@ HWTEST_F(PasteboardServiceTest, NotifyEntityObserversTest002, TestSize.Level0)
     EXPECT_EQ(result, ERR_OK);
 
     tempPasteboard->NotifyEntityObservers(entity, EntityType::MAX, dataLength);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest002 end");
 }
 
 /**
@@ -2938,7 +2938,7 @@ HWTEST_F(PasteboardServiceTest, NotifyEntityObserversTest003, TestSize.Level0)
     EXPECT_EQ(result, ERR_OK);
 
     tempPasteboard->NotifyEntityObservers(entity, EntityType::ADDRESS, dataLength);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest003 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest003 end");
 }
 
 /**
@@ -2961,7 +2961,7 @@ HWTEST_F(PasteboardServiceTest, NotifyEntityObserversTest004, TestSize.Level0)
     EXPECT_EQ(result, ERR_OK);
 
     tempPasteboard->NotifyEntityObservers(entity, EntityType::ADDRESS, dataLength);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest004 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest004 end");
 }
 
 /**
@@ -2984,7 +2984,7 @@ HWTEST_F(PasteboardServiceTest, NotifyEntityObserversTest005, TestSize.Level0)
     EXPECT_EQ(result, ERR_OK);
 
     tempPasteboard->NotifyEntityObservers(entity, EntityType::MAX, dataLength);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest005 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyEntityObserversTest005 end");
 }
 
 /**
@@ -2999,7 +2999,7 @@ HWTEST_F(PasteboardServiceTest, UnsubscribeAllEntityObserverTest001, TestSize.Le
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->UnsubscribeAllEntityObserver();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "UnsubscribeAllEntityObserverTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "UnsubscribeAllEntityObserverTest001 end");
 }
 
 /**
@@ -3023,7 +3023,7 @@ HWTEST_F(PasteboardServiceTest, NotifyObserversTest001, TestSize.Level0)
     EXPECT_EQ(hasPid, true);
 
     tempPasteboard->NotifyObservers(appInfo.bundleName, userId, PasteboardEventStatus::PASTEBOARD_WRITE);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest001 end");
 }
 
 /**
@@ -3047,7 +3047,7 @@ HWTEST_F(PasteboardServiceTest, NotifyObserversTest002, TestSize.Level0)
     EXPECT_NE(hasPid, true);
 
     tempPasteboard->NotifyObservers(appInfo.bundleName, userId + 1, PasteboardEventStatus::PASTEBOARD_WRITE);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest002 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest002 end");
 }
 
 /**
@@ -3075,7 +3075,7 @@ HWTEST_F(PasteboardServiceTest, NotifyObserversTest003, TestSize.Level0)
 
     tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
     tempPasteboard->NotifyObservers(appInfo.bundleName, userId, PasteboardEventStatus::PASTEBOARD_WRITE);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest003 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest003 end");
 }
 
 /**
@@ -3103,7 +3103,7 @@ HWTEST_F(PasteboardServiceTest, NotifyObserversTest004, TestSize.Level0)
 
     tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
     tempPasteboard->NotifyObservers(appInfo.bundleName, userId + 1, PasteboardEventStatus::PASTEBOARD_WRITE);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest004 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest004 end");
 }
 
 /**
@@ -3131,7 +3131,7 @@ HWTEST_F(PasteboardServiceTest, NotifyObserversTest005, TestSize.Level0)
 
     tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
     tempPasteboard->NotifyObservers(appInfo.bundleName, userId, PasteboardEventStatus::PASTEBOARD_READ);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest005 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest005 end");
 }
 
 /**
@@ -3159,7 +3159,7 @@ HWTEST_F(PasteboardServiceTest, NotifyObserversTest006, TestSize.Level0)
 
     tempPasteboard->SubscribeObserver(PasteboardObserverType::OBSERVER_LOCAL, observer);
     tempPasteboard->NotifyObservers(appInfo.bundleName, userId + 1, PasteboardEventStatus::PASTEBOARD_READ);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest006 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "NotifyObserversTest006 end");
 }
 
 /**
@@ -3175,7 +3175,7 @@ HWTEST_F(PasteboardServiceTest, InitServiceHandlerTest001, TestSize.Level0)
 
     tempPasteboard->InitServiceHandler();
     tempPasteboard->InitServiceHandler();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "InitServiceHandlerTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "InitServiceHandlerTest001 end");
 }
 
 /**
@@ -3191,7 +3191,7 @@ HWTEST_F(PasteboardServiceTest, IsCopyableTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->IsCopyable(tokenId);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "IsCopyableTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "IsCopyableTest001 end");
 }
 
 /**
@@ -3214,7 +3214,7 @@ HWTEST_F(PasteboardServiceTest, SaveData001, TestSize.Level0)
 
     int64_t dataSize = 0;
     tempPasteboard->SaveData(pasteData, dataSize, delayGetter, entryGetter);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SaveData001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SaveData001 end");
 }
 
 /**
@@ -3246,7 +3246,7 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataInfoTest001, TestSize.Level0)
     EXPECT_EQ(pasteData.GetOriginAuthority(), originAuthority);
     EXPECT_EQ(pasteData.GetTokenId(), tokenId);
     EXPECT_EQ(pasteData.GetDataId(), 1);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataInfoTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataInfoTest001 end");
 }
 
 /**
@@ -3269,7 +3269,7 @@ HWTEST_F(PasteboardServiceTest, HandleDelayDataAndRecord001, TestSize.Level0)
 
     AppInfo appInfo;
     tempPasteboard->HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "HandleDelayDataAndRecord001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "HandleDelayDataAndRecord001 end");
 }
 
 /**
@@ -3286,7 +3286,856 @@ HWTEST_F(PasteboardServiceTest, RemovePasteDataTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->RemovePasteData(appInfo);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "RemovePasteDataTest001 start");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "RemovePasteDataTest001 end");
+}
+
+/**
+ * @tc.name: RemovePasteDataTest002
+ * @tc.desc: test Func RemovePasteData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, RemovePasteDataTest002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "RemovePasteDataTest002 start");
+    AppInfo appInfo;
+    appInfo.tokenId = 123;
+    sptr<PasteboardDelayGetterImpl> delayGetter = sptr<PasteboardDelayGetterImpl>::MakeSptr();
+    EXPECT_NE(delayGetter, nullptr);
+
+    sptr<PasteboardEntryGetterImpl> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
+    EXPECT_NE(entryGetter, nullptr);
+
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    tempPasteboard->RemovePasteData(appInfo);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "RemovePasteDataTest002 start");
+}
+
+/**
+ * @tc.name: SetPasteDataDotTest001
+ * @tc.desc: test Func SetPasteDataDot
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetPasteDataDotTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataDotTest001 start");
+    PasteData pasteData;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    tempPasteboard->SetPasteDataDot(pasteData);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataDotTest001 start");
+}
+
+/**
+ * @tc.name: GetValidDistributeEventTest001
+ * @tc.desc: test Func GetValidDistributeEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetValidDistributeEventTest001, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetValidDistributeEventTest001 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t user = 100;
+    tempPasteboard->GetValidDistributeEvent(user);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetValidDistributeEventTest001 start");
+}
+
+/**
+ * @tc.name: GetValidDistributeEventTest002
+ * @tc.desc: test Func GetValidDistributeEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetValidDistributeEventTest002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetValidDistributeEventTest002 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    TestEvent evt;
+    int32_t user = 100;
+    auto plugin = nullptr;
+    auto result = tempPasteboard->GetValidDistributeEvent(user);
+    EXPECT_EQ(result.first, static_cast<int32_t>(PasteboardError::PLUGIN_IS_NULL));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetValidDistributeEventTest002 start");
+}
+
+/**
+ * @tc.name: GetSdkVersionTest001
+ * @tc.desc: test Func GetSdkVersion
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetSdkVersionTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetSdkVersionTest001 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t tokenId = 0x123456;
+    tempPasteboard->GetSdkVersion(tokenId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetSdkVersionTest001 start");
+}
+
+/**
+ * @tc.name: GetSdkVersionTest002
+ * @tc.desc: test Func GetSdkVersion
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardServiceTest, GetSdkVersionTest002, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetSdkVersionTest002 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    uint32_t tokenId = 123;
+
+    int32_t result = tempPasteboard->GetSdkVersion(tokenId);
+    EXPECT_EQ(result, -1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetSdkVersionTest002 start");
+}
+
+/**
+ * @tc.name: GetCommonStateTest001
+ * @tc.desc: test Func GetCommonState
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetCommonStateTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetCommonStateTest001 start");
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int64_t dataSize = 0;
+    CommonInfo info = tempPasteboard->GetCommonState(dataSize);
+    EXPECT_EQ(info.deviceType, DMAdapter::GetInstance().GetLocalDeviceType());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetCommonStateTest001 start");
+}
+
+/**
+ * @tc.name: SetRadarEventTest001
+ * @tc.desc: test Func SetRadarEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetRadarEventTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetRadarEventTest001 start");
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    PasteData pasteData;
+    AppInfo appInfo;
+    bool isPeerOnline = false;
+    RadarReportInfo radarReportInfo;
+    std::string peerNetId = "";
+    tempPasteboard->SetRadarEvent(appInfo, pasteData, isPeerOnline, radarReportInfo, peerNetId);
+    EXPECT_EQ(radarReportInfo.stageRes, 1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetRadarEventTest001 start");
+}
+
+/**
+ * @tc.name: SetUeEventTest001
+ * @tc.desc: test Func SetUeEvent
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SetUeEventTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetUeEventTest001 start");
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    PasteData pasteData;
+    AppInfo appInfo;
+    bool isPeerOnline = false;
+    UeReportInfo ueReportInfo;
+    std::string peerNetId = "";
+    tempPasteboard->SetUeEvent(appInfo, pasteData, isPeerOnline, ueReportInfo, peerNetId);
+    EXPECT_EQ(ueReportInfo.pasteInfo.onlineDevNum, DMAdapter::GetInstance().GetNetworkIds().size());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetUeEventTest001 start");
+}
+
+/**
+ * @tc.name: GetPasteDataDotTest001
+ * @tc.desc: test Func GetPasteDataDot
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetPasteDataDotTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteDataDotTest001 start");
+    PasteData pasteData;
+    std::string bundleName;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    tempPasteboard->GetPasteDataDot(pasteData, bundleName);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteDataDotTest001 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest001
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest001, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest001 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    PasteData pasteData;
+    int32_t ret = tempPasteboard->GetLocalData(appInfo, pasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest001 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest002
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest002, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest002 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest002 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest003
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest003, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest003 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::InApp;
+    pasteData.SetShareOption(shareOption);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest003 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest004
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest004, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest004 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::LocalDevice;
+    pasteData.SetShareOption(shareOption);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest004 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest005
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest005, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest005 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::CrossDevice;
+    pasteData.SetShareOption(shareOption);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest005 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest006
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest006, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest006 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::InApp;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(false);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest006 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest007
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest007, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest007 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::LocalDevice;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(false);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest007 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest008
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest008, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest008 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::CrossDevice;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(false);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest008 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest009
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest009, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest009 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::InApp;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(true);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest009 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest010
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest010, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest010 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::LocalDevice;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(true);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest010 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest011
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest011, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest011 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::CrossDevice;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(true);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest011 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest012
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest012, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest012 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::InApp;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(false);
+    pasteData.SetInvalid();
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest012 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest013
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest013, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest013 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::LocalDevice;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(false);
+    pasteData.SetInvalid();
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest013 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest014
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest014, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest014 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::CrossDevice;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(false);
+    pasteData.SetInvalid();
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest014 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest015
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest015, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest015 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::InApp;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(true);
+    pasteData.SetInvalid();
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest015 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest016
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest016, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest016 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::LocalDevice;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(true);
+    pasteData.SetInvalid();
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest016 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest017
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest017, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest017 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::CrossDevice;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(true);
+    pasteData.SetInvalid();
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest017 start");
+}
+
+/**
+ * @tc.name: GetLocalDataTest018
+ * @tc.desc: test Func GetLocalData
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest018, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest018 start");
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    AppInfo appInfo;
+    appInfo.userId = tempPasteboard->GetCurrentAccountId();
+    PasteData pasteData;
+    std::string plainText = "hello";
+    pasteData.AddTextRecord(plainText);
+
+    ShareOption shareOption = ShareOption::InApp;
+    pasteData.SetShareOption(shareOption);
+    pasteData.SetDraggedDataFlag(false);
+    pasteData.SetDelayData(false);
+
+    std::vector<uint8_t> pasteDataTlv(0);
+    int fd = -1;
+    int64_t tlvSize = 0;
+    MessageParcelWarp messageData;
+    MessageParcel parcelPata;
+    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
+    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
+
+    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
+    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
+
+    PasteData getPasteData;
+    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest018 start");
 }
 
 /**
@@ -3907,56 +4756,6 @@ HWTEST_F(PasteboardServiceTest, IsBundleOwnUriPermission001, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetCommonState
- * @tc.desc: GetCommonStateTest001
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetCommonStateTest001, TestSize.Level0)
-{
-    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    int64_t dataSize = 0;
-    CommonInfo info = tempPasteboard->GetCommonState(dataSize);
-    EXPECT_EQ(info.deviceType, DMAdapter::GetInstance().GetLocalDeviceType());
-}
-
-/**
- * @tc.name: SetRadarEvent
- * @tc.desc: SetRadarEventTest001
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, SetRadarEventTest001, TestSize.Level0)
-{
-    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    PasteData pasteData;
-    AppInfo appInfo;
-    bool isPeerOnline = false;
-    RadarReportInfo radarReportInfo;
-    std::string peerNetId = "";
-    tempPasteboard->SetRadarEvent(appInfo, pasteData, isPeerOnline, radarReportInfo, peerNetId);
-    EXPECT_EQ(radarReportInfo.stageRes, 1);
-}
-
-/**
- * @tc.name: SetUeEvent
- * @tc.desc: SetUeEventTest001
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, SetUeEventTest001, TestSize.Level0)
-{
-    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    PasteData pasteData;
-    AppInfo appInfo;
-    bool isPeerOnline = false;
-    UeReportInfo ueReportInfo;
-    std::string peerNetId = "";
-    tempPasteboard->SetUeEvent(appInfo, pasteData, isPeerOnline, ueReportInfo, peerNetId);
-    EXPECT_EQ(ueReportInfo.pasteInfo.onlineDevNum, DMAdapter::GetInstance().GetNetworkIds().size());
-}
-
-/**
  * @tc.name: IsBasicType001
  * @tc.desc: IsBasicType001
  * @tc.type: FUNC
@@ -4005,33 +4804,6 @@ HWTEST_F(PasteboardServiceTest, GetTimeTest001, TestSize.Level0)
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
     tempPasteboard->GetTime();
-}
-
-/**
- * @tc.name: SetPasteDataDotTest001
- * @tc.desc: test Func SetPasteDataDot
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, SetPasteDataDotTest001, TestSize.Level0)
-{
-    PasteData pasteData;
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->SetPasteDataDot(pasteData);
-}
-
-/**
- * @tc.name: GetPasteDataDotTest001
- * @tc.desc: test Func GetPasteDataDot
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetPasteDataDotTest001, TestSize.Level0)
-{
-    PasteData pasteData;
-    std::string bundleName;
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->GetPasteDataDot(pasteData, bundleName);
 }
 
 /**
@@ -4719,640 +5491,13 @@ HWTEST_F(PasteboardServiceTest, ShowHintToastTest001, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetLocalDataTest001
+ * @tc.name: GetLocalDataTest019
  * @tc.desc: test Func GetLocalData
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest001, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest019, TestSize.Level0)
 {
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    PasteData pasteData;
-    int32_t ret = tempPasteboard->GetLocalData(appInfo, pasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest002
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest002, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-}
-
-/**
- * @tc.name: GetLocalDataTest003
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest003, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::InApp;
-    pasteData.SetShareOption(shareOption);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest004
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest004, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::LocalDevice;
-    pasteData.SetShareOption(shareOption);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-}
-
-/**
- * @tc.name: GetLocalDataTest005
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest005, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::CrossDevice;
-    pasteData.SetShareOption(shareOption);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-}
-
-/**
- * @tc.name: GetLocalDataTest006
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest006, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::InApp;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(false);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest007
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest007, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::LocalDevice;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(false);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-}
-
-/**
- * @tc.name: GetLocalDataTest008
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest008, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::CrossDevice;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(false);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-}
-
-/**
- * @tc.name: GetLocalDataTest009
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest009, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::InApp;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(true);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest0010
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0010, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::LocalDevice;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(true);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest0011
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0011, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::CrossDevice;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(true);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest0012
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0012, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::InApp;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(false);
-    pasteData.SetInvalid();
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest0013
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0013, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::LocalDevice;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(false);
-    pasteData.SetInvalid();
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-}
-
-/**
- * @tc.name: GetLocalDataTest0014
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0014, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::CrossDevice;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(false);
-    pasteData.SetInvalid();
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
-}
-
-/**
- * @tc.name: GetLocalDataTest0015
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0015, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::InApp;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(true);
-    pasteData.SetInvalid();
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest0016
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0016, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::LocalDevice;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(true);
-    pasteData.SetInvalid();
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest0017
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0017, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::CrossDevice;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(true);
-    pasteData.SetInvalid();
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest0018
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0018, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    AppInfo appInfo;
-    appInfo.userId = tempPasteboard->GetCurrentAccountId();
-    PasteData pasteData;
-    std::string plainText = "hello";
-    pasteData.AddTextRecord(plainText);
-
-    ShareOption shareOption = ShareOption::InApp;
-    pasteData.SetShareOption(shareOption);
-    pasteData.SetDraggedDataFlag(false);
-    pasteData.SetDelayData(false);
-
-    std::vector<uint8_t> pasteDataTlv(0);
-    int fd = -1;
-    int64_t tlvSize = 0;
-    MessageParcelWarp messageData;
-    MessageParcel parcelPata;
-    sptr<IPasteboardDelayGetter> delayGetter = nullptr;
-    sptr<IPasteboardEntryGetter> entryGetter = nullptr;
-
-    int32_t ret = WritePasteData(pasteData, pasteDataTlv, fd, tlvSize, messageData, parcelPata);
-    ret = tempPasteboard->SetPasteData(dup(fd), tlvSize, pasteDataTlv, delayGetter, entryGetter);
-
-    PasteData getPasteData;
-    ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
-}
-
-/**
- * @tc.name: GetLocalDataTest0019
- * @tc.desc: test Func GetLocalData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0019, TestSize.Level0)
-{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest019 start");
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
@@ -5381,15 +5526,17 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0019, TestSize.Level0)
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest019 start");
 }
 
 /**
- * @tc.name: GetLocalDataTest0020
+ * @tc.name: GetLocalDataTest020
  * @tc.desc: test Func GetLocalData
  * @tc.type: FUNC
  */
-HWTEST_F(PasteboardServiceTest, GetLocalDataTest0020, TestSize.Level0)
+HWTEST_F(PasteboardServiceTest, GetLocalDataTest020, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest020 start");
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
@@ -5418,6 +5565,7 @@ HWTEST_F(PasteboardServiceTest, GetLocalDataTest0020, TestSize.Level0)
     PasteData getPasteData;
     ret = tempPasteboard->GetLocalData(appInfo, getPasteData);
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetLocalDataTest020 start");
 }
 
 /**
@@ -6285,20 +6433,6 @@ HWTEST_F(PasteboardServiceTest, IsDataAgedTest006, TestSize.Level0)
 }
 
 /**
- * @tc.name: GetSdkVersionTest001
- * @tc.desc: test Func GetSdkVersion
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetSdkVersionTest001, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    uint32_t tokenId = 0x123456;
-    tempPasteboard->GetSdkVersion(tokenId);
-}
-
-/**
  * @tc.name: IsDataValidTest001
  * @tc.desc: test Func IsDataValid
  * @tc.type: FUNC
@@ -6412,37 +6546,6 @@ HWTEST_F(PasteboardServiceTest, GrantUriPermissionTest001, TestSize.Level1)
     int32_t appIndex = 1;
     int32_t result = service.GrantUriPermission(emptyUris, targetBundleName, false, appIndex);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
-}
-
-/**
- * @tc.name: GetValidDistributeEventTest001
- * @tc.desc: test Func GetValidDistributeEvent
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetValidDistributeEventTest001, TestSize.Level1)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    int32_t user = 100;
-    tempPasteboard->GetValidDistributeEvent(user);
-}
-
-/**
- * @tc.name: GetValidDistributeEventTest002
- * @tc.desc: test Func GetValidDistributeEvent
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, GetValidDistributeEventTest002, TestSize.Level1)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    TestEvent evt;
-    int32_t user = 100;
-    auto plugin = nullptr;
-    auto result = tempPasteboard->GetValidDistributeEvent(user);
-    EXPECT_EQ(result.first, static_cast<int32_t>(PasteboardError::PLUGIN_IS_NULL));
 }
 
 /**
@@ -6647,43 +6750,6 @@ HWTEST_F(PasteboardServiceTest, SetPasteDataTest005, TestSize.Level0)
     std::vector<uint8_t> recvTLV;
     auto ret = tempPasteboard->SetPasteData(dup(fd), rawDataSize, recvTLV, nullptr, nullptr);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
-}
-
-/**
- * @tc.name: RemovePasteDataTest002
- * @tc.desc: test Func RemovePasteData
- * @tc.type: FUNC
- */
-HWTEST_F(PasteboardServiceTest, RemovePasteDataTest002, TestSize.Level1)
-{
-    AppInfo appInfo;
-    appInfo.tokenId = 123;
-    sptr<PasteboardDelayGetterImpl> delayGetter = sptr<PasteboardDelayGetterImpl>::MakeSptr();
-    EXPECT_NE(delayGetter, nullptr);
-    sptr<PasteboardEntryGetterImpl> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
-    EXPECT_NE(entryGetter, nullptr);
-
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-    tempPasteboard->RemovePasteData(appInfo);
-}
-
-/**
- * @tc.name: GetSdkVersionTest002
- * @tc.desc: GetSdkVersionTest002
- * @tc.type: FUNC
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardServiceTest, GetSdkVersionTest002, TestSize.Level0)
-{
-    auto tempPasteboard = std::make_shared<PasteboardService>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    uint32_t tokenId = 123;
-
-    int32_t result = tempPasteboard->GetSdkVersion(tokenId);
-    EXPECT_EQ(result, -1);
 }
 
 /**
