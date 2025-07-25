@@ -2042,7 +2042,8 @@ HWTEST_F(PasteboardServiceTest, SetCurrentDataTest002, TestSize.Level0)
     data.AddTextRecord(RANDOM_STRING);
     data.SetDelayRecord(true);
     EXPECT_CALL(mock, IsOn()).WillOnce(testing::Return(true));
-    EXPECT_CALL(mock, GetRemoteDeviceMinVersion()).WillRepeatedly(testing::Return(DevProfile::FIRST_VERSION));
+    EXPECT_CALL(mock, GetRemoteDeviceMinVersion())
+        .WillRepeatedly(testing::Return(DistributedModuleConfig::FIRST_VERSION));
 
     bool result = service.SetCurrentData(event, data);
     EXPECT_EQ(result, false);
@@ -2070,7 +2071,8 @@ HWTEST_F(PasteboardServiceTest, SetCurrentDataTest003, TestSize.Level0)
     data.AddTextRecord(RANDOM_STRING);
     data.SetDelayRecord(true);
     EXPECT_CALL(mock, IsOn()).WillOnce(testing::Return(true));
-    EXPECT_CALL(mock, GetRemoteDeviceMinVersion()).WillRepeatedly(testing::Return(DevProfile::FIRST_VERSION + 1));
+    EXPECT_CALL(mock, GetRemoteDeviceMinVersion())
+        .WillRepeatedly(testing::Return(DistributedModuleConfig::FIRST_VERSION + 1));
     EXPECT_CALL(mock, Encode(testing::_)).WillOnce(Return(true));
     bool result = service.SetCurrentData(event, data);
     EXPECT_EQ(result, true);

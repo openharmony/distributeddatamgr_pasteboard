@@ -3495,7 +3495,8 @@ bool PasteboardService::SetCurrentData(Event event, PasteData &data)
         return false;
     }
     RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_LOAD_DISTRIBUTED_PLUGIN, DFX_SUCCESS);
-    bool needFull = data.IsDelayRecord() && moduleConfig_.GetRemoteDeviceMinVersion() == DevProfile::FIRST_VERSION;
+    bool needFull = data.IsDelayRecord() &&
+        moduleConfig_.GetRemoteDeviceMinVersion() == DistributedModuleConfig::FIRST_VERSION;
     if (needFull) {
         GetFullDelayPasteData(event.user, data);
         event.isDelay = false;
@@ -3505,7 +3506,8 @@ bool PasteboardService::SetCurrentData(Event event, PasteData &data)
     }
     GenerateDistributedUri(data);
     std::vector<uint8_t> rawData;
-    if (!data.Encode(rawData, true)) {
+    auto remoteVersionMin = moduleConfig_.GetRemoteDeviceMinVersion();
+    if (!data.Encode(rawData, remoteVersionMin <= DistributedModuleConfig::SECOND_VERSION)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
             "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
         return false;
@@ -3620,7 +3622,8 @@ int32_t PasteboardService::ProcessDistributedDelayHtml(PasteData &data, PasteDat
         GenerateDistributedUri(tmp);
     }
 
-    bool encodeSucc = tmp.Encode(rawData, true);
+    auto remoteVersionMin = moduleConfig_.GetRemoteDeviceMinVersion();
+    bool encodeSucc = tmp.Encode(rawData, remoteVersionMin <= DistributedModuleConfig::SECOND_VERSION);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode html failed");
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -3661,7 +3664,8 @@ int32_t PasteboardService::GetDistributedDelayData(const Event &evt, uint8_t ver
     PasteboardWebController::GetInstance().CheckAppUriPermission(*data);
     GenerateDistributedUri(*data);
 
-    bool encodeSucc = data->Encode(rawData, true);
+    auto remoteVersionMin = moduleConfig_.GetRemoteDeviceMinVersion();
+    bool encodeSucc = data->Encode(rawData, remoteVersionMin <= DistributedModuleConfig::SECOND_VERSION);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode data failed, dataId:%{public}u, seqId:%{public}hu", evt.dataId, evt.seqId);
 

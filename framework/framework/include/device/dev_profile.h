@@ -41,7 +41,6 @@ public:
     void Watch(Observer observer);
     void UpdateEnabledStatus(const std::string &udid, bool status);
     void EraseEnabledStatus(const std::string &udid);
-    static constexpr const uint32_t FIRST_VERSION = 4;
 
 private:
     DevProfile() = default;

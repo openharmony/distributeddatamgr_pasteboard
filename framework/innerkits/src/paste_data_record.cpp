@@ -613,10 +613,16 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::Remote2Local() const
     entry->SetUtdId(utdId);
     entry->SetMimeType(mimeType_);
 
-    if (udmfValue_ != nullptr && std::holds_alternative<std::shared_ptr<Object>>(*udmfValue_)) {
-        auto object = std::get<std::shared_ptr<Object>>(*udmfValue_);
-        if (object != nullptr && !object->value_.empty()) {
-            entry->SetValue(object);
+    if (udmfValue_ != nullptr) {
+        if (std::holds_alternative<std::shared_ptr<Object>>(*udmfValue_)) {
+            auto object = std::get<std::shared_ptr<Object>>(*udmfValue_);
+            if (object != nullptr && !object->value_.empty()) {
+                entry->SetValue(object);
+                return entry;
+            }
+        } else if (std::holds_alternative<std::vector<uint8_t>>(*udmfValue_)) {
+            auto array = std::get<std::vector<uint8_t>>(*udmfValue_);
+            entry->SetValue(array);
             return entry;
         }
     }
