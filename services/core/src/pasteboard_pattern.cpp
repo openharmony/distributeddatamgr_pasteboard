@@ -42,12 +42,12 @@ const std::set<Pattern> PatternDetection::Detect(
         if (patternsToCheck == existedPatterns) {
             break;
         }
-        if (hasPlain && record->GetPlainText() != nullptr) {
-            std::string recordText = *(record->GetPlainText());
+        if (hasPlain && record->GetPlainTextV0() != nullptr) {
+            std::string recordText = *(record->GetPlainTextV0());
             DetectPlainText(existedPatterns, patternsToCheck, recordText);
         }
-        if (hasHTML && record->GetHtmlText() != nullptr) {
-            std::string recordText = ExtractHtmlContent(*(record->GetHtmlText()));
+        if (hasHTML && record->GetHtmlTextV0() != nullptr) {
+            std::string recordText = ExtractHtmlContent(*(record->GetHtmlTextV0()));
             DetectPlainText(existedPatterns, patternsToCheck, recordText);
         }
     }

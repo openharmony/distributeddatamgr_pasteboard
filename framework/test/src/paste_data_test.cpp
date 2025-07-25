@@ -115,7 +115,7 @@ HWTEST_F(PasteDataTest, AddRecord003, TestSize.Level0)
     for (const auto &itRec : data.AllRecords()) {
         ASSERT_TRUE(itRec != nullptr);
         EXPECT_TRUE(itRec->GetMimeType() == MIMETYPE_TEXT_PLAIN);
-        auto plainText = itRec->GetPlainText();
+        auto plainText = itRec->GetPlainTextV0();
         ASSERT_TRUE(plainText != nullptr);
         result.emplace_back(*plainText);
     }
@@ -153,7 +153,7 @@ HWTEST_F(PasteDataTest, AddRecord004, TestSize.Level0)
     for (const auto &itRec : data.AllRecords()) {
         ASSERT_TRUE(itRec != nullptr);
         EXPECT_TRUE(itRec->GetMimeType() == MIMETYPE_TEXT_HTML);
-        auto htmlText = itRec->GetHtmlText();
+        auto htmlText = itRec->GetHtmlTextV0();
         ASSERT_TRUE(htmlText != nullptr);
         result.emplace_back(*htmlText);
     }
@@ -183,7 +183,7 @@ HWTEST_F(PasteDataTest, AddRecord005, TestSize.Level0)
     for (const auto &itRec : data.AllRecords()) {
         ASSERT_TRUE(itRec != nullptr);
         EXPECT_TRUE(itRec->GetMimeType() == MIMETYPE_TEXT_PLAIN);
-        auto plainText = itRec->GetPlainText();
+        auto plainText = itRec->GetPlainTextV0();
         ASSERT_TRUE(plainText != nullptr);
         result.emplace_back(*plainText);
     }
@@ -221,7 +221,7 @@ HWTEST_F(PasteDataTest, AddRecord006, TestSize.Level0)
     for (const auto &itRec : data.AllRecords()) {
         ASSERT_TRUE(itRec != nullptr);
         EXPECT_TRUE(itRec->GetMimeType() == MIMETYPE_TEXT_URI);
-        auto uri = itRec->GetUri();
+        auto uri = itRec->GetUriV0();
         ASSERT_TRUE(uri != nullptr);
         result.emplace_back(uri->ToString());
     }
@@ -636,7 +636,7 @@ HWTEST_F(PasteDataTest, GetConvertUri001, TestSize.Level0)
     ASSERT_TRUE(result == convertUri_);
     std::string newUriStr = "/mnt/hmdfs/test";
     pasteDataRecord->SetUri(std::make_shared<OHOS::Uri>(newUriStr));
-    std::shared_ptr<Uri> uri = pasteDataRecord->GetUri();
+    std::shared_ptr<Uri> uri = pasteDataRecord->GetUriV0();
     ASSERT_TRUE(uri != nullptr);
     std::shared_ptr<Uri> getOriginUri = pasteDataRecord->GetOriginUri();
     ASSERT_TRUE(getOriginUri != nullptr);
@@ -1268,6 +1268,160 @@ HWTEST_F(PasteDataTest, GetReportDescriptionTest003, TestSize.Level0)
     PasteData pasteData(records);
     DataDescription description = pasteData.GetReportDescription();
     EXPECT_EQ(description.recordNum, 2);
+}
+
+/**
+ * @tc.name: GetPrimaryHtmlTest001
+ * @tc.desc: GetPrimaryHtml
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetPrimaryHtmlTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteDataRecord> record = nullptr;
+    std::vector<std::shared_ptr<PasteDataRecord>> records = {record};
+    PasteData pasteData;
+    pasteData.AddRecord(record);
+    auto primary = pasteData.GetPrimaryHtml();
+    EXPECT_EQ(primary, nullptr);
+}
+
+/**
+ * @tc.name: GetPrimaryHtmlTest002
+ * @tc.desc: GetPrimaryHtml
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetPrimaryHtmlTest002, TestSize.Level0)
+{
+    std::vector<std::string> testHtmlVec = {
+        "<div class='disable'>html001</div>",
+        "<div class='disable'>html002</div>",
+        "<div class='disable'>html003</div>"
+    };
+    PasteData pasteData;
+
+    for (const auto &itHtml: testHtmlVec) {
+        pasteData.AddHtmlRecord(itHtml);
+    }
+    auto count = pasteData.GetRecordCount();
+    EXPECT_TRUE(count == testHtmlVec.size());
+
+    auto primary = pasteData.GetPrimaryHtml();
+    EXPECT_NE(primary, nullptr);
+}
+
+/**
+ * @tc.name: GetPrimaryPixelMapTest001
+ * @tc.desc: GetPrimaryPixelMap
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetPrimaryPixelMapTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteDataRecord> record = nullptr;
+    std::vector<std::shared_ptr<PasteDataRecord>> records = {record};
+    PasteData pasteData;
+    pasteData.AddRecord(record);
+    auto primary = pasteData.GetPrimaryPixelMap();
+    EXPECT_EQ(primary, nullptr);
+}
+
+/**
+ * @tc.name: GetPrimaryPixelMapTest002
+ * @tc.desc: GetPrimaryPixelMap
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetPrimaryPixelMapTest002, TestSize.Level0)
+{
+    uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
+    InitializationOptions opts = {
+        {5, 7},
+        PixelFormat::ARGB_8888
+    };
+    std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, 100, opts);
+    std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
+    auto record = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
+    ASSERT_TRUE(record != nullptr);
+    PasteData pasteData;
+
+    pasteData.AddRecord(record);
+
+    auto primary = pasteData.GetPrimaryPixelMap();
+    EXPECT_NE(primary, nullptr);
+}
+
+/**
+ * @tc.name: GetPrimaryTextTest001
+ * @tc.desc: GetPrimaryText
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetPrimaryTextTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteDataRecord> record = nullptr;
+    std::vector<std::shared_ptr<PasteDataRecord>> records = {record};
+    PasteData pasteData;
+    pasteData.AddRecord(record);
+    auto primary = pasteData.GetPrimaryText();
+    EXPECT_EQ(primary, nullptr);
+}
+
+/**
+ * @tc.name: GetPrimaryTextTest002
+ * @tc.desc: GetPrimaryText
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetPrimaryTextTest002, TestSize.Level0)
+{
+    std::vector<std::string> testTextVec = { "text101", "text102", "text103" };
+    PasteData pasteData;
+    
+    for (const auto &itText: testTextVec) {
+        pasteData.AddTextRecord(itText);
+    }
+
+    auto count = pasteData.GetRecordCount();
+    EXPECT_TRUE(count == testTextVec.size());
+
+    auto primary = pasteData.GetPrimaryText();
+    EXPECT_NE(primary, nullptr);
+}
+
+/**
+ * @tc.name: GetPrimaryUriTest001
+ * @tc.desc: GetPrimaryUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetPrimaryUriTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteDataRecord> record = nullptr;
+    std::vector<std::shared_ptr<PasteDataRecord>> records = {record};
+    PasteData pasteData;
+    pasteData.AddRecord(record);
+    auto primary = pasteData.GetPrimaryUri();
+    EXPECT_EQ(primary, nullptr);
+}
+
+/**
+ * @tc.name: GetPrimaryUriTest002
+ * @tc.desc: GetPrimaryUri
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetPrimaryUriTest002, TestSize.Level0)
+{
+    std::vector<std::string> testUriVec = {
+        "file://pasteboard_service/test_uri_001",
+        "file://pasteboard_service/test_uri_002",
+        "file://pasteboard_service/test_uri_003"
+    };
+
+    PasteData pasteData;
+    for (const auto &itUri: testUriVec) {
+        pasteData.AddUriRecord(OHOS::Uri(itUri));
+    }
+
+    auto count = pasteData.GetRecordCount();
+    EXPECT_TRUE(count == testUriVec.size());
+
+    auto primary = pasteData.GetPrimaryUri();
+    EXPECT_NE(primary, nullptr);
 }
 
 /**

@@ -184,7 +184,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         if (record == nullptr) {
             return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
         }
-        std::shared_ptr<OHOS::Uri> uri = record->GetUri();
+        std::shared_ptr<OHOS::Uri> uri = record->GetUriV0();
         if (uri == nullptr) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Record has no uri");
             index++;

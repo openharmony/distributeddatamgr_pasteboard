@@ -371,7 +371,7 @@ HWTEST_F(ConvertUtilsTest, PlainEntryTest001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_PLAIN);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::PLAIN_TEXT);
-    auto plain = record->GetPlainText();
+    auto plain = record->GetPlainTextV0();
     ASSERT_EQ(*plain, text_);
     auto entries = record->GetEntries();
     ASSERT_EQ(entries.size(), entriesSize);
@@ -398,7 +398,7 @@ HWTEST_F(ConvertUtilsTest, HtmlEntryTest001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_HTML);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::HTML);
-    auto plain = record->GetHtmlText();
+    auto plain = record->GetHtmlTextV0();
     ASSERT_EQ(*plain, html_);
     auto entries = record->GetEntries();
     ASSERT_EQ(entries.size(), entriesSize);
@@ -425,7 +425,7 @@ HWTEST_F(ConvertUtilsTest, PixelMapEntryTest001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_PIXELMAP);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::SYSTEM_DEFINED_PIXEL_MAP);
-    auto pixelMap = record->GetPixelMap();
+    auto pixelMap = record->GetPixelMapV0();
     ASSERT_NE(pixelMap, nullptr);
     ImageInfo imageInfo = {};
     pixelMap->GetImageInfo(imageInfo);
@@ -457,7 +457,7 @@ HWTEST_F(ConvertUtilsTest, EntriesTest001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_PLAIN);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::PLAIN_TEXT);
-    auto plain = record->GetPlainText();
+    auto plain = record->GetPlainTextV0();
     ASSERT_NE(plain, nullptr);
     ASSERT_EQ(*plain, text_);
 
@@ -809,7 +809,7 @@ HWTEST_F(ConvertUtilsTest, ConvertPixelMapTest, TestSize.Level0)
         ASSERT_NE(&value, nullptr);
     }
 
-    auto inPixelMap = record->GetPixelMap();
+    auto inPixelMap = record->GetPixelMapV0();
     ASSERT_NE(inPixelMap, nullptr);
     ImageInfo imageInfo = {};
     inPixelMap->GetImageInfo(imageInfo);

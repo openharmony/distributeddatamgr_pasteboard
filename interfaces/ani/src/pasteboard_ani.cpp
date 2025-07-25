@@ -411,12 +411,12 @@ static void FillPasteDataRecordObject(ani_env *env, std::shared_ptr<PasteDataRec
     auto mimeType = recordFromBottom->GetMimeType();
     SetNamedPropertyByStr(env, cls, "<set>mimeType", mimeType, obj);
 
-    auto plainTextPtr = recordFromBottom->GetPlainText();
+    auto plainTextPtr = recordFromBottom->GetPlainTextV0();
     if (plainTextPtr != nullptr) {
         SetNamedPropertyByStr(env, cls, "<set>plainText", *plainTextPtr.get(), obj);
     }
 
-    auto uriPtr = recordFromBottom->GetUri();
+    auto uriPtr = recordFromBottom->GetUriV0();
     if (uriPtr != nullptr) {
         SetNamedPropertyByStr(env, cls, "<set>uri", uriPtr->ToString(), obj);
     }

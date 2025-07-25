@@ -119,9 +119,9 @@ UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& ent
     auto value = entry->GetValue();
     if (std::holds_alternative<std::monostate>(value) || std::holds_alternative<std::shared_ptr<Object>>(value)) {
         if (std::holds_alternative<std::shared_ptr<Object>>(value) && CommonUtils::IsFileUri(utdId) &&
-            record->GetUri() != nullptr) {
+            record->GetUriV0() != nullptr) {
             auto object = std::get<std::shared_ptr<Object>>(value);
-            object->value_[UDMF::FILE_URI_PARAM] = record->GetUri()->ToString();
+            object->value_[UDMF::FILE_URI_PARAM] = record->GetUriV0()->ToString();
         }
         return value;
     }
@@ -139,8 +139,8 @@ UDMF::ValueType ConvertUtils::Convert(const std::shared_ptr<PasteDataEntry>& ent
         }
     } else if (mimeType == MIMETYPE_TEXT_URI) {
         object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;
-        if (std::holds_alternative<std::string>(value) && record->GetUri() != nullptr) {
-            object->value_[UDMF::FILE_URI_PARAM] = record->GetUri()->ToString();
+        if (std::holds_alternative<std::string>(value) && record->GetUriV0() != nullptr) {
+            object->value_[UDMF::FILE_URI_PARAM] = record->GetUriV0()->ToString();
         }
     } else if (mimeType == MIMETYPE_PIXELMAP) {
         object->value_[UDMF::UNIFORM_DATA_TYPE] = utdId;

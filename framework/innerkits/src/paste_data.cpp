@@ -228,8 +228,13 @@ DataDescription PasteData::GetReportDescription()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPrimaryHtml start");
     for (const auto &item : records_) {
-        std::shared_ptr<std::string> primary = item->GetHtmlText();
+        auto entry = item->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
+        if (entry == nullptr) {
+            continue;
+        }
+        auto primary = entry->ConvertToHtml();
         if (primary) {
             return primary;
         }
@@ -239,8 +244,13 @@ std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 
 std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPrimaryPixelMap start");
     for (const auto &item : records_) {
-        std::shared_ptr<PixelMap> primary = item->GetPixelMap();
+        auto entry = item->GetEntryByMimeType(MIMETYPE_PIXELMAP);
+        if (entry == nullptr) {
+            continue;
+        }
+        auto primary = entry->ConvertToPixelMap();
         if (primary) {
             return primary;
         }
@@ -261,8 +271,13 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryText()
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPrimaryText start");
     for (const auto &item : records_) {
-        std::shared_ptr<std::string> primary = item->GetPlainText();
+        auto entry = item->GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
+        if (entry == nullptr) {
+            continue;
+        }
+        auto primary = entry->ConvertToPlainText();
         if (primary) {
             return primary;
         }
@@ -272,8 +287,13 @@ std::shared_ptr<std::string> PasteData::GetPrimaryText()
 
 std::shared_ptr<OHOS::Uri> PasteData::GetPrimaryUri()
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPrimaryUri start");
     for (const auto &item : records_) {
-        std::shared_ptr<OHOS::Uri> primary = item->GetUri();
+        auto entry = item->GetEntryByMimeType(MIMETYPE_TEXT_URI);
+        if (entry == nullptr) {
+            continue;
+        }
+        auto primary = entry->ConvertToUri();
         if (primary) {
             return primary;
         }

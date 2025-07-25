@@ -483,7 +483,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFile001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::FILE);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -520,7 +520,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetImage001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::IMAGE);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -557,7 +557,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAudio001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::AUDIO);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -594,7 +594,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetVideo001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::VIDEO);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -631,7 +631,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFolder001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_TEXT_URI);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, UDMF::UDType::FOLDER);
-    auto uri1 = record->GetUri()->ToString();
+    auto uri1 = record->GetUriV0()->ToString();
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
@@ -838,7 +838,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetPixelMap001, TestSize.Level0)
     ASSERT_EQ(type, MIMETYPE_PIXELMAP);
     auto udType = record->GetUDType();
     ASSERT_EQ(udType, int32_t(UDMF::UDType::SYSTEM_DEFINED_PIXEL_MAP));
-    auto newPixelMap = record->GetPixelMap();
+    auto newPixelMap = record->GetPixelMapV0();
     ASSERT_TRUE(newPixelMap != nullptr);
     ImageInfo imageInfo = {};
     newPixelMap->GetImageInfo(imageInfo);

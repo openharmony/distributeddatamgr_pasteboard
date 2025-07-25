@@ -228,7 +228,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest001, TestSize.Level0)
     std::string plainText = "helloWorld";
     auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord(plainText);
     ASSERT_TRUE(record != nullptr);
-    auto newPlainText = record->GetPlainText();
+    auto newPlainText = record->GetPlainTextV0();
     ASSERT_TRUE(newPlainText != nullptr);
     ASSERT_TRUE(*newPlainText == plainText);
 }
@@ -243,7 +243,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest002, TestSize.Level0)
     std::string htmlText = "<div class='disabled item tip user-programs'>";
     auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
     ASSERT_TRUE(record != nullptr);
-    auto newHtmlText = record->GetHtmlText();
+    auto newHtmlText = record->GetHtmlTextV0();
     ASSERT_TRUE(newHtmlText != nullptr);
     ASSERT_TRUE(*newHtmlText == htmlText);
 }
@@ -278,7 +278,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest004, TestSize.Level0)
     OHOS::Uri uri("uri");
     auto record = PasteboardClient::GetInstance()->CreateUriRecord(uri);
     ASSERT_TRUE(record != nullptr);
-    auto newUri = record->GetUri();
+    auto newUri = record->GetUriV0();
     ASSERT_TRUE(newUri != nullptr);
     ASSERT_TRUE(newUri->ToString() == uri.ToString());
 }
@@ -297,7 +297,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
     std::shared_ptr<PixelMap> pixelMapIn = move(pixelMap);
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMapIn);
     ASSERT_TRUE(pasteDataRecord != nullptr);
-    auto newPixelMap = pasteDataRecord->GetPixelMap();
+    auto newPixelMap = pasteDataRecord->GetPixelMapV0();
     ASSERT_TRUE(newPixelMap != nullptr);
     ImageInfo imageInfo = {};
     newPixelMap->GetImageInfo(imageInfo);
@@ -305,7 +305,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest005, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.width == opts.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == opts.pixelFormat);
     pasteDataRecord->ClearPixelMap();
-    ASSERT_TRUE(pasteDataRecord->GetPixelMap() == nullptr);
+    ASSERT_TRUE(pasteDataRecord->GetPixelMapV0() == nullptr);
 }
 
 /**
@@ -327,7 +327,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest006, TestSize.Level0)
     std::shared_ptr<PixelMap> pixelMapIn1 = move(pixelMap1);
     pasteDataRecord = pasteDataRecord->NewPixelMapRecord(pixelMapIn1);
     ASSERT_TRUE(pasteDataRecord != nullptr);
-    auto newPixelMap = pasteDataRecord->GetPixelMap();
+    auto newPixelMap = pasteDataRecord->GetPixelMapV0();
     ASSERT_TRUE(newPixelMap != nullptr);
     ImageInfo imageInfo = {};
     newPixelMap->GetImageInfo(imageInfo);
@@ -557,7 +557,7 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0014, TestSize.Level0)
     std::string htmlUriConvert = "";
     for (auto &item : pasteData.AllRecords()) {
         if (item != nullptr) {
-            std::shared_ptr<Uri> uri = item->GetUri();
+            std::shared_ptr<Uri> uri = item->GetUriV0();
             if (uri != nullptr) {
                 htmlUriConvert = uri->ToString();
             }
@@ -704,10 +704,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest005, TestSize.Level0)
     auto firstRecord = newPasteData.GetRecordAt(0);
     ASSERT_TRUE(firstRecord != nullptr);
     ASSERT_TRUE(firstRecord->GetMimeType() == mimeType);
-    auto newPlainText = firstRecord->GetPlainText();
+    auto newPlainText = firstRecord->GetPlainTextV0();
     ASSERT_TRUE(newPlainText != nullptr);
     ASSERT_TRUE(*newPlainText == plainText);
-    auto newHtmlText = firstRecord->GetHtmlText();
+    auto newHtmlText = firstRecord->GetHtmlTextV0();
     ASSERT_TRUE(newHtmlText != nullptr);
     ASSERT_TRUE(*newHtmlText == htmlText);
     customData = pasteDataRecord->GetCustomData();
@@ -747,7 +747,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest006, TestSize.Level0)
     ASSERT_TRUE(newWant != nullptr);
     int32_t defaultValue = 333;
     ASSERT_TRUE(newWant->GetIntParam(key, defaultValue) == id);
-    auto newPlainText = firstRecord->GetPlainText();
+    auto newPlainText = firstRecord->GetPlainTextV0();
     ASSERT_TRUE(newPlainText != nullptr);
     ASSERT_TRUE(*newPlainText == plainText);
 }
@@ -777,10 +777,10 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest007, TestSize.Level0)
     auto firstRecord = newPasteData.GetRecordAt(0);
     ASSERT_TRUE(firstRecord != nullptr);
     ASSERT_TRUE(firstRecord->GetMimeType() == MIMETYPE_TEXT_URI);
-    auto newUri = firstRecord->GetUri();
+    auto newUri = firstRecord->GetUriV0();
     ASSERT_TRUE(newUri != nullptr);
     ASSERT_TRUE(newUri->ToString() == uri.ToString());
-    auto newPixelMap = firstRecord->GetPixelMap();
+    auto newPixelMap = firstRecord->GetPixelMapV0();
     ASSERT_TRUE(newPixelMap != nullptr);
     ImageInfo imageInfo = {};
     newPixelMap->GetImageInfo(imageInfo);
@@ -1079,7 +1079,7 @@ HWTEST_F(PasteboardServiceTest, PasteDataTest0017, TestSize.Level0)
     ASSERT_EQ(newPasteData.GetRecordCount(), 1);
     auto record1 = newPasteData.GetRecordAt(0);
     ASSERT_TRUE(record1 != nullptr);
-    auto plainText1 = record1->GetPlainText();
+    auto plainText1 = record1->GetPlainTextV0();
     ASSERT_TRUE(plainText1 != nullptr);
     EXPECT_EQ(*plainText1, plainText);
     auto property = newPasteData.GetProperty();

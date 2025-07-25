@@ -148,7 +148,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_005, TestSize.Level1)
 
     std::shared_ptr<PasteData> newPasteData = std::make_shared<PasteData>();
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
-    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlText()), *html);
+    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlTextV0()), *html);
 
     newPasteData->AddHtmlRecord(*html);
     for (auto i = 0; i < pasteData->GetRecordCount() - 1; i++) {
@@ -198,7 +198,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
 
     std::shared_ptr<PasteData> newPasteData = std::make_shared<PasteData>();
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
-    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlText()), *html);
+    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlTextV0()), *html);
 
     newPasteData->AddHtmlRecord(*html);
     auto newHtmlRecord = newPasteData->GetRecordAt(0);
@@ -216,7 +216,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_006, TestSize.Level1)
     webClipboardController.MergeExtraUris2Html(*newPasteData);
     ASSERT_EQ(newPasteData->GetRecordCount(), 1);
     auto recordGet = newPasteData->GetRecordAt(0);
-    auto newHtmlStr = recordGet->GetHtmlText();
+    auto newHtmlStr = recordGet->GetHtmlTextV0();
     ASSERT_NE(newHtmlStr, nullptr);
     EXPECT_STREQ(newHtmlStr->c_str(), expectHtml);
 }
@@ -286,7 +286,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_009, TestSize.Level1)
 
     std::shared_ptr<PasteData> newPasteData = std::make_shared<PasteData>();
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
-    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlText()), *html);
+    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlTextV0()), *html);
 
     newPasteData->AddHtmlRecord(*html);
     for (auto i = 0; i < pasteData->GetRecordCount() - 1; i++) {
@@ -333,7 +333,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_010, TestSize.Level1)
 
     std::shared_ptr<PasteData> newPasteData = std::make_shared<PasteData>();
     std::vector<std::shared_ptr<PasteDataRecord>> pasteDataRecords = pasteData->AllRecords();
-    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlText()), *html);
+    EXPECT_EQ(*(pasteDataRecords[pasteData->GetRecordCount() - 1]->GetHtmlTextV0()), *html);
 
     newPasteData->AddHtmlRecord(*html);
     auto newHtmlRecord = newPasteData->GetRecordAt(0);
@@ -352,7 +352,7 @@ HWTEST_F(WebControllerTest, RebuildHtmlTest_010, TestSize.Level1)
 
     ASSERT_EQ(newPasteData->GetRecordCount(), 1);
     auto recordGet = newPasteData->GetRecordAt(0);
-    auto newHtmlStr = recordGet->GetHtmlText();
+    auto newHtmlStr = recordGet->GetHtmlTextV0();
     ASSERT_NE(newHtmlStr, nullptr);
     EXPECT_STREQ(newHtmlStr->c_str(), expectHtml);
 }
