@@ -29,6 +29,8 @@ public:
     void DeInit();
     uint32_t GetRemoteDeviceMinVersion();
     uint32_t GetRemoteDeviceMaxVersion();
+    static constexpr uint32_t FIRST_VERSION = 4;
+    static constexpr uint32_t SECOND_VERSION = 5;
 
 protected:
     void Online(const std::string &device) override;
