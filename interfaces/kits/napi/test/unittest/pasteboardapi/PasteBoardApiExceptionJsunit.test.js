@@ -766,7 +766,7 @@ describe('PasteBoardJSTest', function () {
       expect(true === false).assertTrue();
     } catch (e) {
       expect(e.code === '401').assertTrue();
-      expect(e.message === 'Parameter error. The type of mimeType must be string.').assertTrue();
+      expect(e.message === 'Parameter error. The type of value must be string.').assertTrue();
     }
     done();
   });
