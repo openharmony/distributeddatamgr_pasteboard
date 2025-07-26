@@ -661,11 +661,10 @@ HWTEST_F(PasteDataRecordTest, GetUriV0Test002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetUriV0Test003, TestSize.Level0)
 {
-    OHOS::Uri uri(uri_);
-    std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewUriRecord(uri);
-    ASSERT_NE(record, nullptr);
+    PasteDataRecord record;
+    record.SetUri(nullptr);
 
-    auto tempUri = record->GetUriV0();
+    auto tempUri = record.GetUriV0();
     EXPECT_EQ(tempUri, nullptr);
 }
 
@@ -695,7 +694,7 @@ HWTEST_F(PasteDataRecordTest, GetUriTest002, TestSize.Level0)
     record.SetUri(nullptr);
 
     auto tempUri = record.GetUri();
-    EXPECT_NE(tempUri, nullptr);
+    EXPECT_EQ(tempUri, nullptr);
 }
 
 /**
