@@ -6,7 +6,7 @@
         },
 	    {
             "name":"pasteboard_desc_text",
-            "value":"Salin pada sebuah peranti, tampal pada yang lain. Peranti-peranti mestilah didekatkan, dilog masuk ke ID HUAWEI yang sama, dan didayakan WLAN, Bluetooth, dan ciri ini. %s"
+            "value":"Salin pada sebuah peranti, tampal pada yang lain. Peranti-peranti mestilah didekatkan, dilog masuk ke ID  yang sama, dan didayakan WLAN, Bluetooth, dan ciri ini. %s"
         },
         {
             "name":"update_version_prompt",
