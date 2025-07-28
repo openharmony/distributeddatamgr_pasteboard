@@ -18,7 +18,7 @@
         },
         {
             "name":"pasteboard_desc_text",
-            "value":"Sao chép trên một thiết bị, dán trên thiết bị khác. Các thiết bị phải ở gần nhau, đăng nhập vào cùng một ID HUAWEI, đồng thời đã bật WLAN, Bluetooth và tính năng này. %s"
+            "value":"Sao chép trên một thiết bị, dán trên thiết bị khác. Các thiết bị phải ở gần nhau, đăng nhập vào cùng một ID, đồng thời đã bật WLAN, Bluetooth và tính năng này. %s"
         },
         {
             "name":"prompttext_udmf_format_error",

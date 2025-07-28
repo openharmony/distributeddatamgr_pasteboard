@@ -54,7 +54,7 @@
         },
         {
             "name":"pasteboard_desc_text",
-            "value":"一方のデバイスからコピーし、もう一方のデバイスに貼り付けます。デバイスは互いの近くにあり、同じHUAWEI IDでログインしており、WLAN、Bluetooth、およびこの機能が有効になっている必要があります。%s"
+            "value":"一方のデバイスからコピーし、もう一方のデバイスに貼り付けます。デバイスは互いの近くにあり、同じIDでログインしており、WLAN、Bluetooth、およびこの機能が有効になっている必要があります。%s"
         },
         {
             "name":"prompttext_udmf_format_error",
