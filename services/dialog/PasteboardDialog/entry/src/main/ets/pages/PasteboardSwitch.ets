@@ -444,7 +444,6 @@ struct PasteboardSwitch {
               .fontSize(CommonConstants.SYMBOL_INFO_CIRCLE)
               .fontColor([$r('sys.color.ohos_id_color_activated')])
               .margin({end:LengthMetrics.vp(CommonConstants.SYMBOL_MARGIN_RIGHT)})
-
             Text($r('app.string.update_version_prompt'))
               .fontSize($r('sys.float.ohos_id_text_size_body3'))
               .fontWeight(FontWeight.Medium)
