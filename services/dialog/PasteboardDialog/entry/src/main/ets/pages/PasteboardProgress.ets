@@ -497,7 +497,7 @@ struct PasteboardProgress {
       .wordBreak(WordBreak.BREAK_ALL)
       .textAlign(TextAlign.Start)
       .textOverflow({ overflow: TextOverflow.Ellipsis })
-      .margin({end:LengthMetrics.vp(this.promptTextMarginRight)})
+      .margin({ end:LengthMetrics.vp(this.promptTextMarginRight) })
       .maxLines(maxLines)
       .maxFontScale(maxFontScale)
       .layoutWeight(layoutWeight)
