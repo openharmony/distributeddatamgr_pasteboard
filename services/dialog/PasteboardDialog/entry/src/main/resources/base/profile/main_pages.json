@@ -1,3 +1,5 @@
 {
-  "src": [ "pages/PasteboardProgress" ]
+  "src": [
+    "pages/PasteboardProgress"
+  ]
 }
