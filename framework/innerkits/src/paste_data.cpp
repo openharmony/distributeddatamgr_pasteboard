@@ -228,13 +228,8 @@ DataDescription PasteData::GetReportDescription()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPrimaryHtml start");
     for (const auto &item : records_) {
-        auto entry = item->GetEntryByMimeType(MIMETYPE_TEXT_HTML);
-        if (entry == nullptr) {
-            continue;
-        }
-        auto primary = entry->ConvertToHtml();
+        std::shared_ptr<std::string> primary = item->GetHtmlText();
         if (primary) {
             return primary;
         }
@@ -244,13 +239,8 @@ std::shared_ptr<std::string> PasteData::GetPrimaryHtml()
 
 std::shared_ptr<PixelMap> PasteData::GetPrimaryPixelMap()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPrimaryPixelMap start");
     for (const auto &item : records_) {
-        auto entry = item->GetEntryByMimeType(MIMETYPE_PIXELMAP);
-        if (entry == nullptr) {
-            continue;
-        }
-        auto primary = entry->ConvertToPixelMap();
+        std::shared_ptr<PixelMap> primary = item->GetPixelMap();
         if (primary) {
             return primary;
         }
@@ -271,13 +261,8 @@ std::shared_ptr<OHOS::AAFwk::Want> PasteData::GetPrimaryWant()
 
 std::shared_ptr<std::string> PasteData::GetPrimaryText()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPrimaryText start");
     for (const auto &item : records_) {
-        auto entry = item->GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
-        if (entry == nullptr) {
-            continue;
-        }
-        auto primary = entry->ConvertToPlainText();
+        std::shared_ptr<std::string> primary = item->GetPlainText();
         if (primary) {
             return primary;
         }
@@ -287,13 +272,8 @@ std::shared_ptr<std::string> PasteData::GetPrimaryText()
 
 std::shared_ptr<OHOS::Uri> PasteData::GetPrimaryUri()
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPrimaryUri start");
     for (const auto &item : records_) {
-        auto entry = item->GetEntryByMimeType(MIMETYPE_TEXT_URI);
-        if (entry == nullptr) {
-            continue;
-        }
-        auto primary = entry->ConvertToUri();
+        std::shared_ptr<OHOS::Uri> primary = item->GetUri();
         if (primary) {
             return primary;
         }

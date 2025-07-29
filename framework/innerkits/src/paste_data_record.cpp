@@ -277,6 +277,10 @@ std::shared_ptr<std::string> PasteDataRecord::GetHtmlTextV0() const
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText()
 {
+    auto htmlText = GetHtmlTextV0();
+    if (htmlText) {
+        return htmlText;
+    }
     auto entry = GetEntryByMimeType(MIMETYPE_TEXT_HTML);
     if (entry == nullptr) {
         return htmlText_;
@@ -307,6 +311,10 @@ std::shared_ptr<std::string> PasteDataRecord::GetPlainTextV0() const
 
 std::shared_ptr<std::string> PasteDataRecord::GetPlainText()
 {
+    auto plainText = GetPlainTextV0();
+    if (plainText) {
+        return plainText;
+    }
     auto entry = GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
     if (entry == nullptr) {
         return plainText_;
@@ -326,6 +334,10 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMapV0() const
 
 std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap()
 {
+    auto pixelMap = GetPixelMapV0();
+    if (pixelMap) {
+        return pixelMap;
+    }
     auto entry = GetEntryByMimeType(MIMETYPE_PIXELMAP);
     if (entry == nullptr) {
         return pixelMap_;
@@ -343,6 +355,10 @@ std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUriV0() const
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri()
 {
+    auto uri = GetUriV0();
+    if (uri) {
+        return uri;
+    }
     auto entry = GetEntryByMimeType(MIMETYPE_TEXT_URI);
     if (entry == nullptr) {
         return GetUriV0();
