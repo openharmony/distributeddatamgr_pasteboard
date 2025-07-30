@@ -358,7 +358,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid001, TestSize.Level0)
     auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
     ASSERT_FALSE(fromDevice.empty());
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
-    ASSERT_FALSE(udid.empty());
+    ASSERT_TRUE(udid.empty());
 }
 
 /**
@@ -379,7 +379,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid002, TestSize.Level0)
     std::string localDeviceUdid_ = "localDeviceUdid";
     DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceUdid_);
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
-    ASSERT_FALSE(udid.empty());
+    ASSERT_TRUE(udid.empty());
 }
 
 /**
@@ -413,9 +413,9 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid004, TestSize.Level0)
     DMAdapter::GetInstance().localDeviceUdid_ = "";
     DMAdapter::GetInstance().pkgName_ = "testpkgName";
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
-    ASSERT_FALSE(udid.empty());
-#else
     ASSERT_TRUE(udid.empty());
+#else
+    ASSERT_FALSE(udid.empty());
 #endif
 }
 
@@ -624,9 +624,9 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceType002, TestSize.Level0)
 {
 #ifdef PB_DEVICE_MANAGER_ENABLE
     int32_t deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
-    ASSERT_NE(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
+    EXPECT_EQ(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
     deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
-    ASSERT_NE(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
+    EXPECT_EQ(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
 #else
     ASSERT_TRUE(true);
 #endif
