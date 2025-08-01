@@ -4079,7 +4079,7 @@ HWTEST_F(PasteboardServiceTest, GetDelayPasteRecord004, TestSize.Level0)
     data.AddRecord(record);
     sptr<IPasteboardEntryGetter> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
     ASSERT_NE(entryGetter, nullptr);
-    sptr<PasteboardService::EntryGetterDeathRecipient> deathRecipient = new 
+    sptr<PasteboardService::EntryGetterDeathRecipient> deathRecipient = new
         OHOS::MiscServices::PasteboardService::EntryGetterDeathRecipient(userId, *tempPasteboard);
     ASSERT_NE(deathRecipient, nullptr);
     tempPasteboard->entryGetters_.InsertOrAssign(userId, std::make_pair(entryGetter, deathRecipient));
