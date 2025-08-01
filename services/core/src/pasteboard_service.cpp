@@ -818,8 +818,11 @@ int32_t PasteboardService::ProcessDelayHtmlEntry(PasteData &data, const AppInfo 
 {
     const auto &targetBundle = targetAppInfo.bundleName;
     const auto &appIndex = targetAppInfo.appIndex;
-    if (!PasteboardWebController::GetInstance().SplitWebviewPasteData(data)) {
-        return static_cast<int32_t>(PasteboardError::E_OK);
+    {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        if (!PasteboardWebController::GetInstance().SplitWebviewPasteData(data)) {
+            return static_cast<int32_t>(PasteboardError::E_OK);
+        }
     }
 
     PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
@@ -1230,10 +1233,13 @@ int32_t PasteboardService::GetPasteDataInner(int &fd, int64_t &size, std::vector
 int32_t PasteboardService::DealData(int &fd, int64_t &size, std::vector<uint8_t> &rawData, PasteData &data)
 {
     std::vector<uint8_t> pasteDataTlv(0);
-    if (!data.Encode(pasteDataTlv)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode pastedata in TLV");
-        HiViewAdapter::ReportUseBehaviour(data, HiViewAdapter::PASTE_STATE, ERR_INVALID_VALUE);
-        return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+    {
+        std::shared_lock<std::shared_mutex> read(pasteDataMutex_);
+        if (!data.Encode(pasteDataTlv)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Failed to encode pastedata in TLV");
+            HiViewAdapter::ReportUseBehaviour(data, HiViewAdapter::PASTE_STATE, ERR_INVALID_VALUE);
+            return static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR);
+        }
     }
     int64_t tlvSize = static_cast<int64_t>(pasteDataTlv.size());
     int serviceFd = -1;
@@ -1594,9 +1600,13 @@ int32_t PasteboardService::GetDelayPasteRecord(int32_t userId, PasteData &data)
                 record->GetRecordId());
             continue;
         }
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
         record->AddEntry(entries[0]->GetUtdId(), entries[0]);
     }
-    PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+    {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+    }
     PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -3500,17 +3510,23 @@ bool PasteboardService::SetCurrentData(Event event, PasteData &data)
     if (needFull) {
         GetFullDelayPasteData(event.user, data);
         event.isDelay = false;
-        PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+        {
+            std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+            PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+        }
         PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
         PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     }
     GenerateDistributedUri(data);
     std::vector<uint8_t> rawData;
     auto remoteVersionMin = moduleConfig_.GetRemoteDeviceMinVersion();
-    if (!data.Encode(rawData, remoteVersionMin <= DistributedModuleConfig::SECOND_VERSION)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-            "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
-        return false;
+    {
+        std::shared_lock<std::shared_mutex> read(pasteDataMutex_);
+        if (!data.Encode(rawData, remoteVersionMin <= DistributedModuleConfig::SECOND_VERSION)) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
+                "distributed data encode failed, dataId:%{public}u, seqId:%{public}hu", event.dataId, event.seqId);
+            return false;
+        }
     }
     if (data.IsDelayRecord() && !needFull) {
         clipPlugin->RegisterDelayCallback(
@@ -3602,9 +3618,12 @@ int32_t PasteboardService::ProcessDistributedDelayUri(int32_t userId, PasteData 
 int32_t PasteboardService::ProcessDistributedDelayHtml(PasteData &data, PasteDataEntry &entry,
     std::vector<uint8_t> &rawData)
 {
-    if (PasteboardWebController::GetInstance().SplitWebviewPasteData(data)) {
-        PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
-        PasteboardWebController::GetInstance().CheckAppUriPermission(data);
+    {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        if (PasteboardWebController::GetInstance().SplitWebviewPasteData(data)) {
+            PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
+            PasteboardWebController::GetInstance().CheckAppUriPermission(data);
+        }
     }
 
     PasteData tmp;
@@ -3659,12 +3678,15 @@ int32_t PasteboardService::GetDistributedDelayData(const Event &evt, uint8_t ver
 
     auto authorityInfo = data->GetOriginAuthority();
     data->SetBundleInfo(authorityInfo.first, authorityInfo.second);
-    PasteboardWebController::GetInstance().SplitWebviewPasteData(*data);
-    PasteboardWebController::GetInstance().SetWebviewPasteData(*data, authorityInfo);
+    {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        PasteboardWebController::GetInstance().SplitWebviewPasteData(*data);
+    }
     PasteboardWebController::GetInstance().CheckAppUriPermission(*data);
     GenerateDistributedUri(*data);
 
     auto remoteVersionMin = moduleConfig_.GetRemoteDeviceMinVersion();
+    std::shared_lock<std::shared_mutex> read(pasteDataMutex_);
     bool encodeSucc = data->Encode(rawData, remoteVersionMin <= DistributedModuleConfig::SECOND_VERSION);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(encodeSucc, static_cast<int32_t>(PasteboardError::DATA_ENCODE_ERROR),
         PASTEBOARD_MODULE_SERVICE, "encode data failed, dataId:%{public}u, seqId:%{public}hu", evt.dataId, evt.seqId);
@@ -3698,7 +3720,10 @@ int32_t PasteboardService::GetLocalEntryValue(int32_t userId, PasteData &data, P
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
         PASTEBOARD_MODULE_SERVICE, "get local entry failed, type=%{public}s, ret=%{public}d", utdId.c_str(), ret);
 
-    record.AddEntry(utdId, std::make_shared<PasteDataEntry>(value));
+    {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        record.AddEntry(utdId, std::make_shared<PasteDataEntry>(value));
+    }
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
@@ -3730,12 +3755,21 @@ int32_t PasteboardService::GetRemoteEntryValue(const AppInfo &appInfo, PasteData
     PasteDataEntry tmpEntry;
     tmpEntry.Decode(rawData);
     entry.SetValue(tmpEntry.GetValue());
-    record.AddEntry(utdId, std::make_shared<PasteDataEntry>(entry));
+    {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        record.AddEntry(utdId, std::make_shared<PasteDataEntry>(entry));
+    }
 
     if (mimeType != MIMETYPE_TEXT_URI) {
         return static_cast<int32_t>(PasteboardError::E_OK);
     }
 
+    return ProcessRemoteDelayUri(distEvt.deviceId, appInfo, data, record, entry);
+}
+
+int32_t PasteboardService::ProcessRemoteDelayUri(const std::string &deviceId, const AppInfo &appInfo,
+    PasteData &data, PasteDataRecord &record, PasteDataEntry &entry)
+{
     auto uri = entry.ConvertToUri();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(uri != nullptr, static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED),
         PASTEBOARD_MODULE_SERVICE, "convert entry to uri failed");
@@ -3754,8 +3788,8 @@ int32_t PasteboardService::GetRemoteEntryValue(const AppInfo &appInfo, PasteData
     }
     std::vector<Uri> grantUris = CheckUriPermission(data, std::make_pair(appInfo.bundleName, appInfo.appIndex));
     if (!grantUris.empty()) {
-        EstablishP2PLink(distEvt.deviceId, data.GetPasteId());
-        ret = GrantUriPermission(grantUris, appInfo.bundleName, data.IsRemote(), appInfo.appIndex);
+        EstablishP2PLink(deviceId, data.GetPasteId());
+        int32_t ret = GrantUriPermission(grantUris, appInfo.bundleName, data.IsRemote(), appInfo.appIndex);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
             PASTEBOARD_MODULE_SERVICE, "grant remote uri failed, uri=%{private}s, ret=%{public}d",
             distributedUri.c_str(), ret);
@@ -3775,7 +3809,10 @@ int32_t PasteboardService::ProcessRemoteDelayHtml(const std::string &remoteDevic
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(htmlEntry != nullptr,
         static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED), PASTEBOARD_MODULE_SERVICE, "htmlEntry is null");
     entry.SetValue(htmlEntry->GetValue());
-    record.AddEntry(entry.GetUtdId(), std::make_shared<PasteDataEntry>(entry));
+    {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        record.AddEntry(entry.GetUtdId(), std::make_shared<PasteDataEntry>(entry));
+    }
 
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(htmlRecord->GetFrom() != 0, static_cast<int32_t>(PasteboardError::E_OK),
         PASTEBOARD_MODULE_SERVICE, "no uri");
@@ -3796,6 +3833,12 @@ int32_t PasteboardService::ProcessRemoteDelayHtml(const std::string &remoteDevic
         }
     }
 
+    return ProcessRemoteDelayHtmlInner(remoteDeviceId, appInfo, tmpData, data, entry);
+}
+
+int32_t PasteboardService::ProcessRemoteDelayHtmlInner(const std::string &remoteDeviceId, const AppInfo &appInfo,
+    PasteData &tmpData, PasteData &data, PasteDataEntry &entry)
+{
     int64_t htmlFileSize = tmpData.GetFileSize();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "htmlFileSize=%{public}" PRId64, htmlFileSize);
     if (htmlFileSize > 0) {
@@ -3846,11 +3889,15 @@ int32_t PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data
                 continue;
             }
             if (entry->GetMimeType() == mimeType) {
+                std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
                 record->AddEntry(entry->GetUtdId(), std::make_shared<PasteDataEntry>(*entry));
             }
         }
     }
-    PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+    {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+    }
     PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     clips_.ComputeIfPresent(userId, [&data](auto, auto &value) {
@@ -3872,6 +3919,7 @@ void PasteboardService::GenerateDistributedUri(PasteData &data)
     std::vector<size_t> indexes;
     auto userId = GetCurrentAccountId();
     PASTEBOARD_CHECK_AND_RETURN_LOGE(userId != ERROR_USERID, PASTEBOARD_MODULE_SERVICE, "invalid userId");
+    std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
     for (size_t i = 0; i < data.GetRecordCount(); i++) {
         auto item = data.GetRecordAt(i);
         if (item == nullptr) {
@@ -4121,8 +4169,10 @@ void PasteboardService::RevokeAndClearUri(std::shared_ptr<PasteData> pasteData)
         bundles = std::move(readBundles_);
     }
     PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteData != nullptr, PASTEBOARD_MODULE_SERVICE, "pasteData is null");
-    std::thread thread([pasteData, bundles]() {
+    auto self = shared_from_this();
+    std::thread thread([pasteData, bundles, self]() {
         auto &permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
+        std::unique_lock<std::shared_mutex> threadWriteLock(self->pasteDataMutex_);
         for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
             auto item = pasteData->GetRecordAt(i);
             if (item == nullptr || item->GetOriginUri() == nullptr) {

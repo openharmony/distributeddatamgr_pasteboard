@@ -3995,5 +3995,305 @@ HWTEST_F(PasteboardServiceTest, RegisterClientDeathObserverTest001, TestSize.Lev
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "RegisterClientDeathObserverTest001 end");
 }
 
+/**
+ * @tc.name: GetDelayPasteRecord002
+ * @tc.desc: GetDelayPasteRecord002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetDelayPasteRecord002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int32_t userId = 0x123456;
+    auto record = std::make_shared<PasteDataRecord>();
+    ASSERT_NE(record, nullptr);
+    record->SetDelayRecordFlag(true);
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>();
+    ASSERT_NE(entry, nullptr);
+    std::string utdid = "utdid";
+    entry->SetUtdId(utdid);
+    std::string plainText = "text/plain";
+    entry->SetValue(plainText);
+    record->AddEntry(utdid, entry);
+    PasteData data;
+    data.AddRecord(record);
+    sptr<IPasteboardEntryGetter> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
+    ASSERT_NE(entryGetter, nullptr);
+    sptr<PasteboardService::EntryGetterDeathRecipient> deathRecipient = new
+        OHOS::MiscServices::PasteboardService::EntryGetterDeathRecipient(userId, *tempPasteboard);
+    ASSERT_NE(deathRecipient, nullptr);
+    tempPasteboard->entryGetters_.InsertOrAssign(userId, std::make_pair(entryGetter, deathRecipient));
+    tempPasteboard->GetDelayPasteRecord(userId + 1, data);
+    tempPasteboard->GetDelayPasteRecord(userId, data);
+    EXPECT_EQ(tempPasteboard->entryGetters_.Size(), 1);
+    delete deathRecipient;
+}
+
+/**
+ * @tc.name: GetDelayPasteRecord003
+ * @tc.desc: GetDelayPasteRecord003
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetDelayPasteRecord003, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int32_t userId = 0x123456;
+    auto record = std::make_shared<PasteDataRecord>();
+    ASSERT_NE(record, nullptr);
+    record->SetDelayRecordFlag(false);
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>();
+    ASSERT_NE(entry, nullptr);
+    std::string utdid = "utdid";
+    entry->SetUtdId(utdid);
+    std::string plainText = "text/plain";
+    entry->SetValue(plainText);
+    record->AddEntry(utdid, entry);
+    PasteData data;
+    data.AddRecord(record);
+    sptr<IPasteboardEntryGetter> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
+    ASSERT_NE(entryGetter, nullptr);
+    sptr<PasteboardService::EntryGetterDeathRecipient> deathRecipient = new
+        OHOS::MiscServices::PasteboardService::EntryGetterDeathRecipient(userId, *tempPasteboard);
+    ASSERT_NE(deathRecipient, nullptr);
+    tempPasteboard->entryGetters_.InsertOrAssign(userId, std::make_pair(entryGetter, deathRecipient));
+    tempPasteboard->GetDelayPasteRecord(userId, data);
+    EXPECT_EQ(tempPasteboard->entryGetters_.Size(), 1);
+    delete deathRecipient;
+}
+
+/**
+ * @tc.name: GetDelayPasteRecord004
+ * @tc.desc: GetDelayPasteRecord004
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetDelayPasteRecord004, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int32_t userId = 0x123456;
+    auto record = std::make_shared<PasteDataRecord>();
+    ASSERT_NE(record, nullptr);
+    record->SetDelayRecordFlag(true);
+    PasteData data;
+    data.AddRecord(record);
+    sptr<IPasteboardEntryGetter> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
+    ASSERT_NE(entryGetter, nullptr);
+    sptr<PasteboardService::EntryGetterDeathRecipient> deathRecipient = new 
+        OHOS::MiscServices::PasteboardService::EntryGetterDeathRecipient(userId, *tempPasteboard);
+    ASSERT_NE(deathRecipient, nullptr);
+    tempPasteboard->entryGetters_.InsertOrAssign(userId, std::make_pair(entryGetter, deathRecipient));
+    tempPasteboard->GetDelayPasteRecord(userId, data);
+    EXPECT_EQ(tempPasteboard->entryGetters_.Size(), 1);
+    delete deathRecipient;
+}
+
+/**
+ * @tc.name: CloseP2PLink002
+ * @tc.desc: CloseP2PLink002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, CloseP2PLink002, TestSize.Level0)
+{
+#ifdef PB_DEVICE_MANAGER_ENABLE
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    ASSERT_NE(tempPasteboard, nullptr);
+    std::string networkId = "networkId";
+    tempPasteboard->CloseP2PLink(networkId);
+    EXPECT_NE(networkId, "");
+#endif
+}
+
+/**
+ * @tc.name: SaveData002
+ * @tc.desc: SaveData002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SaveData002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    PasteData pasteData;
+    sptr<PasteboardDelayGetterImpl> delayGetter = nullptr;
+    sptr<PasteboardEntryGetterImpl> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
+    ASSERT_NE(entryGetter, nullptr);
+    int64_t dataSize = 0;
+    int32_t ret = tempPasteboard->SaveData(pasteData, dataSize, delayGetter, entryGetter);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: SaveData003
+ * @tc.desc: SaveData003
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SaveData003, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    PasteData pasteData;
+    sptr<PasteboardDelayGetterImpl> delayGetter = sptr<PasteboardDelayGetterImpl>::MakeSptr();
+    ASSERT_NE(delayGetter, nullptr);
+    sptr<PasteboardEntryGetterImpl> entryGetter = nullptr;
+    int64_t dataSize = 0;
+    int32_t ret = tempPasteboard->SaveData(pasteData, dataSize, delayGetter, entryGetter);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));}
+
+/**
+ * @tc.name: SaveData004
+ * @tc.desc: SaveData004
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, SaveData004, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    PasteData pasteData;
+    sptr<PasteboardDelayGetterImpl> delayGetter = sptr<PasteboardDelayGetterImpl>::MakeSptr();
+    ASSERT_NE(delayGetter, nullptr);
+    sptr<PasteboardEntryGetterImpl> entryGetter = sptr<PasteboardEntryGetterImpl>::MakeSptr();
+    ASSERT_NE(entryGetter, nullptr);
+    int64_t dataSize = INT64_MAX;
+    int32_t ret = tempPasteboard->SaveData(pasteData, dataSize, delayGetter, entryGetter);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: GetCommonStateTest002
+ * @tc.desc: GetCommonStateTest002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetCommonStateTest002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int64_t dataSize = INT64_MAX;
+    CommonInfo info = tempPasteboard->GetCommonState(dataSize);
+    EXPECT_EQ(info.dataSize, dataSize);
+}
+
+/**
+ * @tc.name: ProcessRemoteDelayHtmlInnerTest001
+ * @tc.desc: ProcessRemoteDelayHtmlInnerTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, ProcessRemoteDelayHtmlInnerTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string remoteDeviceId = "remoteDeviceId";
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = tempPasteboard->GetAppInfo(tokenId);
+    PasteData tmpData;
+    tmpData.SetFileSize(1);
+    PasteData data;
+    PasteDataEntry entry;
+    
+    int32_t ret = tempPasteboard->ProcessRemoteDelayHtmlInner(remoteDeviceId, appInfo, tmpData, data, entry);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::REBUILD_HTML_FAILED));
+}
+
+/**
+ * @tc.name: ProcessRemoteDelayHtmlInnerTest002
+ * @tc.desc: ProcessRemoteDelayHtmlInnerTest002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, ProcessRemoteDelayHtmlInnerTest002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string remoteDeviceId = "remoteDeviceId";
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = tempPasteboard->GetAppInfo(tokenId);
+    PasteData tmpData;
+    tmpData.SetFileSize(0);
+    PasteData data;
+    PasteDataEntry entry;
+    
+    int32_t ret = tempPasteboard->ProcessRemoteDelayHtmlInner(remoteDeviceId, appInfo, tmpData, data, entry);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::REBUILD_HTML_FAILED));
+}
+
+/**
+ * @tc.name: ProcessRemoteDelayHtmlTest002
+ * @tc.desc: ProcessRemoteDelayHtmlTest002
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, ProcessRemoteDelayHtmlTest002, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    ASSERT_NE(tempPasteboard, nullptr);
+    std::string remoteDeviceId = "remoteDeviceId";
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = tempPasteboard->GetAppInfo(tokenId);
+    std::vector<uint8_t> rawData(0);
+    auto record = std::make_shared<PasteDataRecord>();
+    ASSERT_NE(record, nullptr);
+    record->SetDelayRecordFlag(true);
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>();
+    ASSERT_NE(entry, nullptr);
+    std::string utdid = "utdid";
+    entry->SetUtdId(utdid);
+    std::string plainText = "text/plain";
+    entry->SetValue(plainText);
+    record->AddEntry(utdid, entry);
+    PasteData data;
+    data.AddRecord(record);
+    data.Encode(rawData);
+    
+    int32_t ret = tempPasteboard->ProcessRemoteDelayHtml(remoteDeviceId, appInfo, rawData, data, *record, *entry);
+    EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED));
+}
+
+/**
+ * @tc.name: GetRemoteEntryValueTest001
+ * @tc.desc: GetRemoteEntryValueTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, GetRemoteEntryValueTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string remoteDeviceId = "remoteDeviceId";
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = tempPasteboard->GetAppInfo(tokenId);
+    PasteData data;
+    PasteDataRecord record;
+    PasteDataEntry entry;
+    
+    int32_t ret = tempPasteboard->GetRemoteEntryValue(appInfo, data, record, entry);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::PLUGIN_IS_NULL));
+}
+
+/**
+ * @tc.name: ProcessRemoteDelayUriTest001
+ * @tc.desc: ProcessRemoteDelayUriTest001
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, ProcessRemoteDelayUriTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    std::string deviceId = "deviceId";
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = tempPasteboard->GetAppInfo(tokenId);
+    std::vector<uint8_t> rawData(0);
+    auto record = std::make_shared<PasteDataRecord>();
+    ASSERT_NE(record, nullptr);
+    record->SetDelayRecordFlag(true);
+    std::shared_ptr<PasteDataEntry> entry = std::make_shared<PasteDataEntry>();
+    ASSERT_NE(entry, nullptr);
+    std::string utdid = "utdid";
+    entry->SetUtdId(utdid);
+    std::string plainText = "text/plain";
+    entry->SetValue(plainText);
+    record->AddEntry(utdid, entry);
+    PasteData data;
+    data.AddRecord(record);
+    data.Encode(rawData);
+    
+    int32_t ret = tempPasteboard->ProcessRemoteDelayUri(deviceId, appInfo, data, record, entry);
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
 } // namespace MiscServices
 } // namespace OHOS
