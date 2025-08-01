@@ -3682,6 +3682,7 @@ int32_t PasteboardService::GetDistributedDelayData(const Event &evt, uint8_t ver
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
         PasteboardWebController::GetInstance().SplitWebviewPasteData(*data);
     }
+    PasteboardWebController::GetInstance().SetWebviewPasteData(*data, authorityInfo);
     PasteboardWebController::GetInstance().CheckAppUriPermission(*data);
     GenerateDistributedUri(*data);
 
