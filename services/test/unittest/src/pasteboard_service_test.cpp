@@ -4026,7 +4026,6 @@ HWTEST_F(PasteboardServiceTest, GetDelayPasteRecord002, TestSize.Level0)
     tempPasteboard->GetDelayPasteRecord(userId + 1, data);
     tempPasteboard->GetDelayPasteRecord(userId, data);
     EXPECT_EQ(tempPasteboard->entryGetters_.Size(), 1);
-    delete deathRecipient;
 }
 
 /**
