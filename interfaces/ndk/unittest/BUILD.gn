@@ -28,7 +28,8 @@ config("module_private_config") {
 
 common_deps = [
   "${pasteboard_interfaces_path}/ndk:libpasteboard",
-  "${pasteboard_root_path}/framework/innerkits:pasteboard_client",
+  "${pasteboard_innerkits_path}:pasteboard_client",
+  "${pasteboard_innerkits_path}:pasteboard_data",
 ]
 
 common_external_deps = [

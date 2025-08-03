@@ -819,6 +819,22 @@ HWTEST_F(PasteboardClientTest, HandleSignalValue002, TestSize.Level0)
 }
 
 /**
+ * @tc.name: HandleSignalValue003
+ * @tc.desc: HandleSignalValue003 Test.
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(PasteboardClientTest, HandleSignalValue003, TestSize.Level0)
+{
+    PasteboardClient pasteboardClient;
+    int64_t value = INT32_MAX;
+    std::string signalValue = std::to_string(value + 1);
+    int32_t result = pasteboardClient.HandleSignalValue(signalValue);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+}
+
+/**
  * @tc.name: SubscribeEntityObserverTest001
  * @tc.desc: Subscribe EntityObserver when entityType is invalid value, should return ERR_INVALID_VALUE.
  * hen EntityType is MAX, should return INVALID_PARAM_ERROR.

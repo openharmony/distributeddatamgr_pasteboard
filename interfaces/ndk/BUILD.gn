@@ -45,7 +45,7 @@ ohos_shared_library("libpasteboard") {
 
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
-    "${pasteboard_root_path}/framework/innerkits:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_client",
   ]
 
   external_deps = [

@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
+#include <charconv>
 #include <iservice_registry.h>
 #include <thread>
+#include <regex>
 
 #include "convert_utils.h"
 #include "ffrt/ffrt_utils.h"
@@ -1128,13 +1130,11 @@ int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progressStatusValue invalid = %{public}s", signalValue.c_str());
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
-    try {
-        progressStatusValue = std::stoi(signalValue);
-    } catch (const std::out_of_range &e) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT,
-            "progressStatusValue out of range = %{public}s", e.what());
-        return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
-    }
+    auto ret = std::from_chars(signalValue.data(), signalValue.data() + signalValue.size(), progressStatusValue);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret.ec == std::errc(),
+        static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_CLIENT,
+        "progress invalid status: %{public}s", signalValue.c_str());
+
     if (progressStatusValue == NORMAL_PASTE) {
         return static_cast<int32_t>(PasteboardError::E_OK);
     }
@@ -1142,10 +1142,10 @@ int32_t PasteboardClient::HandleSignalValue(const std::string &signalValue)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress cancel paste");
         ProgressSignalClient::GetInstance().Cancel();
     } else if (progressStatusValue == PASTE_TIME_OUT) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress time out");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress time out");
         progressReport->OnProgressFail(static_cast<int32_t>(PasteboardError::PROGRESS_PASTE_TIME_OUT));
     } else {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "pasteboard progress invalid status");
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "progress invalid status: %{public}s", signalValue.c_str());
         progressReport->OnProgressFail(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
     }
     return static_cast<int32_t>(PasteboardError::E_OK);

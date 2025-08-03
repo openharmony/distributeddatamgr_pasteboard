@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <dlfcn.h>
 #include <libxml/HTMLparser.h>
+#include <regex>
 
 #include "pasteboard_hilog.h"
 #include "pasteboard_lib_guard.h"
@@ -54,16 +55,6 @@ const std::set<Pattern> PatternDetection::Detect(
     return existedPatterns;
 }
 
-bool PatternDetection::IsValid(const std::set<Pattern> &patterns)
-{
-    for (Pattern pattern : patterns) {
-        if (pattern >= Pattern::COUNT) {
-            return false;
-        }
-    }
-    return true;
-}
-
 void PatternDetection::DetectPlainText(
     std::set<Pattern> &patternsOut, const std::set<Pattern> &patternsIn, const std::string &plainText)
 {
@@ -78,12 +69,8 @@ void PatternDetection::DetectPlainText(
             continue;
         }
         std::regex curRegex(it->second);
-        try {
-            if (std::regex_search(plainText, curRegex)) {
-                patternsOut.insert(pattern);
-            }
-        } catch (std::regex_error &e) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Regex error !");
+        if (std::regex_search(plainText, curRegex)) {
+            patternsOut.insert(pattern);
         }
     }
 }
