@@ -108,7 +108,8 @@ private:
     PasteboardService *pasteboardService_ = nullptr;
 };
 
-class PasteboardService final : public SystemAbility, public PasteboardServiceStub {
+class PasteboardService final : public SystemAbility, public PasteboardServiceStub,
+    public std::enable_shared_from_this<PasteboardService> {
     DECLARE_SYSTEM_ABILITY(PasteboardService)
 
 public:
@@ -179,6 +180,7 @@ public:
 private:
     bool isCritical_ = false;
     std::mutex saMutex_;
+    std::shared_mutex pasteDataMutex_;
     using Event = ClipPlugin::GlobalEvent;
     using GetProcessorFunc = IPasteDataProcessor& (*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,
@@ -364,8 +366,12 @@ private:
     int32_t ProcessDistributedDelayEntry(PasteDataEntry &entry, std::vector<uint8_t> &rawData);
     int32_t GetRemoteEntryValue(const AppInfo &appInfo, PasteData &data, PasteDataRecord &record,
         PasteDataEntry &entry);
+    int32_t ProcessRemoteDelayUri(const std::string &deviceId, const AppInfo &appInfo,
+        PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
     int32_t ProcessRemoteDelayHtml(const std::string &remoteDeviceId, const AppInfo &appInfo,
         const std::vector<uint8_t> &rawData, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
+    int32_t ProcessRemoteDelayHtmlInner(const std::string &remoteDeviceId, const AppInfo &appInfo,
+        PasteData &tmpData, PasteData &data, PasteDataEntry &entry);
     int32_t GetLocalEntryValue(int32_t userId, PasteData &data, PasteDataRecord &record, PasteDataEntry &entry);
     int32_t GetFullDelayPasteData(int32_t userId, PasteData &data);
     bool IsDisallowDistributed();
