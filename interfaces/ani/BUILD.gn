@@ -70,7 +70,10 @@ ohos_shared_library("pasteboard_ani") {
     "runtime_core:ani",
     "udmf:udmf_client",
   ]
-  deps = [ "${pasteboard_root_path}/framework/innerkits:pasteboard_client" ]
+  deps = [
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
+  ]
 }
 
 generate_static_abc("pasteboard_abc") {

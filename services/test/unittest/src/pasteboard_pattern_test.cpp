@@ -396,4 +396,36 @@ HWTEST_F(PasteboardPatternTest, PasteboardPatternTest009, TestSize.Level0)
     auto detect = PatternDetection::Detect(patternsToCheck, pasteData, hasHTML, hasPlain);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest009 end");
 }
+
+/**
+ * @tc.name: PasteboardPatternTest010
+ * @tc.desc: IsValid test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardPatternTest, PasteboardPatternTest010, TestSize.Level0)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest010 start");
+
+    std::set<Pattern> patterns = { Pattern::COUNT };
+    bool isValid = PatternDetection::IsValid(patterns);
+    EXPECT_FALSE(isValid);
+
+    patterns = { Pattern::URL };
+    isValid = PatternDetection::IsValid(patterns);
+    EXPECT_TRUE(isValid);
+
+    patterns = { Pattern::NUMBER };
+    isValid = PatternDetection::IsValid(patterns);
+    EXPECT_TRUE(isValid);
+
+    patterns = { Pattern::EMAIL_ADDRESS };
+    isValid = PatternDetection::IsValid(patterns);
+    EXPECT_TRUE(isValid);
+
+    patterns = { Pattern::URL, Pattern::COUNT };
+    isValid = PatternDetection::IsValid(patterns);
+    EXPECT_FALSE(isValid);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardPatternTest010 end");
+}
 } // namespace OHOS::MiscServices

@@ -51,7 +51,8 @@ ohos_shared_library("cj_pasteboard_ffi") {
   if (product_name != "ohos-sdk") {
     deps = [
       "${pasteboard_framework_path}:pasteboard_framework",
-      "${pasteboard_root_path}/framework/innerkits:pasteboard_client",
+      "${pasteboard_innerkits_path}:pasteboard_client",
+      "${pasteboard_innerkits_path}:pasteboard_data",
     ]
     external_deps = [
       "ability_base:want",

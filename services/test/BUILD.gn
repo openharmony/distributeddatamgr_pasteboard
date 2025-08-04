@@ -80,6 +80,7 @@ ohos_unittest("PasteboardServiceTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
   ]
 }
 
@@ -178,6 +179,7 @@ ohos_unittest("PasteServInterfaceTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
@@ -311,6 +313,7 @@ ohos_unittest("PasteServInterfaceMockTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
@@ -430,6 +433,7 @@ ohos_unittest("PasteboardPatternTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
   ]
 }
 
@@ -448,6 +452,7 @@ ohos_unittest("PasteboardDelayStubTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
   ]
   external_deps = [
@@ -475,6 +480,7 @@ ohos_unittest("PasteboardDelayProxyTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
   ]
   external_deps = [
@@ -511,6 +517,7 @@ ohos_unittest("PasteboardEntryGetterStubTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
   ]
 }
 
@@ -537,6 +544,7 @@ ohos_unittest("PasteboardEntryGetterProxyTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
   ]
 }
 
@@ -584,6 +592,7 @@ ohos_unittest("PasteboardDisposableManagerTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
   ]
 
   external_deps = [
@@ -693,6 +702,7 @@ ohos_unittest("PasteServGetLocalDataTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
@@ -825,6 +835,7 @@ ohos_unittest("PasteServSubscribeTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
@@ -957,6 +968,7 @@ ohos_unittest("PasteServNotifyTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
@@ -1089,6 +1101,7 @@ ohos_unittest("PasteServSetDataTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
@@ -1221,6 +1234,7 @@ ohos_unittest("PasteServGetDataTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]

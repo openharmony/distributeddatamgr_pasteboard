@@ -55,6 +55,9 @@ ohos_shared_library("pasteboard_data") {
     cfi_cross_dso = true
     debug = false
   }
+
+  version_script = "pasteboard_kit_map"
+
   sources = [
     "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
     "src/convert_utils.cpp",
@@ -86,7 +89,7 @@ ohos_shared_library("pasteboard_data") {
   ]
 
   public_configs = [ ":pasteboard_data_config" ]
-  deps = [ "${pasteboard_root_path}/services:pasteboard_stub_proxy" ]
+  deps = [ "${pasteboard_service_path}:pasteboard_client_idl" ]
 
   external_deps = [
     "ability_base:zuri",
@@ -104,7 +107,6 @@ ohos_shared_library("pasteboard_data") {
     "udmf:udmf_client",
   ]
   subsystem_name = "distributeddatamgr"
-  use_exceptions = true
   innerapi_tags = [ "platformsdk" ]
   part_name = "pasteboard"
 }
@@ -123,7 +125,6 @@ ohos_shared_library("pasteboard_client") {
   version_script = "pasteboard_kit_map"
   sources = [
     "${pasteboard_root_path}/adapter/pasteboard_progress/pasteboard_progress.cpp",
-    "${pasteboard_service_path}/core/src/pasteboard_pattern.cpp",
     "${pasteboard_service_path}/dfx/src/hiview_adapter.cpp",
     "${pasteboard_service_path}/zidl/src/entity_recognition_observer_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_delay_getter_client.cpp",
@@ -132,28 +133,19 @@ ohos_shared_library("pasteboard_client") {
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_client.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_entry_getter_stub.cpp",
     "${pasteboard_service_path}/zidl/src/pasteboard_observer_stub.cpp",
-    "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
     "${pasteboard_utils_path}/native/src/pasteboard_time.cpp",
-    "src/convert_utils.cpp",
     "src/entity_recognition_observer.cpp",
     "src/i_paste_data_processor.cpp",
-    "src/paste_data.cpp",
-    "src/paste_data_entry.cpp",
-    "src/paste_data_record.cpp",
     "src/pasteboard_client.cpp",
     "src/pasteboard_copy.cpp",
     "src/pasteboard_disposable_observer.cpp",
     "src/pasteboard_entry_getter.cpp",
-    "src/pasteboard_load_callback.cpp",
     "src/pasteboard_observer.cpp",
     "src/pasteboard_progress_signal.cpp",
     "src/pasteboard_samgr_listener.cpp",
-    "src/pasteboard_service_loader.cpp",
     "src/pasteboard_signal_callback.cpp",
     "src/pasteboard_utils.cpp",
-    "src/pasteboard_web_controller.cpp",
   ]
-  sources += pasteboard_tlv_sources
 
   cflags_cc = [
     "-D_FORTIFY_SOURCE=2",
@@ -164,7 +156,8 @@ ohos_shared_library("pasteboard_client") {
   public_configs = [ ":pasteboard_client_config" ]
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
-    "${pasteboard_root_path}/services:pasteboard_stub_proxy",
+    "${pasteboard_innerkits_path}:pasteboard_data",
+    "${pasteboard_service_path}:pasteboard_client_idl",
   ]
 
   external_deps = [
@@ -195,7 +188,6 @@ ohos_shared_library("pasteboard_client") {
   ]
   public_external_deps = [ "udmf:udmf_client" ]
   subsystem_name = "distributeddatamgr"
-  use_exceptions = true
   innerapi_tags = [ "platformsdk" ]
   part_name = "pasteboard"
 }

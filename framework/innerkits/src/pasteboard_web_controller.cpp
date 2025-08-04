@@ -305,18 +305,12 @@ std::vector<std::pair<std::string, uint32_t>> PasteboardWebController::SplitHtml
     std::string::const_iterator iterEnd = html->end();
     std::vector<std::pair<std::string, uint32_t>> matchVec;
 
-    try {
-        while (std::regex_search(iterStart, iterEnd, results, reg)) {
-            std::string tmp = results[0];
-            iterStart = results[0].second;
-            uint32_t offset = static_cast<uint32_t>(results[0].first - html->begin());
-
-            matchVec.emplace_back(tmp, offset);
-        }
-    } catch (std::regex_error &e) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "Regex error !");
+    while (std::regex_search(iterStart, iterEnd, results, reg)) {
+        std::string tmp = results[0];
+        iterStart = results[0].second;
+        uint32_t offset = static_cast<uint32_t>(results[0].first - html->begin());
+        matchVec.emplace_back(tmp, offset);
     }
-
     return matchVec;
 }
 
@@ -330,23 +324,19 @@ std::map<std::string, std::vector<uint8_t>> PasteboardWebController::SplitHtmlWi
         std::string::const_iterator iterStart = node.first.begin();
         std::string::const_iterator iterEnd = node.first.end();
 
-        try {
-            while (std::regex_search(iterStart, iterEnd, match, re)) {
-                std::string tmp = match[0];
-                iterStart = match[0].second;
-                uint32_t offset = static_cast<uint32_t>(match[0].first - node.first.begin());
-                tmp = tmp.substr(strlen(IMG_TAG_SRC_HEAD));
-                tmp.pop_back();
-                if (!IsLocalURI(tmp)) {
-                    continue;
-                }
-                offset += strlen(IMG_TAG_SRC_HEAD) + node.second;
-                for (uint32_t i = 0; i < FOUR_BYTES; i++) {
-                    res[tmp].emplace_back((offset >> (EIGHT_BIT * i)) & 0xff);
-                }
+        while (std::regex_search(iterStart, iterEnd, match, re)) {
+            std::string tmp = match[0];
+            iterStart = match[0].second;
+            uint32_t offset = static_cast<uint32_t>(match[0].first - node.first.begin());
+            tmp = tmp.substr(strlen(IMG_TAG_SRC_HEAD));
+            tmp.pop_back();
+            if (!IsLocalURI(tmp)) {
+                continue;
             }
-        } catch (std::regex_error &e) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_COMMON, "Regex error !");
+            offset += strlen(IMG_TAG_SRC_HEAD) + node.second;
+            for (uint32_t i = 0; i < FOUR_BYTES; i++) {
+                res[tmp].emplace_back((offset >> (EIGHT_BIT * i)) & 0xff);
+            }
         }
     }
     return res;

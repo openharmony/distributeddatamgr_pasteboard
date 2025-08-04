@@ -16,8 +16,6 @@
 #ifndef PASTE_BOARD_PATTERN_H
 #define PASTE_BOARD_PATTERN_H
 
-#include <regex>
-
 #include "pasteboard_types.h"
 #include "paste_data.h"
 
@@ -26,7 +24,15 @@ class PatternDetection {
 public:
     static const std::set<Pattern> Detect(
         const std::set<Pattern> &patternsToCheck, const PasteData &pasteData, bool hasHTML, bool hasPlain);
-    static bool IsValid(const std::set<Pattern> &patterns);
+    static inline bool IsValid(const std::set<Pattern> &patterns)
+    {
+        for (Pattern pattern : patterns) {
+            if (pattern >= Pattern::COUNT) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 private:
     static std::string ExtractHtmlContent(const std::string &html_str);

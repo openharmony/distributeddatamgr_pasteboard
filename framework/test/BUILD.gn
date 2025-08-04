@@ -105,7 +105,10 @@ ohos_unittest("PasteboardFrameworkTest") {
     "udmf:udmf_client",
   ]
 
-  deps = [ "${pasteboard_innerkits_path}:pasteboard_client" ]
+  deps = [
+    "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
+  ]
 
   defines = []
 
@@ -289,6 +292,7 @@ ohos_unittest("PasteboardClientProxyMockTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_root_path}/services:pasteboard_stub_proxy",
   ]
 
@@ -349,6 +353,7 @@ ohos_unittest("MessageParcelWarpTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
   ]
 
   defines = []
@@ -471,6 +476,7 @@ ohos_unittest("PasteboardClientMockTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_root_path}/services:pasteboard_stub_proxy",
     "${pasteboard_service_path}:pasteboard_service",
   ]
@@ -518,6 +524,7 @@ ohos_unittest("PasteboardServiceLoaderTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
     "${pasteboard_root_path}/services:pasteboard_stub_proxy",
   ]
 }
@@ -539,6 +546,7 @@ ohos_unittest("PasteboardDisposableClientTest") {
   deps = [
     "${pasteboard_framework_path}:pasteboard_framework",
     "${pasteboard_innerkits_path}:pasteboard_client",
+    "${pasteboard_innerkits_path}:pasteboard_data",
   ]
 
   external_deps = [
