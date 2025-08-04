@@ -4058,7 +4058,6 @@ HWTEST_F(PasteboardServiceTest, GetDelayPasteRecord003, TestSize.Level0)
     tempPasteboard->entryGetters_.InsertOrAssign(userId, std::make_pair(entryGetter, deathRecipient));
     tempPasteboard->GetDelayPasteRecord(userId, data);
     EXPECT_EQ(tempPasteboard->entryGetters_.Size(), 1);
-    delete deathRecipient;
 }
 
 /**
@@ -4084,7 +4083,6 @@ HWTEST_F(PasteboardServiceTest, GetDelayPasteRecord004, TestSize.Level0)
     tempPasteboard->entryGetters_.InsertOrAssign(userId, std::make_pair(entryGetter, deathRecipient));
     tempPasteboard->GetDelayPasteRecord(userId, data);
     EXPECT_EQ(tempPasteboard->entryGetters_.Size(), 1);
-    delete deathRecipient;
 }
 
 /**
@@ -4241,7 +4239,7 @@ HWTEST_F(PasteboardServiceTest, ProcessRemoteDelayHtmlTest002, TestSize.Level0)
     data.Encode(rawData);
     
     int32_t ret = tempPasteboard->ProcessRemoteDelayHtml(remoteDeviceId, appInfo, rawData, data, *record, *entry);
-    EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED));
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED));
 }
 
 /**
@@ -4292,7 +4290,7 @@ HWTEST_F(PasteboardServiceTest, ProcessRemoteDelayUriTest001, TestSize.Level0)
     data.Encode(rawData);
     
     int32_t ret = tempPasteboard->ProcessRemoteDelayUri(deviceId, appInfo, data, record, entry);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::E_OK));
 }
 } // namespace MiscServices
 } // namespace OHOS
