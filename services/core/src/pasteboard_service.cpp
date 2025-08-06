@@ -2392,8 +2392,10 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR),
         PASTEBOARD_MODULE_SERVICE, "Failed to decode paste data in TLV");
 
-    auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = GetAppInfo(tokenId);
     std::string bundleName = GetAppBundleName(appInfo);
+    pasteData.SetTokenId(tokenId);
     UpdateShareOption(pasteData);
     if (DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, delayGetter, entryGetter)) {
         return ERR_OK;
