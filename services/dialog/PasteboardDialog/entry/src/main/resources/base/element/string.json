@@ -37,10 +37,6 @@
             "value":"More connectivity options"
         },
         {
-            "name":"update_version_prompt",
-            "value":"Both devices must be running HarmonyOS NEXT"
-        },
-        {
             "name":"learn_more",
             "value":"Learn more"
         },
