@@ -4172,10 +4172,9 @@ void PasteboardService::RevokeAndClearUri(std::shared_ptr<PasteData> pasteData)
         bundles = std::move(readBundles_);
     }
     PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteData != nullptr, PASTEBOARD_MODULE_SERVICE, "pasteData is null");
-    auto self = shared_from_this();
-    std::thread thread([pasteData, bundles, self]() {
+    std::thread thread([pasteData, bundles, this]() {
         auto &permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-        std::unique_lock<std::shared_mutex> threadWriteLock(self->pasteDataMutex_);
+        std::unique_lock<std::shared_mutex> threadWriteLock(this->pasteDataMutex_);
         for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
             auto item = pasteData->GetRecordAt(i);
             if (item == nullptr || item->GetOriginUri() == nullptr) {
