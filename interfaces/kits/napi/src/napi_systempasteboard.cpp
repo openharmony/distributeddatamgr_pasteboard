@@ -663,11 +663,9 @@ napi_value SystemPasteboardNapi::SetAppShareOptions(napi_env env, napi_callback_
 napi_value SystemPasteboardNapi::RemoveAppShareOptions(napi_env env, napi_callback_info info)
 {
     auto result = PasteboardClient::GetInstance()->RemoveAppShareOptions();
-    if (CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
+    CheckExpression(env, result != static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR),
         JSErrorCode::NO_PERMISSION,
-        "Permission verification failed. A non-permission application calls a API.")) {
-        return nullptr;
-    }
+        "Permission verification failed. A non-permission application calls a API.");
     return nullptr;
 }
 

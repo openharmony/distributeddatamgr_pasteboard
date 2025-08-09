@@ -120,10 +120,10 @@ const std::string PasteboardService::UNREGISTER_PRESYNC_MONITOR = "UnregisterPre
 const std::string PasteboardService::P2P_ESTABLISH_STR = "P2pEstablish";
 const std::string PasteboardService::P2P_PRESYNC_ID = "P2pPreSyncId_";
 
-PasteboardService::PasteboardService()
-    : SystemAbility(PASTEBOARD_SERVICE_ID, true), state_(ServiceRunningState::STATE_NOT_START)
+PasteboardService::PasteboardService(): SystemAbility(PASTEBOARD_SERVICE_ID, true)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "PasteboardService Start.");
+    PasteboardService::state_ = ServiceRunningState::STATE_NOT_START;
     p2pEstablishInfo_.pasteBlock = nullptr;
 }
 
@@ -142,7 +142,7 @@ int32_t PasteboardService::Init()
         return static_cast<int32_t>(PasteboardError::INVALID_OPTION_ERROR);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Init Success.");
-    state_ = ServiceRunningState::STATE_RUNNING;
+    PasteboardService::state_ = ServiceRunningState::STATE_RUNNING;
     InitScreenStatus();
     return ERR_OK;
 }
@@ -166,7 +166,7 @@ void PasteboardService::OnStart()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "PasteboardService OnStart.");
     std::lock_guard<std::mutex> lock(saMutex_);
-    PASTEBOARD_CHECK_AND_RETURN_LOGE(state_ != ServiceRunningState::STATE_RUNNING,
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(PasteboardService::state_ != ServiceRunningState::STATE_RUNNING,
         PASTEBOARD_MODULE_SERVICE, "PasteboardService is already running.");
     IPCSkeleton::SetMaxWorkThreadNum(MAX_IPC_THREAD_NUM);
     InitServiceHandler();
@@ -218,11 +218,11 @@ void PasteboardService::OnStop()
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnStop Started.");
     std::lock_guard<std::mutex> lock(saMutex_);
-    if (state_ != ServiceRunningState::STATE_RUNNING) {
+    if (PasteboardService::state_ != ServiceRunningState::STATE_RUNNING) {
         return;
     }
     serviceHandler_ = nullptr;
-    state_ = ServiceRunningState::STATE_NOT_START;
+    PasteboardService::state_ = ServiceRunningState::STATE_NOT_START;
     DMAdapter::GetInstance().DeInitialize();
     if (commonEventSubscriber_ != nullptr) {
         EventFwk::CommonEventManager::UnSubscribeCommonEvent(commonEventSubscriber_);
@@ -607,6 +607,8 @@ void PasteboardService::RecognizePasteData(PasteData &pasteData)
     }
     FFRTTask task = [this, primaryText]() {
         std::thread thread([=]() {
+            PASTEBOARD_CHECK_AND_RETURN_LOGE(PasteboardService::state_ == ServiceRunningState::STATE_RUNNING,
+                PASTEBOARD_MODULE_SERVICE, "PasteboardService is not running.");
             OnRecognizePasteData(primaryText);
         });
         thread.detach();
@@ -4007,7 +4009,10 @@ void PasteboardService::CloseDistributedStore(int32_t user, bool isNeedClear)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return;
     }
-    clipPlugin->Close(user, isNeedClear);
+    if (isNeedClear) {
+        clipPlugin->Clear(user);
+    }
+    clipPlugin->Close(user);
 }
 
 void PasteboardService::OnConfigChange(bool isOn)
@@ -4029,7 +4034,7 @@ void PasteboardService::OnConfigChangeInner(bool isOn)
     if (!isOn) {
         PASTEBOARD_CHECK_AND_RETURN_LOGE(clipPlugin_ != nullptr, PASTEBOARD_MODULE_SERVICE, "clipPlugin is null");
         int32_t userId = GetCurrentAccountId();
-        clipPlugin_->Close(userId, false);
+        clipPlugin_->Close(userId);
         clipPlugin_ = nullptr;
         return;
     }
