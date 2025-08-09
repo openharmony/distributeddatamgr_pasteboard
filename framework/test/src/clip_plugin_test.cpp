@@ -130,7 +130,7 @@ HWTEST_F(ClipPluginTest, CloseTest, TestSize.Level0)
     CustomClipPlugin clipPlugin;
     int32_t user = 0;
     bool isNeedClear = true;
-    int32_t result = clipPlugin.Close(user, isNeedClear);
+    int32_t result = clipPlugin.Close(user);
     ASSERT_EQ(0, result);
 }
 

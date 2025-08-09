@@ -91,10 +91,9 @@ void ClipPlugin::Clear(int32_t user)
     (void)user;
 }
 
-int32_t ClipPlugin::Close(int32_t user, bool isNeedClear)
+int32_t ClipPlugin::Close(int32_t user)
 {
     (void)user;
-    (void)isNeedClear;
     return 0;
 }
 

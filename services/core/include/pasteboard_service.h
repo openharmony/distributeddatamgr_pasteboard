@@ -426,7 +426,7 @@ private:
     void DeletePreSyncP2pMap(const std::string &networkId);
     void AddPreSyncP2pTimeoutTask(const std::string &networkId);
 
-    ServiceRunningState state_;
+    static inline ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<AppExecFwk::EventHandler> serviceHandler_;
     std::mutex observerMutex_;
     ObserverMap observerLocalChangedMap_;

@@ -29,8 +29,8 @@ constexpr const char *UE_SWITCH_STATUS = "PASTEBOARD_SWITCH_STATUS";
 PastedSwitch::PastedSwitch() : userId_(ERROR_USERID)
 {
     switchObserver_ = new (std::nothrow) PastedSwitchObserver([this]() -> void {
-        std::thread thread([=]() {
-            SetSwitch(userId_);
+        std::thread thread([userId = userId_, this]() {
+            SetSwitch(userId);
         });
         thread.detach();
     });
