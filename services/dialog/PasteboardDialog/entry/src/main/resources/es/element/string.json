@@ -70,7 +70,7 @@
         },
         {
             "name":"prompttext_pasteboard_remote",
-            "value":"Pegando desde \"%s\"…"
+            "value":"Pegando desde “%s”…"
         }
     ]
 }
