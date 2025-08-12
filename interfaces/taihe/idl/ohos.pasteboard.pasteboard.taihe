@@ -153,3 +153,26 @@ function CreateDataByValue(mimeType: String, value: ValueType): PasteData;
 function CreateDataByRecord(data: @record Map<String, ValueType>): PasteData;
 
 function GetSystemPasteboard(): SystemPasteboard;
+
+@!sts_inject("""
+export function pasteDataTransferStatic(input: Any): object {
+    return pasteDataTransferStaticImpl(ESValue.wrap(input));
+}
+export function pasteDataTransferDynamic(input: object): Any {
+    return pasteDataTransferDynamicImpl(input as PasteData);
+}
+export function pasteDataRecordTransferStatic(input: Any): object {
+    return pasteDataRecordTransferStaticImpl(ESValue.wrap(input));
+}
+export function pasteDataRecordTransferDynamic(input: object): Any {
+    return pasteDataRecordTransferDynamicImpl(input as PasteDataRecord);
+}
+""")
+
+function PasteDataTransferStaticImpl(input: @sts_type("ESValue") Opaque): PasteData;
+
+function PasteDataTransferDynamicImpl(input: PasteData): @sts_type("Any") Opaque;
+
+function PasteDataRecordTransferStaticImpl(input: @sts_type("ESValue") Opaque): PasteDataRecord;
+
+function PasteDataRecordTransferDynamicImpl(input: PasteDataRecord): @sts_type("Any") Opaque;

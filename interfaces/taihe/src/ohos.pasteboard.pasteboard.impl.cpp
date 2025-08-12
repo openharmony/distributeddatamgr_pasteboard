@@ -21,17 +21,24 @@
 
 #include "ani_common_want.h"
 #include "common/block_object.h"
-#include "pixel_map_taihe_ani.h"
+#include "interop_js/arkts_esvalue.h"
+#include "interop_js/arkts_interop_js_api.h"
+#include "napi/native_api.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_js_err.h"
 #include "pasteboard_taihe_utils.h"
 #include "pasteboard_taihe_observer.h"
+#include "pastedata_napi.h"
+#include "pastedata_record_napi.h"
+#include "pixel_map_taihe_ani.h"
 #include "uri.h"
 
 using namespace OHOS::MiscServices;
 using EntryValueMap = std::map<std::string, std::shared_ptr<EntryValue>>;
+using CreatePasteDataFn = napi_value (*)(napi_env, std::shared_ptr<PasteData>);
+using CreateRecordFn = napi_value (*)(napi_env, std::shared_ptr<PasteDataRecord>);
 namespace pasteboardTaihe = ohos::pasteboard::pasteboard;
 constexpr int32_t MIMETYPE_MAX_SIZE = 1024;
 
@@ -42,6 +49,11 @@ public:
     PasteDataRecordImpl()
     {
         this->record_ = std::make_shared<PasteDataRecord>();
+    }
+
+    explicit PasteDataRecordImpl(std::shared_ptr<PasteDataRecord> record)
+    {
+        this->record_ = record;
     }
 
     taihe::string GetMimeType()
@@ -144,6 +156,11 @@ public:
     PasteDataImpl()
     {
         this->pasteData_ = std::make_shared<PasteData>();
+    }
+
+    explicit PasteDataImpl(std::shared_ptr<PasteData> pasteData)
+    {
+        this->pasteData_ = pasteData;
     }
 
     void AddRecord(pasteboardTaihe::weak::PasteDataRecord record)
@@ -709,6 +726,118 @@ pasteboardTaihe::SystemPasteboard GetSystemPasteboard()
 {
     return taihe::make_holder<SystemPasteboardImpl, pasteboardTaihe::SystemPasteboard>();
 }
+
+pasteboardTaihe::PasteData PasteDataTransferStaticImpl(uintptr_t input)
+{
+    ani_object esValue = reinterpret_cast<ani_object>(input);
+    void *nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(taihe::get_env(), esValue, &nativePtr) || nativePtr == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "unwrap esvalue failed");
+        return taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
+    }
+    auto pasteData = reinterpret_cast<OHOS::MiscServicesNapi::PasteDataNapi *>(nativePtr);
+    if (pasteData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "cast pasteData failed");
+        return taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>();
+    }
+    return taihe::make_holder<PasteDataImpl, pasteboardTaihe::PasteData>(pasteData->value_);
+}
+
+uintptr_t PasteDataTransferDynamicImpl(pasteboardTaihe::PasteData pasteDataTH)
+{
+    int64_t implRawPtr = pasteDataTH->GetPasteDataImpl();
+    PasteDataImpl *implPtr = reinterpret_cast<PasteDataImpl *>(implRawPtr);
+    if (implPtr == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "cast native pointer failed");
+        return 0;
+    }
+    std::shared_ptr<PasteData> pasteData = implPtr->GetPasteData();
+    implPtr = nullptr;
+    napi_env jsenv;
+    if (!arkts_napi_scope_open(taihe::get_env(), &jsenv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "arkts_napi_scope_open failed");
+        return 0;
+    }
+    auto handle = dlopen("libpasteboard_napi.z.so", RTLD_NOW);
+    if (handle == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "dlopen failed");
+        arkts_napi_scope_close_n(jsenv, 0, nullptr, nullptr);
+        return 0;
+    }
+    CreatePasteDataFn GetEtsPasteData = reinterpret_cast<CreatePasteDataFn>(dlsym(handle, "GetEtsPasteData"));
+    if (GetEtsPasteData == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "dlsym get func failed, %{public}s", dlerror());
+        arkts_napi_scope_close_n(jsenv, 0, nullptr, nullptr);
+        dlclose(handle);
+        return 0;
+    }
+    napi_value instance = GetEtsPasteData(jsenv, pasteData);
+    dlclose(handle);
+    if (instance == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetEtsPasteData failed");
+        arkts_napi_scope_close_n(jsenv, 0, nullptr, nullptr);
+        return 0;
+    }
+    uintptr_t result = 0;
+    arkts_napi_scope_close_n(jsenv, 1, &instance, reinterpret_cast<ani_ref*>(&result));
+    return result;
+}
+
+pasteboardTaihe::PasteDataRecord PasteDataRecordTransferStaticImpl(uintptr_t input)
+{
+    ani_object esValue = reinterpret_cast<ani_object>(input);
+    void *nativePtr = nullptr;
+    if (!arkts_esvalue_unwrap(taihe::get_env(), esValue, &nativePtr) || nativePtr == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "unwrap esvalue failed");
+        return taihe::make_holder<PasteDataRecordImpl, pasteboardTaihe::PasteDataRecord>();
+    }
+    auto record = reinterpret_cast<OHOS::MiscServicesNapi::PasteDataRecordNapi *>(nativePtr);
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "cast record failed");
+        return taihe::make_holder<PasteDataRecordImpl, pasteboardTaihe::PasteDataRecord>();
+    }
+    return taihe::make_holder<PasteDataRecordImpl, pasteboardTaihe::PasteDataRecord>(record->value_);
+}
+
+uintptr_t PasteDataRecordTransferDynamicImpl(pasteboardTaihe::PasteDataRecord recordTH)
+{
+    int64_t implRawPtr = recordTH->GetRecordImpl();
+    PasteDataRecordImpl *implPtr = reinterpret_cast<PasteDataRecordImpl *>(implRawPtr);
+    if (implPtr == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "cast native pointer failed");
+        return 0;
+    }
+    std::shared_ptr<PasteDataRecord> record = implPtr->GetRecord();
+    implPtr = nullptr;
+    napi_env jsenv;
+    if (!arkts_napi_scope_open(taihe::get_env(), &jsenv)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "arkts_napi_scope_open failed");
+        return 0;
+    }
+    auto handle = dlopen("libpasteboard_napi.z.so", RTLD_NOW);
+    if (handle == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "dlopen failed");
+        arkts_napi_scope_close_n(jsenv, 0, nullptr, nullptr);
+        return 0;
+    }
+    CreateRecordFn GetEtsPasteDataRecord = reinterpret_cast<CreateRecordFn>(dlsym(handle, "GetEtsPasteDataRecord"));
+    if (GetEtsPasteDataRecord == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "dlsym get func failed, %{public}s", dlerror());
+        arkts_napi_scope_close_n(jsenv, 0, nullptr, nullptr);
+        dlclose(handle);
+        return 0;
+    }
+    napi_value instance = GetEtsPasteDataRecord(jsenv, record);
+    dlclose(handle);
+    if (instance == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "GetEtsPasteDataRecord failed");
+        arkts_napi_scope_close_n(jsenv, 0, nullptr, nullptr);
+        return 0;
+    }
+    uintptr_t result = 0;
+    arkts_napi_scope_close_n(jsenv, 1, &instance, reinterpret_cast<ani_ref*>(&result));
+    return result;
+}
 } // namespace
 
 // Since these macros are auto-generate, lint will cause false positive.
@@ -718,5 +847,9 @@ TH_EXPORT_CPP_API_CreatePasteData(CreatePasteData);
 TH_EXPORT_CPP_API_CreateSystemPasteboard(CreateSystemPasteboard);
 TH_EXPORT_CPP_API_CreateDataByValue(CreateDataByValue);
 TH_EXPORT_CPP_API_CreateDataByRecord(CreateDataByRecord);
+TH_EXPORT_CPP_API_PasteDataTransferStaticImpl(PasteDataTransferStaticImpl);
+TH_EXPORT_CPP_API_PasteDataTransferDynamicImpl(PasteDataTransferDynamicImpl);
+TH_EXPORT_CPP_API_PasteDataRecordTransferStaticImpl(PasteDataRecordTransferStaticImpl);
+TH_EXPORT_CPP_API_PasteDataRecordTransferDynamicImpl(PasteDataRecordTransferDynamicImpl);
 TH_EXPORT_CPP_API_GetSystemPasteboard(GetSystemPasteboard);
 // NOLINTEND
