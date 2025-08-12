@@ -102,7 +102,7 @@ ohos_shared_library("pasteboard_data") {
     "c_utils:utils",
     "hilog:libhilog",
     "image_framework:image_native",
-    "ipc:ipc_core",
+    "ipc:ipc_single",
     "samgr:samgr_proxy",
     "udmf:udmf_client",
   ]
@@ -179,7 +179,6 @@ ohos_shared_library("pasteboard_client") {
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "image_framework:image_native",
-    "ipc:ipc_core",
     "ipc:ipc_single",
     "libuv:uv",
     "libxml2:libxml2",

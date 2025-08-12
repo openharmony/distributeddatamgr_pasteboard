@@ -62,6 +62,7 @@ ohos_shared_library("cj_pasteboard_ffi") {
       "ffrt:libffrt",
       "hilog:libhilog",
       "image_framework:cj_image_ffi",
+      "ipc:ipc_single",
       "napi:cj_bind_ffi",
       "napi:cj_bind_native",
       "udmf:udmf_client",
