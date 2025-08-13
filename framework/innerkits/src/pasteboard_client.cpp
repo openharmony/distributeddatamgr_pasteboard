@@ -826,11 +826,10 @@ void PasteboardClient::UnSubscribePasteboardSA()
     std::lock_guard<std::mutex> lock(saListenerMutex_);
     PASTEBOARD_CHECK_AND_RETURN_LOGD(saCallback_ != nullptr, PASTEBOARD_MODULE_CLIENT, "saCallback is nullptr");
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    auto tempCallback  = saCallback_;
+    auto tempCallback = saCallback_;
     saCallback_ = nullptr;
     isSubscribeSa_ = false;
     PASTEBOARD_CHECK_AND_RETURN_LOGE(samgrProxy != nullptr, PASTEBOARD_MODULE_CLIENT, "get samgr fail");
-
     int32_t ret = samgrProxy->UnSubscribeSystemAbility(PASTEBOARD_SERVICE_ID, tempCallback);
     PASTEBOARD_CHECK_AND_RETURN_LOGE(
         ret == ERR_OK, PASTEBOARD_MODULE_CLIENT, "unSubscribe pasteboard sa failed! ret %{public}d.", ret);
