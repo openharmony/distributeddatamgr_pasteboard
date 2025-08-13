@@ -57,7 +57,7 @@ constexpr uint32_t JSON_INDENT = 4;
 constexpr uint32_t RECORD_DISPLAY_UPPERBOUND = 3;
 static constexpr int32_t HAP_PULL_UP_TIME = 500; // ms
 static constexpr int32_t HAP_MIN_SHOW_TIME = 300; // ms
-static sptr<PasteboardSamgrListener> saCallback_ = nullptr;
+static sptr<PasteboardSaMgrListener> saCallback_ = nullptr;
 constexpr const char *ERROR_CODE = "ERROR_CODE";
 constexpr const char *DIS_SYNC_TIME = "DIS_SYNC_TIME";
 constexpr const char *PACKAGE_NAME = "PACKAGE_NAME";
@@ -317,8 +317,8 @@ void PasteboardClient::GetDataReport(PasteData &pasteData, int32_t syncTime, con
 {
     static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
-    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
+    std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
         if (pasteData.deviceId_.empty()) {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
@@ -518,7 +518,8 @@ void PasteboardClient::ProcessRadarReport(int32_t ret, PasteData &pasteData,
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
                 RadarReporter::BIZ_STATE, RadarReporter::DFX_END, RadarReporter::CONCURRENT_ID,
                 pasteDataFromServiceInfo.currentId, PACKAGE_NAME, pasteDataFromServiceInfo.currentPid,
-                DIS_SYNC_TIME, syncTime, PASTEDATA_SUMMARY, pasteDataInfoSummary);
+                DIS_SYNC_TIME, syncTime, PASTEDATA_SUMMARY,
+                pasteDataInfoSummary);
         } else {
             RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, bizStage, RadarReporter::DFX_SUCCESS,
                 RadarReporter::CONCURRENT_ID, pasteDataFromServiceInfo.currentId, PACKAGE_NAME,
@@ -809,7 +810,7 @@ void PasteboardClient::SubscribePasteboardSA()
     std::lock_guard<std::mutex> lock(saListenerMutex_);
     PASTEBOARD_CHECK_AND_RETURN_LOGD(!isSubscribeSa_, PASTEBOARD_MODULE_CLIENT, "already subscribe sa.");
     if (saCallback_ == nullptr) {
-        saCallback_ = sptr<PasteboardSamgrListener>::MakeSptr();
+        saCallback_ = sptr<PasteboardSaMgrListener>::MakeSptr();
     }
     PASTEBOARD_CHECK_AND_RETURN_LOGE(saCallback_ != nullptr, PASTEBOARD_MODULE_CLIENT, "Create saCallback failed!");
     auto ret = samgrProxy->SubscribeSystemAbility(PASTEBOARD_SERVICE_ID, saCallback_);
@@ -825,12 +826,12 @@ void PasteboardClient::UnSubscribePasteboardSA()
     std::lock_guard<std::mutex> lock(saListenerMutex_);
     PASTEBOARD_CHECK_AND_RETURN_LOGD(saCallback_ != nullptr, PASTEBOARD_MODULE_CLIENT, "saCallback is nullptr");
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    auto tmpCallback = saCallback_;
+    auto tempCallback  = saCallback_;
     saCallback_ = nullptr;
     isSubscribeSa_ = false;
     PASTEBOARD_CHECK_AND_RETURN_LOGE(samgrProxy != nullptr, PASTEBOARD_MODULE_CLIENT, "get samgr fail");
 
-    int32_t ret = samgrProxy->UnSubscribeSystemAbility(PASTEBOARD_SERVICE_ID, tmpCallback);
+    int32_t ret = samgrProxy->UnSubscribeSystemAbility(PASTEBOARD_SERVICE_ID, tempCallback);
     PASTEBOARD_CHECK_AND_RETURN_LOGE(
         ret == ERR_OK, PASTEBOARD_MODULE_CLIENT, "unSubscribe pasteboard sa failed! ret %{public}d.", ret);
 }

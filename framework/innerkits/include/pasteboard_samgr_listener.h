@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef PASTE_BOARD_SA_CALLBACK_H
-#define PASTE_BOARD_SA_CALLBACK_H
+#ifndef PASTE_BOARD_SAMGR_LISTENER_H
+#define PASTE_BOARD_SAMGR_LISTENER_H
 
 #include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace MiscServices {
-class PasteboardSamgrListener : public SystemAbilityStatusChangeStub {
+class PasteboardSaMgrListener : public SystemAbilityStatusChangeStub {
 public:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
@@ -28,4 +28,4 @@ public:
 };
 } // namespace MiscServices
 } // namespace OHOS
-#endif // PASTE_BOARD_SA_CALLBACK_H
+#endif // PASTE_BOARD_SAMGR_LISTENER_H
