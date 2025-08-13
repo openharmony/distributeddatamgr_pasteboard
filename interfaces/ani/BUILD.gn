@@ -70,6 +70,7 @@ ohos_shared_library("pasteboard_ani") {
     "ipc:ipc_single",
     "runtime_core:ani",
     "udmf:udmf_client",
+    "runtime_core:ani_helpers",
   ]
   deps = [ "${pasteboard_root_path}/framework/innerkits:pasteboard_client" ]
 }
