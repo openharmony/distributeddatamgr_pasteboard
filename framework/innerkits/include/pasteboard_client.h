@@ -15,6 +15,7 @@
 
 #ifndef PASTE_BOARD_CLIENT_H
 #define PASTE_BOARD_CLIENT_H
+#include "pasteboard_hilog.h"
 
 #include <singleton.h>
 
@@ -503,7 +504,7 @@ public:
     void ReleaseSaListener();
 
 protected:
-    friend class PasteboardSamgrListener;
+    friend class PasteboardSaMgrListener;
     void Resubscribe();
 
 private:
