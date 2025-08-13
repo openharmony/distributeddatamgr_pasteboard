@@ -831,7 +831,7 @@ void PasteboardClient::UnSubscribePasteboardSA()
     isSubscribeSa_ = false;
     PASTEBOARD_CHECK_AND_RETURN_LOGE(samgrProxy != nullptr, PASTEBOARD_MODULE_CLIENT, "get samgr fail");
 
-    int32_t ret = samgrProxy->UnSubscribeSystemAbility(PASTEBOARD_SERVICE_ID, tempCallback );
+    int32_t ret = samgrProxy->UnSubscribeSystemAbility(PASTEBOARD_SERVICE_ID, tempCallback);
     PASTEBOARD_CHECK_AND_RETURN_LOGE(
         ret == ERR_OK, PASTEBOARD_MODULE_CLIENT, "unSubscribe pasteboard sa failed! ret %{public}d.", ret);
 }
