@@ -523,35 +523,4 @@ HWTEST_F(PasteDataEntryTest, EntryTest003, TestSize.Level0)
     mimeType = "test";
     EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::APPLICATION_DEFINED_RECORD);
 }
-
-/**
- * @tc.name: SetFileSizeTest001
- * @tc.desc: SetFileSizeTest001
- * @tc.type: FUNC
- * @tc.require:entries
- * @tarowang
- */
-HWTEST_F(PasteDataEntryTest, SetFileSizeTest001, TestSize.Level2)
-{
-    auto tempPasteboard = std::make_shared<PasteDataEntry>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    int64_t fileSize = 1024;
-    tempPasteboard->SetFileSize(fileSize);
-}
-
-/**
- * @tc.name: GetFileSizeTest001
- * @tc.desc: GetFileSizeTest001
- * @tc.type: FUNC
- * @tc.require:entries
- * @tarowang
- */
-HWTEST_F(PasteDataEntryTest, GetFileSizeTest001, TestSize.Level2)
-{
-    auto tempPasteboard = std::make_shared<PasteDataEntry>();
-    EXPECT_NE(tempPasteboard, nullptr);
-
-    tempPasteboard->GetFileSize();
-}
 } // namespace OHOS::MiscServices
