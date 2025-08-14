@@ -18,7 +18,6 @@
 
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
-#include "pasteboard_hilog.h"
 #include "unistd.h"
 
 namespace OHOS::MiscServices {
@@ -51,7 +50,7 @@ public:
     EntityType entityType_;
     std::string entity_ = "";
 };
-    
+
 void PasteboardClientTest::SetUpTestCase(void)
 {
     setuid(EDM_UID);
@@ -279,7 +278,9 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes005, TestSize.Level0)
     std::set<std::string> mimeTypesSet(mimeTypes.begin(), mimeTypes.end());
     ASSERT_EQ(3, mimeTypesSet.size());
     for (const std::string &type : mimeTypesSet) {
-        ASSERT_TRUE(MIMETYPE_TEXT_WANT == type || MIMETYPE_PIXELMAP == type || MIMETYPE_TEXT_URI == type);
+        ASSERT_TRUE(MIMETYPE_TEXT_WANT == type ||
+                    MIMETYPE_PIXELMAP == type ||
+                    MIMETYPE_TEXT_URI == type);
     }
 }
 
@@ -1114,8 +1115,9 @@ HWTEST_F(PasteboardClientTest, UnsubscribeEntityObserverTest005, TestSize.Level0
  */
 HWTEST_F(PasteboardClientTest, UpdateProgressTest001, TestSize.Level0)
 {
-    PasteboardClient::GetInstance()->UpdateProgress(nullptr, 50);
-    EXPECT_TRUE(true);
+    std::shared_ptr<GetDataParams> params = nullptr;
+    PasteboardClient::GetInstance()->UpdateProgress(params, 50);
+    EXPECT_TRUE(params == nullptr);
 }
 
 /**

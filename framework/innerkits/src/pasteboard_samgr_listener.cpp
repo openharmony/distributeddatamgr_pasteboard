@@ -19,7 +19,6 @@
 #include "pasteboard_hilog.h"
 #include "pasteboard_service_loader.h"
 
-
 namespace OHOS {
 namespace MiscServices {
 void PasteboardSaMgrListener::OnAddSystemAbility(int32_t systemAbilityId,
