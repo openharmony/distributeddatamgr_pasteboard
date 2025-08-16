@@ -32,6 +32,7 @@
 #include "eventcenter/pasteboard_event.h"
 #include "hiview_adapter.h"
 #include "input_method_controller.h"
+#include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "mem_mgr_client.h"
 #include "message_parcel_warp.h"
@@ -104,6 +105,7 @@ constexpr uint32_t MAX_BUNDLE_NAME_LENGTH = 127;
 constexpr int64_t MIN_ASHMEM_DATA_SIZE = 32 * 1024;
 constexpr int32_t E_OK_OPERATION = 0;
 constexpr int32_t SET_VALUE_SUCCESS = 1;
+constexpr uid_t ANCO_SERVICE_BROKER_UID = 5557;
 
 const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new PasteboardService());
 } // namespace
@@ -1885,6 +1887,9 @@ int32_t PasteboardService::GrantUriPermission(const std::vector<Uri> &grantUris,
         PASTEBOARD_MODULE_SERVICE, "no uri");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri size=%{public}zu, target=%{public}s, appIndex=%{public}d",
         grantUris.size(), targetBundleName.c_str(), appIndex);
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(callingUid != ANCO_SERVICE_BROKER_UID,
+        static_cast<int32_t>(PasteboardError::E_OK), PASTEBOARD_MODULE_SERVICE, "callingUid = ANCO_SERVICE_BROKER_UID");
     bool hasGranted = false;
     int32_t ret = 0;
     size_t offset = 0;

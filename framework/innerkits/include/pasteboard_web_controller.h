@@ -55,6 +55,8 @@ private:
     void RemoveExtraUris(PasteData &data);
     void ReplaceHtmlRecordContentByExtraUris(std::vector<std::shared_ptr<PasteDataRecord>> &records);
     void UpdateHtmlRecord(std::shared_ptr<PasteDataRecord> &htmlRecord, std::shared_ptr<std::string> &htmlData);
+    int32_t GetNeedCheckUris(PasteData &pasteData, std::vector<std::string> &uris,
+        std::vector<size_t> &indexs, bool ancoFlag);
 };
 } // namespace MiscServices
 } // namespace OHOS

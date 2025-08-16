@@ -21,6 +21,7 @@
 #include "pasteboard_common.h"
 #include "uri_permission_manager_client.h"
 #include "pasteboard_hilog.h"
+#include "ipc_skeleton.h"
 
 namespace {
 constexpr const char *IMG_TAG_PATTERN = "<img.*?>";
@@ -33,6 +34,7 @@ constexpr const char *FILE_SCHEME_PREFIX = "file://";
 constexpr uint32_t FOUR_BYTES = 4;
 constexpr uint32_t EIGHT_BIT = 8;
 constexpr int32_t DOCS_LOCAL_PATH_SUBSTR_START_INDEX = 1;
+constexpr uid_t ANCO_SERVICE_BROKER_UID = 5557;
 
 struct Cmp {
     bool operator()(const uint32_t &lhs, const uint32_t &rhs) const
@@ -126,15 +128,11 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
     std::vector<std::string> uris;
     std::vector<size_t> indexs;
     std::vector<bool> checkResults;
-    for (size_t i = 0; i < pasteData.GetRecordCount(); i++) {
-        auto item = pasteData.GetRecordAt(i);
-        if (item == nullptr || item->GetOriginUri() == nullptr) {
-            continue;
-        }
-        auto uri = item->GetOriginUri()->ToString();
-        uris.emplace_back(uri);
-        indexs.emplace_back(i);
-    }
+    pid_t callingUid = IPCSkeleton::GetCallingUid();
+    bool ancoFlag = (callingUid == ANCO_SERVICE_BROKER_UID);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_COMMON, "callingUid=%{public}d, ancoFlag=%{public}u", callingUid, ancoFlag);
+    int32_t uriCount = GetNeedCheckUris(pasteData, uris, indexs, ancoFlag);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "uri count=%{public}d", uriCount);
     if (uris.empty()) {
         return;
     }
@@ -165,6 +163,27 @@ void PasteboardWebController::CheckAppUriPermission(PasteData &pasteData)
         item->SetGrantUriPermission(checkResults[i]);
     }
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_COMMON, "leave");
+}
+
+int32_t PasteboardWebController::GetNeedCheckUris(PasteData &pasteData, std::vector<std::string> &uris,
+    std::vector<size_t> &indexs, bool ancoFlag)
+{
+    int32_t uriCount = 0;
+    for (size_t i = 0; i < pasteData.GetRecordCount(); i++) {
+        auto item = pasteData.GetRecordAt(i);
+        if (item == nullptr || item->GetOriginUri() == nullptr) {
+            continue;
+        }
+        uriCount++;
+        if (ancoFlag) {
+            item->SetGrantUriPermission(true);
+            continue;
+        }
+        auto uri = item->GetOriginUri()->ToString();
+        uris.emplace_back(uri);
+        indexs.emplace_back(i);
+    }
+    return uriCount;
 }
 
 void PasteboardWebController::RefreshUri(std::shared_ptr<PasteDataRecord> &record, const std::string &targetBundle,
