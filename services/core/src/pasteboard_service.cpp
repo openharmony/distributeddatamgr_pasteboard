@@ -2004,11 +2004,25 @@ bool PasteboardService::HasPasteData()
     return false;
 }
 
+int32_t PasteboardService::GetDataTokenId(PasteData &pasteData)
+{
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto originTokenId = pasteData.GetOriginTokenId();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(
+        originTokenId != PasteData::INVALID_TOKEN_ID, tokenId, PASTEBOARD_MODULE_SERVICE, "originTokenId invalid");
+    auto isUriProxyGrant = PermissionUtils::IsPermissionGranted(
+        PermissionUtils::PERMISSION_PROXY_AUTHORIZATION_URI, tokenId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGI(
+        !isUriProxyGrant, tokenId, PASTEBOARD_MODULE_SERVICE, "No permission, callingTokenId= %{public}u", tokenId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "originTokenId= %{public}u.", originTokenId);
+    return originTokenId;
+}
+
 int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     const sptr<IPasteboardDelayGetter> delayGetter, const sptr<IPasteboardEntryGetter> entryGetter)
 {
     PasteboardTrace tracer("PasteboardService, SetPasteData");
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenId = pasteData.GetTokenId();
     if (!IsCopyable(tokenId)) {
         RADAR_REPORT(DFX_SET_PASTEBOARD, DFX_CHECK_SET_AUTHORITY, DFX_SUCCESS);
         return static_cast<int32_t>(PasteboardError::PROHIBIT_COPY);
@@ -2026,7 +2040,7 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     }
     setPasteDataUId_ = IPCSkeleton::GetCallingUid();
     RemovePasteData(appInfo);
-    SetPasteDataInfo(pasteData, appInfo, tokenId);
+    SetPasteDataInfo(pasteData, appInfo);
     PasteboardWebController::GetInstance().SetWebviewPasteData(pasteData,
         std::make_pair(appInfo.bundleName, appInfo.appIndex));
     PasteboardWebController::GetInstance().CheckAppUriPermission(pasteData);
@@ -2051,13 +2065,12 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
-void PasteboardService::SetPasteDataInfo(PasteData &pasteData, const AppInfo &appInfo, uint32_t tokenId)
+void PasteboardService::SetPasteDataInfo(PasteData &pasteData, const AppInfo &appInfo)
 {
     pasteData.SetBundleInfo(appInfo.bundleName, appInfo.appIndex);
     pasteData.SetOriginAuthority(std::make_pair(appInfo.bundleName, appInfo.appIndex));
     pasteData.SetTime(GetTime());
     pasteData.SetScreenStatus(GetCurrentScreenStatus());
-    pasteData.SetTokenId(tokenId);
     auto dataId = ++dataId_;
     pasteData.SetDataId(dataId);
     for (auto &record : pasteData.AllRecords()) {
@@ -2394,7 +2407,7 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR),
         PASTEBOARD_MODULE_SERVICE, "Failed to decode paste data in TLV");
 
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenId = GetDataTokenId(pasteData);
     auto appInfo = GetAppInfo(tokenId);
     std::string bundleName = GetAppBundleName(appInfo);
     pasteData.SetTokenId(tokenId);

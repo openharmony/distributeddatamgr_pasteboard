@@ -82,6 +82,7 @@ public:
     ShareOption GetShareOption();
     void SetShareOption(ShareOption shareOption);
     uint32_t GetTokenId();
+    int32_t GetOriginTokenId();
     void SetTokenId(uint32_t tokenId);
     std::vector<std::shared_ptr<PasteDataRecord>> AllRecords() const;
     bool IsDraggedData() const;
@@ -142,6 +143,7 @@ public:
     static constexpr const char *DOCS_LOCAL_TAG = "/docs/";
     static constexpr size_t URI_BATCH_SIZE = 10000;
     static constexpr uint32_t MAX_REPORT_RECORD_NUM = 30;
+    static constexpr int32_t INVALID_TOKEN_ID = -1;
     std::string deviceId_;
 
 private:

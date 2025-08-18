@@ -56,6 +56,8 @@ enum TAG_PROPERTY : uint16_t {
 std::string PasteData::WEBVIEW_PASTEDATA_TAG = "WebviewPasteDataTag";
 const char *REMOTE_FILE_SIZE = "remoteFileSize";
 const char *REMOTE_FILE_SIZE_LONG = "remoteFileSizeLong";
+const char *ORIGIN_TOKEN_ID = "originTokenId";
+const char *ORIGIN_INFO = "originInfo";
 constexpr int32_t SUB_PASTEID_NUM = 3;
 constexpr int32_t PASTEID_MAX_SIZE = 1024;
 
@@ -327,6 +329,14 @@ void PasteData::SetShareOption(ShareOption shareOption)
 std::uint32_t PasteData::GetTokenId()
 {
     return props_.tokenId;
+}
+
+int32_t PasteData::GetOriginTokenId()
+{
+    auto originInfo = props_.additions.GetWantParams(ORIGIN_INFO);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(
+        !originInfo.IsEmpty(), PasteData::INVALID_TOKEN_ID, PASTEBOARD_MODULE_SERVICE, "originInfo invalid");
+    return originInfo.GetIntParam(ORIGIN_TOKEN_ID, PasteData::INVALID_TOKEN_ID);
 }
 
 void PasteData::SetTokenId(uint32_t tokenId)

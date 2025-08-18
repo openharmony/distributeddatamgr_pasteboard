@@ -28,6 +28,7 @@ public:
     static bool IsPermissionGranted(const std::string &perm, uint32_t tokenId);
 
     static inline const char *PERMISSION_READ_PASTEBOARD = "ohos.permission.READ_PASTEBOARD";
+    static inline const char *PERMISSION_PROXY_AUTHORIZATION_URI = "ohos.permission.PROXY_AUTHORIZATION_URI";
 };
 } // namespace MiscServices
 } // namespace OHOS

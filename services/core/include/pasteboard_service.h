@@ -219,6 +219,7 @@ private:
     void ClearInputMethodPid(void);
     bool IsSystemAppByFullTokenID(uint64_t tokenId);
     FocusedAppInfo GetFocusedAppInfo(void) const;
+    int32_t GetDataTokenId(PasteData &pasteData);
     class DelayGetterDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
         explicit DelayGetterDeathRecipient(int32_t userId, PasteboardService &service);
@@ -309,7 +310,7 @@ private:
 
     int32_t SaveData(PasteData &pasteData, int64_t dataSize, const sptr<IPasteboardDelayGetter> delayGetter = nullptr,
         const sptr<IPasteboardEntryGetter> entryGetter = nullptr);
-    void SetPasteDataInfo(PasteData &pasteData, const AppInfo &appInfo, uint32_t tokenId);
+    void SetPasteDataInfo(PasteData &pasteData, const AppInfo &appInfo);
     void HandleDelayDataAndRecord(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
         const sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
