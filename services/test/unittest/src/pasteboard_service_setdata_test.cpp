@@ -481,18 +481,16 @@ HWTEST_F(PasteboardServiceSetDataTest, SetPasteDataInfoTest001, TestSize.Level0)
     AppInfo appInfo;
     appInfo.bundleName = bundleName;
     appInfo.appIndex = appIndex;
-    auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
-    tempPasteboard->SetPasteDataInfo(pasteData, appInfo, tokenId);
+    tempPasteboard->SetPasteDataInfo(pasteData, appInfo);
     std::pair<std::string, int32_t> originAuthority;
     originAuthority.first = bundleName;
     originAuthority.second = appIndex;
     EXPECT_EQ(pasteData.GetBundleName(), bundleName);
     EXPECT_EQ(pasteData.GetAppIndex(), appIndex);
     EXPECT_EQ(pasteData.GetOriginAuthority(), originAuthority);
-    EXPECT_EQ(pasteData.GetTokenId(), tokenId);
     EXPECT_EQ(pasteData.GetDataId(), 1);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataInfoTest001 end");
 }
