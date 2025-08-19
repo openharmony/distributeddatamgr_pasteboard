@@ -246,10 +246,11 @@ HWTEST_F(PasteboardServiceGetDataTest, GetPasteDataDotTest001, TestSize.Level0)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteDataDotTest001 start");
     PasteData pasteData;
     std::string bundleName;
+    int32_t userId = 0;
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
-    tempPasteboard->GetPasteDataDot(pasteData, bundleName);
+    tempPasteboard->GetPasteDataDot(pasteData, bundleName, userId);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteDataDotTest001 end");
 }
 

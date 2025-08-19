@@ -2568,7 +2568,8 @@ HWTEST_F(PasteboardServiceTest, GetPasteDataDot002, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     PasteData pasteData;
     pasteData.SetRemote(false);
-    EXPECT_NO_FATAL_FAILURE(tempPasteboard->GetPasteDataDot(pasteData, RANDOM_STRING));
+    int32_t userId = 0;
+    EXPECT_NO_FATAL_FAILURE(tempPasteboard->GetPasteDataDot(pasteData, RANDOM_STRING, userId));
 }
 
 /**
@@ -2582,7 +2583,8 @@ HWTEST_F(PasteboardServiceTest, GetPasteDataDot003, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
     PasteData pasteData;
     pasteData.SetRemote(true);
-    EXPECT_NO_FATAL_FAILURE(tempPasteboard->GetPasteDataDot(pasteData, RANDOM_STRING));
+    int32_t userId = 0;
+    EXPECT_NO_FATAL_FAILURE(tempPasteboard->GetPasteDataDot(pasteData, RANDOM_STRING, userId));
 }
 
 /**
@@ -2991,6 +2993,7 @@ HWTEST_F(PasteboardServiceTest, SetPasteboardHistoryTest001, TestSize.Level0)
         info.bundleName = "app" + std::to_string(i);
         info.state = "COPY";
         info.remote = "";
+        info.userId = 0;
         service.SetPasteboardHistory(info);
     }
 

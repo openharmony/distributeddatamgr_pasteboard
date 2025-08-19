@@ -59,6 +59,7 @@ struct HistoryInfo {
     std::string bundleName;
     std::string state;
     std::string remote;
+    int32_t userId = ERROR_USERID;
 };
 
 struct PasteDateTime {
@@ -314,7 +315,7 @@ private:
     void HandleDelayDataAndRecord(PasteData &pasteData, const sptr<IPasteboardDelayGetter> delayGetter,
         const sptr<IPasteboardEntryGetter> entryGetter, const AppInfo &appInfo);
     void RemovePasteData(const AppInfo &appInfo);
-    void SetPasteDataDot(PasteData &pasteData);
+    void SetPasteDataDot(PasteData &pasteData, const int32_t &userId);
     std::pair<int32_t, ClipPlugin::GlobalEvent> GetValidDistributeEvent(int32_t user);
     int32_t GetSdkVersion(uint32_t tokenId);
     bool IsPermissionGranted(const std::string &perm, uint32_t tokenId);
@@ -329,7 +330,7 @@ private:
         UeReportInfo &ueReportInfo, const std::string &peerNetId);
     int32_t GetPasteDataInner(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
         const std::string &pasteId, int32_t &syncTime, UeReportInfo &ueReportInfo);
-    void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName);
+    void GetPasteDataDot(PasteData &pasteData, const std::string &bundleName, const int32_t &userId);
     int32_t GetLocalData(const AppInfo &appInfo, PasteData &data);
     int32_t GetRemoteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);
     int32_t GetRemotePasteData(int32_t userId, const Event &event, PasteData &data, int32_t &syncTime);

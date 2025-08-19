@@ -504,10 +504,11 @@ HWTEST_F(PasteboardServiceSetDataTest, SetPasteDataDotTest001, TestSize.Level0)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataDotTest001 start");
     PasteData pasteData;
+    int32_t userId = 0;
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
-    tempPasteboard->SetPasteDataDot(pasteData);
+    tempPasteboard->SetPasteDataDot(pasteData, userId);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SetPasteDataDotTest001 end");
 }
 

@@ -1250,6 +1250,7 @@ HWTEST_F(PasteboardServiceTest, SetPasteboardHistoryTest001, TestSize.Level0)
     info.bundleName = "com.example.app";
     info.state = "copied";
     info.remote = "false";
+    info.userId = 0;
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
 
