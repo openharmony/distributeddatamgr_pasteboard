@@ -1299,7 +1299,7 @@ int32_t PasteboardService::CheckAndGrantRemoteUri(PasteData &data, const AppInfo
     bool isRemoteData = data.IsRemote();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64 ", isRemote=%{public}d", fileSize,
         static_cast<int>(isRemoteData));
-    GetPasteDataDot(data, appInfo.bundleName);
+    GetPasteDataDot(data, appInfo.bundleName, appInfo.userId);
     std::vector<Uri> grantUris = CheckUriPermission(data, std::make_pair(appInfo.bundleName, appInfo.appIndex));
     if (isRemoteData) {
         data.SetPasteId(pasteId);
@@ -2050,7 +2050,7 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
         SetDistributedData(appInfo.userId, pasteData);
         NotifyObservers(appInfo.bundleName, appInfo.userId, PasteboardEventStatus::PASTEBOARD_WRITE);
     }
-    SetPasteDataDot(pasteData);
+    SetPasteDataDot(pasteData, appInfo.userId);
     setting_.store(false);
     SubscribeKeyboardEvent();
     return static_cast<int32_t>(PasteboardError::E_OK);
@@ -2935,8 +2935,10 @@ size_t PasteboardService::GetDataSize(PasteData &data) const
 
 bool PasteboardService::SetPasteboardHistory(HistoryInfo &info)
 {
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(info.userId != ERROR_USERID, false,
+        PASTEBOARD_MODULE_SERVICE, "invalid userId");
     std::string history = std::move(info.time) + " " + std::move(info.bundleName) + " " + std::move(info.state) + " " +
-                          " " + std::move(info.remote);
+                          " " + std::move(info.remote) + " userId:" + std::to_string(info.userId);
     constexpr const size_t DATA_HISTORY_SIZE = 10;
     std::lock_guard<decltype(historyMutex_)> lg(historyMutex_);
     if (dataHistory_.size() == DATA_HISTORY_SIZE) {
@@ -2989,10 +2991,18 @@ std::string PasteboardService::DumpHistory() const
 {
     std::string result;
     std::lock_guard<decltype(historyMutex_)> lg(historyMutex_);
+    auto userId = GetCurrentAccountId();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(userId != ERROR_USERID, "Access history fail! invalid userId.",
+        PASTEBOARD_MODULE_SERVICE, "invalid userId");
     if (!dataHistory_.empty()) {
         result.append("Access history last ten times: ").append("\n");
         for (auto iter = dataHistory_.rbegin(); iter != dataHistory_.rend(); ++iter) {
-            result.append("          ").append(*iter).append("\n");
+            std::string userIdPrefix = " userId:" + std::to_string(userId);
+            size_t userIdPos = (*iter).find(userIdPrefix);
+            if (userIdPos != std::string::npos) {
+                std::string historyWithoutUserId = (*iter).substr(0, userIdPos);
+                result.append("          ").append(historyWithoutUserId).append("\n");
+            }
         }
     } else {
         result.append("Access history fail! dataHistory_ no data.").append("\n");
@@ -3311,10 +3321,10 @@ FocusedAppInfo PasteboardService::GetFocusedAppInfo(void) const
     return appInfo;
 }
 
-void PasteboardService::SetPasteDataDot(PasteData &pasteData)
+void PasteboardService::SetPasteDataDot(PasteData &pasteData, const int32_t &userId)
 {
     auto bundleName = pasteData.GetBundleName();
-    HistoryInfo info{ pasteData.GetTime(), bundleName, "set", "" };
+    HistoryInfo info{ pasteData.GetTime(), bundleName, "set", "", userId };
     SetPasteboardHistory(info);
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "SetPasteData Report!");
@@ -3328,14 +3338,14 @@ void PasteboardService::SetPasteDataDot(PasteData &pasteData)
     CalculateTimeConsuming timeC(dataSize, state);
 }
 
-void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string &bundleName)
+void PasteboardService::GetPasteDataDot(PasteData &pasteData, const std::string &bundleName, const int32_t &userId)
 {
     std::string remote;
     if (pasteData.IsRemote()) {
         remote = "remote";
     }
     std::string time = GetTime();
-    HistoryInfo info{ time, bundleName, "get", remote };
+    HistoryInfo info{ time, bundleName, "get", remote, userId };
     SetPasteboardHistory(info);
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "GetPasteData Report!");
     int pState = StatisticPasteboardState::SPS_INVALID_STATE;
