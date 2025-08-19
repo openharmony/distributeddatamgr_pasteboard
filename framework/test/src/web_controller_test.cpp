@@ -895,3 +895,114 @@ HWTEST_F(WebControllerTest, CheckAppUriPermissionTest_004, TestSize.Level1)
 
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
 }
+
+/**
+ * @tc.name: GetNeedCheckUrisTest_001.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, GetNeedCheckUrisTest_001, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    auto validRecord = std::make_shared<PasteDataRecord>();
+    auto fileUri = std::make_shared<OHOS::Uri>("file://test1");
+    validRecord->SetUri(fileUri);
+    pasteData.AddRecord(validRecord);
+
+    auto invaliRecord = std::make_shared<PasteDataRecord>();
+    pasteData.AddRecord(invaliRecord);
+
+    std::vector<std::string> uris;
+    std::vector<size_t> indexs;
+    int32_t uriCount = webClipboardController.GetNeedCheckUris(pasteData, uris, indexs, false);
+    EXPECT_EQ(uriCount, 1);
+
+    uriCount = webClipboardController.GetNeedCheckUris(pasteData, uris, indexs, true);
+    EXPECT_EQ(uriCount, 1);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: GetNeedCheckUrisTest_002.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, GetNeedCheckUrisTest_002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    auto record1 = std::make_shared<PasteDataRecord>();
+    record1->SetUri(nullptr);
+    pasteData.AddRecord(record1);
+
+    auto record2 = std::make_shared<PasteDataRecord>();
+    record2->SetUri(nullptr);
+    pasteData.AddRecord(record2);
+
+    std::vector<std::string> uris;
+    std::vector<size_t> indexs;
+    int32_t uriCount = webClipboardController.GetNeedCheckUris(pasteData, uris, indexs, false);
+    EXPECT_EQ(uriCount, 0);
+
+    uriCount = webClipboardController.GetNeedCheckUris(pasteData, uris, indexs, true);
+    EXPECT_EQ(uriCount, 0);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}
+
+/**
+ * @tc.name: GetNeedCheckUrisTest_003.
+ * @tc.desc:
+ * @tc.type: FUNC.
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(WebControllerTest, GetNeedCheckUrisTest_003, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "start");
+
+    auto tempPasteboard = std::make_shared<PasteboardWebController>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    auto webClipboardController = PasteboardWebController::GetInstance();
+    PasteData pasteData;
+    auto record1 = std::make_shared<PasteDataRecord>();
+    record1->SetUri(nullptr);
+
+    auto fileUri = std::make_shared<OHOS::Uri>("file://test1");
+    auto record2 = std::make_shared<PasteDataRecord>();
+    record2->SetUri(fileUri);
+
+    std::vector<std::shared_ptr<PasteDataRecord>> records;
+    records.push_back(record1);
+    records.push_back(record2);
+    records.push_back(nullptr);
+
+    pasteData.records_ = records;
+
+    std::vector<std::string> uris;
+    std::vector<size_t> indexs;
+    int32_t uriCount = webClipboardController.GetNeedCheckUris(pasteData, uris, indexs, false);
+    EXPECT_EQ(uriCount, 1);
+
+    uriCount = webClipboardController.GetNeedCheckUris(pasteData, uris, indexs, true);
+    EXPECT_EQ(uriCount, 1);
+
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "end");
+}

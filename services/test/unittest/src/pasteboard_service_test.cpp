@@ -4134,7 +4134,8 @@ HWTEST_F(PasteboardServiceTest, SaveData003, TestSize.Level0)
     sptr<PasteboardEntryGetterImpl> entryGetter = nullptr;
     int64_t dataSize = 0;
     int32_t ret = tempPasteboard->SaveData(pasteData, dataSize, delayGetter, entryGetter);
-    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));}
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
 
 /**
  * @tc.name: SaveData004

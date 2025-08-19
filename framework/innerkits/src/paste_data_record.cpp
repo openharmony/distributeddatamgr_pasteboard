@@ -22,7 +22,6 @@ using namespace OHOS::Media;
 namespace OHOS {
 namespace MiscServices {
 constexpr int MAX_TEXT_LEN = 100 * 1024 * 1024;
-constexpr uid_t ANCO_SERVICE_BROKER_UID = 5557;
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mimeType)
 {
@@ -589,11 +588,11 @@ bool PasteDataRecord::DecodeTLV(ReadOnlyBuffer &buffer)
         entries_.insert(entries_.begin(), std::move(entry));
     }
     udmfValue_ = nullptr;
-    plainText_ = (getuid() == ANCO_SERVICE_BROKER_UID) ? GetPlainTextV0() : nullptr;
+    plainText_ = nullptr;
     htmlText_ = nullptr;
+    uri_ = nullptr;
     pixelMap_ = nullptr;
     want_ = nullptr;
-    uri_ = nullptr;
     return true;
 }
 
