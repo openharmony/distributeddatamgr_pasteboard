@@ -280,7 +280,7 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const CopyInfo &info, uin
     dataParams->info->percentage = totalProgress;
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "process record index:%{public}d/%{public}d, progress=%{public}d",
-        index, recordSize_.load(), totalProgress);
+        index, recordSize, totalProgress);
     OnProgressNotify(dataParams);
 }
 
