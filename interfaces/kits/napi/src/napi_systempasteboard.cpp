@@ -764,11 +764,11 @@ napi_value SystemPasteboardNapi::IsRemoteData(napi_env env, napi_callback_info i
 napi_value SystemPasteboardNapi::GetDataSource(napi_env env, napi_callback_info info)
 {
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "SystemPasteboardNapi GetDataSource() is called!");
-    std::string bundleName;
-    auto block = std::make_shared<BlockObject<std::shared_ptr<int32_t>>>(SYNC_TIMEOUT);
-    std::thread thread([block, &bundleName]() mutable {
-        auto ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
-        std::shared_ptr<int32_t> value = std::make_shared<int32_t>(ret);
+    auto block = std::make_shared<BlockObject<std::shared_ptr<std::pair<int32_t, std::string>>>>(SYNC_TIMEOUT);
+    std::thread thread([block]() mutable {
+        std::string bundleName;
+        int32_t ret = PasteboardClient::GetInstance()->GetDataSource(bundleName);
+        auto value = std::make_shared<std::pair<int32_t, std::string>>(ret, bundleName);
         block->SetValue(value);
     });
     thread.detach();
@@ -779,12 +779,12 @@ napi_value SystemPasteboardNapi::GetDataSource(napi_env env, napi_callback_info 
         return nullptr;
     }
 
-    if (*value != static_cast<int32_t>(PasteboardError::E_OK)) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetDataSource, failed, ret = %{public}d", *value);
+    if (value->first != static_cast<int32_t>(PasteboardError::E_OK)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "GetDataSource, failed, ret = %{public}d", value->first);
         return nullptr;
     }
     napi_value result = nullptr;
-    napi_create_string_utf8(env, bundleName.c_str(), NAPI_AUTO_LENGTH, &result);
+    napi_create_string_utf8(env, value->second.c_str(), NAPI_AUTO_LENGTH, &result);
     return result;
 }
 
