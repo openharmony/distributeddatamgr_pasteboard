@@ -204,17 +204,16 @@ HWTEST_F(PasteboardCopyTest, HandleProgressTest, TestSize.Level0)
     std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
     CopyInfo info = *copyInfo;
     std::shared_ptr<GetDataParams> params = nullptr;
-    pasteBoardCopyFile.HandleProgress(1, info, 100, 1000, params);
+    pasteBoardCopyFile.HandleProgress(1, info, 10, params);
 
     params = std::make_shared<GetDataParams>();
     params->info = nullptr;
-    pasteBoardCopyFile.HandleProgress(1, info, 100, 1000, params);
+    pasteBoardCopyFile.HandleProgress(1, info, 10, params);
 
     params->info = new ProgressInfo();
-    pasteBoardCopyFile.HandleProgress(0, info, 100, 1000, params);
-    pasteBoardCopyFile.HandleProgress(1, info, 100, 0, params);
+    pasteBoardCopyFile.HandleProgress(0, info, 10, params);
 
-    pasteBoardCopyFile.HandleProgress(1, info, 100, 1000, params);
+    pasteBoardCopyFile.HandleProgress(1, info, 10, params);
 
     auto data = InitFileData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);

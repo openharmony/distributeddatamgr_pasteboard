@@ -31,9 +31,9 @@ constexpr float FILE_PERCENTAGE = 0.8;
 constexpr int BEGIN_PERCENTAGE = 20;
 constexpr int DFS_CANCEL_SUCCESS = 204;
 
-static int32_t g_recordSize = 0;
 ProgressListener PasteBoardCopyFile::progressListener_;
 std::atomic_bool PasteBoardCopyFile::canCancel_{ true };
+std::atomic_uint32_t PasteBoardCopyFile::recordSize_{ 0 };
 
 PasteBoardCopyFile &PasteBoardCopyFile::GetInstance()
 {
@@ -115,11 +115,12 @@ int32_t PasteBoardCopyFile::CheckCopyParam(PasteData &pasteData, std::shared_ptr
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid dataParams");
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
-    g_recordSize = (int32_t)pasteData.GetRecordCount();
-    if (g_recordSize <= 0) {
+    uint32_t recordSize = static_cast<uint32_t>(pasteData.GetRecordCount());
+    if (recordSize == 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid records size");
         return static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR);
     }
+    recordSize_.store(recordSize);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
@@ -201,7 +202,11 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         CopyInfo info = *copyInfo;
         using ProcessCallBack = std::function<void(uint64_t processSize, uint64_t totalSize)>;
         ProcessCallBack listener = [=](uint64_t processSize, uint64_t totalSize) {
-            HandleProgress(recordProcessedIndex, info, processSize, totalSize, dataParams);
+            uint32_t percentage = 0;
+            if (totalSize != 0) {
+                percentage = static_cast<uint32_t>((PERCENTAGE * processSize) / totalSize);
+            }
+            HandleProgress(recordProcessedIndex, info, percentage, dataParams);
         };
         ret = Storage::DistributedFile::FileCopyManager::GetInstance()->Copy(srcUri, copyInfo->destUri, listener);
         if (!ShouldKeepRecord(ret, copyInfo->destUri, record)) {
@@ -235,7 +240,7 @@ bool PasteBoardCopyFile::ShouldKeepRecord(
     }
 }
 
-void PasteBoardCopyFile::HandleProgress(int32_t index, const CopyInfo &info, uint64_t processSize, uint64_t totalSize,
+void PasteBoardCopyFile::HandleProgress(int32_t index, const CopyInfo &info, uint32_t percentage,
     std::shared_ptr<GetDataParams> dataParams)
 {
     if (dataParams == nullptr) {
@@ -248,12 +253,12 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const CopyInfo &info, uin
         return;
     }
 
-    if (index < 1 || totalSize == 0) {
+    if (index < 1) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid parameter");
         return;
     }
-
-    if (g_recordSize == 0) {
+    uint32_t recordSize = recordSize_.load();
+    if (recordSize == 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no record");
         return;
     }
@@ -271,23 +276,20 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const CopyInfo &info, uin
         return;
     }
 
-    int32_t percentage = (int32_t)((PERCENTAGE * processSize) / totalSize);
-    int32_t totalProgress = ((index - 1) * PERCENTAGE + percentage) / g_recordSize;
+    int32_t totalProgress = static_cast<int32_t>(((index - 1) * PERCENTAGE + percentage) / recordSize);
     dataParams->info->percentage = totalProgress;
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "process record index:%{public}d/%{public}d, progress=%{public}d",
-        index, g_recordSize, totalProgress);
+        index, recordSize, totalProgress);
     OnProgressNotify(dataParams);
 }
 
 int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<GetDataParams> dataParams)
 {
-    g_recordSize = 0;
     canCancel_.store(true);
     int32_t ret = CheckCopyParam(pasteData, dataParams);
     if (ret != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Invalid copy params");
-        g_recordSize = 0;
         return ret;
     }
     ret = CopyFileData(pasteData, dataParams);
@@ -297,7 +299,7 @@ int32_t PasteBoardCopyFile::CopyPasteData(PasteData &pasteData, std::shared_ptr<
     }
     dataParams->info->percentage = PERCENTAGE;
     OnProgressNotify(dataParams);
-    g_recordSize = 0;
+    recordSize_.store(0);
     return ret;
 }
 } // namespace MiscServices
