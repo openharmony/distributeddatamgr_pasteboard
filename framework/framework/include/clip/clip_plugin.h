@@ -63,7 +63,7 @@ public:
     static ClipPlugin *CreatePlugin(const std::string &name);
     static bool DestroyPlugin(const std::string &name, ClipPlugin *plugin);
 
-    virtual ~ClipPlugin();
+    virtual ~ClipPlugin() = default;
     virtual int32_t SetPasteData(const GlobalEvent &event, const std::vector<uint8_t> &data) = 0;
     virtual std::pair<int32_t, int32_t> GetPasteData(const GlobalEvent &event, std::vector<uint8_t> &data) = 0;
     virtual std::vector<GlobalEvent> GetTopEvents(uint32_t topN);

@@ -180,7 +180,7 @@ public:
 private:
     bool isCritical_ = false;
     std::mutex saMutex_;
-    std::shared_mutex pasteDataMutex_;
+    static std::shared_mutex pasteDataMutex_;
     using Event = ClipPlugin::GlobalEvent;
     using GetProcessorFunc = IPasteDataProcessor& (*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,

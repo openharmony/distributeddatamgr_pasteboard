@@ -112,6 +112,7 @@ const bool G_REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(new Pastebo
 using namespace Security::AccessToken;
 using namespace OHOS::AppFileService::ModuleRemoteFileShare;
 std::mutex PasteboardService::historyMutex_;
+std::shared_mutex PasteboardService::pasteDataMutex_;
 std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
@@ -4205,9 +4206,9 @@ void PasteboardService::RevokeAndClearUri(std::shared_ptr<PasteData> pasteData)
         bundles = std::move(readBundles_);
     }
     PASTEBOARD_CHECK_AND_RETURN_LOGE(pasteData != nullptr, PASTEBOARD_MODULE_SERVICE, "pasteData is null");
-    std::thread thread([pasteData, bundles, this]() {
+    std::thread thread([pasteData, bundles]() {
         auto &permissionClient = AAFwk::UriPermissionManagerClient::GetInstance();
-        std::unique_lock<std::shared_mutex> threadWriteLock(this->pasteDataMutex_);
+        std::unique_lock<std::shared_mutex> threadWriteLock(pasteDataMutex_);
         for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
             auto item = pasteData->GetRecordAt(i);
             if (item == nullptr || item->GetOriginUri() == nullptr) {

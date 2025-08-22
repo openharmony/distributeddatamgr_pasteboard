@@ -64,8 +64,6 @@ bool ClipPlugin::DestroyPlugin(const std::string &name, ClipPlugin *plugin)
     return it->second->Destroy(plugin);
 }
 
-ClipPlugin::~ClipPlugin() {}
-
 std::vector<ClipPlugin::GlobalEvent> ClipPlugin::GetTopEvents(uint32_t topN)
 {
     (void)topN;

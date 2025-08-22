@@ -38,9 +38,7 @@ private:
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
     Uri MakeUri(const std::string &key);
 
-    static std::mutex mutex_;
     static DataShareDelegate *instance_;
-    static sptr<IRemoteObject> remoteObj_;
     std::string userId_ = "100";
 };
 } // namespace OHOS::MiscServices
