@@ -26,54 +26,30 @@ void TestPasteData(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider fdp(data, size);
     PasteData pasteData;
-    {
-        std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
-        pasteData.Decode(buffer);
-    }
-    {
-        std::vector<uint8_t> buffer;
-        pasteData.Encode(buffer, false);
-    }
-    {
-        std::vector<uint8_t> buffer;
-        pasteData.Encode(buffer, true);
-    }
+    bool isRemote = fdp.ConsumeBool();
+    std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
+    pasteData.Decode(buffer);
+    pasteData.Encode(buffer, isRemote);
 }
 
 void TestPasteDataRecord(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider fdp(data, size);
     PasteDataRecord record;
-    {
-        std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
-        record.Decode(buffer);
-    }
-    {
-        std::vector<uint8_t> buffer;
-        record.Encode(buffer, false);
-    }
-    {
-        std::vector<uint8_t> buffer;
-        record.Encode(buffer, true);
-    }
+    bool isRemote = fdp.ConsumeBool();
+    std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
+    record.Decode(buffer);
+    record.Encode(buffer, isRemote);
 }
 
 void TestPasteDataEntry(const uint8_t *data, size_t size)
 {
     FuzzedDataProvider fdp(data, size);
     PasteDataEntry entry;
-    {
-        std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
-        entry.Decode(buffer);
-    }
-    {
-        std::vector<uint8_t> buffer;
-        entry.Encode(buffer, false);
-    }
-    {
-        std::vector<uint8_t> buffer;
-        entry.Encode(buffer, true);
-    }
+    bool isRemote = fdp.ConsumeBool();
+    std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
+    entry.Decode(buffer);
+    entry.Encode(buffer, isRemote);
 }
 } // anonymous namespace
 

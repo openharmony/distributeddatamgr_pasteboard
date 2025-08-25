@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,9 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef TEST_FUZZTEST_PASTEBOARDOBSERVER_FUZZER_PASTEBOARDOBSERVER_FUZZER_H
-#define TEST_FUZZTEST_PASTEBOARDOBSERVER_FUZZER_PASTEBOARDOBSERVER_FUZZER_H
+#ifndef PASTEBOARD_COMMON_H
+#define PASTEBOARD_COMMON_H
 
-#define FUZZ_PROJECT_NAME "pasteboardobserver_fuzzer"
+#include <string>
 
-#endif // TEST_FUZZTEST_PASTEBOARDOBSERVER_FUZZER_PASTEBOARDOBSERVER_FUZZER_H
+namespace OHOS {
+namespace MiscServices {
+class PasteBoardCommon {
+public:
+    static inline bool IsPasteboardService()
+    {
+        return false;
+    }
+
+    static std::string GetAnonymousString(const std::string &str)
+    {
+        return str;
+    }
+};
+} // namespace MiscServices
+} // namespace OHOS
+#endif // PASTEBOARD_COMMON_H
