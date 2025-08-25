@@ -33,6 +33,7 @@ public:
     void OnReceiveEvent(const EventFwk::CommonEventData &data) override;
 
 private:
+    void OnReceiveEventInner(const EventFwk::CommonEventData &data);
     std::mutex mutex_;
     sptr<PasteboardService> pasteboardService_ = nullptr;
 };

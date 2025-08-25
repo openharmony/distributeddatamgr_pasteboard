@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <thread>
 
 #include "device/dm_adapter.h"
 #include "device_manager.h"
@@ -22,6 +23,7 @@
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
+constexpr uint32_t SLEEP_MS = 10;
 class DMAdapterTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -61,6 +63,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline001, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceOnline(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -90,6 +93,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline002, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceOnline(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -117,6 +121,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline003, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceOnline(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -144,6 +149,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline004, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceOnline(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -171,6 +177,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOffline001, TestSize.Level0)
         },
         nullptr);
     stateObserver->OnDeviceOffline(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -200,6 +207,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOffline002, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceOffline(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -229,6 +237,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady001, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceReady(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -258,6 +267,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady002, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceReady(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -285,6 +295,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady003, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceReady(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
@@ -312,6 +323,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady004, TestSize.Level0)
             return;
         });
     stateObserver->OnDeviceReady(info);
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
     ASSERT_TRUE(true);
 #else
     ASSERT_TRUE(true);
