@@ -16,6 +16,7 @@ import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
+import("${pasteboard_tlv_path}/pasteboard_tlv.gni")
 
 ohos_fuzztest("PasteboardDisposableFuzzTest") {
   module_out_path = "pasteboard/pasteboard"
@@ -30,34 +31,44 @@ ohos_fuzztest("PasteboardDisposableFuzzTest") {
   ]
 
   include_dirs = [
+    "../mock/loader",
+    "../mock/utils",
     "${pasteboard_framework_path}/include",
+    "${pasteboard_innerkits_path}/include",
     "${pasteboard_service_path}/core/include",
+    "${pasteboard_service_path}/dfx/src",
     "${pasteboard_service_path}/test/unittest/mock/access_token",
+    "${pasteboard_tlv_path}",
     "${pasteboard_utils_path}/native/include",
   ]
 
-  sources = [
+  sources = [ "pasteboarddisposable_fuzzer.cpp" ]
+  sources += [
     "${pasteboard_framework_path}/ffrt/ffrt_utils.cpp",
     "${pasteboard_framework_path}/permission/permission_utils.cpp",
     "${pasteboard_service_path}/core/src/pasteboard_disposable_manager.cpp",
-    "${pasteboard_service_path}/test/unittest/mock/access_token/accesstoken_kit_virtual.cpp",
-    "${pasteboard_utils_path}/native/src/pasteboard_common.cpp",
-    "pasteboarddisposable_fuzzer.cpp"
+    "${pasteboard_service_path}/test/unittest/mock/access_token/accesstoken_kit_virtual.cpp",    
+  ]
+  sources += [
+    "${pasteboard_innerkits_path}/src/paste_data.cpp",
+    "${pasteboard_innerkits_path}/src/paste_data_entry.cpp",
+    "${pasteboard_innerkits_path}/src/paste_data_record.cpp",
+    "${pasteboard_tlv_path}/tlv_readable.cpp",
+    "${pasteboard_tlv_path}/tlv_utils.cpp",
+    "${pasteboard_tlv_path}/tlv_writeable.cpp",
   ]
 
-  deps = [
-    "${pasteboard_framework_path}:pasteboard_framework",
-    "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_innerkits_path}:pasteboard_data",
-  ]
+  deps = [ "${pasteboard_service_path}:pasteboard_service_idl" ]
 
   external_deps = [
-    "bundle_framework:appexecfwk_core",
+    "ability_base:zuri",
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "image_framework:image_native",
     "init:libbegetutil",
     "ipc:ipc_single",
+    "udmf:udmf_client",
   ]
 }
 

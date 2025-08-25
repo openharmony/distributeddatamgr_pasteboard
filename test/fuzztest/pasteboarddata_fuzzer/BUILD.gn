@@ -16,6 +16,7 @@ import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
+import("${pasteboard_tlv_path}/pasteboard_tlv.gni")
 
 ohos_fuzztest("PasteboardDataFuzzTest") {
   module_out_path = "pasteboard/pasteboard"
@@ -30,17 +31,30 @@ ohos_fuzztest("PasteboardDataFuzzTest") {
   ]
 
   include_dirs = [
+    "../mock/loader",
+    "../mock/utils",
     "${pasteboard_framework_path}/include",
+    "${pasteboard_innerkits_path}/include",
     "${pasteboard_service_path}/core/include",
+    "${pasteboard_service_path}/dfx/src",
+    "${pasteboard_tlv_path}",
     "${pasteboard_utils_path}/native/include",
   ]
 
   sources = [ "pasteboarddata_fuzzer.cpp" ]
-
-  deps = [ "${pasteboard_innerkits_path}:pasteboard_data" ]
+  sources += [
+    "${pasteboard_innerkits_path}/src/paste_data.cpp",
+    "${pasteboard_innerkits_path}/src/paste_data_entry.cpp",
+    "${pasteboard_innerkits_path}/src/paste_data_record.cpp",
+    "${pasteboard_tlv_path}/tlv_readable.cpp",
+    "${pasteboard_tlv_path}/tlv_utils.cpp",
+    "${pasteboard_tlv_path}/tlv_writeable.cpp",
+  ]
 
   external_deps = [
     "ability_base:zuri",
+    "c_utils:utils",
+    "hilog:libhilog",
     "image_framework:image_native",
     "udmf:udmf_client",
   ]

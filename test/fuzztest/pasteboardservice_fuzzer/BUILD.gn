@@ -13,24 +13,27 @@
 
 import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
 
-#####################hydra-fuzz###################
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
+import("${pasteboard_tlv_path}/pasteboard_tlv.gni")
 
-##############################fuzztest##########################################
 ohos_fuzztest("PasteboardServiceFuzzTest") {
   module_out_path = "pasteboard/pasteboard"
 
   fuzz_config_file =
       "${pasteboard_root_path}/test/fuzztest/pasteboardservice_fuzzer"
 
-  configs = [ "${pasteboard_service_path}:pasteboard_service_config" ]
-
   include_dirs = [
-    "${pasteboard_root_path}/framework/uri",
-    "${pasteboard_service_path}/zidl/include",
+    "../mock/loader",
+    "../mock/utils",
+    "${pasteboard_framework_path}/include",
+    "${pasteboard_innerkits_path}/include",
     "${pasteboard_service_path}/core/include",
+    "${pasteboard_service_path}/dfx/src",
+    "${pasteboard_service_path}/zidl/include",
+    "${pasteboard_tlv_path}",
+    "${pasteboard_utils_path}/native/include",
   ]
 
   cflags = [
@@ -41,44 +44,28 @@ ohos_fuzztest("PasteboardServiceFuzzTest") {
   ]
 
   sources = [ "pasteboardservice_fuzzer.cpp" ]
-
-  deps = [
-    "${pasteboard_framework_path}:pasteboard_framework",
-    "${pasteboard_innerkits_path}:pasteboard_client",
-    "${pasteboard_service_path}:pasteboard_service",
-    "${pasteboard_service_path}:pasteboard_stub_proxy",
+  sources += [
+    "${pasteboard_innerkits_path}/src/paste_data.cpp",
+    "${pasteboard_innerkits_path}/src/paste_data_entry.cpp",
+    "${pasteboard_innerkits_path}/src/paste_data_record.cpp",
+    "${pasteboard_tlv_path}/tlv_readable.cpp",
+    "${pasteboard_tlv_path}/tlv_utils.cpp",
+    "${pasteboard_tlv_path}/tlv_writeable.cpp",
   ]
 
+  deps = [ "${pasteboard_service_path}:pasteboard_service_idl" ]
+
   external_deps = [
-    "ability_base:want",
     "ability_base:zuri",
-    "access_token:libaccesstoken_sdk",
-    "access_token:libprivacy_sdk",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "data_share:datashare_consumer",
-    "dataclassification:data_transit_mgr",
-    "eventhandler:libeventhandler",
-    "ffrt:libffrt",
     "hilog:libhilog",
-    "hisysevent:libhisysevent",
     "image_framework:image_native",
-    "input:libmmi-client",
     "ipc:ipc_core",
-    "os_account:os_account_innerkits",
-    "safwk:system_ability_fwk",
     "udmf:udmf_client",
   ]
 }
 
-###############################################################################
 group("fuzztest") {
   testonly = true
-  deps = []
-  deps += [
-    # deps file
-    ":PasteboardServiceFuzzTest",
-  ]
+  deps = [ ":PasteboardServiceFuzzTest" ]
 }
-###############################################################################

@@ -20,7 +20,7 @@
 #include "ipasteboard_service.h"
 #include "loader.h"
 #include "message_parcel.h"
-#include "pasteboard_service.h"
+#include "pasteboard_service_stub.h"
 
 namespace {
 using namespace OHOS;

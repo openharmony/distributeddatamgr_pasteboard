@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "paste_data_record.h"
+
 #include "pasteboard_common.h"
 #include "pasteboard_hilog.h"
 #include "pasteboard_service_loader.h"
