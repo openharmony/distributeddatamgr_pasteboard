@@ -18,6 +18,7 @@
 
 #include "api/visibility.h"
 #include "common/concurrent_map.h"
+#include "ffrt.h"
 
 #include <memory>
 #include <unordered_set>
@@ -52,7 +53,7 @@ private:
     Observer observer_ = nullptr;
     ConcurrentMap<std::string, bool> enabledStatusCache_;
     std::shared_ptr<DeviceProfileProxy> proxy_ = nullptr;
-    std::recursive_mutex proxyMutex_;
+    ffrt::recursive_mutex proxyMutex_;
     std::unordered_set<std::string> subscribeUdidList_;
 };
 } // namespace MiscServices

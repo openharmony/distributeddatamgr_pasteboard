@@ -12,9 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <thread>
+
 #include "device/dm_adapter.h"
 
-#include "c/ffrt_ipc.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
@@ -33,10 +35,11 @@ void DmStateObserver::OnDeviceOnline(const DmDeviceInfo &deviceInfo)
     if (online_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
         return;
     }
-    ffrt_this_task_set_legacy_mode(true);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device on start:%{public}.6s", deviceInfo.networkId);
-    online_(deviceInfo);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device on end:%{public}.6s", deviceInfo.networkId);
+    std::thread thread([=] {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device on:%{public}.6s", deviceInfo.networkId);
+        online_(deviceInfo);
+    });
+    thread.detach();
 }
 
 void DmStateObserver::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
@@ -44,10 +47,11 @@ void DmStateObserver::OnDeviceOffline(const DmDeviceInfo &deviceInfo)
     if (offline_ == nullptr) {
         return;
     }
-    ffrt_this_task_set_legacy_mode(true);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device off start:%{public}.6s", deviceInfo.networkId);
-    offline_(deviceInfo);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device off end:%{public}.6s", deviceInfo.networkId);
+    std::thread thread([=] {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device off:%{public}.6s", deviceInfo.networkId);
+        offline_(deviceInfo);
+    });
+    thread.detach();
 }
 
 void DmStateObserver::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
@@ -55,10 +59,12 @@ void DmStateObserver::OnDeviceChanged(const DmDeviceInfo &deviceInfo)
     // authForm not valid use networkId
     PASTEBOARD_CHECK_AND_RETURN_LOGE(online_ != nullptr, PASTEBOARD_MODULE_SERVICE, "online_ is null");
     if (DeviceManager::GetInstance().IsSameAccount(deviceInfo.networkId)) {
-        ffrt_this_task_set_legacy_mode(true);
-        online_(deviceInfo);
+        std::thread thread([=] {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device config changed:%{public}.6s", deviceInfo.networkId);
+            online_(deviceInfo);
+        });
+        thread.detach();
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device config changed:%{public}.6s", deviceInfo.networkId);
 }
 
 void DmStateObserver::OnDeviceReady(const DmDeviceInfo &deviceInfo)
@@ -66,8 +72,11 @@ void DmStateObserver::OnDeviceReady(const DmDeviceInfo &deviceInfo)
     if (onReady_ == nullptr || deviceInfo.authForm != IDENTICAL_ACCOUNT) {
         return;
     }
-    ffrt_this_task_set_legacy_mode(true);
-    onReady_(deviceInfo);
+    std::thread thread([=] {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device onReady:%{public}.6s", deviceInfo.networkId);
+        onReady_(deviceInfo);
+    });
+    thread.detach();
 }
 
 DmDeath::DmDeath(std::shared_ptr<DmStateObserver> observer, std::string pkgName)

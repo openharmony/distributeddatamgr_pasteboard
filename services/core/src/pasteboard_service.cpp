@@ -4133,6 +4133,14 @@ void PasteboardService::ChangeStoreStatus(int32_t userId)
 
 void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
+    std::thread thread([=] {
+        OnReceiveEventInner(data);
+    });
+    thread.detach();
+}
+
+void PasteBoardCommonEventSubscriber::OnReceiveEventInner(const EventFwk::CommonEventData &data)
+{
     auto want = data.GetWant();
     std::string action = want.GetAction();
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
