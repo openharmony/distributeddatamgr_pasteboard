@@ -54,8 +54,8 @@ taihe_shared_library("pasteboard_taihe_native") {
   sources += [
     "src/ani_constructor.cpp",
     "src/ohos.pasteboard.pasteboard.impl.cpp",
-    "src/pasteboard_taihe_utils.cpp",
     "src/pasteboard_taihe_observer.cpp",
+    "src/pasteboard_taihe_utils.cpp",
   ]
   deps = [
     ":run_pasteboard_taihe",
@@ -66,6 +66,7 @@ taihe_shared_library("pasteboard_taihe_native") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ani_common",
+    "ability_runtime:napi_common",
     "ability_runtime:runtime",
     "c_utils:utils",
     "ffrt:libffrt",
@@ -74,6 +75,8 @@ taihe_shared_library("pasteboard_taihe_native") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "runtime_core:ani",
+    "runtime_core:ani_helpers",
+    "udmf:udmf_data_napi",
   ]
 }
 
