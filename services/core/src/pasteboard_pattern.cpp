@@ -77,7 +77,7 @@ void PatternDetection::DetectPlainText(
 
 std::string PatternDetection::ExtractHtmlContent(const std::string &html_str)
 {
-    LibGuard libxmlGuard{ LIBXML_SO_PATH};
+    LibGuard libxmlGuard(LIBXML_SO_PATH);
     void *libHandle = libxmlGuard.GetLibHandle();
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(libHandle != nullptr, "", PASTEBOARD_MODULE_SERVICE,
         "dlopen libxml2 failed");
@@ -91,7 +91,7 @@ std::string PatternDetection::ExtractHtmlContent(const std::string &html_str)
         "dlsym libxml2 failed");
     xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(doc != nullptr, "", PASTEBOARD_MODULE_SERVICE,
-        "Parse html failed! doc nullptr");
+        "parse html failed, doc null");
     xmlNode *rootNode = xmlDocGetRootElement(doc);
     if (rootNode == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "parse html failed, rootNode is null");

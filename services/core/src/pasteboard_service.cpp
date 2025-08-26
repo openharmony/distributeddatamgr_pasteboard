@@ -338,39 +338,36 @@ void PasteboardService::UpdateAgedTime()
     static bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
     int32_t agedTime = developerMode ? system::GetIntParameter("const.pasteboard.rd_test_aged_time",
         ONE_HOUR_MINUTES, MIN_AGED_TIME, MAX_AGED_TIME) : ONE_HOUR_MINUTES;
-    agedTime_ = agedTime * MINUTES_TO_MILLISECONDS;
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "agedTime_: %{public}d", agedTime_);
+    agedTime_.store(agedTime * MINUTES_TO_MILLISECONDS);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "agedTime_: %{public}d", agedTime_.load());
 }
 
 void PasteboardService::CancelCriticalTimer()
 {
-    if (!ffrtTimer_) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
-        return;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(ffrtTimer_ != nullptr, PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
     ffrtTimer_->CancelTimer(SET_CRITICAL_ID);
     Memory::MemMgrClient::GetInstance().SetCritical(getpid(), false, PASTEBOARD_SERVICE_ID);
-    isCritical_ = false;
+    isCritical_.store(false);
 }
 
 void PasteboardService::SetCriticalTimer()
 {
-    if (!ffrtTimer_) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
-        return;
-    }
-    if (!isCritical_) {
-        Memory::MemMgrClient::GetInstance().SetCritical(getpid(), true, PASTEBOARD_SERVICE_ID);
-        isCritical_ = true;
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(ffrtTimer_ != nullptr, PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
+
     FFRTTask task = [this] {
         std::thread thread([=]() {
             Memory::MemMgrClient::GetInstance().SetCritical(getpid(), false, PASTEBOARD_SERVICE_ID);
-            isCritical_ = false;
+            isCritical_.store(false);
         });
         thread.detach();
     };
-    ffrtTimer_->SetTimer(SET_CRITICAL_ID, task, static_cast<uint32_t>(agedTime_));
+
+    ffrtTimer_->SetTimer(SET_CRITICAL_ID, task, static_cast<uint32_t>(agedTime_.load()));
+
+    if (!isCritical_.load()) {
+        Memory::MemMgrClient::GetInstance().SetCritical(getpid(), true, PASTEBOARD_SERVICE_ID);
+        isCritical_.store(true);
+    }
 }
 
 void PasteboardService::OnAddDeviceManager()
@@ -674,8 +671,8 @@ int32_t PasteboardService::UnsubscribeEntityObserver(
         static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
         "expected data length exceeds limitation");
     auto callingPid = IPCSkeleton::GetCallingPid();
-    auto result = entityObserverMap_.ComputeIfPresent(
-        callingPid, [entityType, expectedDataLength](auto, auto &observerList) {
+    auto result =
+    entityObserverMap_.ComputeIfPresent(callingPid, [entityType, expectedDataLength](auto, auto &observerList) {
             auto it = std::find_if(observerList.begin(), observerList.end(),
                 [entityType, expectedDataLength](const EntityObserverInfo &observer) {
                     return observer.entityType == entityType && observer.expectedDataLength == expectedDataLength;
@@ -988,9 +985,9 @@ bool PasteboardService::IsDataAged()
         copyTime, curTime);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((curTime != 0 && copyTime != 0), false,
         PASTEBOARD_MODULE_SERVICE, "Failed to get the time, data never aged."
-        "copyTime = %{public}" PRIu64 ", curtime = %{public}" PRIu64, copyTime, curTime);
+        "copyTime = %{public}" PRIu64 ", curTime = %{public}" PRIu64, copyTime, curTime);
 
-    if (curTime > copyTime && curTime - copyTime > static_cast<uint64_t>(agedTime_)) {
+    if (curTime > copyTime && curTime - copyTime > static_cast<uint64_t>(agedTime_.load())) {
         PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
         auto data = clips_.Find(userId);
         if (data.first) {
@@ -1020,8 +1017,8 @@ AppInfo PasteboardService::GetAppInfo(uint32_t tokenId)
                 return info;
             }
             info.bundleName = hapInfo.bundleName;
-            info.userId = hapInfo.userID;
             info.appIndex = hapInfo.instIndex;
+            info.userId = hapInfo.userID;
             break;
         }
         case ATokenTypeEnum::TOKEN_NATIVE:
@@ -2397,7 +2394,7 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
         fd >= 0, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE, "fd invalid");
     MessageParcelWarp messageData;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fd=%{public}d, agedTime_ = %{public}d,"
-        "rawDataSize=%{public}" PRId64, fd, agedTime_, rawDataSize);
+        "rawDataSize=%{public}" PRId64, fd, agedTime_.load(), rawDataSize);
     SetCriticalTimer();
     if (rawDataSize <= 0 || rawDataSize > messageData.GetRawDataSize()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Invalid raw data size:%{public}" PRId64, rawDataSize);
@@ -2920,6 +2917,10 @@ void PasteboardService::NotifyObservers(std::string bundleName, int32_t userId, 
     std::thread thread([this, bundleName, userId, status]() {
         std::lock_guard<std::mutex> lock(observerMutex_);
         for (auto &observers : observerLocalChangedMap_) {
+            if (observers.second == nullptr) {
+                PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observerLocalChangedMap_.second is nullptr");
+                continue;
+            }
             for (const auto &observer : *(observers.second)) {
                 if (status != PasteboardEventStatus::PASTEBOARD_READ && userId == observers.first.first) {
                     observer->OnPasteboardChanged();
@@ -2927,6 +2928,10 @@ void PasteboardService::NotifyObservers(std::string bundleName, int32_t userId, 
             }
         }
         for (auto &observers : observerEventMap_) {
+            if (observers.second == nullptr) {
+                PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "observerEventMap_.second is nullptr");
+                continue;
+            }
             for (const auto &observer : *(observers.second)) {
                 observer->OnPasteboardEvent(bundleName, static_cast<int32_t>(status));
             }
@@ -4336,8 +4341,8 @@ int32_t PasteboardService::AppExit(pid_t pid)
     RemoveObserverByPid(userId, pid, observerRemoteChangedMap_);
     RemoveObserverByPid(COMMON_USERID, pid, observerEventMap_);
     entityObserverMap_.Erase(pid);
-    ClearInputMethodPidByPid(userId, pid);
     DisposableManager::GetInstance().RemoveDisposableInfo(pid, false);
+    ClearInputMethodPidByPid(userId, pid);
     std::vector<std::string> networkIds;
     {
         std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);

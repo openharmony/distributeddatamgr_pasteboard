@@ -44,6 +44,7 @@ void DevProfileMockTest::TearDown(void)
 {
     testing::Mock::VerifyAndClear(deviceManagerMock_.get());
 }
+
 /**
  * @tc.name: GetDeviceStatusTest001
  * @tc.desc: GetDeviceStatus should return E_OK when query valid networkId

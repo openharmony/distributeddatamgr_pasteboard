@@ -169,8 +169,8 @@ public:
     void NotifyDelayGetterDied(int32_t userId);
     void NotifyEntryGetterDied(int32_t userId);
     virtual int32_t GetChangeCount(uint32_t &changeCount) override;
-    void ChangeStoreStatus(int32_t userId);
     void CloseDistributedStore(int32_t user, bool isNeedClear);
+    void ChangeStoreStatus(int32_t userId);
     void PreSyncRemotePasteboardData();
     PastedSwitch switch_;
     static int32_t GetCurrentAccountId();
@@ -178,7 +178,7 @@ public:
     void RevokeAndClearUri(std::shared_ptr<PasteData> pasteData);
 
 private:
-    bool isCritical_ = false;
+    std::atomic<bool> isCritical_ = false;
     std::mutex saMutex_;
     static std::shared_mutex pasteDataMutex_;
     using Event = ClipPlugin::GlobalEvent;
@@ -211,7 +211,7 @@ private:
     static const std::string UNREGISTER_PRESYNC_MONITOR;
     static const std::string P2P_ESTABLISH_STR;
     static const std::string P2P_PRESYNC_ID;
-    int32_t agedTime_ = ONE_HOUR_MINUTES * MINUTES_TO_MILLISECONDS; // 1 hour
+    std::atomic<int32_t> agedTime_ = ONE_HOUR_MINUTES * MINUTES_TO_MILLISECONDS; // 1 hour
     bool SetPasteboardHistory(HistoryInfo &info);
     bool IsFocusedApp(uint32_t tokenId);
     void InitBundles(Loader &loader);
