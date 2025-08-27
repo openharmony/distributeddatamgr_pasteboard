@@ -63,6 +63,7 @@ napi_value ProgressSignalNapi::New(napi_env env, napi_callback_info info)
     ASSERT_CALL(env, napi_wrap(env, thisVar, obj, ProgressSignalNapi::Destructor,
                        nullptr, // finalize_hint
                        nullptr), obj);
+    ProgressSignalClient::GetInstance().Init();
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_JS_NAPI, "end.");
     return thisVar;
 }

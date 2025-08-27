@@ -890,7 +890,7 @@ static ani_boolean HasDataType([[maybe_unused]] ani_env *env, [[maybe_unused]] a
     auto mimeType_str = ANIUtils_ANIStringToStdString(env, static_cast<ani_string>(mimeType));
 
     auto block = std::make_shared<OHOS::BlockObject<std::shared_ptr<int>>>(SYNC_TIMEOUT);
-    std::thread thread([block, mimeType_str]() {
+    std::thread thread([block, mimeType_str = mimeType_str]() {
         auto ret = PasteboardClient::GetInstance()->HasDataType(mimeType_str);
         std::shared_ptr<int> value = std::make_shared<int>(static_cast<int>(ret));
         block->SetValue(value);

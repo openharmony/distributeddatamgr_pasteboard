@@ -14,8 +14,8 @@
  */
 
 #include "pasteboard_client.h"
-#include "pasteboard_web_controller.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_web_controller.h"
 #include <gtest/gtest.h>
 
 using namespace testing;
