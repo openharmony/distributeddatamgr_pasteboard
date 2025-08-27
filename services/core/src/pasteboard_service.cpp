@@ -3638,13 +3638,17 @@ int32_t PasteboardService::ProcessDistributedDelayUri(int32_t userId, PasteData 
 
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     std::string localUri = uri->ToString();
-    HmdfsUriInfo dfsUri;
-    int32_t ret = RemoteFileShare::GetDfsUriFromLocal(localUri, userId, dfsUri);
+    std::vector<std::string> localUris = { localUri };
+    std::unordered_map<std::string, HmdfsUriInfo> dfsUris;
+    int32_t ret = Storage::DistributedFile::FileMountManager::GetDfsUrisDirFromLocal(localUris, userId, dfsUris);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == 0, ret, PASTEBOARD_MODULE_SERVICE,
         "generate distributed uri failed, uri=%{private}s", localUri.c_str());
 
-    std::string distributedUri = dfsUri.uriStr;
-    size_t fileSize = dfsUri.fileSize;
+    auto dfsUri = dfsUris.find(localUri);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(dfsUri != dfsUris.end(), static_cast<int32_t>(PasteboardError::NO_DATA_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "dfsUris is null");
+    std::string distributedUri = dfsUri->second.uriStr;
+    size_t fileSize = dfsUri->second.fileSize;
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "uri: %{private}s -> %{private}s, fileSize=%{public}zu",
         localUri.c_str(), distributedUri.c_str(), fileSize);
 
