@@ -4307,6 +4307,9 @@ HWTEST_F(PasteboardServiceTest, ClearAgedDataTest001, TestSize.Level0)
     auto tokenId = IPCSkeleton::GetCallingTokenID();
     auto appInfo = tempPasteboard->GetAppInfo(tokenId);
     int32_t userId = appInfo.userId;
+    tempPasteboard->ffrtTimer_ = nullptr;
+    tempPasteboard->SetDataExpirationTimer(userId);
+    tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
     tempPasteboard->SetDataExpirationTimer(userId);
     std::shared_ptr<PasteData> testData = std::make_shared<PasteData>();
     tempPasteboard->clips_.InsertOrAssign(userId, testData);
