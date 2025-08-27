@@ -416,6 +416,8 @@ private:
     int32_t WritePasteData(
         int fd, int64_t rawDataSize, const std::vector<uint8_t> &buffer, PasteData &pasteData, bool &hasData);
     void CloseSharedMemFd(int fd);
+    void ClearAgedData(int32_t userId);
+    void SetDataExpirationTimer(int32_t userId);
 
     void RegisterPreSyncCallback(std::shared_ptr<ClipPlugin> clipPlugin);
     bool OpenP2PLinkForPreEstablish(const std::string &networkId, ClipPlugin *clipPlugin);

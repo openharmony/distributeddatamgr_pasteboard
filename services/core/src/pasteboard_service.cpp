@@ -672,7 +672,7 @@ int32_t PasteboardService::UnsubscribeEntityObserver(
         "expected data length exceeds limitation");
     auto callingPid = IPCSkeleton::GetCallingPid();
     auto result =
-    entityObserverMap_.ComputeIfPresent(callingPid, [entityType, expectedDataLength](auto, auto &observerList) {
+        entityObserverMap_.ComputeIfPresent(callingPid, [entityType, expectedDataLength](auto, auto &observerList) {
             auto it = std::find_if(observerList.begin(), observerList.end(),
                 [entityType, expectedDataLength](const EntityObserverInfo &observer) {
                     return observer.entityType == entityType && observer.expectedDataLength == expectedDataLength;
@@ -977,26 +977,6 @@ bool PasteboardService::IsDataAged()
     }
     auto it = copyTime_.Find(userId);
     if (!it.first) {
-        return true;
-    }
-    uint64_t copyTime = it.second;
-    auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
-    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "copyTime = %{public}" PRIu64 ", curTime = %{public}" PRIu64,
-        copyTime, curTime);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((curTime != 0 && copyTime != 0), false,
-        PASTEBOARD_MODULE_SERVICE, "Failed to get the time, data never aged."
-        "copyTime = %{public}" PRIu64 ", curTime = %{public}" PRIu64, copyTime, curTime);
-
-    if (curTime > copyTime && curTime - copyTime > static_cast<uint64_t>(agedTime_.load())) {
-        PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
-        auto data = clips_.Find(userId);
-        if (data.first) {
-            clips_.Erase(userId);
-            delayDataId_ = 0;
-            delayTokenId_ = 0;
-        }
-        copyTime_.Erase(userId);
-        RADAR_REPORT(DFX_CLEAR_PASTEBOARD, DFX_AUTO_CLEAR, DFX_SUCCESS);
         return true;
     }
     return false;
@@ -1470,6 +1450,7 @@ int32_t PasteboardService::GetRemotePasteData(int32_t userId, const Event &event
                 auto curTime =
                     static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
                 copyTime_.InsertOrAssign(userId, curTime);
+                SetDataExpirationTimer(userId);
             }
             pasteDataTime->syncTime = result.second.syncTime;
             pasteDataTime->data = result.first;
@@ -2058,6 +2039,7 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     HandleDelayDataAndRecord(pasteData, delayGetter, entryGetter, appInfo);
     auto curTime = static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     copyTime_.InsertOrAssign(appInfo.userId, curTime);
+    SetDataExpirationTimer(appInfo.userId);
     if (!(pasteData.IsDelayData())) {
         SetDistributedData(appInfo.userId, pasteData);
         NotifyObservers(appInfo.bundleName, appInfo.userId, PasteboardEventStatus::PASTEBOARD_WRITE);
@@ -2066,6 +2048,37 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
     setting_.store(false);
     SubscribeKeyboardEvent();
     return static_cast<int32_t>(PasteboardError::E_OK);
+}
+
+void PasteboardService::ClearAgedData(int32_t userId)
+{
+    auto data = clips_.Find(userId);
+    if (data.first) {
+        clips_.Erase(userId);
+        delayDataId_ = 0;
+        delayTokenId_ = 0;
+    }
+    copyTime_.Erase(userId);
+    PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "data is out of the time");
+    RADAR_REPORT(DFX_CLEAR_PASTEBOARD, DFX_AUTO_CLEAR, DFX_SUCCESS);
+}
+
+void PasteboardService::SetDataExpirationTimer(int32_t userId)
+{
+    if (!ffrtTimer_) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "ffrtTimer_ is null");
+        return;
+    }
+
+    FFRTTask task = [this, userId]() {
+        std::thread thread([=]() {
+            ClearAgedData(userId);
+        });
+        thread.detach();
+    };
+
+    std::string taskName = "data_expiration[userId=" + std::to_string(userId) + "]";
+    ffrtTimer_->SetTimer(taskName, task, static_cast<uint32_t>(agedTime_.load()));
 }
 
 void PasteboardService::SetPasteDataInfo(PasteData &pasteData, const AppInfo &appInfo)
