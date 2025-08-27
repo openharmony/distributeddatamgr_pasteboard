@@ -4291,8 +4291,34 @@ HWTEST_F(PasteboardServiceTest, ProcessRemoteDelayUriTest001, TestSize.Level0)
     data.AddRecord(record);
     data.Encode(rawData);
     
-    int32_t ret = tempPasteboard->ProcessRemoteDelayUri(deviceId, appInfo, data, record, entry);
+    int32_t ret = tempPasteboard->ProcessRemoteDelayUri(deviceId, appInfo, data, *record, *entry);
     EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::E_OK));
+}
+
+/**
+ * @tc.name: ClearAgedDataTest001
+ * @tc.desc: Test ClearAgedData function to clear expired data
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, ClearAgedDataTest001, TestSize.Level0)
+{
+    std::shared_ptr<PasteboardService> tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = tempPasteboard->GetAppInfo(tokenId);
+    int32_t userId = appInfo.userId;
+    tempPasteboard->ffrtTimer_ = nullptr;
+    tempPasteboard->SetDataExpirationTimer(userId);
+    tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
+    tempPasteboard->SetDataExpirationTimer(userId);
+    std::shared_ptr<PasteData> testData = std::make_shared<PasteData>();
+    tempPasteboard->clips_.InsertOrAssign(userId, testData);
+    auto result = tempPasteboard->clips_.Find(userId);
+    EXPECT_TRUE(result.first);
+    EXPECT_NE(result.second, nullptr);
+    tempPasteboard->ClearAgedData(userId);
+    result = tempPasteboard->clips_.Find(userId);
+    EXPECT_FALSE(result.first);
 }
 } // namespace MiscServices
 } // namespace OHOS

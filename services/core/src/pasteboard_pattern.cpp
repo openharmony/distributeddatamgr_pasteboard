@@ -91,7 +91,7 @@ std::string PatternDetection::ExtractHtmlContent(const std::string &html_str)
         "dlsym libxml2 failed");
     xmlDocPtr doc = htmlReadMemory(html_str.c_str(), html_str.size(), nullptr, nullptr, 0);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(doc != nullptr, "", PASTEBOARD_MODULE_SERVICE,
-        "parse html failed, doc null");
+        "parse html failed, doc is null");
     xmlNode *rootNode = xmlDocGetRootElement(doc);
     if (rootNode == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "parse html failed, rootNode is null");
