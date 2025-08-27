@@ -322,6 +322,7 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest001, TestS
     DisposableManager::GetInstance().disposableInfoList_ = {infoMatched, infoNoMatch};
     ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
     EXPECT_TRUE(ret);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_TRUE(DisposableManager::GetInstance().disposableInfoList_.empty());
     EXPECT_EQ(observer->errCode_, IPasteboardDisposableObserver::ERR_TARGET_MISMATCH);
 }
@@ -354,6 +355,7 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest002, TestS
     DisposableManager::GetInstance().disposableInfoList_ = {info1, info2, info3, info4};
     bool ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
     EXPECT_TRUE(ret);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer2->errCode_, IPasteboardDisposableObserver::ERR_NO_PERMISSION);
     EXPECT_EQ(observer3->errCode_, IPasteboardDisposableObserver::ERR_TYPE_NOT_SUPPORT);
     EXPECT_EQ(observer4->errCode_, IPasteboardDisposableObserver::ERR_NO_TEXT);
@@ -383,6 +385,7 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest003, TestS
     DisposableManager::GetInstance().disposableInfoList_ = {info1, info2};
     bool ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
     EXPECT_TRUE(ret);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer1->errCode_, IPasteboardDisposableObserver::ERR_LENGTH_MISMATCH);
     EXPECT_EQ(observer2->errCode_, IPasteboardDisposableObserver::ERR_OK);
     EXPECT_STREQ(observer2->text_.c_str(), text.c_str());
@@ -421,6 +424,7 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest004, TestS
         DisposableManager::GetInstance().disposableInfoList_ = {info};
         bool ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
         EXPECT_TRUE(ret);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         EXPECT_EQ(observer->errCode_, errCodes[i]);
         EXPECT_STREQ(observer->text_.c_str(), texts[i].c_str());
     }

@@ -54,9 +54,8 @@ void PasteboardDelayGetterProxy::GetPasteData(const std::string &type, PasteData
         PASTEBOARD_MODULE_CLIENT, "fail to get raw data, size=%{public}" PRId64, rawDataSize);
     std::vector<uint8_t> pasteDataTlv(rawData, rawData + rawDataSize);
     bool ret = data.Decode(pasteDataTlv);
-    if (!ret) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "fail to decode paste data");
-    }
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(ret, PASTEBOARD_MODULE_CLIENT, "fail to decode paste data");
+    data.rawDataSize_ = rawDataSize;
 }
 
 void PasteboardDelayGetterProxy::GetUnifiedData(const std::string &type, UDMF::UnifiedData &data) {}

@@ -177,10 +177,11 @@ public:
     void RevokeUriOnUninstall(int32_t tokenId);
     void RevokeAndClearUri(std::shared_ptr<PasteData> pasteData);
 
+    static std::shared_mutex pasteDataMutex_;
+
 private:
     std::atomic<bool> isCritical_ = false;
     std::mutex saMutex_;
-    static std::shared_mutex pasteDataMutex_;
     using Event = ClipPlugin::GlobalEvent;
     using GetProcessorFunc = IPasteDataProcessor& (*)();
     static constexpr const int32_t LISTENING_SERVICE[] = { DISTRIBUTED_HARDWARE_DEVICEMANAGER_SA_ID,

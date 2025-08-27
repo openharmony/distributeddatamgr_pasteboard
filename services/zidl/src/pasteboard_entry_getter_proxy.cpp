@@ -89,6 +89,7 @@ int32_t PasteboardEntryGetterProxy::GetRecordValueByType(uint32_t recordId, Past
         return static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR);
     }
     value = entryValue;
+    value.rawDataSize_ = rawDataSize;
     return res;
 }
 } // namespace MiscServices

@@ -144,6 +144,7 @@ public:
     static constexpr size_t URI_BATCH_SIZE = 10000;
     static constexpr uint32_t MAX_REPORT_RECORD_NUM = 30;
     static constexpr int32_t INVALID_TOKEN_ID = -1;
+    int64_t rawDataSize_ = 0;
     std::string deviceId_;
 
 private:

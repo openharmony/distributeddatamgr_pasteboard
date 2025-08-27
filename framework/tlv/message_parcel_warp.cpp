@@ -77,6 +77,11 @@ MessageParcelWarp::~MessageParcelWarp()
     canRead_ = false;
 }
 
+int64_t MessageParcelWarp::GetRawDataSize()
+{
+    return maxRawDataSize_;
+}
+
 bool MessageParcelWarp::MemcpyData(void *ptr, size_t size, const void *data, size_t count)
 {
     if (size <= WRITE_SPLIT_CHUNK_SIZE) {

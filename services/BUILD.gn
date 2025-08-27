@@ -82,6 +82,7 @@ ohos_shared_library("pasteboard_service") {
     "../adapter/security_level/security_level.cpp",
     "account/src/account_manager.cpp",
     "core/src/pasteboard_dialog.cpp",
+    "core/src/pasteboard_delay_manager.cpp",
     "core/src/pasteboard_disposable_manager.cpp",
     "core/src/pasteboard_lib_guard.cpp",
     "core/src/pasteboard_pattern.cpp",
