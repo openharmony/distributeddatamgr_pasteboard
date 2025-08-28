@@ -204,7 +204,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         ProcessCallBack listener = [=](uint64_t processSize, uint64_t totalSize) {
             uint32_t percentage = 0;
             if (totalSize != 0) {
-                percentage = static_cast<uint32_t>(PERCENTAGE) * processSize / totalSize;
+                percentage = static_cast<uint32_t>(static_cast<uint32_t>(PERCENTAGE) * processSize / totalSize);
             }
             HandleProgress(recordProcessedIndex, info, percentage, dataParams);
         };
