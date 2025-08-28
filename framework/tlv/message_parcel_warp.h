@@ -31,10 +31,7 @@ public:
 
     bool WriteRawData(MessageParcel &parcelPata, const void *data, size_t size);
     const void *ReadRawData(MessageParcel &parcelData, size_t size);
-    inline int64_t GetRawDataSize()
-    {
-        return maxRawDataSize_;
-    }
+    static int64_t GetRawDataSize();
     int CreateTmpFd();
     int GetWriteDataFd();
     bool MemcpyData(void *ptr, size_t size, const void *data, size_t count);
@@ -48,7 +45,7 @@ private:
     size_t rawDataSize_ = 0;
     bool canWrite_ = true;
     bool canRead_ = true;
-    int64_t maxRawDataSize_ = DEFAULT_MAX_RAW_DATA_SIZE;
+    static inline int64_t maxRawDataSize_ = DEFAULT_MAX_RAW_DATA_SIZE;
 };
 } // namespace MiscServices
 } // namespace OHOS

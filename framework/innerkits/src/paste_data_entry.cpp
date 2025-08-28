@@ -73,7 +73,7 @@ size_t MineCustomData::CountTLV() const
 }
 
 PasteDataEntry::PasteDataEntry(const PasteDataEntry &entry)
-    : utdId_(entry.utdId_), mimeType_(entry.mimeType_), value_(entry.value_)
+    : rawDataSize_(entry.rawDataSize_), utdId_(entry.utdId_), mimeType_(entry.mimeType_), value_(entry.value_)
 {
 }
 
@@ -85,6 +85,7 @@ PasteDataEntry &PasteDataEntry::operator=(const PasteDataEntry &entry)
     this->utdId_ = entry.GetUtdId();
     this->mimeType_ = entry.GetMimeType();
     this->value_ = entry.GetValue();
+    this->rawDataSize_ = entry.rawDataSize_;
     return *this;
 }
 

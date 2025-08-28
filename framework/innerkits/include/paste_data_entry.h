@@ -66,6 +66,8 @@ public:
     bool DecodeTLV(ReadOnlyBuffer &buffer) override;
     size_t CountTLV() const override;
 
+    int64_t rawDataSize_ = 0;
+
 private:
     std::string utdId_;
     std::string mimeType_; // pasteboard mimeType

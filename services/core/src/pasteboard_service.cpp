@@ -39,6 +39,7 @@
 #include "os_account_manager.h"
 #include "parameters.h"
 #include "pasteboard_common.h"
+#include "pasteboard_delay_manager.h"
 #include "pasteboard_dialog.h"
 #include "pasteboard_disposable_manager.h"
 #include "pasteboard_error.h"
@@ -1559,33 +1560,10 @@ int32_t PasteboardService::GetDelayPasteRecord(int32_t userId, PasteData &data)
         static_cast<int32_t>(PasteboardError::NO_DELAY_GETTER), PASTEBOARD_MODULE_SERVICE,
         "entry getter not find, userId=%{public}d, dataId=%{public}u", userId, data.GetDataId());
 
-    for (auto record : data.AllRecords()) {
-        if (!(record->HasEmptyEntry())) {
-            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "record do not has empty value.");
-            continue;
-        }
-        if (!record->IsDelayRecord()) {
-            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "record is not DelayRecord.");
-            continue;
-        }
-        auto entries = record->GetEntries();
-        if (entries.empty()) {
-            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "record size is 0.");
-            continue;
-        }
-        if (!std::holds_alternative<std::monostate>(entries[0]->GetValue())) {
-            continue;
-        }
-        auto result = getter.first->GetRecordValueByType(record->GetRecordId(), *entries[0]);
-        if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
-            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                "get record value fail, dataId is %{public}d, recordId is %{public}d", data.GetDataId(),
-                record->GetRecordId());
-            continue;
-        }
-        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
-        record->AddEntry(entries[0]->GetUtdId(), entries[0]);
-    }
+    auto delayEntryInfos = DelayManager::GetPrimaryDelayEntryInfo(data);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGI(!delayEntryInfos.empty(), static_cast<int32_t>(PasteboardError::E_OK),
+        PASTEBOARD_MODULE_SERVICE, "no delay entry");
+    DelayManager::GetLocalEntryValue(delayEntryInfos, getter.first, data);
     {
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
         PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
@@ -2380,6 +2358,8 @@ int32_t PasteboardService::WritePasteData(
         hasData = pasteData.Decode(buffer);
     }
     CloseSharedMemFd(fd);
+    pasteData.rawDataSize_ = rawDataSize;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "set local data, dataSize=%{public}" PRId64, rawDataSize);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
@@ -3420,6 +3400,8 @@ std::pair<std::shared_ptr<PasteData>, PasteDateResult> PasteboardService::GetDis
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     pasteData->Decode(rawData);
     pasteData->SetOriginAuthority(std::make_pair(pasteData->GetBundleName(), pasteData->GetAppIndex()));
+    pasteData->rawDataSize_ = static_cast<int64_t>(rawData.size());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "set remote data, dataSize=%{public}" PRId64, pasteData->rawDataSize_);
     for (size_t i = 0; i < pasteData->GetRecordCount(); i++) {
         auto item = pasteData->GetRecordAt(i);
         if (item == nullptr || item->GetConvertUri().empty()) {
@@ -3778,7 +3760,15 @@ int32_t PasteboardService::GetLocalEntryValue(int32_t userId, PasteData &data, P
 
     {
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
-        record.AddEntry(utdId, std::make_shared<PasteDataEntry>(value));
+        if (data.rawDataSize_ + value.rawDataSize_ < MessageParcelWarp::GetRawDataSize()) {
+            record.AddEntry(utdId, std::make_shared<PasteDataEntry>(value));
+            data.rawDataSize_ += value.rawDataSize_;
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add entry, dataSize=%{public}" PRId64
+                ", entrySize=%{public}" PRId64, data.rawDataSize_, value.rawDataSize_);
+        } else {
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "no space, dataSize=%{public}" PRId64
+                ", entrySize=%{public}" PRId64, data.rawDataSize_, value.rawDataSize_);
+        }
     }
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
@@ -3811,9 +3801,18 @@ int32_t PasteboardService::GetRemoteEntryValue(const AppInfo &appInfo, PasteData
     PasteDataEntry tmpEntry;
     tmpEntry.Decode(rawData);
     entry.SetValue(tmpEntry.GetValue());
+    entry.rawDataSize_ = static_cast<int64_t>(rawData.size());
     {
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
-        record.AddEntry(utdId, std::make_shared<PasteDataEntry>(entry));
+        if (data.rawDataSize_ + entry.rawDataSize_ < MessageParcelWarp::GetRawDataSize()) {
+            record.AddEntry(utdId, std::make_shared<PasteDataEntry>(entry));
+            data.rawDataSize_ += entry.rawDataSize_;
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add entry, dataSize=%{public}" PRId64
+                ", entrySize=%{public}" PRId64, data.rawDataSize_, entry.rawDataSize_);
+        } else {
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "no space, dataSize=%{public}" PRId64
+                ", entrySize=%{public}" PRId64, data.rawDataSize_, entry.rawDataSize_);
+        }
     }
 
     if (mimeType != MIMETYPE_TEXT_URI) {
@@ -3865,9 +3864,18 @@ int32_t PasteboardService::ProcessRemoteDelayHtml(const std::string &remoteDevic
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(htmlEntry != nullptr,
         static_cast<int32_t>(PasteboardError::GET_ENTRY_VALUE_FAILED), PASTEBOARD_MODULE_SERVICE, "htmlEntry is null");
     entry.SetValue(htmlEntry->GetValue());
+    entry.rawDataSize_ = static_cast<int64_t>(rawData.size());
     {
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
-        record.AddEntry(entry.GetUtdId(), std::make_shared<PasteDataEntry>(entry));
+        if (data.rawDataSize_ + entry.rawDataSize_ < MessageParcelWarp::GetRawDataSize()) {
+            record.AddEntry(entry.GetUtdId(), std::make_shared<PasteDataEntry>(entry));
+            data.rawDataSize_ += entry.rawDataSize_;
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "add entry, dataSize=%{public}" PRId64
+                ", entrySize=%{public}" PRId64, data.rawDataSize_, entry.rawDataSize_);
+        } else {
+            PASTEBOARD_HILOGW(PASTEBOARD_MODULE_SERVICE, "no space, dataSize=%{public}" PRId64
+                ", entrySize=%{public}" PRId64, data.rawDataSize_, entry.rawDataSize_);
+        }
     }
 
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(htmlRecord->GetFrom() != 0, static_cast<int32_t>(PasteboardError::E_OK),
@@ -3927,29 +3935,10 @@ int32_t PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data
         static_cast<int32_t>(PasteboardError::NO_DELAY_GETTER), PASTEBOARD_MODULE_SERVICE,
         "entry getter not find, userId=%{public}d, dataId=%{public}u", userId, data.GetDataId());
 
-    for (auto record : data.AllRecords()) {
-        if (!record->IsDelayRecord()) {
-            continue;
-        }
-        auto recordId = record->GetRecordId();
-        auto mimeType = record->GetMimeType();
-        for (auto entry : record->GetEntries()) {
-            if (!std::holds_alternative<std::monostate>(entry->GetValue())) {
-                continue;
-            }
-            auto result = getter.first->GetRecordValueByType(recordId, *entry);
-            if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
-                PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE,
-                    "get record value fail, dataId is %{public}d, recordId is %{public}d, mimeType is %{public}s",
-                    data.GetDataId(), record->GetRecordId(), entry->GetMimeType().c_str());
-                continue;
-            }
-            if (entry->GetMimeType() == mimeType) {
-                std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
-                record->AddEntry(entry->GetUtdId(), std::make_shared<PasteDataEntry>(*entry));
-            }
-        }
-    }
+    auto delayEntryInfos = DelayManager::GetAllDelayEntryInfo(data);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGI(!delayEntryInfos.empty(), static_cast<int32_t>(PasteboardError::E_OK),
+        PASTEBOARD_MODULE_SERVICE, "no delay entry");
+    DelayManager::GetLocalEntryValue(delayEntryInfos, getter.first, data);
     {
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
         PasteboardWebController::GetInstance().SplitWebviewPasteData(data);

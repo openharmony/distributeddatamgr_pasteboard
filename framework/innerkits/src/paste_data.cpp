@@ -71,9 +71,9 @@ PasteData::PasteData()
 PasteData::~PasteData() {}
 
 PasteData::PasteData(const PasteData &data)
-    : valid_(data.valid_), isDraggedData_(data.isDraggedData_), isLocalPaste_(data.isLocalPaste_),
-      isDelayData_(data.isDelayData_), isDelayRecord_(data.isDelayRecord_), dataId_(data.dataId_),
-      recordId_(data.recordId_), originAuthority_(data.originAuthority_), pasteId_(data.pasteId_)
+    : rawDataSize_(data.rawDataSize_), valid_(data.valid_), isDraggedData_(data.isDraggedData_),
+      isLocalPaste_(data.isLocalPaste_), isDelayData_(data.isDelayData_), isDelayRecord_(data.isDelayRecord_),
+      dataId_(data.dataId_), recordId_(data.recordId_), originAuthority_(data.originAuthority_), pasteId_(data.pasteId_)
 {
     this->props_ = data.props_;
     for (const auto &item : data.records_) {
@@ -113,6 +113,7 @@ PasteData &PasteData::operator=(const PasteData &data)
         this->records_.emplace_back(std::make_shared<PasteDataRecord>(*item));
     }
     this->recordId_ = data.GetRecordId();
+    this->rawDataSize_ = data.rawDataSize_;
     return *this;
 }
 

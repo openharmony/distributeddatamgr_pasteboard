@@ -14,6 +14,7 @@
  */
 
 #include "pasteboard_disposable_manager.h"
+
 #include <thread>
 
 #include "ffrt/ffrt_utils.h"
@@ -97,7 +98,11 @@ bool DisposableManager::TryProcessDisposableData(const std::string &bundleName, 
 
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!matchedInfoList.empty(), false, PASTEBOARD_MODULE_SERVICE,
         "no matched disposable observer, bundleName=%{public}s", bundleName.c_str());
-    ProcessMatchedInfo(matchedInfoList, pasteData, delayGetter, entryGetter);
+    std::thread thread([=, data = std::make_shared<PasteData>(pasteData)]() {
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(data != nullptr, PASTEBOARD_MODULE_SERVICE, "data is null");
+        ProcessMatchedInfo(matchedInfoList, *data, delayGetter, entryGetter);
+    });
+    thread.detach();
     return true;
 }
 
