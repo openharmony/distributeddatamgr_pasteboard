@@ -204,7 +204,7 @@ int32_t PasteBoardCopyFile::CopyFileData(PasteData &pasteData, std::shared_ptr<G
         ProcessCallBack listener = [=](uint64_t processSize, uint64_t totalSize) {
             uint32_t percentage = 0;
             if (totalSize != 0) {
-                percentage = static_cast<uint32_t>((PERCENTAGE * processSize) / totalSize);
+                percentage = static_cast<uint32_t>(static_cast<uint32_t>(PERCENTAGE) * processSize / totalSize);
             }
             HandleProgress(recordProcessedIndex, info, percentage, dataParams);
         };
@@ -257,8 +257,8 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const CopyInfo &info, uin
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "invalid parameter");
         return;
     }
-    uint32_t recordSize = recordSize_.load();
-    if (recordSize == 0) {
+    int32_t recordSize = static_cast<int32_t>(recordSize_.load());
+    if (recordSize <= 0) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "no record");
         return;
     }
@@ -276,7 +276,7 @@ void PasteBoardCopyFile::HandleProgress(int32_t index, const CopyInfo &info, uin
         return;
     }
 
-    int32_t totalProgress = static_cast<int32_t>(((index - 1) * PERCENTAGE + percentage) / recordSize);
+    int32_t totalProgress = ((index - 1) * PERCENTAGE + static_cast<int32_t>(percentage)) / recordSize;
     dataParams->info->percentage = totalProgress;
 
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_CLIENT, "process record index:%{public}d/%{public}d, progress=%{public}d",
