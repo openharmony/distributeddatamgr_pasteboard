@@ -76,6 +76,7 @@ public:
     std::size_t GetRecordCount() const;
     bool RemoveRecordAt(std::size_t number);
     bool ReplaceRecordAt(std::size_t number, std::shared_ptr<PasteDataRecord> record);
+    void RemoveEmptyEntry();
     bool HasMimeType(const std::string &mimeType);
     PasteDataProperty GetProperty() const;
     void SetProperty(const PasteDataProperty &property);

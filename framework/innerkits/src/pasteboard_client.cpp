@@ -1159,6 +1159,15 @@ void PasteboardClient::ShowProgress(const std::string &progressKey)
     proxyService->ShowProgress(progressKey, callback);
 }
 
+int32_t PasteboardClient::SyncDelayedData()
+{
+    auto proxyService = GetPasteboardService();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(proxyService != nullptr,
+        static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is nullptr");
+    return proxyService->SyncDelayedData();
+}
+
 std::string PasteboardClient::GetPasteDataInfoSummary(const PasteData &pasteData)
 {
     // Deal with pasteData info

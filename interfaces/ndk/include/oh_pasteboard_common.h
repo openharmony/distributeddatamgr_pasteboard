@@ -24,7 +24,8 @@ namespace OHOS {
 namespace MiscServices {
 static constexpr uint32_t MAX_MIMETYPES_NUM = 10000;
 
-const std::map<PasteboardError, PASTEBOARD_ErrCode> errCodeMap = {
+const std::unordered_map<PasteboardError, PASTEBOARD_ErrCode> errCodeMap = {
+    { PasteboardError::E_OK, PASTEBOARD_ErrCode::ERR_OK },
     { PasteboardError::PERMISSION_VERIFICATION_ERROR, ERR_PERMISSION_ERROR },
     { PasteboardError::INVALID_PARAM_ERROR, ERR_INVALID_PARAMETER },
     { PasteboardError::TASK_PROCESSING, ERR_BUSY },

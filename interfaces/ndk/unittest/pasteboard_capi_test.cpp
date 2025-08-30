@@ -16,6 +16,7 @@
 #define LOG_TAG "PasteboardCapiTest"
 
 #include <gtest/gtest.h>
+#include <thread>
 #include <unistd.h>
 
 #include "token_setproc.h"
@@ -1928,6 +1929,108 @@ HWTEST_F(PasteboardCapiTest, OH_Pasteboard_GetDataTest008, TestSize.Level2)
 
     OH_UdmfData* res2 = OH_Pasteboard_GetData(nullptr, &status);
     EXPECT_EQ(res2, nullptr);
+}
+
+static int g_asyncErrCode = 0;
+
+static void AsyncCallback(int errCode)
+{
+    g_asyncErrCode = errCode;
+}
+
+/**
+ * @tc.name: OH_Pasteboard_SyncDelayedDataAsyncTest001
+ * @tc.desc: should do nothing when param is null
+             should callback INNER_ERROR when sync delayed data without set delayed data
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_SyncDelayedDataAsyncTest001, TestSize.Level2)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+
+    OH_Pasteboard_SyncDelayedDataAsync(nullptr, nullptr);
+    OH_Pasteboard_SyncDelayedDataAsync(pasteboard, nullptr);
+
+    g_asyncErrCode = -1;
+    OH_Pasteboard_SyncDelayedDataAsync(pasteboard, AsyncCallback);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    EXPECT_EQ(g_asyncErrCode, ERR_INNER_ERROR);
+
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_SyncDelayedDataAsyncTest002
+ * @tc.desc: should has empty entry when set delayed data without sync delayed data
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_SyncDelayedDataAsyncTest002, TestSize.Level2)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    OH_UdmfRecordProvider* provider = OH_UdmfRecordProvider_Create();
+    OH_UdmfRecordProvider_SetData(provider, nullptr, GetDataCallback, ContextFinalizeFunc);
+    const char* types[] = { "general.plain-text", "general.hyperlink", "general.html" };
+    OH_UdmfRecord_SetProvider(record, types, sizeof(types) / sizeof(types[0]), provider);
+    OH_UdmfData_AddRecord(setData, record);
+    int ret = OH_Pasteboard_SetData(pasteboard, setData);
+    EXPECT_EQ(ret, ERR_OK);
+
+    PasteData getData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(getData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    auto records = getData.AllRecords();
+    ASSERT_EQ(records.size(), 1);
+    ASSERT_NE(records[0], nullptr);
+    EXPECT_TRUE(records[0]->HasEmptyEntry());
+
+    OH_UdmfRecordProvider_Destroy(provider);
+    OH_UdmfRecord_Destroy(record);
+    OH_UdmfData_Destroy(setData);
+    OH_Pasteboard_Destroy(pasteboard);
+}
+
+/**
+ * @tc.name: OH_Pasteboard_SyncDelayedDataAsyncTest003
+ * @tc.desc: should not has empty entry when set delayed data without sync delayed data
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardCapiTest, OH_Pasteboard_SyncDelayedDataAsyncTest003, TestSize.Level2)
+{
+    OH_Pasteboard* pasteboard = OH_Pasteboard_Create();
+    OH_UdmfData* setData = OH_UdmfData_Create();
+    OH_UdmfRecord* record = OH_UdmfRecord_Create();
+    OH_UdmfRecordProvider* provider = OH_UdmfRecordProvider_Create();
+    OH_UdmfRecordProvider_SetData(provider, nullptr, GetDataCallback, ContextFinalizeFunc);
+    const char* types[] = { "general.plain-text", "general.hyperlink", "general.html", "customType" };
+    OH_UdmfRecord_SetProvider(record, types, sizeof(types) / sizeof(types[0]), provider);
+    OH_UdmfData_AddRecord(setData, record);
+    int ret = OH_Pasteboard_SetData(pasteboard, setData);
+    EXPECT_EQ(ret, ERR_OK);
+
+    bool exist = PasteboardClient::GetInstance()->HasDataType("customType");
+    EXPECT_TRUE(exist);
+
+    g_asyncErrCode = -1;
+    OH_Pasteboard_SyncDelayedDataAsync(pasteboard, AsyncCallback);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    EXPECT_EQ(g_asyncErrCode, ERR_OK);
+
+    PasteData getData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(getData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    auto records = getData.AllRecords();
+    ASSERT_EQ(records.size(), 1);
+    ASSERT_NE(records[0], nullptr);
+    EXPECT_FALSE(records[0]->HasEmptyEntry());
+    exist = PasteboardClient::GetInstance()->HasDataType("customType");
+    EXPECT_FALSE(exist);
+
+    OH_UdmfRecordProvider_Destroy(provider);
+    OH_UdmfRecord_Destroy(record);
+    OH_UdmfData_Destroy(setData);
+    OH_Pasteboard_Destroy(pasteboard);
 }
 } // namespace Test
 } // namespace OHOS

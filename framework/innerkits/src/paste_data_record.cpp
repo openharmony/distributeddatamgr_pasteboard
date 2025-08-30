@@ -855,6 +855,23 @@ bool PasteDataRecord::HasEmptyEntry() const
     return false;
 }
 
+uint32_t PasteDataRecord::RemoveEmptyEntry()
+{
+    uint32_t removeCnt = 0;
+    for (auto iter = entries_.begin(); iter != entries_.end();) {
+        auto entry = *iter;
+        if (entry == nullptr || std::holds_alternative<std::monostate>(entry->GetValue())) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "recordId=%{public}u, type=%{public}s",
+                GetRecordId(), entry->GetUtdId().c_str());
+            iter = entries_.erase(iter);
+            ++removeCnt;
+        } else {
+            ++iter;
+        }
+    }
+    return removeCnt;
+}
+
 std::set<std::string> PasteDataRecord::GetUdtTypes() const
 {
     std::set<std::string> types;

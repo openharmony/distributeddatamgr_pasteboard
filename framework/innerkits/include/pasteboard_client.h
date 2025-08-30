@@ -503,6 +503,13 @@ public:
      */
     void ReleaseSaListener();
 
+    /**
+     * SyncDelayedDataAsync
+     * @description Notifies the system pasteboard to synchronize all time-lapse paste data from application.
+     * @returns int32_t
+     */
+    int32_t SyncDelayedData();
+
 protected:
     friend class PasteboardSaMgrListener;
     void Resubscribe();
