@@ -58,6 +58,7 @@ const char *REMOTE_FILE_SIZE = "remoteFileSize";
 const char *REMOTE_FILE_SIZE_LONG = "remoteFileSizeLong";
 constexpr int32_t SUB_PASTEID_NUM = 3;
 constexpr int32_t PASTEID_MAX_SIZE = 1024;
+constexpr int32_t PARCEL_MAX_CAPACITY = 500 * 1024;
 
 PasteData::PasteData()
 {
@@ -631,6 +632,7 @@ bool PasteData::Marshalling(Parcel &parcel) const
     bool ret = Encode(pasteDataTlv);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "encode failed");
 
+    parcel.SetMaxCapacity(PARCEL_MAX_CAPACITY);
     ret = parcel.WriteUInt8Vector(pasteDataTlv);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, false, PASTEBOARD_MODULE_COMMON, "write vector failed");
     return true;
