@@ -63,6 +63,8 @@ namespace {
         R"(<!DOCTYPE html><html lang="en"><head><title>S</title></head><body><h1>H</h1></body></html>)";
     const char *MIMETYPE_TEXT_HTML = "text/html";
     const std::u16string RANDOM_U16STRING = u"TEST_string_111";
+    const std::string UTDID_PLAIN_TEXT = "general.plain-text";
+    const std::string UTDID_PIXEL_MAP = "openharmony.pixel-map";
     using TestEvent = ClipPlugin::GlobalEvent;
 }
 
@@ -3452,5 +3454,68 @@ HWTEST_F(PasteboardServiceTest, ResubscribeObserver002, TestSize.Level0)
     EXPECT_EQ(res, ERR_OK);
 }
 
+class EntryGetterImpl : public IPasteboardEntryGetter {
+public:
+    int32_t GetRecordValueByType(uint32_t recordId, PasteDataEntry &entry) override
+    {
+        (void)recordId;
+        (void)entry;
+        return static_cast<int32_t>(PasteboardError::E_OK);
+    }
+
+    sptr<IRemoteObject> AsObject() override
+    {
+        return nullptr;
+    }
+};
+
+/**
+ * @tc.name: SyncDelayedData001
+ * @tc.desc: should return NO_DATA when not set paste data
+ *           should return INVALID_TOKEN_ID when paste data tokenId mismatch
+ *           should return NO_DELAY_GETTER when entry getter not find
+ *           else should return ERR_OK and remove empty entry
+ */
+HWTEST_F(PasteboardServiceTest, SyncDelayedData001, TestSize.Level0)
+{
+    g_accountIds = true;
+    uint32_t tokenId = 1;
+    int32_t userId = ACCOUNT_IDS_RANDOM;
+    NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetTokenTypeFlag).WillRepeatedly(Return(ATokenTypeEnum::TOKEN_NATIVE));
+    EXPECT_CALL(mock, GetCallingTokenID).WillRepeatedly(Return(tokenId));
+    EXPECT_CALL(mock, QueryActiveOsAccountIds).WillRepeatedly(Return(ERR_OK));
+
+    auto pbs = std::make_shared<PasteboardService>();
+    int32_t ret = pbs->SyncDelayedData();
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
+
+    auto setData = std::make_shared<PasteData>();
+    auto record = std::make_shared<PasteDataRecord>();
+    auto entryText = std::make_shared<PasteDataEntry>(UTDID_PLAIN_TEXT, "plain text");
+    auto entryPixelMap = std::make_shared<PasteDataEntry>();
+    entryPixelMap->SetUtdId(UTDID_PIXEL_MAP);
+    record->SetDelayRecordFlag(true);
+    record->AddEntry(UTDID_PLAIN_TEXT, entryText);
+    record->AddEntry(UTDID_PIXEL_MAP, entryPixelMap);
+    setData->AddRecord(record);
+    setData->SetTokenId(tokenId + 1);
+    pbs->clips_.InsertOrAssign(userId, setData);
+    ret = pbs->SyncDelayedData();
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_TOKEN_ID));
+
+    setData->SetTokenId(tokenId);
+    ret = pbs->SyncDelayedData();
+    EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_DELAY_GETTER));
+
+    sptr<IPasteboardEntryGetter> entryGetter = sptr<EntryGetterImpl>::MakeSptr();
+    pbs->entryGetters_.InsertOrAssign(userId, std::make_pair(entryGetter, nullptr));
+    ret = pbs->SyncDelayedData();
+    EXPECT_EQ(ret, ERR_OK);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    EXPECT_FALSE(record->HasEmptyEntry());
+    EXPECT_EQ(setData->GetMimeTypes().size(), 1);
+    EXPECT_STREQ(setData->GetMimeTypes()[0].c_str(), MIMETYPE_TEXT_PLAIN);
+}
 }
 } // namespace OHOS::MiscServices

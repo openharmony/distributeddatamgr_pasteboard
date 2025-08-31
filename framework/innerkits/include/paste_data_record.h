@@ -101,6 +101,7 @@ public:
     void SetUDType(int32_t type);
 
     bool HasEmptyEntry() const;
+    uint32_t RemoveEmptyEntry();
     void AddEntry(const std::string &utdType, std::shared_ptr<PasteDataEntry> value);
     void AddEntryByMimeType(const std::string &mimeType, std::shared_ptr<PasteDataEntry> value);
     std::shared_ptr<PasteDataEntry> GetEntry(const std::string &utdType);

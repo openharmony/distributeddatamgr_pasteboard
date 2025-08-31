@@ -35,6 +35,7 @@ const std::vector<IPasteboardServiceIpcCode> CODE_LIST = {
     IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_DELAY_DATA,
     IPasteboardServiceIpcCode::COMMAND_SET_PASTE_DATA_ENTRY_DATA,
     IPasteboardServiceIpcCode::COMMAND_CLEAR,
+    IPasteboardServiceIpcCode::COMMAND_SYNC_DELAYED_DATA,
     IPasteboardServiceIpcCode::COMMAND_SUBSCRIBE_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_RESUBSCRIBE_OBSERVER,
     IPasteboardServiceIpcCode::COMMAND_UNSUBSCRIBE_OBSERVER,
@@ -272,6 +273,11 @@ public:
     {
         (void)deviceId;
         (void)pasteId;
+        return 0;
+    }
+
+    int32_t SyncDelayedData() override
+    {
         return 0;
     }
 

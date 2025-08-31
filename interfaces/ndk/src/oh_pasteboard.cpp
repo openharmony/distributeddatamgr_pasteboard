@@ -15,6 +15,8 @@
 
 #define LOG_TAG "Pasteboard_Capi"
 
+#include <thread>
+
 #include "oh_pasteboard_observer_impl.h"
 #include "pasteboard_client.h"
 #include "pasteboard_hilog.h"
@@ -423,4 +425,29 @@ int OH_Pasteboard_ClearData(OH_Pasteboard *pasteboard)
     }
     PasteboardClient::GetInstance()->Clear();
     return ERR_OK;
-} // namespace OHOS
+}
+
+void OH_Pasteboard_SyncDelayedDataAsync(OH_Pasteboard* pasteboard, void (*callback)(int errorCode))
+{
+    if (!IsPasteboardValid(pasteboard)) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "invalid pasteboard");
+        return;
+    }
+
+    if (callback == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "callback is null");
+        return;
+    }
+
+    std::thread thread([callback] {
+        int32_t ret = PasteboardClient::GetInstance()->SyncDelayedData();
+        int errCode = ERR_OK;
+        if (ret != ERR_OK) {
+            PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CAPI, "sync failed, ret=%{public}d", ret);
+            errCode = GetMappedCode(ret);
+        }
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(callback != nullptr, PASTEBOARD_MODULE_CAPI, "callback is null");
+        callback(errCode);
+    });
+    thread.detach();
+}

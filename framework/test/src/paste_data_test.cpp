@@ -1533,4 +1533,32 @@ HWTEST_F(PasteDataTest, IsValidPasteIdTest004, TestSize.Level0)
     auto isValid = PasteData::IsValidPasteId(pasteId);
     EXPECT_TRUE(isValid);
 }
+
+/**
+ * @tc.name: RemoveEmptyEntryTest001
+ * @tc.desc: should remove empty entry if empty entry exist
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, RemoveEmptyEntryTest001, TestSize.Level0)
+{
+    PasteData data;
+    auto record = std::make_shared<PasteDataRecord>();
+    auto entryText = std::make_shared<PasteDataEntry>("general.plain-text", "plain text");
+    auto entryPixelMap = std::make_shared<PasteDataEntry>();
+    entryPixelMap->SetUtdId("openharmony.pixel-map");
+    record->SetDelayRecordFlag(true);
+    record->AddEntry("general.plain-text", entryText);
+    record->AddEntry("openharmony.pixel-map", entryPixelMap);
+    data.AddRecord(record);
+    EXPECT_TRUE(record->HasEmptyEntry());
+    auto mimeTypes = data.GetMimeTypes();
+    EXPECT_EQ(mimeTypes.size(), 2);
+
+    data.RemoveEmptyEntry();
+    EXPECT_FALSE(record->HasEmptyEntry());
+
+    mimeTypes = data.GetMimeTypes();
+    ASSERT_EQ(mimeTypes.size(), 1);
+    EXPECT_STREQ(mimeTypes[0].c_str(), MIMETYPE_TEXT_PLAIN);
+}
 } // namespace OHOS::MiscServices

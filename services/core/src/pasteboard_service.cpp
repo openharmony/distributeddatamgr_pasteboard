@@ -3958,6 +3958,36 @@ int32_t PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
 
+int32_t PasteboardService::SyncDelayedData()
+{
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    auto appInfo = GetAppInfo(tokenId);
+    auto [hasData, data] = clips_.Find(appInfo.userId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(hasData && data, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "data not find, userId=%{public}u", appInfo.userId);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(tokenId == data->GetTokenId(),
+        static_cast<int32_t>(PasteboardError::INVALID_TOKEN_ID), PASTEBOARD_MODULE_SERVICE,
+        "tokenId=%{public}u mismatch, local=%{public}u", tokenId, data->GetTokenId());
+
+    int32_t ret = GetFullDelayPasteData(appInfo.userId, *data);
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
+        PASTEBOARD_MODULE_SERVICE, "get full delay failed, ret=%{public}d", ret);
+
+    std::thread thread([=, userId = appInfo.userId, data = data] {
+        std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
+        PASTEBOARD_CHECK_AND_RETURN_LOGE(data != nullptr, PASTEBOARD_MODULE_SERVICE, "sync delayed data is null");
+        data->RemoveEmptyEntry();
+        clips_.ComputeIfPresent(userId, [=](auto, auto &value) {
+            if (data->GetDataId() == value->GetDataId()) {
+                value = std::move(data);
+            }
+            return true;
+        });
+    });
+    thread.detach();
+    return ERR_OK;
+}
+
 void PasteboardService::GenerateDistributedUri(PasteData &data)
 {
     std::vector<std::string> uris;

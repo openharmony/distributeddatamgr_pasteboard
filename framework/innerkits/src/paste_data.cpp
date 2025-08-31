@@ -346,6 +346,16 @@ void PasteData::SetTokenId(uint32_t tokenId)
     props_.tokenId = tokenId;
 }
 
+void PasteData::RemoveEmptyEntry()
+{
+    for (auto &record : records_) {
+        if (record != nullptr) {
+            record->RemoveEmptyEntry();
+        }
+    }
+    RefreshMimeProp();
+}
+
 bool PasteData::RemoveRecordAt(std::size_t number)
 {
     if (records_.size() > number) {
