@@ -16,7 +16,8 @@
 #include <fcntl.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <variant>
+#include <thread>
+
 #include "accesstoken_kit.h"
 #include "default_clip.h"
 #include "dev_profile.h"
