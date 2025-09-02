@@ -54,11 +54,11 @@
         },
         {
             "name":"pasteboard_title",
-            "value":"الحافظة عبر الأجهزة"
+            "value":"حافظة الأجهزة"
         },
         {
             "name":"prompttext_pasteboard_remote",
-            "value":"جارٍ اللصق من «\u202a%s\u202c»..."
+            "value":"جارٍ لصق المحتوى من \"\u202a%s\u202c\"…"
         },
         {
             "name":"prompttext_udmf_move",
