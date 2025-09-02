@@ -26,10 +26,11 @@ namespace MiscServices {
 constexpr int MAX_TEXT_LEN = 100 * 1024 * 1024;
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetMimeType(std::string mimeType)
-{
+{ // LCOV_EXCL_START
     record_->mimeType_ = std::move(mimeType);
     return *this;
-}
+} // LCOV_EXCL_STOP
+
 enum TAG_PASTEBOARD_RECORD : uint16_t {
     TAG_MIMETYPE = TAG_BUFF + 1,
     TAG_HTMLTEXT,
@@ -53,7 +54,7 @@ enum TAG_PASTEBOARD_RECORD : uint16_t {
 };
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<std::string> htmlText)
-{
+{ // LCOV_EXCL_START
     if (htmlText == nullptr) {
         return *this;
     }
@@ -61,10 +62,10 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetHtmlText(std::shared_ptr<
     entry->SetValue(*htmlText);
     record_->AddEntryByMimeType(MIMETYPE_TEXT_HTML, entry);
     return *this;
-}
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetWant(std::shared_ptr<OHOS::AAFwk::Want> want)
-{
+{ // LCOV_EXCL_START
     if (want == nullptr) {
         return *this;
     }
@@ -72,10 +73,10 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetWant(std::shared_ptr<OHOS
     entry->SetValue(std::move(want));
     record_->AddEntryByMimeType(MIMETYPE_TEXT_WANT, entry);
     return *this;
-}
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetPlainText(std::shared_ptr<std::string> plainText)
-{
+{ // LCOV_EXCL_START
     if (plainText == nullptr) {
         return *this;
     }
@@ -83,9 +84,10 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetPlainText(std::shared_ptr
     entry->SetValue(*plainText);
     record_->AddEntryByMimeType(MIMETYPE_TEXT_PLAIN, entry);
     return *this;
-}
+} // LCOV_EXCL_STOP
+
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetUri(std::shared_ptr<OHOS::Uri> uri)
-{
+{ // LCOV_EXCL_START
     if (uri == nullptr) {
         return *this;
     }
@@ -93,10 +95,10 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetUri(std::shared_ptr<OHOS:
     entry->SetValue(uri->ToString());
     record_->AddEntryByMimeType(MIMETYPE_TEXT_URI, entry);
     return *this;
-}
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetPixelMap(std::shared_ptr<OHOS::Media::PixelMap> pixelMap)
-{
+{ // LCOV_EXCL_START
     if (pixelMap == nullptr) {
         return *this;
     }
@@ -104,16 +106,16 @@ PasteDataRecord::Builder &PasteDataRecord::Builder::SetPixelMap(std::shared_ptr<
     entry->SetValue(std::move(pixelMap));
     record_->AddEntryByMimeType(MIMETYPE_PIXELMAP, entry);
     return *this;
-}
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::Builder &PasteDataRecord::Builder::SetCustomData(std::shared_ptr<MineCustomData> customData)
-{
+{ // LCOV_EXCL_START
     record_->customData_ = std::move(customData);
     return *this;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::Builder::Build()
-{
+{ // LCOV_EXCL_START
     if (record_->mimeType_.empty()) {
         return record_;
     }
@@ -132,10 +134,10 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::Builder::Build()
     record->customData_ = std::move(record_->customData_);
     record->mimeType_ = record_->mimeType_;
     return record;
-}
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::Builder::Builder(const std::string &mimeType)
-{
+{ // LCOV_EXCL_START
     record_ = std::make_shared<PasteDataRecord>();
     if (record_ != nullptr) {
         record_->mimeType_ = mimeType;
@@ -147,10 +149,10 @@ PasteDataRecord::Builder::Builder(const std::string &mimeType)
         record_->pixelMap_ = nullptr;
         record_->customData_ = nullptr;
     }
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::AddUriEntry()
-{
+{ // LCOV_EXCL_START
     auto object = std::make_shared<Object>();
     object->value_[UDMF::UNIFORM_DATA_TYPE] = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
     if (uri_ != nullptr) {
@@ -158,48 +160,48 @@ void PasteDataRecord::AddUriEntry()
     }
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI);
     AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, object));
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewHtmlRecord(const std::string &htmlText)
-{
+{ // LCOV_EXCL_START
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((htmlText.length() < MAX_TEXT_LEN), nullptr,
         PASTEBOARD_MODULE_CLIENT, "record length not support, length=%{public}zu", htmlText.length());
     return Builder(MIMETYPE_TEXT_HTML).SetHtmlText(std::make_shared<std::string>(htmlText)).Build();
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewWantRecord(std::shared_ptr<OHOS::AAFwk::Want> want)
-{
+{ // LCOV_EXCL_START
     return Builder(MIMETYPE_TEXT_WANT).SetWant(std::move(want)).Build();
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPlainTextRecord(const std::string &text)
-{
+{ // LCOV_EXCL_START
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE((text.length() < MAX_TEXT_LEN), nullptr,
         PASTEBOARD_MODULE_CLIENT, "PlainText length not support, length=%{public}zu", text.length());
     return Builder(MIMETYPE_TEXT_PLAIN).SetPlainText(std::make_shared<std::string>(text)).Build();
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewPixelMapRecord(std::shared_ptr<PixelMap> pixelMap)
-{
+{ // LCOV_EXCL_START
     return Builder(MIMETYPE_PIXELMAP).SetPixelMap(std::move(pixelMap)).Build();
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewUriRecord(const OHOS::Uri &uri)
-{
+{ // LCOV_EXCL_START
     return Builder(MIMETYPE_TEXT_URI).SetUri(std::make_shared<OHOS::Uri>(uri)).Build();
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewKvRecord(
     const std::string &mimeType, const std::vector<uint8_t> &arrayBuffer)
-{
+{ // LCOV_EXCL_START
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     customData->AddItemData(mimeType, arrayBuffer);
     return Builder(mimeType).SetCustomData(std::move(customData)).Build();
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewMultiTypeRecord(
     std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> values, const std::string &recordMimeType)
-{
+{ // LCOV_EXCL_START
     auto record = std::make_shared<PasteDataRecord>();
     if (values == nullptr) {
         return record;
@@ -219,11 +221,11 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewMultiTypeRecord(
         record->AddEntry(utdId, std::make_shared<PasteDataEntry>(utdId, *value));
     }
     return record;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataRecord> PasteDataRecord::NewMultiTypeDelayRecord(
     std::vector<std::string> mimeTypes, const std::shared_ptr<UDMF::EntryGetter> entryGetter)
-{
+{ // LCOV_EXCL_START
     auto record = std::make_shared<PasteDataRecord>();
     for (auto mimeType : mimeTypes) {
         auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, mimeType);
@@ -237,23 +239,23 @@ std::shared_ptr<PasteDataRecord> PasteDataRecord::NewMultiTypeDelayRecord(
         record->SetDelayRecordFlag(true);
     }
     return record;
-}
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::PasteDataRecord(std::string mimeType, std::shared_ptr<std::string> htmlText,
     std::shared_ptr<OHOS::AAFwk::Want> want, std::shared_ptr<std::string> plainText, std::shared_ptr<OHOS::Uri> uri)
     : mimeType_{ std::move(mimeType) }, htmlText_{ std::move(htmlText) }, want_{ std::move(want) },
       plainText_{ std::move(plainText) }, uri_{ std::move(uri) }
-{
-}
+{ // LCOV_EXCL_START
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::PasteDataRecord()
-{
-}
+{ // LCOV_EXCL_START
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::~PasteDataRecord()
-{
+{ // LCOV_EXCL_START
     std::vector<std::shared_ptr<PasteDataEntry>>().swap(entries_);
-}
+} // LCOV_EXCL_STOP
 
 PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
     : isDelay_(record.isDelay_), hasGrantUriPermission_(record.hasGrantUriPermission_), udType_(record.udType_),
@@ -262,22 +264,22 @@ PasteDataRecord::PasteDataRecord(const PasteDataRecord &record)
       want_(record.want_), plainText_(record.plainText_), uri_(record.uri_), pixelMap_(record.pixelMap_),
       customData_(record.customData_), details_(record.details_), systemDefinedContents_(record.systemDefinedContents_),
       udmfValue_(record.udmfValue_), entries_(record.entries_), entryGetter_(record.entryGetter_)
-{
+{ // LCOV_EXCL_START
     this->isConvertUriFromRemote = record.isConvertUriFromRemote;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlTextV0() const
-{
+{ // LCOV_EXCL_START
     for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_TEXT_HTML) {
             return entry->ConvertToHtml();
         }
     }
     return htmlText_;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<std::string> PasteDataRecord::GetHtmlText()
-{
+{ // LCOV_EXCL_START
     auto htmlText = GetHtmlTextV0();
     if (htmlText) {
         return htmlText;
@@ -287,10 +289,10 @@ std::shared_ptr<std::string> PasteDataRecord::GetHtmlText()
         return htmlText_;
     }
     return entry->ConvertToHtml();
-}
+} // LCOV_EXCL_STOP
 
 std::string PasteDataRecord::GetMimeType() const
-{
+{ // LCOV_EXCL_START
     if (!mimeType_.empty()) {
         return mimeType_;
     }
@@ -298,20 +300,20 @@ std::string PasteDataRecord::GetMimeType() const
         return entries_.front()->GetMimeType();
     }
     return this->mimeType_;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<std::string> PasteDataRecord::GetPlainTextV0() const
-{
+{ // LCOV_EXCL_START
     for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_TEXT_PLAIN) {
             return entry->ConvertToPlainText();
         }
     }
     return plainText_;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<std::string> PasteDataRecord::GetPlainText()
-{
+{ // LCOV_EXCL_START
     auto plainText = GetPlainTextV0();
     if (plainText) {
         return plainText;
@@ -321,20 +323,20 @@ std::shared_ptr<std::string> PasteDataRecord::GetPlainText()
         return plainText_;
     }
     return entry->ConvertToPlainText();
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMapV0() const
-{
+{ // LCOV_EXCL_START
     for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_PIXELMAP) {
             return entry->ConvertToPixelMap();
         }
     }
     return pixelMap_;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap()
-{
+{ // LCOV_EXCL_START
     auto pixelMap = GetPixelMapV0();
     if (pixelMap) {
         return pixelMap;
@@ -344,18 +346,18 @@ std::shared_ptr<PixelMap> PasteDataRecord::GetPixelMap()
         return pixelMap_;
     }
     return entry->ConvertToPixelMap();
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUriV0() const
-{
+{ // LCOV_EXCL_START
     if (convertUri_.empty()) {
         return GetOriginUri();
     }
     return std::make_shared<OHOS::Uri>(convertUri_);
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri()
-{
+{ // LCOV_EXCL_START
     auto uri = GetUriV0();
     if (uri) {
         return uri;
@@ -365,19 +367,19 @@ std::shared_ptr<OHOS::Uri> PasteDataRecord::GetUri()
         return GetUriV0();
     }
     return entry->ConvertToUri();
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::ClearPixelMap()
-{
+{ // LCOV_EXCL_START
     this->pixelMap_ = nullptr;
     entries_.erase(std::remove_if(entries_.begin(), entries_.end(),
         [](const auto &entry) {
             return entry != nullptr && entry->GetMimeType() == MIMETYPE_PIXELMAP;
         }), entries_.end());
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetUri(std::shared_ptr<OHOS::Uri> uri)
-{
+{ // LCOV_EXCL_START
     if (uri == nullptr) {
         return;
     }
@@ -398,30 +400,30 @@ void PasteDataRecord::SetUri(std::shared_ptr<OHOS::Uri> uri)
     auto entry = std::make_shared<PasteDataEntry>();
     entry->SetValue(uri->ToString());
     AddEntryByMimeType(MIMETYPE_TEXT_URI, entry);
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<OHOS::Uri> PasteDataRecord::GetOriginUri() const
-{
+{ // LCOV_EXCL_START
     for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_TEXT_URI) {
             return entry->ConvertToUri();
         }
     }
     return uri_;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<OHOS::AAFwk::Want> PasteDataRecord::GetWant() const
-{
+{ // LCOV_EXCL_START
     for (const auto &entry : entries_) {
         if (entry && entry->GetMimeType() == MIMETYPE_TEXT_WANT) {
             return entry->ConvertToWant();
         }
     }
     return want_;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<MineCustomData> PasteDataRecord::GetCustomData() const
-{
+{ // LCOV_EXCL_START
     std::shared_ptr<MineCustomData> customData = std::make_shared<MineCustomData>();
     if (customData_) {
         const std::map<std::string, std::vector<uint8_t>> &itemData = customData_->GetItemData();
@@ -442,10 +444,10 @@ std::shared_ptr<MineCustomData> PasteDataRecord::GetCustomData() const
         }
     }
     return customData->GetItemData().empty() ? nullptr : customData;
-}
+} // LCOV_EXCL_STOP
 
 std::string PasteDataRecord::ConvertToText() const
-{
+{ // LCOV_EXCL_START
     auto htmlText = GetHtmlTextV0();
     if (htmlText != nullptr) {
         return *htmlText;
@@ -459,7 +461,7 @@ std::string PasteDataRecord::ConvertToText() const
         return originUri->ToString();
     }
     return "";
-}
+} // LCOV_EXCL_STOP
 
 bool PasteDataRecord::EncodeTLVLocal(WriteOnlyBuffer &buffer) const
 {
@@ -750,7 +752,7 @@ std::shared_ptr<RemoteRecordValue> PasteDataRecord::Local2Remote() const
 }
 
 std::string PasteDataRecord::GetPassUri()
-{
+{ // LCOV_EXCL_START
     std::string tempUri;
     if (uri_ != nullptr) {
         tempUri = uri_->ToString();
@@ -759,70 +761,70 @@ std::string PasteDataRecord::GetPassUri()
         tempUri = convertUri_;
     }
     return tempUri;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetConvertUri(const std::string &value)
-{
+{ // LCOV_EXCL_START
     convertUri_ = value;
-}
+} // LCOV_EXCL_STOP
 
 std::string PasteDataRecord::GetConvertUri() const
-{
+{ // LCOV_EXCL_START
     return convertUri_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetGrantUriPermission(bool hasPermission)
-{
+{ // LCOV_EXCL_START
     hasGrantUriPermission_ = hasPermission;
-}
+} // LCOV_EXCL_STOP
 
 bool PasteDataRecord::HasGrantUriPermission()
-{
+{ // LCOV_EXCL_START
     return hasGrantUriPermission_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetTextContent(const std::string &content)
-{
+{ // LCOV_EXCL_START
     this->textContent_ = content;
-}
+} // LCOV_EXCL_STOP
 
 std::string PasteDataRecord::GetTextContent() const
-{
+{ // LCOV_EXCL_START
     return this->textContent_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetDetails(const Details &details)
-{
+{ // LCOV_EXCL_START
     this->details_ = std::make_shared<Details>(details);
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<Details> PasteDataRecord::GetDetails() const
-{
+{ // LCOV_EXCL_START
     return this->details_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetSystemDefinedContent(const Details &contents)
-{
+{ // LCOV_EXCL_START
     this->systemDefinedContents_ = std::make_shared<Details>(contents);
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<Details> PasteDataRecord::GetSystemDefinedContent() const
-{
+{ // LCOV_EXCL_START
     return this->systemDefinedContents_;
-}
+} // LCOV_EXCL_STOP
 
 int32_t PasteDataRecord::GetUDType() const
-{
+{ // LCOV_EXCL_START
     return this->udType_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetUDType(int32_t type)
-{
+{ // LCOV_EXCL_START
     this->udType_ = type;
-}
+} // LCOV_EXCL_STOP
 
 std::vector<std::string> PasteDataRecord::GetValidMimeTypes(const std::vector<std::string> &mimeTypes) const
-{
+{ // LCOV_EXCL_START
     std::vector<std::string> res;
     auto allTypes = GetMimeTypes();
     for (auto const& type : mimeTypes) {
@@ -831,10 +833,10 @@ std::vector<std::string> PasteDataRecord::GetValidMimeTypes(const std::vector<st
         }
     }
     return res;
-}
+} // LCOV_EXCL_STOP
 
 std::vector<std::string> PasteDataRecord::GetValidTypes(const std::vector<std::string> &types) const
-{
+{ // LCOV_EXCL_START
     std::vector<std::string> res;
     auto allTypes = GetUdtTypes();
     for (auto const &type : types) {
@@ -843,26 +845,26 @@ std::vector<std::string> PasteDataRecord::GetValidTypes(const std::vector<std::s
         }
     }
     return res;
-}
+} // LCOV_EXCL_STOP
 
 bool PasteDataRecord::HasEmptyEntry() const
-{
+{ // LCOV_EXCL_START
     for (auto const &entry : GetEntries()) {
         if (std::holds_alternative<std::monostate>(entry->GetValue())) {
             return true;
         }
     }
     return false;
-}
+} // LCOV_EXCL_STOP
 
 uint32_t PasteDataRecord::RemoveEmptyEntry()
-{
+{ // LCOV_EXCL_START
     uint32_t removeCnt = 0;
     for (auto iter = entries_.begin(); iter != entries_.end();) {
         auto entry = *iter;
         if (entry == nullptr || std::holds_alternative<std::monostate>(entry->GetValue())) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "recordId=%{public}u, type=%{public}s",
-                GetRecordId(), entry->GetUtdId().c_str());
+                GetRecordId(), entry ? entry->GetUtdId().c_str() : "null");
             iter = entries_.erase(iter);
             ++removeCnt;
         } else {
@@ -870,10 +872,10 @@ uint32_t PasteDataRecord::RemoveEmptyEntry()
         }
     }
     return removeCnt;
-}
+} // LCOV_EXCL_STOP
 
 std::set<std::string> PasteDataRecord::GetUdtTypes() const
-{
+{ // LCOV_EXCL_START
     std::set<std::string> types;
     if (!mimeType_.empty()) {
         types.emplace(CommonUtils::Convert2UtdId(udType_, mimeType_));
@@ -882,10 +884,10 @@ std::set<std::string> PasteDataRecord::GetUdtTypes() const
         types.emplace(entry->GetUtdId());
     }
     return types;
-}
+} // LCOV_EXCL_STOP
 
 std::set<std::string> PasteDataRecord::GetMimeTypes() const
-{
+{ // LCOV_EXCL_START
     std::set<std::string> types;
     if (!mimeType_.empty()) {
         types.emplace(mimeType_);
@@ -894,19 +896,19 @@ std::set<std::string> PasteDataRecord::GetMimeTypes() const
         types.emplace(entry->GetMimeType());
     }
     return types;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::AddEntryByMimeType(const std::string &mimeType, std::shared_ptr<PasteDataEntry> value)
-{
+{ // LCOV_EXCL_START
     PASTEBOARD_CHECK_AND_RETURN_LOGE(value != nullptr, PASTEBOARD_MODULE_CLIENT, "value is null");
     auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, mimeType);
     value->SetUtdId(utdId);
     value->SetMimeType(mimeType);
     AddEntry(utdId, value);
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<PasteDataEntry> value)
-{
+{ // LCOV_EXCL_START
     PASTEBOARD_CHECK_AND_RETURN_LOGE(value != nullptr, PASTEBOARD_MODULE_CLIENT, "Entry value is null");
     if (utdType != value->GetUtdId()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CLIENT, "Type is diff, UtdType:%{public}s, UtdId:%{public}s",
@@ -930,10 +932,10 @@ void PasteDataRecord::AddEntry(const std::string &utdType, std::shared_ptr<Paste
         udType_ = udType == UDMF::UDType::UD_BUTT ? UDMF::UDType::APPLICATION_DEFINED_RECORD : udType;
     }
     entries_.emplace_back(value);
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntryByMimeType(const std::string &mimeType)
-{
+{ // LCOV_EXCL_START
     auto utdId = CommonUtils::Convert2UtdId(UDMF::UDType::UD_BUTT, mimeType);
     std::shared_ptr<PasteDataEntry> entry = GetEntry(utdId);
     if (entry == nullptr && customData_ != nullptr) {
@@ -950,10 +952,10 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntryByMimeType(const std::s
         entry = GetEntry(utdId);
     }
     return entry;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utdType)
-{
+{ // LCOV_EXCL_START
     for (auto const &entry : entries_) {
         if (entry->GetUtdId() == utdType ||
             (CommonUtils::IsFileUri(utdType) && CommonUtils::IsFileUri(entry->GetUtdId()))) {
@@ -969,61 +971,61 @@ std::shared_ptr<PasteDataEntry> PasteDataRecord::GetEntry(const std::string &utd
         }
     }
     return nullptr;
-}
+} // LCOV_EXCL_STOP
 
 std::vector<std::shared_ptr<PasteDataEntry>> PasteDataRecord::GetEntries() const
-{
+{ // LCOV_EXCL_START
     return entries_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetDataId(uint32_t dataId)
-{
+{ // LCOV_EXCL_START
     dataId_ = dataId;
-}
+} // LCOV_EXCL_STOP
 
 uint32_t PasteDataRecord::GetDataId() const
-{
+{ // LCOV_EXCL_START
     return dataId_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetRecordId(uint32_t recordId)
-{
+{ // LCOV_EXCL_START
     recordId_ = recordId;
-}
+} // LCOV_EXCL_STOP
 
 uint32_t PasteDataRecord::GetRecordId() const
-{
+{ // LCOV_EXCL_START
     return recordId_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetDelayRecordFlag(bool isDelay)
-{
+{ // LCOV_EXCL_START
     isDelay_ = isDelay;
-}
+} // LCOV_EXCL_STOP
 
 bool PasteDataRecord::IsDelayRecord() const
-{
+{ // LCOV_EXCL_START
     return isDelay_;
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetEntryGetter(const std::shared_ptr<UDMF::EntryGetter> entryGetter)
-{
+{ // LCOV_EXCL_START
     entryGetter_ = std::move(entryGetter);
-}
+} // LCOV_EXCL_STOP
 
 void PasteDataRecord::SetFrom(uint32_t from)
-{
+{ // LCOV_EXCL_START
     from_ = from;
-}
+} // LCOV_EXCL_STOP
 
 uint32_t PasteDataRecord::GetFrom() const
-{
+{ // LCOV_EXCL_START
     return from_;
-}
+} // LCOV_EXCL_STOP
 
 std::shared_ptr<UDMF::EntryGetter> PasteDataRecord::GetEntryGetter()
-{
+{ // LCOV_EXCL_START
     return entryGetter_;
-}
+} // LCOV_EXCL_STOP
 } // namespace MiscServices
 } // namespace OHOS

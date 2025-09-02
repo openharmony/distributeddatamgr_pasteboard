@@ -30,6 +30,12 @@ void TestPasteData(const uint8_t *data, size_t size)
     std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
     pasteData.Decode(buffer);
     pasteData.Encode(buffer, isRemote);
+
+    OHOS::Parcel parcel;
+    parcel.WriteUInt8Vector(buffer);
+    PasteData::Unmarshalling(parcel);
+    PasteData pasteData2;
+    pasteData2.Marshalling(parcel);
 }
 
 void TestPasteDataRecord(const uint8_t *data, size_t size)
@@ -51,6 +57,13 @@ void TestPasteDataEntry(const uint8_t *data, size_t size)
     entry.Decode(buffer);
     entry.Encode(buffer, isRemote);
 }
+
+void TestPasteDataId(const uint8_t *data, size_t size)
+{
+    FuzzedDataProvider fdp(data, size);
+    std::string pasteId = fdp.ConsumeRandomLengthString();
+    PasteData::IsValidPasteId(pasteId);
+}
 } // anonymous namespace
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
@@ -58,5 +71,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     TestPasteData(data, size);
     TestPasteDataRecord(data, size);
     TestPasteDataEntry(data, size);
+    TestPasteDataId(data, size);
     return 0;
 }
