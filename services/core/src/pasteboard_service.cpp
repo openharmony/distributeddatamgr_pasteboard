@@ -1328,6 +1328,14 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
         isPeerOnline = (it != peerNetIds.end());
     }
 
+    auto plugin = GetClipPlugin();
+    bool isNeedPublishState = data.IsRemote() && syncTime != 0 && pasteBlock == nullptr && plugin != nullptr;
+    if (isNeedPublishState) {
+        auto status = plugin->PublishServiceState(peerNetId, ClipPlugin::ServiceStatus::IDLE);
+        if (status != RESULT_OK) {
+            PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state idle error, status:%{public}d", status);
+        }
+    }
     if (result != static_cast<int32_t>(PasteboardError::E_OK)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get local or remote data err:%{public}d", result);
         if (pasteBlock) {
@@ -1597,16 +1605,21 @@ void PasteboardService::OpenP2PLink(const std::string &networkId)
         p2pMap_.Erase(networkId);
         return;
     }
-    auto status = DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
+    int32_t status = plugin->ApplyAdvancedResource(networkId);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(status == RESULT_OK, PASTEBOARD_MODULE_SERVICE,
+        "apply resource failed, deviceId=%{public}.5s, status=%{public}d", networkId.c_str(), status);
+
+    status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(status == RESULT_OK, PASTEBOARD_MODULE_SERVICE,
+        "publish CONNECT_SUCC failed, deviceId=%{public}.5s, status=%{public}d", networkId.c_str(), status);
+
+    status = DistributedFileDaemonManager::GetInstance().OpenP2PConnection(remoteDevice);
     if (status != RESULT_OK) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "open p2p error, status:%{public}d", status);
+        plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::IDLE);
         std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         p2pMap_.Erase(networkId);
         return;
-    }
-    status = plugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
-    if (status != RESULT_OK) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "Publish state connect_succ error, status:%{public}d", status);
     }
 }
 
@@ -1618,7 +1631,8 @@ void PasteboardService::EstablishP2PLink(const std::string &networkId, const std
         std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         p2pMap_.Compute(networkId, [pasteId, callPid](const auto &key, auto &value) {
             value.Compute(pasteId, [callPid](const auto &key, auto &value) {
-                value = callPid;
+                value.callPid = callPid;
+                value.isSuccess = false;
                 return true;
             });
             return true;
@@ -1645,7 +1659,8 @@ std::shared_ptr<BlockObject<int32_t>> PasteboardService::CheckAndReuseP2PLink(
     std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
     p2pMap_.Compute(networkId, [pasteId, callPid](const auto &key, auto &value) {
         value.Compute(pasteId, [callPid](const auto &key, auto &value) {
-            value = callPid;
+            value.callPid = callPid;
+            value.isSuccess = false;
             return true;
         });
         return true;
@@ -1660,7 +1675,9 @@ std::shared_ptr<BlockObject<int32_t>> PasteboardService::CheckAndReuseP2PLink(
         ffrtTimer_->SetTimer(pasteId, task, MIN_TRANMISSION_TIME);
     }
     auto p2pNetwork = p2pMap_.Find(networkId);
-    if (p2pNetwork.first && p2pNetwork.second.Find(P2P_PRESYNC_ID).first) {
+    bool isP2pSuccess = p2pNetwork.first && p2pNetwork.second.Find(P2P_PRESYNC_ID).first &&
+        p2pNetwork.second.Find(P2P_PRESYNC_ID).second.isSuccess == true;
+    if (isP2pSuccess) {
         if (ffrtTimer_) {
             std::string taskName = P2P_PRESYNC_ID + networkId;
             ffrtTimer_->CancelTimer(taskName);
@@ -3163,6 +3180,15 @@ bool PasteboardService::OpenP2PLinkForPreEstablish(const std::string &networkId,
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "open p2p error, status:%{public}d", status);
         return false;
     }
+    std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
+    p2pMap_.Compute(networkId, [](const auto &key, auto &value) {
+        value.Compute(P2P_PRESYNC_ID, [](const auto &key, auto &value) {
+            value.isSuccess = true;
+            PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "preP2pLink isSuccess:%{public}d", value.isSuccess);
+            return true;
+        });
+        return true;
+    });
     if (clipPlugin) {
         status = clipPlugin->PublishServiceState(networkId, ClipPlugin::ServiceStatus::CONNECT_SUCC);
         if (status != RESULT_OK) {
@@ -3187,7 +3213,9 @@ void PasteboardService::PreEstablishP2PLink(const std::string &networkId, ClipPl
             return;
         }
         auto p2pNetwork = p2pMap_.Find(networkId);
-        if (p2pNetwork.first && p2pNetwork.second.Find(P2P_PRESYNC_ID).first) {
+        bool isP2pSuccess = p2pNetwork.first && p2pNetwork.second.Find(P2P_PRESYNC_ID).first &&
+            p2pNetwork.second.Find(P2P_PRESYNC_ID).second.isSuccess == true;
+        if (isP2pSuccess) {
             PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Pre P2pEstablish exist");
             AddPreSyncP2pTimeoutTask(networkId);
             return;
@@ -3199,7 +3227,8 @@ void PasteboardService::PreEstablishP2PLink(const std::string &networkId, ClipPl
         }
         p2pMap_.Compute(networkId, [this](const auto &key, auto &value) {
             value.Compute(P2P_PRESYNC_ID, [](const auto &key, auto &value) {
-                value = 0;
+                value.callPid = 0;
+                value.isSuccess = false;
                 return true;
             });
             return true;
@@ -4384,7 +4413,7 @@ int32_t PasteboardService::AppExit(pid_t pid)
         std::lock_guard<std::mutex> tmpMutex(p2pMapMutex_);
         p2pMap_.EraseIf([pid, &networkIds, this](auto &networkId, auto &pidMap) {
             pidMap.EraseIf([pid, this](const auto &key, const auto &value) {
-                if (value == pid) {
+                if (value.callPid == pid) {
                     PasteStart(key);
                     return true;
                 }

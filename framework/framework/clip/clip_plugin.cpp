@@ -79,6 +79,11 @@ std::vector<ClipPlugin::GlobalEvent> ClipPlugin::GetTopEvents(uint32_t topN, int
 
 void ClipPlugin::Clear() {}
 
+int32_t ClipPlugin::ApplyAdvancedResource(const std::string &deviceId)
+{
+    return 0;
+}
+
 int32_t ClipPlugin::PublishServiceState(const std::string &networkId, ServiceStatus status)
 {
     return 0;
