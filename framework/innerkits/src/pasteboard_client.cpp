@@ -296,7 +296,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV;
     int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
-    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    int32_t bizStage = (syncTime <= 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     ret = ConvertErrCode(ret);
     int32_t result = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
     PasteboardWebController::GetInstance().RetainUri(pasteData);
@@ -316,7 +316,7 @@ void PasteboardClient::GetDataReport(PasteData &pasteData, int32_t syncTime, con
     const std::string &currentPid, int32_t ret)
 {
     static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
-    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    int32_t bizStage = (syncTime <= 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     FinishAsyncTrace(HITRACE_TAG_MISC, "PasteboardClient::GetPasteData", HITRACE_GETPASTEDATA);
     std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
@@ -451,7 +451,7 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV(0);
     int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
-    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    int32_t bizStage = (syncTime <= 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     ret = ConvertErrCode(ret);
     int32_t result = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
     ProgressSmoothToTwentyPercent(pasteData, progressKey, params);
@@ -510,7 +510,7 @@ int32_t PasteboardClient::ProcessPasteData(T &data, int64_t rawDataSize, int fd,
 void PasteboardClient::ProcessRadarReport(int32_t ret, PasteData &pasteData,
     PasteDataFromServiceInfo &pasteDataFromServiceInfo, int32_t syncTime)
 {
-    int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
+    int32_t bizStage = (syncTime <= 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     static DeduplicateMemory<RadarReportIdentity> reportMemory(REPORT_DUPLICATE_TIMEOUT);
     std::string pasteDataInfoSummary = GetPasteDataInfoSummary(pasteData);
     if (ret == static_cast<int32_t>(PasteboardError::E_OK)) {
