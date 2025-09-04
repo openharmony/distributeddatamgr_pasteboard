@@ -4074,15 +4074,12 @@ void PasteboardService::CleanDistributedData(int32_t user)
 
 void PasteboardService::CloseDistributedStore(int32_t user, bool isNeedClear)
 {
-    auto clipPlugin = GetClipPlugin();
-    if (clipPlugin == nullptr) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
-        return;
-    }
+    std::lock_guard<decltype(mutex)> lockGuard(mutex);
+    PASTEBOARD_CHECK_AND_RETURN_LOGE(clipPlugin_ != nullptr, PASTEBOARD_MODULE_SERVICE, "clipPlugin is null");
     if (isNeedClear) {
-        clipPlugin->Clear(user);
+        clipPlugin_->Clear(user);
     }
-    clipPlugin->Close(user);
+    clipPlugin_->Close(user);
 }
 
 void PasteboardService::OnConfigChange(bool isOn)
