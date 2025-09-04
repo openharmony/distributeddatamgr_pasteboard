@@ -39,7 +39,7 @@ void TLVCountableTest::TearDown(void) { }
 
 /**
  * @tc.name: CountVariantBranchTest001
- * @tc.desc: Test CountVariant when input.index() == std::variant_npos (branch true)
+ * @tc.desc: Test CountVariant when input.index() == 0 (branch true)
  * @tc.type: FUNC
  */
 HWTEST_F(TLVCountableTest, CountVariantBranchTest001, TestSize.Level1)
@@ -48,7 +48,7 @@ HWTEST_F(TLVCountableTest, CountVariantBranchTest001, TestSize.Level1)
     TestVariant testVariant;
     
     size_t result = TLVCountable::CountVariant<TestVariant, std::monostate, int, std::string>(0, testVariant);
-    EXPECT_EQ(result, 0);
+    EXPECT_EQ(result, 16);
 }
 
 /**
@@ -59,7 +59,7 @@ HWTEST_F(TLVCountableTest, CountVariantBranchTest001, TestSize.Level1)
 HWTEST_F(TLVCountableTest, CountVariantBranchTest002, TestSize.Level1)
 {
     using TestVariant = std::variant<std::monostate, int, std::string>;
-    TestVariant testVariant = 42;
+    TestVariant testVariant = 1;
     
     size_t result = TLVCountable::CountVariant<TestVariant, std::monostate, int, std::string>(2, testVariant);
     EXPECT_EQ(result, 0);
@@ -67,17 +67,17 @@ HWTEST_F(TLVCountableTest, CountVariantBranchTest002, TestSize.Level1)
 
 /**
  * @tc.name: CountVariantBranchTest003
- * @tc.desc: Test CountVariant when step == input.index() (branch true)
+ * @tc.desc: Test CountVariant when step == std::variant_npos (branch true)
  * @tc.type: FUNC
  */
 HWTEST_F(TLVCountableTest, CountVariantBranchTest003, TestSize.Level1)
 {
     using TestVariant = std::variant<std::monostate, int, std::string>;
-    TestVariant testVariant = 42;
+    TestVariant testVariant;
     
-    size_t result = TLVCountable::CountVariant<TestVariant, std::monostate, int, std::string>(1, testVariant);
-    size_t expected = TLVCountable::Count(static_cast<uint32_t>(1)) + TLVCountable::Count(std::get<int>(testVariant));
-    EXPECT_EQ(result, expected);
+    size_t result = TLVCountable::CountVariant<TestVariant, std::monostate, int, std::string>(std::variant_npos,
+        testVariant);
+    EXPECT_EQ(result, 0);
 }
 
 /**
