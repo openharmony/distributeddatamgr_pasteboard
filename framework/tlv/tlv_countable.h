@@ -175,6 +175,9 @@ public:
     template<typename _InTp, typename _First, typename... _Rest>
     static inline size_t CountVariant(uint32_t step, const _InTp &input)
     {
+        if (input.index() == std::variant_npos || input.index() < step) {
+            return 0;
+        }
         if (step == input.index()) {
             return Count(step) + Count(std::get<_First>(input));
         }
