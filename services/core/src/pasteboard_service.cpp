@@ -826,9 +826,9 @@ int32_t PasteboardService::ProcessDelayHtmlEntry(PasteData &data, const AppInfo 
         if (!PasteboardWebController::GetInstance().SplitWebviewPasteData(data)) {
             return static_cast<int32_t>(PasteboardError::E_OK);
         }
+        PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     }
 
-    PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
 
     PasteData tmp;
@@ -1567,8 +1567,8 @@ int32_t PasteboardService::GetDelayPasteRecord(int32_t userId, PasteData &data)
     {
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
         PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+        PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     }
-    PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     return static_cast<int32_t>(PasteboardError::E_OK);
 }
@@ -3546,8 +3546,8 @@ bool PasteboardService::SetCurrentData(Event event, PasteData &data)
         {
             std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
             PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+            PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
         }
-        PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
         PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     }
     GenerateDistributedUri(data);
@@ -3718,8 +3718,8 @@ int32_t PasteboardService::GetDistributedDelayData(const Event &evt, uint8_t ver
     {
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
         PasteboardWebController::GetInstance().SplitWebviewPasteData(*data);
+        PasteboardWebController::GetInstance().SetWebviewPasteData(*data, authorityInfo);
     }
-    PasteboardWebController::GetInstance().SetWebviewPasteData(*data, authorityInfo);
     PasteboardWebController::GetInstance().CheckAppUriPermission(*data);
     GenerateDistributedUri(*data);
 
@@ -3942,8 +3942,8 @@ int32_t PasteboardService::GetFullDelayPasteData(int32_t userId, PasteData &data
     {
         std::unique_lock<std::shared_mutex> write(pasteDataMutex_);
         PasteboardWebController::GetInstance().SplitWebviewPasteData(data);
+        PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     }
-    PasteboardWebController::GetInstance().SetWebviewPasteData(data, data.GetOriginAuthority());
     PasteboardWebController::GetInstance().CheckAppUriPermission(data);
     clips_.ComputeIfPresent(userId, [&data](auto, auto &value) {
         if (data.GetDataId() != value->GetDataId()) {
