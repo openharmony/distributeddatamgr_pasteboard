@@ -50,6 +50,22 @@ void ArrayBufferStrategy::CreateData(
     pasteData = OHOS::MiscServices::PasteboardClient::GetInstance()->CreateKvData(mimeType, valueVec);
 }
 
+std::shared_ptr<PasteDataRecord> ArrayBufferStrategy::CreateRecord(
+    const std::string &mimeType, const pasteboardTaihe::ValueType &value)
+{
+    if (!value.holds_arrayBuffer()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "ArrayBuffer not find");
+        return nullptr;
+    }
+    taihe::array<uint8_t> arrayBuffer = value.get_arrayBuffer_ref();
+    std::vector<uint8_t> valueVec(arrayBuffer.begin(), arrayBuffer.end());
+    auto record = PasteboardClient::GetInstance()->CreateKvRecord(mimeType, valueVec);
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Create ArrayBuffer record failed");
+    }
+    return record;
+}
+
 pasteboardTaihe::ValueType ArrayBufferStrategy::ConvertToValueType(
     const std::string &mimeType, std::shared_ptr<PasteDataEntry> entry)
 {
@@ -119,6 +135,31 @@ void PixelMapStrategy::CreateData(
         return;
     }
     pasteData = PasteboardClient::GetInstance()->CreatePixelMapData(pixelMap);
+}
+
+std::shared_ptr<PasteDataRecord> PixelMapStrategy::CreateRecord(
+    const std::string &mimeType, const pasteboardTaihe::ValueType &value)
+{
+    if (!value.holds_pixelMapOrWant()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "PixelMap not find");
+        return nullptr;
+    }
+    uintptr_t ptr = value.get_pixelMapOrWant_ref();
+    ani_object obj = reinterpret_cast<ani_object>(ptr);
+    if (obj == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "PixelMap ani object is nullptr");
+        return nullptr;
+    }
+    auto pixelMap = OHOS::Media::PixelMapTaiheAni::GetNativePixelMap(taihe::get_env(), obj);
+    if (pixelMap == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Get native PixelMap failed");
+        return nullptr;
+    }
+    auto record = PasteboardClient::GetInstance()->CreatePixelMapRecord(pixelMap);
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Create PixelMap record failed");
+    }
+    return record;
 }
 
 pasteboardTaihe::ValueType PixelMapStrategy::ConvertToValueType(
@@ -191,6 +232,28 @@ void WantStrategy::CreateData(
     pasteData = PasteboardClient::GetInstance()->CreateWantData(std::make_shared<OHOS::AAFwk::Want>(want));
 }
 
+std::shared_ptr<PasteDataRecord> WantStrategy::CreateRecord(
+    const std::string &mimeType, const pasteboardTaihe::ValueType &value)
+{
+    if (!value.holds_pixelMapOrWant()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Want not find");
+        return nullptr;
+    }
+    uintptr_t ptr = value.get_pixelMapOrWant_ref();
+    ani_object obj = reinterpret_cast<ani_object>(ptr);
+    if (obj == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Want ani object is nullptr");
+        return nullptr;
+    }
+    OHOS::AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(taihe::get_env(), obj, want);
+    auto record = PasteboardClient::GetInstance()->CreateWantRecord(std::make_shared<OHOS::AAFwk::Want>(want));
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Create Want record failed");
+    }
+    return record;
+}
+
 pasteboardTaihe::ValueType WantStrategy::ConvertToValueType(
     const std::string &mimeType, std::shared_ptr<PasteDataEntry> entry)
 {
@@ -250,6 +313,21 @@ void HtmlStrategy::CreateData(
     pasteData = PasteboardClient::GetInstance()->CreateHtmlData(html);
 }
 
+std::shared_ptr<PasteDataRecord> HtmlStrategy::CreateRecord(
+    const std::string &mimeType, const pasteboardTaihe::ValueType &value)
+{
+    if (!value.holds_string()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "html not find");
+        return nullptr;
+    }
+    std::string htmlText(value.get_string_ref());
+    auto record = PasteboardClient::GetInstance()->CreateHtmlTextRecord(htmlText);
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Create HtmlText record failed");
+    }
+    return record;
+}
+
 pasteboardTaihe::ValueType HtmlStrategy::ConvertToValueType(
     const std::string &mimeType, std::shared_ptr<PasteDataEntry> entry)
 {
@@ -298,6 +376,21 @@ void TextStrategy::CreateData(
     pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(text);
 }
 
+std::shared_ptr<PasteDataRecord> TextStrategy::CreateRecord(
+    const std::string &mimeType, const pasteboardTaihe::ValueType &value)
+{
+    if (!value.holds_string()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "text not find");
+        return nullptr;
+    }
+    std::string plainText(value.get_string_ref());
+    auto record = PasteboardClient::GetInstance()->CreatePlainTextRecord(plainText);
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Create PlainText record failed");
+    }
+    return record;
+}
+
 pasteboardTaihe::ValueType TextStrategy::ConvertToValueType(
     const std::string &mimeType, std::shared_ptr<PasteDataEntry> entry)
 {
@@ -343,6 +436,21 @@ void UriStrategy::CreateData(
     }
     std::string uriStr(value.get_string_ref());
     pasteData = PasteboardClient::GetInstance()->CreateUriData(OHOS::Uri(uriStr));
+}
+
+std::shared_ptr<PasteDataRecord> UriStrategy::CreateRecord(
+    const std::string &mimeType, const pasteboardTaihe::ValueType &value)
+{
+    if (!value.holds_string()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "uri not find");
+        return nullptr;
+    }
+    std::string uriText(value.get_string_ref());
+    auto record = PasteboardClient::GetInstance()->CreateUriRecord(OHOS::Uri(uriText));
+    if (record == nullptr) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "Create Uri record failed");
+    }
+    return record;
 }
 
 pasteboardTaihe::ValueType UriStrategy::ConvertToValueType(
@@ -461,6 +569,78 @@ pasteboardTaihe::ShareOption ShareOptionAdapter::ToTaihe(ShareOption value)
             return pasteboardTaihe::ShareOption::key_t::INAPP;
         default:
             return pasteboardTaihe::ShareOption::key_t::LOCALDEVICE;
+    }
+}
+
+MiscServices::Pattern PatternAdapter::FromTaihe(pasteboardTaihe::Pattern value)
+{
+    switch (value.get_key()) {
+        case pasteboardTaihe::Pattern::key_t::URL:
+            return MiscServices::Pattern::URL;
+        case pasteboardTaihe::Pattern::key_t::NUMBER:
+            return MiscServices::Pattern::NUMBER;
+        case pasteboardTaihe::Pattern::key_t::EMAIL_ADDRESS:
+            return MiscServices::Pattern::EMAIL_ADDRESS;
+        default:
+            return MiscServices::Pattern::COUNT;
+    }
+}
+
+pasteboardTaihe::Pattern PatternAdapter::ToTaihe(MiscServices::Pattern value)
+{
+    switch (value) {
+        case MiscServices::Pattern::URL:
+            return pasteboardTaihe::Pattern::key_t::URL;
+        case MiscServices::Pattern::NUMBER:
+            return pasteboardTaihe::Pattern::key_t::NUMBER;
+        case MiscServices::Pattern::EMAIL_ADDRESS:
+            return pasteboardTaihe::Pattern::key_t::EMAIL_ADDRESS;
+        default:
+            return pasteboardTaihe::Pattern::key_t::COUNT;
+    }
+}
+
+ProgressIndicator ProgressIndicatorAdapter::FromTaihe(pasteboardTaihe::ProgressIndicator value)
+{
+    switch (value.get_key()) {
+        case pasteboardTaihe::ProgressIndicator::key_t::NONE:
+            return ProgressIndicator::NONE_PROGRESS_INDICATOR;
+        default:
+            return ProgressIndicator::DEFAULT_PROGRESS_INDICATOR;
+    }
+}
+
+pasteboardTaihe::ProgressIndicator ProgressIndicatorAdapter::ToTaihe(ProgressIndicator value)
+{
+    switch (value) {
+        case ProgressIndicator::NONE_PROGRESS_INDICATOR:
+            return pasteboardTaihe::ProgressIndicator::key_t::NONE;
+        default:
+            return pasteboardTaihe::ProgressIndicator::key_t::DEFAULT;
+    }
+}
+
+FileConflictOption FileConflictOptionAdapter::FromTaihe(pasteboardTaihe::FileConflictOptions value)
+{
+    switch (value.get_key()) {
+        case pasteboardTaihe::FileConflictOptions::key_t::OVERWRITE:
+            return FileConflictOption::FILE_OVERWRITE;
+        case pasteboardTaihe::FileConflictOptions::key_t::SKIP:
+            return FileConflictOption::FILE_SKIP;
+        default:
+            return FileConflictOption::FILE_RENAME;
+    }
+}
+
+pasteboardTaihe::FileConflictOptions FileConflictOptionAdapter::ToTaihe(FileConflictOption value)
+{
+    switch (value) {
+        case FileConflictOption::FILE_OVERWRITE:
+            return pasteboardTaihe::FileConflictOptions::key_t::OVERWRITE;
+        case FileConflictOption::FILE_SKIP:
+            return pasteboardTaihe::FileConflictOptions::key_t::SKIP;
+        default:
+            return pasteboardTaihe::FileConflictOptions::key_t::RENAME;
     }
 }
 } // namespace MiscServices
