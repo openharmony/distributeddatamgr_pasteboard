@@ -82,6 +82,7 @@ struct FocusedAppInfo {
     int32_t windowId = 0;
     sptr<IRemoteObject> abilityToken = nullptr;
 };
+
 class PasteboardService;
 class InputEventCallback : public MMI::IInputEventConsumer {
 public:
@@ -471,10 +472,14 @@ private:
         { MIMETYPE_PIXELMAP,  PIXELMAP_INDEX}
     };
 
+    struct PasteboardP2pInfo {
+        pid_t callPid;
+        bool isSuccess;
+    };
     std::shared_ptr<FFRTTimer> ffrtTimer_;
     std::mutex p2pMapMutex_;
     PasteP2pEstablishInfo p2pEstablishInfo_;
-    ConcurrentMap<std::string, ConcurrentMap<std::string, int32_t>> p2pMap_;
+    ConcurrentMap<std::string, ConcurrentMap<std::string, PasteboardP2pInfo>> p2pMap_;
     std::map<std::string, std::shared_ptr<BlockObject<int32_t>>> preSyncP2pMap_;
     int32_t subscribeActiveId_ = INVALID_SUBSCRIBE_ID;
     enum GlobalShareOptionSource {

@@ -3755,10 +3755,14 @@ HWTEST_F(PasteboardServiceTest, AppExitTest002, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     int32_t pid = 1234;
+    PasteboardService::PasteboardP2pInfo p2pInfo;
+    p2pInfo.callPid = pid;
+    p2pInfo.isSuccess = false;
+
     std::string networkId = "networkId1";
     std::string key = "key1";
-    ConcurrentMap<std::string, int32_t> p2pMap;
-    p2pMap.Insert(key, pid);
+    ConcurrentMap<std::string, PasteboardService::PasteboardP2pInfo> p2pMap;
+    p2pMap.Insert(key, p2pInfo);
     tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
     int32_t ret = tempPasteboard->AppExit(pid);
     EXPECT_EQ(ret, ERR_OK);
@@ -3777,13 +3781,19 @@ HWTEST_F(PasteboardServiceTest, AppExitTest003, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     int32_t pid = 1234;
+    PasteboardService::PasteboardP2pInfo p2pInfo;
+    p2pInfo.callPid = pid;
+    p2pInfo.isSuccess = false;
+
     std::string networkId = "networkId1";
     std::string key = "key1";
-    ConcurrentMap<std::string, int32_t> p2pMap;
-    p2pMap.Insert(key, pid);
+    ConcurrentMap<std::string, PasteboardService::PasteboardP2pInfo> p2pMap;
+    p2pMap.Insert(key, p2pInfo);
     tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
     p2pMap.Clear();
-    p2pMap.Insert(key, pid + 1);
+
+    p2pInfo.callPid = pid + 1;
+    p2pMap.Insert(key, p2pInfo);
     tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
     int32_t ret = tempPasteboard->AppExit(pid);
     EXPECT_EQ(ret, ERR_OK);

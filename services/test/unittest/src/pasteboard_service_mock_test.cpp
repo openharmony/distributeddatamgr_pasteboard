@@ -1908,10 +1908,12 @@ HWTEST_F(PasteboardServiceTest, PasteboardEventSubscriberTest002, TestSize.Level
     std::string networkId = "networkId1";
     testing::NiceMock<PasteboardServiceInterfaceMock> mock;
     EXPECT_CALL(mock, GetNetworkId()).WillRepeatedly(testing::Return(networkId));
-    int32_t pid = 1234;
+    PasteboardService::PasteboardP2pInfo p2pInfo;
+    p2pInfo.callPid = 1234;
+    p2pInfo.isSuccess = false;
     std::string key = "key1";
-    ConcurrentMap<std::string, int32_t> p2pMap;
-    p2pMap.Insert(key, pid);
+    ConcurrentMap<std::string, PasteboardService::PasteboardP2pInfo> p2pMap;
+    p2pMap.Insert(key, p2pInfo);
     tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
     tempPasteboard->PasteboardEventSubscriber();
     EXPECT_NE(tempPasteboard->p2pMap_.Size(), 0);
@@ -1928,10 +1930,12 @@ HWTEST_F(PasteboardServiceTest, PasteboardEventSubscriberTest003, TestSize.Level
     EXPECT_NE(tempPasteboard, nullptr);
     testing::NiceMock<PasteboardServiceInterfaceMock> mock;
     EXPECT_CALL(mock, GetNetworkId()).WillRepeatedly(testing::Return("networkId1"));
-    int32_t pid = 1234;
+    PasteboardService::PasteboardP2pInfo p2pInfo;
+    p2pInfo.callPid = 1234;
+    p2pInfo.isSuccess = false;
     std::string key = "key1";
-    ConcurrentMap<std::string, int32_t> p2pMap;
-    p2pMap.Insert(key, pid);
+    ConcurrentMap<std::string, PasteboardService::PasteboardP2pInfo> p2pMap;
+    p2pMap.Insert(key, p2pInfo);
     tempPasteboard->p2pMap_.Insert("networkId2", p2pMap);
     tempPasteboard->PasteboardEventSubscriber();
     EXPECT_NE(tempPasteboard->p2pMap_.Size(), 0);
@@ -3268,9 +3272,12 @@ HWTEST_F(PasteboardServiceTest, CheckAndReuseP2PLinkTest001, TestSize.Level0)
     EXPECT_EQ(result, nullptr);
     tempPasteboard->ffrtTimer_ = std::make_shared<FFRTTimer>();
     EXPECT_NE(tempPasteboard->ffrtTimer_, nullptr);
-    int32_t pid = 123;
-    ConcurrentMap<std::string, int32_t> p2pMap;
-    p2pMap.Insert(pasteId, pid);
+
+    PasteboardService::PasteboardP2pInfo p2pInfo;
+    p2pInfo.callPid = 123;
+    p2pInfo.isSuccess = false;
+    ConcurrentMap<std::string, PasteboardService::PasteboardP2pInfo> p2pMap;
+    p2pMap.Insert(pasteId, p2pInfo);
     tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
     std::shared_ptr<BlockObject<int32_t>> block = std::make_shared<BlockObject<int32_t>>(2000, 0);
     EXPECT_NE(block, nullptr);
@@ -3308,9 +3315,11 @@ HWTEST_F(PasteboardServiceTest, EstablishP2PLinkTaskTest001, TestSize.Level0)
     event.dataType.push_back(uriType);
     result = tempPasteboard->EstablishP2PLinkTask(pasteId, event);
     EXPECT_EQ(result, nullptr);
-    int32_t pid = 123;
-    ConcurrentMap<std::string, int32_t> p2pMap;
-    p2pMap.Insert(pasteId, pid);
+    PasteboardService::PasteboardP2pInfo p2pInfo;
+    p2pInfo.callPid = 123;
+    p2pInfo.isSuccess = false;
+    ConcurrentMap<std::string, PasteboardService::PasteboardP2pInfo> p2pMap;
+    p2pMap.Insert(pasteId, p2pInfo);
     tempPasteboard->p2pMap_.Insert(event.deviceId, p2pMap);
     std::shared_ptr<BlockObject<int32_t>> block = std::make_shared<BlockObject<int32_t>>(2000, 0);
     EXPECT_NE(block, nullptr);
@@ -3368,9 +3377,11 @@ HWTEST_F(PasteboardServiceTest, PreEstablishP2PLinkTest001, TestSize.Level0)
     tempPasteboard->PreEstablishP2PLink(networkId, clipPlugin.get());
     tempPasteboard->p2pEstablishInfo_.pasteBlock = nullptr;
     std::string p2pPresyncId = "P2pPreSyncId_";
-    int32_t pid = 123;
-    ConcurrentMap<std::string, int32_t> p2pMap;
-    p2pMap.Insert(p2pPresyncId, pid);
+    PasteboardService::PasteboardP2pInfo p2pInfo;
+    p2pInfo.callPid = 123;
+    p2pInfo.isSuccess = false;
+    ConcurrentMap<std::string, PasteboardService::PasteboardP2pInfo> p2pMap;
+    p2pMap.Insert(p2pPresyncId, p2pInfo);
     tempPasteboard->p2pMap_.Insert(networkId, p2pMap);
     tempPasteboard->PreEstablishP2PLink(networkId, clipPlugin.get());
 #else
