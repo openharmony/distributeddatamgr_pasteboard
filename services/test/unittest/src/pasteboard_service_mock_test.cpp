@@ -979,8 +979,9 @@ HWTEST_F(PasteboardServiceTest, GetPasteDataTest001, TestSize.Level0)
     int64_t size;
     std::vector<uint8_t> rawData;
     int32_t syncTime;
-    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime);
-    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
+    int32_t realErrCode;
+    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime, realErrCode);
+    EXPECT_EQ(realErrCode, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
 }
 
 /**
@@ -999,8 +1000,9 @@ HWTEST_F(PasteboardServiceTest, GetPasteDataTest002, TestSize.Level0)
     int64_t size;
     std::vector<uint8_t> rawData;
     int32_t syncTime;
-    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime);
-    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
+    int32_t realErrCode;
+    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime, realErrCode);
+    EXPECT_EQ(realErrCode, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
 }
 
 /**
@@ -1020,8 +1022,9 @@ HWTEST_F(PasteboardServiceTest, GetPasteDataTest003, TestSize.Level0)
     int64_t size;
     std::vector<uint8_t> rawData;
     int32_t syncTime;
-    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime);
-    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
+    int32_t realErrCode;
+    int32_t result = service.GetPasteData(fd, size, rawData, "", syncTime, realErrCode);
+    EXPECT_EQ(realErrCode, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR));
 }
 
 /**

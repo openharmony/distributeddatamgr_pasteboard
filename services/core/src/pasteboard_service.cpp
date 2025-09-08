@@ -1150,7 +1150,7 @@ void PasteboardService::SetUeEvent(const AppInfo &appInfo, PasteData &data, bool
 }
 
 int32_t PasteboardService::GetPasteData(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
-    const std::string &pasteId, int32_t &syncTime)
+    const std::string &pasteId, int32_t &syncTime, int32_t &realErrCode)
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(PasteData::IsValidPasteId(pasteId),
         static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_SERVICE,
@@ -1165,7 +1165,8 @@ int32_t PasteboardService::GetPasteData(int &fd, int64_t &size, std::vector<uint
         "IS_PEER_ONLINE", ueReportInfo.pasteInfo.isPeerOnline,
         "ONLINE_DEV_NUM", ueReportInfo.pasteInfo.onlineDevNum,
         "NETWORK_TYPE", ueReportInfo.pasteInfo.networkType);
-    return ret;
+    realErrCode = ret;
+    return 0;
 }
 
 int32_t PasteboardService::GetPasteDataInner(int &fd, int64_t &size, std::vector<uint8_t> &rawData,
