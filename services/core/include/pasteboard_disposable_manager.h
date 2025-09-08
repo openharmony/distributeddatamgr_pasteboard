@@ -28,18 +28,18 @@ struct DisposableInfo {
     uint32_t tokenId;
     DisposableType type;
     uint32_t maxLen;
-    std::string targetBundleName;
+    int32_t targetWindowId;
     sptr<IPasteboardDisposableObserver> observer;
 
-    DisposableInfo(pid_t pid, uint32_t tokenId, const std::string &targetBundleName, DisposableType type,
+    DisposableInfo(pid_t pid, uint32_t tokenId, int32_t targetWindowId, DisposableType type,
         uint32_t maxLen, const sptr<IPasteboardDisposableObserver> observer) : pid(pid), tokenId(tokenId),
-        type(type), maxLen(maxLen), targetBundleName(targetBundleName), observer(observer) {}
+        type(type), maxLen(maxLen), targetWindowId(targetWindowId), observer(observer) {}
 };
 
 class DisposableManager {
 public:
     static DisposableManager &GetInstance();
-    bool TryProcessDisposableData(const std::string &bundleName, PasteData &pasteData,
+    bool TryProcessDisposableData(PasteData &pasteData,
         const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter);
     int32_t AddDisposableInfo(const DisposableInfo &info);
     void RemoveDisposableInfo(pid_t pid, bool needNotify);

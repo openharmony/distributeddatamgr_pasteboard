@@ -294,10 +294,10 @@ public:
     }
 
     int32_t SubscribeDisposableObserver(const sptr<IPasteboardDisposableObserver> &observer,
-        const std::string &targetBundleName, DisposableType type, uint32_t maxLength) override
+        int32_t targetWindowId, DisposableType type, uint32_t maxLength) override
     {
         (void)observer;
-        (void)targetBundleName;
+        (void)targetWindowId;
         (void)type;
         (void)maxLength;
         return 0;
