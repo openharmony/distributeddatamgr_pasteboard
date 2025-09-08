@@ -292,12 +292,13 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     int32_t syncTime = 0;
+    int32_t realErrCode = 0;
     int fd = -1;
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV;
-    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
+    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime, realErrCode);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
-    ret = ConvertErrCode(ret);
+    ret = ConvertErrCode(realErrCode);
     int32_t result = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
     PasteboardWebController::GetInstance().RetainUri(pasteData);
     PasteboardWebController::GetInstance().RebuildWebviewPasteData(pasteData);
@@ -447,12 +448,13 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
         return static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR);
     }
     int32_t syncTime = 0;
+    int32_t realErrCode = 0;
     int fd = -1;
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV(0);
-    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime);
+    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime, realErrCode);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
-    ret = ConvertErrCode(ret);
+    ret = ConvertErrCode(realErrCode);
     int32_t result = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
     ProgressSmoothToTwentyPercent(pasteData, progressKey, params);
     PasteboardWebController::GetInstance().RetainUri(pasteData);

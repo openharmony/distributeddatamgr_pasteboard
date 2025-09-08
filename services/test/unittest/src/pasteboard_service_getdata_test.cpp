@@ -204,12 +204,13 @@ HWTEST_F(PasteboardServiceGetDataTest, GetPasteDataTest001, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     int32_t syncTime = 0;
+    int32_t realErrCode = 0;
     int fd = -1;
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV;
     std::string pasteId = "GetPasteData_001";
-    auto ret = tempPasteboard->GetPasteData(fd, rawDataSize, recvTLV, pasteId, syncTime);
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
+    auto ret = tempPasteboard->GetPasteData(fd, rawDataSize, recvTLV, pasteId, syncTime, realErrCode);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), realErrCode);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteDataTest001 end");
 }
 
@@ -227,12 +228,13 @@ HWTEST_F(PasteboardServiceGetDataTest, GetPasteDataTest002, TestSize.Level0)
     EXPECT_NE(tempPasteboard, nullptr);
 
     int32_t syncTime = 0;
+    int32_t realErrCode = 0;
     int fd = -1;
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV;
     std::string pasteId = "GetPasteData_test_002";
-    auto ret = tempPasteboard->GetPasteData(fd, rawDataSize, recvTLV, pasteId, syncTime);
-    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), ret);
+    auto ret = tempPasteboard->GetPasteData(fd, rawDataSize, recvTLV, pasteId, syncTime, realErrCode);
+    EXPECT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), realErrCode);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "GetPasteDataTest002 end");
 }
 
