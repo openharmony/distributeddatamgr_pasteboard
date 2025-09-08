@@ -844,6 +844,15 @@ void PasteboardClient::ReleaseSaListener()
     PasteboardServiceLoader::GetInstance().ReleaseDeathRecipient();
 }
 
+int32_t PasteboardClient::DetachPasteboard()
+{
+    auto proxyService = GetPasteboardService();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(
+        proxyService != nullptr, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR),
+        PASTEBOARD_MODULE_CLIENT, "proxyService is null");
+    return proxyService->DetachPasteboard();
+}
+
 void PasteboardClient::Resubscribe()
 {
     auto proxyService = GetPasteboardService();

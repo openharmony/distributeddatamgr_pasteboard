@@ -4427,7 +4427,15 @@ int32_t PasteboardService::AppExit(pid_t pid)
     for (const auto &id : networkIds) {
         CloseP2PLink(id);
     }
-    clients_.Erase(pid);
+    bool isExist = clients_.ComputeIfPresent(pid, [pid](auto, auto &value) {
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "find client death recipient succeed, pid=%{public}d", pid);
+        PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(value.first != nullptr && value.second != nullptr, false,
+            PASTEBOARD_MODULE_SERVICE, "client death recipient is null");
+        value.first->RemoveDeathRecipient(value.second);
+        return false;
+    });
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(isExist, static_cast<int32_t>(PasteboardError::NO_DATA_ERROR),
+        PASTEBOARD_MODULE_SERVICE, "find client death recipient failed, pid=%{public}d", pid);
     return ERR_OK;
 }
 
@@ -4438,8 +4446,7 @@ void PasteboardService::PasteboardDeathRecipient::OnRemoteDied(const wptr<IRemot
 }
 
 PasteboardService::PasteboardDeathRecipient::PasteboardDeathRecipient(
-    PasteboardService &service, sptr<IRemoteObject> observer, pid_t pid)
-    : service_(service), observer_(observer), pid_(pid)
+    PasteboardService &service, pid_t pid) : service_(service), pid_(pid)
 {
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "Construct Pasteboard Client Death Recipient, pid: %{public}d", pid);
 }
@@ -4447,10 +4454,16 @@ PasteboardService::PasteboardDeathRecipient::PasteboardDeathRecipient(
 int32_t PasteboardService::RegisterClientDeathObserver(const sptr<IRemoteObject> &observer)
 {
     pid_t pid = IPCSkeleton::GetCallingPid();
-    sptr<PasteboardDeathRecipient> deathRecipient = new (std::nothrow) PasteboardDeathRecipient(*this, observer, pid);
+    sptr<PasteboardDeathRecipient> deathRecipient = sptr<PasteboardDeathRecipient>::MakeSptr(*this, pid);
     observer->AddDeathRecipient(deathRecipient);
-    clients_.InsertOrAssign(pid, std::move(deathRecipient));
+    clients_.InsertOrAssign(pid, std::make_pair(observer, deathRecipient));
     return ERR_OK;
+}
+
+int32_t PasteboardService::DetachPasteboard()
+{
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    return AppExit(pid);
 }
 
 std::function<void(const OHOS::MiscServices::Event &)> PasteboardService::RemotePasteboardChange()
