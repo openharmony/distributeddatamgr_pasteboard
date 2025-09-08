@@ -33,6 +33,7 @@ interface OHOS.MiscServices.IPasteboardService {
     [ipccode 7] void SubscribeDisposableObserver([in] IPasteboardDisposableObserver observer,
         [in] String targetBundleName, [in] DisposableType type, [in] unsigned int maxLength);
     [ipccode 8] void ResubscribeObserver([in] PasteboardObserverType type, [in] IPasteboardChangedObserver observer);
+    [ipccode 9] void DetachPasteboard();
 
     [ipccode 100] void Clear();
     [ipccode 101] void SetPasteDataOnly([in] FileDescriptor fd, [in] long memSize, [in] unsigned char[] buffer);

@@ -504,6 +504,13 @@ public:
     void ReleaseSaListener();
 
     /**
+     * DetachPasteboard
+     * @description Detach client from service, service will remove client death recipient.
+     * @returns int32_t
+     */
+    int32_t DetachPasteboard();
+
+    /**
      * SyncDelayedDataAsync
      * @description Notifies the system pasteboard to synchronize all time-lapse paste data from application.
      * @returns int32_t
