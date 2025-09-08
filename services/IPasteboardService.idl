@@ -31,7 +31,7 @@ interface OHOS.MiscServices.IPasteboardService {
     [ipccode 6] void UnsubscribeEntityObserver(
         [in] EntityType entityType, [in] unsigned int expectedDataLength, [in] IEntityRecognitionObserver observer);
     [ipccode 7] void SubscribeDisposableObserver([in] IPasteboardDisposableObserver observer,
-        [in] String targetBundleName, [in] DisposableType type, [in] unsigned int maxLength);
+        [in] int targetWindowId, [in] DisposableType type, [in] unsigned int maxLength);
     [ipccode 8] void ResubscribeObserver([in] PasteboardObserverType type, [in] IPasteboardChangedObserver observer);
 
     [ipccode 100] void Clear();

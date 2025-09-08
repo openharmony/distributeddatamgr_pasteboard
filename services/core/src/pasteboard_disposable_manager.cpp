@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2025 Huawei Device Co., Ltd.
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@
 #include "parameters.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_window_manager.h"
 #include "permission/permission_utils.h"
 
 namespace OHOS::MiscServices {
@@ -77,19 +78,21 @@ void DisposableManager::ProcessMatchedInfo(const std::vector<DisposableInfo> &ma
     }
 }
 
-bool DisposableManager::TryProcessDisposableData(const std::string &bundleName, PasteData &pasteData,
+bool DisposableManager::TryProcessDisposableData(PasteData &pasteData,
     const sptr<IPasteboardDelayGetter> &delayGetter, const sptr<IPasteboardEntryGetter> &entryGetter)
 {
     std::vector<DisposableInfo> matchedInfoList;
     std::vector<DisposableInfo> noMatchInfoList;
+    int32_t windowId = -1;
     {
         std::lock_guard lock(disposableInfoMutex_);
         PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(!disposableInfoList_.empty(), false, PASTEBOARD_MODULE_SERVICE,
             "no disposable observer");
-        
+        windowId = WindowManager::GetFocusWindowId();
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "focusWindowId=%{public}d", windowId);
         std::partition_copy(disposableInfoList_.begin(), disposableInfoList_.end(),
             std::back_inserter(matchedInfoList), std::back_inserter(noMatchInfoList),
-            [bundleName](const DisposableInfo &info) { return info.targetBundleName == bundleName; });
+            [windowId](const DisposableInfo &info) { return info.targetWindowId == windowId; });
         disposableInfoList_.clear();
     }
 
@@ -97,7 +100,7 @@ bool DisposableManager::TryProcessDisposableData(const std::string &bundleName, 
     noMatchInfoList.clear();
 
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(!matchedInfoList.empty(), false, PASTEBOARD_MODULE_SERVICE,
-        "no matched disposable observer, bundleName=%{public}s", bundleName.c_str());
+        "no matched disposable observer, windowId=%{public}d", windowId);
     std::thread thread([=, data = std::make_shared<PasteData>(pasteData)]() {
         PASTEBOARD_CHECK_AND_RETURN_LOGE(data != nullptr, PASTEBOARD_MODULE_SERVICE, "data is null");
         ProcessMatchedInfo(matchedInfoList, *data, delayGetter, entryGetter);
@@ -160,8 +163,8 @@ int32_t DisposableManager::AddDisposableInfo(const DisposableInfo &info)
         static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR), PASTEBOARD_MODULE_SERVICE,
         "check permission failed, pid=%{public}d, tokenId=%{public}u", info.pid, info.tokenId);
 
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid=%{public}d, bundleName=%{public}s, type=%{public}d, "
-        "maxLen=%{public}u", info.pid, info.targetBundleName.c_str(), typeInt, info.maxLen);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pid=%{public}d, windowId=%{public}d, type=%{public}d, "
+        "maxLen=%{public}u", info.pid, info.targetWindowId, typeInt, info.maxLen);
 
     FFRTTask expirationTask = [this, pid = info.pid] {
         std::thread thread([=]() {

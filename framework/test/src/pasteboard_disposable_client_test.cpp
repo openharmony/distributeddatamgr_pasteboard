@@ -17,9 +17,11 @@
 #include <thread>
 
 #include "accesstoken_kit.h"
+#include "mock_native_token.h"
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_window_manager.h"
 #include "permission/permission_utils.h"
 #include "token_setproc.h"
 
@@ -41,10 +43,16 @@ public:
     static inline pid_t selfUid_ = 0;
     static inline uint64_t selfTokenId_ = 0;
     static inline uint64_t testAppTokenId_ = 0;
+    static inline int32_t windowId_ = 0;
 };
 
 void PasteboardDisposableClientTest::SetUpTestCase()
 {
+    {
+        MockNativeToken mock("pasteboard_service");
+        windowId_ = WindowManager::GetFocusWindowId();
+        PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "focusWindowId=%{public}d", windowId_);
+    }
     selfTokenId_ = GetSelfTokenID();
     AllocTestAppTokenId();
     selfUid_ = getuid();
@@ -118,9 +126,9 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable001, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
-    std::string bundleName = BUNDLE_NAME;
+    int32_t windowId = windowId_;
     sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, bundleName, type, maxLen);
+    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, windowId, type, maxLen);
     ASSERT_EQ(ret, ERR_OK);
 
     std::string setText = "123456";
@@ -143,9 +151,9 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable002, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
-    std::string bundleName = BUNDLE_NAME;
+    int32_t windowId = windowId_;
     sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, bundleName, type, maxLen);
+    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, windowId, type, maxLen);
     ASSERT_EQ(ret, ERR_OK);
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -162,9 +170,9 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable003, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
-    std::string bundleName = BUNDLE_NAME;
+    int32_t windowId = windowId_;
     sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, bundleName, type, maxLen);
+    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, windowId, type, maxLen);
     ASSERT_EQ(ret, ERR_OK);
 
     std::string setText = "123456";
@@ -191,9 +199,9 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable004, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
-    std::string bundleName = BUNDLE_NAME;
+    int32_t windowId = windowId_;
     sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, bundleName, type, maxLen);
+    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, windowId, type, maxLen);
     ASSERT_EQ(ret, ERR_OK);
 
     std::string setText = "123456";
@@ -226,9 +234,9 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable005, TestSize.Level0)
 {
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
-    std::string bundleName = BUNDLE_NAME;
+    int32_t windowId = windowId_;
     sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, bundleName, type, maxLen);
+    int32_t ret = PasteboardClient::GetInstance()->SubscribeDisposableObserver(observer, windowId, type, maxLen);
     ASSERT_EQ(ret, ERR_OK);
 
     std::string setText = "123456";

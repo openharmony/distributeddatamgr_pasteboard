@@ -2364,7 +2364,7 @@ int32_t PasteboardService::WritePasteData(
 }
 
 int32_t PasteboardService::SubscribeDisposableObserver(const sptr<IPasteboardDisposableObserver> &observer,
-    const std::string &targetBundleName, DisposableType type, uint32_t maxLength)
+    int32_t targetWindowId, DisposableType type, uint32_t maxLength)
 {
     constexpr pid_t SELECTION_SERVICE_UID = 1080;
     pid_t uid = IPCSkeleton::GetCallingUid();
@@ -2373,7 +2373,7 @@ int32_t PasteboardService::SubscribeDisposableObserver(const sptr<IPasteboardDis
 
     pid_t pid = IPCSkeleton::GetCallingPid();
     auto tokenId = IPCSkeleton::GetCallingTokenID();
-    DisposableInfo info(pid, tokenId, targetBundleName, type, maxLength, observer);
+    DisposableInfo info(pid, tokenId, targetWindowId, type, maxLength, observer);
     int32_t ret = DisposableManager::GetInstance().AddDisposableInfo(info);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == static_cast<int32_t>(PasteboardError::E_OK), ret,
         PASTEBOARD_MODULE_SERVICE, "add observer info failed, ret=%{public}d", ret);
@@ -2404,11 +2404,9 @@ int32_t PasteboardService::SetPasteData(int fd, int64_t rawDataSize, const std::
         PASTEBOARD_MODULE_SERVICE, "Failed to decode paste data in TLV");
 
     auto tokenId = GetDataTokenId(pasteData);
-    auto appInfo = GetAppInfo(tokenId);
-    std::string bundleName = GetAppBundleName(appInfo);
     pasteData.SetTokenId(tokenId);
     UpdateShareOption(pasteData);
-    if (DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, delayGetter, entryGetter)) {
+    if (DisposableManager::GetInstance().TryProcessDisposableData(pasteData, delayGetter, entryGetter)) {
         return ERR_OK;
     }
     PasteboardWebController::GetInstance().SplitWebviewPasteData(pasteData);

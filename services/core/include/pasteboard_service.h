@@ -149,7 +149,7 @@ public:
         PasteboardObserverType type, const sptr<IPasteboardChangedObserver> &observer) override;
     virtual int32_t UnsubscribeAllObserver(PasteboardObserverType type) override;
     int32_t SubscribeDisposableObserver(const sptr<IPasteboardDisposableObserver> &observer,
-        const std::string &targetBundleName, DisposableType type, uint32_t maxLength) override;
+        int32_t targetWindowId, DisposableType type, uint32_t maxLength) override;
     virtual int32_t SetGlobalShareOption(const std::unordered_map<uint32_t, int32_t> &globalShareOptions) override;
     virtual int32_t RemoveGlobalShareOption(const std::vector<uint32_t> &tokenIds) override;
     virtual int32_t GetGlobalShareOption(

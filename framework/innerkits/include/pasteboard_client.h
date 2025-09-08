@@ -407,13 +407,13 @@ public:
      * SubscribeDisposableObserver
      * @description Subscribe the PasteboardDisposableObserver
      * @param observer disposable observer which implements data received callback
-     * @param targetBundleName bundle name of subscribed app
+     * @param targetWindowId window id of subscribed app
      * @param type type of subscribed data
      * @param maxLength max length of subscribed data
      * @return int32_t
      */
     int32_t SubscribeDisposableObserver(const sptr<PasteboardDisposableObserver> &observer,
-        const std::string &targetBundleName, DisposableType type, uint32_t maxLength);
+        int32_t targetWindowId, DisposableType type, uint32_t maxLength);
 
     /**
      * SetGlobalShareOption

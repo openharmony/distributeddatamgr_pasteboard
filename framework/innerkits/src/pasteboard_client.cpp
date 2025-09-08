@@ -924,7 +924,7 @@ void PasteboardClient::RemovePasteboardEventObserver(sptr<PasteboardObserver> ca
 }
 
 int32_t PasteboardClient::SubscribeDisposableObserver(const sptr<PasteboardDisposableObserver> &observer,
-    const std::string &targetBundleName, DisposableType type, uint32_t maxLength)
+    int32_t targetWindowId, DisposableType type, uint32_t maxLength)
 {
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(observer != nullptr,
         static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), PASTEBOARD_MODULE_CLIENT,
@@ -939,7 +939,7 @@ int32_t PasteboardClient::SubscribeDisposableObserver(const sptr<PasteboardDispo
         static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR), PASTEBOARD_MODULE_CLIENT,
         "proxyService is null");
 
-    int32_t ret = proxyService->SubscribeDisposableObserver(observer, targetBundleName, type, maxLength);
+    int32_t ret = proxyService->SubscribeDisposableObserver(observer, targetWindowId, type, maxLength);
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret == ERR_OK, ret, PASTEBOARD_MODULE_CLIENT,
         "subscribe failed, ret=%{public}d", ret);
     return ERR_OK;

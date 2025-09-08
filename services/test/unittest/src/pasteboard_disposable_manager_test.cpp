@@ -23,6 +23,7 @@
 #include "pasteboard_disposable_manager.h"
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
+#include "pasteboard_window_manager.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -122,8 +123,8 @@ public:
 
 bool operator==(const DisposableInfo &lhs, const DisposableInfo &rhs)
 {
-    return std::tie(lhs.pid, lhs.tokenId, lhs.targetBundleName, lhs.type, lhs.maxLen)
-        == std::tie(rhs.pid, rhs.tokenId, rhs.targetBundleName, rhs.type, rhs.maxLen);
+    return std::tie(lhs.pid, lhs.tokenId, lhs.targetWindowId, lhs.type, lhs.maxLen)
+        == std::tie(rhs.pid, rhs.tokenId, rhs.targetWindowId, rhs.type, rhs.maxLen);
 }
 
 /**
@@ -135,11 +136,11 @@ HWTEST_F(PasteboardDisposableManagerTest, AddDisposableInfoTest001, TestSize.Lev
 {
     pid_t pid = 1;
     uint32_t tokenId = 100;
-    std::string targetBundleName = "bundleName";
+    int32_t targetWindowId = 1;
     DisposableType type = DisposableType::MAX;
     uint32_t maxLen = 1000;
     sptr<IPasteboardDisposableObserver> observer = nullptr;
-    DisposableInfo info(pid, tokenId, targetBundleName, type, maxLen, observer);
+    DisposableInfo info(pid, tokenId, targetWindowId, type, maxLen, observer);
     int32_t ret = DisposableManager::GetInstance().AddDisposableInfo(info);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
 
@@ -163,11 +164,11 @@ HWTEST_F(PasteboardDisposableManagerTest, AddDisposableInfoTest002, TestSize.Lev
 
     pid_t pid = 1;
     uint32_t tokenId = 100;
-    std::string targetBundleName = "bundleName";
+    int32_t targetWindowId = 1;
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 1000;
     sptr<IPasteboardDisposableObserver> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    DisposableInfo info(pid, tokenId, targetBundleName, type, maxLen, observer);
+    DisposableInfo info(pid, tokenId, targetWindowId, type, maxLen, observer);
     int32_t ret = DisposableManager::GetInstance().AddDisposableInfo(info);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR));
 
@@ -192,18 +193,18 @@ HWTEST_F(PasteboardDisposableManagerTest, AddDisposableInfoTest003, TestSize.Lev
 
     pid_t pid = 1;
     uint32_t tokenId = 100;
-    std::string targetBundleName = "bundleName";
+    int32_t targetWindowId = 1;
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 1000;
     sptr<IPasteboardDisposableObserver> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    DisposableInfo info(pid, tokenId, targetBundleName, type, maxLen, observer);
+    DisposableInfo info(pid, tokenId, targetWindowId, type, maxLen, observer);
     int32_t ret = DisposableManager::GetInstance().AddDisposableInfo(info);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     auto infoList = DisposableManager::GetInstance().disposableInfoList_;
     ASSERT_EQ(infoList.size(), 1);
     EXPECT_EQ(infoList[0], info);
 
-    DisposableInfo samePid(pid, tokenId + 1, targetBundleName + "1", type, maxLen + 1, observer);
+    DisposableInfo samePid(pid, tokenId + 1, targetWindowId + 1, type, maxLen + 1, observer);
     ret = DisposableManager::GetInstance().AddDisposableInfo(samePid);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     infoList = DisposableManager::GetInstance().disposableInfoList_;
@@ -234,11 +235,11 @@ HWTEST_F(PasteboardDisposableManagerTest, AddDisposableInfoTest004, TestSize.Lev
 
     pid_t pid = 1;
     uint32_t tokenId = 100;
-    std::string targetBundleName = "bundleName";
+    int32_t targetWindowId = 1;
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 1000;
     sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    DisposableInfo info(pid, tokenId, targetBundleName, type, maxLen, observer);
+    DisposableInfo info(pid, tokenId, targetWindowId, type, maxLen, observer);
     int32_t ret = DisposableManager::GetInstance().AddDisposableInfo(info);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     auto infoList = DisposableManager::GetInstance().disposableInfoList_;
@@ -264,7 +265,7 @@ HWTEST_F(PasteboardDisposableManagerTest, RemoveDisposableInfoTest001, TestSize.
     pid_t pid = 1;
     DisposableManager::GetInstance().RemoveDisposableInfo(pid, false);
 
-    DisposableInfo info(pid, 1, "bundleName", DisposableType::PLAIN_TEXT, 1, nullptr);
+    DisposableInfo info(pid, 1, 1, DisposableType::PLAIN_TEXT, 1, nullptr);
     DisposableManager::GetInstance().disposableInfoList_ = {info};
     DisposableManager::GetInstance().RemoveDisposableInfo(pid, false);
     EXPECT_TRUE(DisposableManager::GetInstance().disposableInfoList_.empty());
@@ -289,7 +290,7 @@ HWTEST_F(PasteboardDisposableManagerTest, RemoveDisposableInfoTest001, TestSize.
 /**
  * @tc.name: TryProcessDisposableDataTest001
  * @tc.desc: should remove info but not callback when observer is null
- *           should remove info & callback ERR_TARGET_MISMATCH when bundleName missmatch & observer not null
+ *           should remove info & callback ERR_TARGET_MISMATCH when windowId missmatch & observer not null
  * @tc.type: FUNC
  */
 HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest001, TestSize.Level0)
@@ -299,28 +300,29 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest001, TestS
         .WillRepeatedly(testing::Return(Security::AccessToken::PermissionState::PERMISSION_GRANTED));
 
     PasteData pasteData;
-    std::string bundleName = "1";
+    int32_t windowId = 1;
     sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
-    DisposableInfo infoMatched(1, 1, bundleName, DisposableType::PLAIN_TEXT, 1, nullptr);
-    DisposableInfo infoNoMatch(1, 1, "2", DisposableType::PLAIN_TEXT, 1, nullptr);
+    DisposableInfo infoMatched(1, 1, windowId, DisposableType::PLAIN_TEXT, 1, nullptr);
+    DisposableInfo infoNoMatch(1, 1, windowId + 1, DisposableType::PLAIN_TEXT, 1, nullptr);
 
+    WindowManager::SetFocusWindowId(windowId);
     DisposableManager::GetInstance().disposableInfoList_ = {};
-    bool ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
+    bool ret = DisposableManager::GetInstance().TryProcessDisposableData(pasteData, nullptr, nullptr);
     EXPECT_FALSE(ret);
 
     DisposableManager::GetInstance().disposableInfoList_ = {infoMatched};
-    ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
+    ret = DisposableManager::GetInstance().TryProcessDisposableData(pasteData, nullptr, nullptr);
     EXPECT_TRUE(ret);
     EXPECT_TRUE(DisposableManager::GetInstance().disposableInfoList_.empty());
 
     DisposableManager::GetInstance().disposableInfoList_ = {infoNoMatch};
-    ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
+    ret = DisposableManager::GetInstance().TryProcessDisposableData(pasteData, nullptr, nullptr);
     EXPECT_FALSE(ret);
     EXPECT_TRUE(DisposableManager::GetInstance().disposableInfoList_.empty());
 
     infoNoMatch.observer = observer;
     DisposableManager::GetInstance().disposableInfoList_ = {infoMatched, infoNoMatch};
-    ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
+    ret = DisposableManager::GetInstance().TryProcessDisposableData(pasteData, nullptr, nullptr);
     EXPECT_TRUE(ret);
     std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_TRUE(DisposableManager::GetInstance().disposableInfoList_.empty());
@@ -342,18 +344,19 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest002, TestS
         .WillRepeatedly(testing::Return(Security::AccessToken::PermissionState::PERMISSION_GRANTED));
 
     PasteData pasteData;
-    std::string bundleName = "1";
+    int32_t windowId = 1;
     sptr<DisposableObserverImpl> observer1 = nullptr;
     sptr<DisposableObserverImpl> observer2 = sptr<DisposableObserverImpl>::MakeSptr();
     sptr<DisposableObserverImpl> observer3 = sptr<DisposableObserverImpl>::MakeSptr();
     sptr<DisposableObserverImpl> observer4 = sptr<DisposableObserverImpl>::MakeSptr();
-    DisposableInfo info1(1, 1, bundleName, DisposableType::PLAIN_TEXT, 1, observer1);
-    DisposableInfo info2(1, 1, bundleName, DisposableType::PLAIN_TEXT, 1, observer2);
-    DisposableInfo info3(1, 1, bundleName, DisposableType::MAX, 1, observer3);
-    DisposableInfo info4(1, 1, bundleName, DisposableType::PLAIN_TEXT, 1, observer4);
+    DisposableInfo info1(1, 1, windowId, DisposableType::PLAIN_TEXT, 1, observer1);
+    DisposableInfo info2(1, 1, windowId, DisposableType::PLAIN_TEXT, 1, observer2);
+    DisposableInfo info3(1, 1, windowId, DisposableType::MAX, 1, observer3);
+    DisposableInfo info4(1, 1, windowId, DisposableType::PLAIN_TEXT, 1, observer4);
 
+    WindowManager::SetFocusWindowId(windowId);
     DisposableManager::GetInstance().disposableInfoList_ = {info1, info2, info3, info4};
-    bool ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
+    bool ret = DisposableManager::GetInstance().TryProcessDisposableData(pasteData, nullptr, nullptr);
     EXPECT_TRUE(ret);
     std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer2->errCode_, IPasteboardDisposableObserver::ERR_NO_PERMISSION);
@@ -373,17 +376,18 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest003, TestS
     EXPECT_CALL(accessTokenMock, VerifyAccessToken)
         .WillRepeatedly(testing::Return(Security::AccessToken::PermissionState::PERMISSION_GRANTED));
 
-    std::string bundleName = "1";
+    int32_t windowId = 1;
     std::string text = "123456";
     PasteData pasteData;
     pasteData.AddTextRecord(text);
     sptr<DisposableObserverImpl> observer1 = sptr<DisposableObserverImpl>::MakeSptr();
     sptr<DisposableObserverImpl> observer2 = sptr<DisposableObserverImpl>::MakeSptr();
-    DisposableInfo info1(1, 1, bundleName, DisposableType::PLAIN_TEXT, text.length() - 1, observer1);
-    DisposableInfo info2(1, 1, bundleName, DisposableType::PLAIN_TEXT, text.length() + 1, observer2);
+    DisposableInfo info1(1, 1, windowId, DisposableType::PLAIN_TEXT, text.length() - 1, observer1);
+    DisposableInfo info2(1, 1, windowId, DisposableType::PLAIN_TEXT, text.length() + 1, observer2);
 
+    WindowManager::SetFocusWindowId(windowId);
     DisposableManager::GetInstance().disposableInfoList_ = {info1, info2};
-    bool ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
+    bool ret = DisposableManager::GetInstance().TryProcessDisposableData(pasteData, nullptr, nullptr);
     EXPECT_TRUE(ret);
     std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer1->errCode_, IPasteboardDisposableObserver::ERR_LENGTH_MISMATCH);
@@ -404,10 +408,11 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest004, TestS
     EXPECT_CALL(accessTokenMock, VerifyAccessToken)
         .WillRepeatedly(testing::Return(Security::AccessToken::PermissionState::PERMISSION_GRANTED));
 
-    std::string bundleName = "1";
+    int32_t windowId = 1;
     std::string text = "123456";
     PasteData pasteData;
     pasteData.AddTextRecord(text);
+    WindowManager::SetFocusWindowId(windowId);
 
     size_t loopCnt = 3;
     ShareOption shareOptions[] = {ShareOption::InApp, ShareOption::LocalDevice, ShareOption::CrossDevice};
@@ -419,10 +424,10 @@ HWTEST_F(PasteboardDisposableManagerTest, TryProcessDisposableDataTest004, TestS
         pasteData.SetShareOption(shareOptions[i]);
 
         sptr<DisposableObserverImpl> observer = sptr<DisposableObserverImpl>::MakeSptr();
-        DisposableInfo info(1, 1, bundleName, DisposableType::PLAIN_TEXT, text.length(), observer);
+        DisposableInfo info(1, 1, windowId, DisposableType::PLAIN_TEXT, text.length(), observer);
 
         DisposableManager::GetInstance().disposableInfoList_ = {info};
-        bool ret = DisposableManager::GetInstance().TryProcessDisposableData(bundleName, pasteData, nullptr, nullptr);
+        bool ret = DisposableManager::GetInstance().TryProcessDisposableData(pasteData, nullptr, nullptr);
         EXPECT_TRUE(ret);
         std::this_thread::sleep_for(std::chrono::seconds(1));
         EXPECT_EQ(observer->errCode_, errCodes[i]);

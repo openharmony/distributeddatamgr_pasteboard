@@ -33,6 +33,7 @@ ohos_fuzztest("PasteboardDisposableFuzzTest") {
   include_dirs = [
     "../mock/loader",
     "../mock/utils",
+    "../mock/window",
     "${pasteboard_framework_path}/include",
     "${pasteboard_innerkits_path}/include",
     "${pasteboard_service_path}/core/include",
@@ -47,7 +48,7 @@ ohos_fuzztest("PasteboardDisposableFuzzTest") {
     "${pasteboard_framework_path}/ffrt/ffrt_utils.cpp",
     "${pasteboard_framework_path}/permission/permission_utils.cpp",
     "${pasteboard_service_path}/core/src/pasteboard_disposable_manager.cpp",
-    "${pasteboard_service_path}/test/unittest/mock/access_token/accesstoken_kit_virtual.cpp",    
+    "${pasteboard_service_path}/test/unittest/mock/access_token/accesstoken_kit_virtual.cpp",
   ]
   sources += [
     "${pasteboard_innerkits_path}/src/paste_data.cpp",
