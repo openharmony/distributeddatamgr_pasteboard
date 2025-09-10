@@ -1593,5 +1593,4 @@ HWTEST_F(PasteDataTest, GetOriginTokenIdTest002, TestSize.Level0)
     EXPECT_EQ(originTokenId, tokenId);
 }
 
-
 } // namespace OHOS::MiscServices
