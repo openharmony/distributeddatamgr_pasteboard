@@ -22,6 +22,7 @@
 #include "int_wrapper.h"
 #include "pasteboard_client.h"
 #include "pasteboard_service_loader.h"
+#include "want_params_wrapper.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -1561,4 +1562,36 @@ HWTEST_F(PasteDataTest, RemoveEmptyEntryTest001, TestSize.Level0)
     ASSERT_EQ(mimeTypes.size(), 1);
     EXPECT_STREQ(mimeTypes[0].c_str(), MIMETYPE_TEXT_PLAIN);
 }
+
+/**
+ * @tc.name: GetOriginTokenIdTest001
+ * @tc.desc: GetOriginTokenId
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetOriginTokenIdTest001, TestSize.Level0)
+{
+    OHOS::Uri uri("uri");
+    auto pasteData = PasteboardClient::GetInstance()->CreateUriData(uri);
+    auto originTokenId = pasteData->GetOriginTokenId();
+    EXPECT_EQ(originTokenId, PasteData::INVALID_TOKEN_ID);
+}
+
+/**
+ * @tc.name: GetOriginTokenIdTest002
+ * @tc.desc: GetOriginTokenId
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteDataTest, GetOriginTokenIdTest002, TestSize.Level0)
+{
+    OHOS::Uri uri("uri");
+    auto pasteData = PasteboardClient::GetInstance()->CreateUriData(uri);
+    int32_t tokenId = 123456;
+    AAFwk::WantParams originInfo;
+    originInfo.SetParam("originTokenId", AAFwk::Integer::Box(tokenId));
+    pasteData->SetAddition("originInfo", AAFwk::WantParamWrapper::Box(originInfo));
+    auto originTokenId = pasteData->GetOriginTokenId();
+    EXPECT_EQ(originTokenId, tokenId);
+}
+
+
 } // namespace OHOS::MiscServices
