@@ -134,7 +134,9 @@ int OH_Pasteboard_Subscribe(OH_Pasteboard *pasteboard, int type, const OH_Pasteb
     observerBox->SetInnerObserver(observer);
     observerBox->SetType(static_cast<Pasteboard_NotifyType>(type));
     bool ret = PasteboardClient::GetInstance()->Subscribe(static_cast<PasteboardObserverType>(type), observerBox);
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(ret, ERR_OK, PASTEBOARD_MODULE_CAPI, "subscribe observer failed");
+    if (ret != ERR_OK) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "subscribe observer failed");
+    }
     pasteboard->observers_[observer] = observerBox;
     return ERR_OK;
 }
