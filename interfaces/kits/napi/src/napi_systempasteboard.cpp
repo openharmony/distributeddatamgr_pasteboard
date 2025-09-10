@@ -1421,8 +1421,6 @@ void SystemPasteboardNapi::AddObserver(napi_env env, napi_value jsCallback)
     bool ret = PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, observer);
     if (!ret) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_NAPI, "subscribe observer failed");
-        napi_delete_reference(env, ref);
-        return;
     }
 
     observers_[ref] = observer;
