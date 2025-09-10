@@ -540,6 +540,9 @@ HWTEST_F(PasteboardServiceTest, PasteRecordTest0014, TestSize.Level0)
     pasteData.SetPasteId(currentId);
     int32_t res = pasteboardServiceProxy_->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(),
         syncTime, realErrCode);
+    if (fd >= 0) {
+        close(fd);
+    }
     res = realErrCode;
     ASSERT_TRUE(res == ERR_OK);
     ASSERT_TRUE(rawDataSize > 0 && rawDataSize < MessageParcelWarp().GetRawDataSize());
