@@ -439,7 +439,7 @@ static ani_object GetRecord([[maybe_unused]] ani_env *env, [[maybe_unused]] ani_
         return GetNullObject(env);
     }
 
-    ani_object record = CreateObjectFromClass(env, "L@ohos/pasteboard/PasteDataRecordImpl;");
+    ani_object record = CreateObjectFromClass(env, "@ohos.pasteboard.PasteDataRecordImpl");
     if (record == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetRecord] CreateObjectFromClass failed.");
         return GetNullObject(env);
@@ -854,7 +854,7 @@ static ani_object GetSystemPasteboard([[maybe_unused]] ani_env *env)
         return nullptr;
     }
     ani_object systemPasteboard = nullptr;
-    static const char *className = "L@ohos/pasteboard/SystemPasteboardImpl;";
+    static const char *className = "@ohos.pasteboard.SystemPasteboardImpl";
     ani_class cls;
     if (ANI_OK != env->FindClass(className, &cls)) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_JS_ANI, "[GetSystemPasteboard] Not found classname.");
