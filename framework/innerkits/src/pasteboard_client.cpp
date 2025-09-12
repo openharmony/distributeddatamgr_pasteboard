@@ -279,7 +279,6 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     pid_t pid = getpid();
     std::string currentPid = std::to_string(pid);
     std::string currentId = PasteData::CreatePasteId("GetPasteData", getSequenceId_++);
-    pasteData.SetPasteId(currentId);
     RADAR_REPORT(RadarReporter::DFX_GET_PASTEBOARD, RadarReporter::DFX_GET_BIZ_SCENE, RadarReporter::DFX_SUCCESS,
         RadarReporter::BIZ_STATE, RadarReporter::DFX_BEGIN, RadarReporter::CONCURRENT_ID, currentId,
         PACKAGE_NAME, currentPid);
@@ -296,7 +295,7 @@ int32_t PasteboardClient::GetPasteData(PasteData &pasteData)
     int fd = -1;
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV;
-    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime, realErrCode);
+    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, currentId, syncTime, realErrCode);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     ret = ConvertErrCode(realErrCode);
     int32_t result = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
@@ -452,7 +451,8 @@ int32_t PasteboardClient::GetPasteDataFromService(PasteData &pasteData,
     int fd = -1;
     int64_t rawDataSize = 0;
     std::vector<uint8_t> recvTLV(0);
-    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteData.GetPasteId(), syncTime, realErrCode);
+    std::string pasteId = pasteDataFromServiceInfo.currentId;
+    int32_t ret = proxyService->GetPasteData(fd, rawDataSize, recvTLV, pasteId, syncTime, realErrCode);
     int32_t bizStage = (syncTime == 0) ? RadarReporter::DFX_LOCAL_PASTE_END : RadarReporter::DFX_DISTRIBUTED_PASTE_END;
     ret = ConvertErrCode(realErrCode);
     int32_t result = ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);

@@ -1280,8 +1280,8 @@ int32_t PasteboardService::CheckAndGrantRemoteUri(PasteData &data, const AppInfo
 {
     int64_t fileSize = data.GetFileSize();
     bool isRemoteData = data.IsRemote();
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "fileSize=%{public}" PRId64 ", isRemote=%{public}d", fileSize,
-        static_cast<int>(isRemoteData));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "pasteId=%{public}s, isRemote=%{public}s, fileSize=%{public}" PRId64,
+        pasteId.c_str(), isRemoteData ? "true" : "false", fileSize);
     GetPasteDataDot(data, appInfo.bundleName, appInfo.userId);
     std::vector<Uri> grantUris = CheckUriPermission(data, std::make_pair(appInfo.bundleName, appInfo.appIndex));
     if (isRemoteData) {

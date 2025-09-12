@@ -1146,4 +1146,24 @@ HWTEST_F(PasteboardClientTest, GetRecordValueByTypeTest001, TestSize.Level0)
     int32_t result = PasteboardClient::GetInstance()->GetRecordValueByType(1, 1, entry);
     ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_DATA_ID));
 }
+
+/**
+ * @tc.name: GetPasteIdTest001
+ * @tc.desc: should get empty pasteId when get local paste data success
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardClientTest, GetPasteIdTest001, TestSize.Level0)
+{
+    PasteData setData;
+    setData.AddTextRecord("text");
+    int32_t ret = PasteboardClient::GetInstance()->SetPasteData(setData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    PasteData getData;
+    ret = PasteboardClient::GetInstance()->GetPasteData(getData);
+    ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+
+    std::string pasteId = getData.GetPasteId();
+    EXPECT_STREQ(pasteId.c_str(), "");
+}
 } // namespace OHOS::MiscServices
