@@ -56,7 +56,7 @@ let finalizer = new FinalizationRegistry<Cleaner>(Cleaner.callback)
 
 export namespace pasteboard {
 
-    loadLibrary("pasteboard_ani");
+    loadLibraryWithPermissionCheck("pasteboard_ani", "@ohos.pasteboard");
 
     export const MIMETYPE_TEXT_URI: string = 'text/uri';
     export const MIMETYPE_TEXT_HTML: string = 'text/html';
