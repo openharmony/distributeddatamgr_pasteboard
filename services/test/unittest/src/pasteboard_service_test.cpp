@@ -1544,7 +1544,7 @@ HWTEST_F(PasteboardServiceTest, OnRemoteDiedTest003, TestSize.Level0)
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "OnRemoteDiedTest003 start");
     PasteboardService service;
     pid_t pid = 2;
-    auto tempPasteboard = std::make_shared<PasteboardService::PasteboardDeathRecipient>(service, nullptr, pid);
+    auto tempPasteboard = std::make_shared<PasteboardService::PasteboardDeathRecipient>(service, pid);
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->OnRemoteDied(nullptr);

@@ -161,6 +161,7 @@ public:
     int32_t GetRemoteDeviceName(std::string &deviceName, bool &isRemote);
     virtual int32_t ShowProgress(const std::string &progressKey, const sptr<IRemoteObject> &observer) override;
     virtual int32_t RegisterClientDeathObserver(const sptr<IRemoteObject> &observer) override;
+    virtual int32_t DetachPasteboard() override;
     static int32_t currentUserId_;
     static ScreenEvent currentScreenStatus;
     size_t GetDataSize(PasteData &data) const;
@@ -510,18 +511,17 @@ private:
     SecurityLevel securityLevel_;
     class PasteboardDeathRecipient final : public IRemoteObject::DeathRecipient {
     public:
-        PasteboardDeathRecipient(PasteboardService &service, sptr<IRemoteObject> observer, pid_t pid);
+        PasteboardDeathRecipient(PasteboardService &service, pid_t pid);
         virtual ~PasteboardDeathRecipient() = default;
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
     private:
         PasteboardService &service_;
-        sptr<IRemoteObject> observer_;
         pid_t pid_;
     };
     int32_t AppExit(pid_t pid);
     void RemoveObserverByPid(int32_t userId, pid_t pid, ObserverMap &observerMap);
-    ConcurrentMap<pid_t, sptr<PasteboardDeathRecipient>> clients_;
+    ConcurrentMap<pid_t, std::pair<sptr<IRemoteObject>, sptr<PasteboardDeathRecipient>>> clients_;
     static constexpr pid_t INVALID_UID = -1;
     static constexpr pid_t INVALID_PID = -1;
     static constexpr uint32_t INVALID_TOKEN = 0;

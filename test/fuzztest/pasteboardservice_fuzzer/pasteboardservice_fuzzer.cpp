@@ -179,6 +179,11 @@ public:
         return 0;
     }
 
+    int32_t DetachPasteboard() override
+    {
+        return 0;
+    }
+
     int32_t HasPasteData(bool& funcResult) override
     {
         (void)funcResult;
