@@ -47,7 +47,7 @@ export default class CommonConstants {
   public static readonly TIPS_TYPE:string = '119';
   public static readonly FUN_NUM = 'SF-10044822_f101';
   // Symbol
-  public static readonly SYMBOL_INFO_CIRCLE:number = 14;
+  public static readonly SYMBOL_INFO_CIRCLE:string = '14vp';
   public static readonly SYMBOL_MARGIN_RIGHT:number = 4;
   // Update prompt text
   public static readonly UPDATE_PROMPT_LINE_HEIGHT:number = 16;
