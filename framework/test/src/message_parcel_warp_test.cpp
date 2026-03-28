@@ -19,6 +19,7 @@
 #include <sys/mman.h>
 
 #include "message_parcel_warp.h"
+#include "pasteboard_hilog.h"
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS;
@@ -139,6 +140,7 @@ void MessageParcelWarpTest::TearDown(void) { }
  */
 HWTEST_F(MessageParcelWarpTest, MemcpyDataTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "MemcpyDataTest001 start");
     MessageParcelWarp messageParcelWarp;
     size_t size = 1024;
     void* ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -151,6 +153,7 @@ HWTEST_F(MessageParcelWarpTest, MemcpyDataTest001, TestSize.Level0)
     char* resultData = static_cast<char*>(ptr);
     EXPECT_STREQ(resultData, data);
     munmap(ptr, size);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "MemcpyDataTest001 end");
 }
 
 /**
@@ -161,6 +164,7 @@ HWTEST_F(MessageParcelWarpTest, MemcpyDataTest001, TestSize.Level0)
  */
 HWTEST_F(MessageParcelWarpTest, MemcpyDataTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "MemcpyDataTest002 start");
     MessageParcelWarp messageParcelWarp;
     size_t size = 256 * 1024 * 1024 + 1;
     void* ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -173,6 +177,7 @@ HWTEST_F(MessageParcelWarpTest, MemcpyDataTest002, TestSize.Level0)
     char* resultData = static_cast<char*>(ptr);
     EXPECT_STREQ(resultData, data);
     munmap(ptr, size);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "MemcpyDataTest002 end");
 }
 
 /**
@@ -183,6 +188,7 @@ HWTEST_F(MessageParcelWarpTest, MemcpyDataTest002, TestSize.Level0)
  */
 HWTEST_F(MessageParcelWarpTest, WriteRawDataTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WriteRawDataTest001 start");
     MessageParcelWarp messageParcelWarp;
     MessageParcel parcel;
     const char data[] = "Test data";
@@ -193,6 +199,7 @@ HWTEST_F(MessageParcelWarpTest, WriteRawDataTest001, TestSize.Level0)
 
     auto result = messageParcelWarp.WriteRawData(parcel, data, size);
     EXPECT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WriteRawDataTest001 end");
 }
 
 /**
@@ -203,6 +210,7 @@ HWTEST_F(MessageParcelWarpTest, WriteRawDataTest001, TestSize.Level0)
  */
 HWTEST_F(MessageParcelWarpTest, WriteRawDataTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WriteRawDataTest002 start");
     MessageParcelWarp messageParcelWarp;
     MessageParcel parcel;
     const char data[] = "Test data";
@@ -214,6 +222,7 @@ HWTEST_F(MessageParcelWarpTest, WriteRawDataTest002, TestSize.Level0)
 
     auto result = messageParcelWarp.WriteRawData(parcel, data, size);
     EXPECT_TRUE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WriteRawDataTest002 end");
 }
 
 /**
@@ -224,6 +233,7 @@ HWTEST_F(MessageParcelWarpTest, WriteRawDataTest002, TestSize.Level0)
  */
 HWTEST_F(MessageParcelWarpTest, WriteRawDataTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WriteRawDataTest003 start");
     MessageParcelWarp messageParcelWarp;
     MessageParcel parcel;
     size_t size = MIN_RAW_SIZE + 1;
@@ -236,6 +246,7 @@ HWTEST_F(MessageParcelWarpTest, WriteRawDataTest003, TestSize.Level0)
 
     auto result = messageParcelWarp.WriteRawData(parcel, data, size);
     EXPECT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WriteRawDataTest003 end");
 }
 
 /**
@@ -246,6 +257,7 @@ HWTEST_F(MessageParcelWarpTest, WriteRawDataTest003, TestSize.Level0)
  */
 HWTEST_F(MessageParcelWarpTest, WriteRawDataTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WriteRawDataTest004 start");
     MessageParcelWarp messageParcelWarp;
     MessageParcel parcel;
     size_t size = MIN_RAW_SIZE + 1;
@@ -258,6 +270,7 @@ HWTEST_F(MessageParcelWarpTest, WriteRawDataTest004, TestSize.Level0)
 
     auto result = messageParcelWarp.WriteRawData(parcel, data, size);
     EXPECT_TRUE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WriteRawDataTest004 end");
 }
 
 /**
@@ -268,6 +281,7 @@ HWTEST_F(MessageParcelWarpTest, WriteRawDataTest004, TestSize.Level0)
  */
 HWTEST_F(MessageParcelWarpTest, ReadRawDataTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReadRawDataTest001 start");
     MessageParcelWarp messageParcelWarp;
     MessageParcel parcel;
     size_t size = MIN_RAW_SIZE - 1;
@@ -278,6 +292,7 @@ HWTEST_F(MessageParcelWarpTest, ReadRawDataTest001, TestSize.Level0)
 
     auto result = messageParcelWarp.ReadRawData(parcel, size);
     EXPECT_EQ(result, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReadRawDataTest001 end");
 }
 
 /**
@@ -288,6 +303,7 @@ HWTEST_F(MessageParcelWarpTest, ReadRawDataTest001, TestSize.Level0)
  */
 HWTEST_F(MessageParcelWarpTest, ReadRawDataTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReadRawDataTest002 start");
     MessageParcelWarp messageParcelWarp;
     messageParcelWarp.rawData_ = std::make_shared<char>('A');
     messageParcelWarp.writeRawDataFd_ = 0;
@@ -300,6 +316,7 @@ HWTEST_F(MessageParcelWarpTest, ReadRawDataTest002, TestSize.Level0)
 
     auto result = messageParcelWarp.ReadRawData(parcel, size);
     EXPECT_NE(result, messageParcelWarp.rawData_.get());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReadRawDataTest002 end");
 }
 
 /**
@@ -310,6 +327,7 @@ HWTEST_F(MessageParcelWarpTest, ReadRawDataTest002, TestSize.Level0)
  */
 HWTEST_F(MessageParcelWarpTest, ReadRawDataTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReadRawDataTest003 start");
     MessageParcelWarp messageParcelWarp;
     messageParcelWarp.rawData_ = nullptr;
     MessageParcel parcel;
@@ -321,6 +339,7 @@ HWTEST_F(MessageParcelWarpTest, ReadRawDataTest003, TestSize.Level0)
 
     auto result = messageParcelWarp.ReadRawData(parcel, size);
     EXPECT_EQ(result, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReadRawDataTest003 end");
 }
 }
 }

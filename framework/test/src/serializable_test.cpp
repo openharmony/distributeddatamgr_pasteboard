@@ -198,6 +198,7 @@ HWTEST_F(SerializableTest, SerializableTest002, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SerializableTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest003 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
     auto json = ToJson(jsonStr);
@@ -212,6 +213,7 @@ HWTEST_F(SerializableTest, SerializableTest003, TestSize.Level0)
     ASSERT_FALSE(ret);
     cJSON_Delete(json);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest003 end");
 }
 
 /**
@@ -223,6 +225,7 @@ HWTEST_F(SerializableTest, SerializableTest003, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SerializableTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest004 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
     auto json = ToJson(jsonStr);
@@ -237,6 +240,7 @@ HWTEST_F(SerializableTest, SerializableTest004, TestSize.Level0)
     ASSERT_FALSE(ret);
     cJSON_Delete(json);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest004 end");
 }
 
 /**
@@ -248,6 +252,7 @@ HWTEST_F(SerializableTest, SerializableTest004, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SerializableTest005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest005 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
     auto json = ToJson(jsonStr);
@@ -262,6 +267,7 @@ HWTEST_F(SerializableTest, SerializableTest005, TestSize.Level0)
     ASSERT_FALSE(ret);
     cJSON_Delete(json);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest005 end");
 }
 
 /**
@@ -273,6 +279,7 @@ HWTEST_F(SerializableTest, SerializableTest005, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SerializableTest006, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest006 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
     auto json = ToJson(jsonStr);
@@ -287,6 +294,7 @@ HWTEST_F(SerializableTest, SerializableTest006, TestSize.Level0)
     ASSERT_FALSE(ret);
     cJSON_Delete(json);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest006 end");
 }
 
 /**
@@ -298,6 +306,7 @@ HWTEST_F(SerializableTest, SerializableTest006, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SerializableTest007, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest007 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
     auto json = ToJson(jsonStr);
@@ -312,6 +321,7 @@ HWTEST_F(SerializableTest, SerializableTest007, TestSize.Level0)
     ASSERT_FALSE(ret);
     cJSON_Delete(json);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest007 end");
 }
 
 /**
@@ -323,6 +333,7 @@ HWTEST_F(SerializableTest, SerializableTest007, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SerializableTest008, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest008 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = R"({"key":null})";
     auto json = ToJson(jsonStr);
@@ -337,6 +348,7 @@ HWTEST_F(SerializableTest, SerializableTest008, TestSize.Level0)
     ASSERT_FALSE(ret);
     cJSON_Delete(json);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest008 end");
 }
 
 /**
@@ -348,6 +360,7 @@ HWTEST_F(SerializableTest, SerializableTest008, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SerializableTest009, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest009 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     uint32_t param1 = 2;
     int32_t param2 = 3;
@@ -388,6 +401,7 @@ HWTEST_F(SerializableTest, SerializableTest009, TestSize.Level0)
     ASSERT_TRUE(cJSON_HasObjectItem(node, GET_NAME(param5)));
     cJSON_Delete(node);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest009 end");
 }
 
 /**
@@ -433,6 +447,7 @@ HWTEST_F(SerializableTest, SerializableTest010, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SerializableTest011, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest011 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "Start.");
     std::string jsonStr = "{\n"
                           "        \"processLabel\": \"processLabel\",                \n"
@@ -474,6 +489,7 @@ HWTEST_F(SerializableTest, SerializableTest011, TestSize.Level0)
     ASSERT_EQ(config.components[1].destructor, "destructor2");
     ASSERT_EQ(config.components[1].params, "params2");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "End.");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SerializableTest011 end");
 }
 
 /**
@@ -485,6 +501,7 @@ HWTEST_F(SerializableTest, SerializableTest011, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, GlobalEventTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GlobalEventTest001 start");
     ClipPlugin::GlobalEvent event;
     event.deviceId = "deviceId";
     event.expiration = 1;
@@ -495,6 +512,7 @@ HWTEST_F(SerializableTest, GlobalEventTest001, TestSize.Level0)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_INNERKIT, "Unmarshall event failed.");
     }
     ASSERT_TRUE(event == event1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GlobalEventTest001 end");
 }
 
 /**
@@ -506,10 +524,12 @@ HWTEST_F(SerializableTest, GlobalEventTest001, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, GetValueTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetValueTest001 start");
     std::string value;
     Serializable::json nullNode = nullptr;
     bool ret = Serializable::GetValue(nullNode, "key", value);
     ASSERT_FALSE(ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetValueTest001 end");
 }
 /**
  * @tc.name: SetValueTest001
@@ -520,6 +540,7 @@ HWTEST_F(SerializableTest, GetValueTest001, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SetValueTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetValueTest001 start");
     Serializable::json node = nullptr;
     bool ret = Serializable::SetValue(node, true, "");
     ASSERT_TRUE(ret);
@@ -528,6 +549,7 @@ HWTEST_F(SerializableTest, SetValueTest001, TestSize.Level0)
     if (node != nullptr) {
         cJSON_Delete(node);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetValueTest001 end");
 }
 
 /**
@@ -539,6 +561,7 @@ HWTEST_F(SerializableTest, SetValueTest001, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SetValueTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetValueTest002 start");
     Serializable::json node = nullptr;
     std::vector<uint8_t> testValue = {1, 2, 3};
     bool ret = Serializable::SetValue(node, testValue, "");
@@ -547,6 +570,7 @@ HWTEST_F(SerializableTest, SetValueTest002, TestSize.Level0)
     if (node != nullptr) {
         cJSON_Delete(node);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetValueTest002 end");
 }
 
 /**
@@ -558,12 +582,14 @@ HWTEST_F(SerializableTest, SetValueTest002, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SetValueTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetValueTest003 start");
     OHOS::DistributedData::Serializable::json node = nullptr;
     MockSerializable mockValue;
     std::string name = "test_key";
     EXPECT_CALL(mockValue, Marshal(_)).WillOnce(Return(false));
     bool ret = OHOS::DistributedData::Serializable::SetValue(node, mockValue, name);
     ASSERT_FALSE(ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetValueTest003 end");
 }
 
 /**
@@ -575,6 +601,7 @@ HWTEST_F(SerializableTest, SetValueTest003, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, SetValueTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetValueTest004 start");
     OHOS::DistributedData::Serializable::json node = cJSON_CreateObject();
     MockSerializable mockValue;
     std::string name = "test_serializable_key";
@@ -595,6 +622,7 @@ HWTEST_F(SerializableTest, SetValueTest004, TestSize.Level0)
     if (node != nullptr) {
         cJSON_Delete(node);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetValueTest004 end");
 }
 /**
  * @tc.name: GetSubNodeTest001
@@ -604,8 +632,10 @@ HWTEST_F(SerializableTest, SetValueTest004, TestSize.Level0)
  */
 HWTEST_F(SerializableTest, GetSubNodeTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetSubNodeTest001 start");
     Serializable::json nullNode = nullptr;
     auto result = Serializable::GetSubNode(nullNode, "test_key");
     ASSERT_EQ(result, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetSubNodeTest001 end");
 }
 } // namespace OHOS::DistributedData

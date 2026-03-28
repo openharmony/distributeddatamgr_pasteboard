@@ -68,11 +68,13 @@ UnifiedData PasteboardCopyTest::InitFileData()
  */
 HWTEST_F(PasteboardCopyTest, IsDirectoryTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsDirectoryTest start");
     std::string directoryPath = "/invalid/path";
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
 
     bool result = pasteBoardCopyFile.IsDirectory(directoryPath);
     EXPECT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsDirectoryTest end");
 }
 
 /**
@@ -84,11 +86,13 @@ HWTEST_F(PasteboardCopyTest, IsDirectoryTest, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, IsFileTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsFileTest start");
     std::string filePath = "/invalid/path";
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
 
     bool result = pasteBoardCopyFile.IsFile(filePath);
     EXPECT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsFileTest end");
 }
 
 /**
@@ -100,6 +104,7 @@ HWTEST_F(PasteboardCopyTest, IsFileTest, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, OnProgressNotifyTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnProgressNotifyTest start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     pasteBoardCopyFile.OnProgressNotify(nullptr);
 
@@ -113,6 +118,7 @@ HWTEST_F(PasteboardCopyTest, OnProgressNotifyTest, TestSize.Level0)
     EXPECT_EQ(params->info->percentage, 100);
     delete params->info;
     params->info = nullptr;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnProgressNotifyTest end");
 }
 
 /**
@@ -124,6 +130,7 @@ HWTEST_F(PasteboardCopyTest, OnProgressNotifyTest, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, GetRealPathTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRealPathTest start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
 
     std::string path1 = "/home/user/./test";
@@ -145,6 +152,7 @@ HWTEST_F(PasteboardCopyTest, GetRealPathTest, TestSize.Level0)
     std::string expected4 = "";
     std::string realPath4 = pasteBoardCopyFile.GetRealPath(path4);
     EXPECT_EQ(realPath4, expected4);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRealPathTest end");
 }
 
 /**
@@ -156,10 +164,12 @@ HWTEST_F(PasteboardCopyTest, GetRealPathTest, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, IsRemoteUriTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsRemoteUriTest start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     std::string uri = "http://www.example.com";
     bool isRemoteUri = pasteBoardCopyFile.IsRemoteUri(uri);
     EXPECT_FALSE(isRemoteUri);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsRemoteUriTest end");
 }
 
 /**
@@ -171,6 +181,7 @@ HWTEST_F(PasteboardCopyTest, IsRemoteUriTest, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, CheckCopyParamTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CheckCopyParamTest start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     PasteData pasteData;
     std::shared_ptr<GetDataParams> params = nullptr;
@@ -196,6 +207,7 @@ HWTEST_F(PasteboardCopyTest, CheckCopyParamTest, TestSize.Level0)
 
     result = pasteBoardCopyFile.CheckCopyParam(pasteData, params);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CheckCopyParamTest end");
 }
 
 /**
@@ -207,6 +219,7 @@ HWTEST_F(PasteboardCopyTest, CheckCopyParamTest, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, HandleProgressTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleProgressTest start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     std::shared_ptr<CopyInfo> copyInfo = std::make_shared<CopyInfo>();
     CopyInfo info = *copyInfo;
@@ -231,6 +244,7 @@ HWTEST_F(PasteboardCopyTest, HandleProgressTest, TestSize.Level0)
 
     delete params->info;
     params->info = nullptr;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleProgressTest end");
 }
 
 /**
@@ -242,6 +256,7 @@ HWTEST_F(PasteboardCopyTest, HandleProgressTest, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, InitCopyInfoTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "InitCopyInfoTest001 start");
     std::string srcUri = "file:///source/path";
     std::string destUri = "file:///destination/path";
     std::shared_ptr<GetDataParams> dataParams = std::make_shared<GetDataParams>();
@@ -250,6 +265,7 @@ HWTEST_F(PasteboardCopyTest, InitCopyInfoTest001, TestSize.Level0)
 
     int32_t result = PasteBoardCopyFile::GetInstance().InitCopyInfo(srcUri, dataParams, copyInfo);
     EXPECT_EQ(result, ENOMEM);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "InitCopyInfoTest001 end");
 }
 
 /**
@@ -261,6 +277,7 @@ HWTEST_F(PasteboardCopyTest, InitCopyInfoTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, InitCopyInfoTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "InitCopyInfoTest002 start");
     std::string srcUri = R"(file:///source/path/%25%E2%80%94.png)";
     std::string destUri = "file:///data";
     std::shared_ptr<GetDataParams> dataParams = std::make_shared<GetDataParams>();
@@ -274,6 +291,7 @@ HWTEST_F(PasteboardCopyTest, InitCopyInfoTest002, TestSize.Level0)
     EXPECT_STREQ(copyInfo->destUri.c_str(), R"(file:///data/%25%E2%80%94.png)");
     EXPECT_STREQ(copyInfo->srcPath.c_str(), R"(/source/path/%—.png)");
     EXPECT_STREQ(copyInfo->destPath.c_str(), R"(/data/%—.png)");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "InitCopyInfoTest002 end");
 }
 
 /**
@@ -285,6 +303,7 @@ HWTEST_F(PasteboardCopyTest, InitCopyInfoTest002, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, CopyFileDataTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyFileDataTest001 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     PasteData pasteData;
     std::string destUri = "file:///destination/path";
@@ -293,6 +312,7 @@ HWTEST_F(PasteboardCopyTest, CopyFileDataTest001, TestSize.Level0)
 
     int32_t result = pasteBoardCopyFile.CopyFileData(pasteData, dataParams);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyFileDataTest001 end");
 }
 
 /**
@@ -304,6 +324,7 @@ HWTEST_F(PasteboardCopyTest, CopyFileDataTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, CopyFileDataTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyFileDataTest002 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     PasteData pasteData;
     OHOS::Uri uri("/");
@@ -314,6 +335,7 @@ HWTEST_F(PasteboardCopyTest, CopyFileDataTest002, TestSize.Level0)
     EXPECT_NE(dataParams, nullptr);
 
     int32_t result = pasteBoardCopyFile.CopyFileData(pasteData, dataParams);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyFileDataTest002 end");
 }
 
 /**
@@ -325,6 +347,7 @@ HWTEST_F(PasteboardCopyTest, CopyFileDataTest002, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, CopyFileDataTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyFileDataTest003 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     PasteData pasteData;
     pasteData.AddTextRecord("hello");
@@ -332,6 +355,7 @@ HWTEST_F(PasteboardCopyTest, CopyFileDataTest003, TestSize.Level0)
 
     int32_t result = pasteBoardCopyFile.CopyFileData(pasteData, dataParams);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyFileDataTest003 end");
 }
 
 /**
@@ -343,6 +367,7 @@ HWTEST_F(PasteboardCopyTest, CopyFileDataTest003, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, CopyPasteDataTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyPasteDataTest001 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     PasteData pasteData;
     pasteData.AddTextRecord("hello");
@@ -350,6 +375,7 @@ HWTEST_F(PasteboardCopyTest, CopyPasteDataTest001, TestSize.Level0)
 
     int32_t result = pasteBoardCopyFile.CopyPasteData(pasteData, dataParams);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyPasteDataTest001 end");
 }
 
 /**
@@ -361,6 +387,7 @@ HWTEST_F(PasteboardCopyTest, CopyPasteDataTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, CopyPasteDataTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyPasteDataTest002 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     PasteData pasteData;
     pasteData.AddTextRecord("hello");
@@ -373,6 +400,7 @@ HWTEST_F(PasteboardCopyTest, CopyPasteDataTest002, TestSize.Level0)
     int32_t result = pasteBoardCopyFile.CopyPasteData(pasteData, dataParams);
     delete dataParams->info;
     dataParams->info = nullptr;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CopyPasteDataTest002 end");
 }
 
 /**
@@ -384,12 +412,14 @@ HWTEST_F(PasteboardCopyTest, CopyPasteDataTest002, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, ShouldKeepRecordTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ShouldKeepRecordTest001 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     int32_t ret = static_cast<int32_t>(PasteboardError::E_OK);
     std::string destUri = "file:///destination/path";
     std::shared_ptr<PasteDataRecord> record = nullptr;
     int32_t result = pasteBoardCopyFile.ShouldKeepRecord(ret, destUri, record);
     EXPECT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ShouldKeepRecordTest001 end");
 }
 
 /**
@@ -401,6 +431,7 @@ HWTEST_F(PasteboardCopyTest, ShouldKeepRecordTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, ProcessCallBackTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessCallBackTest001 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     pasteBoardCopyFile.recordSize_.store(1);
 
@@ -422,6 +453,7 @@ HWTEST_F(PasteboardCopyTest, ProcessCallBackTest001, TestSize.Level0)
 
     listener(100, 0);
     EXPECT_EQ(dataParams->info->percentage, 20);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessCallBackTest001 end");
 }
 
 /**
@@ -433,6 +465,7 @@ HWTEST_F(PasteboardCopyTest, ProcessCallBackTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, ProcessCallBackTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessCallBackTest002 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     pasteBoardCopyFile.recordSize_.store(1);
 
@@ -454,6 +487,7 @@ HWTEST_F(PasteboardCopyTest, ProcessCallBackTest002, TestSize.Level0)
 
     listener(500, 1000);
     EXPECT_EQ(dataParams->info->percentage, 60);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessCallBackTest002 end");
 }
 
 /**
@@ -465,6 +499,7 @@ HWTEST_F(PasteboardCopyTest, ProcessCallBackTest002, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, ProcessCallBackTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessCallBackTest003 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     pasteBoardCopyFile.recordSize_.store(1);
 
@@ -486,6 +521,7 @@ HWTEST_F(PasteboardCopyTest, ProcessCallBackTest003, TestSize.Level0)
 
     listener(1500, 1000);
     EXPECT_GE(dataParams->info->percentage, 100);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessCallBackTest003 end");
 }
 
 /**
@@ -497,6 +533,7 @@ HWTEST_F(PasteboardCopyTest, ProcessCallBackTest003, TestSize.Level0)
  */
 HWTEST_F(PasteboardCopyTest, ProcessCallBackTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessCallBackTest004 start");
     PasteBoardCopyFile &pasteBoardCopyFile = PasteBoardCopyFile::GetInstance();
     pasteBoardCopyFile.recordSize_.store(1);
 
@@ -518,5 +555,6 @@ HWTEST_F(PasteboardCopyTest, ProcessCallBackTest004, TestSize.Level0)
 
     listener(0, 1000);
     EXPECT_EQ(dataParams->info->percentage, 20);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessCallBackTest004 end");
 }
 } // namespace OHOS::MiscServices

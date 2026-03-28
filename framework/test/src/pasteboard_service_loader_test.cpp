@@ -134,8 +134,10 @@ void PasteboardServiceLoaderTest::TearDown(void) { }
  */
 HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceProxyTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardServiceProxyTest001 start");
     auto ret = PasteboardServiceLoader::GetInstance().GetPasteboardServiceProxy();
     EXPECT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardServiceProxyTest001 end");
 }
 
 /**
@@ -147,6 +149,7 @@ HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceProxyTest001, TestSize
  */
 HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardServiceTest001 start");
     sptr<ISystemAbilityManager> saMgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(saMgrProxy, nullptr);
     sptr<IRemoteObject> remoteObject = saMgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
@@ -154,6 +157,7 @@ HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest001, TestSize.Leve
     PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(remoteObject);
     auto ret = PasteboardServiceLoader::GetInstance().GetPasteboardService();
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardServiceTest001 end");
 }
 
 /**
@@ -165,9 +169,11 @@ HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest001, TestSize.Leve
  */
 HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardServiceTest002 start");
     PasteboardServiceLoader::GetInstance().constructing_ = true;
     auto ret = PasteboardServiceLoader::GetInstance().GetPasteboardService();
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardServiceTest002 end");
 }
 
 /**
@@ -179,8 +185,10 @@ HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest002, TestSize.Leve
  */
 HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardServiceTest003 start");
     auto ret = PasteboardServiceLoader::GetInstance().GetPasteboardService();
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteboardServiceTest003 end");
 }
 
 /**
@@ -192,11 +200,13 @@ HWTEST_F(PasteboardServiceLoaderTest, GetPasteboardServiceTest003, TestSize.Leve
  */
 HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteboardServiceProxyTest001 start");
     sptr<ISystemAbilityManager> saMgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(saMgrProxy, nullptr);
     sptr<IRemoteObject> remoteObject = saMgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
     EXPECT_NE(remoteObject, nullptr);
     PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(remoteObject);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteboardServiceProxyTest001 end");
 }
 
 /**
@@ -208,10 +218,12 @@ HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest001, TestSize
  */
 HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteboardServiceProxyTest003 start");
     sptr<IRemoteObject> rObject = sptr<TestIRemoteObject>::MakeSptr();
     EXPECT_NE(rObject, nullptr);
     g_addDeathRecipient = false;
     PasteboardServiceLoader::GetInstance().SetPasteboardServiceProxy(rObject);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteboardServiceProxyTest003 end");
 }
 
 /**
@@ -223,12 +235,14 @@ HWTEST_F(PasteboardServiceLoaderTest, SetPasteboardServiceProxyTest003, TestSize
  */
 HWTEST_F(PasteboardServiceLoaderTest, ReleaseDeathRecipientTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReleaseDeathRecipientTest001 start");
     sptr<ISystemAbilityManager> saMgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     EXPECT_NE(saMgrProxy, nullptr);
     sptr<IRemoteObject> remoteObject = saMgrProxy->CheckSystemAbility(PASTEBOARD_SERVICE_ID);
     EXPECT_NE(remoteObject, nullptr);
     PasteboardServiceLoader::GetInstance().ReleaseDeathRecipient();
     EXPECT_TRUE(PasteboardServiceLoader::GetInstance().deathRecipient_ == nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReleaseDeathRecipientTest001 end");
 }
 
 /**
@@ -240,11 +254,13 @@ HWTEST_F(PasteboardServiceLoaderTest, ReleaseDeathRecipientTest001, TestSize.Lev
  */
 HWTEST_F(PasteboardServiceLoaderTest, GetRecordValueByTypeTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRecordValueByTypeTest001 start");
     auto value = std::make_shared<PasteDataEntry>();
     NiceMock<PasteboardServiceLoaderInterfaceMock> mock;
     EXPECT_CALL(mock, Encode(testing::_)).WillOnce(Return(false));
     int32_t result = PasteboardServiceLoader::GetInstance().GetRecordValueByType(DATAID_TEST, RECORD_TEST, *value);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRecordValueByTypeTest001 end");
 }
 
 /**
@@ -256,11 +272,13 @@ HWTEST_F(PasteboardServiceLoaderTest, GetRecordValueByTypeTest001, TestSize.Leve
  */
 HWTEST_F(PasteboardServiceLoaderTest, GetRecordValueByTypeTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRecordValueByTypeTest002 start");
     auto value = std::make_shared<PasteDataEntry>();
     NiceMock<PasteboardServiceLoaderInterfaceMock> mock;
     EXPECT_CALL(mock, Encode(testing::_)).WillOnce(Return(true));
     int32_t result = PasteboardServiceLoader::GetInstance().GetRecordValueByType(DATAID_TEST, RECORD_TEST, *value);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRecordValueByTypeTest002 end");
 }
 
 /**
@@ -272,6 +290,7 @@ HWTEST_F(PasteboardServiceLoaderTest, GetRecordValueByTypeTest002, TestSize.Leve
  */
 HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest001 start");
     std::vector<uint8_t> sendTLV(0);
     int64_t tlvSize = 1;
     auto mpw = std::make_shared<MessageParcelWarp>();
@@ -280,6 +299,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest001, TestSize.Level0)
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, tlvSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
     mpw->writeRawDataFd_ = -1;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest001 end");
 }
 
 /**
@@ -291,12 +311,14 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest002 start");
     std::vector<uint8_t> sendTLV(0);
     auto value = std::make_shared<PasteDataEntry>();
     int64_t tlvSize = 1;
     int fd = -1;
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, tlvSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest002 end");
 }
 
 /**
@@ -308,6 +330,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest002, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest003 start");
     auto value = std::make_shared<PasteDataEntry>();
     auto mpw = std::make_shared<MessageParcelWarp>();
     int64_t rawDataSize = 0;
@@ -316,6 +339,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest003, TestSize.Level0)
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
     mpw->writeRawDataFd_ = -1;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest003 end");
 }
 
 /**
@@ -327,6 +351,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest003, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest004 start");
     auto mpw = std::make_shared<MessageParcelWarp>();
     auto value = std::make_shared<PasteDataEntry>();
     int64_t rawDataSize = DEFAULT_MAX_RAW_DATA_SIZE + 1;
@@ -335,6 +360,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest004, TestSize.Level0)
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
     mpw->writeRawDataFd_ = -1;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest004 end");
 }
 
 /**
@@ -346,6 +372,7 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest004, TestSize.Level0)
  */
 HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest005 start");
     auto mpw = std::make_shared<MessageParcelWarp>();
     auto value = std::make_shared<PasteDataEntry>();
     int64_t rawDataSize = DEFAULT_MAX_RAW_DATA_SIZE - 1;
@@ -354,5 +381,6 @@ HWTEST_F(PasteboardServiceLoaderTest, ProcessPasteDataTest005, TestSize.Level0)
     int32_t result = PasteboardServiceLoader::GetInstance().ProcessPasteData(*value, rawDataSize, fd, sendTLV);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR));
     mpw->writeRawDataFd_ = -1;
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteDataTest005 end");
 }
 }

@@ -55,6 +55,7 @@ void DevProfileMockTest::TearDown(void)
  */
 HWTEST_F(DevProfileMockTest, GetDeviceStatusTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest001 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly(testing::Return(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR)));
@@ -68,6 +69,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceStatusTest001, TestSize.Level0)
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     int32_t ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR), ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest001 end");
 }
 
 /**
@@ -79,6 +81,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceStatusTest001, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, GetDeviceStatusTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest002 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
@@ -94,6 +97,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceStatusTest002, TestSize.Level0)
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
     ret = DevProfile::GetInstance().GetDeviceStatus(networkId, enabledStatus);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest002 end");
 }
 
 /**
@@ -105,6 +109,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceStatusTest002, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, PutDeviceStatus001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus001 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, PutCharacteristicProfile)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
@@ -117,6 +122,7 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus001, TestSize.Level0)
     bool enabledStatus = true;
     DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus001 end");
 }
 
 /**
@@ -128,6 +134,7 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus001, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, PutDeviceStatus002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus002 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, PutCharacteristicProfile)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_CACHE_EXIST));
@@ -140,6 +147,7 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus002, TestSize.Level0)
     bool enabledStatus = true;
     DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus002 end");
 }
 
 /**
@@ -151,6 +159,7 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus002, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, PutDeviceStatus003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus003 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, PutCharacteristicProfile)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_INVALID_PARAMS));
@@ -163,6 +172,7 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus003, TestSize.Level0)
     bool enabledStatus = true;
     DevProfile::GetInstance().PutDeviceStatus(enabledStatus);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus003 end");
 }
 
 /**
@@ -174,6 +184,7 @@ HWTEST_F(DevProfileMockTest, PutDeviceStatus003, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, GetDeviceVersionTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest001 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_SUCCESS));
@@ -189,6 +200,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest001, TestSize.Level0)
     DevProfile::GetInstance().subscribeUdidList_.clear();
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest001 end");
 }
 
 /**
@@ -200,6 +212,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest001, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, GetDeviceVersionTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest002 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly(testing::Return(DistributedDeviceProfile::DP_INVALID_PARAMS));
@@ -213,6 +226,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest002, TestSize.Level0)
     std::string bundleName = "com.dev.profile";
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest002 end");
 }
 
 /**
@@ -224,6 +238,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest002, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, GetDeviceVersionTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest003 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
@@ -240,6 +255,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest003, TestSize.Level0)
     std::string bundleName = "com.dev.profile";
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest003 end");
 }
 
 /**
@@ -251,6 +267,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest003, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, GetDeviceVersionTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest004 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
@@ -267,6 +284,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest004, TestSize.Level0)
     std::string bundleName = "com.dev.profile";
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest004 end");
 }
 
 /**
@@ -278,6 +296,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest004, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, GetDeviceVersionTest005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest005 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
@@ -294,6 +313,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest005, TestSize.Level0)
     std::string bundleName = "com.dev.profile";
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest005 end");
 }
 
 /**
@@ -305,6 +325,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest005, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, GetDeviceVersionTest006, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest006 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(dpMock, GetCharacteristicProfile)
         .WillRepeatedly([](auto, auto, auto, DistributedDeviceProfile::CharacteristicProfile &characteristicProfile) {
@@ -321,6 +342,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest006, TestSize.Level0)
     std::string bundleName = "com.dev.profile";
     DevProfile::GetInstance().GetDeviceVersion(bundleName, versionId);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest006 end");
 }
 
 /**
@@ -332,6 +354,7 @@ HWTEST_F(DevProfileMockTest, GetDeviceVersionTest006, TestSize.Level0)
  */
 HWTEST_F(DevProfileMockTest, SubscribeProfileEventTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 start");
     NiceMock<DistributedDeviceProfile::DeviceProfileClientMock> dpMock;
     EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
         .WillRepeatedly([](auto, auto, std::string &udid) {
@@ -346,6 +369,7 @@ HWTEST_F(DevProfileMockTest, SubscribeProfileEventTest001, TestSize.Level0)
     DevProfile::GetInstance().SendSubscribeInfos();
     DevProfile::GetInstance().UnSubscribeProfileEvent(bundleName);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 end");
 }
 } // namespace MiscServices
 } // namespace OHOS

@@ -17,6 +17,7 @@
 #include <variant>
 
 #include "tlv_countable.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -44,11 +45,13 @@ void TLVCountableTest::TearDown(void) { }
  */
 HWTEST_F(TLVCountableTest, CountVariantBranchTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CountVariantBranchTest001 start");
     using TestVariant = std::variant<std::monostate, int, std::string>;
     TestVariant testVariant;
     
     size_t result = TLVCountable::CountVariant<TestVariant, std::monostate, int, std::string>(0, testVariant);
     EXPECT_EQ(result, 16);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CountVariantBranchTest001 end");
 }
 
 /**
@@ -58,11 +61,13 @@ HWTEST_F(TLVCountableTest, CountVariantBranchTest001, TestSize.Level1)
  */
 HWTEST_F(TLVCountableTest, CountVariantBranchTest002, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CountVariantBranchTest002 start");
     using TestVariant = std::variant<std::monostate, int, std::string>;
     TestVariant testVariant = 1;
     
     size_t result = TLVCountable::CountVariant<TestVariant, std::monostate, int, std::string>(2, testVariant);
     EXPECT_EQ(result, 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CountVariantBranchTest002 end");
 }
 
 /**
@@ -72,12 +77,14 @@ HWTEST_F(TLVCountableTest, CountVariantBranchTest002, TestSize.Level1)
  */
 HWTEST_F(TLVCountableTest, CountVariantBranchTest003, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CountVariantBranchTest003 start");
     using TestVariant = std::variant<std::monostate, int, std::string>;
     TestVariant testVariant;
     
     size_t result = TLVCountable::CountVariant<TestVariant, std::monostate, int, std::string>(
         static_cast<uint32_t>(std::variant_npos), testVariant);
     EXPECT_EQ(result, 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CountVariantBranchTest003 end");
 }
 
 /**
@@ -87,6 +94,7 @@ HWTEST_F(TLVCountableTest, CountVariantBranchTest003, TestSize.Level1)
  */
 HWTEST_F(TLVCountableTest, CountVariantBranchTest004, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CountVariantBranchTest004 start");
     using TestVariant = std::variant<std::monostate, int, std::string>;
     TestVariant testVariant = std::string("Hello");
     
@@ -94,5 +102,6 @@ HWTEST_F(TLVCountableTest, CountVariantBranchTest004, TestSize.Level1)
     size_t expected = TLVCountable::Count(static_cast<uint32_t>(2)) +
         TLVCountable::Count(std::get<std::string>(testVariant));
     EXPECT_EQ(result, expected);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CountVariantBranchTest004 end");
 }
 } // namespace OHOS::MiscServices

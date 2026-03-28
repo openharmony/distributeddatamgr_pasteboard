@@ -65,6 +65,7 @@ std::shared_ptr<PasteDataRecord> TLVObjectTest::GenRecord(std::uint32_t index)
  */
 HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TLVOjbectTest001 start");
     PasteData pasteData1;
     for (uint32_t i = 0; i < 10; ++i) {
         pasteData1.AddRecord(TLVObjectTest::GenRecord(i));
@@ -88,6 +89,7 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
         EXPECT_TRUE(record2->GetUriV0()->ToString() == record1->GetUriV0()->ToString());
         EXPECT_EQ(record2->GetWant()->OperationEquals(*(record1->GetWant())), true);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TLVOjbectTest001 end");
 }
 
 /**
@@ -99,6 +101,7 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest001, TestSize.Level0)
  */
 HWTEST_F(TLVObjectTest, TLVOjbectTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TLVOjbectTest002 start");
     std::shared_ptr<Want> want = std::make_shared<Want>();
     std::string key = "id";
     int32_t id = 456;
@@ -118,6 +121,7 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest002, TestSize.Level0)
     auto record2 = pasteData2.GetRecordAt(0);
     auto record1 = pasteData1->GetRecordAt(0);
     EXPECT_EQ(record2->GetWant()->OperationEquals(*(record1->GetWant())), true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TLVOjbectTest002 end");
 }
 
 /**
@@ -129,6 +133,7 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest002, TestSize.Level0)
  */
 HWTEST_F(TLVObjectTest, TLVOjbectTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TLVOjbectTest003 start");
     std::string plainText = "plain text";
     auto pasteData1 = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     std::vector<uint8_t> arrayBuffer(46);
@@ -158,6 +163,7 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest003, TestSize.Level0)
     auto custom1 = record1->GetCustomData();
     ASSERT_TRUE(custom1 != nullptr && custom2 != nullptr);
     EXPECT_EQ(custom2->GetItemData().size(), custom1->GetItemData().size());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TLVOjbectTest003 end");
 }
 
 /**
@@ -167,6 +173,7 @@ HWTEST_F(TLVObjectTest, TLVOjbectTest003, TestSize.Level0)
  */
 HWTEST_F(TLVObjectTest, TestPasteDataProperty, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestPasteDataProperty start");
     PasteDataProperty obj1;
     obj1.mimeTypes = {
         MIMETYPE_PIXELMAP, MIMETYPE_TEXT_HTML, MIMETYPE_TEXT_PLAIN, MIMETYPE_TEXT_URI, MIMETYPE_TEXT_WANT,
@@ -201,6 +208,7 @@ HWTEST_F(TLVObjectTest, TestPasteDataProperty, TestSize.Level0)
     EXPECT_EQ(obj1.bundleName, obj2.bundleName);
     EXPECT_EQ(obj1.setTime, obj2.setTime);
     EXPECT_EQ(obj1.screenStatus, obj2.screenStatus);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestPasteDataProperty end");
 }
 
 /**
@@ -210,6 +218,7 @@ HWTEST_F(TLVObjectTest, TestPasteDataProperty, TestSize.Level0)
  */
 HWTEST_F(TLVObjectTest, TestMineCustomData, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestMineCustomData start");
     MineCustomData obj1;
     obj1.AddItemData("key", {1, 1, 1, 1});
 
@@ -222,6 +231,7 @@ HWTEST_F(TLVObjectTest, TestMineCustomData, TestSize.Level0)
     ASSERT_TRUE(ret);
 
     EXPECT_EQ(obj1.GetItemData(), obj2.GetItemData());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestMineCustomData end");
 }
 
 /**
@@ -231,6 +241,7 @@ HWTEST_F(TLVObjectTest, TestMineCustomData, TestSize.Level0)
  */
 HWTEST_F(TLVObjectTest, TestPasteDataEntry, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestPasteDataEntry start");
     PasteDataEntry obj1;
     obj1.SetUtdId("utdId");
     obj1.SetMimeType("mimeType");
@@ -254,6 +265,7 @@ HWTEST_F(TLVObjectTest, TestPasteDataEntry, TestSize.Level0)
     auto udmfObject2 = std::get<std::shared_ptr<Object>>(entryValue);
     ASSERT_NE(udmfObject2, nullptr);
     EXPECT_EQ(udmfObject->value_, udmfObject2->value_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestPasteDataEntry end");
 }
 
 /**
@@ -263,6 +275,7 @@ HWTEST_F(TLVObjectTest, TestPasteDataEntry, TestSize.Level0)
  */
 HWTEST_F(TLVObjectTest, TestPasteDataRecord, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestPasteDataRecord start");
     PasteDataRecord obj1;
     auto udmfObject = std::make_shared<Object>();
     std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
@@ -290,6 +303,7 @@ HWTEST_F(TLVObjectTest, TestPasteDataRecord, TestSize.Level0)
     auto udmfObject2 = std::get<std::shared_ptr<Object>>(entryValue);
     ASSERT_NE(udmfObject2, nullptr);
     EXPECT_EQ(udmfObject->value_, udmfObject2->value_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestPasteDataRecord end");
 }
 
 /**
@@ -299,6 +313,7 @@ HWTEST_F(TLVObjectTest, TestPasteDataRecord, TestSize.Level0)
  */
 HWTEST_F(TLVObjectTest, TestRecursiveGuard, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestRecursiveGuard start");
     constexpr int32_t RECURSIVE_DEPTH = 15;
     std::shared_ptr<Object> objects[RECURSIVE_DEPTH];
     for (int32_t i = 0; i < RECURSIVE_DEPTH; ++i) {
@@ -324,5 +339,6 @@ HWTEST_F(TLVObjectTest, TestRecursiveGuard, TestSize.Level0)
     PasteData pasteData2;
     bool decodeSuccess = pasteData2.Decode(buffer);
     EXPECT_FALSE(decodeSuccess);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestRecursiveGuard end");
 }
 } // namespace OHOS::MiscServices

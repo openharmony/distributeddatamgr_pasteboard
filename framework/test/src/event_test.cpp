@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "eventcenter/event.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -43,12 +44,14 @@ void EventTest::TearDown(void) {}
  */
 HWTEST_F(EventTest, GetEventIdTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEventIdTest start");
     int32_t TestEventId = 123;
     Event event(TestEventId);
 
     int32_t result = event.GetEventId();
 
     EXPECT_EQ(result, TestEventId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEventIdTest end");
 }
 
 /**
@@ -59,6 +62,7 @@ HWTEST_F(EventTest, GetEventIdTest, TestSize.Level0)
  */
 HWTEST_F(EventTest, EqualsTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EqualsTest start");
     int32_t TestEventId = 123;
     Event event1(TestEventId);
     Event event2(TestEventId);
@@ -66,5 +70,6 @@ HWTEST_F(EventTest, EqualsTest, TestSize.Level0)
     bool result = event1.Equals(event2);
 
     EXPECT_EQ(result, false);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EqualsTest end");
 }
 } // namespace OHOS::MiscServices

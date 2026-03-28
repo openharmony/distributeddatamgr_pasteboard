@@ -18,6 +18,7 @@
 #include "device/dev_profile.h"
 #include "device/dm_adapter.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -49,6 +50,7 @@ void DevProfileTest::TearDown(void) {}
  */
 HWTEST_F(DevProfileTest, GetDeviceVersionTest001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
@@ -57,6 +59,7 @@ HWTEST_F(DevProfileTest, GetDeviceVersionTest001, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest001 end");
 }
 
 /**
@@ -68,6 +71,7 @@ HWTEST_F(DevProfileTest, GetDeviceVersionTest001, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, GetDeviceVersionTest002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
     std::string bundleName = "pasteboard_dm_adapter";
@@ -79,6 +83,7 @@ HWTEST_F(DevProfileTest, GetDeviceVersionTest002, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest002 end");
 }
 
 /**
@@ -90,6 +95,7 @@ HWTEST_F(DevProfileTest, GetDeviceVersionTest002, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, PostDelayReleaseProxy001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostDelayReleaseProxy001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     DevProfile::GetInstance().proxy_ = nullptr;
     std::string uuid = "PostDelayReleaseProxy001";
@@ -100,6 +106,7 @@ HWTEST_F(DevProfileTest, PostDelayReleaseProxy001, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostDelayReleaseProxy001 end");
 }
 
 /**
@@ -111,6 +118,7 @@ HWTEST_F(DevProfileTest, PostDelayReleaseProxy001, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, GetDeviceStatusTest001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     bool enabledStatus = false;
     std::string networkId = "test.dev.profile";
@@ -119,6 +127,7 @@ HWTEST_F(DevProfileTest, GetDeviceStatusTest001, TestSize.Level0)
 #else
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest001 end");
 }
 
 /**
@@ -130,6 +139,7 @@ HWTEST_F(DevProfileTest, GetDeviceStatusTest001, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, GetDeviceStatusTest002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     bool enabledStatus = false;
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -138,6 +148,7 @@ HWTEST_F(DevProfileTest, GetDeviceStatusTest002, TestSize.Level0)
 #else
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest002 end");
 }
 
 /**
@@ -149,6 +160,7 @@ HWTEST_F(DevProfileTest, GetDeviceStatusTest002, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, PutDeviceStatus001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     bool res = DMAdapter::GetInstance().Initialize();
     bool enabledStatus = true;
@@ -159,6 +171,7 @@ HWTEST_F(DevProfileTest, PutDeviceStatus001, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus001 end");
 }
 
 /**
@@ -170,6 +183,7 @@ HWTEST_F(DevProfileTest, PutDeviceStatus001, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "pasteboard_dm_adapter";
     bool res = DMAdapter::GetInstance().Initialize();
@@ -178,6 +192,7 @@ HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 end");
 }
 
 /**
@@ -189,6 +204,7 @@ HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, SubscribeProfileEventTest002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "pasteboard_dm_adapter";
     bool res = DMAdapter::GetInstance().Initialize();
@@ -199,6 +215,7 @@ HWTEST_F(DevProfileTest, SubscribeProfileEventTest002, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest002 end");
 }
 
 /**
@@ -210,6 +227,7 @@ HWTEST_F(DevProfileTest, SubscribeProfileEventTest002, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "pasteboard_dm_adapter";
     bool res = DMAdapter::GetInstance().Initialize();
@@ -218,6 +236,7 @@ HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest001 end");
 }
 
 /**
@@ -229,6 +248,7 @@ HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "pasteboard_dm_adapter";
     bool res = DMAdapter::GetInstance().Initialize();
@@ -238,6 +258,7 @@ HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest002 end");
 }
 
 /**
@@ -249,6 +270,7 @@ HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, UnSubscribeAllProfileEvents001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeAllProfileEvents001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     DevProfile& dp = DevProfile::GetInstance();
     dp.subscribeUdidList_.clear();
@@ -262,6 +284,7 @@ HWTEST_F(DevProfileTest, UnSubscribeAllProfileEvents001, TestSize.Level0)
 #else
     EXPECT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeAllProfileEvents001 end");
 }
 
 /**
@@ -273,8 +296,10 @@ HWTEST_F(DevProfileTest, UnSubscribeAllProfileEvents001, TestSize.Level0)
  */
 HWTEST_F(DevProfileTest, Watch, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Watch start");
     DevProfile::Observer observer;
     DevProfile::GetInstance().Watch(observer);
     EXPECT_FALSE(observer);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Watch end");
 }
 } // namespace OHOS::MiscServices
