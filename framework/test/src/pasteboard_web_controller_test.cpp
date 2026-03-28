@@ -1117,7 +1117,7 @@ HWTEST_F(PasteboardWebControllerTest, RemoveInvalidUri_Entry_005, TestSize.Level
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveInvalidUri_Entry_005 start");
     auto controller = PasteboardWebController::GetInstance();
     auto object = std::make_shared<Object>();
-    object->value_[UDMF::FILE_URI_PARAM] = std::string("file://");
+    object->value_[OHOS::UDMF::FILE_URI_PARAM] = std::string("file://");
     object->value_["preserved"] = std::string("keep");
     PasteDataEntry entry(MIMETYPE_TEXT_URI, object);
 
@@ -1128,7 +1128,7 @@ HWTEST_F(PasteboardWebControllerTest, RemoveInvalidUri_Entry_005, TestSize.Level
     auto updatedObject = std::get_if<std::shared_ptr<Object>>(&updatedValue);
     ASSERT_NE(updatedObject, nullptr);
     ASSERT_NE(*updatedObject, nullptr);
-    auto fileUriIter = (*updatedObject)->value_.find(UDMF::FILE_URI_PARAM);
+    auto fileUriIter = (*updatedObject)->value_.find(OHOS::UDMF::FILE_URI_PARAM);
     ASSERT_NE(fileUriIter, (*updatedObject)->value_.end());
     auto fileUriValue = std::get_if<std::string>(&fileUriIter->second);
     ASSERT_NE(fileUriValue, nullptr);
@@ -1611,9 +1611,9 @@ HWTEST_F(PasteboardWebControllerTest, UpdateHtmlRecord_005, TestSize.Level1)
     auto controller = PasteboardWebController::GetInstance();
     auto htmlRecord = std::make_shared<PasteDataRecord>();
     auto object = std::make_shared<Object>();
-    object->value_[UDMF::HTML_CONTENT] = std::string("old value");
+    object->value_[OHOS::UDMF::HTML_CONTENT] = std::string("old value");
     object->value_["preserved"] = std::string("keep");
-    auto entry = std::make_shared<PasteDataEntry>(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML), object);
+    auto entry = std::make_shared<PasteDataEntry>(OHOS::UDMF::UtdUtils::GetUtdIdFromUtdEnum(OHOS::UDMF::HTML), object);
     htmlRecord->AddEntryByMimeType(MIMETYPE_TEXT_HTML, entry);
     htmlRecord->SetFrom(123);
     auto htmlData = std::make_shared<std::string>("<p>new html</p>");
@@ -1633,7 +1633,7 @@ HWTEST_F(PasteboardWebControllerTest, UpdateHtmlRecord_005, TestSize.Level1)
     auto updatedObject = std::get_if<std::shared_ptr<Object>>(&updatedValue);
     ASSERT_NE(updatedObject, nullptr);
     ASSERT_NE(*updatedObject, nullptr);
-    auto htmlContentIter = (*updatedObject)->value_.find(UDMF::HTML_CONTENT);
+    auto htmlContentIter = (*updatedObject)->value_.find(OHOS::UDMF::HTML_CONTENT);
     ASSERT_NE(htmlContentIter, (*updatedObject)->value_.end());
     auto htmlContentValue = std::get_if<std::string>(&htmlContentIter->second);
     ASSERT_NE(htmlContentValue, nullptr);
