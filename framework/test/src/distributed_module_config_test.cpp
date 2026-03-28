@@ -17,6 +17,7 @@
 
 #include "device/distributed_module_config.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -45,11 +46,13 @@ void DistributedModuleConfigTest::TearDown(void) { }
  */
 HWTEST_F(DistributedModuleConfigTest, IsOnTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsOnTest001 start");
     DistributedModuleConfig config;
     config.Init();
     bool result = config.IsOn();
     config.DeInit();
     EXPECT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsOnTest001 end");
 }
 
 /**
@@ -61,6 +64,7 @@ HWTEST_F(DistributedModuleConfigTest, IsOnTest001, TestSize.Level0)
  */
 HWTEST_F(DistributedModuleConfigTest, IsOnTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsOnTest002 start");
     DistributedModuleConfig config;
     std::string device = "validDevice";
     bool result = config.IsOn();
@@ -69,6 +73,7 @@ HWTEST_F(DistributedModuleConfigTest, IsOnTest002, TestSize.Level0)
     config.Offline(device);
     EXPECT_FALSE(result);
     config.DeInit();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsOnTest002 end");
 }
 
 /**
@@ -80,6 +85,7 @@ HWTEST_F(DistributedModuleConfigTest, IsOnTest002, TestSize.Level0)
  */
 HWTEST_F(DistributedModuleConfigTest, IsOnTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsOnTest003 start");
     std::string networkId = "testNetworkId";
     std::string testName = "testDeviceName";
     DmDeviceInfo info;
@@ -92,6 +98,7 @@ HWTEST_F(DistributedModuleConfigTest, IsOnTest003, TestSize.Level0)
     bool result = config.IsOn();
     EXPECT_FALSE(result);
     config.DeInit();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsOnTest003 end");
 }
 
 /**
@@ -103,11 +110,13 @@ HWTEST_F(DistributedModuleConfigTest, IsOnTest003, TestSize.Level0)
  */
 HWTEST_F(DistributedModuleConfigTest, WatchTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WatchTest start");
     DistributedModuleConfig::Observer observer;
     DistributedModuleConfig config;
     config.Notify();
     config.Watch(observer);
     EXPECT_FALSE(observer);
     config.DeInit();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WatchTest end");
 }
 } // namespace OHOS::MiscServices

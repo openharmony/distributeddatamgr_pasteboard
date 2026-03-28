@@ -27,6 +27,7 @@
 #include "system_defined_form.h"
 #include "system_defined_pixelmap.h"
 #include "video.h"
+#include "pasteboard_hilog.h"
 namespace OHOS::MiscServices {
 using namespace testing::ext;
 using namespace testing;
@@ -268,6 +269,7 @@ UDMF::UnifiedData PasteboardUnifiedDataTest::InitAppDefinedData()
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetText001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetText001 start");
     auto data = InitTextData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -290,6 +292,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetText001, TestSize.Level0)
     ASSERT_EQ(udType, UDMF::UDType::TEXT);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetText001 end");
 }
 
 /**
@@ -301,6 +304,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetText001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetPlainText001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPlainText001 start");
     auto data = InitPlainData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -331,6 +335,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetPlainText001, TestSize.Level0)
     auto plainText = std::make_shared<UDMF::PlainText>(UDMF::PLAIN_TEXT, entryValue);
     ASSERT_EQ(plainText->GetContent(), text_);
     ASSERT_EQ(plainText->GetAbstract(), extraText_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPlainText001 end");
 }
 
 /**
@@ -342,6 +347,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetPlainText001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetLink001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetLink001 start");
     auto data = InitLinkData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -372,6 +378,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetLink001, TestSize.Level0)
     auto link = std::make_shared<UDMF::Link>(UDMF::HYPERLINK, entryValue);
     ASSERT_EQ(link->GetUrl(), text_);
     ASSERT_EQ(link->GetDescription(), extraText_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetLink001 end");
 }
 
 /**
@@ -383,6 +390,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetLink001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetHtml001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetHtml001 start");
     auto data = InitHtmlData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -413,6 +421,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetHtml001, TestSize.Level0)
     auto html = std::make_shared<UDMF::Html>(UDMF::HTML, entryValue);
     ASSERT_EQ(html->GetHtmlContent(), text_);
     ASSERT_EQ(html->GetPlainContent(), extraText_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetHtml001 end");
 }
 
 /**
@@ -424,6 +433,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetHtml001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetWant001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetWant001 start");
     auto data = InitWantData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -449,6 +459,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetWant001, TestSize.Level0)
     auto want1 = record->GetWant();
     int32_t idValue1 = want1->GetIntParam("id", 0);
     ASSERT_EQ(idValue1, 123);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetWant001 end");
 }
 
 /**
@@ -460,6 +471,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetWant001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetFile001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetFile001 start");
     auto data = InitFileData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
 
@@ -487,6 +499,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFile001, TestSize.Level0)
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetFile001 end");
 }
 
 /**
@@ -498,6 +511,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFile001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetImage001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetImage001 start");
     auto data = InitImageData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -524,6 +538,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetImage001, TestSize.Level0)
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetImage001 end");
 }
 
 /**
@@ -535,6 +550,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetImage001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetAudio001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAudio001 start");
     auto data = InitAudioData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -561,6 +577,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAudio001, TestSize.Level0)
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAudio001 end");
 }
 
 /**
@@ -572,6 +589,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAudio001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetVideo001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetVideo001 start");
     auto data = InitVideoData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -598,6 +616,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetVideo001, TestSize.Level0)
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetVideo001 end");
 }
 
 /**
@@ -609,6 +628,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetVideo001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetFolder001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetFolder001 start");
     auto data = InitFolderData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -635,6 +655,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFolder001, TestSize.Level0)
     ASSERT_EQ(uri1, uri_);
     auto details1 = record->GetDetails();
     ASSERT_EQ(*details1, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetFolder001 end");
 }
 
 /**
@@ -646,6 +667,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetFolder001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetSystemDefined001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetSystemDefined001 start");
     auto data = InitSystemRecordData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -667,6 +689,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetSystemDefined001, TestSize.Level0)
     ASSERT_EQ(udType, UDMF::SYSTEM_DEFINED_RECORD);
     auto details = record->GetDetails();
     ASSERT_EQ(*details, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetSystemDefined001 end");
 }
 
 /**
@@ -678,6 +701,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetSystemDefined001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetAppItem001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAppItem001 start");
     auto data = InitSystemAppItemData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
 
@@ -717,6 +741,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppItem001, TestSize.Level0)
     ASSERT_EQ(newAppItem1->GetAppLabelId(), "appLabelId");
     ASSERT_EQ(newAppItem1->GetBundleName(), "bundleName");
     ASSERT_EQ(newAppItem1->GetAbilityName(), "abilityName");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAppItem001 end");
 }
 
 /**
@@ -728,6 +753,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppItem001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetForm001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetForm001 start");
     auto data = InitSystemFormData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     UDMF::UnifiedData newData;
@@ -765,6 +791,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetForm001, TestSize.Level0)
     ASSERT_EQ("module", module1);
     ASSERT_EQ("bundleName", bundleName1);
     ASSERT_EQ("abilityName", abilityName1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetForm001 end");
 }
 
 /**
@@ -776,6 +803,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetForm001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetAppDefined001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAppDefined001 start");
     auto data = InitAppDefinedData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
 
@@ -801,6 +829,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppDefined001, TestSize.Level0)
         {type, rawData_}
     };
     ASSERT_EQ(items, customData);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAppDefined001 end");
 }
 
 /**
@@ -812,6 +841,7 @@ HWTEST_F(PasteboardUnifiedDataTest, SetAppDefined001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUnifiedDataTest, SetPixelMap001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPixelMap001 start");
     auto data = InitSystemPixelMapData();
     PasteboardClient::GetInstance()->SetUnifiedData(data);
     // GetUnifiedData
@@ -845,5 +875,6 @@ HWTEST_F(PasteboardUnifiedDataTest, SetPixelMap001, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.height == imageInfo1.size.height);
     ASSERT_TRUE(imageInfo.size.width == imageInfo1.size.width);
     ASSERT_TRUE(imageInfo.pixelFormat == imageInfo1.pixelFormat);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPixelMap001 end");
 }
 } // namespace OHOS::MiscServices

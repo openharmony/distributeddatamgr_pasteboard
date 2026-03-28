@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 
 #include "eventcenter/event_center.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -91,6 +92,7 @@ protected:
  */
 HWTEST_F(EventCenterTest, TopLayerASyncEvent, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TopLayerASyncEvent start");
     auto test = [this]() {
         EventCenter::Defer defer;
         EventCenter::GetInstance().PostEvent(std::make_unique<TestBegin>());
@@ -99,6 +101,7 @@ HWTEST_F(EventCenterTest, TopLayerASyncEvent, TestSize.Level2)
     test();
     ASSERT_EQ(currEvent_, TEST_EVT_END);
     ASSERT_EQ(waitEvent_, TEST_EVT_UNKNOWN);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TopLayerASyncEvent end");
 }
 
 /**
@@ -110,11 +113,13 @@ HWTEST_F(EventCenterTest, TopLayerASyncEvent, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, SubLayerASyncEvent, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubLayerASyncEvent start");
     EventCenter::Defer defer;
     EventCenter::GetInstance().PostEvent(std::make_unique<TestBegin>());
     waitEvent_ = TEST_EVT_BEGIN;
     ASSERT_EQ(currEvent_, TEST_EVT_UNKNOWN);
     ASSERT_EQ(waitEvent_, TEST_EVT_BEGIN);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubLayerASyncEvent end");
 }
 
 /**
@@ -126,6 +131,7 @@ HWTEST_F(EventCenterTest, SubLayerASyncEvent, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ASyncEventWithoutDefer start");
     EventCenter::Defer defer;
     waitEvent_ = TEST_EVT_BEGIN;
     auto test = [this]() {
@@ -134,6 +140,7 @@ HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
     test();
     ASSERT_EQ(currEvent_, TEST_EVT_UNKNOWN);
     ASSERT_EQ(waitEvent_, TEST_EVT_BEGIN);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ASyncEventWithoutDefer end");
 }
 
 /**
@@ -145,10 +152,12 @@ HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, ImmediatelyASyncEvent, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ImmediatelyASyncEvent start");
     waitEvent_ = TEST_EVT_BEGIN;
     EventCenter::GetInstance().PostEvent(std::make_unique<TestBegin>());
     ASSERT_EQ(currEvent_, TEST_EVT_END);
     ASSERT_EQ(waitEvent_, TEST_EVT_UNKNOWN);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ImmediatelyASyncEvent end");
 }
 
 /**
@@ -160,8 +169,10 @@ HWTEST_F(EventCenterTest, ImmediatelyASyncEvent, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, PostEvent, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostEvent start");
     int32_t result = EventCenter::GetInstance().PostEvent(nullptr);
     EXPECT_EQ(result, EventCenter::CODE_INVALID_ARGS);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostEvent end");
 }
 
 /**
@@ -173,10 +184,12 @@ HWTEST_F(EventCenterTest, PostEvent, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, SubscribeTest, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeTest start");
     int32_t evtId = 1;
     std::function<void(const Event &)> observer = nullptr;
     bool result = EventCenter::GetInstance().Subscribe(evtId, observer);
     EXPECT_TRUE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeTest end");
 }
 
 /**
@@ -188,8 +201,10 @@ HWTEST_F(EventCenterTest, SubscribeTest, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, UnsubscribeTest, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeTest start");
     int32_t evtId = 2;
     bool result = EventCenter::GetInstance().Unsubscribe(evtId);
     EXPECT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeTest end");
 }
 } // namespace OHOS::MiscServices

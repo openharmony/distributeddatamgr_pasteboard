@@ -18,6 +18,7 @@
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "pasteboard_service_loader.h"
+#include "pasteboard_hilog.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -52,12 +53,14 @@ void PasteboardClientMockTest::TearDown(void)
  */
 HWTEST_F(PasteboardClientMockTest, GetChangeCount001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount001 start");
     EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
     PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
     PasteboardServiceLoader::GetInstance().constructing_ = false;
     uint32_t changeCount = 0;
     int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount001 end");
 }
 
 /**
@@ -69,12 +72,14 @@ HWTEST_F(PasteboardClientMockTest, GetChangeCount001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, GetPasteData001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData001 start");
     EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
     PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
     PasteboardServiceLoader::GetInstance().constructing_ = false;
     PasteData pasteData;
     int32_t status = PasteboardClient::GetInstance()->GetPasteData(pasteData);
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteData001 end");
 }
 
 /**
@@ -86,6 +91,7 @@ HWTEST_F(PasteboardClientMockTest, GetPasteData001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, GetPasteDataFromService001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteDataFromService001 start");
     EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
     PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
     PasteboardServiceLoader::GetInstance().constructing_ = false;
@@ -96,6 +102,7 @@ HWTEST_F(PasteboardClientMockTest, GetPasteDataFromService001, TestSize.Level0)
     int32_t status = PasteboardClient::GetInstance()->GetPasteDataFromService(
         pasteData, pasteDataFromServiceInfo, progressKey, params);
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteDataFromService001 end");
 }
 
 /**
@@ -107,12 +114,14 @@ HWTEST_F(PasteboardClientMockTest, GetPasteDataFromService001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, SetPasteData001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteData001 start");
     EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
     PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
     PasteboardServiceLoader::GetInstance().constructing_ = false;
     PasteData pasteData;
     int32_t status = PasteboardClient::GetInstance()->SetPasteData(pasteData);
     ASSERT_EQ(status, static_cast<int32_t>(PasteboardError::OBTAIN_SERVER_SA_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPasteData001 end");
 }
 
 /**
@@ -124,12 +133,14 @@ HWTEST_F(PasteboardClientMockTest, SetPasteData001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, SubscribeTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeTest001 start");
     EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
     PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
     PasteboardServiceLoader::GetInstance().constructing_ = false;
     sptr<PasteboardObserver> callback = nullptr;
     auto ret = PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, callback);
     ASSERT_EQ(ret, false);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeTest001 end");
 }
 
 /**
@@ -141,12 +152,14 @@ HWTEST_F(PasteboardClientMockTest, SubscribeTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, SubscribeTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeTest002 start");
     EXPECT_CALL(*systemAbilityManagerClientMock_, GetSystemAbilityManager()).WillRepeatedly(testing::Return(nullptr));
     PasteboardServiceLoader::GetInstance().pasteboardServiceProxy_ = nullptr;
     PasteboardServiceLoader::GetInstance().constructing_ = false;
     sptr<PasteboardObserver> callback = sptr<PasteboardObserver>::MakeSptr();
     auto ret = PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, callback);
     ASSERT_EQ(ret, false);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeTest002 end");
 }
 
 } // namespace MiscServices

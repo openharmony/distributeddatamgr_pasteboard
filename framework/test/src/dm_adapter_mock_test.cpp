@@ -17,6 +17,7 @@
 
 #include "device/dm_adapter.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -51,6 +52,7 @@ void DMAdapterMockTest::TearDown(void)
  */
 HWTEST_F(DMAdapterMockTest, OnDeviceChanged001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceChanged001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, IsSameAccount(testing::_)).Times(1).WillRepeatedly(testing::Return(true));
     DmDeviceInfo info;
@@ -71,6 +73,7 @@ HWTEST_F(DMAdapterMockTest, OnDeviceChanged001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceChanged001 end");
 }
 
 /**
@@ -82,6 +85,7 @@ HWTEST_F(DMAdapterMockTest, OnDeviceChanged001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, OnDeviceChanged002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceChanged002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, IsSameAccount(testing::_)).Times(1).WillRepeatedly(testing::Return(false));
     DmDeviceInfo info;
@@ -102,6 +106,7 @@ HWTEST_F(DMAdapterMockTest, OnDeviceChanged002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceChanged002 end");
 }
 
 /**
@@ -113,6 +118,7 @@ HWTEST_F(DMAdapterMockTest, OnDeviceChanged002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetLocalDeviceInfo(testing::_, testing::_))
         .Times(1)
@@ -125,6 +131,7 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid001 end");
 }
 
 /**
@@ -136,6 +143,7 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetLocalDeviceInfo(testing::_, testing::_))
         .Times(1)
@@ -153,6 +161,7 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid002 end");
 }
 
 /**
@@ -164,6 +173,7 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetLocalDeviceInfo(testing::_, testing::_))
         .Times(1)
@@ -181,6 +191,7 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid003, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid003 end");
 }
 
 /**
@@ -192,6 +203,7 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceUdid003, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUdidByNetworkId001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
         .Times(1)
@@ -205,6 +217,7 @@ HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUdidByNetworkId001 end");
 }
 
 /**
@@ -216,6 +229,7 @@ HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUdidByNetworkId002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
         .Times(1)
@@ -229,6 +243,7 @@ HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUdidByNetworkId002 end");
 }
 
 /**
@@ -240,6 +255,7 @@ HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUdidByNetworkId003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
         .Times(1)
@@ -253,6 +269,7 @@ HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId003, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUdidByNetworkId003 end");
 }
 
 /**
@@ -264,6 +281,7 @@ HWTEST_F(DMAdapterMockTest, GetUdidByNetworkId003, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, GetLocalDeviceType001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceType001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetLocalDeviceType(testing::_, testing::_))
         .Times(1)
@@ -273,6 +291,7 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceType001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceType001 end");
 }
 
 /**
@@ -284,6 +303,7 @@ HWTEST_F(DMAdapterMockTest, GetLocalDeviceType001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, SetDevices001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetDevices001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetTrustedDeviceList(testing::_, testing::_, testing::_))
         .Times(1)
@@ -301,6 +321,7 @@ HWTEST_F(DMAdapterMockTest, SetDevices001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetDevices001 end");
 }
 
 /**
@@ -312,6 +333,7 @@ HWTEST_F(DMAdapterMockTest, SetDevices001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, SetDevices002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetDevices002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetTrustedDeviceList(testing::_, testing::_, testing::_))
         .Times(1)
@@ -329,6 +351,7 @@ HWTEST_F(DMAdapterMockTest, SetDevices002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetDevices002 end");
 }
 
 /**
@@ -340,6 +363,7 @@ HWTEST_F(DMAdapterMockTest, SetDevices002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterMockTest, SetDevices003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetDevices003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     EXPECT_CALL(*deviceManagerMock_, GetTrustedDeviceList(testing::_, testing::_, testing::_))
         .Times(1)
@@ -357,6 +381,7 @@ HWTEST_F(DMAdapterMockTest, SetDevices003, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetDevices003 end");
 }
 
 } // namespace MiscServices

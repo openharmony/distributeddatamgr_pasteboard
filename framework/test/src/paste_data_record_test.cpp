@@ -18,6 +18,7 @@
 #include "entry_getter.h"
 #include "paste_data_record.h"
 #include "unified_meta.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -233,6 +234,7 @@ void PasteDataRecordTest::CheckLinkUds(const std::shared_ptr<PasteDataEntry> ent
  */
 HWTEST_F(PasteDataRecordTest, GetValidTypesTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetValidTypesTest001 start");
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     AddPlainUdsEntry(*record);
     AddHtmlUdsEntry(*record);
@@ -244,6 +246,7 @@ HWTEST_F(PasteDataRecordTest, GetValidTypesTest001, TestSize.Level0)
     auto validTypes = record->GetValidTypes(inputTypes);
     ASSERT_EQ(validTypes.size(), 1);
     ASSERT_EQ(validTypes[0], UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetValidTypesTest001 end");
 }
 
 /**
@@ -255,12 +258,14 @@ HWTEST_F(PasteDataRecordTest, GetValidTypesTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddEntryTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryTest001 start");
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     AddPlainUdsEntry(*record);
     AddHtmlUdsEntry(*record);
     std::set<std::string> mimeTypes = record->GetMimeTypes();
     EXPECT_NE(mimeTypes.find(MIMETYPE_TEXT_PLAIN), mimeTypes.end());
     EXPECT_NE(mimeTypes.find(MIMETYPE_TEXT_HTML), mimeTypes.end());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryTest001 end");
 }
 
 /**
@@ -272,6 +277,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetEntries001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntries001 start");
     std::vector<std::string> inputTypes;
     inputTypes.emplace_back(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE_URI));
     inputTypes.emplace_back(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML));
@@ -306,6 +312,7 @@ HWTEST_F(PasteDataRecordTest, GetEntries001, TestSize.Level0)
 
     auto entries = record->GetEntries();
     CheckEntries(entries);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntries001 end");
 }
 
 /**
@@ -317,6 +324,7 @@ HWTEST_F(PasteDataRecordTest, GetEntries001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, BuilderTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "BuilderTest001 start");
     PasteDataRecord::Builder builder("");
     builder.SetHtmlText(nullptr);
     builder.SetWant(nullptr);
@@ -328,6 +336,7 @@ HWTEST_F(PasteDataRecordTest, BuilderTest001, TestSize.Level0)
 
     auto record = builder.Build();
     EXPECT_NE(record, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "BuilderTest001 end");
 }
 
 /**
@@ -339,11 +348,13 @@ HWTEST_F(PasteDataRecordTest, BuilderTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, SetUriTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetUriTest001 start");
     PasteDataRecord record;
     record.SetUri(nullptr);
 
     auto uri = record.GetUriV0();
     EXPECT_EQ(uri, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetUriTest001 end");
 }
 
 /**
@@ -355,6 +366,7 @@ HWTEST_F(PasteDataRecordTest, SetUriTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "NewMultiTypeRecordTest001 start");
     PasteDataRecord record;
 
     auto ret = record.NewMultiTypeRecord(nullptr, "");
@@ -383,6 +395,7 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest001, TestSize.Level0)
 
     ret = record.NewMultiTypeRecord(nullptr, "2");
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "NewMultiTypeRecordTest001 end");
 }
 
 class EntryGetterImplement : public UDMF::EntryGetter {
@@ -402,6 +415,7 @@ public:
  */
 HWTEST_F(PasteDataRecordTest, GetEntryGetterTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryGetterTest001 start");
     PasteDataRecord record;
     std::shared_ptr<UDMF::EntryGetter> entryGetter = nullptr;
     record.SetEntryGetter(entryGetter);
@@ -412,6 +426,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryGetterTest001, TestSize.Level0)
     record.SetEntryGetter(entryGetter);
     ret = record.GetEntryGetter();
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryGetterTest001 end");
 }
 
 /**
@@ -423,6 +438,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryGetterTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, NewMultiTypeDelayRecordTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "NewMultiTypeDelayRecordTest001 start");
     PasteDataRecord record;
     std::vector<std::string> mimeTypes = { "0", "1", "2" };
     auto ret = record.NewMultiTypeDelayRecord(mimeTypes, nullptr);
@@ -431,6 +447,7 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeDelayRecordTest001, TestSize.Level0)
     auto entryGetter = std::make_shared<EntryGetterImplement>();
     ret = record.NewMultiTypeDelayRecord(mimeTypes, entryGetter);
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "NewMultiTypeDelayRecordTest001 end");
 }
 
 /**
@@ -442,6 +459,7 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeDelayRecordTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, ClearPixelMapTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ClearPixelMapTest001 start");
     auto pixelMap = std::make_shared<OHOS::Media::PixelMap>();
     auto record = PasteDataRecord::NewPixelMapRecord(pixelMap);
     ASSERT_NE(record, nullptr);
@@ -452,6 +470,7 @@ HWTEST_F(PasteDataRecordTest, ClearPixelMapTest001, TestSize.Level0)
     record->ClearPixelMap();
     pixelMap = record->GetPixelMapV0();
     EXPECT_EQ(pixelMap, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ClearPixelMapTest001 end");
 }
 
 /**
@@ -463,12 +482,14 @@ HWTEST_F(PasteDataRecordTest, ClearPixelMapTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextV0Test001 start");
     std::string html = html_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
     ASSERT_NE(record, nullptr);
 
     auto htmlText = record->GetHtmlTextV0();
     EXPECT_NE(htmlText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextV0Test001 end");
 }
 
 /**
@@ -480,12 +501,14 @@ HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextV0Test002 start");
     std::string text = text_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
     ASSERT_NE(record, nullptr);
 
     auto htmlText = record->GetHtmlTextV0();
     EXPECT_EQ(htmlText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextV0Test002 end");
 }
 
 /**
@@ -497,12 +520,14 @@ HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextV0Test003 start");
     std::string html = nullptr;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
     ASSERT_NE(record, nullptr);
 
     auto htmlText = record->GetHtmlTextV0();
     EXPECT_EQ(htmlText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextV0Test003 end");
 }
 
 /**
@@ -514,10 +539,12 @@ HWTEST_F(PasteDataRecordTest, GetHtmlTextV0Test003, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetHtmlTextTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextTest001 start");
     PasteDataRecord record;
 
     auto htmlText = record.GetHtmlText();
     EXPECT_EQ(htmlText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextTest001 end");
 }
 
 /**
@@ -529,12 +556,14 @@ HWTEST_F(PasteDataRecordTest, GetHtmlTextTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetHtmlTextTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextTest002 start");
     std::string html = html_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
     ASSERT_NE(record, nullptr);
 
     auto htmlText = record->GetHtmlText();
     EXPECT_NE(htmlText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetHtmlTextTest002 end");
 }
 
 /**
@@ -546,12 +575,14 @@ HWTEST_F(PasteDataRecordTest, GetHtmlTextTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextV0Test001 start");
     std::string text = text_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
     ASSERT_NE(record, nullptr);
 
     auto plainText = record->GetPlainTextV0();
     EXPECT_NE(plainText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextV0Test001 end");
 }
 
 /**
@@ -563,12 +594,14 @@ HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextV0Test002 start");
     std::string html = html_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
     ASSERT_NE(record, nullptr);
 
     auto plainText = record->GetPlainTextV0();
     EXPECT_EQ(plainText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextV0Test002 end");
 }
 
 /**
@@ -580,12 +613,14 @@ HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextV0Test003 start");
     std::string text = nullptr;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
     ASSERT_NE(record, nullptr);
 
     auto plainText = record->GetPlainTextV0();
     EXPECT_EQ(plainText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextV0Test003 end");
 }
 
 /**
@@ -597,10 +632,12 @@ HWTEST_F(PasteDataRecordTest, GetPlainTextV0Test003, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPlainTextTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextTest001 start");
     PasteDataRecord record;
 
     auto plainText = record.GetPlainText();
     EXPECT_EQ(plainText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextTest001 end");
 }
 
 /**
@@ -612,12 +649,14 @@ HWTEST_F(PasteDataRecordTest, GetPlainTextTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPlainTextTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextTest002 start");
     std::string text = text_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
     ASSERT_NE(record, nullptr);
 
     auto plainText = record->GetPlainText();
     EXPECT_NE(plainText, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPlainTextTest002 end");
 }
 
 /**
@@ -629,10 +668,12 @@ HWTEST_F(PasteDataRecordTest, GetPlainTextTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPixelMapTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPixelMapTest001 start");
     PasteDataRecord record;
 
     auto pixelMap = record.GetPixelMap();
     EXPECT_EQ(pixelMap, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPixelMapTest001 end");
 }
 
 /**
@@ -644,6 +685,7 @@ HWTEST_F(PasteDataRecordTest, GetPixelMapTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPixelMapTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPixelMapTest002 start");
     const uint32_t color[] = { 0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08 };
     uint32_t len = sizeof(color) / sizeof(color[0]);
     Media::InitializationOptions opts;
@@ -658,6 +700,7 @@ HWTEST_F(PasteDataRecordTest, GetPixelMapTest002, TestSize.Level0)
 
     pixelMap = record->GetPixelMap();
     EXPECT_NE(pixelMap, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPixelMapTest002 end");
 }
 
 /**
@@ -669,12 +712,14 @@ HWTEST_F(PasteDataRecordTest, GetPixelMapTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetUriV0Test001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriV0Test001 start");
     OHOS::Uri uri(uri_);
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewUriRecord(uri);
     ASSERT_NE(record, nullptr);
 
     auto tempUri = record->GetUriV0();
     EXPECT_NE(tempUri, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriV0Test001 end");
 }
 
 /**
@@ -686,12 +731,14 @@ HWTEST_F(PasteDataRecordTest, GetUriV0Test001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetUriV0Test002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriV0Test002 start");
     std::string html = html_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
     ASSERT_NE(record, nullptr);
 
     auto tempUri = record->GetUriV0();
     EXPECT_EQ(tempUri, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriV0Test002 end");
 }
 
 /**
@@ -703,11 +750,13 @@ HWTEST_F(PasteDataRecordTest, GetUriV0Test002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetUriV0Test003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriV0Test003 start");
     PasteDataRecord record;
     record.SetUri(nullptr);
 
     auto tempUri = record.GetUriV0();
     EXPECT_EQ(tempUri, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriV0Test003 end");
 }
 
 /**
@@ -719,12 +768,14 @@ HWTEST_F(PasteDataRecordTest, GetUriV0Test003, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetUriTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriTest001 start");
     OHOS::Uri uri(uri_);
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewUriRecord(uri);
     ASSERT_NE(record, nullptr);
 
     auto tempUri = record->GetUri();
     EXPECT_NE(tempUri, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriTest001 end");
 }
 
 /**
@@ -736,11 +787,13 @@ HWTEST_F(PasteDataRecordTest, GetUriTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetUriTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriTest002 start");
     PasteDataRecord record;
     record.SetUri(nullptr);
 
     auto tempUri = record.GetUri();
     EXPECT_EQ(tempUri, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriTest002 end");
 }
 
 /**
@@ -752,9 +805,11 @@ HWTEST_F(PasteDataRecordTest, GetUriTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, ConstructorTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConstructorTest001 start");
     PasteDataRecord record("", nullptr, nullptr, nullptr, nullptr);
     auto pixelMap = record.GetPixelMapV0();
     EXPECT_EQ(pixelMap, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConstructorTest001 end");
 }
 
 /**
@@ -766,6 +821,7 @@ HWTEST_F(PasteDataRecordTest, ConstructorTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddEntryTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryTest002 start");
     PasteDataRecord record;
     record.AddEntry("1", nullptr);
 
@@ -779,6 +835,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest002, TestSize.Level0)
 
     auto ret = record.GetEntry(plainTextUtdId);
     EXPECT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryTest002 end");
 }
 
 /**
@@ -790,6 +847,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddEntryTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryTest003 start");
     PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
     auto wantUtdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::OPENHARMONY_WANT);
     auto object = std::make_shared<Object>();
@@ -799,6 +857,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest003, TestSize.Level0)
 
     auto ret = record.GetEntry(wantUtdId);
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryTest003 end");
 }
 
 /**
@@ -810,6 +869,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest003, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddEntryTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryTest004 start");
     PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
     AddLinkUdsEntry(record);
     auto ret = record.GetEntry(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HYPERLINK));
@@ -821,6 +881,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest004, TestSize.Level0)
     AddFileUriUdsEntry(record);
     ret = record.GetEntry(UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::FILE));
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryTest004 end");
 }
 
 /**
@@ -832,6 +893,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryTest004, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, SetTextContentTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetTextContentTest001 start");
     PasteDataRecord record;
     std::string ret = record.GetTextContent();
     EXPECT_STREQ(ret.c_str(), "");
@@ -839,6 +901,7 @@ HWTEST_F(PasteDataRecordTest, SetTextContentTest001, TestSize.Level0)
     record.SetTextContent(text_);
     ret = record.GetTextContent();
     EXPECT_STREQ(ret.c_str(), text_.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetTextContentTest001 end");
 }
 
 /**
@@ -850,10 +913,12 @@ HWTEST_F(PasteDataRecordTest, SetTextContentTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetValidMimeTypesTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetValidMimeTypesTest001 start");
     PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
     std::vector<std::string> mimeTypes = { MIMETYPE_TEXT_WANT, MIMETYPE_TEXT_URI };
     std::vector<std::string> validTypes = record.GetValidMimeTypes(mimeTypes);
     EXPECT_NE(validTypes.size(), 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetValidMimeTypesTest001 end");
 }
 
 /**
@@ -865,12 +930,14 @@ HWTEST_F(PasteDataRecordTest, GetValidMimeTypesTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryByMimeTypeTest001 start");
     PasteDataRecord record;
     std::string mimeType = "";
     record.AddEntryByMimeType(mimeType, nullptr);
 
     auto ret = record.GetEntryByMimeType(mimeType);
     EXPECT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryByMimeTypeTest001 end");
 }
 
 /**
@@ -882,12 +949,14 @@ HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryByMimeTypeTest002 start");
     PasteDataRecord record;
     auto entry = std::make_shared<PasteDataEntry>();
     record.AddEntryByMimeType(MIMETYPE_TEXT_PLAIN, entry);
 
     auto ret = record.GetEntryByMimeType(MIMETYPE_TEXT_PLAIN);
     EXPECT_NE(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryByMimeTypeTest002 end");
 }
 
 /**
@@ -899,12 +968,14 @@ HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryByMimeTypeTest003 start");
     PasteDataRecord record(MIMETYPE_TEXT_PLAIN, nullptr, nullptr, nullptr, nullptr);
     AddPlainUdsEntry(record);
 
     std::set<std::string> mimeTypes = record.GetMimeTypes();
     bool isExist = mimeTypes.find(MIMETYPE_TEXT_PLAIN) == mimeTypes.end();
     EXPECT_FALSE(isExist);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryByMimeTypeTest003 end");
 }
 
 /**
@@ -916,6 +987,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest003, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryByMimeTypeTest004 start");
     PasteDataRecord record(MIMETYPE_TEXT_PLAIN, nullptr, nullptr, nullptr, nullptr);
     auto plainTextUtdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     auto object = std::make_shared<Object>();
@@ -931,6 +1003,7 @@ HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest004, TestSize.Level0)
     std::set<std::string> mimeTypes = record.GetMimeTypes();
     bool isExist = mimeTypes.find(MIMETYPE_TEXT_PLAIN) == mimeTypes.end();
     EXPECT_FALSE(isExist);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddEntryByMimeTypeTest004 end");
 }
 
 /**
@@ -942,12 +1015,14 @@ HWTEST_F(PasteDataRecordTest, AddEntryByMimeTypeTest004, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasEmptyEntryTest001 start");
     PasteDataRecord record;
     auto entries = record.GetEntries();
     EXPECT_EQ(entries.size(), 0);
 
     bool ret = record.HasEmptyEntry();
     EXPECT_FALSE(ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasEmptyEntryTest001 end");
 }
 
 /**
@@ -959,6 +1034,7 @@ HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasEmptyEntryTest002 start");
     PasteDataRecord record;
     auto entry = std::make_shared<PasteDataEntry>();
     std::string utdId = "general.hyperlink";
@@ -969,6 +1045,7 @@ HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest002, TestSize.Level0)
 
     bool ret = record.HasEmptyEntry();
     EXPECT_TRUE(ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasEmptyEntryTest002 end");
 }
 
 /**
@@ -980,6 +1057,7 @@ HWTEST_F(PasteDataRecordTest, HasEmptyEntryTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetUDMFValueTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUDMFValueTest001 start");
     PasteDataRecord record1("1", nullptr, nullptr, nullptr, nullptr);
     auto entries = record1.GetEntries();
     EXPECT_EQ(entries.size(), 0);
@@ -991,6 +1069,7 @@ HWTEST_F(PasteDataRecordTest, GetUDMFValueTest001, TestSize.Level0)
     ASSERT_NE(record2, nullptr);
     entries = record2->GetEntries();
     EXPECT_EQ(entries.size(), 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUDMFValueTest001 end");
 }
 
 /**
@@ -1002,6 +1081,7 @@ HWTEST_F(PasteDataRecordTest, GetUDMFValueTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetUDMFValueTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUDMFValueTest002 start");
     PasteDataRecord record1(MIMETYPE_PIXELMAP, nullptr, nullptr, nullptr, nullptr);
     auto entries = record1.GetEntries();
     EXPECT_EQ(entries.size(), 0);
@@ -1021,6 +1101,7 @@ HWTEST_F(PasteDataRecordTest, GetUDMFValueTest002, TestSize.Level0)
     ASSERT_NE(record2, nullptr);
     entries = record2->GetEntries();
     EXPECT_EQ(entries.size(), 1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUDMFValueTest002 end");
 }
 
 /**
@@ -1032,11 +1113,13 @@ HWTEST_F(PasteDataRecordTest, GetUDMFValueTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, IsDelayRecordTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsDelayRecordTest start");
     PasteDataRecord record(MIMETYPE_TEXT_WANT, nullptr, nullptr, nullptr, nullptr);
     record.SetDelayRecordFlag(true);
     EXPECT_TRUE(record.IsDelayRecord());
     record.SetDelayRecordFlag(false);
     EXPECT_FALSE(record.IsDelayRecord());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsDelayRecordTest end");
 }
 
 /**
@@ -1048,6 +1131,7 @@ HWTEST_F(PasteDataRecordTest, IsDelayRecordTest, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetEntryByMimeType001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType001 start");
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
     want->SetUri(uri_);
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewWantRecord(want);
@@ -1057,6 +1141,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> converted = entry->ConvertToWant();
     ASSERT_NE(converted, nullptr);
     EXPECT_EQ(converted->ToString(), want->ToString());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType001 end");
 }
 
 /**
@@ -1068,6 +1153,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetEntryByMimeType002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType002 start");
     std::string text = text_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewPlainTextRecord(text);
     ASSERT_NE(record, nullptr);
@@ -1076,6 +1162,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType002, TestSize.Level0)
     std::shared_ptr<std::string> converted = entry->ConvertToPlainText();
     ASSERT_NE(converted, nullptr);
     EXPECT_EQ(*converted, text);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType002 end");
 }
 
 /**
@@ -1087,6 +1174,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetEntryByMimeType003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType003 start");
     std::string html = html_;
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewHtmlRecord(html);
     ASSERT_NE(record, nullptr);
@@ -1095,6 +1183,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType003, TestSize.Level0)
     std::shared_ptr<std::string> converted = entry->ConvertToHtml();
     ASSERT_NE(converted, nullptr);
     EXPECT_EQ(*converted, html);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType003 end");
 }
 
 /**
@@ -1106,6 +1195,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType003, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetEntryByMimeType004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType004 start");
     OHOS::Uri uri(uri_);
     std::shared_ptr<PasteDataRecord> record = PasteDataRecord::NewUriRecord(uri);
     ASSERT_NE(record, nullptr);
@@ -1114,6 +1204,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType004, TestSize.Level0)
     std::shared_ptr<OHOS::Uri> converted = entry->ConvertToUri();
     ASSERT_NE(converted, nullptr);
     EXPECT_EQ(converted->ToString(), uri.ToString());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType004 end");
 }
 
 /**
@@ -1125,6 +1216,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType004, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetEntryByMimeType005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType005 start");
     const uint32_t color[] = { 0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08 };
     uint32_t len = sizeof(color) / sizeof(color[0]);
     Media::InitializationOptions opts;
@@ -1142,6 +1234,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType005, TestSize.Level0)
     ASSERT_NE(converted, nullptr);
     EXPECT_EQ(converted->GetWidth(), pixelMap->GetWidth());
     EXPECT_EQ(converted->GetHeight(), pixelMap->GetHeight());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType005 end");
 }
 
 /**
@@ -1153,6 +1246,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType005, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetEntryByMimeType006, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType006 start");
     std::string key = "openharmony.styled-string";
     std::vector<uint8_t> val = {0x01, 0x02, 0x03};
     auto customData = std::make_shared<MineCustomData>();
@@ -1181,6 +1275,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType006, TestSize.Level0)
     ASSERT_NE(item, itemData.end());
     std::vector<uint8_t> dataArray = item->second;
     EXPECT_EQ(dataArray, val);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType006 end");
 }
 
 /**
@@ -1192,6 +1287,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType006, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetEntryByMimeType007, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType007 start");
     std::string key = "openharmony.styled-string";
     std::vector<uint8_t> val = {0x01, 0x02, 0x03};
     auto customData = std::make_shared<MineCustomData>();
@@ -1211,6 +1307,7 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType007, TestSize.Level0)
     ASSERT_NE(item, itemData.end());
     std::vector<uint8_t> dataArray = item->second;
     EXPECT_EQ(dataArray, val);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetEntryByMimeType007 end");
 }
 
 /**
@@ -1222,9 +1319,11 @@ HWTEST_F(PasteDataRecordTest, GetEntryByMimeType007, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPassUriTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPassUriTest001 start");
     PasteDataRecord record;
     record.convertUri_ = "convertUri";
     EXPECT_EQ(record.GetPassUri(), "convertUri");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPassUriTest001 end");
 }
 
 /**
@@ -1236,8 +1335,10 @@ HWTEST_F(PasteDataRecordTest, GetPassUriTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, GetPassUriTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPassUriTest002 start");
     PasteDataRecord record;
     EXPECT_EQ(record.GetPassUri(), "");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPassUriTest002 end");
 }
 
 /**
@@ -1249,6 +1350,7 @@ HWTEST_F(PasteDataRecordTest, GetPassUriTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, EncodeRemoteTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest001 start");
     PasteDataRecord obj1;
     auto udmfObject = std::make_shared<Object>();
     std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
@@ -1276,6 +1378,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest001, TestSize.Level0)
     auto udmfObject2 = std::get<std::shared_ptr<Object>>(entryValue);
     ASSERT_NE(udmfObject2, nullptr);
     EXPECT_EQ(udmfObject->value_, udmfObject2->value_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest001 end");
 }
 
 /**
@@ -1287,6 +1390,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, EncodeRemoteTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest002 start");
     PasteDataRecord obj1;
     auto udmfObject = std::make_shared<Object>();
     std::string utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::HTML);
@@ -1315,6 +1419,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest002, TestSize.Level0)
     auto udmfObject2 = std::get<std::shared_ptr<Object>>(entryValue);
     ASSERT_NE(udmfObject2, nullptr);
     EXPECT_EQ(udmfObject->value_, udmfObject2->value_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest002 end");
 }
 
 /**
@@ -1326,6 +1431,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, EncodeRemoteTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest003 start");
     std::string uri = "file://content";
     PasteDataRecord obj1;
     auto udmfObject = std::make_shared<Object>();
@@ -1352,6 +1458,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest003, TestSize.Level0)
     auto uri2 = entry2->ConvertToUri();
     ASSERT_NE(uri2, nullptr);
     EXPECT_STREQ(uri.c_str(), uri2->ToString().c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest003 end");
 }
 
 /**
@@ -1363,6 +1470,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest003, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, EncodeRemoteTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest004 start");
     const uint32_t color[] = { 0x80, 0x02, 0x04, 0x08, 0x40, 0x02, 0x04, 0x08 };
     uint32_t len = sizeof(color) / sizeof(color[0]);
     Media::InitializationOptions opts;
@@ -1397,6 +1505,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest004, TestSize.Level0)
     auto pixelMap2 = entry2->ConvertToPixelMap();
     ASSERT_NE(pixelMap2, nullptr);
     EXPECT_TRUE(pixelMap->IsSameImage(*pixelMap2));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest004 end");
 }
 
 /**
@@ -1408,6 +1517,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest004, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, EncodeRemoteTest005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest005 start");
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
     want->SetUri(uri_);
 
@@ -1435,6 +1545,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest005, TestSize.Level0)
     auto want2 = std::get<std::shared_ptr<AAFwk::Want>>(entryValue);
     ASSERT_NE(want2, nullptr);
     EXPECT_STREQ(want2->ToString().c_str(), want->ToString().c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest005 end");
 }
 
 /**
@@ -1446,6 +1557,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest005, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, EncodeRemoteTest006, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest006 start");
     std::string mimeType = "openharmony.styled-string";
     std::vector<uint8_t> array = {0x01, 0x02, 0x03};
     auto customData = std::make_shared<MineCustomData>();
@@ -1472,6 +1584,7 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest006, TestSize.Level0)
     ASSERT_TRUE(std::holds_alternative<std::vector<uint8_t>>(entryValue));
     auto array2 = std::get<std::vector<uint8_t>>(entryValue);
     EXPECT_EQ(array2, array);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EncodeRemoteTest006 end");
 }
 
 /**
@@ -1483,10 +1596,12 @@ HWTEST_F(PasteDataRecordTest, EncodeRemoteTest006, TestSize.Level0)
  */
 HWTEST_F(PasteDataRecordTest, AddUriEntryTest001, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddUriEntryTest001 start");
     auto tempPasteboard = std::make_shared<PasteDataRecord>();
     EXPECT_NE(tempPasteboard, nullptr);
 
     tempPasteboard->AddUriEntry();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AddUriEntryTest001 end");
 }
 
 /**
@@ -1498,12 +1613,14 @@ HWTEST_F(PasteDataRecordTest, AddUriEntryTest001, TestSize.Level2)
  */
 HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest002, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "NewMultiTypeRecordTest002 start");
     std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>>values = nullptr;
     std::string recordMimeType = "text/pain";
 
     auto result = PasteDataRecord::NewMultiTypeRecord(values, recordMimeType);
     EXPECT_NE(result, nullptr);
     EXPECT_TRUE(result->GetEntries().empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "NewMultiTypeRecordTest002 end");
 }
 
 /**
@@ -1515,6 +1632,7 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest002, TestSize.Level2)
  */
 HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest003, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "NewMultiTypeRecordTest003 start");
 
     auto values = std::make_shared<std::map<std::string, std::shared_ptr<EntryValue>>>();
     std::string recordMimeType = "";
@@ -1522,6 +1640,7 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest003, TestSize.Level2)
     auto result = PasteDataRecord::NewMultiTypeRecord(values, recordMimeType);
     EXPECT_NE(result, nullptr);
     EXPECT_TRUE(result->GetEntries().empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "NewMultiTypeRecordTest003 end");
 }
 
 /**
@@ -1533,6 +1652,7 @@ HWTEST_F(PasteDataRecordTest, NewMultiTypeRecordTest003, TestSize.Level2)
  */
 HWTEST_F(PasteDataRecordTest, DecodeTLVTest001, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DecodeTLVTest001 start");
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     EXPECT_NE(record, nullptr);
     std::vector<std::uint8_t> buffer;
@@ -1540,6 +1660,7 @@ HWTEST_F(PasteDataRecordTest, DecodeTLVTest001, TestSize.Level2)
     bool ret = record->DecodeTLV(buff);
 
     EXPECT_EQ(ret, true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DecodeTLVTest001 end");
 }
 
 /**
@@ -1551,11 +1672,13 @@ HWTEST_F(PasteDataRecordTest, DecodeTLVTest001, TestSize.Level2)
  */
 HWTEST_F(PasteDataRecordTest, GetUriPermissionTest001, TestSize.Level2)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriPermissionTest001 start");
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     EXPECT_NE(record, nullptr);
     record->SetUriPermission(PasteDataRecord::READ_PERMISSION);
     auto ret = record->GetUriPermission();
     EXPECT_EQ(ret, PasteDataRecord::READ_PERMISSION);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUriPermissionTest001 end");
 }
 
 /**
@@ -1567,10 +1690,12 @@ HWTEST_F(PasteDataRecordTest, GetUriPermissionTest001, TestSize.Level2)
  */
 HWTEST_F(PasteDataRecordTest, SetForm001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetForm001 start");
     std::shared_ptr<PasteDataRecord> record = std::make_shared<PasteDataRecord>();
     EXPECT_NE(record, nullptr);
     uint32_t from = 1;
     record->SetFrom(from);
     EXPECT_EQ(record->from_, from);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetForm001 end");
 }
 } // namespace OHOS::MiscServices

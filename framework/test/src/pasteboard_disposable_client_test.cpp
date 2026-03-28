@@ -124,6 +124,7 @@ public:
  */
 HWTEST_F(PasteboardDisposableClientTest, TestDisposable001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable001 start");
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
     int32_t windowId = windowId_;
@@ -140,6 +141,7 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable001, TestSize.Level0)
     std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer->errCode_, IPasteboardDisposableObserver::ERR_OK);
     EXPECT_STREQ(observer->text_.c_str(), setText.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable001 end");
 }
 
 /**
@@ -149,6 +151,7 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable001, TestSize.Level0)
  */
 HWTEST_F(PasteboardDisposableClientTest, TestDisposable002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable002 start");
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
     int32_t windowId = windowId_;
@@ -159,6 +162,7 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable002, TestSize.Level0)
     std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer->errCode_, IPasteboardDisposableObserver::ERR_TIMEOUT);
     EXPECT_STREQ(observer->text_.c_str(), "");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable002 end");
 }
 
 /**
@@ -168,6 +172,7 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable002, TestSize.Level0)
  */
 HWTEST_F(PasteboardDisposableClientTest, TestDisposable003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable003 start");
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
     int32_t windowId = windowId_;
@@ -188,6 +193,7 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable003, TestSize.Level0)
     PasteData getData;
     ret = PasteboardClient::GetInstance()->GetPasteData(getData);
     EXPECT_NE(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable003 end");
 }
 
 /**
@@ -197,6 +203,7 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable003, TestSize.Level0)
  */
 HWTEST_F(PasteboardDisposableClientTest, TestDisposable004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable004 start");
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
     int32_t windowId = windowId_;
@@ -223,6 +230,7 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable004, TestSize.Level0)
     std::shared_ptr<std::string> getText = getData.GetPrimaryText();
     ASSERT_TRUE(getText != nullptr);
     EXPECT_STREQ(getText->c_str(), setText.c_str());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable004 end");
 }
 
 /**
@@ -232,6 +240,7 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable004, TestSize.Level0)
  */
 HWTEST_F(PasteboardDisposableClientTest, TestDisposable005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable005 start");
     DisposableType type = DisposableType::PLAIN_TEXT;
     uint32_t maxLen = 100;
     int32_t windowId = windowId_;
@@ -249,5 +258,6 @@ HWTEST_F(PasteboardDisposableClientTest, TestDisposable005, TestSize.Level0)
     std::this_thread::sleep_for(std::chrono::seconds(1));
     EXPECT_EQ(observer->errCode_, IPasteboardDisposableObserver::ERR_DATA_IN_APP);
     EXPECT_STREQ(observer->text_.c_str(), "");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TestDisposable005 end");
 }
 } // namespace OHOS::MiscServices
