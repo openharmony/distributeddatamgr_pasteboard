@@ -36,6 +36,8 @@
           "bundle_framework",
           "cJSON",
           "c_utils",
+          "kv_srore",
+          "ets_frontend",
           "common_event_service",
           "device_info_manager",
           "device_manager",
