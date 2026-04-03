@@ -187,7 +187,7 @@ ohos_shared_library("pasteboard_client") {
     "libuv:uv",
     "libxml2:libxml2",
     "samgr:samgr_proxy",
-    "udmf:udmf_client"
+    "udmf:udmf_client",
   ]
   subsystem_name = "distributeddatamgr"
   innerapi_tags = [ "platformsdk" ]
