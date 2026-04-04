@@ -629,6 +629,7 @@ ohos_unittest("PasteboardDisposableManagerTest") {
     "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_single",
+    "udmf:udmf_client",
   ]
 }
 
