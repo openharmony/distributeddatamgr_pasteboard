@@ -764,6 +764,7 @@ ohos_unittest("TLVReadableTest") {
     "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "udmf:udmf_client",
   ]
 
   deps = [
