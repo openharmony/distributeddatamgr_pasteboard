@@ -386,6 +386,7 @@ ohos_unittest("PasteboardAbilityManagerTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "udmf:udmf_client",
   ]
 }
 
