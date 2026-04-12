@@ -685,6 +685,7 @@ ohos_unittest("PasteboardDisposableClientTest") {
     "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "udmf:udmf_client",
   ]
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
@@ -763,6 +764,7 @@ ohos_unittest("TLVReadableTest") {
     "googletest:gtest_main",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "udmf:udmf_client",
   ]
 
   deps = [
