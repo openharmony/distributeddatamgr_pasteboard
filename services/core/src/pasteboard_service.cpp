@@ -422,6 +422,14 @@ void PasteboardService::OnRemoveDeviceProfile()
     DevProfile::GetInstance().ClearDeviceProfileService();
 }
 
+void PasteboardService::HandleWifiOffAndClearDistributedEvent(int32_t userId)
+{
+    bool isWifiSwitchOpen = switch_.GetWifiSwitch(userId);
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(isWifiSwitchOpen, PASTEBOARD_MODULE_SERVICE, "wifi is able");
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(IsValidCurrentEvent(), PASTEBOARD_MODULE_SERVICE, "not VaildEvent");
+    CleanDistributedData(userId);
+}
+
 void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int64_t dataSize, int32_t result)
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
@@ -4758,9 +4766,7 @@ void PasteBoardCommonEventSubscriber::OnReceiveEventInner(const EventFwk::Common
             pasteboardService_->ClearUriOnUninstall(tokenId);
         }
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_WIFI_POWER_STATE && eventState == WIFI_DISABLED) {
-        if (pasteboardService_->IsValidCurrentEvent()) {
-            pasteboardService_->CleanDistributedData(userId);
-        }
+        pasteboardService_->HandleWifiOffAndClearDistributedEvent(userId);
     }
 }
 

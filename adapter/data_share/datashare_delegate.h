@@ -35,7 +35,7 @@ private:
 
     static void Initialize();
     bool ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper> helper);
-    std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
+    std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper(const std::string &key);
     Uri MakeUri(const std::string &key);
 
     static DataShareDelegate *instance_;
