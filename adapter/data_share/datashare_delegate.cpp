@@ -27,6 +27,9 @@ const constexpr char *SETTING_COLUMN_KEYWORD = "KEYWORD";
 const constexpr char *SETTING_COLUMN_VALUE = "VALUE";
 const constexpr char *SETTING_URI_PROXY_PREFIX = "datashare:///com.ohos.settingsdata/entry/settingsdata/"
                                           "USER_SETTINGSDATA_SECURE_";
+const constexpr char *WIFI_SWITCH = "settings.collaboration.multi_device_collaboration_service_switch";
+const constexpr char *SETTING_URI_WIFI_PROXY =
+    "datashare:///com.ohos.settingsdata/entry/settingsdata/SETTINGSDATA?Proxy=true";
 const constexpr char *SETTING_URI_PROXY_SUFFIX = "?Proxy=true";
 constexpr const char *SETTINGS_DATA_EXT_URI = "datashare:///com.ohos.settingsdata.DataAbility";
 constexpr const int32_t PASTEBOARD_SA_ID = 3701;
@@ -43,9 +46,14 @@ sptr<IRemoteObject> GetSystemAbilitySafe(int32_t saId)
     return samgr ? samgr->GetSystemAbility(saId) : nullptr;
 }
 
-std::shared_ptr<DataShare::DataShareHelper> DataShareDelegate::CreateDataShareHelper()
+std::shared_ptr<DataShare::DataShareHelper> DataShareDelegate::CreateDataShareHelper(const std::string &key)
 {
-    auto SETTING_URI_PROXY = std::string(SETTING_URI_PROXY_PREFIX) + userId_ + std::string(SETTING_URI_PROXY_SUFFIX);
+    std::string SETTING_URI_PROXY;
+    if (key == WIFI_SWITCH) {
+        SETTING_URI_PROXY = std::string(SETTING_URI_WIFI_PROXY);
+    } else {
+        SETTING_URI_PROXY = std::string(SETTING_URI_PROXY_PREFIX) + userId_ + std::string(SETTING_URI_PROXY_SUFFIX);
+    }
     auto remoteObj = GetSystemAbilitySafe(PASTEBOARD_SA_ID);
     if (!remoteObj) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "get sa manager return nullptr");
@@ -77,7 +85,7 @@ bool DataShareDelegate::ReleaseDataShareHelper(std::shared_ptr<DataShare::DataSh
 
 int32_t DataShareDelegate::GetValue(const std::string &key, std::string &value)
 {
-    auto helper = CreateDataShareHelper();
+    auto helper = CreateDataShareHelper(key);
     if (helper == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "helper is nullptr");
         return static_cast<int32_t>(PasteboardError::CREATE_DATASHARE_SERVICE_ERROR);
@@ -113,14 +121,21 @@ int32_t DataShareDelegate::GetValue(const std::string &key, std::string &value)
 
 Uri DataShareDelegate::MakeUri(const std::string &key)
 {
-    Uri uri(std::string(SETTING_URI_PROXY_PREFIX) + userId_ + std::string(SETTING_URI_PROXY_SUFFIX) + "&key=" + key);
+    std::string uriString;
+    if (key == WIFI_SWITCH) {
+        uriString = std::string(SETTING_URI_WIFI_PROXY) + "&key=" + key;
+    } else {
+        uriString = std::string(SETTING_URI_PROXY_PREFIX) + userId_ +
+            std::string(SETTING_URI_PROXY_SUFFIX) + "&key=" + key;
+    }
+    Uri uri(uriString);
     return uri;
 }
 
 int32_t DataShareDelegate::RegisterObserver(const std::string &key, sptr<AAFwk::IDataAbilityObserver> observer)
 {
     auto uri = MakeUri(key);
-    auto helper = CreateDataShareHelper();
+    auto helper = CreateDataShareHelper(key);
     if (helper == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "helper is nullptr");
         return ERR_NO_INIT;
@@ -134,7 +149,7 @@ int32_t DataShareDelegate::RegisterObserver(const std::string &key, sptr<AAFwk::
 int32_t DataShareDelegate::UnregisterObserver(const std::string &key, sptr<AAFwk::IDataAbilityObserver> observer)
 {
     auto uri = MakeUri(key);
-    auto helper = CreateDataShareHelper();
+    auto helper = CreateDataShareHelper(key);
     if (helper == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "helper is nullptr");
         return ERR_NO_INIT;

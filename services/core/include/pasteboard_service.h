@@ -191,6 +191,7 @@ public:
     void ClearUriOnUninstall(int32_t tokenId);
     void ClearUriOnUninstall(std::shared_ptr<PasteData> pasteData);
     void CleanDistributedData(int32_t user);
+    void HandleWifiOffAndClearDistributedEvent(int32_t userId);
     bool IsValidCurrentEvent();
 
     static std::shared_mutex pasteDataMutex_;
