@@ -424,9 +424,10 @@ void PasteboardService::OnRemoveDeviceProfile()
 
 void PasteboardService::HandleWifiOffAndClearDistributedEvent(int32_t userId)
 {
-    bool isWifiSwitchOpen = switch_.GetWifiSwitch(userId);
-    PASTEBOARD_CHECK_AND_RETURN_LOGD(isWifiSwitchOpen, PASTEBOARD_MODULE_SERVICE, "wifi is able");
-    PASTEBOARD_CHECK_AND_RETURN_LOGD(IsValidCurrentEvent(), PASTEBOARD_MODULE_SERVICE, "not VaildEvent");
+    bool isdeviceCollabSwitch = switch_.GetDeviceCollabSwitch(userId);
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(!isdeviceCollabSwitch, PASTEBOARD_MODULE_SERVICE,
+        "wifi off but DeviceCollabSwitch is on");
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(IsValidCurrentEvent(), PASTEBOARD_MODULE_SERVICE, "wifi off but no valid event");
     CleanDistributedData(userId);
 }
 

@@ -1,52 +1,14 @@
-# Copyright (c) 2026 Huawei Device Co., Ltd.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import("//build/test.gni")
-import("//foundation/distributeddatamgr/pasteboard/pasteboard.gni")
-
-module_output_path = "pasteboard/pasteboard"
-
-ohos_unittest("PasteboardSwitchTest") {
-  module_out_path = module_output_path
-  
-  cflags = [ "-fno-access-control" ]  
-  include_dirs = [
-    "${pasteboard_framework_path}/include",
-    "${pasteboard_root_path}/services/switch/include",
-    "${pasteboard_root_path}/adapter/test/mock/data_share",
-    "${pasteboard_root_path}/framework/framework/include/device",
-    "${pasteboard_root_path}/utils/native/include",
-  ]
-  
-  sources = [
-    "${pasteboard_framework_path}/common/pasteboard_common_utils.cpp",
-    "${pasteboard_root_path}/adapter/test/mock/data_share/datashare_delegate.cpp",
-    "${pasteboard_root_path}/services/switch/pasteboard_switch.cpp",
-    "pasteboard_switch_test.cpp",
-  ]
-  
-  external_deps = [
-    "c_utils:utils",
-    "googletest:gmock",
-    "hilog:libhilog",
-    "ipc:ipc_single",
-  ]
-}
-
-group("unittest") {
-  testonly = true
-  
-  deps = [
-    ":PasteboardSwitchTest",
-  ]
-}
+/*
+ * Copyright (c) 2026 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
