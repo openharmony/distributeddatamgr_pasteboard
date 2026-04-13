@@ -73,6 +73,20 @@ void PastedSwitch::SetSwitch(int32_t userId)
     DevProfile::GetInstance().PutDeviceStatus(value == SUPPORT_STATUS);
 }
 
+bool PastedSwitch::GetDeviceCollabSwitch(int32_t userId)
+{
+    std::string value;
+    DataShareDelegate::GetInstance().SetUserId(userId);
+    DataShareDelegate::GetInstance().GetValue(DEVICE_COLLAB_SWITCH, value);
+    if (value.empty()) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "empty wifi switch, userId=%{public}d", userId);
+        return true;
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device collab switch status=%{public}s, userId=%{public}d",
+        value.c_str(), userId);
+    return value == SUPPORT_STATUS;
+}
+
 void PastedSwitch::DeInit()
 {
     DataShareDelegate::GetInstance().UnregisterObserver(DISTRIBUTED_PASTEBOARD_SWITCH, switchObserver_);
