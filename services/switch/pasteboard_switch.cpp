@@ -25,7 +25,6 @@
 namespace OHOS::MiscServices {
 using namespace UeReporter;
 const constexpr char *DISTRIBUTED_PASTEBOARD_SWITCH = "distributed_pasteboard_switch";
-const constexpr char *WIFI_SWITCH = "settings.collaboration.multi_device_collaboration_service_switch";
 constexpr const char *SUPPORT_STATUS = "1";
 constexpr int32_t ERROR_USERID = -1;
 constexpr const char *UE_SWITCH_STATUS = "PASTEBOARD_SWITCH_STATUS";
@@ -74,16 +73,17 @@ void PastedSwitch::SetSwitch(int32_t userId)
     DevProfile::GetInstance().PutDeviceStatus(value == SUPPORT_STATUS);
 }
 
-bool PastedSwitch::GetWifiSwitch(int32_t userId)
+bool PastedSwitch::GetDeviceCollabSwitch(int32_t userId)
 {
     std::string value;
     DataShareDelegate::GetInstance().SetUserId(userId);
-    DataShareDelegate::GetInstance().GetValue(WIFI_SWITCH, value);
+    DataShareDelegate::GetInstance().GetValue(DEVICE_COLLAB_SWITCH, value);
     if (value.empty()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "empty wifi switch, userId=%{public}d", userId);
         return true;
     }
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "switch status=%{public}s, userId=%{public}d", value.c_str(), userId);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "device collab switch status=%{public}s, userId=%{public}d",
+        value.c_str(), userId);
     return value == SUPPORT_STATUS;
 }
 

@@ -20,6 +20,7 @@
 
 namespace OHOS::MiscServices {
 using ChangeInfo = DataShare::DataShareObserver::ChangeInfo;
+const constexpr char *DEVICE_COLLAB_SWITCH = "settings.collaboration.multi_device_collaboration_service_switch";
 class DataShareDelegate {
 public:
     static DataShareDelegate &GetInstance();
