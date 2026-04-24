@@ -73,6 +73,7 @@ struct GetDataParams {
     struct ProgressListener listener;
     std::shared_ptr<ProgressSignalClient> progressSignal;
     ProgressInfo *info;
+    void *callbackData = nullptr;
 };
 
 class API_EXPORT PasteboardClient {

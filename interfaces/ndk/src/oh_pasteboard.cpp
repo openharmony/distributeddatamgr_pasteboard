@@ -25,7 +25,6 @@
 
 using namespace OHOS::MiscServices;
 
-static OH_Pasteboard_ProgressListener g_callback = {0};
 #define MAX_PATH_LEN 1024
 #define MAX_DESTURI_LEN 250
 
@@ -372,8 +371,9 @@ void ProgressNotify(std::shared_ptr<GetDataParams> params)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_CAPI, "Error: params or params->info is nullptr in ProgressNotify.");
         return;
     }
-    if (g_callback != nullptr) {
-        g_callback(reinterpret_cast<Pasteboard_ProgressInfo *>(params->info));
+    auto callback = reinterpret_cast<OH_Pasteboard_ProgressListener>(params->callbackData);
+    if (callback != nullptr) {
+        callback(reinterpret_cast<Pasteboard_ProgressInfo *>(params->info));
     }
 }
 
@@ -402,10 +402,10 @@ OH_UdmfData* OH_Pasteboard_GetDataWithProgress(OH_Pasteboard* pasteboard, Pasteb
         }
         getDataParams->destUri = params->destUri;
     }
-    g_callback = params->progressListener;
     getDataParams->fileConflictOption = (FileConflictOption)params->fileConflictOptions;
     getDataParams->progressIndicator = (ProgressIndicator)params->progressIndicator;
     getDataParams->info = reinterpret_cast<ProgressInfo *>(&params->info);
+    getDataParams->callbackData = reinterpret_cast<void *>(params->progressListener);
     struct ProgressListener listener = {
         .ProgressNotify = ProgressNotify,
     };
