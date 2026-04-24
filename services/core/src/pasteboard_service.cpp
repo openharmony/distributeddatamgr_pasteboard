@@ -708,8 +708,9 @@ int32_t PasteboardService::SubscribeEntityObserver(
         static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR), PASTEBOARD_MODULE_SERVICE,
         "check permission failed");
     auto callingPid = IPCSkeleton::GetCallingPid();
-    bool result = entityObserverMap_.ComputeIfPresent(
-        callingPid, [entityType, expectedDataLength, tokenId, &observer](auto, auto &observerList) {
+    bool overLimit = false;
+    entityObserverMap_.Compute(
+        callingPid, [entityType, expectedDataLength, tokenId, &observer, &overLimit](const auto &, auto &observerList) {
             auto it = std::find_if(observerList.begin(), observerList.end(),
                 [entityType, expectedDataLength](const EntityObserverInfo &observer) {
                     return observer.entityType == entityType && observer.expectedDataLength == expectedDataLength;
@@ -719,13 +720,16 @@ int32_t PasteboardService::SubscribeEntityObserver(
                 it->observer = observer;
                 return true;
             }
+            if (observerList.size() >= MAX_ENTITY_OBSERVER_COUNT) {
+                overLimit = true;
+                return true;
+            }
             observerList.emplace_back(entityType, expectedDataLength, tokenId, observer);
             return true;
         });
-    if (!result) {
-        std::vector<EntityObserverInfo> observerList;
-        observerList.emplace_back(entityType, expectedDataLength, tokenId, observer);
-        entityObserverMap_.Emplace(callingPid, observerList);
+    if (overLimit) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entity observer count over limit");
+        return static_cast<int32_t>(PasteboardError::EXCEEDING_LIMIT_EXCEPTION);
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "subscribe entityObserver finished");
     return ERR_OK;
@@ -3393,9 +3397,14 @@ bool PasteboardService::SetPasteboardHistory(HistoryInfo &info)
 
 int PasteboardService::Dump(int fd, const std::vector<std::u16string> &args)
 {
-    int uid = static_cast<int>(IPCSkeleton::GetCallingUid());
-    const int maxUid = 10000;
-    if (uid > maxUid) {
+    if (fd < 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid fd: %{public}d", fd);
+        return 0;
+    }
+    pid_t uid = IPCSkeleton::GetCallingUid();
+    const pid_t maxUid = 10000;
+    if (uid <= 0 || uid > maxUid) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid uid: %{public}d", uid);
         return 0;
     }
 
