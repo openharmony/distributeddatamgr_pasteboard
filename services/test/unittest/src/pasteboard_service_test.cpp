@@ -485,6 +485,42 @@ HWTEST_F(PasteboardServiceTest, DumpTest001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: DumpTest002
+ * @tc.desc: test Func Dump with invalid fd (negative value)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, DumpTest002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest002 start");
+    auto fd = -1;
+    std::vector<std::u16string> args;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t result = tempPasteboard->Dump(fd, args);
+    EXPECT_EQ(result, 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest002 end");
+}
+
+/**
+ * @tc.name: DumpTest003
+ * @tc.desc: test Func Dump with invalid fd (large negative value)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, DumpTest003, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest003 start");
+    auto fd = -100;
+    std::vector<std::u16string> args;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t result = tempPasteboard->Dump(fd, args);
+    EXPECT_EQ(result, 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest003 end");
+}
+
+/**
  * @tc.name: CloseDistributedStoreTest001
  * @tc.desc: test Func CloseDistributedStore
  * @tc.type: FUNC
