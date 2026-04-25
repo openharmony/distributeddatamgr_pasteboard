@@ -379,7 +379,6 @@ ohos_unittest("PasteboardClientProxyMockTest") {
     "ability_runtime:ability_manager",
     "ability_runtime:uri_permission_mgr",
     "ability_runtime:wantagent_innerkits",
-    "access_token:libtokenid_sdk",
     "app_file_service:fileuri_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -402,7 +401,6 @@ ohos_unittest("PasteboardClientProxyMockTest") {
     "libuv:uv",
     "libxml2:libxml2",
     "samgr:samgr_proxy",
-    "time_service:time_client",
     "udmf:udmf_client",
   ]
 
@@ -549,7 +547,6 @@ ohos_unittest("PasteboardClientMockTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:fileshare_native",
     "app_file_service:fileuri_native",
     "app_file_service:remote_file_share_native",
