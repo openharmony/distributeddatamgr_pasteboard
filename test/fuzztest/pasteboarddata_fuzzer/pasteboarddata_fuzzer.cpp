@@ -22,9 +22,8 @@
 namespace {
 using namespace OHOS::MiscServices;
 
-void TestPasteData(const uint8_t *data, size_t size)
+void TestPasteData(FuzzedDataProvider &fdp)
 {
-    FuzzedDataProvider fdp(data, size);
     PasteData pasteData;
     bool isRemote = fdp.ConsumeBool();
     std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
@@ -41,9 +40,8 @@ void TestPasteData(const uint8_t *data, size_t size)
     pasteData2.Marshalling(parcel);
 }
 
-void TestPasteDataRecord(const uint8_t *data, size_t size)
+void TestPasteDataRecord(FuzzedDataProvider &fdp)
 {
-    FuzzedDataProvider fdp(data, size);
     PasteDataRecord record;
     bool isRemote = fdp.ConsumeBool();
     std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
@@ -51,9 +49,8 @@ void TestPasteDataRecord(const uint8_t *data, size_t size)
     record.Encode(buffer, isRemote);
 }
 
-void TestPasteDataEntry(const uint8_t *data, size_t size)
+void TestPasteDataEntry(FuzzedDataProvider &fdp)
 {
-    FuzzedDataProvider fdp(data, size);
     PasteDataEntry entry;
     bool isRemote = fdp.ConsumeBool();
     std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
@@ -61,9 +58,8 @@ void TestPasteDataEntry(const uint8_t *data, size_t size)
     entry.Encode(buffer, isRemote);
 }
 
-void TestPasteDataId(const uint8_t *data, size_t size)
+void TestPasteDataId(FuzzedDataProvider &fdp)
 {
-    FuzzedDataProvider fdp(data, size);
     std::string pasteId = fdp.ConsumeRandomLengthString();
     PasteData::IsValidPasteId(pasteId);
 }
@@ -71,9 +67,10 @@ void TestPasteDataId(const uint8_t *data, size_t size)
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    TestPasteData(data, size);
-    TestPasteDataRecord(data, size);
-    TestPasteDataEntry(data, size);
-    TestPasteDataId(data, size);
+    FuzzedDataProvider fdp(data, size);
+    TestPasteData(fdp);
+    TestPasteDataRecord(fdp);
+    TestPasteDataEntry(fdp);
+    TestPasteDataId(fdp);
     return 0;
 }
