@@ -18,10 +18,6 @@
 #include "pasteboard_error.h"
 #include "pasteboard_hilog.h"
 
-#if defined(PB_VIXL_ENABLE)
-#include "src/utils-vixl.h"
-#endif
-
 namespace OHOS::MiscServices {
 const constexpr char *SETTING_COLUMN_KEYWORD = "KEYWORD";
 const constexpr char *SETTING_COLUMN_VALUE = "VALUE";

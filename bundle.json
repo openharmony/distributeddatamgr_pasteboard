@@ -71,7 +71,6 @@
           "udmf",
           "window_manager",
           "ffrt",
-          "vixl",
           "runtime_core"
         ]
         },

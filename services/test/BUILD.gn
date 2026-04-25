@@ -149,7 +149,6 @@ ohos_unittest("PasteServInterfaceTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -184,11 +183,6 @@ ohos_unittest("PasteServInterfaceTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -291,7 +285,6 @@ ohos_unittest("PasteServInterfaceMockTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -325,11 +318,6 @@ ohos_unittest("PasteServInterfaceMockTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -765,7 +753,6 @@ ohos_unittest("PasteServGetLocalDataTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -800,11 +787,6 @@ ohos_unittest("PasteServGetLocalDataTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -903,7 +885,6 @@ ohos_unittest("PasteServSubscribeTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -938,11 +919,6 @@ ohos_unittest("PasteServSubscribeTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -1041,7 +1017,6 @@ ohos_unittest("PasteServNotifyTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -1076,11 +1051,6 @@ ohos_unittest("PasteServNotifyTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -1179,7 +1149,6 @@ ohos_unittest("PasteServSetDataTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -1214,11 +1183,6 @@ ohos_unittest("PasteServSetDataTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -1317,7 +1281,6 @@ ohos_unittest("PasteServGetDataTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -1352,11 +1315,6 @@ ohos_unittest("PasteServGetDataTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -1456,7 +1414,6 @@ ohos_unittest("PasteServEventTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -1491,11 +1448,6 @@ ohos_unittest("PasteServEventTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -1595,7 +1547,6 @@ ohos_unittest("PasteServGetTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -1630,11 +1581,6 @@ ohos_unittest("PasteServGetTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -1734,7 +1680,6 @@ ohos_unittest("PasteServCheckTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -1769,11 +1714,6 @@ ohos_unittest("PasteServCheckTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -1873,7 +1813,6 @@ ohos_unittest("PasteServCleanTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -1908,11 +1847,6 @@ ohos_unittest("PasteServCleanTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
@@ -2013,7 +1947,6 @@ ohos_unittest("PasteServRemoteTest") {
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
-    "access_token:libtokenid_sdk",
     "app_file_service:remote_file_share_native",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -2048,11 +1981,6 @@ ohos_unittest("PasteServRemoteTest") {
     "${pasteboard_service_path}:pasteboard_service",
     "${pasteboard_service_path}:pasteboard_stub_proxy",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
