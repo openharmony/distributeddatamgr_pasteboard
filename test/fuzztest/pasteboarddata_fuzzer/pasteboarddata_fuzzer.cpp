@@ -63,14 +63,24 @@ void TestPasteDataId(FuzzedDataProvider &fdp)
     std::string pasteId = fdp.ConsumeRandomLengthString();
     PasteData::IsValidPasteId(pasteId);
 }
+
+using DoFunc = void (*)(FuzzedDataProvider &);
+constexpr DoFunc FUNC_LIST[] = {
+    TestPasteData,
+    TestPasteDataRecord,
+    TestPasteDataEntry,
+    TestPasteDataId,
+};
+constexpr uint8_t FUNC_COUNT = sizeof(FUNC_LIST) / sizeof(FUNC_LIST[0]);
 } // anonymous namespace
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
+    if (size < 1) {
+        return 0;
+    }
     FuzzedDataProvider fdp(data, size);
-    TestPasteData(fdp);
-    TestPasteDataRecord(fdp);
-    TestPasteDataEntry(fdp);
-    TestPasteDataId(fdp);
+    uint8_t index = fdp.ConsumeIntegral<uint8_t>() % FUNC_COUNT;
+    FUNC_LIST[index](fdp);
     return 0;
 }
