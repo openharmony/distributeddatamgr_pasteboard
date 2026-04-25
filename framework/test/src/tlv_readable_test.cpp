@@ -179,3 +179,416 @@ HWTEST_F(TLVReadableTest, ReadHeadTest005, TestSize.Level1)
     EXPECT_TRUE(res3);
     EXPECT_EQ(head3.tag, 3);
 }
+
+/**
+ * @tc.name: ReadValueBoolTest001
+ * @tc.desc: test ReadValue for bool type with valid data
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueBoolTest001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(uint8_t));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(uint8_t);
+    buffer[sizeof(TLVHead)] = 1;
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    bool value = false;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+    EXPECT_TRUE(value);
+}
+
+/**
+ * @tc.name: ReadValueBoolTest002
+ * @tc.desc: test ReadValue for bool type with invalid value (>1)
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueBoolTest002, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(uint8_t));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(uint8_t);
+    buffer[sizeof(TLVHead)] = 2;
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    bool value = false;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_FALSE(res);
+}
+
+/**
+ * @tc.name: ReadValueBoolTest003
+ * @tc.desc: test ReadValue for bool type with zero value
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueBoolTest003, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(uint8_t));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(uint8_t);
+    buffer[sizeof(TLVHead)] = 0;
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    bool value = true;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+    EXPECT_FALSE(value);
+}
+
+/**
+ * @tc.name: ReadValueInt8Test001
+ * @tc.desc: test ReadValue for int8_t type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueInt8Test001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(int8_t));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(int8_t);
+    int8_t expectedValue = -128;
+    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(int8_t));
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    int8_t value = 0;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+    EXPECT_EQ(value, expectedValue);
+}
+
+/**
+ * @tc.name: ReadValueInt16Test001
+ * @tc.desc: test ReadValue for int16_t type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueInt16Test001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(int16_t));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(int16_t);
+    int16_t expectedValue = 1000;
+    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(int16_t));
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    int16_t value = 0;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+}
+
+/**
+ * @tc.name: ReadValueInt32Test001
+ * @tc.desc: test ReadValue for int32_t type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueInt32Test001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(int32_t));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(int32_t);
+    int32_t expectedValue = 12345;
+    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(int32_t));
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    int32_t value = 0;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+}
+
+/**
+ * @tc.name: ReadValueInt64Test001
+ * @tc.desc: test ReadValue for int64_t type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueInt64Test001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(int64_t));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(int64_t);
+    int64_t expectedValue = 1234567890123LL;
+    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(int64_t));
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    int64_t value = 0;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+}
+
+/**
+ * @tc.name: ReadValueDoubleTest001
+ * @tc.desc: test ReadValue for double type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueDoubleTest001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(double));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(double);
+    double expectedValue = 3.14159265358979;
+    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(double));
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    double value = 0.0;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+}
+
+/**
+ * @tc.name: ReadValueUint32Test001
+ * @tc.desc: test ReadValue for uint32_t type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueUint32Test001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + sizeof(uint32_t));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(uint32_t);
+    uint32_t expectedValue = 4294967295;
+    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(uint32_t));
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    uint32_t value = 0;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+}
+
+/**
+ * @tc.name: ReadValueStringTest001
+ * @tc.desc: test ReadValue for std::string type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueStringTest001, TestSize.Level1)
+{
+    std::string expectedValue = "Hello World";
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + expectedValue.size());
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = expectedValue.size();
+    memcpy(buffer.data() + sizeof(TLVHead), expectedValue.c_str(), expectedValue.size());
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    std::string value;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+    EXPECT_EQ(value, expectedValue);
+}
+
+/**
+ * @tc.name: ReadValueStringTest002
+ * @tc.desc: test ReadValue for empty std::string
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueStringTest002, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = 0;
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    std::string value;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+    EXPECT_EQ(value, "");
+}
+
+/**
+ * @tc.name: ReadValueVectorUint8Test001
+ * @tc.desc: test ReadValue for std::vector<uint8_t> type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueVectorUint8Test001, TestSize.Level1)
+{
+    std::vector<uint8_t> expectedValue = {1, 2, 3, 4, 5};
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + expectedValue.size());
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = expectedValue.size();
+    memcpy(buffer.data() + sizeof(TLVHead), expectedValue.data(), expectedValue.size());
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    std::vector<uint8_t> value;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+    EXPECT_EQ(value, expectedValue);
+}
+
+/**
+ * @tc.name: ReadValueVectorUint8Test002
+ * @tc.desc: test ReadValue for empty std::vector<uint8_t>
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueVectorUint8Test002, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = 0;
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    std::vector<uint8_t> value;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+    EXPECT_EQ(value.size(), 0);
+}
+
+/**
+ * @tc.name: ReadValueMonostateTest001
+ * @tc.desc: test ReadValue for std::monostate type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueMonostateTest001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer;
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    std::monostate value;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_TRUE(res);
+}
+
+/**
+ * @tc.name: ReadValueRawMemTest001
+ * @tc.desc: test ReadValue for RawMem type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueRawMemTest001, TestSize.Level1)
+{
+    std::vector<uint8_t> expectedData = {10, 20, 30, 40};
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + expectedData.size());
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = expectedData.size();
+    memcpy(buffer.data() + sizeof(TLVHead), expectedData.data(), expectedData.size());
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    RawMem rawMem;
+    bool res = buff.ReadValue(rawMem, head);
+    EXPECT_TRUE(res);
+    EXPECT_EQ(rawMem.bufferLen, expectedData.size());
+}
+
+/**
+ * @tc.name: TLVBufferSkipTest001
+ * @tc.desc: test TLVBuffer Skip method
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, TLVBufferSkipTest001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(100);
+    ReadOnlyBuffer buff(buffer);
+    bool res = buff.Skip(50);
+    EXPECT_TRUE(res);
+    res = buff.Skip(50);
+    EXPECT_TRUE(res);
+    res = buff.Skip(1);
+    EXPECT_FALSE(res);
+}
+
+/**
+ * @tc.name: TLVBufferIsEnoughTest001
+ * @tc.desc: test TLVBuffer IsEnough method
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, TLVBufferIsEnoughTest001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(100);
+    ReadOnlyBuffer buff(buffer);
+    EXPECT_TRUE(buff.IsEnough());
+    buff.Skip(99);
+    EXPECT_TRUE(buff.IsEnough());
+    buff.Skip(1);
+    EXPECT_FALSE(buff.IsEnough());
+}
+
+/**
+ * @tc.name: TLVBufferHasExpectBufferTest001
+ * @tc.desc: test TLVBuffer HasExpectBuffer method
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, TLVBufferHasExpectBufferTest001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(100);
+    ReadOnlyBuffer buff(buffer);
+    EXPECT_TRUE(buff.HasExpectBuffer(50));
+    EXPECT_TRUE(buff.HasExpectBuffer(100));
+    EXPECT_FALSE(buff.HasExpectBuffer(101));
+    buff.Skip(50);
+    EXPECT_TRUE(buff.HasExpectBuffer(50));
+    EXPECT_FALSE(buff.HasExpectBuffer(51));
+}
+
+/**
+ * @tc.name: RecursiveGuardTest001
+ * @tc.desc: test RecursiveGuard within limit
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, RecursiveGuardTest001, TestSize.Level1)
+{
+    RecursiveGuard guard1;
+    EXPECT_TRUE(guard1.IsValid());
+    RecursiveGuard guard2;
+    EXPECT_TRUE(guard2.IsValid());
+    RecursiveGuard guard3;
+    EXPECT_TRUE(guard3.IsValid());
+}
+
+/**
+ * @tc.name: ReadValueSharedPtrTest001
+ * @tc.desc: test ReadValue for std::shared_ptr type
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadValueSharedPtrTest001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead));
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = 0;
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    std::shared_ptr<int32_t> value;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_FALSE(res);
+}
+
+/**
+ * @tc.name: ReadHeadInvalidLenTest001
+ * @tc.desc: test ReadHead with len mismatch
+ * @tc.type: FUNC
+ */
+HWTEST_F(TLVReadableTest, ReadHeadInvalidLenTest001, TestSize.Level1)
+{
+    std::vector<std::uint8_t> buffer(sizeof(TLVHead) + 1);
+    TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
+    pHead->tag = 1;
+    pHead->len = sizeof(int32_t);
+    ReadOnlyBuffer buff(buffer);
+    TLVHead head;
+    buff.ReadHead(head);
+    int32_t value = 0;
+    bool res = buff.ReadValue(value, head);
+    EXPECT_FALSE(res);
+}
