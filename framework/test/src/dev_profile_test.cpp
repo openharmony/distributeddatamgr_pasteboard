@@ -14,11 +14,11 @@
  */
 
 #include <gtest/gtest.h>
-
+#include <gmock/gmock.h>
 #include "device/dev_profile.h"
 #include "device/dm_adapter.h"
+#include "device_manager_mock.h"
 #include "pasteboard_error.h"
-#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -28,13 +28,20 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    static inline std::shared_ptr<testing::NiceMock<DistributedHardware::DeviceManagerMock>> deviceManagerMock_ =
+        std::make_shared<testing::NiceMock<DistributedHardware::DeviceManagerMock>>();
 };
 
-void DevProfileTest::SetUpTestCase(void) {}
+void DevProfileTest::SetUpTestCase(void)
+{
+    DistributedHardware::PasteDeviceManager::pasteDeviceManager = deviceManagerMock_;
+}
 
 void DevProfileTest::TearDownTestCase(void)
 {
     DevProfile::GetInstance().ClearDeviceProfileService();
+    DistributedHardware::PasteDeviceManager::pasteDeviceManager = nullptr;
+    deviceManagerMock_ = nullptr;
 }
 
 void DevProfileTest::SetUp(void) {}
@@ -50,7 +57,6 @@ void DevProfileTest::TearDown(void) {}
  */
 HWTEST_F(DevProfileTest, GetDeviceVersionTest001, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
     std::string bundleName = "com.dev.profile";
@@ -59,7 +65,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest001 start");
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest001 end");
 }
 
 /**
@@ -71,7 +76,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest001 end");
  */
 HWTEST_F(DevProfileTest, GetDeviceVersionTest002, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     uint32_t versionId;
     std::string bundleName = "pasteboard_dm_adapter";
@@ -83,7 +87,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest002 start");
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest002 end");
 }
 
 /**
@@ -95,7 +98,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceVersionTest002 end");
  */
 HWTEST_F(DevProfileTest, PostDelayReleaseProxy001, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostDelayReleaseProxy001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     DevProfile::GetInstance().proxy_ = nullptr;
     std::string uuid = "PostDelayReleaseProxy001";
@@ -106,7 +108,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostDelayReleaseProxy001 start");
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostDelayReleaseProxy001 end");
 }
 
 /**
@@ -118,7 +119,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostDelayReleaseProxy001 end");
  */
 HWTEST_F(DevProfileTest, GetDeviceStatusTest001, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     bool enabledStatus = false;
     std::string networkId = "test.dev.profile";
@@ -127,7 +127,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest001 start");
 #else
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest001 end");
 }
 
 /**
@@ -139,7 +138,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest001 end");
  */
 HWTEST_F(DevProfileTest, GetDeviceStatusTest002, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     bool enabledStatus = false;
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -148,7 +146,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest002 start");
 #else
     EXPECT_EQ(ret, static_cast<int32_t>(PasteboardError::NO_TRUST_DEVICE_ERROR));
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest002 end");
 }
 
 /**
@@ -160,7 +157,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceStatusTest002 end");
  */
 HWTEST_F(DevProfileTest, PutDeviceStatus001, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     bool res = DMAdapter::GetInstance().Initialize();
     bool enabledStatus = true;
@@ -171,7 +167,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus001 start");
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus001 end");
 }
 
 /**
@@ -183,7 +178,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PutDeviceStatus001 end");
  */
 HWTEST_F(DevProfileTest, SubscribeProfileEventTest001, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "pasteboard_dm_adapter";
     bool res = DMAdapter::GetInstance().Initialize();
@@ -192,7 +186,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 start"
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 end");
 }
 
 /**
@@ -204,7 +197,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 end");
  */
 HWTEST_F(DevProfileTest, SubscribeProfileEventTest002, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "pasteboard_dm_adapter";
     bool res = DMAdapter::GetInstance().Initialize();
@@ -215,7 +207,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest002 start"
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest002 end");
 }
 
 /**
@@ -227,7 +218,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest002 end");
  */
 HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest001, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "pasteboard_dm_adapter";
     bool res = DMAdapter::GetInstance().Initialize();
@@ -236,7 +226,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest001 star
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest001 end");
 }
 
 /**
@@ -248,7 +237,6 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest001 end"
  */
 HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     std::string bundleName = "pasteboard_dm_adapter";
     bool res = DMAdapter::GetInstance().Initialize();
@@ -258,33 +246,52 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest002 star
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest002 end");
+}
+
+ /**
+ * @tc.name: UnSubscribeProfileEventTest003
+ * @tc.desc: proxy_ is nullptr
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest003, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+        udid = "testUdid";
+        return 0;
+    });
+    std::string networkId = "pasteboard_dm_adapter";
+    DMAdapter::GetInstance().Initialize();
+    DevProfile::GetInstance().proxy_ = nullptr;
+    DevProfile::GetInstance().UnSubscribeProfileEvent(networkId);
+    EXPECT_TRUE(DevProfile::GetInstance().subscribeUdidList_.empty());
+#else
+    EXPECT_TRUE(true);
+#endif
 }
 
 /**
  * @tc.name: UnSubscribeAllProfileEvents001
- * @tc.desc: subscribeUdidList_ is empty
+ * @tc.desc: proxy_ is empty
  * @tc.type: FUNC
  * @tc.require:
  * @tc.author:
  */
 HWTEST_F(DevProfileTest, UnSubscribeAllProfileEvents001, TestSize.Level0)
 {
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeAllProfileEvents001 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
     DevProfile& dp = DevProfile::GetInstance();
-    dp.subscribeUdidList_.clear();
-    dp.UnSubscribeAllProfileEvents();
-
     dp.proxy_= nullptr;
-    dp.subscribeUdidList_.clear();
+    std::string uuid = "UnSubscribeAllProfileEvents001";
+    dp.subscribeUdidList_.emplace(uuid);
     dp.UnSubscribeAllProfileEvents();
-
-    EXPECT_TRUE(true);
+    EXPECT_TRUE(dp.subscribeUdidList_.empty());
 #else
     EXPECT_TRUE(true);
 #endif
-PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeAllProfileEvents001 end");
 }
 
 /**
@@ -296,10 +303,55 @@ PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeAllProfileEvents001 end"
  */
 HWTEST_F(DevProfileTest, Watch, TestSize.Level0)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Watch start");
     DevProfile::Observer observer;
     DevProfile::GetInstance().Watch(observer);
     EXPECT_FALSE(observer);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Watch end");
+}
+
+/**
+ * @tc.name: OnProfileUpdateTest001
+ * @tc.desc: OnProfileUpdate
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, OnProfileUpdateTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    const std::string testUdid = "test_udid_001";
+    const bool testStatus = true;
+    bool isNotifyCalled = false;
+
+    DevProfile::Observer testObserver = [&isNotifyCalled, testStatus](bool isEnable) {
+        isNotifyCalled = true;
+        EXPECT_EQ(isEnable, testStatus);
+    };
+    DevProfile::GetInstance().Watch(testObserver);
+    DevProfile::OnProfileUpdate(testUdid, testStatus);
+    EXPECT_TRUE(isNotifyCalled);
+#else
+    EXPECT_TRUE(true);
+#endif
+}
+
+/**
+ * @tc.name: SendSubscribeInfosTest001
+ * @tc.desc: proxy_ is nullptr
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, SendSubscribeInfosTest001, TestSize.Level0)
+{
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    bool res = DMAdapter::GetInstance().Initialize();
+    DevProfile::GetInstance().proxy_ = nullptr;
+    std::string uuid = "PostDelayReleaseProxy001";
+    DevProfile::GetInstance().subscribeUdidList_.emplace(uuid);
+    DevProfile::GetInstance().SendSubscribeInfos();
+    EXPECT_NE(DevProfile::GetInstance().proxy_, nullptr);
+#else
+    EXPECT_TRUE(true);
+#endif
 }
 } // namespace OHOS::MiscServices
