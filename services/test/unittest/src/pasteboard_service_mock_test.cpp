@@ -1753,6 +1753,7 @@ HWTEST_F(PasteboardServiceMockTest, IsCallerUidValid005, TestSize.Level1)
  */
 HWTEST_F(PasteboardServiceMockTest, CloseDistributedStoreTest002, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseDistributedStoreTest002 start.");
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
     int32_t user = 1;
@@ -1762,6 +1763,7 @@ HWTEST_F(PasteboardServiceMockTest, CloseDistributedStoreTest002, TestSize.Level
     tempPasteboard->securityLevel_.securityLevel_ = DATA_SEC_LEVEL1;
     EXPECT_EQ(tempPasteboard->GetClipPlugin(), nullptr);
     tempPasteboard->CloseDistributedStore(user, isNeedClear);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseDistributedStoreTest002 end.");
 }
 
 /**
@@ -1771,6 +1773,7 @@ HWTEST_F(PasteboardServiceMockTest, CloseDistributedStoreTest002, TestSize.Level
  */
 HWTEST_F(PasteboardServiceMockTest, CloseDistributedStoreTest003, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseDistributedStoreTest003 start.");
     auto tempPasteboard = std::make_shared<PasteboardService>();
     EXPECT_NE(tempPasteboard, nullptr);
     int32_t user = 1;
@@ -1782,6 +1785,7 @@ HWTEST_F(PasteboardServiceMockTest, CloseDistributedStoreTest003, TestSize.Level
     EXPECT_NE(tempPasteboard->GetClipPlugin(), nullptr);
     EXPECT_NE(tempPasteboard->GetClipPlugin(), nullptr);
     tempPasteboard->CloseDistributedStore(user, isNeedClear);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "CloseDistributedStoreTest003 end.");
 }
 
 /**
