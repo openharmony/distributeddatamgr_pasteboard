@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024-2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,7 +17,6 @@
 #include <gtest/gtest.h>
 
 #include "eventcenter/event_center.h"
-#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -81,6 +80,7 @@ public:
 protected:
     int32_t waitEvent_ = TEST_EVT_UNKNOWN;
     int32_t currEvent_ = TEST_EVT_UNKNOWN;
+    EventCenter::AsyncQueue queue_;
 };
 
 /**
@@ -92,7 +92,6 @@ protected:
  */
 HWTEST_F(EventCenterTest, TopLayerASyncEvent, TestSize.Level2)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TopLayerASyncEvent start");
     auto test = [this]() {
         EventCenter::Defer defer;
         EventCenter::GetInstance().PostEvent(std::make_unique<TestBegin>());
@@ -101,7 +100,6 @@ HWTEST_F(EventCenterTest, TopLayerASyncEvent, TestSize.Level2)
     test();
     ASSERT_EQ(currEvent_, TEST_EVT_END);
     ASSERT_EQ(waitEvent_, TEST_EVT_UNKNOWN);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "TopLayerASyncEvent end");
 }
 
 /**
@@ -113,13 +111,11 @@ HWTEST_F(EventCenterTest, TopLayerASyncEvent, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, SubLayerASyncEvent, TestSize.Level2)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubLayerASyncEvent start");
     EventCenter::Defer defer;
     EventCenter::GetInstance().PostEvent(std::make_unique<TestBegin>());
     waitEvent_ = TEST_EVT_BEGIN;
     ASSERT_EQ(currEvent_, TEST_EVT_UNKNOWN);
     ASSERT_EQ(waitEvent_, TEST_EVT_BEGIN);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubLayerASyncEvent end");
 }
 
 /**
@@ -131,7 +127,6 @@ HWTEST_F(EventCenterTest, SubLayerASyncEvent, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ASyncEventWithoutDefer start");
     EventCenter::Defer defer;
     waitEvent_ = TEST_EVT_BEGIN;
     auto test = [this]() {
@@ -140,7 +135,6 @@ HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
     test();
     ASSERT_EQ(currEvent_, TEST_EVT_UNKNOWN);
     ASSERT_EQ(waitEvent_, TEST_EVT_BEGIN);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ASyncEventWithoutDefer end");
 }
 
 /**
@@ -152,12 +146,10 @@ HWTEST_F(EventCenterTest, ASyncEventWithoutDefer, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, ImmediatelyASyncEvent, TestSize.Level2)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ImmediatelyASyncEvent start");
     waitEvent_ = TEST_EVT_BEGIN;
     EventCenter::GetInstance().PostEvent(std::make_unique<TestBegin>());
     ASSERT_EQ(currEvent_, TEST_EVT_END);
     ASSERT_EQ(waitEvent_, TEST_EVT_UNKNOWN);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ImmediatelyASyncEvent end");
 }
 
 /**
@@ -169,10 +161,8 @@ HWTEST_F(EventCenterTest, ImmediatelyASyncEvent, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, PostEvent, TestSize.Level2)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostEvent start");
     int32_t result = EventCenter::GetInstance().PostEvent(nullptr);
     EXPECT_EQ(result, EventCenter::CODE_INVALID_ARGS);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PostEvent end");
 }
 
 /**
@@ -184,12 +174,10 @@ HWTEST_F(EventCenterTest, PostEvent, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, SubscribeTest, TestSize.Level2)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeTest start");
     int32_t evtId = 1;
     std::function<void(const Event &)> observer = nullptr;
     bool result = EventCenter::GetInstance().Subscribe(evtId, observer);
     EXPECT_TRUE(result);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeTest end");
 }
 
 /**
@@ -201,10 +189,101 @@ HWTEST_F(EventCenterTest, SubscribeTest, TestSize.Level2)
  */
 HWTEST_F(EventCenterTest, UnsubscribeTest, TestSize.Level2)
 {
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeTest start");
     int32_t evtId = 2;
     bool result = EventCenter::GetInstance().Unsubscribe(evtId);
     EXPECT_FALSE(result);
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeTest end");
+}
+
+ /*
+* @tc.name: OperatorDecrementTest
+* @tc.desc: operator--.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author: Sven Wang
+*/
+HWTEST_F(EventCenterTest, OperatorDecrementTest, TestSize.Level2)
+{
+    EventCenter::AsyncQueue queue;
+    const int32_t TEST_EVENT_ID = 1001;
+    queue.depth_= 1;
+    
+    queue.events_.clear();
+    auto test_event = std::make_unique<Event>(TEST_EVENT_ID);
+    queue.events_.push_back(std::move(test_event));
+    bool handlerCalled = false;
+    queue.handlers_[TEST_EVENT_ID] = [&](const Event &evt) {
+        handlerCalled = true;
+        EXPECT_EQ(evt.GetEventId(), TEST_EVENT_ID);
+    };
+    --queue;
+    EXPECT_TRUE(handlerCalled);
+}
+
+/*
+* @tc.name: AddHandlerTest01
+* @tc.desc: Triggering logging when verifying evtId as EVT_INVALID.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author: Sven Wang
+*/
+HWTEST_F(EventCenterTest, AddHandlerTest01, TestSize.Level2)
+{
+    auto validHandler = [](const Event &evt) {};
+    int32_t invalidEvtId = Event::EVT_INVALID;
+    queue_.AddHandler(invalidEvtId, validHandler);
+    EXPECT_TRUE(queue_.handlers_.empty());
+}
+
+/*
+* @tc.name: AddHandlerTest02
+* @tc.desc: Trigger logging when handler is null.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author: Sven Wang
+*/
+HWTEST_F(EventCenterTest, AddHandlerTest02, TestSize.Level2)
+{
+    int32_t validEvtId = 1001;
+    std::function<void(const Event &)> nullHandler = nullptr;
+    queue_.AddHandler(validEvtId, nullHandler);
+    EXPECT_TRUE(queue_.handlers_.empty());
+}
+
+/*
+* @tc.name: AddHandlerTest03
+* @tc.desc: Trigger the second PASTEBOARD_CHECK-AND-RETURN_LOGE.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author: Sven Wang
+*/
+HWTEST_F(EventCenterTest, AddHandlerTest03, TestSize.Level2)
+{
+    int32_t testEvtId = 1002;
+    auto firstHandler = [](const Event &evt) {};
+    queue_.AddHandler(testEvtId, firstHandler);
+    EXPECT_EQ(queue_.handlers_.size(), 1);
+    EXPECT_NE(queue_.handlers_.find(testEvtId), queue_.handlers_.end());
+    auto secondHandler = [](const Event &evt) {};
+    queue_.AddHandler(testEvtId, secondHandler);
+    EXPECT_EQ(queue_.handlers_.size(), 1);
+}
+
+/*
+* @tc.name: AddHandlerTest04
+* @tc.desc: Verify normal branches.
+* @tc.type: FUNC
+* @tc.require:
+* @tc.author: Sven Wang
+*/
+HWTEST_F(EventCenterTest, AddHandlerTest04, TestSize.Level2)
+{
+    int32_t testEvtId = 1003;
+    bool isHandlerCalled = false;
+    auto testHandler = [&isHandlerCalled](const Event &evt) {
+        isHandlerCalled = true;
+    };
+    queue_.AddHandler(testEvtId, testHandler);
+    EXPECT_EQ(queue_.handlers_.size(), 1);
+    EXPECT_NE(queue_.handlers_.find(testEvtId), queue_.handlers_.end());
 }
 } // namespace OHOS::MiscServices

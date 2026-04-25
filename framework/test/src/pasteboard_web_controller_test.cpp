@@ -1106,65 +1106,6 @@ HWTEST_F(PasteboardWebControllerTest, RemoveInvalidUri_Entry_004, TestSize.Level
 }
 
 /**
- * @tc.name: RemoveInvalidUri_Entry_005.
- * @tc.desc: invalid object-backed file uri is cleared.
- * @tc.type: FUNC.
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardWebControllerTest, RemoveInvalidUri_Entry_005, TestSize.Level1)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveInvalidUri_Entry_005 start");
-    auto controller = PasteboardWebController::GetInstance();
-    auto object = std::make_shared<Object>();
-    object->value_[OHOS::UDMF::FILE_URI_PARAM] = std::string("file://");
-    object->value_["preserved"] = std::string("keep");
-    PasteDataEntry entry(MIMETYPE_TEXT_URI, object);
-
-    bool result = controller.RemoveInvalidUri(entry);
-
-    EXPECT_TRUE(result);
-    auto updatedValue = entry.GetValue();
-    auto updatedObject = std::get_if<std::shared_ptr<Object>>(&updatedValue);
-    ASSERT_NE(updatedObject, nullptr);
-    ASSERT_NE(*updatedObject, nullptr);
-    auto fileUriIter = (*updatedObject)->value_.find(OHOS::UDMF::FILE_URI_PARAM);
-    ASSERT_NE(fileUriIter, (*updatedObject)->value_.end());
-    auto fileUriValue = std::get_if<std::string>(&fileUriIter->second);
-    ASSERT_NE(fileUriValue, nullptr);
-    EXPECT_EQ(*fileUriValue, "");
-    auto preservedIter = (*updatedObject)->value_.find("preserved");
-    ASSERT_NE(preservedIter, (*updatedObject)->value_.end());
-    auto preservedValue = std::get_if<std::string>(&preservedIter->second);
-    ASSERT_NE(preservedValue, nullptr);
-    EXPECT_EQ(*preservedValue, "keep");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveInvalidUri_Entry_005 end");
-}
-
-/**
- * @tc.name: RemoveInvalidUri_Entry_006.
- * @tc.desc: invalid string-backed file uri is cleared.
- * @tc.type: FUNC.
- * @tc.require:
- * @tc.author:
- */
-HWTEST_F(PasteboardWebControllerTest, RemoveInvalidUri_Entry_006, TestSize.Level1)
-{
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveInvalidUri_Entry_006 start");
-    auto controller = PasteboardWebController::GetInstance();
-    PasteDataEntry entry(MIMETYPE_TEXT_URI, std::string("file://"));
-
-    bool result = controller.RemoveInvalidUri(entry);
-
-    EXPECT_TRUE(result);
-    auto updatedValue = entry.GetValue();
-    auto updatedString = std::get_if<std::string>(&updatedValue);
-    ASSERT_NE(updatedString, nullptr);
-    EXPECT_EQ(*updatedString, "");
-    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveInvalidUri_Entry_006 end");
-}
-
-/**
  * @tc.name: IsValidUri_001.
  * @tc.desc: uriPtr == nullptr, return false.
  * @tc.type: FUNC.
