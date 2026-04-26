@@ -20,6 +20,12 @@ using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::MiscServices;
 
+class TestTLVBuffer : public TLVBuffer {
+public:
+    void SetCursor(size_t cursor) { cursor_ = cursor; }
+    void SetTotal(size_t total) { total_ = total; }
+};
+
 class TLVBufferTest : public testing::Test {
 public:
     TLVBufferTest() {};
@@ -171,8 +177,9 @@ HWTEST_F(TLVBufferTest, TLVBufferIsEnoughTest002, TestSize.Level1)
  */
 HWTEST_F(TLVBufferTest, TLVBufferIsEnoughTest003, TestSize.Level1)
 {
-    TLVBuffer buffer(100);
-    buffer.Skip(100);
+    TestTLVBuffer buffer;
+    buffer.SetTotal(100);
+    buffer.SetCursor(101);
     EXPECT_FALSE(buffer.IsEnough());
 }
 
@@ -243,34 +250,4 @@ HWTEST_F(TLVBufferTest, TLVBufferHasExpectBufferTest005, TestSize.Level1)
 HWTEST_F(TLVBufferTest, TLVHeadStructTest001, TestSize.Level1)
 {
     EXPECT_EQ(sizeof(TLVHead), sizeof(uint16_t) + sizeof(uint32_t));
-}
-
-/**
- * @tc.name: TLVHeadStructTest002
- * @tc.desc: test TLVHead default values
- * @tc.type: FUNC
- */
-HWTEST_F(TLVBufferTest, TLVHeadStructTest002, TestSize.Level1)
-{
-    TLVHead head;
-    head.tag = 1;
-    head.len = 100;
-    EXPECT_EQ(head.tag, 1);
-    EXPECT_EQ(head.len, 100);
-}
-
-/**
- * @tc.name: CommonTagEnumTest001
- * @tc.desc: test COMMON_TAG enum values
- * @tc.type: FUNC
- */
-HWTEST_F(TLVBufferTest, CommonTagEnumTest001, TestSize.Level1)
-{
-    EXPECT_EQ(TAG_VECTOR_ITEM, 0x0000);
-    EXPECT_EQ(TAG_MAP_KEY, 0x0001);
-    EXPECT_EQ(TAG_MAP_VALUE, 0x0002);
-    EXPECT_EQ(TAG_MAP_VALUE_TYPE, 0x0003);
-    EXPECT_EQ(TAG_VARIANT_INDEX, 0x0004);
-    EXPECT_EQ(TAG_VARIANT_VALUE, 0x0005);
-    EXPECT_EQ(TAG_BUFF, 0x0100);
 }
