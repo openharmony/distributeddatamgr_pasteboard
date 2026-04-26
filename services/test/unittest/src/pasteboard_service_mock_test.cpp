@@ -2663,6 +2663,72 @@ HWTEST_F(PasteboardServiceMockTest, Dump004, TestSize.Level1)
 }
 
 /**
+ * @tc.name: Dump005
+ * @tc.desc: test Func Dump when fd is negative (-1)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceMockTest, Dump005, TestSize.Level1)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int fd = -1;
+    std::vector<std::u16string> args;
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    int result = tempPasteboard->Dump(fd, args);
+    EXPECT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: Dump006
+ * @tc.desc: test Func Dump when fd is large negative value (-100)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceMockTest, Dump006, TestSize.Level1)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int fd = -100;
+    std::vector<std::u16string> args;
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    int result = tempPasteboard->Dump(fd, args);
+    EXPECT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: Dump007
+ * @tc.desc: test Func Dump when fd is zero
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceMockTest, Dump007, TestSize.Level1)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int fd = 0;
+    std::vector<std::u16string> args;
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetCallingUid).WillOnce(testing::Return(INT_THREETHREETHREE));
+    int result = tempPasteboard->Dump(fd, args);
+    EXPECT_EQ(result, 0);
+}
+
+/**
+ * @tc.name: Dump008
+ * @tc.desc: test Func Dump when fd is valid and args is empty
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceMockTest, Dump008, TestSize.Level1)
+{
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+    int fd = INT_ONE;
+    std::vector<std::u16string> args;
+    testing::NiceMock<PasteboardServiceInterfaceMock> mock;
+    EXPECT_CALL(mock, GetCallingUid).WillOnce(testing::Return(INT_THREETHREETHREE));
+    int result = tempPasteboard->Dump(fd, args);
+    EXPECT_EQ(result, 0);
+}
+
+/**
  * @tc.name: IsNeedThaw002
  * @tc.desc: test Func IsNeedThaw when InputMethodController::GetInstance return nullptr
  * @tc.type: FUNC

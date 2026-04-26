@@ -30,10 +30,6 @@ bool ReadOnlyBuffer::ReadHead(TLVHead &head)
     PASTEBOARD_CHECK_AND_RETURN_RET_LOGE(HasExpectBuffer(sizeof(TLVHead)), false,
         PASTEBOARD_MODULE_COMMON, "read head failed");
     const auto *pHead = reinterpret_cast<const TLVHead *>(data_.data() + cursor_);
-    if (!HasExpectBuffer(NetToHost(pHead->len)) &&
-        !HasExpectBuffer(NetToHost(pHead->len) + sizeof(TLVHead))) {
-        return false;
-    }
     head.tag = NetToHost(pHead->tag);
     head.len = NetToHost(pHead->len);
     cursor_ += sizeof(TLVHead);
@@ -170,7 +166,9 @@ bool ReadOnlyBuffer::ReadVariant(uint32_t step, uint32_t index, _OutTp &value, c
 {
     if (step == index) {
         TLVHead valueHead{};
-        ReadHead(valueHead);
+        if (!ReadHead(valueHead)) {
+            return false;
+        }
         _First output{};
         auto success = ReadValue(output, valueHead);
         value = output;
@@ -183,7 +181,9 @@ template<typename... _Types>
 bool ReadOnlyBuffer::ReadValue(std::variant<_Types...> &value, const TLVHead &head)
 {
     TLVHead valueHead{};
-    ReadHead(valueHead);
+    if (!ReadHead(valueHead)) {
+        return false;
+    }
     uint32_t index = 0;
     if (!ReadValue(index, valueHead)) {
         return false;
@@ -195,7 +195,9 @@ template<>
 bool ReadOnlyBuffer::ReadValue(EntryValue &value, const TLVHead &head)
 {
     TLVHead valueHead{};
-    ReadHead(valueHead);
+    if (!ReadHead(valueHead)) {
+        return false;
+    }
     uint32_t index = 0;
     if (!ReadValue(index, valueHead)) {
         return false;
@@ -254,7 +256,7 @@ bool ReadOnlyBuffer::ReadValue(Object &value, const TLVHead &head)
             return false;
         }
         EntryValue itemValue;
-        if (!ReadValue(itemValue, head)) {
+        if (!ReadValue(itemValue, valueHead)) {
             return false;
         }
         value.value_.emplace(itemKey, itemValue);
