@@ -3401,10 +3401,9 @@ int PasteboardService::Dump(int fd, const std::vector<std::u16string> &args)
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid fd: %{public}d", fd);
         return 0;
     }
-    uid_t uid = IPCSkeleton::GetCallingUid();
-    const uid_t maxUid = 10000;
+    int uid = static_cast<int>(IPCSkeleton::GetCallingUid());
+    const int maxUid = 10000;
     if (uid > maxUid) {
-        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid uid: %{public}u", uid);
         return 0;
     }
 
