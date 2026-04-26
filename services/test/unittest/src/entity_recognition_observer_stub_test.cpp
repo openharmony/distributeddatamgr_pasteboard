@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include "entity_recognition_observer_stub.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::MiscServices;
@@ -49,6 +50,7 @@ void EntityRecognitionObserverStubTest::TearDown(void) { }
  */
 HWTEST_F(EntityRecognitionObserverStubTest, OnRemoteRequestTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "OnRemoteRequestTest001 Start.");
     auto pbserver = std::make_shared<MockEntityObserver>();
     uint32_t code = 10;
     OHOS::MessageParcel data;
@@ -56,6 +58,7 @@ HWTEST_F(EntityRecognitionObserverStubTest, OnRemoteRequestTest001, TestSize.Lev
     OHOS::MessageOption option;
     auto res = pbserver->OnRemoteRequest(code, data, reply, option);
     EXPECT_EQ(res, static_cast<int32_t>(PasteboardError::CHECK_DESCRIPTOR_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_INNERKIT, "OnRemoteRequestTest001 Start.");
 }
 
 /**
