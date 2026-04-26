@@ -254,7 +254,7 @@ HWTEST_F(TLVReadableTest, ReadValueInt8Test001, TestSize.Level1)
     pHead->tag = 1;
     pHead->len = sizeof(int8_t);
     int8_t expectedValue = -128;
-    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(int8_t));
+    memcpy_s(buffer.data() + sizeof(TLVHead), sizeof(int8_t), &expectedValue, sizeof(int8_t));
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
@@ -276,7 +276,7 @@ HWTEST_F(TLVReadableTest, ReadValueInt16Test001, TestSize.Level1)
     pHead->tag = 1;
     pHead->len = sizeof(int16_t);
     int16_t expectedValue = 1000;
-    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(int16_t));
+    memcpy_s(buffer.data() + sizeof(TLVHead), sizeof(int16_t), &expectedValue, sizeof(int16_t));
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
@@ -297,7 +297,7 @@ HWTEST_F(TLVReadableTest, ReadValueInt32Test001, TestSize.Level1)
     pHead->tag = 1;
     pHead->len = sizeof(int32_t);
     int32_t expectedValue = 12345;
-    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(int32_t));
+    memcpy_s(buffer.data() + sizeof(TLVHead), sizeof(int32_t), &expectedValue, sizeof(int32_t));
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
@@ -318,7 +318,7 @@ HWTEST_F(TLVReadableTest, ReadValueInt64Test001, TestSize.Level1)
     pHead->tag = 1;
     pHead->len = sizeof(int64_t);
     int64_t expectedValue = 1234567890123LL;
-    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(int64_t));
+    memcpy_s(buffer.data() + sizeof(TLVHead), sizeof(int64_t), &expectedValue, sizeof(int64_t));
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
@@ -339,7 +339,7 @@ HWTEST_F(TLVReadableTest, ReadValueDoubleTest001, TestSize.Level1)
     pHead->tag = 1;
     pHead->len = sizeof(double);
     double expectedValue = 3.14159265358979;
-    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(double));
+    memcpy_s(buffer.data() + sizeof(TLVHead), sizeof(double), &expectedValue, sizeof(double));
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
@@ -360,7 +360,7 @@ HWTEST_F(TLVReadableTest, ReadValueUint32Test001, TestSize.Level1)
     pHead->tag = 1;
     pHead->len = sizeof(uint32_t);
     uint32_t expectedValue = 4294967295;
-    memcpy(buffer.data() + sizeof(TLVHead), &expectedValue, sizeof(uint32_t));
+    memcpy_s(buffer.data() + sizeof(TLVHead), sizeof(uint32_t), &expectedValue, sizeof(uint32_t));
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
@@ -381,7 +381,7 @@ HWTEST_F(TLVReadableTest, ReadValueStringTest001, TestSize.Level1)
     TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
     pHead->tag = 1;
     pHead->len = expectedValue.size();
-    memcpy(buffer.data() + sizeof(TLVHead), expectedValue.c_str(), expectedValue.size());
+    memcpy_s(buffer.data() + sizeof(TLVHead), expectedValue.size(), expectedValue.c_str(), expectedValue.size());
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
@@ -423,7 +423,7 @@ HWTEST_F(TLVReadableTest, ReadValueVectorUint8Test001, TestSize.Level1)
     TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
     pHead->tag = 1;
     pHead->len = expectedValue.size();
-    memcpy(buffer.data() + sizeof(TLVHead), expectedValue.data(), expectedValue.size());
+    memcpy_s(buffer.data() + sizeof(TLVHead), expectedValue.size(), expectedValue.data(), expectedValue.size());
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
@@ -480,7 +480,7 @@ HWTEST_F(TLVReadableTest, ReadValueRawMemTest001, TestSize.Level1)
     TLVHead *pHead = reinterpret_cast<TLVHead *>(buffer.data());
     pHead->tag = 1;
     pHead->len = expectedData.size();
-    memcpy(buffer.data() + sizeof(TLVHead), expectedData.data(), expectedData.size());
+    memcpy_s(buffer.data() + sizeof(TLVHead), expectedData.size(), expectedData.data(), expectedData.size());
     ReadOnlyBuffer buff(buffer);
     TLVHead head;
     buff.ReadHead(head);
