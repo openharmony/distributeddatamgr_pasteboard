@@ -565,6 +565,7 @@ private:
     static constexpr pid_t INVALID_PID = -1;
     static constexpr uint32_t INVALID_TOKEN = 0;
     static constexpr uint32_t MAX_OBSERVER_COUNT = 10;
+    static constexpr uint32_t MAX_ENTITY_OBSERVER_COUNT = 10;
 };
 } // namespace MiscServices
 } // namespace OHOS
