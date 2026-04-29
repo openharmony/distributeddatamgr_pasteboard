@@ -371,5 +371,32 @@ HWTEST_F(DevProfileMockTest, SubscribeProfileEventTest001, TestSize.Level0)
     EXPECT_TRUE(true);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeProfileEventTest001 end");
 }
+
+/**
+ * @tc.name: UnSubscribeProfileEventTest002
+ * @tc.desc: proxy_ is nullptr
+ * @tc.type: FUNC
+ * @tc.require:
+ * @tc.author:
+ */
+HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
+{
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest002 start");
+#ifdef PB_DEVICE_INFO_MANAGER_ENABLE
+    EXPECT_CALL(*deviceManagerMock_, GetUdidByNetworkId(testing::_, testing::_, testing::_))
+        .WillRepeatedly([](auto, auto, std::string &udid) {
+        udid = "testUdid";
+        return 0;
+    });
+    std::string networkId = "pasteboard_dm_adapter";
+    DMAdapter::GetInstance().Initialize();
+    DevProfile::GetInstance().proxy_ = nullptr;
+    DevProfile::GetInstance().UnSubscribeProfileEvent(networkId);
+    EXPECT_TRUE(DevProfile::GetInstance().subscribeUdidList_.empty());
+#else
+    EXPECT_TRUE(true);
+#endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest002 start");
+}
 } // namespace MiscServices
 } // namespace OHOS
