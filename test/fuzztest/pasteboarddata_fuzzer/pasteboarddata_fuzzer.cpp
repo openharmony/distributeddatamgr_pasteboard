@@ -22,9 +22,8 @@
 namespace {
 using namespace OHOS::MiscServices;
 
-void TestPasteData(const uint8_t *data, size_t size)
+void TestPasteData(FuzzedDataProvider &fdp)
 {
-    FuzzedDataProvider fdp(data, size);
     PasteData pasteData;
     bool isRemote = fdp.ConsumeBool();
     std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
@@ -33,14 +32,16 @@ void TestPasteData(const uint8_t *data, size_t size)
 
     OHOS::Parcel parcel;
     parcel.WriteUInt8Vector(buffer);
-    PasteData::Unmarshalling(parcel);
+    auto ptr = PasteData::Unmarshalling(parcel);
+    if (ptr != nullptr) {
+        delete ptr;
+    }
     PasteData pasteData2;
     pasteData2.Marshalling(parcel);
 }
 
-void TestPasteDataRecord(const uint8_t *data, size_t size)
+void TestPasteDataRecord(FuzzedDataProvider &fdp)
 {
-    FuzzedDataProvider fdp(data, size);
     PasteDataRecord record;
     bool isRemote = fdp.ConsumeBool();
     std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
@@ -48,9 +49,8 @@ void TestPasteDataRecord(const uint8_t *data, size_t size)
     record.Encode(buffer, isRemote);
 }
 
-void TestPasteDataEntry(const uint8_t *data, size_t size)
+void TestPasteDataEntry(FuzzedDataProvider &fdp)
 {
-    FuzzedDataProvider fdp(data, size);
     PasteDataEntry entry;
     bool isRemote = fdp.ConsumeBool();
     std::vector<uint8_t> buffer = fdp.ConsumeRemainingBytes<uint8_t>();
@@ -58,19 +58,29 @@ void TestPasteDataEntry(const uint8_t *data, size_t size)
     entry.Encode(buffer, isRemote);
 }
 
-void TestPasteDataId(const uint8_t *data, size_t size)
+void TestPasteDataId(FuzzedDataProvider &fdp)
 {
-    FuzzedDataProvider fdp(data, size);
     std::string pasteId = fdp.ConsumeRandomLengthString();
     PasteData::IsValidPasteId(pasteId);
 }
+
+using DoFunc = void (*)(FuzzedDataProvider &);
+constexpr DoFunc FUNC_LIST[] = {
+    TestPasteData,
+    TestPasteDataRecord,
+    TestPasteDataEntry,
+    TestPasteDataId,
+};
+constexpr uint8_t FUNC_COUNT = sizeof(FUNC_LIST) / sizeof(FUNC_LIST[0]);
 } // anonymous namespace
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    TestPasteData(data, size);
-    TestPasteDataRecord(data, size);
-    TestPasteDataEntry(data, size);
-    TestPasteDataId(data, size);
+    if (size < 1) {
+        return 0;
+    }
+    FuzzedDataProvider fdp(data, size);
+    uint8_t index = fdp.ConsumeIntegral<uint8_t>() % FUNC_COUNT;
+    FUNC_LIST[index](fdp);
     return 0;
 }

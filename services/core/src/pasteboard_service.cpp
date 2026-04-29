@@ -125,7 +125,7 @@ std::shared_mutex PasteboardService::pasteDataMutex_;
 std::vector<std::string> PasteboardService::dataHistory_;
 std::shared_ptr<Command> PasteboardService::copyHistory;
 std::shared_ptr<Command> PasteboardService::copyData;
-int32_t PasteboardService::currentUserId_ = ERROR_USERID;
+std::atomic<int32_t> PasteboardService::currentUserId_{ERROR_USERID};
 ScreenEvent PasteboardService::currentScreenStatus = ScreenEvent::Default;
 const std::string PasteboardService::REGISTER_PRESYNC_MONITOR = "RegisterPresyncMonitor";
 const std::string PasteboardService::UNREGISTER_PRESYNC_MONITOR = "UnregisterPresyncMonitor";
@@ -422,6 +422,15 @@ void PasteboardService::OnRemoveDeviceProfile()
     DevProfile::GetInstance().ClearDeviceProfileService();
 }
 
+void PasteboardService::HandleWifiOffAndClearDistributedEvent(int32_t userId)
+{
+    bool isdeviceCollabSwitch = switch_.GetDeviceCollabSwitch(userId);
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(!isdeviceCollabSwitch, PASTEBOARD_MODULE_SERVICE,
+        "wifi off but DeviceCollabSwitch is on");
+    PASTEBOARD_CHECK_AND_RETURN_LOGD(IsValidCurrentEvent(), PASTEBOARD_MODULE_SERVICE, "wifi off but no valid event");
+    CleanDistributedData(userId);
+}
+
 void PasteboardService::ReportUeCopyEvent(PasteData &pasteData, int64_t dataSize, int32_t result)
 {
     auto appInfo = GetAppInfo(IPCSkeleton::GetCallingTokenID());
@@ -699,8 +708,9 @@ int32_t PasteboardService::SubscribeEntityObserver(
         static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR), PASTEBOARD_MODULE_SERVICE,
         "check permission failed");
     auto callingPid = IPCSkeleton::GetCallingPid();
-    bool result = entityObserverMap_.ComputeIfPresent(
-        callingPid, [entityType, expectedDataLength, tokenId, &observer](auto, auto &observerList) {
+    bool overLimit = false;
+    entityObserverMap_.Compute(
+        callingPid, [entityType, expectedDataLength, tokenId, &observer, &overLimit](const auto &, auto &observerList) {
             auto it = std::find_if(observerList.begin(), observerList.end(),
                 [entityType, expectedDataLength](const EntityObserverInfo &observer) {
                     return observer.entityType == entityType && observer.expectedDataLength == expectedDataLength;
@@ -710,13 +720,16 @@ int32_t PasteboardService::SubscribeEntityObserver(
                 it->observer = observer;
                 return true;
             }
+            if (observerList.size() >= MAX_ENTITY_OBSERVER_COUNT) {
+                overLimit = true;
+                return true;
+            }
             observerList.emplace_back(entityType, expectedDataLength, tokenId, observer);
             return true;
         });
-    if (!result) {
-        std::vector<EntityObserverInfo> observerList;
-        observerList.emplace_back(entityType, expectedDataLength, tokenId, observer);
-        entityObserverMap_.Emplace(callingPid, observerList);
+    if (overLimit) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "entity observer count over limit");
+        return static_cast<int32_t>(PasteboardError::EXCEEDING_LIMIT_EXCEPTION);
     }
     PASTEBOARD_HILOGD(PASTEBOARD_MODULE_SERVICE, "subscribe entityObserver finished");
     return ERR_OK;
@@ -1278,7 +1291,7 @@ int32_t PasteboardService::GetPasteDataInner(int &fd, int64_t &size, std::vector
     auto callPid = IPCSkeleton::GetCallingPid();
     auto appInfo = GetAppInfo(tokenId);
     bool developerMode = OHOS::system::GetBoolParameter("const.security.developermode.state", false);
-    bool isTestServerSetPasteData = developerMode && setPasteDataUId_ == TEST_SERVER_UID;
+    bool isTestServerSetPasteData = developerMode && setPasteDataUId_.load() == TEST_SERVER_UID;
     if (!VerifyPermission(tokenId) && !isTestServerSetPasteData) {
         RADAR_REPORT(DFX_GET_PASTEBOARD, DFX_CHECK_GET_AUTHORITY, DFX_SUCCESS, GET_DATA_APP, appInfo.bundleName,
             RadarReporter::CONCURRENT_ID, data.GetPasteId());
@@ -1426,10 +1439,11 @@ int32_t PasteboardService::GetData(uint32_t tokenId, PasteData &data, int32_t &s
     }
     if (distRet != static_cast<int32_t>(PasteboardError::E_OK) ||
         GetCurrentScreenStatus() != ScreenEvent::ScreenUnlocked) {
-        pasteBlock = EstablishP2PLinkTask(pasteId, currentEvent_);
+        auto currentEvent = GetCurrentEvent();
+        pasteBlock = EstablishP2PLinkTask(pasteId, currentEvent);
         result = GetLocalData(appInfo, data);
         if (distRet == static_cast<int32_t>(PasteboardError::GET_SAME_REMOTE_DATA)) {
-            peerNetId = currentEvent_.deviceId;
+            peerNetId = currentEvent.deviceId;
             peerUdid = DMAdapter::GetInstance().GetUdidByNetworkId(peerNetId);
         }
     } else {
@@ -2315,7 +2329,7 @@ int32_t PasteboardService::SaveData(PasteData &pasteData, int64_t dataSize,
         }
         pasteData.rawDataSize_ = newDataSize;
     }
-    setPasteDataUId_ = IPCSkeleton::GetCallingUid();
+    setPasteDataUId_.store(IPCSkeleton::GetCallingUid());
     RemovePasteData(appInfo);
     clips_.InsertOrAssign(appInfo.userId, std::make_shared<PasteData>(pasteData));
     IncreaseChangeCount(appInfo.userId);
@@ -2555,7 +2569,11 @@ int32_t PasteboardService::DetectPatterns(const std::vector<Pattern> &patternsTo
 std::pair<int32_t, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistributeEvent(int32_t user)
 {
     Event evt;
-    auto plugin = GetClipPlugin();
+    std::shared_ptr<ClipPlugin> plugin = nullptr;
+    {
+        std::lock_guard<decltype(mutex)> lockGuard(mutex);
+        plugin = clipPlugin_;
+    }
     if (plugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "plugin is null");
         return std::make_pair(static_cast<int32_t>(PasteboardError::PLUGIN_IS_NULL), evt);
@@ -2568,9 +2586,9 @@ std::pair<int32_t, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistribut
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "plugin event is empty");
         return std::make_pair(static_cast<int32_t>(PasteboardError::PLUGIN_EVENT_EMPTY), evt);
     }
-
     evt = events[0];
-    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId() || evt.expiration < currentEvent_.expiration) {
+    auto currentEvent = GetCurrentEvent();
+    if (evt.deviceId == DMAdapter::GetInstance().GetLocalNetworkId() || evt.expiration < currentEvent.expiration) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get local data");
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_LOCAL_DATA), evt);
     }
@@ -2586,12 +2604,11 @@ std::pair<int32_t, ClipPlugin::GlobalEvent> PasteboardService::GetValidDistribut
         return std::make_pair(ret, evt);
     }
 
-    if (evt.deviceId == currentEvent_.deviceId && evt.seqId == currentEvent_.seqId &&
-        evt.expiration == currentEvent_.expiration) {
+    if (evt.deviceId == currentEvent.deviceId && evt.seqId == currentEvent.seqId &&
+        evt.expiration == currentEvent.expiration) {
         PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "get same remote data");
         return std::make_pair(static_cast<int32_t>(PasteboardError::GET_SAME_REMOTE_DATA), evt);
     }
-
     uint64_t curTime =
         static_cast<uint64_t>(PasteBoardTime::GetBootTimeMs());
     ret = evt.status == ClipPlugin::EVT_NORMAL ? ret : static_cast<int32_t>(PasteboardError::INVALID_EVENT_STATUS);
@@ -2877,8 +2894,9 @@ void PasteboardService::RemovePasteData(const AppInfo &appInfo)
 
 int32_t PasteboardService::GetCurrentAccountId()
 {
-    if (currentUserId_ != ERROR_USERID) {
-        return currentUserId_;
+    auto currentUserId = currentUserId_.load();
+    if (currentUserId != ERROR_USERID) {
+        return currentUserId;
     }
     std::vector<int32_t> accountIds;
     auto ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(accountIds);
@@ -2886,8 +2904,8 @@ int32_t PasteboardService::GetCurrentAccountId()
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "query active user failed errCode=%{public}d", ret);
         return ERROR_USERID;
     }
-    currentUserId_ = accountIds.front();
-    return currentUserId_;
+    currentUserId_.store(accountIds.front());
+    return accountIds.front();
 }
 
 ScreenEvent PasteboardService::GetCurrentScreenStatus()
@@ -3379,6 +3397,10 @@ bool PasteboardService::SetPasteboardHistory(HistoryInfo &info)
 
 int PasteboardService::Dump(int fd, const std::vector<std::u16string> &args)
 {
+    if (fd < 0) {
+        PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "invalid fd: %{public}d", fd);
+        return 0;
+    }
     int uid = static_cast<int>(IPCSkeleton::GetCallingUid());
     const int maxUid = 10000;
     if (uid > maxUid) {
@@ -3852,7 +3874,7 @@ std::pair<std::shared_ptr<PasteData>, PasteDateResult> PasteboardService::GetDis
         pasteDateResult.errorCode = static_cast<int32_t>(PasteboardError::REMOTE_DATA_SIZE_EXCEEDED);
         return std::make_pair(nullptr, pasteDateResult);
     }
-    currentEvent_ = std::move(event);
+    SetCurrentEvent(std::move(event));
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     pasteData->Decode(rawData);
     pasteData->SetOriginAuthority(std::make_pair(pasteData->GetBundleName(), pasteData->GetAppIndex()));
@@ -3925,7 +3947,7 @@ bool PasteboardService::SetDistributedData(int32_t user, PasteData &data)
     event.dataType = data.GetMimeTypes();
     event.isDelay = data.IsDelayRecord();
     event.dataId = data.GetDataId();
-    currentEvent_ = event;
+    SetCurrentEvent(event);
 
     if (IsConstraintEnabled(user) || IsDisallowDistributed()) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "not allowed to send, user:%{public}d", user);
@@ -4585,7 +4607,8 @@ void PasteboardService::CleanDistributedData(int32_t user)
 bool PasteboardService::IsValidCurrentEvent()
 {
     auto expiration = PasteBoardTime::GetBootTimeMs();
-    PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(static_cast<uint64_t>(expiration) < currentEvent_.expiration,
+    auto currentEvent = GetCurrentEvent();
+    PASTEBOARD_CHECK_AND_RETURN_RET_LOGD(static_cast<uint64_t>(expiration) < currentEvent.expiration,
         false, PASTEBOARD_MODULE_SERVICE, "event is invalid");
     return true;
 }
@@ -4686,13 +4709,25 @@ sptr<AppExecFwk::IBundleMgr> PasteboardService::GetAppBundleManager()
 
 void PasteboardService::ChangeStoreStatus(int32_t userId)
 {
-    PasteboardService::currentUserId_ = userId;
+    PasteboardService::currentUserId_.store(userId);
     auto clipPlugin = GetClipPlugin();
     if (clipPlugin == nullptr) {
         PASTEBOARD_HILOGE(PASTEBOARD_MODULE_SERVICE, "clipPlugin null.");
         return;
     }
     clipPlugin->ChangeStoreStatus(userId);
+}
+
+ClipPlugin::GlobalEvent PasteboardService::GetCurrentEvent() const
+{
+    std::lock_guard<std::mutex> lock(currentEventMutex_);
+    return currentEvent_;
+}
+
+void PasteboardService::SetCurrentEvent(ClipPlugin::GlobalEvent event)
+{
+    std::lock_guard<std::mutex> lock(currentEventMutex_);
+    currentEvent_ = std::move(event);
 }
 
 void PasteBoardCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
@@ -4740,9 +4775,7 @@ void PasteBoardCommonEventSubscriber::OnReceiveEventInner(const EventFwk::Common
             pasteboardService_->ClearUriOnUninstall(tokenId);
         }
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_WIFI_POWER_STATE && eventState == WIFI_DISABLED) {
-        if (pasteboardService_->IsValidCurrentEvent()) {
-            pasteboardService_->CleanDistributedData(userId);
-        }
+        pasteboardService_->HandleWifiOffAndClearDistributedEvent(userId);
     }
 }
 
