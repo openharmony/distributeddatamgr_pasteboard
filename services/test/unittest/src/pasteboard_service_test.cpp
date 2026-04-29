@@ -330,7 +330,8 @@ HWTEST_F(PasteboardServiceTest, DetectPatternsTest003, TestSize.Level1)
     auto tempPasteboard = std::make_shared<PasteboardService>();
     ASSERT_NE(tempPasteboard, nullptr);
 
-    int32_t userId = tempPasteboard->currentUserId_ = 1;
+    int32_t userId = 1;
+    tempPasteboard->currentUserId_.store(userId);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     ASSERT_NE(pasteData, nullptr);
 
@@ -354,7 +355,8 @@ HWTEST_F(PasteboardServiceTest, DetectPatternsTest004, TestSize.Level1)
     auto tempPasteboard = std::make_shared<PasteboardService>();
     ASSERT_NE(tempPasteboard, nullptr);
 
-    int32_t userId = tempPasteboard->currentUserId_ = 1;
+    int32_t userId = 1;
+    tempPasteboard->currentUserId_.store(userId);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     ASSERT_NE(pasteData, nullptr);
 
@@ -378,7 +380,8 @@ HWTEST_F(PasteboardServiceTest, DetectPatternsTest005, TestSize.Level1)
     auto tempPasteboard = std::make_shared<PasteboardService>();
     ASSERT_NE(tempPasteboard, nullptr);
 
-    int32_t userId = tempPasteboard->currentUserId_ = 1;
+    int32_t userId = 1;
+    tempPasteboard->currentUserId_.store(userId);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     ASSERT_NE(pasteData, nullptr);
 
@@ -479,6 +482,42 @@ HWTEST_F(PasteboardServiceTest, DumpTest001, TestSize.Level1)
 
     tempPasteboard->Dump(fd, args);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest001 end");
+}
+
+/**
+ * @tc.name: DumpTest002
+ * @tc.desc: test Func Dump with invalid fd (negative value)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, DumpTest002, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest002 start");
+    auto fd = -1;
+    std::vector<std::u16string> args;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t result = tempPasteboard->Dump(fd, args);
+    EXPECT_EQ(result, 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest002 end");
+}
+
+/**
+ * @tc.name: DumpTest003
+ * @tc.desc: test Func Dump with invalid fd (large negative value)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceTest, DumpTest003, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest003 start");
+    auto fd = -100;
+    std::vector<std::u16string> args;
+    auto tempPasteboard = std::make_shared<PasteboardService>();
+    EXPECT_NE(tempPasteboard, nullptr);
+
+    int32_t result = tempPasteboard->Dump(fd, args);
+    EXPECT_EQ(result, 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "DumpTest003 end");
 }
 
 /**
@@ -1546,7 +1585,8 @@ HWTEST_F(PasteboardServiceTest, HasRemoteDataTest005, TestSize.Level1)
     EXPECT_NE(service, nullptr);
     service->currentScreenStatus = ScreenEvent::ScreenUnlocked;
 
-    int32_t userId = service->currentUserId_ = 1;
+    int32_t userId = 1;
+    service->currentUserId_.store(userId);
     PasteData pasteData;
     service->clips_.InsertOrAssign(userId, std::make_shared<PasteData>(pasteData));
 
@@ -1572,7 +1612,8 @@ HWTEST_F(PasteboardServiceTest, HasRemoteDataTest006, TestSize.Level1)
     EXPECT_NE(service, nullptr);
     service->currentScreenStatus = ScreenEvent::ScreenUnlocked;
 
-    int32_t userId = service->currentUserId_ = 1;
+    int32_t userId = 1;
+    service->currentUserId_.store(userId);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     ASSERT_NE(pasteData, nullptr);
 
@@ -1602,7 +1643,8 @@ HWTEST_F(PasteboardServiceTest, HasRemoteUriTest001, TestSize.Level1)
     EXPECT_NE(service, nullptr);
     service->currentScreenStatus = ScreenEvent::ScreenUnlocked;
 
-    int32_t userId = service->currentUserId_ = 1;
+    int32_t userId = 1;
+    service->currentUserId_.store(userId);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     ASSERT_NE(pasteData, nullptr);
 
@@ -1627,7 +1669,8 @@ HWTEST_F(PasteboardServiceTest, HasRemoteUriTest002, TestSize.Level1)
     EXPECT_NE(service, nullptr);
     service->currentScreenStatus = ScreenEvent::ScreenUnlocked;
 
-    int32_t userId = service->currentUserId_ = 1;
+    int32_t userId = 1;
+    service->currentUserId_.store(userId);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     ASSERT_NE(pasteData, nullptr);
 
@@ -1652,7 +1695,8 @@ HWTEST_F(PasteboardServiceTest, HasRemoteUriTest003, TestSize.Level1)
     EXPECT_NE(service, nullptr);
     service->currentScreenStatus = ScreenEvent::ScreenUnlocked;
 
-    int32_t userId = service->currentUserId_ = 1;
+    int32_t userId = 1;
+    service->currentUserId_.store(userId);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     ASSERT_NE(pasteData, nullptr);
 
@@ -1679,7 +1723,8 @@ HWTEST_F(PasteboardServiceTest, HasRemoteUriTest004, TestSize.Level1)
     EXPECT_NE(service, nullptr);
     service->currentScreenStatus = ScreenEvent::ScreenUnlocked;
 
-    int32_t userId = service->currentUserId_ = 1;
+    int32_t userId = 1;
+    service->currentUserId_.store(userId);
     std::shared_ptr<PasteData> pasteData = std::make_shared<PasteData>();
     ASSERT_NE(pasteData, nullptr);
     service->clips_.InsertOrAssign(userId, pasteData);
@@ -1702,13 +1747,17 @@ HWTEST_F(PasteboardServiceTest, IsValidCurrentEventTest001, TestSize.Level1)
     
     // Test case 1: When current event is expired (expiration < current time)
     // Set expiration to a past time
-    service->currentEvent_.expiration = 0; // Far in the past
+    auto currentEvent = service->GetCurrentEvent();
+    currentEvent.expiration = 0; // Far in the past
+    service->SetCurrentEvent(currentEvent);
     bool result = service->IsValidCurrentEvent();
     EXPECT_EQ(result, false);
     
     // Test case 2: When current event is not expired (expiration > current time)
     // Set expiration to a future time
-    service->currentEvent_.expiration = UINT64_MAX; // Far in the future
+    currentEvent = service->GetCurrentEvent();
+    currentEvent.expiration = UINT64_MAX; // Far in the future
+    service->SetCurrentEvent(currentEvent);
     result = service->IsValidCurrentEvent();
     EXPECT_EQ(result, true);
     
