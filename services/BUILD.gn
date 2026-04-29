@@ -162,11 +162,6 @@ ohos_shared_library("pasteboard_service") {
     "samgr:samgr_proxy",
     "udmf:udmf_client",
   ]
-  if (pasteboard_vixl_part_enabled) {
-    external_deps += [ "vixl:libvixl" ]
-    defines += [ "PB_VIXL_ENABLE" ]
-  }
-
   if (window_manager_use_sceneboard) {
     external_deps += [ "window_manager:libwm_lite" ]
     defines += [ "SCENE_BOARD_ENABLE" ]
