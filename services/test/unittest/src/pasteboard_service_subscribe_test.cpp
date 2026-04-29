@@ -227,6 +227,177 @@ HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest003, TestSiz
 }
 
 /**
+ * @tc.name: SubscribeEntityObserverTest004
+ * @tc.desc: test Func SubscribeEntityObserver with over limit count
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest004, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest004 start");
+    auto service = std::make_shared<PasteboardService>();
+    EXPECT_NE(service, nullptr);
+
+    EntityType entityType = EntityType::ADDRESS;
+    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+
+    for (uint32_t i = 0; i < PasteboardService::MAX_ENTITY_OBSERVER_COUNT; i++) {
+        int32_t result = service->SubscribeEntityObserver(entityType, i + 1, observer);
+        EXPECT_EQ(result, ERR_OK);
+    }
+    int32_t result = service->SubscribeEntityObserver(entityType, MAX_RECOGNITION_LENGTH + 1, observer);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::EXCEEDING_LIMIT_EXCEPTION));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest004 end");
+}
+
+/**
+ * @tc.name: SubscribeEntityObserverTest005
+ * @tc.desc: test Func SubscribeEntityObserver with different entity types
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest005, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest005 start");
+    auto service = std::make_shared<PasteboardService>();
+    EXPECT_NE(service, nullptr);
+
+    EntityType entityType1 = EntityType::ADDRESS;
+    EntityType entityType2 = EntityType::ADDRESS;
+    uint32_t expectedDataLength1 = MAX_RECOGNITION_LENGTH;
+    uint32_t expectedDataLength2 = 1;
+    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+
+    int32_t result1 = service->SubscribeEntityObserver(entityType1, expectedDataLength1, observer);
+    EXPECT_EQ(result1, ERR_OK);
+    int32_t result2 = service->SubscribeEntityObserver(entityType2, expectedDataLength2, observer);
+    EXPECT_EQ(result2, ERR_OK);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest005 end");
+}
+
+/**
+ * @tc.name: SubscribeEntityObserverTest006
+ * @tc.desc: test Func SubscribeEntityObserver with invalid entityType (MAX)
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest006, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest006 start");
+    auto service = std::make_shared<PasteboardService>();
+    EXPECT_NE(service, nullptr);
+
+    EntityType entityType = EntityType::MAX;
+    uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
+    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+
+    int32_t result = service->SubscribeEntityObserver(entityType, expectedDataLength, observer);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest006 end");
+}
+
+/**
+ * @tc.name: SubscribeEntityObserverTest007
+ * @tc.desc: test Func SubscribeEntityObserver with nullptr observer
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest007, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest007 start");
+    auto service = std::make_shared<PasteboardService>();
+    EXPECT_NE(service, nullptr);
+
+    EntityType entityType = EntityType::ADDRESS;
+    uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
+    const sptr<IEntityRecognitionObserver> observer = nullptr;
+
+    int32_t result = service->SubscribeEntityObserver(entityType, expectedDataLength, observer);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest007 end");
+}
+
+/**
+ * @tc.name: SubscribeEntityObserverTest008
+ * @tc.desc: test Func SubscribeEntityObserver with expectedDataLength exceeds MAX_RECOGNITION_LENGTH
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest008, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest008 start");
+    auto service = std::make_shared<PasteboardService>();
+    EXPECT_NE(service, nullptr);
+
+    EntityType entityType = EntityType::ADDRESS;
+    uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH + 1;
+    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+
+    int32_t result = service->SubscribeEntityObserver(entityType, expectedDataLength, observer);
+    EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest008 end");
+}
+
+/**
+ * @tc.name: SubscribeEntityObserverTest009
+ * @tc.desc: test Func SubscribeEntityObserver with expectedDataLength equals zero
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest009, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest009 start");
+    auto service = std::make_shared<PasteboardService>();
+    EXPECT_NE(service, nullptr);
+
+    EntityType entityType = EntityType::ADDRESS;
+    uint32_t expectedDataLength = 0;
+    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+
+    int32_t result = service->SubscribeEntityObserver(entityType, expectedDataLength, observer);
+    EXPECT_EQ(result, ERR_OK);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest009 end");
+}
+
+/**
+ * @tc.name: SubscribeEntityObserverTest010
+ * @tc.desc: test Func SubscribeEntityObserver update existing observer with same entityType and expectedDataLength
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest010, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest010 start");
+    auto service = std::make_shared<PasteboardService>();
+    EXPECT_NE(service, nullptr);
+
+    EntityType entityType = EntityType::ADDRESS;
+    uint32_t expectedDataLength = 100;
+    const sptr<IEntityRecognitionObserver> observer1 = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+    const sptr<IEntityRecognitionObserver> observer2 = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+
+    int32_t result1 = service->SubscribeEntityObserver(entityType, expectedDataLength, observer1);
+    EXPECT_EQ(result1, ERR_OK);
+    int32_t result2 = service->SubscribeEntityObserver(entityType, expectedDataLength, observer2);
+    EXPECT_EQ(result2, ERR_OK);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest010 end");
+}
+
+/**
+ * @tc.name: SubscribeEntityObserverTest011
+ * @tc.desc: test Func SubscribeEntityObserver at exact MAX_ENTITY_OBSERVER_COUNT limit
+ * @tc.type: FUNC
+ */
+HWTEST_F(PasteboardServiceSubscribeTest, SubscribeEntityObserverTest011, TestSize.Level1)
+{
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest011 start");
+    auto service = std::make_shared<PasteboardService>();
+    EXPECT_NE(service, nullptr);
+
+    EntityType entityType = EntityType::ADDRESS;
+    const sptr<IEntityRecognitionObserver> observer = sptr<MyTestEntityRecognitionObserver>::MakeSptr();
+
+    for (uint32_t i = 0; i < PasteboardService::MAX_ENTITY_OBSERVER_COUNT; i++) {
+        int32_t result = service->SubscribeEntityObserver(entityType, i + 1, observer);
+        EXPECT_EQ(result, ERR_OK);
+    }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_SERVICE, "SubscribeEntityObserverTest011 end");
+}
+
+/**
  * @tc.name: UnsubscribeEntityObserverTest001
  * @tc.desc: test Func UnsubscribeEntityObserver
  * @tc.type: FUNC

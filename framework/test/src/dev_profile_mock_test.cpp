@@ -379,7 +379,7 @@ HWTEST_F(DevProfileMockTest, SubscribeProfileEventTest001, TestSize.Level0)
  * @tc.require:
  * @tc.author:
  */
-HWTEST_F(DevProfileTest, UnSubscribeProfileEventTest002, TestSize.Level0)
+HWTEST_F(DevProfileMockTest, UnSubscribeProfileEventTest002, TestSize.Level0)
 {
 PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnSubscribeProfileEventTest002 start");
 #ifdef PB_DEVICE_INFO_MANAGER_ENABLE
