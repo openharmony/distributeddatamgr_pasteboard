@@ -19,6 +19,7 @@
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "unistd.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -61,6 +62,7 @@ void PasteboardClientTest::TearDown(void) { }
  */
 HWTEST_F(PasteboardClientTest, GetChangeCount001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount001 start");
     uint32_t changeCount = 0;
     int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
@@ -69,6 +71,7 @@ HWTEST_F(PasteboardClientTest, GetChangeCount001, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->GetChangeCount(newCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     ASSERT_EQ(newCount, changeCount);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount001 end");
 }
 
 /**
@@ -80,6 +83,7 @@ HWTEST_F(PasteboardClientTest, GetChangeCount001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetChangeCount002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount002 start");
     uint32_t changeCount = 0;
     int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
@@ -91,6 +95,7 @@ HWTEST_F(PasteboardClientTest, GetChangeCount002, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->GetChangeCount(newCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     ASSERT_EQ(newCount, changeCount + 1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount002 end");
 }
 
 /**
@@ -102,6 +107,7 @@ HWTEST_F(PasteboardClientTest, GetChangeCount002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetChangeCount003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount003 start");
     uint32_t changeCount = 0;
     int32_t ret = PasteboardClient::GetInstance()->GetChangeCount(changeCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
@@ -117,6 +123,7 @@ HWTEST_F(PasteboardClientTest, GetChangeCount003, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->GetChangeCount(newCount);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
     ASSERT_EQ(newCount, changeCount + 2);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetChangeCount003 end");
 }
 
 /**
@@ -128,11 +135,13 @@ HWTEST_F(PasteboardClientTest, GetChangeCount003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, IsRemoteData001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsRemoteData001 start");
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     bool ret = PasteboardClient::GetInstance()->IsRemoteData();
     ASSERT_FALSE(ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsRemoteData001 end");
 }
 
 /**
@@ -144,12 +153,14 @@ HWTEST_F(PasteboardClientTest, IsRemoteData001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, IsRemoteData002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsRemoteData002 start");
     std::string plainText = "plain text";
     auto pasteData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     pasteData->SetRemote(true);
     PasteboardClient::GetInstance()->SetPasteData(*pasteData);
     bool ret = PasteboardClient::GetInstance()->IsRemoteData();
     ASSERT_TRUE(ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsRemoteData002 end");
 }
 
 /**
@@ -161,9 +172,11 @@ HWTEST_F(PasteboardClientTest, IsRemoteData002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetMimeTypes001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes001 start");
     PasteboardClient::GetInstance()->Clear();
     std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
     ASSERT_EQ(0, mimeTypes.size());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes001 end");
 }
 
 /**
@@ -175,6 +188,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetMimeTypes002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes002 start");
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(newData);
@@ -182,6 +196,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes002, TestSize.Level0)
     std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
     ASSERT_EQ(1, mimeTypes.size());
     ASSERT_EQ(MIMETYPE_TEXT_PLAIN, mimeTypes[0]);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes002 end");
 }
 
 /**
@@ -193,6 +208,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetMimeTypes003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes003 start");
     std::string htmlText = "<div class='disable'>helloWorld</div>";
     auto newPasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     ASSERT_TRUE(newPasteData);
@@ -200,6 +216,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes003, TestSize.Level0)
     std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
     ASSERT_EQ(1, mimeTypes.size());
     ASSERT_EQ(MIMETYPE_TEXT_HTML, mimeTypes[0]);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes003 end");
 }
 
 /**
@@ -211,6 +228,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetMimeTypes004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes004 start");
     OHOS::Uri uri("uri");
     auto newPasteData = PasteboardClient::GetInstance()->CreateUriData(uri);
     ASSERT_TRUE(newPasteData);
@@ -218,6 +236,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes004, TestSize.Level0)
     std::vector<std::string> mimeTypes = PasteboardClient::GetInstance()->GetMimeTypes();
     ASSERT_EQ(1, mimeTypes.size());
     ASSERT_EQ(MIMETYPE_TEXT_URI, mimeTypes[0]);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes004 end");
 }
 
 /**
@@ -229,6 +248,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetMimeTypes005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes005 start");
     PasteData data;
     PasteDataRecord::Builder builder(MIMETYPE_TEXT_URI);
     std::string uriStr = "/data/test/resource/pasteboardTest.txt";
@@ -269,6 +289,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes005, TestSize.Level0)
                     MIMETYPE_PIXELMAP == type ||
                     MIMETYPE_TEXT_URI == type);
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetMimeTypes005 end");
 }
 
 /**
@@ -280,6 +301,7 @@ HWTEST_F(PasteboardClientTest, GetMimeTypes005, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataType001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataType001 start");
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     PasteboardClient::GetInstance()->SetPasteData(*newData);
@@ -287,6 +309,7 @@ HWTEST_F(PasteboardClientTest, HasDataType001, TestSize.Level0)
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_URI);
     ASSERT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataType001 end");
 }
 
 /**
@@ -298,6 +321,7 @@ HWTEST_F(PasteboardClientTest, HasDataType001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataType002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataType002 start");
     std::string htmlText = "<div class='disable'>helloWorld</div>";
     auto newPasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     PasteboardClient::GetInstance()->SetPasteData(*newPasteData);
@@ -305,6 +329,7 @@ HWTEST_F(PasteboardClientTest, HasDataType002, TestSize.Level0)
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_PLAIN);
     ASSERT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataType002 end");
 }
 
 /**
@@ -316,6 +341,7 @@ HWTEST_F(PasteboardClientTest, HasDataType002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataType003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataType003 start");
     OHOS::Uri uri("uri");
     auto newPasteData = PasteboardClient::GetInstance()->CreateUriData(uri);
     PasteboardClient::GetInstance()->SetPasteData(*newPasteData);
@@ -323,6 +349,7 @@ HWTEST_F(PasteboardClientTest, HasDataType003, TestSize.Level0)
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_PLAIN);
     ASSERT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataType003 end");
 }
 
 /**
@@ -334,6 +361,7 @@ HWTEST_F(PasteboardClientTest, HasDataType003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataType004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataType004 start");
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
     InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
@@ -344,6 +372,7 @@ HWTEST_F(PasteboardClientTest, HasDataType004, TestSize.Level0)
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_URI);
     ASSERT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataType004 end");
 }
 
 /**
@@ -355,6 +384,7 @@ HWTEST_F(PasteboardClientTest, HasDataType004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithTimeout001 start");
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     PasteboardClient::GetInstance()->SetPasteData(*newData);
@@ -362,6 +392,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout001, TestSize.Level0)
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_URI, HAS_DATA_TYPE_TIMEOUT);
     ASSERT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithTimeout001 end");
 }
 
 /**
@@ -373,6 +404,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithTimeout002 start");
     std::string htmlText = "<div class='disable'>helloWorld</div>";
     auto newPasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     PasteboardClient::GetInstance()->SetPasteData(*newPasteData);
@@ -380,6 +412,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout002, TestSize.Level0)
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_PLAIN, HAS_DATA_TYPE_TIMEOUT);
     ASSERT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithTimeout002 end");
 }
 
 /**
@@ -391,6 +424,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithTimeout003 start");
     OHOS::Uri uri("uri");
     auto newPasteData = PasteboardClient::GetInstance()->CreateUriData(uri);
     PasteboardClient::GetInstance()->SetPasteData(*newPasteData);
@@ -398,6 +432,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout003, TestSize.Level0)
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_PLAIN, HAS_DATA_TYPE_TIMEOUT);
     ASSERT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithTimeout003 end");
 }
 
 /**
@@ -409,6 +444,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithTimeout004 start");
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
     InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
@@ -419,6 +455,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout004, TestSize.Level0)
     ASSERT_TRUE(ret);
     auto result = PasteboardClient::GetInstance()->HasDataType(MIMETYPE_TEXT_URI, HAS_DATA_TYPE_TIMEOUT);
     ASSERT_FALSE(result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithTimeout004 end");
 }
 
 /**
@@ -430,6 +467,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithTimeout004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithCallback001 start");
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     PasteboardClient::GetInstance()->SetPasteData(*newData);
@@ -440,6 +478,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback001, TestSize.Level0)
     });
     std::this_thread::sleep_for(std::chrono::milliseconds(HAS_DATA_TYPE_WAIT));
     ASSERT_TRUE(*callbackResult);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithCallback001 end");
 }
 
 /**
@@ -451,6 +490,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithCallback002 start");
     std::string htmlText = "<div class='disable'>helloWorld</div>";
     auto newPasteData = PasteboardClient::GetInstance()->CreateHtmlData(htmlText);
     PasteboardClient::GetInstance()->SetPasteData(*newPasteData);
@@ -461,6 +501,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback002, TestSize.Level0)
     });
     std::this_thread::sleep_for(std::chrono::milliseconds(HAS_DATA_TYPE_WAIT));
     ASSERT_TRUE(*callbackResult);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithCallback002 end");
 }
 
 /**
@@ -472,6 +513,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithCallback003 start");
     OHOS::Uri uri("uri");
     auto newPasteData = PasteboardClient::GetInstance()->CreateUriData(uri);
     PasteboardClient::GetInstance()->SetPasteData(*newPasteData);
@@ -482,6 +524,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback003, TestSize.Level0)
     });
     std::this_thread::sleep_for(std::chrono::milliseconds(HAS_DATA_TYPE_WAIT));
     ASSERT_TRUE(*callbackResult);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithCallback003 end");
 }
 
 /**
@@ -493,6 +536,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithCallback004 start");
     uint32_t color[100] = { 3, 7, 9, 9, 7, 6 };
     InitializationOptions opts = { { 5, 7 }, PixelFormat::ARGB_8888 };
     std::unique_ptr<PixelMap> pixelMap = PixelMap::Create(color, sizeof(color) / sizeof(color[0]), opts);
@@ -506,6 +550,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback004, TestSize.Level0)
     });
     std::this_thread::sleep_for(std::chrono::milliseconds(HAS_DATA_TYPE_WAIT));
     ASSERT_TRUE(*callbackResult);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasDataTypeWithCallback004 end");
 }
 
 /**
@@ -517,6 +562,7 @@ HWTEST_F(PasteboardClientTest, HasDataTypeWithCallback004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HasRemoteDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasRemoteDataTest001 start");
     OHOS::Uri uri("file://com.ohos/data/storage/el2/distributedfiles/networkid=a92ded");
     auto data = PasteboardClient::GetInstance()->CreateUriData(uri);
     ASSERT_NE(data, nullptr);
@@ -533,6 +579,7 @@ HWTEST_F(PasteboardClientTest, HasRemoteDataTest001, TestSize.Level1)
     auto hasRemoteData = PasteboardClient::GetInstance()->HasRemoteData();
     EXPECT_EQ(hasRemoteData, false);
     PasteboardClient::GetInstance()->Clear();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HasRemoteDataTest001 end");
 }
 
 /**
@@ -544,12 +591,14 @@ HWTEST_F(PasteboardClientTest, HasRemoteDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientTest, GetDataSource001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataSource001 start");
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     PasteboardClient::GetInstance()->SetPasteData(*newData);
     std::string bundleName;
     PasteboardClient::GetInstance()->GetDataSource(bundleName);
     EXPECT_FALSE(bundleName.empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataSource001 end");
 }
 
 /**
@@ -561,6 +610,7 @@ HWTEST_F(PasteboardClientTest, GetDataSource001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, SetGlobalShareOption, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetGlobalShareOption start");
     std::map<uint32_t, ShareOption> settings = { { 100, ShareOption::InApp }, { 200, ShareOption::LocalDevice },
         { 300, ShareOption::CrossDevice } };
     PasteboardClient::GetInstance()->SetGlobalShareOption(settings);
@@ -576,6 +626,7 @@ HWTEST_F(PasteboardClientTest, SetGlobalShareOption, TestSize.Level0)
     EXPECT_EQ(result[100], ShareOption::CrossDevice);
     EXPECT_EQ(result[400], ShareOption::InApp);
     PasteboardClient::GetInstance()->RemoveGlobalShareOption({ 100, 200, 300, 400 });
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetGlobalShareOption end");
 }
 
 /**
@@ -587,6 +638,7 @@ HWTEST_F(PasteboardClientTest, SetGlobalShareOption, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetGlobalShareOption, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption start");
     std::map<uint32_t, ShareOption> settings = { { 100, ShareOption::InApp }, { 200, ShareOption::LocalDevice },
         { 300, ShareOption::CrossDevice } };
     PasteboardClient::GetInstance()->SetGlobalShareOption(settings);
@@ -600,6 +652,7 @@ HWTEST_F(PasteboardClientTest, GetGlobalShareOption, TestSize.Level0)
     EXPECT_EQ(result[100], ShareOption::InApp);
     EXPECT_TRUE(result.find(400) == result.end());
     PasteboardClient::GetInstance()->RemoveGlobalShareOption({ 100, 200, 300 });
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetGlobalShareOption end");
 }
 
 /**
@@ -611,6 +664,7 @@ HWTEST_F(PasteboardClientTest, GetGlobalShareOption, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, RemoveGlobalShareOption, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveGlobalShareOption start");
     std::map<uint32_t, ShareOption> settings = { { 100, ShareOption::InApp }, { 200, ShareOption::LocalDevice },
         { 300, ShareOption::CrossDevice } };
     PasteboardClient::GetInstance()->SetGlobalShareOption(settings);
@@ -627,6 +681,7 @@ HWTEST_F(PasteboardClientTest, RemoveGlobalShareOption, TestSize.Level0)
     EXPECT_TRUE(result.size() == 2);
     EXPECT_TRUE(result.find(100) == result.end());
     PasteboardClient::GetInstance()->RemoveGlobalShareOption({ 200, 300 });
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveGlobalShareOption end");
 }
 
 /**
@@ -638,6 +693,7 @@ HWTEST_F(PasteboardClientTest, RemoveGlobalShareOption, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DetectPatterns001 start");
     std::string plainText("r法塔赫已经，速tdghf！】qd rqdswww.comsski,.sjopwe"
                           "ihhtpsdhttp我也带过去给他№のjioijhhu");
     std::string plainText0("https://giedqwrtheeeeeefub.cerm/meeeelkove/obaklo_tjokl"
@@ -663,6 +719,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
             ASSERT_EQ(ret, patternsVec[rightIndex]);
         }
     }
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DetectPatterns001 end");
 }
 
 /**
@@ -674,6 +731,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DetectPatterns002 start");
     std::string htmlText1 = "<!DOCTYPE html><html><head><title>"
                             "超链案头研究。，封为啊啊</title></head><body><h2>发高热</h2>"
                             "<p>隔热隔热的氛围<a href=\"https://exq23amwerwqple.com\">"
@@ -696,6 +754,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
     auto ret2 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck2);
     Patterns expected2 { Pattern::URL, Pattern::EMAIL_ADDRESS };
     ASSERT_EQ(ret2, expected2);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DetectPatterns002 end");
 }
 
 /**
@@ -707,6 +766,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DetectPatterns003 start");
     std::string plainText1 = "部分人的十点半：\n"
                              "「而飞过海」\n"
                              "方法：\n"
@@ -734,6 +794,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
     PasteboardClient::GetInstance()->SetPasteData(*newData3);
     auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
     ASSERT_EQ(ret3, Patterns{});
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DetectPatterns003 end");
 }
 
 /**
@@ -745,6 +806,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DetectPatterns004 start");
     std::string plainText1 = "部分人的十点半：\n"
                              "「而飞过海」\n"
                              "方法：\n"
@@ -773,6 +835,7 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
     PasteboardClient::GetInstance()->SetPasteData(*newData3);
     auto ret3 = PasteboardClient::GetInstance()->DetectPatterns(patternsToCheck);
     ASSERT_EQ(ret3, std::set<Pattern>{});
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DetectPatterns004 end");
 }
 
 /**
@@ -784,9 +847,11 @@ HWTEST_F(PasteboardClientTest, DetectPatterns004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, CreateMultiDelayRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CreateMultiDelayRecord001 start");
     std::vector<std::string> mineTypes;
     auto pasteDataRecord = PasteboardClient::GetInstance()->CreateMultiDelayRecord(mineTypes, nullptr);
     EXPECT_NE(nullptr, pasteDataRecord);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CreateMultiDelayRecord001 end");
 }
 
 /**
@@ -798,12 +863,14 @@ HWTEST_F(PasteboardClientTest, CreateMultiDelayRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, CreateMultiTypeData001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CreateMultiTypeData001 start");
     std::map<std::string, std::shared_ptr<EntryValue>> typeValueMap;
     std::shared_ptr<std::map<std::string, std::shared_ptr<EntryValue>>> mapPtr =
         std::make_shared<std::map<std::string, std::shared_ptr<EntryValue>>>(typeValueMap);
     const std::string recordMimeType = "record_mime_type";
     auto pasteData = PasteboardClient::GetInstance()->CreateMultiTypeData(mapPtr, recordMimeType);
     EXPECT_NE(nullptr, pasteData);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CreateMultiTypeData001 end");
 }
 
 /**
@@ -815,12 +882,14 @@ HWTEST_F(PasteboardClientTest, CreateMultiTypeData001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, CreateMultiTypeDelayData001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CreateMultiTypeDelayData001 start");
     std::vector<std::string> mimeTypes;
     auto pasteData = PasteboardClient::GetInstance()->CreateMultiTypeDelayData(mimeTypes, nullptr);
     EXPECT_NE(nullptr, pasteData);
     PasteboardClient::GetInstance()->PasteStart("paste_id");
     PasteboardClient::GetInstance()->PasteComplete("device_id", "paste_id");
     PasteboardClient::GetInstance()->Subscribe(PasteboardObserverType::OBSERVER_LOCAL, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CreateMultiTypeDelayData001 end");
 }
 
 void ProgressNotify(std::shared_ptr<GetDataParams> params)
@@ -847,6 +916,7 @@ void ProgressNotify(std::shared_ptr<GetDataParams> params)
  */
 HWTEST_F(PasteboardClientTest, GetDataWithProgress001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress001 start");
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(newData != nullptr);
@@ -858,6 +928,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress001, TestSize.Level0)
     params->listener.ProgressNotify = ProgressNotify;
     int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress001 end");
 }
 
 /**
@@ -869,6 +940,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetDataWithProgress002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress002 start");
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(newData != nullptr);
@@ -879,6 +951,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress002, TestSize.Level0)
     params->progressIndicator = DEFAULT_PROGRESS_INDICATOR;
     int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress002 end");
 }
 
 void ProgressNotifyTest(std::shared_ptr<GetDataParams> params)
@@ -908,6 +981,7 @@ void ProgressNotifyTest(std::shared_ptr<GetDataParams> params)
  */
 HWTEST_F(PasteboardClientTest, GetDataWithProgress003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress003 start");
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
     ASSERT_TRUE(newData != nullptr);
@@ -919,6 +993,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress003, TestSize.Level0)
     params->listener.ProgressNotify = ProgressNotifyTest;
     int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress003 end");
 }
 
 /**
@@ -930,6 +1005,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetDataWithProgress004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress004 start");
     PasteData pasteData;
     int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, nullptr);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
@@ -942,6 +1018,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress004, TestSize.Level0)
     params->progressIndicator = NONE_PROGRESS_INDICATOR;
     ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress004 end");
 }
 
 /**
@@ -953,6 +1030,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetDataWithProgress005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress005 start");
     PasteData pasteData;
     std::string plainText = "helloWorld";
     auto newData = PasteboardClient::GetInstance()->CreatePlainTextData(plainText);
@@ -963,6 +1041,7 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress005, TestSize.Level0)
     params->progressIndicator = DEFAULT_PROGRESS_INDICATOR;
     int32_t ret = PasteboardClient::GetInstance()->GetDataWithProgress(pasteData, params);
     ASSERT_EQ(ret, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataWithProgress005 end");
 }
 
 /**
@@ -974,10 +1053,12 @@ HWTEST_F(PasteboardClientTest, GetDataWithProgress005, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HandleSignalValue001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleSignalValue001 start");
     PasteboardClient pasteboardClient;
     std::string signalValue = "0";
     int32_t result = pasteboardClient.HandleSignalValue(signalValue);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleSignalValue001 end");
 }
 
 /**
@@ -989,10 +1070,12 @@ HWTEST_F(PasteboardClientTest, HandleSignalValue001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HandleSignalValue002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleSignalValue002 start");
     PasteboardClient pasteboardClient;
     std::string signalValue = "invalid";
     int32_t result = pasteboardClient.HandleSignalValue(signalValue);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleSignalValue002 end");
 }
 
 /**
@@ -1004,11 +1087,13 @@ HWTEST_F(PasteboardClientTest, HandleSignalValue002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HandleSignalValue003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleSignalValue003 start");
     PasteboardClient pasteboardClient;
     int64_t value = INT32_MAX;
     std::string signalValue = std::to_string(value + 1);
     int32_t result = pasteboardClient.HandleSignalValue(signalValue);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleSignalValue003 end");
 }
 
 /**
@@ -1020,10 +1105,12 @@ HWTEST_F(PasteboardClientTest, HandleSignalValue003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, HandleSignalValue004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleSignalValue004 start");
     PasteboardClient pasteboardClient;
     std::string signalValue(129, '1');
     int32_t result = pasteboardClient.HandleSignalValue(signalValue);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_DATA_SIZE));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "HandleSignalValue004 end");
 }
 
 /**
@@ -1033,6 +1120,7 @@ HWTEST_F(PasteboardClientTest, HandleSignalValue004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest001 start");
     uint32_t expectedDataLength = 100;
     sptr<EntityRecognitionObserver> observer = nullptr;
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
@@ -1041,6 +1129,7 @@ HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest001, TestSize.Level0)
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest001 end");
 }
 
 
@@ -1053,9 +1142,11 @@ HWTEST_F(PasteboardClientTest, SubscribeEntityObserverTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, UpdateProgressTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UpdateProgressTest001 start");
     std::shared_ptr<GetDataParams> params = nullptr;
     PasteboardClient::GetInstance()->UpdateProgress(params, 50);
     EXPECT_TRUE(params == nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UpdateProgressTest001 end");
 }
 
 /**
@@ -1067,8 +1158,10 @@ HWTEST_F(PasteboardClientTest, UpdateProgressTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, ReleaseSaListenerTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReleaseSaListenerTest001 start");
     PasteboardClient::GetInstance()->ReleaseSaListener();
     EXPECT_TRUE(PasteboardClient::GetInstance()->isSubscribeSa_ == false);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ReleaseSaListenerTest001 end");
 }
 
 /**
@@ -1080,9 +1173,11 @@ HWTEST_F(PasteboardClientTest, ReleaseSaListenerTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetRecordValueByTypeTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRecordValueByTypeTest001 start");
     PasteDataEntry entry;
     int32_t result = PasteboardClient::GetInstance()->GetRecordValueByType(1, 1, entry);
     ASSERT_EQ(result, static_cast<int32_t>(PasteboardError::INVALID_DATA_ID));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRecordValueByTypeTest001 end");
 }
 
 /**
@@ -1092,6 +1187,7 @@ HWTEST_F(PasteboardClientTest, GetRecordValueByTypeTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, GetPasteIdTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteIdTest001 start");
     PasteData setData;
     setData.AddTextRecord("text");
     int32_t ret = PasteboardClient::GetInstance()->SetPasteData(setData);
@@ -1103,6 +1199,7 @@ HWTEST_F(PasteboardClientTest, GetPasteIdTest001, TestSize.Level0)
 
     std::string pasteId = getData.GetPasteId();
     EXPECT_STREQ(pasteId.c_str(), "");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetPasteIdTest001 end");
 }
 
 /**
@@ -1112,8 +1209,10 @@ HWTEST_F(PasteboardClientTest, GetPasteIdTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientTest, ClearByUserTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ClearByUserTest001 start");
     auto client = PasteboardClient::GetInstance();
     ASSERT_TRUE(client != nullptr);
     client->ClearByUser(0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ClearByUserTest001 end");
 }
 } // namespace OHOS::MiscServices

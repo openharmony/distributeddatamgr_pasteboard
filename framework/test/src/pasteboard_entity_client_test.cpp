@@ -19,6 +19,7 @@
 #include "pasteboard_client.h"
 #include "pasteboard_error.h"
 #include "unistd.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -76,11 +77,13 @@ void PasteboardEntityClientTest::TearDown(void)
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest001 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
         EntityType::MAX, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest001 end");
 }
 
 /**
@@ -92,11 +95,13 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest001, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest002 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH + 1;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest002 end");
 }
 
 /**
@@ -108,11 +113,13 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest002, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest003 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = nullptr;
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest003 end");
 }
 
 /**
@@ -124,6 +131,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest003, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest004 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
@@ -132,6 +140,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest004, TestSize.Le
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest004 end");
 }
 
 /**
@@ -143,6 +152,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest004, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest005 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
@@ -158,6 +168,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest005, TestSize.Le
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest005 end");
 }
 
 /**
@@ -169,6 +180,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest005, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest006, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest006 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
@@ -180,6 +192,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest006, TestSize.Le
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest006 end");
 }
 
 /**
@@ -191,6 +204,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest006, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest007, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest007 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = new TestEntityRecognitionObserver();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
@@ -203,6 +217,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest007, TestSize.Le
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, otherObserver);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest007 end");
 }
 
 /**
@@ -214,6 +229,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest007, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest008, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest008 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
@@ -228,6 +244,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest008, TestSize.Le
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, TEST_RECOGNITION_LENGTH, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest008 end");
 }
 
 /**
@@ -239,6 +256,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest008, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest009, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest009 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<TestEntityRecognitionObserver> observer = sptr<TestEntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
@@ -255,6 +273,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest009, TestSize.Le
     std::this_thread::sleep_for(std::chrono::seconds(1));
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
     ASSERT_TRUE(observer->entity_.empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest009 end");
 }
 
 /**
@@ -266,6 +285,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest009, TestSize.Le
  */
 HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest0010, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest0010 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<TestEntityRecognitionObserver> observer = sptr<TestEntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->SubscribeEntityObserver(
@@ -282,6 +302,7 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest0010, TestSize.L
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubscribeEntityObserverTest0010 end");
 }
 
 /**
@@ -293,11 +314,13 @@ HWTEST_F(PasteboardEntityClientTest, SubscribeEntityObserverTest0010, TestSize.L
  */
 HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest001 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::MAX, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest001 end");
 }
 
 /**
@@ -309,11 +332,13 @@ HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest001, TestSize.
  */
 HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest002 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH + 1;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest002 end");
 }
 
 /**
@@ -325,11 +350,13 @@ HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest002, TestSize.
  */
 HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest003 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = nullptr;
     int32_t result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::INVALID_PARAM_ERROR), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest003 end");
 }
 
 /**
@@ -341,11 +368,13 @@ HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest003, TestSize.
  */
 HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest004 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = sptr<EntityRecognitionObserver>::MakeSptr();
     int32_t result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest004 end");
 }
 
 /**
@@ -357,6 +386,7 @@ HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest004, TestSize.
  */
 HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest005 start");
     uint32_t expectedDataLength = MAX_RECOGNITION_LENGTH;
     sptr<EntityRecognitionObserver> observer = new TestEntityRecognitionObserver();
     int32_t result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
@@ -365,5 +395,6 @@ HWTEST_F(PasteboardEntityClientTest, UnsubscribeEntityObserverTest005, TestSize.
     result = PasteboardClient::GetInstance()->UnsubscribeEntityObserver(
         EntityType::ADDRESS, expectedDataLength, observer);
     ASSERT_EQ(static_cast<int32_t>(PasteboardError::E_OK), result);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "UnsubscribeEntityObserverTest005 end");
 }
 } // namespace OHOS::MiscServices

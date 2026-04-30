@@ -273,6 +273,7 @@ UDMF::UnifiedData PasteboardUtilsTest::InitAppDefinedData()
  */
 HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Text2PasteRecord001 start");
     auto data = InitTextData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -292,6 +293,7 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
     auto newPlainRecord = static_cast<UDMF::Text *>(newRecord.get());
     auto newDetails = newPlainRecord->GetDetails();
     ASSERT_EQ(newDetails, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Text2PasteRecord001 end");
 }
 
 /**
@@ -303,12 +305,14 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Text2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Text2PasteRecord002 start");
     std::shared_ptr<UDMF::Text> textRecord;
     auto pasteRecord = PasteboardUtils::Text2PasteRecord(textRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Text(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Text2PasteRecord002 end");
 }
 
 /**
@@ -320,6 +324,7 @@ HWTEST_F(PasteboardUtilsTest, Text2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PlainText2PasteRecord001 start");
     auto data = InitPlainData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -349,6 +354,7 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto unifiedProp = newData->GetProperties();
     ASSERT_EQ(unifiedProp->isRemote, true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PlainText2PasteRecord001 end");
 }
 
 /**
@@ -360,12 +366,14 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PlainText2PasteRecord002 start");
     std::shared_ptr<UDMF::PlainText> plainTextRecord;
     auto pasteRecord = PasteboardUtils::PlainText2PasteRecord(plainTextRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2PlaintText(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PlainText2PasteRecord002 end");
 }
 
 /**
@@ -377,6 +385,7 @@ HWTEST_F(PasteboardUtilsTest, PlainText2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Html2PasteRecord001 start");
     auto data = InitHtmlData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -404,6 +413,7 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newPlainText, text_);
     ASSERT_EQ(newAbstract, extraText_);
     ASSERT_EQ(newDetails, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Html2PasteRecord001 end");
 }
 
 /**
@@ -415,12 +425,14 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Html2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Html2PasteRecord002 start");
     std::shared_ptr<UDMF::Html> htmlRecord;
     auto pasteRecord = PasteboardUtils::Html2PasteRecord(htmlRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Html(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Html2PasteRecord002 end");
 }
 
 /**
@@ -432,6 +444,7 @@ HWTEST_F(PasteboardUtilsTest, Html2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Link2PasteRecord001 start");
     auto data = InitLinkData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -459,6 +472,7 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newUrl, text_);
     ASSERT_EQ(newDescription, extraText_);
     ASSERT_EQ(newDetails, details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Link2PasteRecord001 end");
 }
 
 /**
@@ -470,12 +484,14 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Link2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Link2PasteRecord002 start");
     std::shared_ptr<UDMF::Link> linkRecord;
     auto pasteRecord = PasteboardUtils::Link2PasteRecord(linkRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Link(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Link2PasteRecord002 end");
 }
 
 /**
@@ -487,6 +503,7 @@ HWTEST_F(PasteboardUtilsTest, Link2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Want2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Want2PasteRecord001 start");
     auto data = InitWantData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -509,6 +526,7 @@ HWTEST_F(PasteboardUtilsTest, Want2PasteRecord001, TestSize.Level0)
     ASSERT_NE(wantValue, nullptr);
     int32_t idValue2 = (*(wantValue))->GetIntParam("id", 0);
     ASSERT_EQ(idValue2, 123);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Want2PasteRecord001 end");
 }
 
 /**
@@ -520,12 +538,14 @@ HWTEST_F(PasteboardUtilsTest, Want2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Want2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Want2PasteRecord002 start");
     std::shared_ptr<UDMF::UnifiedRecord> wantRecord;
     auto pasteRecord = PasteboardUtils::Want2PasteRecord(wantRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Want(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Want2PasteRecord002 end");
 }
 
 /**
@@ -537,6 +557,7 @@ HWTEST_F(PasteboardUtilsTest, Want2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File2PasteRecord001 start");
     auto data = InitFileData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -560,6 +581,7 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newFileRecord->GetUri();
     ASSERT_EQ(uri2, uri_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File2PasteRecord001 end");
 }
 
 /**
@@ -571,12 +593,14 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, File2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File2PasteRecord002 start");
     std::shared_ptr<UDMF::File> fileRecord;
     auto pasteRecord = PasteboardUtils::File2PasteRecord(fileRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2File(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "File2PasteRecord002 end");
 }
 
 /**
@@ -588,6 +612,7 @@ HWTEST_F(PasteboardUtilsTest, File2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Image2PasteRecord001 start");
     auto data = InitImageData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -611,6 +636,7 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newImageRecord->GetUri();
     ASSERT_EQ(uri2, uri_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Image2PasteRecord001 end");
 }
 
 /**
@@ -622,12 +648,14 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Image2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Image2PasteRecord002 start");
     std::shared_ptr<UDMF::Image> imageRecord;
     auto pasteRecord = PasteboardUtils::Image2PasteRecord(imageRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Image(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Image2PasteRecord002 end");
 }
 
 /**
@@ -639,6 +667,7 @@ HWTEST_F(PasteboardUtilsTest, Image2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Audio2PasteRecord001 start");
     auto data = InitAudioData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -662,6 +691,7 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newAudioRecord->GetUri();
     ASSERT_EQ(uri2, uri_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Audio2PasteRecord001 end");
 }
 
 /**
@@ -673,12 +703,14 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Audio2PasteRecord002 start");
     std::shared_ptr<UDMF::Audio> audioRecord;
     auto pasteRecord = PasteboardUtils::Audio2PasteRecord(audioRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Audio(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Audio2PasteRecord002 end");
 }
 
 /**
@@ -690,6 +722,7 @@ HWTEST_F(PasteboardUtilsTest, Audio2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Video2PasteRecord001 start");
     auto data = InitVideoData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -713,6 +746,7 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newVideoRecord->GetUri();
     ASSERT_EQ(uri2, uri_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Video2PasteRecord001 end");
 }
 
 /**
@@ -724,12 +758,14 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Video2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Video2PasteRecord002 start");
     std::shared_ptr<UDMF::Video> videoRecord;
     auto pasteRecord = PasteboardUtils::Video2PasteRecord(videoRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Video(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Video2PasteRecord002 end");
 }
 
 /**
@@ -741,6 +777,7 @@ HWTEST_F(PasteboardUtilsTest, Video2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Folder2PasteRecord001 start");
     auto data = InitFolderData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -764,6 +801,7 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newDetails, details_);
     auto uri2 = newFolderRecord->GetUri();
     ASSERT_EQ(uri2, uri_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Folder2PasteRecord001 end");
 }
 
 /**
@@ -775,12 +813,14 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Folder2PasteRecord002 start");
     std::shared_ptr<UDMF::Folder> folderRecord;
     auto pasteRecord = PasteboardUtils::Folder2PasteRecord(folderRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Folder(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Folder2PasteRecord002 end");
 }
 
 /**
@@ -792,6 +832,7 @@ HWTEST_F(PasteboardUtilsTest, Folder2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SystemDefined2PasteRecord001 start");
     auto data = InitSystemRecordData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -810,6 +851,7 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newType, UDMF::SYSTEM_DEFINED_RECORD);
     auto newSystemRecord = static_cast<UDMF::SystemDefinedRecord *>(newRecord.get());
     ASSERT_EQ(newSystemRecord->GetDetails(), details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SystemDefined2PasteRecord001 end");
 }
 
 /**
@@ -821,12 +863,14 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SystemDefined2PasteRecord002 start");
     std::shared_ptr<UDMF::SystemDefinedRecord> systemRecord;
     auto pasteRecord = PasteboardUtils::SystemDefined2PasteRecord(systemRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2SystemDefined(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SystemDefined2PasteRecord002 end");
 }
 
 /**
@@ -838,6 +882,7 @@ HWTEST_F(PasteboardUtilsTest, SystemDefined2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AppItem2PasteRecord001 start");
     auto data = InitSystemAppItemData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -873,6 +918,7 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newAppItem->GetBundleName(), "bundleName");
     ASSERT_EQ(newAppItem->GetAbilityName(), "abilityName");
     ASSERT_EQ(newAppItem->GetDetails(), details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AppItem2PasteRecord001 end");
 }
 
 /**
@@ -884,12 +930,14 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AppItem2PasteRecord002 start");
     std::shared_ptr<UDMF::SystemDefinedAppItem> systemDefinedAppItem;
     auto pasteRecord = PasteboardUtils::AppItem2PasteRecord(systemDefinedAppItem);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2AppItem(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AppItem2PasteRecord002 end");
 }
 
 /**
@@ -901,6 +949,7 @@ HWTEST_F(PasteboardUtilsTest, AppItem2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Form2PasteRecord001 start");
     auto data = InitSystemFormData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -935,6 +984,7 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newForm->GetBundleName(), bundleName1);
     ASSERT_EQ(newForm->GetAbilityName(), abilityName1);
     ASSERT_EQ(newForm->GetDetails(), details_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Form2PasteRecord001 end");
 }
 
 /**
@@ -946,12 +996,14 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, Form2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Form2PasteRecord002 start");
     std::shared_ptr<UDMF::SystemDefinedForm> form;
     auto pasteRecord = PasteboardUtils::Form2PasteRecord(form);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2Form(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Form2PasteRecord002 end");
 }
 
 /**
@@ -963,6 +1015,7 @@ HWTEST_F(PasteboardUtilsTest, Form2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PixelMap2PasteRecord001 start");
     auto data = InitSystemPixelMapData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -992,6 +1045,7 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
     ASSERT_TRUE(imageInfo1.size.height == imageInfo.size.height);
     ASSERT_TRUE(imageInfo1.size.width == imageInfo.size.width);
     ASSERT_TRUE(imageInfo1.pixelFormat == imageInfo.pixelFormat);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PixelMap2PasteRecord001 end");
 }
 
 /**
@@ -1003,12 +1057,14 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PixelMap2PasteRecord002 start");
     std::shared_ptr<UDMF::UnifiedRecord> pixelMapRecord;
     auto pasteRecord = PasteboardUtils::PixelMap2PasteRecord(pixelMapRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::PasteRecord2PixelMap(pasteRecord);
     ASSERT_EQ(ret, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "PixelMap2PasteRecord002 end");
 }
 
 /**
@@ -1020,6 +1076,7 @@ HWTEST_F(PasteboardUtilsTest, PixelMap2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AppDefined2PasteRecord001 start");
     auto data = InitAppDefinedData();
     auto pasteData = PasteboardUtils::GetInstance().Convert(data);
     ASSERT_EQ(1, pasteData->GetRecordCount());
@@ -1041,6 +1098,7 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
     ASSERT_EQ(newType, UDMF::APPLICATION_DEFINED_RECORD);
     auto newSystemRecord = static_cast<UDMF::ApplicationDefinedRecord *>(newRecord.get());
     ASSERT_EQ(newSystemRecord->GetRawData(), rawData_);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AppDefined2PasteRecord001 end");
 }
 
 /**
@@ -1052,12 +1110,14 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AppDefined2PasteRecord002 start");
     std::shared_ptr<UDMF::ApplicationDefinedRecord> appRecord;
     auto pasteRecord = PasteboardUtils::AppDefined2PasteRecord(appRecord);
     ASSERT_EQ(pasteRecord, nullptr);
 
     auto ret = PasteboardUtils::Custom2AppDefined(pasteRecord);
     ASSERT_EQ(ret.size(), 0);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "AppDefined2PasteRecord002 end");
 }
 
 /**
@@ -1069,11 +1129,13 @@ HWTEST_F(PasteboardUtilsTest, AppDefined2PasteRecord002, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, ConvertTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertTest001 start");
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::PLAIN_TEXT), MIMETYPE_TEXT_PLAIN);
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::HTML), MIMETYPE_TEXT_HTML);
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::FILE_URI), MIMETYPE_TEXT_URI);
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::SYSTEM_DEFINED_PIXEL_MAP), MIMETYPE_PIXELMAP);
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UDType::OPENHARMONY_WANT), MIMETYPE_TEXT_WANT);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertTest001 end");
 }
 
 /**
@@ -1085,6 +1147,7 @@ HWTEST_F(PasteboardUtilsTest, ConvertTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardUtilsTest, ConvertTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertTest002 start");
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_TEXT_URI), UDMF::FILE);
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_TEXT_PLAIN), UDMF::PLAIN_TEXT);
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, MIMETYPE_TEXT_HTML), UDMF::HTML);
@@ -1093,6 +1156,7 @@ HWTEST_F(PasteboardUtilsTest, ConvertTest002, TestSize.Level0)
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, text_), UDMF::UD_BUTT);
     std::string mimeType = "general.jpeg-2000";
     ASSERT_EQ(PasteboardUtils::Convert(UDMF::UD_BUTT, mimeType), UDMF::JPEG2000);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertTest002 end");
 }
 
 /**

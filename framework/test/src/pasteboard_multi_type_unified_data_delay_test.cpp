@@ -209,6 +209,7 @@ void PasteboardMultiTypeUnifiedDataDelayTest::CheckLinkUds(const UDMF::ValueType
  */
 HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetMultiTypeUnifiedDataDelayTest001 start");
     UnifiedData inputData;
     std::shared_ptr<UnifiedRecord> inputRecord = std::make_shared<UnifiedRecord>();
     std::vector<std::string> inputTypes;
@@ -248,6 +249,7 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
 
     ASSERT_TRUE(outputTypes.find(linkUtdId_) != outputTypes.end());
     CheckLinkUds(outputRecord->GetEntry(linkUtdId_));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetMultiTypeUnifiedDataDelayTest001 end");
 }
 
 /**
@@ -257,6 +259,7 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
  */
 HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTest002, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetMultiTypeUnifiedDataDelayTest002 start");
     UnifiedData inputData;
     std::shared_ptr<UnifiedRecord> inputRecord = std::make_shared<UnifiedRecord>();
     inputRecord->AddEntry(plainTextUtdId_, InitPlainUds());
@@ -297,6 +300,7 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
 
     ASSERT_TRUE(outputTypes.find(linkUtdId_) != outputTypes.end());
     CheckLinkUds(outputRecord->GetEntry(linkUtdId_));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetMultiTypeUnifiedDataDelayTest002 end");
 }
 
 /**
@@ -306,6 +310,7 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
  */
 HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTest003, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetMultiTypeUnifiedDataDelayTest003 start");
     UnifiedData inputData;
     std::shared_ptr<UnifiedRecord> inputRecord1 = std::make_shared<UnifiedRecord>();
     std::vector<std::string> inputTypes1;
@@ -357,5 +362,6 @@ HWTEST_F(PasteboardMultiTypeUnifiedDataDelayTest, SetMultiTypeUnifiedDataDelayTe
     ASSERT_EQ(outputTypes3.size(), inputTypes3.size());
     ASSERT_TRUE(outputTypes3.find(linkUtdId_) != outputTypes3.end());
     CheckLinkUds(outputRecord3->GetEntry(linkUtdId_));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetMultiTypeUnifiedDataDelayTest003 end");
 }
 } // namespace OHOS::MiscServices

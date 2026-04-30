@@ -20,6 +20,7 @@
 #include "device_manager.h"
 #include "distributed_clip.h"
 #include "pasteboard_error.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -49,6 +50,7 @@ void DMAdapterTest::TearDown(void) {}
  */
 HWTEST_F(DMAdapterTest, OnDeviceOnline001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOnline001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = INVALID_TYPE;
@@ -68,6 +70,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOnline001 end");
 }
 
 /**
@@ -79,6 +82,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceOnline002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOnline002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = IDENTICAL_ACCOUNT;
@@ -98,6 +102,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOnline002 end");
 }
 
 /**
@@ -109,6 +114,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceOnline003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOnline003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = INVALID_TYPE;
@@ -126,6 +132,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline003, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOnline003 end");
 }
 
 /**
@@ -137,6 +144,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline003, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceOnline004, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOnline004 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = IDENTICAL_ACCOUNT;
@@ -154,6 +162,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline004, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOnline004 end");
 }
 
 /**
@@ -165,6 +174,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOnline004, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceOffline001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOffline001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = IDENTICAL_ACCOUNT;
@@ -182,6 +192,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOffline001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOffline001 end");
 }
 
 /**
@@ -193,6 +204,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOffline001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceOffline002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOffline002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = IDENTICAL_ACCOUNT;
@@ -212,6 +224,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOffline002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceOffline002 end");
 }
 
 /**
@@ -223,6 +236,7 @@ HWTEST_F(DMAdapterTest, OnDeviceOffline002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceReady001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceReady001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = INVALID_TYPE;
@@ -242,6 +256,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceReady001 end");
 }
 
 /**
@@ -253,6 +268,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceReady002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceReady002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = IDENTICAL_ACCOUNT;
@@ -272,6 +288,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceReady002 end");
 }
 
 /**
@@ -283,6 +300,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceReady003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceReady003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = INVALID_TYPE;
@@ -300,6 +318,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady003, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceReady003 end");
 }
 
 /**
@@ -311,6 +330,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady003, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, OnDeviceReady004, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceReady004 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo info;
     info.authForm = IDENTICAL_ACCOUNT;
@@ -328,6 +348,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady004, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "OnDeviceReady004 end");
 }
 
 /**
@@ -339,6 +360,7 @@ HWTEST_F(DMAdapterTest, OnDeviceReady004, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetNetworkIds001, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetNetworkIds001 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     std::string networkId = "testNetworkId";
     std::string testName = "testDeviceName";
@@ -352,6 +374,7 @@ HWTEST_F(DMAdapterTest, GetNetworkIds001, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetNetworkIds001 end");
 }
 
 /**
@@ -363,6 +386,7 @@ HWTEST_F(DMAdapterTest, GetNetworkIds001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetLocalDeviceUdid001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid001 start");
     bool res = DMAdapter::GetInstance().Initialize();
     ASSERT_FALSE(res);
     std::string device = "deviceTestName";
@@ -370,6 +394,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid001, TestSize.Level0)
     ASSERT_FALSE(fromDevice.empty());
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     ASSERT_TRUE(udid.empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid001 end");
 }
 
 /**
@@ -381,6 +406,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetLocalDeviceUdid002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid002 start");
     bool res = DMAdapter::GetInstance().Initialize();
     std::string device = "deviceTestName";
     auto fromDevice = DMAdapter::GetInstance().GetDeviceName(device);
@@ -390,6 +416,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid002, TestSize.Level0)
     DeviceManager::GetInstance().GetUdidByNetworkId(pkgName_, info.networkId, localDeviceUdid_);
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
     ASSERT_TRUE(udid.empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid002 end");
 }
 
 /**
@@ -401,6 +428,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetLocalDeviceUdid003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DMAdapter::GetInstance().localDeviceUdid_ = "testUdid";
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
@@ -408,6 +436,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid003, TestSize.Level0)
 #else
     ASSERT_TRUE(udid.empty());
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid003 end");
 }
 
 /**
@@ -419,6 +448,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid003, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetLocalDeviceUdid004, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid004 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DMAdapter::GetInstance().localDeviceUdid_ = "";
     auto &udid = DMAdapter::GetInstance().GetLocalDeviceUdid();
@@ -426,6 +456,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid004, TestSize.Level0)
 #else
     ASSERT_FALSE(udid.empty());
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceUdid004 end");
 }
 
 /**
@@ -437,10 +468,12 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceUdid004, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetLocalNetworkId, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalNetworkId start");
     bool res = DMAdapter::GetInstance().Initialize();
     ASSERT_FALSE(res);
     auto networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     ASSERT_FALSE(networkId.empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalNetworkId end");
 }
 
 /**
@@ -452,10 +485,12 @@ HWTEST_F(DMAdapterTest, GetLocalNetworkId, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, DistributedClipRegister, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DistributedClipRegister start");
     DistributedClip *observer = new DistributedClip();
     DMAdapter::GetInstance().Register(observer);
     DMAdapter::GetInstance().Unregister(observer);
     ASSERT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DistributedClipRegister end");
 }
 
 /**
@@ -467,6 +502,7 @@ HWTEST_F(DMAdapterTest, DistributedClipRegister, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRemoteDeviceInfo start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     DmDeviceInfo remoteDevice;
     auto ret = DMAdapter::GetInstance().GetRemoteDeviceInfo("", remoteDevice);
@@ -474,6 +510,7 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRemoteDeviceInfo end");
 }
 
 /**
@@ -485,6 +522,7 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRemoteDeviceInfo002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     bool res = DMAdapter::GetInstance().Initialize();
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -500,6 +538,7 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRemoteDeviceInfo002 end");
 }
 
 /**
@@ -511,6 +550,7 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRemoteDeviceInfo003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     bool res = DMAdapter::GetInstance().Initialize();
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -526,6 +566,7 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo003, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetRemoteDeviceInfo003 end");
 }
 
 /**
@@ -537,8 +578,10 @@ HWTEST_F(DMAdapterTest, GetRemoteDeviceInfo003, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetUdidByNetworkId, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUdidByNetworkId start");
     auto udid = DMAdapter::GetInstance().GetUdidByNetworkId("");
     ASSERT_TRUE(udid.empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetUdidByNetworkId end");
 }
 
 /**
@@ -550,9 +593,11 @@ HWTEST_F(DMAdapterTest, GetUdidByNetworkId, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, IsSameAccount, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsSameAccount start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     bool ret = DMAdapter::GetInstance().IsSameAccount(networkId);
     ASSERT_TRUE(ret);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsSameAccount end");
 }
 
 /**
@@ -564,6 +609,7 @@ HWTEST_F(DMAdapterTest, IsSameAccount, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, IsSameAccount002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsSameAccount002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     std::string networkId = "testNetworkId";
     std::string testName = "testDeviceName";
@@ -577,6 +623,7 @@ HWTEST_F(DMAdapterTest, IsSameAccount002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsSameAccount002 end");
 }
 
 /**
@@ -588,6 +635,7 @@ HWTEST_F(DMAdapterTest, IsSameAccount002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, IsSameAccount003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsSameAccount003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     bool res = DMAdapter::GetInstance().Initialize();
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -602,6 +650,7 @@ HWTEST_F(DMAdapterTest, IsSameAccount003, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "IsSameAccount003 end");
 }
 
 /**
@@ -613,9 +662,11 @@ HWTEST_F(DMAdapterTest, IsSameAccount003, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetDevices, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDevices start");
     DMAdapter::GetInstance().SetDevices();
     std::vector<DmDeviceInfo> devices = DMAdapter::GetInstance().GetDevices();
     ASSERT_TRUE(devices.empty());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDevices end");
 }
 
 /**
@@ -627,6 +678,7 @@ HWTEST_F(DMAdapterTest, GetDevices, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetLocalDeviceType002, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceType002 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     int32_t deviceType = DMAdapter::GetInstance().GetLocalDeviceType();
     EXPECT_EQ(DmDeviceType::DEVICE_TYPE_UNKNOWN, deviceType);
@@ -635,6 +687,7 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceType002, TestSize.Level0)
 #else
     ASSERT_TRUE(true);
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetLocalDeviceType002 end");
 }
 
 /**
@@ -646,11 +699,13 @@ HWTEST_F(DMAdapterTest, GetLocalDeviceType002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetDeviceName001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceName001 start");
     std::string networkId = "invalidnetworkId";
     std::string expectedDeviceName = "unknown";
     (void)DMAdapter::GetInstance().GetLocalDeviceType();
     std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName(networkId);
     EXPECT_EQ(expectedDeviceName, actualDeviceName);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceName001 end");
 }
 
 /**
@@ -662,10 +717,12 @@ HWTEST_F(DMAdapterTest, GetDeviceName001, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetDeviceName002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceName002 start");
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
     std::string expectedDeviceName = "unknown";
     std::string actualDeviceName = DMAdapter::GetInstance().GetDeviceName(networkId);
     EXPECT_EQ(expectedDeviceName, actualDeviceName);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceName002 end");
 }
 
 /**
@@ -677,6 +734,7 @@ HWTEST_F(DMAdapterTest, GetDeviceName002, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetDeviceName003, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceName003 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     bool res = DMAdapter::GetInstance().Initialize();
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -691,6 +749,7 @@ HWTEST_F(DMAdapterTest, GetDeviceName003, TestSize.Level0)
 #else
     ASSERT_TRUE(udid.empty());
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceName003 end");
 }
 
 /**
@@ -702,6 +761,7 @@ HWTEST_F(DMAdapterTest, GetDeviceName003, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, GetDeviceName004, TestSize.Level0)
 {
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceName004 start");
 #ifdef PB_DEVICE_MANAGER_ENABLE
     bool res = DMAdapter::GetInstance().Initialize();
     std::string networkId = DMAdapter::GetInstance().GetLocalNetworkId();
@@ -716,6 +776,7 @@ HWTEST_F(DMAdapterTest, GetDeviceName004, TestSize.Level0)
 #else
     ASSERT_TRUE(udid.empty());
 #endif
+PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDeviceName004 end");
 }
 
 /**
@@ -727,8 +788,10 @@ HWTEST_F(DMAdapterTest, GetDeviceName004, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, DeInitialize, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DeInitialize start");
     DMAdapter::GetInstance().DeInitialize();
     ASSERT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DeInitialize end");
 }
 
 /**
@@ -740,8 +803,10 @@ HWTEST_F(DMAdapterTest, DeInitialize, TestSize.Level0)
  */
 HWTEST_F(DMAdapterTest, DmDeathTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DmDeathTest start");
     auto dmDeath = std::make_shared<DmDeath>();
     ASSERT_TRUE(dmDeath != nullptr);
     dmDeath->OnRemoteDied();
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "DmDeathTest end");
 }
 } // namespace OHOS::MiscServices

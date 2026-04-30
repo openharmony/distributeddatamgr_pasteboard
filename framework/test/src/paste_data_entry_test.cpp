@@ -17,6 +17,7 @@
 
 #include "convert_utils.h"
 #include "unified_meta.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -154,6 +155,7 @@ void PasteDataEntryTest::CheckPixelMapUds(const std::shared_ptr<PasteDataEntry> 
  */
 HWTEST_F(PasteDataEntryTest, Convert001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert001 start");
     auto entry = InitPlainTextEntry();
     auto str = entry.ConvertToPlainText();
     ASSERT_NE(nullptr, str);
@@ -183,6 +185,7 @@ HWTEST_F(PasteDataEntryTest, Convert001, TestSize.Level0)
     ASSERT_TRUE(imageInfo.size.height == height_);
     ASSERT_TRUE(imageInfo.size.width == width_);
     ASSERT_TRUE(imageInfo.pixelFormat == PixelFormat::ARGB_8888);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert001 end");
 }
 
 /**
@@ -194,6 +197,7 @@ HWTEST_F(PasteDataEntryTest, Convert001, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, Convert002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert002 start");
     PasteDataEntry entry;
     std::string utdId = "NotHTML";
     entry.SetUtdId(utdId);
@@ -211,6 +215,7 @@ HWTEST_F(PasteDataEntryTest, Convert002, TestSize.Level0)
     entry.SetValue(value_int);
     html = entry.ConvertToHtml();
     EXPECT_EQ(html, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert002 end");
 }
 
 /**
@@ -222,6 +227,7 @@ HWTEST_F(PasteDataEntryTest, Convert002, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, Convert003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert003 start");
     PasteDataEntry entry;
     std::string utdId = "NotURI";
     entry.SetUtdId(utdId);
@@ -236,6 +242,7 @@ HWTEST_F(PasteDataEntryTest, Convert003, TestSize.Level0)
     auto res = std::get<std::string>(value);
     uri = entry.ConvertToUri();
     EXPECT_EQ(*uri, Uri(res));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert003 end");
 }
 
 /**
@@ -247,6 +254,7 @@ HWTEST_F(PasteDataEntryTest, Convert003, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, Convert004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert004 start");
     PasteDataEntry entry;
     std::string utdId = "NotWANT";
     entry.SetUtdId(utdId);
@@ -259,6 +267,7 @@ HWTEST_F(PasteDataEntryTest, Convert004, TestSize.Level0)
     entry.SetValue(value_str);
     want = entry.ConvertToWant();
     EXPECT_EQ(want, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert004 end");
 }
 
 /**
@@ -270,6 +279,7 @@ HWTEST_F(PasteDataEntryTest, Convert004, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, Convert005, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert005 start");
     PasteDataEntry entry;
     std::string utdId = "NotPixelMap";
     entry.SetUtdId(utdId);
@@ -303,6 +313,7 @@ HWTEST_F(PasteDataEntryTest, Convert005, TestSize.Level0)
     entry.SetValue(object);
     pixelMap = entry.ConvertToPixelMap();
     EXPECT_EQ(pixelMap, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert005 end");
 }
 
 /**
@@ -314,6 +325,7 @@ HWTEST_F(PasteDataEntryTest, Convert005, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, Convert006, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert006 start");
     PasteDataEntry entry;
     std::string value_str = "TestString";
     entry.SetValue(value_str);
@@ -331,6 +343,7 @@ HWTEST_F(PasteDataEntryTest, Convert006, TestSize.Level0)
     entry.SetValue(object);
     customData = entry.ConvertToCustomData();
     EXPECT_EQ(customData, nullptr);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "Convert006 end");
 }
 
 /**
@@ -342,6 +355,7 @@ HWTEST_F(PasteDataEntryTest, Convert006, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTlvTest001 start");
     PasteDataEntry entry;
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     entry.SetUtdId(utdId);
@@ -360,6 +374,7 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
     auto str = std::get_if<std::string>(&value);
     ASSERT_NE(str, nullptr);
     ASSERT_EQ(text_, *str);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTlvTest001 end");
 }
 
 /**
@@ -371,6 +386,7 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, EntryTlvTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTlvTest002 start");
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     auto entry = InitPlainTextEntry();
     std::vector<std::uint8_t> buffer;
@@ -381,6 +397,7 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest002, TestSize.Level0)
     ASSERT_EQ(decodePasteEntry.GetUtdId(), utdId);
     ASSERT_EQ(decodePasteEntry.GetMimeType(), MIMETYPE_TEXT_PLAIN);
     CheckPlainUds(std::make_shared<PasteDataEntry>(decodePasteEntry));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTlvTest002 end");
 }
 
 /**
@@ -392,6 +409,7 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, EntryTlvTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTlvTest003 start");
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::SYSTEM_DEFINED_PIXEL_MAP);
     auto entry = InitPixelMapEntry();
     std::vector<std::uint8_t> buffer;
@@ -402,6 +420,7 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest003, TestSize.Level0)
     ASSERT_EQ(decodePasteEntry.GetUtdId(), utdId);
     ASSERT_EQ(decodePasteEntry.GetMimeType(), MIMETYPE_PIXELMAP);
     CheckPixelMapUds(std::make_shared<PasteDataEntry>(decodePasteEntry));
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTlvTest003 end");
 }
 
 /**
@@ -413,6 +432,7 @@ HWTEST_F(PasteDataEntryTest, EntryTlvTest003, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, EntryTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTest001 start");
     PasteDataEntry entry;
     auto utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::PLAIN_TEXT);
     EXPECT_EQ(entry.HasContent(utdId), false);
@@ -434,6 +454,7 @@ HWTEST_F(PasteDataEntryTest, EntryTest001, TestSize.Level0)
 
     utdId = UDMF::UtdUtils::GetUtdIdFromUtdEnum(UDMF::ENTITY);
     EXPECT_EQ(entry.HasContent(utdId), false);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTest001 end");
 }
 
 /**
@@ -445,6 +466,7 @@ HWTEST_F(PasteDataEntryTest, EntryTest001, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, EntryTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTest002 start");
     CommonUtils utils;
     UDType uDType = UDType::PLAIN_TEXT;
     std::string expect = MIMETYPE_TEXT_PLAIN;
@@ -486,6 +508,7 @@ HWTEST_F(PasteDataEntryTest, EntryTest002, TestSize.Level0)
 
     uDType = UDType::ENTITY;
     EXPECT_EQ(utils.Convert(uDType), "general.entity");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTest002 end");
 }
 
 /**
@@ -497,6 +520,7 @@ HWTEST_F(PasteDataEntryTest, EntryTest002, TestSize.Level0)
  */
 HWTEST_F(PasteDataEntryTest, EntryTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTest003 start");
     CommonUtils utils;
     int32_t uDType = 1;
     std::string mimeType = MIMETYPE_TEXT_URI;
@@ -522,5 +546,6 @@ HWTEST_F(PasteDataEntryTest, EntryTest003, TestSize.Level0)
 
     mimeType = "test";
     EXPECT_EQ(utils.Convert(uDType, mimeType), UDMF::APPLICATION_DEFINED_RECORD);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "EntryTest003 end");
 }
 } // namespace OHOS::MiscServices
