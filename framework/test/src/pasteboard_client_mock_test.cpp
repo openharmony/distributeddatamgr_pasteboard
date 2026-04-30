@@ -146,6 +146,7 @@ void PasteboardClientMockTest::TearDown(void) { }
  */
 HWTEST_F(PasteboardClientMockTest, WritePasteDataTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WritePasteDataTest001 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- WritePasteDataTest001  enter-----");
     PasteData pasteData;
     int64_t tlvSize = 1;
@@ -160,6 +161,7 @@ HWTEST_F(PasteboardClientMockTest, WritePasteDataTest001, TestSize.Level0)
         pasteData, buffer, fd, tlvSize, messageData, parcelPata);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- WritePasteDataTest001  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WritePasteDataTest001 end");
 }
 
 /**
@@ -171,6 +173,7 @@ HWTEST_F(PasteboardClientMockTest, WritePasteDataTest001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, WritePasteDataTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WritePasteDataTest002 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- WritePasteDataTest002  enter-----");
     PasteData pasteData;
     int64_t tlvSize = MIN_ASHMEM_DATA_SIZE + 1;
@@ -187,6 +190,7 @@ HWTEST_F(PasteboardClientMockTest, WritePasteDataTest002, TestSize.Level0)
         pasteData, buffer, fd, tlvSize, messageData, parcelPata);
     EXPECT_EQ(result, static_cast<int32_t>(PasteboardError::E_OK));
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- WritePasteDataTest002  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "WritePasteDataTest002 end");
 }
 
 /**
@@ -198,6 +202,7 @@ HWTEST_F(PasteboardClientMockTest, WritePasteDataTest002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, GetProgressByProgressInfoTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetProgressByProgressInfoTest001 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetProgressByProgressInfoTest001  enter-----");
     auto params = std::make_shared<GetDataParams>();
     EXPECT_NE(params, nullptr);
@@ -205,6 +210,7 @@ HWTEST_F(PasteboardClientMockTest, GetProgressByProgressInfoTest001, TestSize.Le
 
     PasteboardClient::GetInstance()->GetProgressByProgressInfo(params);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetProgressByProgressInfoTest001  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetProgressByProgressInfoTest001 end");
 }
 
 /**
@@ -216,10 +222,12 @@ HWTEST_F(PasteboardClientMockTest, GetProgressByProgressInfoTest001, TestSize.Le
  */
 HWTEST_F(PasteboardClientMockTest, ConvertErrCode001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertErrCode001 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode001  enter-----");
     int32_t code = PasteboardClient::GetInstance()->ConvertErrCode(ERR_INVALID_VALUE);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), code);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode001  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertErrCode001 end");
 }
 
 /**
@@ -231,10 +239,12 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ConvertErrCode002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertErrCode002 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode002  enter-----");
     int32_t code = PasteboardClient::GetInstance()->ConvertErrCode(ERR_INVALID_DATA);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::SERIALIZATION_ERROR), code);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode002  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertErrCode002 end");
 }
 
 /**
@@ -246,10 +256,12 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode002, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ConvertErrCode003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertErrCode003 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode003  enter-----");
     int32_t code = PasteboardClient::GetInstance()->ConvertErrCode(ERR_OK);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::E_OK), code);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode003  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertErrCode003 end");
 }
 
 /**
@@ -261,10 +273,12 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode003, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ConvertErrCode004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertErrCode004 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode004  enter-----");
     int32_t code = PasteboardClient::GetInstance()->ConvertErrCode(ERR_PERMISSION_DENIED);
     EXPECT_EQ(static_cast<int32_t>(ERR_PERMISSION_DENIED), code);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ConvertErrCode004  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ConvertErrCode004 end");
 }
 
 /**
@@ -276,10 +290,12 @@ HWTEST_F(PasteboardClientMockTest, ConvertErrCode004, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, RemoveAppShareOptions001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveAppShareOptions001 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- RemoveAppShareOptions001  enter-----");
     int32_t ret = PasteboardClient::GetInstance()->RemoveAppShareOptions();
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::PERMISSION_VERIFICATION_ERROR), ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- RemoveAppShareOptions001  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "RemoveAppShareOptions001 end");
 }
 
 /**
@@ -292,6 +308,7 @@ HWTEST_F(PasteboardClientMockTest, RemoveAppShareOptions001, TestSize.Level0)
 
 HWTEST_F(PasteboardClientMockTest, CreateGetterAgent001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CreateGetterAgent001 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- CreateGetterAgent001  enter-----");
     sptr<PasteboardDelayGetterClient> delayGetterAgent;
     std::shared_ptr<PasteboardDelayGetter> delayGetter = nullptr;
@@ -308,6 +325,7 @@ HWTEST_F(PasteboardClientMockTest, CreateGetterAgent001, TestSize.Level0)
         delayGetter, entryGetterAgent, entryGetters, pasteData);
     entryGetters.clear();
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- CreateGetterAgent001  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "CreateGetterAgent001 end");
 }
 
 /**
@@ -319,6 +337,7 @@ HWTEST_F(PasteboardClientMockTest, CreateGetterAgent001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ProcessRadarReport001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessRadarReport001 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessRadarReport001  enter-----");
     int32_t ret;
     PasteData pasteData;
@@ -344,6 +363,7 @@ HWTEST_F(PasteboardClientMockTest, ProcessRadarReport001, TestSize.Level0)
     PasteboardClient::GetInstance()->ProcessRadarReport(
         ret, pasteData, pasteDataFromServiceInfo, syncTime);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessRadarReport001  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessRadarReport001 end");
 }
 
 /**
@@ -355,6 +375,7 @@ HWTEST_F(PasteboardClientMockTest, ProcessRadarReport001, TestSize.Level0)
  */
 HWTEST_F(PasteboardClientMockTest, ProcessPasteData001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteData001 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessPasteData001  enter-----");
     PasteData pasteData;
     int64_t rawDataSize = 0;
@@ -386,10 +407,12 @@ HWTEST_F(PasteboardClientMockTest, ProcessPasteData001, TestSize.Level0)
     ret = PasteboardClient::GetInstance()->ProcessPasteData<PasteData>(pasteData, rawDataSize, fd, recvTLV);
     EXPECT_EQ(static_cast<int32_t>(PasteboardError::DESERIALIZATION_ERROR), ret);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- ProcessPasteData001  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "ProcessPasteData001 end");
 }
 
 HWTEST_F(PasteboardClientMockTest, GetDataReportTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataReportTest001 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest001  enter-----");
     PasteData pasteData;
     pasteData.deviceId_ = "";
@@ -400,10 +423,12 @@ HWTEST_F(PasteboardClientMockTest, GetDataReportTest001, TestSize.Level0)
         static_cast<int32_t>(PasteboardError::E_OK));
     EXPECT_EQ(pasteData.deviceId_.length(), 0);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest001  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataReportTest001 end");
 }
 
 HWTEST_F(PasteboardClientMockTest, GetDataReportTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataReportTest002 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest002  enter-----");
     PasteData pasteData;
     const int32_t syncTime = 100;
@@ -413,10 +438,12 @@ HWTEST_F(PasteboardClientMockTest, GetDataReportTest002, TestSize.Level0)
         pasteData, syncTime, "error_222", currentPid, static_cast<int32_t>(PasteboardError::E_OK));
     EXPECT_NE(pasteData.deviceId_.length(), 0);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest002  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataReportTest002 end");
 }
 
 HWTEST_F(PasteboardClientMockTest, GetDataReportTest003, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataReportTest003 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest003  enter-----");
     PasteData pasteData;
     const int32_t syncTime = 0;
@@ -426,10 +453,12 @@ HWTEST_F(PasteboardClientMockTest, GetDataReportTest003, TestSize.Level0)
         static_cast<int32_t>(PasteboardError::TASK_PROCESSING));
     EXPECT_EQ(pasteData.deviceId_.length(), 0);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest003  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataReportTest003 end");
 }
 
 HWTEST_F(PasteboardClientMockTest, GetDataReportTest004, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataReportTest004 start");
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest004  enter-----");
     PasteData pasteData;
     const int32_t syncTime = 0;
@@ -439,6 +468,7 @@ HWTEST_F(PasteboardClientMockTest, GetDataReportTest004, TestSize.Level0)
         static_cast<int32_t>(PasteboardError::INVALID_RETURN_VALUE_ERROR));
     EXPECT_EQ(pasteData.deviceId_.length(), 0);
     PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "----- GetDataReportTest004  end-----");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetDataReportTest004 end");
 }
 }
 } // namespace OHOS::MiscServices

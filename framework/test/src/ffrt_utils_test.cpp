@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "ffrt/ffrt_utils.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -44,6 +45,7 @@ void FFRTTimerTest::TearDown(void) { }
  */
 HWTEST_F(FFRTTimerTest, SetTimerTest001, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetTimerTest001 start");
     FFRTTimer ffrtTimer;
     std::string timerId = "ffrt_test";
     int x = 4;
@@ -53,6 +55,7 @@ HWTEST_F(FFRTTimerTest, SetTimerTest001, TestSize.Level0)
     ffrtTimer.SetTimer(timerId, ffrtTask, 0);
     ffrt::wait();
     EXPECT_TRUE(x == 2);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetTimerTest001 end");
 }
 
 /**
@@ -62,6 +65,7 @@ HWTEST_F(FFRTTimerTest, SetTimerTest001, TestSize.Level0)
  */
 HWTEST_F(FFRTTimerTest, SetTimerTest002, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetTimerTest002 start");
     FFRTTimer pbFfrtTimer("paste_ffrt_timer");
     std::string pbTimerId = "paste_ffrt_test1";
     int y = 8;
@@ -72,6 +76,7 @@ HWTEST_F(FFRTTimerTest, SetTimerTest002, TestSize.Level0)
     ffrt::wait();
     uint32_t taskId = pbFfrtTimer.GetTaskId(pbTimerId);
     EXPECT_TRUE(taskId == 1);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetTimerTest002 end");
 }
 
 /**
@@ -81,6 +86,7 @@ HWTEST_F(FFRTTimerTest, SetTimerTest002, TestSize.Level0)
  */
 HWTEST_F(FFRTTimerTest, SubmitQueueTasksTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubmitQueueTasksTest start");
     std::vector<FFRTTask> tasks;
     FFRTQueue que("QueueTasks");
     std::vector<FFRTTask>().swap(tasks);
@@ -97,6 +103,7 @@ HWTEST_F(FFRTTimerTest, SubmitQueueTasksTest, TestSize.Level0)
     tasks.push_back(task2);
     FFRTUtils::SubmitQueueTasks(tasks, que);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubmitQueueTasksTest end");
 }
 
 /**
@@ -106,6 +113,7 @@ HWTEST_F(FFRTTimerTest, SubmitQueueTasksTest, TestSize.Level0)
  */
 HWTEST_F(FFRTTimerTest, SubmitDelayTaskTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubmitDelayTaskTest start");
     std::shared_ptr<FFRTQueue> queue = std::make_shared<FFRTQueue>("delayTask");
     uint32_t delayMs = 20;
     int x = 10;
@@ -115,6 +123,7 @@ HWTEST_F(FFRTTimerTest, SubmitDelayTaskTest, TestSize.Level0)
     FFRTHandle handle = FFRTUtils::SubmitDelayTask(task0, delayMs, queue);
     FFRTUtils::CancelTask(handle, queue);
     EXPECT_TRUE(true);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubmitDelayTaskTest end");
 }
 
 /**
@@ -124,6 +133,7 @@ HWTEST_F(FFRTTimerTest, SubmitDelayTaskTest, TestSize.Level0)
  */
 HWTEST_F(FFRTTimerTest, SubmitTimeoutTaskTest, TestSize.Level0)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubmitTimeoutTaskTest start");
     uint32_t timeoutMs = 5;
     int x = 9;
     FFRTTask task = [&x] {
@@ -131,5 +141,6 @@ HWTEST_F(FFRTTimerTest, SubmitTimeoutTaskTest, TestSize.Level0)
     };
     bool res = FFRTUtils::SubmitTimeoutTask(task, timeoutMs);
     EXPECT_TRUE(res);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SubmitTimeoutTaskTest end");
 }
 } // namespace OHOS::MiscServices

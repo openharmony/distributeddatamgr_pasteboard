@@ -34,6 +34,7 @@
 #include "unified_record.h"
 #include "video.h"
 #include "want.h"
+#include "pasteboard_hilog.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::Media;
@@ -340,6 +341,7 @@ void PasteboardClientUdmfDelayTest::CompareDetails(const UDDetails &details)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetTextDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetTextDataTest001 start");
     SetTextUnifiedData();
 
     UnifiedData unifiedData;
@@ -359,6 +361,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetTextDataTest001, TestSize.Level1)
     auto pasteRecord = pasteData.GetRecordAt(0);
     ASSERT_NE(pasteRecord, nullptr);
     ASSERT_EQ(pasteRecord->GetMimeType(), "general.text");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetTextDataTest001 end");
 }
 
 /**
@@ -370,6 +373,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetTextDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetPlainTextDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPlainTextDataTest001 start");
     SetPlainTextUnifiedData();
 
     UnifiedData unifiedData;
@@ -396,6 +400,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetPlainTextDataTest001, TestSize.Level1
     auto plainText2 = pasteData.GetPrimaryText();
     ASSERT_NE(plainText2, nullptr);
     ASSERT_EQ(*plainText2, "content");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPlainTextDataTest001 end");
 }
 
 /**
@@ -407,6 +412,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetPlainTextDataTest001, TestSize.Level1
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetLinkDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetLinkDataTest001 start");
     SetLinkUnifiedData();
 
     UnifiedData unifiedData;
@@ -433,6 +439,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetLinkDataTest001, TestSize.Level1)
     auto plainText = pasteData.GetPrimaryText();
     ASSERT_NE(plainText, nullptr);
     ASSERT_EQ(*plainText, "url");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetLinkDataTest001 end");
 }
 
 /**
@@ -444,6 +451,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetLinkDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetHtmlDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetHtmlDataTest001 start");
     SetHtmlUnifiedData();
 
     UnifiedData unifiedData;
@@ -470,6 +478,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetHtmlDataTest001, TestSize.Level1)
     auto htmlText = pasteRecord->GetHtmlTextV0();
     ASSERT_NE(htmlText, nullptr);
     ASSERT_EQ(*htmlText, "htmlContent");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetHtmlDataTest001 end");
 }
 
 /**
@@ -481,6 +490,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetHtmlDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetFileDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetFileDataTest001 start");
     SetFileUnifiedData();
 
     UnifiedData unifiedData;
@@ -504,6 +514,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetFileDataTest001, TestSize.Level1)
     auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetFileDataTest001 end");
 }
 
 /**
@@ -515,6 +526,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetFileDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetImageDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetImageDataTest001 start");
     SetImageUnifiedData();
 
     UnifiedData unifiedData;
@@ -540,6 +552,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetImageDataTest001, TestSize.Level1)
     auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetImageDataTest001 end");
 }
 
 /**
@@ -551,6 +564,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetImageDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetVideoDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetVideoDataTest001 start");
     SetVideoUnifiedData();
 
     UnifiedData unifiedData;
@@ -576,6 +590,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetVideoDataTest001, TestSize.Level1)
     auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetVideoDataTest001 end");
 }
 
 /**
@@ -587,6 +602,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetVideoDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetAudioDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAudioDataTest001 start");
     SetAudioUnifiedData();
 
     UnifiedData unifiedData;
@@ -612,6 +628,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetAudioDataTest001, TestSize.Level1)
     auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAudioDataTest001 end");
 }
 
 /**
@@ -623,6 +640,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetAudioDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetFolderDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetFolderDataTest001 start");
     SetFolderUnifiedData();
 
     UnifiedData unifiedData;
@@ -648,6 +666,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetFolderDataTest001, TestSize.Level1)
     auto uri = pasteRecord->GetUriV0();
     ASSERT_NE(uri, nullptr);
     ASSERT_EQ(uri->ToString(), "uri");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetFolderDataTest001 end");
 }
 
 /**
@@ -659,6 +678,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetFolderDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetSysRecordDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetSysRecordDataTest001 start");
     SetSysRecordUnifiedData();
 
     UnifiedData unifiedData;
@@ -683,6 +703,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysRecordDataTest001, TestSize.Level1
     ASSERT_EQ(itemData.size(), 1);
     auto item = itemData.find("SystemDefinedType");
     ASSERT_NE(item, itemData.end());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetSysRecordDataTest001 end");
 }
 
 /**
@@ -694,6 +715,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysRecordDataTest001, TestSize.Level1
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetSysFormDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetSysFormDataTest001 start");
     SetSysFormUnifiedData();
 
     UnifiedData unifiedData;
@@ -725,6 +747,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysFormDataTest001, TestSize.Level1)
     ASSERT_EQ(itemData.size(), 1);
     auto item = itemData.find("openharmony.form");
     ASSERT_NE(item, itemData.end());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetSysFormDataTest001 end");
 }
 
 /**
@@ -736,6 +759,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysFormDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetSysAppItemDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetSysAppItemDataTest001 start");
     SetSysAppItemUnifiedData();
 
     UnifiedData unifiedData;
@@ -773,6 +797,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysAppItemDataTest001, TestSize.Level
     ASSERT_EQ(newAppItem1->GetAppLabelId(), "appLabelId");
     ASSERT_EQ(newAppItem1->GetBundleName(), "bundleName");
     ASSERT_EQ(newAppItem1->GetAbilityName(), "abilityName");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetSysAppItemDataTest001 end");
 }
 
 /**
@@ -784,6 +809,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetSysAppItemDataTest001, TestSize.Level
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetAppRecordDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAppRecordDataTest001 start");
     SetAppRecordUnifiedData();
 
     UnifiedData unifiedData;
@@ -814,6 +840,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetAppRecordDataTest001, TestSize.Level1
     ASSERT_EQ(itemData.size(), 1);
     auto item = itemData.find("applicationDefinedType");
     ASSERT_NE(item, itemData.end());
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetAppRecordDataTest001 end");
 }
 
 /**
@@ -825,6 +852,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetAppRecordDataTest001, TestSize.Level1
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetWantDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetWantDataTest001 start");
     SetWantUnifiedData();
 
     UnifiedData unifiedData;
@@ -851,6 +879,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetWantDataTest001, TestSize.Level1)
     ASSERT_EQ(idValue2, 456);
     auto deviceValue2 = pasteRecord->GetStringParam("deviceId_key");
     ASSERT_EQ(deviceValue2, "deviceId_value");
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetWantDataTest001 end");
 }
 
 /**
@@ -862,6 +891,7 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetWantDataTest001, TestSize.Level1)
  */
 HWTEST_F(PasteboardClientUdmfDelayTest, SetPixelMapDataTest001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPixelMapDataTest001 start");
     SetPixelMapUnifiedData();
 
     UnifiedData unifiedData;
@@ -890,5 +920,6 @@ HWTEST_F(PasteboardClientUdmfDelayTest, SetPixelMapDataTest001, TestSize.Level1)
     ASSERT_EQ(imageInfo2.size.height, 7);
     ASSERT_EQ(imageInfo2.size.width, 5);
     ASSERT_EQ(imageInfo2.pixelFormat, PixelFormat::ARGB_8888);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "SetPixelMapDataTest001 end");
 }
 } // namespace OHOS::Test

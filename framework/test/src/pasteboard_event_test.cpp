@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "eventcenter/pasteboard_event.h"
+#include "pasteboard_hilog.h"
 
 namespace OHOS::MiscServices {
 using namespace testing::ext;
@@ -46,8 +47,10 @@ void PasteboardEventTest::TearDown() {}
  */
 HWTEST_F(PasteboardEventTest, GetNetworkId_001, TestSize.Level1)
 {
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetNetworkId_001 start");
     int32_t evtId = 0;
     PasteboardEvent pasteboardEvent(evtId, NETWORK_ID);
     EXPECT_EQ(pasteboardEvent.GetNetworkId(), NETWORK_ID);
+    PASTEBOARD_HILOGI(PASTEBOARD_MODULE_CLIENT, "GetNetworkId_001 end");
 }
 } // namespace OHOS::MiscServices
